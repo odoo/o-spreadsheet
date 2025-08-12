@@ -1,4 +1,3 @@
-import { _t } from "../translation";
 import { Matrix, isMatrix } from "../types";
 
 export function getUnitMatrix(n: number): Matrix<number> {
@@ -30,10 +29,12 @@ export function invertMatrix(M: Matrix<number>): {
   // (b) Multiply a row by a scalar. This multiply the determinant by that scalar.
   // (c) Add to a row a multiple of another row. This does not change the determinant.
 
+  if (M.length < 1 || M[0].length < 1) {
+    throw new Error("invertMatrix: an empty matrix cannot be inverted.");
+  }
+
   if (M.length !== M[0].length) {
-    throw new Error(
-      `Function [[FUNCTION_NAME]] invert matrix error, only square matrices are invertible`
-    );
+    throw new Error("invertMatrix: only square matrices are invertible");
   }
 
   let determinant = 1;
@@ -113,8 +114,11 @@ function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
  * Note: we use indexing [col][row] instead of the standard mathematical notation [row][col]
  */
 export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number>): Matrix<number> {
+  if (matrix1.length < 1 || matrix2.length < 1) {
+    throw new Error("multiplyMatrices: empty matrices cannot be multiplied.");
+  }
   if (matrix1.length !== matrix2[0].length) {
-    throw new Error(_t("Cannot multiply matrices : incompatible matrices size."));
+    throw new Error("multiplyMatrices: incompatible matrices size.");
   }
 
   const rowsM1 = matrix1[0].length;
