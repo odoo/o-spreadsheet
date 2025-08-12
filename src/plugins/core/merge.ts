@@ -4,6 +4,8 @@ import {
   deepEquals,
   doesAnyZoneCrossFrozenPane,
   getFullReference,
+  getZoneArea,
+  intersection,
   isDefined,
   isEqual,
   isFullColRange,
@@ -147,20 +149,30 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   getMergesInZone(sheetId: UID, zone: Zone): Merge[] {
     const sheetMap = this.mergeCellMap[sheetId];
-    if (!sheetMap) return [];
+    if (!sheetMap || !this.merges[sheetId]) return [];
     const mergeIds = new Set<number>();
-    for (let col = zone.left; col <= zone.right; col++) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        const mergeId = sheetMap[col]?.[row];
-        if (mergeId) {
-          mergeIds.add(mergeId);
+    if (getZoneArea(zone) < 1000) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const mergeId = sheetMap[col]?.[row];
+          if (mergeId) {
+            mergeIds.add(mergeId);
+          }
         }
       }
-    }
 
-    return Array.from(mergeIds)
-      .map((mergeId) => this.getMergeById(sheetId, mergeId))
-      .filter(isDefined);
+      return Array.from(mergeIds)
+        .map((mergeId) => this.getMergeById(sheetId, mergeId))
+        .filter(isDefined);
+    } else {
+      const merges: Merge[] = [];
+      for (const [mergeId, range] of Object.entries(this.merges[sheetId])) {
+        if (range && range.sheetId === sheetId && intersection(range.zone, zone)) {
+          merges.push({ id: parseInt(mergeId), ...range.zone });
+        }
+      }
+      return merges;
+    }
   }
 
   getMergesZoneWithTopLeftInZone(sheetId: UID, zone: Zone): Zone[] {
