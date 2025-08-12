@@ -3,7 +3,7 @@ import { Grid } from "../../src/components/grid/grid";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { createDynamicTable, createTable, setCellContent } from "../test_helpers/commands_helpers";
-import { dragElement, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { clickAndDrag, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";
 import {
   flattenHighlightRange,
@@ -49,11 +49,11 @@ describe("Table resizer component", () => {
     await nextTick();
 
     let dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
-    await dragElement(".o-table-resizer", dragEndPosition, undefined, true);
+    await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, true);
     expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:E5");
 
     dragEndPosition = { x: DEFAULT_CELL_WIDTH * 2, y: DEFAULT_CELL_HEIGHT * 2 };
-    await dragElement(".o-table-resizer", dragEndPosition, undefined, true);
+    await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, true);
     expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:C3");
   });
 
@@ -61,7 +61,7 @@ describe("Table resizer component", () => {
     createTable(model, "A1:B2");
     await nextTick();
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
-    dragElement(".o-table-resizer", dragEndPosition, undefined, false);
+    clickAndDrag(".o-table-resizer", dragEndPosition, undefined, false);
     expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
       zone: toZone("A1:E5"),
       noFill: true,
@@ -75,7 +75,7 @@ describe("Table resizer component", () => {
     createTable(model, "C3:D4");
     await nextTick();
 
-    dragElement(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
+    clickAndDrag(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
     expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
       zone: toZone("C3"),
     });
@@ -90,7 +90,7 @@ describe("Table resizer component", () => {
     await nextTick();
 
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH, y: DEFAULT_CELL_HEIGHT * 2 };
-    await dragElement(".o-table-resizer", dragEndPosition, undefined, true);
+    await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, true);
 
     expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:B3");
     expect(getCell(model, "A3")?.content).toEqual("=A2+1");

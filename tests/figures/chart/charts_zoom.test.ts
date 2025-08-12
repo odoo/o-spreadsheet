@@ -6,7 +6,7 @@ import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
-import { dragElement, simulateClick, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import {
   mockChart,
   mountComponentWithPortalTarget,
@@ -156,7 +156,7 @@ describe("zoom", () => {
       const startX = left + width / 3 - 5;
       const startY = top + height / 2;
       const offsetX = width / 3 + 10;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(1);
@@ -169,7 +169,7 @@ describe("zoom", () => {
       const startX = left;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(2);
@@ -182,7 +182,7 @@ describe("zoom", () => {
       const startX = left + width;
       const startY = top + height / 2;
       const offsetX = -width / 2;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(0);
@@ -199,7 +199,7 @@ describe("zoom", () => {
       const startX = left + width / 2;
       const startY = top + height / 2;
       const offsetX = width / 3 + 10;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(2);
       expect(newMax).toEqual(3);
@@ -275,7 +275,7 @@ describe("zoom", () => {
       const startX = left + width / 6;
       const startY = top + height / 2;
       const offsetX = (2 * width) / 3;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(1);
@@ -296,7 +296,7 @@ describe("zoom", () => {
       const startX = left + width / 4 - 5;
       const startY = top + height / 2;
       const offsetX = width / 4 + 10;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(0.5);
@@ -309,7 +309,7 @@ describe("zoom", () => {
       const startX = left;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(1.5);
@@ -322,7 +322,7 @@ describe("zoom", () => {
       const startX = left + width;
       const startY = top + height / 2;
       const offsetX = -width / 2;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(-0.5);
@@ -339,7 +339,7 @@ describe("zoom", () => {
       const startX = left + width / 2;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(1.5);
       expect(newMax).toEqual(3.5);
@@ -415,7 +415,7 @@ describe("zoom", () => {
       const startX = left + (3 * width) / 8 - 5;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await dragElement(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(0.5);

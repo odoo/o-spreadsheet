@@ -1,7 +1,7 @@
 import { Model, SpreadsheetChildEnv, UID } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { addNewChartToCarousel, createCarousel } from "../../test_helpers/commands_helpers";
-import { click, dragElement, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
+import { click, clickAndDrag, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mockChart, mountComponent, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
@@ -90,7 +90,7 @@ describe("Carousel panel component", () => {
       { chartId: barId },
     ]);
 
-    await dragElement(".o-carousel-preview .o-drag-handle", { x: 0, y: 300 }, undefined, true);
+    await clickAndDrag(".o-carousel-preview .o-drag-handle", { x: 0, y: 300 }, undefined, true);
     expect(model.getters.getCarousel("carouselId").items).toMatchObject([
       { chartId: barId },
       { chartId: radarId },

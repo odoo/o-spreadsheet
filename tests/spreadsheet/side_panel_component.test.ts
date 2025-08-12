@@ -9,7 +9,7 @@ import {
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
-import { click, doubleClick, dragElement, simulateClick } from "../test_helpers/dom_helper";
+import { click, clickAndDrag, doubleClick, simulateClick } from "../test_helpers/dom_helper";
 import { addToRegistry, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -316,7 +316,7 @@ describe("Side Panel", () => {
       const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet")!;
       expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 350px");
 
-      await dragElement(fixture.querySelector(".o-sidePanel-handle")!, { y: 0, x: -100 });
+      await clickAndDrag(fixture.querySelector(".o-sidePanel-handle")!, { y: 0, x: -100 });
       await nextTick();
       expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 450px");
       expect(sidePanelStore.mainPanel?.size).toBe(450);
@@ -519,11 +519,11 @@ describe("Side Panel", () => {
       const handles = fixture.querySelectorAll(".o-sidePanel-handle");
       expect(handles).toHaveLength(2);
 
-      await dragElement(handles[0], { y: 0, x: -50 }, undefined, true);
+      await clickAndDrag(handles[0], { y: 0, x: -50 }, undefined, true);
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
       expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 50);
 
-      await dragElement(handles[1], { y: 0, x: -25 }, undefined, true);
+      await clickAndDrag(handles[1], { y: 0, x: -25 }, undefined, true);
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 25);
       expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 50);
     });
@@ -536,11 +536,11 @@ describe("Side Panel", () => {
       const handles = fixture.querySelectorAll(".o-sidePanel-handle");
       expect(handles).toHaveLength(2);
 
-      await dragElement(handles[0], { y: 0, x: -150 }, undefined, true);
+      await clickAndDrag(handles[0], { y: 0, x: -150 }, undefined, true);
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
       expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 150);
 
-      await dragElement(handles[1], { y: 0, x: -1000 }, undefined, true);
+      await clickAndDrag(handles[1], { y: 0, x: -1000 }, undefined, true);
       expect(sidePanelStore.mainPanel?.size).toBe(
         1000 - MIN_SHEET_VIEW_WIDTH - DEFAULT_SIDE_PANEL_SIZE
       );

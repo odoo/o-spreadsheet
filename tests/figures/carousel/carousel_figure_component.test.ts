@@ -6,7 +6,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import {
   click,
-  dragElement,
+  clickAndDrag,
   getElStyle,
   simulateClick,
   triggerMouseEvent,
@@ -86,7 +86,7 @@ describe("Carousel figure component", () => {
     });
     await mountSpreadsheet({ model });
 
-    await dragElement(
+    await clickAndDrag(
       ".o-figure[data-id=chartFigureId]",
       { x: -200, y: -200 },
       { x: 300, y: 300 },

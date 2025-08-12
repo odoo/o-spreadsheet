@@ -14,7 +14,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import {
   click,
-  dragElement,
+  clickAndDrag,
   getComposerColors,
   keyDown,
   setInputValueAndTrigger,
@@ -562,7 +562,12 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
-    await dragElement(fixture.querySelector(".pivot-dimension")!, { x: 0, y: 30 }, undefined, true);
+    await clickAndDrag(
+      fixture.querySelector(".pivot-dimension")!,
+      { x: 0, y: 30 },
+      undefined,
+      true
+    );
     expect(model.getters.getPivotCoreDefinition("1").rows).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
@@ -773,7 +778,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
-    await dragElement(".pivot-dimension .fa-trash", { x: 0, y: 30 }, undefined, true);
+    await clickAndDrag(".pivot-dimension .fa-trash", { x: 0, y: 30 }, undefined, true);
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
