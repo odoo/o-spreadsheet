@@ -330,3 +330,19 @@ export const DEFAULT_CAROUSEL_TITLE_STYLE: ChartStyle = {
   fontSize: CHART_TITLE_FONT_SIZE,
   color: TEXT_BODY,
 };
+
+export const DEFAULT_TOKEN_COLOR: Color = "#000000";
+const functionColor = DEFAULT_TOKEN_COLOR;
+const operatorColor = "#3da4ab";
+
+export const tokenColors = {
+  OPERATOR: operatorColor,
+  NUMBER: "#02c39a",
+  STRING: "#00a82d",
+  FUNCTION: functionColor,
+  DEBUGGER: operatorColor,
+  LEFT_PAREN: functionColor,
+  RIGHT_PAREN: functionColor,
+  ARG_SEPARATOR: functionColor,
+  ORPHAN_RIGHT_PAREN: "#ff0000",
+} as const;

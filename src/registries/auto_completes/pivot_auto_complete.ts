@@ -1,10 +1,9 @@
-import { tokenColors } from "../../components/composer/composer/abstract_composer_store";
+import { tokenColors } from "../../constants";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
+import { insertTokenAtArgStartingPosition } from "../../functions";
 import { MONTHS, isDefined, range } from "../../helpers";
 import {
   extractFormulaIdFromToken,
-  insertTokenAfterArgSeparator,
-  insertTokenAfterLeftParenthesis,
   makeFieldProposal,
   makeMeasureProposal,
 } from "../../helpers/pivot/pivot_composer_helpers";
@@ -46,7 +45,7 @@ autoCompleteProviders.add("pivot_ids", {
       })
       .filter(isDefined);
   },
-  selectProposal: insertTokenAfterLeftParenthesis,
+  selectProposal: insertTokenAtArgStartingPosition,
 });
 
 autoCompleteProviders.add("pivot_measures", {
@@ -85,7 +84,7 @@ autoCompleteProviders.add("pivot_measures", {
       })
       .filter(isDefined);
   },
-  selectProposal: insertTokenAfterArgSeparator,
+  selectProposal: insertTokenAtArgStartingPosition,
 });
 
 autoCompleteProviders.add("pivot_group_fields", {
@@ -170,7 +169,7 @@ autoCompleteProviders.add("pivot_group_fields", {
       )
       .filter(isDefined);
   },
-  selectProposal: insertTokenAfterArgSeparator,
+  selectProposal: insertTokenAtArgStartingPosition,
 });
 
 function canAutoCompletePivotField(tokenAtCursor) {
@@ -295,7 +294,7 @@ autoCompleteProviders.add("pivot_group_values", {
       };
     });
   },
-  selectProposal: insertTokenAfterArgSeparator,
+  selectProposal: insertTokenAtArgStartingPosition,
 });
 
 function canAutoCompletePivotGroupValue(tokenAtCursor: EnrichedToken) {

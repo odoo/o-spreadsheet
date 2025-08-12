@@ -11,6 +11,7 @@ import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { areSameDimensions, assert } from "./helper_assert";
 import {
+  DAY_COUNT_CONVENTION_OPTIONS,
   expectCashFlowsAndDatesHaveSameDimension,
   expectCashFlowsHavePositiveAndNegativesValues,
   expectCostPositiveOrZero,
@@ -83,6 +84,17 @@ const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;
 const DEFAULT_FUTURE_VALUE = 0;
 
+const FREQUENCY_OPTIONS = [
+  { value: 1, label: _t("Annual") },
+  { value: 2, label: _t("Semi-annual") },
+  { value: 4, label: _t("Quarterly") },
+];
+
+const PAYMENT_TIMING_OPTIONS = [
+  { value: 0, label: _t("End of period (default)") },
+  { value: 1, label: _t("Beginning of period") },
+];
+
 const COUPON_FUNCTION_ARGS = [
   arg(
     "settlement (date)",
@@ -94,10 +106,15 @@ const COUPON_FUNCTION_ARGS = [
     "maturity (date)",
     _t("The maturity or end date of the security, when it can be redeemed at face, or par value.")
   ),
-  arg("frequency (number)", _t("The number of interest or coupon payments per year (1, 2, or 4).")),
+  arg(
+    "frequency (number)",
+    _t("The number of interest or coupon payments per year (1, 2, or 4)."),
+    FREQUENCY_OPTIONS
+  ),
   arg(
     `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-    _t("An indicator of what day count method to use.")
+    _t("An indicator of what day count method to use."),
+    DAY_COUNT_CONVENTION_OPTIONS
   ),
 ];
 
@@ -162,7 +179,8 @@ export const ACCRINTM = {
     arg("redemption (number)", _t("The redemption amount per 100 face value, or par.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -217,7 +235,8 @@ export const AMORLINC = {
     arg("rate (number)", _t("The deprecation rate.")),
     arg(
       "day_count_convention (number, optional)",
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -637,7 +656,8 @@ export const CUMIPMT = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   compute: function (
@@ -706,7 +726,8 @@ export const CUMPRINC = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   compute: function (
@@ -930,7 +951,8 @@ export const DISC = {
     arg("redemption (number)", _t("The redemption amount per 100 face value, or par.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -1061,11 +1083,13 @@ export const DURATION = {
     arg("yield (number)", _t("The expected annual yield of the security.")),
     arg(
       "frequency (number)",
-      _t("The number of interest or coupon payments per year (1, 2, or 4).")
+      _t("The number of interest or coupon payments per year (1, 2, or 4)."),
+      FREQUENCY_OPTIONS
     ),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -1177,7 +1201,8 @@ export const FV = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   // to do: replace by dollar format
@@ -1246,7 +1271,8 @@ export const INTRATE = {
     arg("redemption (number)", _t("The amount to be received at maturity.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -1310,7 +1336,8 @@ export const IPMT = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   compute: function (
@@ -1475,7 +1502,8 @@ export const MDURATION = {
     arg("yield (number)", _t("The expected annual yield of the security.")),
     arg(
       "frequency (number)",
-      _t("The number of interest or coupon payments per year (1, 2, or 4).")
+      _t("The number of interest or coupon payments per year (1, 2, or 4)."),
+      FREQUENCY_OPTIONS
     ),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
@@ -1621,7 +1649,8 @@ export const NPER = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   compute: function (
@@ -1773,7 +1802,8 @@ export const PMT = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   compute: function (
@@ -1833,7 +1863,8 @@ export const PPMT = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   compute: function (
@@ -1873,7 +1904,8 @@ export const PV = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
   ],
   // to do: replace by dollar format
@@ -1923,11 +1955,13 @@ export const PRICE = {
     arg("redemption (number)", _t("The redemption amount per 100 face value, or par.")),
     arg(
       "frequency (number)",
-      _t("The number of interest or coupon payments per year (1, 2, or 4).")
+      _t("The number of interest or coupon payments per year (1, 2, or 4)."),
+      FREQUENCY_OPTIONS
     ),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -2020,7 +2054,8 @@ export const PRICEDISC = {
     arg("redemption (number)", _t("The redemption amount per 100 face value, or par.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -2090,7 +2125,8 @@ export const PRICEMAT = {
     arg("yield (number)", _t("The expected annual yield of the security.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -2181,7 +2217,8 @@ export const RATE = {
     ),
     arg(
       `end_or_beginning (number, default=${DEFAULT_END_OR_BEGINNING})`,
-      _t("Whether payments are due at the end (0) or beginning (1) of each period.")
+      _t("The timing of the payment payments are due for each period."),
+      PAYMENT_TIMING_OPTIONS
     ),
     arg(
       `rate_guess (number, default=${RATE_GUESS_DEFAULT})`,
@@ -2266,7 +2303,8 @@ export const RECEIVED = {
     arg("discount (number)", _t("The discount rate of the security invested in.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -2655,7 +2693,11 @@ export const VDB = {
       `no_switch (number, default=${DEFAULT_VDB_NO_SWITCH})`,
       _t(
         "Whether to switch to straight-line depreciation when the depreciation is greater than the declining balance calculation."
-      )
+      ),
+      [
+        { value: false, label: _t("Switch to straight-line depreciation") },
+        { value: true, label: _t("Do not switch to straight-line depreciation") },
+      ]
     ),
   ],
   compute: function (
@@ -2943,11 +2985,13 @@ export const YIELD = {
     arg("redemption (number)", _t("The redemption amount per 100 face value, or par.")),
     arg(
       "frequency (number)",
-      _t("The number of interest or coupon payments per year (1, 2, or 4).")
+      _t("The number of interest or coupon payments per year (1, 2, or 4)."),
+      FREQUENCY_OPTIONS
     ),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -3091,7 +3135,8 @@ export const YIELDDISC = {
     arg("redemption (number)", _t("The redemption amount per 100 face value, or par.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
@@ -3158,7 +3203,8 @@ export const YIELDMAT = {
     arg("price (number)", _t("The price at which the security is bought.")),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION} )`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (
