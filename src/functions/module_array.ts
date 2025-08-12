@@ -371,6 +371,12 @@ export const MMULT = {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
+    if (_matrix1.length === 0 || _matrix2.length === 0) {
+      return new EvaluationError(
+        _t("The first and second arguments of [[FUNCTION_NAME]] must be non-empty matrices.")
+      );
+    }
+
     if (_matrix1.length !== _matrix2[0].length) {
       return new EvaluationError(
         _t(
