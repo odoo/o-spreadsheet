@@ -369,6 +369,11 @@ export const MMULT = {
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
     assert(
+      () => _matrix1.length > 0 && _matrix2.length > 0,
+      _t("The first and second arguments of [[FUNCTION_NAME]] must be non-empty matrices.")
+    );
+
+    assert(
       () => _matrix1.length === _matrix2[0].length,
       _t(
         "In [[FUNCTION_NAME]], the number of columns of the first matrix (%s) must be equal to the \
