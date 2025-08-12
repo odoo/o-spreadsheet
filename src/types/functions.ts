@@ -29,7 +29,10 @@ export interface ArgDefinition {
   type: ArgType[];
   default?: boolean;
   defaultValue?: any;
+  proposalValues?: ArgProposal[];
 }
+
+export type ArgProposal = { value: CellValue; label?: string };
 
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 

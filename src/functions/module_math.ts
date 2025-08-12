@@ -1053,7 +1053,10 @@ export const RANDARRAY = {
     arg("columns (number, default=1)", _t("The number of columns to be returned.")),
     arg("min (number, default=0)", _t("The minimum number you would like returned.")),
     arg("max (number, default=1)", _t("The maximum number you would like returned.")),
-    arg("whole_number (number, default=FALSE)", _t("Return a whole number or a decimal value.")),
+    arg("whole_number (boolean, default=FALSE)", _t("Return a whole number or a decimal value."), [
+      { value: "FALSE", label: _t("Decimal (default)") },
+      { value: "TRUE", label: _t("Integer") },
+    ]),
   ],
   compute: function (
     rows: Maybe<FunctionResultObject> = { value: 1 },
