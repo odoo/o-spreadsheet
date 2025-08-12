@@ -16,7 +16,11 @@ import {
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
-import { assertSameNumberOfElements } from "./helper_statistical";
+import {
+  assertNonEmpty,
+  assertNonEmptyMatrix,
+  assertSameNumberOfElements,
+} from "./helper_statistical";
 import {
   assert,
   dichotomicSearch,
@@ -779,6 +783,8 @@ export const FORECAST: AddFunctionDescription = {
     dataX: Matrix<CellValue>
   ): number | Matrix<number> {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
+
     return predictLinearValues(
       [flatDataY],
       [flatDataX],
@@ -823,6 +829,7 @@ export const GROWTH: AddFunctionDescription = {
     newDataX: Matrix<CellValue> = [],
     b: Maybe<CellValue> = true
   ): Matrix<number> {
+    assertNonEmptyMatrix(knownDataY, "known_data_y");
     return expM(
       predictLinearValues(
         logM(tryCastAsNumberMatrix(knownDataY, "the first argument (known_data_y)")),
@@ -852,6 +859,7 @@ export const INTERCEPT: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
     const [[], [intercept]] = fullLinearRegression([flatDataX], [flatDataY]);
     return intercept as number;
   },
@@ -934,6 +942,7 @@ export const LINEST: AddFunctionDescription = {
     calculateB: Maybe<CellValue> = true,
     verbose: Maybe<CellValue> = false
   ): (number | string)[][] {
+    assertNonEmptyMatrix(dataY, "data_y");
     return fullLinearRegression(
       tryCastAsNumberMatrix(dataX, "the first argument (data_y)"),
       tryCastAsNumberMatrix(dataY, "the second argument (data_x)"),
@@ -976,6 +985,7 @@ export const LOGEST: AddFunctionDescription = {
     calculateB: Maybe<CellValue> = true,
     verbose: Maybe<CellValue> = false
   ): (number | string)[][] {
+    assertNonEmptyMatrix(dataY, "data_y");
     const coeffs = fullLinearRegression(
       tryCastAsNumberMatrix(dataX, "the second argument (data_x)"),
       logM(tryCastAsNumberMatrix(dataY, "the first argument (data_y)")),
@@ -1004,9 +1014,7 @@ export const MATTHEWS: AddFunctionDescription = {
     const flatX = dataX.flat();
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
-    if (flatX.length === 0) {
-      throw new Error(_t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
-    }
+    assertNonEmpty(flatX, flatY);
     const n = flatX.length;
 
     let trueN = 0,
@@ -1289,12 +1297,7 @@ export const PEARSON: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataX, dataY);
-    if (flatDataX.length === 0) {
-      throw new Error(_t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
-    }
-    if (flatDataX.length < 2) {
-      throw new Error(_t("[[FUNCTION_NAME]] needs at least two values for both parameters"));
-    }
+    assertNonEmpty(flatDataX, flatDataY);
     const n = flatDataX.length;
 
     let sumX = 0,
@@ -1418,6 +1421,7 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     intercept: Maybe<CellValue> = true
   ): Matrix<number> {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
     return polynomialRegression(
       flatDataY,
       flatDataX,
@@ -1459,6 +1463,7 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
   ): number | Matrix<number> {
     const _order = toNumber(order, this.locale);
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
     const coeffs = polynomialRegression(flatDataY, flatDataX, _order, toBoolean(intercept)).flat();
     return matrixMap(toMatrix(x), (xij) =>
       evaluatePolynomial(coeffs, toNumber(xij, this.locale), _order)
@@ -1612,6 +1617,7 @@ export const SLOPE: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
     const [[slope]] = fullLinearRegression([flatDataX], [flatDataY]);
     return slope as number;
   },
@@ -1680,6 +1686,7 @@ export const SPEARMAN: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (dataX: Matrix<CellValue>, dataY: Matrix<CellValue>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
     const n = flatDataX.length;
 
     const order = flatDataX.map((e, i) => [e, flatDataY[i]]);
@@ -1833,6 +1840,7 @@ export const STEYX: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    assertNonEmpty(flatDataX, flatDataY);
     const data = fullLinearRegression([flatDataX], [flatDataY], true, true);
     return data[1][2] as number;
   },
@@ -1873,6 +1881,7 @@ export const TREND: AddFunctionDescription = {
     newDataX: Matrix<CellValue> = [],
     b: Maybe<CellValue> = true
   ): Matrix<number> {
+    assertNonEmptyMatrix(knownDataY, "known_data_y");
     return predictLinearValues(
       tryCastAsNumberMatrix(knownDataY, "the first argument (known_data_y)"),
       tryCastAsNumberMatrix(knownDataX, "the second argument (known_data_x)"),
