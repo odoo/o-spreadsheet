@@ -1,4 +1,6 @@
 import { toXC } from "../../src/helpers";
+import { ErrorCell } from "../../src/types";
+import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
@@ -2853,6 +2855,23 @@ describe("MATTHEWS formula", () => {
 });
 
 describe("SLOPE formula", () => {
+  test("Slope with an empty matrix for the y values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=SLOPE(B2:B3, C2:C3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "SLOPE has no valid input data."
+    );
+  });
+
+  test("Slope with an empty matrix for the x values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=SLOPE(C2:C3, B2:B3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "SLOPE has no valid input data."
+    );
+  });
   test("Unrelated values", () => {
     //prettier-ignore
     const grid = {
@@ -2914,6 +2933,23 @@ describe("SLOPE formula", () => {
 });
 
 describe("INTERCEPT formula", () => {
+  test("Intercept with an empty matrix for the y values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=INTERCEPT(B2:B3, C2:C3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "INTERCEPT has no valid input data."
+    );
+  });
+
+  test("Intercept with an empty matrix for the x values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=INTERCEPT(C2:C3, B2:B3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "INTERCEPT has no valid input data."
+    );
+  });
   test("Unrelated values", () => {
     //prettier-ignore
     const grid = {
@@ -2975,6 +3011,24 @@ describe("INTERCEPT formula", () => {
 });
 
 describe("FORECAST formula", () => {
+  test("Forecast with an empty matrix for the y values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=FORECAST(1, B2:B3, C2:C3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "FORECAST has no valid input data."
+    );
+  });
+
+  test("Forecast with an empty matrix for the x values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=FORECAST(1, C2:C3, B2:B3)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "FORECAST has no valid input data."
+    );
+  });
+
   test("Correctly predicts a single value", () => {
     //prettier-ignore
     const grid = {
@@ -3102,6 +3156,23 @@ describe("STEYX formula", () => {
 });
 
 describe("POLYFIT.COEFFS formula", () => {
+  test("Empty matrix for the y values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=POLYFIT.COEFFS(B2:B3, C2:C3, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "POLYFIT.COEFFS has no valid input data."
+    );
+  });
+
+  test("Empty matrix for the x values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=POLYFIT.COEFFS(C2:C3, B2:B3, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "POLYFIT.COEFFS has no valid input data."
+    );
+  });
   test("Noisy values", () => {
     //prettier-ignore
     const grid = {
@@ -3176,6 +3247,24 @@ describe("POLYFIT.COEFFS formula", () => {
 });
 
 describe("POLYFIT.FORECAST formula", () => {
+  test("Empty matrix for the y values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=POLYFIT.FORECAST(1, B2:B3, C2:C3, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "POLYFIT.FORECAST has no valid input data."
+    );
+  });
+
+  test("Empty matrix for the x values", () => {
+    const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
+    setCellContent(model, "A1", "=POLYFIT.FORECAST(1, C2:C3, B2:B3, 2)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "POLYFIT.FORECAST has no valid input data."
+    );
+  });
+
   test.each(["1", "2", "3", "4"])("degree %s polynomial data", async (degree: string) => {
     const order = parseInt(degree);
     //prettier-ignore
