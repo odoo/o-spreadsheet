@@ -3,7 +3,7 @@ import { DEFAULT_WINDOW_SIZE } from "../constants";
 import { isNumber, parseDateTime, range } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, Matrix, isMatrix } from "../types";
-import { EvaluationError } from "../types/errors";
+import { EvaluationError, NotAvailableError } from "../types/errors";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
   assert,
@@ -305,4 +305,19 @@ export function getMovingAverageValues(
     values.push({ x: labels[i + windowSize - 1], y: sum / windowSize });
   }
   return values;
+}
+
+export function assertNonEmptyMatrix(matrix: any[][], argName: string) {
+  assert(
+    () => matrix.length > 0 && matrix[0].length > 0,
+    _t("[[FUNCTION_NAME]] expects the provided values of %(argName)s to be a non-empty matrix.", {
+      argName,
+    })
+  );
+}
+
+export function assertNonEmpty(...data: any[][]) {
+  if (data.length === 0 || data.some((arg) => arg.length === 0)) {
+    throw new NotAvailableError(_t("[[FUNCTION_NAME]] has no valid input data."));
+  }
 }
