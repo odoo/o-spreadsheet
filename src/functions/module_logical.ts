@@ -8,6 +8,7 @@ import {
   applyVectorization,
   conditionalVisitBoolean,
   isEvaluationError,
+  noValidInputErrorMessage,
   toBoolean,
   valueNotAvailable,
 } from "./helpers";
@@ -32,7 +33,7 @@ export const AND = {
   compute: function (...logicalExpressions: Arg[]) {
     const { result, foundBoolean } = boolAnd(logicalExpressions);
     if (!foundBoolean) {
-      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+      return new EvaluationError(noValidInputErrorMessage);
     }
     return result;
   },
@@ -208,7 +209,7 @@ export const OR = {
   compute: function (...logicalExpressions: Arg[]) {
     const { result, foundBoolean } = boolOr(logicalExpressions);
     if (!foundBoolean) {
-      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+      return new EvaluationError(noValidInputErrorMessage);
     }
     return result;
   },
@@ -300,7 +301,7 @@ export const XOR = {
       return true; // no stop condition
     });
     if (!foundBoolean) {
-      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+      return new EvaluationError(noValidInputErrorMessage);
     }
     return acc;
   },
