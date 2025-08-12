@@ -21,6 +21,7 @@ import {
   ExcelFilterData,
   ExcelWorkbookData,
   FilterId,
+  HeaderIndex,
   Table,
   UID,
 } from "../../types";
@@ -37,6 +38,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
     "getFirstTableInSelection",
     "isRowFiltered",
     "isFilterActive",
+    "getFilteredRows",
   ] as const;
 
   private filterValues: Record<UID, Record<FilterId, DataFilterValue>> = {};
@@ -111,6 +113,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   isRowFiltered(sheetId: UID, row: number): boolean {
     return !!this.hiddenRows[sheetId]?.has(row);
+  }
+
+  getFilteredRows(sheetId: UID): HeaderIndex[] {
+    if (!this.hiddenRows[sheetId]) return [];
+    return [...this.hiddenRows[sheetId].values()];
   }
 
   getFilterValue(position: CellPosition): DataFilterValue | undefined {

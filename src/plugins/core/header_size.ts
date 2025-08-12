@@ -12,7 +12,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     "getUserRowSize",
     "getColSize",
     "getCustomColSizes",
-    "getCustomRowSizes",
+    "getUserCustomRowSizes",
   ] as const;
 
   readonly sizes: Record<UID, Record<Dimension, Map<HeaderIndex, Pixel>>> = {};
@@ -62,8 +62,9 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       case "RESIZE_COLUMNS_ROWS": {
         const sizes = deepCopy(this.sizes[cmd.sheetId][cmd.dimension]);
         if (cmd.size) {
+          const size = Math.round(cmd.size);
           for (const el of cmd.elements) {
-            sizes.set(el, cmd.size);
+            sizes.set(el, size);
           }
         } else {
           for (const el of cmd.elements) {
@@ -78,20 +79,20 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
   }
 
   getColSize(sheetId: UID, index: HeaderIndex): Pixel {
-    return Math.round(this.sizes[sheetId]?.["COL"].get(index) || DEFAULT_CELL_WIDTH);
+    return this.sizes[sheetId]?.["COL"].get(index) || DEFAULT_CELL_WIDTH;
   }
 
-  getCustomColSizes(sheetId: UID) {
+  getCustomColSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
     return this.sizes[sheetId]?.COL;
   }
 
-  getCustomRowSizes(sheetId: UID) {
+  getUserCustomRowSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
     return this.sizes[sheetId]?.ROW;
   }
 
   getUserRowSize(sheetId: UID, index: HeaderIndex): Pixel | undefined {
     const rowSize = this.sizes[sheetId]?.["ROW"].get(index);
-    return rowSize ? Math.round(rowSize) : undefined;
+    return rowSize ? rowSize : undefined;
   }
 
   import(data: WorkbookData) {

@@ -10,12 +10,17 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
     "isRowHidden",
     "isColHidden",
     "isHeaderHidden",
+    "getHiddenRows",
   ] as const;
 
   isRowHidden(sheetId: UID, index: number): boolean {
     return (
       this.getters.isRowHiddenByUser(sheetId, index) || this.getters.isRowFiltered(sheetId, index)
     );
+  }
+
+  getHiddenRows(sheetId: UID): HeaderIndex[] {
+    return [...this.getters.getFilteredRows(sheetId), ...this.getters.getUserHiddenRows(sheetId)];
   }
 
   isColHidden(sheetId: UID, index: number): boolean {

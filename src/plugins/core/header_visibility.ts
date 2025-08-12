@@ -11,6 +11,8 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     "isHeaderHiddenByUser",
     "isRowHiddenByUser",
     "isColHiddenByUser",
+    "getUserHiddenCols",
+    "getUserHiddenRows",
   ] as const;
 
   private readonly hiddenHeaders: Record<UID, Record<Dimension, Set<HeaderIndex>>> = {};
@@ -148,6 +150,20 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     const hiddenCols = [...this.hiddenHeaders[sheetId].COL.keys()];
     hiddenCols.sort((a, b) => a - b);
     return groupConsecutive(hiddenCols);
+  }
+
+  getUserHiddenCols(sheetId: UID): HeaderIndex[] {
+    return [
+      ...this.hiddenHeaders[sheetId].COL.keys(),
+      ...this.getters.getFoldedHeaders(sheetId, "COL"),
+    ];
+  }
+
+  getUserHiddenRows(sheetId: UID): HeaderIndex[] {
+    return [
+      ...this.hiddenHeaders[sheetId].ROW.keys(),
+      ...this.getters.getFoldedHeaders(sheetId, "ROW"),
+    ];
   }
 
   getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {

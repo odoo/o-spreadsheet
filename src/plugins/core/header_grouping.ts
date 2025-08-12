@@ -25,6 +25,7 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     "isGroupFolded",
     "isRowFolded",
     "isColFolded",
+    "getFoldedHeaders",
   ] as const;
 
   private readonly groups: Record<UID, Record<Dimension, HeaderGroup[]>> = {};
@@ -192,6 +193,13 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     return this.getHeaderGroups(sheetId, dim).find(
       (group) => group.start === start && group.end === end
     );
+  }
+
+  getFoldedHeaders(sheetId: UID, dim: Dimension): HeaderIndex[] {
+    return this.groups[sheetId][dim]
+      .filter((group) => group.isFolded)
+      .map((group) => range(group.start, group.end + 1))
+      .flat();
   }
 
   getHeaderGroupsInZone(sheetId: UID, dim: Dimension, zone: Zone): HeaderGroup[] {
