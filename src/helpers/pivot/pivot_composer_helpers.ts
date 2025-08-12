@@ -1,5 +1,4 @@
-import { tokenColors } from "../../components/composer/composer/abstract_composer_store";
-import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
+import { tokenColors } from "../../constants";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { Granularity, PivotField, PivotMeasure } from "../../types";
@@ -34,50 +33,6 @@ export function makeMeasureProposal(measure: PivotMeasure) {
     htmlContent: [{ value: quotedMeasure, color: tokenColors.STRING }],
     fuzzySearchKey,
   };
-}
-
-/**
- * Perform the autocomplete of the composer by inserting the value
- * at the cursor position, replacing the current token if necessary.
- * Must be bound to the autocomplete provider.
- */
-export function insertTokenAfterArgSeparator(
-  this: { composer: CellComposerStore },
-  tokenAtCursor: EnrichedToken,
-  value: string
-) {
-  let start = tokenAtCursor.end;
-  const end = tokenAtCursor.end;
-  if (tokenAtCursor.type !== "ARG_SEPARATOR") {
-    // replace the whole token
-    start = tokenAtCursor.start;
-  }
-  this.composer.stopComposerRangeSelection();
-  this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
-}
-
-/**
- * Perform the autocomplete of the composer by inserting the value
- * at the cursor position, replacing the current token if necessary.
- * Must be bound to the autocomplete provider.
- * @param {EnrichedToken} tokenAtCursor
- * @param {string} value
- */
-export function insertTokenAfterLeftParenthesis(
-  this: { composer: CellComposerStore },
-  tokenAtCursor: EnrichedToken,
-  value: string
-) {
-  let start = tokenAtCursor.end;
-  const end = tokenAtCursor.end;
-  if (tokenAtCursor.type !== "LEFT_PAREN") {
-    // replace the whole token
-    start = tokenAtCursor.start;
-  }
-  this.composer.stopComposerRangeSelection();
-  this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
 }
 
 /**
