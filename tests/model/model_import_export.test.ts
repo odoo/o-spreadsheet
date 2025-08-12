@@ -235,11 +235,11 @@ describe("Migrations", () => {
               y: 0,
               width: 100,
               height: 100,
-              type: "chart",
+              tag: "chart",
               data: {
-                dataSets: [`=sheetName${char}!A1:A2`, "My sheet!A1:A2"],
+                dataSets: [`sheetName${char}!A1:A2`, `My sheet!A1:A2`],
                 dataSetsHaveTitle: true,
-                labelRange: `=sheetName${char}!B1:B2`,
+                labelRange: `sheetName${char}!B1:B2`,
                 type: "bar",
               },
             },
@@ -247,7 +247,7 @@ describe("Migrations", () => {
           conditionalFormats: [
             {
               id: 1,
-              ranges: [`=sheetName${char}!A1:A2`],
+              ranges: [`sheetName${char}!A1:A2`],
               rule: {
                 type: "ColorScaleRule",
                 maximum: { type: "formula", value: `=sheetName${char}!B1`, color: 16711680 },
@@ -275,7 +275,7 @@ describe("Migrations", () => {
             },
             {
               id: 3,
-              ranges: [`=sheetName${char}!A1:A2`],
+              ranges: [`sheetName${char}!A1:A2`],
               rule: {
                 type: "ColorScaleRule",
                 minimum: { type: "percentage", value: "33", color: 16711680 },
@@ -296,14 +296,14 @@ describe("Migrations", () => {
 
     const figures = data.sheets[1].figures;
     expect(figures[0].data?.dataSets).toEqual([
-      { dataRange: "=sheetName_!A1:A2" },
-      { dataRange: "My sheet!A1:A2" },
+      { dataRange: "A1:A2" },
+      { dataRange: "'My sheet'!A1:A2" },
     ]);
-    expect(figures[0].data?.labelRange).toBe("=sheetName_!B1:B2");
+    expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
-    expect(cfs[0].ranges).toEqual(["=sheetName_!A1:A2"]);
+    expect(cfs[0].ranges).toEqual(["sheetName_!A1:A2"]);
     expect(rule1.minimum.value).toEqual("=sheetName_!B1");
     expect(rule1.midpoint?.value).toEqual("=sheetName_!B1");
     expect(rule1.maximum.value).toEqual("=sheetName_!B1");
@@ -314,7 +314,7 @@ describe("Migrations", () => {
     expect(rule2.upperInflectionPoint.value).toEqual("=sheetName_!B1");
 
     const rule3 = cfs[2].rule as ColorScaleRule;
-    expect(cfs[2].ranges).toEqual(["=sheetName_!A1:A2"]);
+    expect(cfs[2].ranges).toEqual(["sheetName_!A1:A2"]);
     expect(rule3.minimum.value).toEqual("33");
     expect(rule3.midpoint?.value).toEqual("13");
     expect(rule3.maximum.value).toBeUndefined();
