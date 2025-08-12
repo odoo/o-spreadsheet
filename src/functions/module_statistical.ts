@@ -29,8 +29,10 @@ import {
 } from "./helper_statistical";
 import {
   dichotomicSearch,
+  emptyDataErrorMessage,
   inferFormat,
   matrixMap,
+  noValidInputErrorMessage,
   reduceNumbers,
   reduceNumbersTextAs0,
   toBoolean,
@@ -158,7 +160,7 @@ function centile(
       count++;
     }
   });
-  assert(count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
+  assert(count !== 0, noValidInputErrorMessage);
 
   if (!isInclusive) {
     // 2nd argument must be between 1/(n+1) and n/(n+1) with n the number of data
@@ -542,8 +544,12 @@ export const FORECAST: AddFunctionDescription = {
     x: Arg,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
-  ): number | Matrix<number> {
+  ) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
+
     return predictLinearValues(
       [flatDataY],
       [flatDataX],
@@ -586,7 +592,10 @@ export const GROWTH: AddFunctionDescription = {
     knownDataX: Matrix<FunctionResultObject> = [[]],
     newDataX: Matrix<FunctionResultObject> = [[]],
     b: Maybe<FunctionResultObject> = { value: true }
-  ): Matrix<number> {
+  ) {
+    if (knownDataY.length === 0 || knownDataY[0].length === 0) {
+      return new EvaluationError(emptyDataErrorMessage("known_data_y"));
+    }
     return expM(
       predictLinearValues(
         logM(toNumberMatrix(knownDataY, "the first argument (known_data_y)")),
@@ -613,11 +622,11 @@ export const INTERCEPT: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>
-  ): number {
+  compute: function (dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
     const [[], [intercept]] = fullLinearRegression([flatDataX], [flatDataY]);
     return intercept as number;
   },
@@ -658,7 +667,7 @@ export const LARGE = {
     });
     const result = largests.shift();
     if (result === undefined) {
-      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+      return new EvaluationError(noValidInputErrorMessage);
     }
     if (count < _n) {
       return new EvaluationError(
@@ -702,7 +711,10 @@ export const LINEST: AddFunctionDescription = {
     dataX: Matrix<FunctionResultObject> = [[]],
     calculateB: Maybe<FunctionResultObject> = { value: true },
     verbose: Maybe<FunctionResultObject> = { value: false }
-  ): (number | string)[][] {
+  ) {
+    if (dataY.length === 0 || dataY[0].length === 0) {
+      return new EvaluationError(emptyDataErrorMessage("data_y"));
+    }
     return fullLinearRegression(
       toNumberMatrix(dataX, "the first argument (data_y)"),
       toNumberMatrix(dataY, "the second argument (data_x)"),
@@ -745,7 +757,10 @@ export const LOGEST: AddFunctionDescription = {
     dataX: Matrix<FunctionResultObject> = [[]],
     calculateB: Maybe<FunctionResultObject> = { value: true },
     verbose: Maybe<FunctionResultObject> = { value: false }
-  ): (number | string)[][] {
+  ) {
+    if (dataY.length === 0 || dataY[0].length === 0) {
+      return new EvaluationError(emptyDataErrorMessage("data_y"));
+    }
     const coeffs = fullLinearRegression(
       toNumberMatrix(dataX, "the second argument (data_x)"),
       logM(toNumberMatrix(dataY, "the first argument (data_y)")),
@@ -773,10 +788,8 @@ export const MATTHEWS: AddFunctionDescription = {
     const flatX = dataX.flat();
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
-    if (flatX.length === 0) {
-      return new EvaluationError(
-        _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
-      );
+    if (flatX.length === 0 || flatY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
     }
     const n = flatX.length;
 
@@ -1022,17 +1035,10 @@ export const MINIFS = {
 // -----------------------------------------------------------------------------
 // PEARSON
 // -----------------------------------------------------------------------------
-function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>): number {
+function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
-  if (flatDataX.length === 0) {
-    throw new EvaluationError(
-      _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
-    );
-  }
-  if (flatDataX.length < 2) {
-    throw new EvaluationError(
-      _t("[[FUNCTION_NAME]] needs at least two values for both parameters.")
-    );
+  if (flatDataX.length === 0 || flatDataY.length === 0) {
+    return new NotAvailableError(noValidInputErrorMessage);
   }
   const n = flatDataX.length;
 
@@ -1072,7 +1078,7 @@ export const PEARSON: AddFunctionDescription = {
   compute: function (
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
-  ): number {
+  ): number | NotAvailableError {
     return pearson(dataY, dataX);
   },
   isExported: true,
@@ -1169,8 +1175,11 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     dataX: Matrix<FunctionResultObject>,
     order: Maybe<FunctionResultObject>,
     intercept: Maybe<FunctionResultObject> = { value: true }
-  ): Matrix<number> {
+  ) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
     return polynomialRegression(
       flatDataY,
       flatDataX,
@@ -1208,9 +1217,12 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
     dataX: Matrix<FunctionResultObject>,
     order: Maybe<FunctionResultObject>,
     intercept: Maybe<FunctionResultObject> = { value: true }
-  ): Matrix<number> {
+  ) {
     const _order = toNumber(order, this.locale);
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
     const coeffs = polynomialRegression(flatDataY, flatDataX, _order, toBoolean(intercept)).flat();
     return matrixMap(toMatrix(x), (xij) =>
       evaluatePolynomial(coeffs, toNumber(xij, this.locale), _order)
@@ -1336,7 +1348,11 @@ export const RSQ: AddFunctionDescription = {
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
   ): number {
-    return Math.pow(pearson(dataX, dataY), 2.0);
+    const value = pearson(dataY, dataX);
+    if (value instanceof Error) {
+      throw value;
+    }
+    return Math.pow(value as number, 2.0);
   },
   isExported: true,
 };
@@ -1356,11 +1372,11 @@ export const SLOPE: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>
-  ): number {
+  compute: function (dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
     const [[slope]] = fullLinearRegression([flatDataX], [flatDataY]);
     return slope as number;
   },
@@ -1401,7 +1417,7 @@ export const SMALL = {
     });
     const result = largests.pop();
     if (result === undefined) {
-      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+      return new EvaluationError(noValidInputErrorMessage);
     }
     if (count < _n) {
       return new EvaluationError(
@@ -1428,11 +1444,11 @@ export const SPEARMAN: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    dataX: Matrix<FunctionResultObject>,
-    dataY: Matrix<FunctionResultObject>
-  ): number {
+  compute: function (dataX: Matrix<FunctionResultObject>, dataY: Matrix<FunctionResultObject>) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
     const n = flatDataX.length;
 
     const order = flatDataX.map((e, i) => [e, flatDataY[i]]);
@@ -1577,11 +1593,11 @@ export const STEYX: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>
-  ): number {
+  compute: function (dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+    if (flatDataX.length === 0 || flatDataY.length === 0) {
+      return new NotAvailableError(noValidInputErrorMessage);
+    }
     const data = fullLinearRegression([flatDataX], [flatDataY], true, true);
     return data[1][2] as number;
   },
@@ -1620,7 +1636,10 @@ export const TREND: AddFunctionDescription = {
     knownDataX: Matrix<FunctionResultObject> = [[]],
     newDataX: Matrix<FunctionResultObject> = [[]],
     b: Maybe<FunctionResultObject> = { value: true }
-  ): Matrix<number> {
+  ) {
+    if (knownDataY.length === 0 || knownDataY[0].length === 0) {
+      return new EvaluationError(emptyDataErrorMessage("known_data_y"));
+    }
     return predictLinearValues(
       toNumberMatrix(knownDataY, "the first argument (known_data_y)"),
       toNumberMatrix(knownDataX, "the second argument (known_data_x)"),

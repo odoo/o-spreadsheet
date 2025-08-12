@@ -1135,3 +1135,12 @@ export function isDataNonEmpty(data: FunctionResultObject | undefined): boolean 
   }
   return true;
 }
+
+export const noValidInputErrorMessage = _t("[[FUNCTION_NAME]] has no valid input data.");
+
+export function emptyDataErrorMessage(argName: string): string {
+  return _t(
+    "[[FUNCTION_NAME]] expects the provided values of %(argName)s to be a non-empty matrix.",
+    { argName }
+  );
+}
