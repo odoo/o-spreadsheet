@@ -1,71 +1,130 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepCopy } from "../../helpers/index";
 import { Command, Getters, UID } from "../../types";
 import { invalidateEvaluationCommands } from "../../types/commands";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
-const DEFAULT_HEADER_POSITION = 1024;
-
 class HeaderPosition {
   private getters: Getters;
   private sheetId: UID;
-  private positions: Record<Dimension, Array<Pixel>>;
-  private lastComputedPosition: Record<Dimension, number>;
+  private positions: Record<Dimension, Array<[HeaderIndex, Pixel]>> = { COL: [], ROW: [] };
 
   constructor(getters: Getters, sheetId: UID) {
     this.sheetId = sheetId;
     this.getters = getters;
-    this.positions = {
-      COL: new Array(
-        Math.min(this.getters.getNumberHeaders(sheetId, "COL") + 1, DEFAULT_HEADER_POSITION)
-      ),
-      ROW: new Array(
-        Math.min(this.getters.getNumberHeaders(sheetId, "ROW") + 1, DEFAULT_HEADER_POSITION)
-      ),
-    };
-    this.positions["COL"][0] = 0;
-    this.positions["ROW"][0] = 0;
-    this.lastComputedPosition = {
-      COL: 0,
-      ROW: 0,
-    };
+    this.reset();
   }
 
-  get(dimension: Dimension, position: HeaderIndex): Pixel {
-    if (position < this.lastComputedPosition[dimension]) return this.positions[dimension][position];
-    while (position >= this.positions[dimension].length) {
-      this.positions[dimension].length *= 2;
+  getPosition(dimension: Dimension, position: HeaderIndex): Pixel {
+    const positions = this.positions[dimension];
+    let start = 0;
+    let end = positions.length - 1;
+    const defaultHeaderSize = dimension === "COL" ? DEFAULT_CELL_WIDTH : DEFAULT_CELL_HEIGHT;
+    while (start < end) {
+      const mid = Math.floor((start + end) / 2);
+      const positionLeft = positions[mid][0];
+      const positionRight = positions[mid + 1][0];
+      if (positionLeft <= position && position < positionRight) {
+        return positions[mid][1] + (position - positionLeft) * defaultHeaderSize;
+      } else if (positionLeft > position) {
+        end = mid - 1;
+      } else {
+        start = mid + 1;
+      }
     }
+    return positions[start][1] + (position - positions[start][0]) * defaultHeaderSize;
+  }
 
-    for (
-      let i = this.lastComputedPosition[dimension],
-        offset = this.positions[dimension][this.lastComputedPosition[dimension]];
-      i <= position;
-      i++
-    ) {
-      this.positions[dimension][i] = offset;
-      if (this.getters.isHeaderHidden(this.sheetId, dimension, i)) continue;
-      offset += this.getters.getHeaderSize(this.sheetId, dimension, i);
+  getHeaderIndex(dimension: Dimension, position: Pixel): HeaderIndex {
+    const positions = this.positions[dimension];
+    let start = 0;
+    let end = positions.length - 1;
+    const defaultHeaderSize = dimension === "COL" ? DEFAULT_CELL_WIDTH : DEFAULT_CELL_HEIGHT;
+    while (start < end) {
+      const mid = Math.floor((start + end) / 2);
+      const positionLeft = positions[mid][1];
+      const positionRight = positions[mid + 1][1];
+      if (positionLeft <= position && position < positionRight) {
+        return Math.min(
+          positions[mid + 1][0] - 1,
+          positions[mid][0] + Math.floor((position - positionLeft) / defaultHeaderSize)
+        );
+      } else if (positionLeft > position) {
+        end = mid - 1;
+      } else {
+        start = mid + 1;
+      }
     }
-
-    this.lastComputedPosition[dimension] = position;
-    return this.positions[dimension][position];
+    return -1;
   }
 
   reset() {
-    this.positions = {
-      COL: new Array(this.positions.COL.length),
-      ROW: new Array(this.positions.ROW.length),
+    const arraySort = (a, b) => {
+      return a[0] === b[0] ? a[1] - b[1] : a[0] - b[0];
     };
-    this.positions["COL"][0] = 0;
-    this.positions["ROW"][0] = 0;
-    this.lastComputedPosition = {
-      COL: 0,
-      ROW: 0,
+
+    const hiddenRows: Array<[HeaderIndex, Pixel]> = this.getters
+      .getHiddenRows(this.sheetId)
+      .map((row) => [row, 0]);
+    const customRows = this.getters.getCustomRowSizes(this.sheetId).entries();
+    const rowsSizes = [...hiddenRows, ...customRows];
+    rowsSizes.sort(arraySort);
+
+    const hiddenCols: Array<[HeaderIndex, Pixel]> = this.getters
+      .getUserHiddenCols(this.sheetId)
+      .map((col) => [col, 0]);
+    const customCols = this.getters.getCustomColSizes(this.sheetId).entries();
+    const colsSizes = [...hiddenCols, ...customCols];
+    colsSizes.sort(arraySort);
+
+    this.positions = {
+      COL: this.makeHeaderPosition(
+        colsSizes,
+        DEFAULT_CELL_WIDTH,
+        this.getters.getNumberCols(this.sheetId)
+      ),
+      ROW: this.makeHeaderPosition(
+        rowsSizes,
+        DEFAULT_CELL_HEIGHT,
+        this.getters.getNumberRows(this.sheetId)
+      ),
     };
   }
-}
 
+  makeHeaderPosition(
+    headerDimensions: Array<[HeaderIndex, Pixel]>,
+    defaultHeaderSize: Pixel,
+    headerCount: number
+  ): Array<[HeaderIndex, Pixel]> {
+    const positions = new Array(headerDimensions.length + 2);
+    positions[0] = [0, 0];
+    let positionIndex = 0;
+    let lastIndex = 0;
+    let lastPos = 0;
+
+    for (let i = 0; i < headerDimensions.length; i++) {
+      const [index, size] = headerDimensions[i];
+      if (index >= lastIndex) {
+        // Maybe group all 0s together ?
+        positions[++positionIndex] = [
+          index + 1,
+          lastPos + defaultHeaderSize * (index - lastIndex) + size,
+        ];
+        [lastIndex, lastPos] = positions[positionIndex];
+      }
+    }
+
+    if (lastIndex < headerCount) {
+      positions[++positionIndex] = [
+        headerCount,
+        lastPos + defaultHeaderSize * (headerCount - lastIndex),
+      ];
+    }
+
+    return positions.slice(0, positionIndex + 1);
+  }
+}
 export class HeaderPositionsUIPlugin extends UIPlugin {
   static getters = ["getColDimensions", "getRowDimensions", "getColRowOffset"] as const;
 
@@ -135,7 +194,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
    * Returns the size, start and end coordinates of a column on an unfolded sheet
    */
   getColDimensions(sheetId: UID, col: HeaderIndex): HeaderDimensions {
-    const start = this.headerPositions[sheetId].get("COL", col);
+    const start = this.headerPositions[sheetId].getPosition("COL", col);
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
     return {
@@ -149,7 +208,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
    * Returns the size, start and end coordinates of a row an unfolded sheet
    */
   getRowDimensions(sheetId: UID, row: HeaderIndex): HeaderDimensions {
-    const start = this.headerPositions[sheetId].get("ROW", row);
+    const start = this.headerPositions[sheetId].getPosition("ROW", row);
     const size = this.getters.getRowSize(sheetId, row);
     const isRowHidden = this.getters.isRowHidden(sheetId, row);
     return {
@@ -172,8 +231,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     index: HeaderIndex,
     sheetId: UID = this.getters.getActiveSheetId()
   ): Pixel {
-    const referencePosition = this.headerPositions[sheetId].get(dimension, referenceIndex);
-    const position = this.headerPositions[sheetId].get(dimension, index);
+    const referencePosition = this.headerPositions[sheetId].getPosition(dimension, referenceIndex);
+    const position = this.headerPositions[sheetId].getPosition(dimension, index);
     return position - referencePosition;
   }
 
