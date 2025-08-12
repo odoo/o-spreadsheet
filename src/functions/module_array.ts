@@ -561,16 +561,21 @@ const TO_COL_ROW_ARGS = [
   arg("array (any, range<any>)", _t("The array which will be transformed.")),
   arg(
     `ignore (number, default=${TO_COL_ROW_DEFAULT_IGNORE})`,
-    _t(
-      "The control to ignore blanks and errors. 0 (default) is to keep all values, 1 is to ignore blanks, 2 is to ignore errors, and 3 is to ignore blanks and errors."
-    )
+    _t("Whether to ignore certain types of values. By default, no values are ignored."),
+    [
+      { value: 0, label: _t("Keep all values (default)") },
+      { value: 1, label: _t("Ignore blanks") },
+      { value: 2, label: _t("Ignore errors") },
+      { value: 3, label: _t("Ignore blanks and errors") },
+    ]
   ),
   arg(
     `scan_by_column (number, default=${TO_COL_ROW_DEFAULT_SCAN})`,
-    _t(
-      "Whether the array should be scanned by column. True scans the array by column and false (default) \
-      scans the array by row."
-    )
+    _t("Scan the array by column. By default, the array is scanned by row."),
+    [
+      { value: false, label: _t("Scan by row (default)") },
+      { value: true, label: _t("Scan by column") },
+    ]
   ),
 ];
 

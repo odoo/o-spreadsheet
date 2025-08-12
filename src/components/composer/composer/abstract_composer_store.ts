@@ -1,3 +1,4 @@
+import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
@@ -51,22 +52,6 @@ import {
 import { EvaluationError } from "../../../types/errors";
 import { SelectionEvent } from "../../../types/event_stream";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
-
-export const DEFAULT_TOKEN_COLOR: Color = "#000000";
-const functionColor = DEFAULT_TOKEN_COLOR;
-const operatorColor = "#3da4ab";
-
-export const tokenColors = {
-  OPERATOR: operatorColor,
-  NUMBER: "#02c39a",
-  STRING: "#00a82d",
-  FUNCTION: functionColor,
-  DEBUGGER: operatorColor,
-  LEFT_PAREN: functionColor,
-  RIGHT_PAREN: functionColor,
-  ARG_SEPARATOR: functionColor,
-  ORPHAN_RIGHT_PAREN: "#ff0000",
-} as const;
 
 export interface ComposerSelection {
   start: number;

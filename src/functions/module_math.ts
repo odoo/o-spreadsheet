@@ -29,7 +29,6 @@ import {
   toString,
   visitMatchingRanges,
 } from "./helpers";
-import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;
@@ -1057,7 +1056,10 @@ export const RANDARRAY = {
     arg("columns (number, default=1)", _t("The number of columns to be returned.")),
     arg("min (number, default=0)", _t("The minimum number you would like returned.")),
     arg("max (number, default=1)", _t("The maximum number you would like returned.")),
-    arg("whole_number (number, default=FALSE)", _t("Return a whole number or a decimal value.")),
+    arg("whole_number (boolean, default=FALSE)", _t("Return a whole number or a decimal value."), [
+      { value: false, label: _t("Decimal (default)") },
+      { value: true, label: _t("Integer") },
+    ]),
   ],
   compute: function (
     rows: Maybe<FunctionResultObject> = { value: 1 },
@@ -1365,12 +1367,42 @@ export const SQRT = {
 // SUBTOTAL
 // -----------------------------------------------------------------------------
 
+const subtotalFunctionAggregateByCode = {
+  1: "AVERAGE",
+  2: "COUNT",
+  3: "COUNTA",
+  4: "MAX",
+  5: "MIN",
+  6: "PRODUCT",
+  7: "STDEV",
+  8: "STDEVP",
+  9: "SUM",
+  10: "VAR",
+  11: "VARP",
+};
+const subtotalFunctionOptionsIncludeHiddenRows = Object.entries(
+  subtotalFunctionAggregateByCode
+).map(([number, functionName]) => ({
+  value: parseInt(number),
+  label: _t("%s (include manually-hidden rows)", functionName),
+}));
+
+const subtotalFunctionOptionsExcludeHiddenRows = Object.entries(
+  subtotalFunctionAggregateByCode
+).map(([number, functionName]) => ({
+  value: parseInt(number) + 100,
+  label: _t("%s (exclude manually-hidden rows)", functionName),
+}));
+
 export const SUBTOTAL = {
   description: _t(
     "Returns a subtotal for a vertical range of cells using a specified aggregation function."
   ),
   args: [
-    arg("function_code (number)", _t("The function to use in subtotal aggregation.")),
+    arg("function_code (number)", _t("The function to use in subtotal aggregation."), [
+      ...subtotalFunctionOptionsIncludeHiddenRows,
+      ...subtotalFunctionOptionsExcludeHiddenRows,
+    ]),
     arg("ref1 (meta, range<meta>)", _t("The range or reference for which you want the subtotal.")),
     arg(
       "ref2 (meta, range<meta>, repeating)",
@@ -1418,7 +1450,7 @@ export const SUBTOTAL = {
       }
     }
 
-    return subtotalFunctionAggregateByCode[code].apply(this, [[evaluatedCellToKeep]]);
+    return this[subtotalFunctionAggregateByCode[code]].apply(this, [[evaluatedCellToKeep]]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1580,17 +1612,3 @@ export const INT = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
-
-const subtotalFunctionAggregateByCode = {
-  1: AVERAGE.compute,
-  2: COUNT.compute,
-  3: COUNTA.compute,
-  4: MAX.compute,
-  5: MIN.compute,
-  6: PRODUCT.compute,
-  7: STDEV.compute,
-  8: STDEVP.compute,
-  9: SUM.compute,
-  10: VAR.compute,
-  11: VARP.compute,
-};

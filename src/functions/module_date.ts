@@ -25,6 +25,7 @@ import {
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert } from "./helper_assert";
+import { DAY_COUNT_CONVENTION_OPTIONS } from "./helper_financial";
 import { expectStringSetError, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const DEFAULT_TYPE = 1;
@@ -104,12 +105,29 @@ export const DATEDIF = {
         "The end date to consider in the calculation. Must be a reference to a cell containing a DATE, a function returning a DATE type, or a number."
       )
     ),
-    arg(
-      "unit (string)",
-      _t(
-        'A text abbreviation for unit of time. Accepted values are "Y" (the number of whole years between start_date and end_date), "M" (the number of whole months between start_date and end_date), "D" (the number of days between start_date and end_date), "MD" (the number of days between start_date and end_date after subtracting whole months), "YM" (the number of whole months between start_date and end_date after subtracting whole years), "YD" (the number of days between start_date and end_date, assuming start_date and end_date were no more than one year apart).'
-      )
-    ),
+    arg("unit (string)", _t("A text abbreviation for unit of time."), [
+      { value: "Y", label: _t("The number of whole years between start_date and end_date") },
+      { value: "M", label: _t("The number of whole months between start_date and end_date") },
+      { value: "D", label: _t("The number of days between start_date and end_date") },
+      {
+        value: "MD",
+        label: _t(
+          "The number of days between start_date and end_date after subtracting whole months"
+        ),
+      },
+      {
+        value: "YM",
+        label: _t(
+          "The number of whole months between start_date and end_date after subtracting whole years"
+        ),
+      },
+      {
+        value: "YD",
+        label: _t(
+          "The number of days between start_date and end_date, assuming start_date and end_date were no more than one year apart"
+        ),
+      },
+    ]),
   ],
   compute: function (
     startDate: Maybe<FunctionResultObject>,
@@ -241,15 +259,19 @@ export const DAYS = {
 // -----------------------------------------------------------------------------
 // DAYS360
 // -----------------------------------------------------------------------------
-const DEFAULT_DAY_COUNT_METHOD = 0;
+const DEFAULT_DAY_COUNT_METHOD = false;
 export const DAYS360 = {
   description: _t("Number of days between two dates on a 360-day year (months of 30 days)."),
   args: [
     arg("start_date (date)", _t("The start date to consider in the calculation.")),
     arg("end_date (date)", _t("The end date to consider in the calculation.")),
     arg(
-      `method (number, default=${DEFAULT_DAY_COUNT_METHOD})`,
-      _t("An indicator of what day count method to use. (0) US NASD method (1) European method")
+      `method (boolean, default=${DEFAULT_DAY_COUNT_METHOD})`,
+      _t("An indicator of what day count method to use."),
+      [
+        { value: false, label: _t("U.S. NASD method (default)") },
+        { value: true, label: _t("European method") },
+      ]
     ),
   ],
   compute: function (
@@ -552,6 +574,23 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
   throw new EvaluationError(_t("The weekend must be a number or a string."));
 }
 
+const WEEKEND_OPTIONS = [
+  { value: 1, label: _t("Saturday/Sunday are weekends") },
+  { value: 2, label: _t("Sunday/Monday are weekends") },
+  { value: 3, label: _t("Monday/Tuesday are weekends") },
+  { value: 4, label: _t("Tuesday/Wednesday are weekends") },
+  { value: 5, label: _t("Wednesday/Thursday are weekends") },
+  { value: 6, label: _t("Thursday/Friday are weekends") },
+  { value: 7, label: _t("Friday/Saturday are weekends") },
+  { value: 11, label: _t("Sunday is the only weekend") },
+  { value: 12, label: _t("Monday is the only weekend") },
+  { value: 13, label: _t("Tuesday is the only weekend") },
+  { value: 14, label: _t("Wednesday is the only weekend") },
+  { value: 15, label: _t("Thursday is the only weekend") },
+  { value: 16, label: _t("Friday is the only weekend") },
+  { value: 17, label: _t("Saturday is the only weekend") },
+];
+
 export const NETWORKDAYS_INTL = {
   description: _t("Net working days between two dates (specifying weekends)."),
   args: [
@@ -565,7 +604,8 @@ export const NETWORKDAYS_INTL = {
     ),
     arg(
       `weekend (any, default=${DEFAULT_WEEKEND})`,
-      _t("A number or string representing which days of the week are considered weekends.")
+      _t("A number or string representing which days of the week are considered weekends."),
+      WEEKEND_OPTIONS
     ),
     arg(
       "holidays (date, range<date>, optional)",
@@ -735,7 +775,19 @@ export const WEEKDAY = {
       `type (number, default=${DEFAULT_TYPE})`,
       _t(
         "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
-      )
+      ),
+      [
+        { value: 1, label: _t("Numbers 1 (Sunday) trough 7 (Saturday)") },
+        { value: 2, label: _t("Numbers 1 (Monday) trough 7 (Sunday)") },
+        { value: 3, label: _t("Numbers 0 (Monday) trough 6 (Sunday)") },
+        { value: 11, label: _t("Numbers 1 (Monday) trough 7 (Sunday)") },
+        { value: 12, label: _t("Numbers 1 (Tuesday) trough 7 (Monday)") },
+        { value: 13, label: _t("Numbers 1 (Wednesday) trough 7 (Tuesday)") },
+        { value: 14, label: _t("Numbers 1 (Thursday) trough 7 (Wednesday)") },
+        { value: 15, label: _t("Numbers 1 (Friday) trough 7 (Thursday)") },
+        { value: 16, label: _t("Numbers 1 (Saturday) trough 7 (Friday)") },
+        { value: 17, label: _t("Numbers 1 (Sunday) trough 7 (Saturday)") },
+      ]
     ),
   ],
   compute: function (
@@ -781,7 +833,19 @@ export const WEEKNUM = {
     ),
     arg(
       `type (number, default=${DEFAULT_TYPE})`,
-      _t("A number representing the day that a week starts on. Sunday = 1.")
+      _t("A number representing the day that a week starts on. Sunday = 1."),
+      [
+        { value: 1, label: _t("Sunday") },
+        { value: 2, label: _t("Monday") },
+        { value: 11, label: _t("Monday") },
+        { value: 12, label: _t("Tuesday") },
+        { value: 13, label: _t("Wednesday") },
+        { value: 14, label: _t("Thursday") },
+        { value: 15, label: _t("Friday") },
+        { value: 16, label: _t("Saturday") },
+        { value: 17, label: _t("Sunday") },
+        { value: 21, label: _t("ISO week number (Monday as first day of the week)") },
+      ]
     ),
   ],
   compute: function (
@@ -865,7 +929,8 @@ export const WORKDAY_INTL = {
     ),
     arg(
       `weekend (any, default=${DEFAULT_WEEKEND})`,
-      _t("A number or string representing which days of the week are considered weekends.")
+      _t("A number or string representing which days of the week are considered weekends."),
+      WEEKEND_OPTIONS
     ),
     arg(
       "holidays (date, range<date>, optional)",
@@ -951,7 +1016,8 @@ export const YEARFRAC = {
     ),
     arg(
       `day_count_convention (number, default=${DEFAULT_DAY_COUNT_CONVENTION})`,
-      _t("An indicator of what day count method to use.")
+      _t("An indicator of what day count method to use."),
+      DAY_COUNT_CONVENTION_OPTIONS
     ),
   ],
   compute: function (

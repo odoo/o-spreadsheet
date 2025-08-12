@@ -16,19 +16,35 @@ import { isEvaluationError, toString } from "./helpers";
 // CELL
 // -----------------------------------------------------------------------------
 // NOTE: missing from Excel: "color", "filename", "parentheses", "prefix", "protect" and "width"
-const CELL_INFO_TYPES = ["address", "col", "contents", "format", "row", "type"];
+const CELL_INFO_TYPES = [
+  {
+    value: "address",
+    label: _t("Returns an absolute reference as plain text of the top left cell in reference."),
+  },
+  { value: "col", label: _t("Returns the column number of the cell in reference.") },
+  {
+    value: "contents",
+    label: _t("Returns the value contained in the top left cell in reference."),
+  },
+  { value: "format", label: _t("Returns the format of the top left cell in reference.") },
+  { value: "row", label: _t("Returns the row number of the top left cell in reference.") },
+  {
+    value: "type",
+    label: _t(
+      'Returns the type of data in the cell in reference. The following values are returned: "b" for a blank cell, "l" (for label) if the cell contains plain text, and "v" (for value) if the cell contains any other type of data.'
+    ),
+  },
+];
+
 export const CELL = {
   description: _t("Gets information about a cell."),
   args: [
-    arg(
-      "info_type (string)",
-      _t("The type of information requested. Can be one of %s", CELL_INFO_TYPES.join(", "))
-    ),
+    arg("info_type (string)", _t("The type of information requested."), CELL_INFO_TYPES),
     arg("reference (meta, range<meta>)", _t("The reference to the cell.")),
   ],
   compute: function (info: Maybe<FunctionResultObject>, reference: Matrix<{ value: string }>) {
     const _info = toString(info).toLowerCase();
-    if (!CELL_INFO_TYPES.includes(_info)) {
+    if (!CELL_INFO_TYPES.map((type) => type.value).includes(_info)) {
       return new EvaluationError(
         _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
       );

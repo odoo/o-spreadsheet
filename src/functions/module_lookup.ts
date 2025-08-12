@@ -41,6 +41,15 @@ const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 
+const A1_NOTATION_OPTIONS = [
+  { value: true, label: _t("A1 style (default)") },
+  { value: false, label: _t("R1C1 style") },
+];
+
+const IS_SORTED_OPTIONS = [
+  { value: true, label: _t("Approximate match (default)") },
+  { value: false, label: _t("Exact match") },
+];
 // -----------------------------------------------------------------------------
 // ADDRESS
 // -----------------------------------------------------------------------------
@@ -55,15 +64,18 @@ export const ADDRESS = {
     ),
     arg(
       `absolute_relative_mode (number, default=${DEFAULT_ABSOLUTE_RELATIVE_MODE})`,
-      _t(
-        "An indicator of whether the reference is row/column absolute. 1 is row and column absolute (e.g. $A$1), 2 is row absolute and column relative (e.g. A$1), 3 is row relative and column absolute (e.g. $A1), and 4 is row and column relative (e.g. A1)."
-      )
+      _t("An indicator of whether the reference is row/column absolute."),
+      [
+        { value: 1, label: _t("Absolute row and column (e.g. $A$1)") },
+        { value: 2, label: _t("Absolute row, relative column (e.g. A$1)") },
+        { value: 3, label: _t("Relative row, absolute column (e.g. $A1)") },
+        { value: 4, label: _t("Relative row and column (e.g. A1)") },
+      ]
     ),
     arg(
       "use_a1_notation (boolean, default=TRUE)",
-      _t(
-        "A boolean indicating whether to use A1 style notation (TRUE) or R1C1 style notation (FALSE)."
-      )
+      _t("A boolean indicating whether to use A1 style notation or R1C1 style notation."),
+      A1_NOTATION_OPTIONS
     ),
     arg(
       "sheet (string, optional)",
@@ -198,7 +210,8 @@ export const HLOOKUP = {
       `is_sorted (boolean, default=${DEFAULT_IS_SORTED})`,
       _t(
         "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
-      )
+      ),
+      IS_SORTED_OPTIONS
     ),
   ],
   compute: function (
@@ -294,7 +307,8 @@ export const INDIRECT: AddFunctionDescription = {
       "use_a1_notation (boolean, default=TRUE)",
       _t(
         "A boolean indicating whether to use A1 style notation (TRUE) or R1C1 style notation (FALSE)."
-      )
+      ),
+      A1_NOTATION_OPTIONS
     ),
   ],
   compute: function (
@@ -441,8 +455,13 @@ export const MATCH = {
     arg(
       `search_type (number, default=${DEFAULT_SEARCH_TYPE})`,
       _t(
-        "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
-      )
+        "The search method is a number 1, 0 or -1 indicating which value to return. 1 finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
+      ),
+      [
+        { value: 1, label: _t("Ascending order (default)") },
+        { value: 0, label: _t("Exact match") },
+        { value: -1, label: _t("Descending order") },
+      ]
     ),
   ],
   compute: function (
@@ -587,7 +606,8 @@ export const VLOOKUP = {
       `is_sorted (boolean, default=${DEFAULT_IS_SORTED})`,
       _t(
         "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
-      )
+      ),
+      IS_SORTED_OPTIONS
     ),
   ],
   compute: function (
@@ -661,22 +681,23 @@ export const XLOOKUP = {
     arg("if_not_found (any, optional)", _t("If a valid match is not found, return this value.")),
     arg(
       `match_mode (any, default=${DEFAULT_MATCH_MODE})`,
-      _t(
-        "(0) Exact match. \
-        (-1) Return next smaller item if no match. \
-        (1) Return next greater item if no match. \
-        (2) Wildcard match."
-      )
+      _t("Specifies how to match search_key with the items in lookup_range. "),
+      [
+        { value: 0, label: _t("Exact match (default)") },
+        { value: -1, label: _t("Exact match or next smaller item") },
+        { value: 1, label: _t("Exact match or next larger item") },
+        { value: 2, label: _t("Wildcard character match") },
+      ]
     ),
     arg(
       `search_mode (any, default=${DEFAULT_SEARCH_MODE})`,
-      _t(
-        "(1) Search starting at first item. \
-      (-1) Search starting at last item. \
-      (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
-      (-2) Perform a binary search that relies on lookup_array being sorted in descending order. If not sorted, invalid results will be returned.\
-      "
-      )
+      _t("Specifies the search mode to use. By default, a first to last search will be used."),
+      [
+        { value: 1, label: _t("Search first to last (default)") },
+        { value: -1, label: _t("Search last to first") },
+        { value: 2, label: _t("Binary search (sorted ascending order)") },
+        { value: -2, label: _t("Binary search (sorted descending order)") },
+      ]
     ),
   ],
   compute: function (

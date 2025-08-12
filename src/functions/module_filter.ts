@@ -178,9 +178,11 @@ export const SORT: AddFunctionDescription = {
     ),
     arg(
       "is_ascending (boolean, repeating)",
-      _t(
-        "TRUE or FALSE indicating whether to sort sort_column in ascending order. FALSE sorts in descending order."
-      )
+      _t("TRUE or FALSE indicating whether to sort sort_column in ascending order."),
+      [
+        { value: true, label: _t("Ascending") },
+        { value: false, label: _t("Descending") },
+      ]
     ),
   ],
   compute: function (
@@ -213,9 +215,11 @@ export const SORTN: AddFunctionDescription = {
     ),
     arg(
       "is_ascending (boolean, repeating)",
-      _t(
-        "TRUE or FALSE indicating whether to sort sort_column in ascending order. FALSE sorts in descending order."
-      )
+      _t("TRUE or FALSE indicating whether to sort sort_column in ascending order."),
+      [
+        { value: true, label: _t("Ascending") },
+        { value: false, label: _t("Descending") },
+      ]
     ),
   ],
   compute: function (
@@ -309,11 +313,19 @@ export const UNIQUE = {
     arg("range (any, range<any>)", _t("The data to filter by unique entries.")),
     arg(
       "by_column (boolean, default=FALSE)",
-      _t("Whether to filter the data by columns or by rows.")
+      _t("Whether to filter the data by columns or by rows."),
+      [
+        { value: true, label: _t("Return unique columns") },
+        { value: false, label: _t("Return unique rows") },
+      ]
     ),
     arg(
       "exactly_once (boolean, default=FALSE)",
-      _t("Whether to return only entries with no duplicates.")
+      _t("Whether to return only entries with no duplicates."),
+      [
+        { value: true, label: _t("Return items that appear exactly once") },
+        { value: false, label: _t("Return every distinct item") },
+      ]
     ),
   ],
   compute: function (
