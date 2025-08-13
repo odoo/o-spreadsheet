@@ -1,9 +1,10 @@
+import { Registry } from "../registries/registry";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   CellPosition,
   ChangeType,
-  Command,
+  CoreCommand,
   CoreGetters,
   CustomizedDataSet,
   DeleteSheetCommand,
@@ -338,41 +339,51 @@ export function orderRange(range: Range): Range {
   };
 }
 
-export function getRangeAdapter(cmd: Command): RangeAdapter | undefined {
-  switch (cmd.type) {
-    case "REMOVE_COLUMNS_ROWS":
-      return {
-        applyChange: getApplyRangeChangeRemoveColRow(cmd),
-        sheetId: cmd.sheetId,
-        sheetName: cmd.sheetName,
-      };
-    case "ADD_COLUMNS_ROWS":
-      return {
-        applyChange: getApplyRangeChangeAddColRow(cmd),
-        sheetId: cmd.sheetId,
-        sheetName: cmd.sheetName,
-      };
-    case "DELETE_SHEET":
-      return {
-        applyChange: getApplyRangeChangeDeleteSheet(cmd),
-        sheetId: cmd.sheetId,
-        sheetName: cmd.sheetName,
-      };
-    case "RENAME_SHEET":
-      return {
-        applyChange: getApplyRangeChangeRenameSheet(cmd),
-        sheetId: cmd.sheetId,
-        sheetName: cmd.oldName,
-      };
-    case "MOVE_RANGES":
-      return {
-        applyChange: getApplyRangeChangeMoveRange(cmd),
-        sheetId: cmd.sheetId,
-        sheetName: cmd.sheetName,
-      };
-  }
-  return undefined;
+export function getRangeAdapter(cmd: CoreCommand): RangeAdapter | undefined {
+  return rangeAdapterRegistry.get(cmd.type)?.(cmd);
 }
+
+type GetRangeAdapter<C extends CoreCommand> = (cmd: C) => RangeAdapter;
+
+class RangeAdapterRegistry extends Registry<GetRangeAdapter<CoreCommand>> {
+  add<C extends CoreCommand>(cmdType: C["type"], fn: GetRangeAdapter<C>): this {
+    super.add(cmdType, fn);
+    return this;
+  }
+  get<C extends CoreCommand>(cmdType: C["type"]): GetRangeAdapter<C> {
+    return this.content[cmdType];
+  }
+}
+
+export const rangeAdapterRegistry = new RangeAdapterRegistry();
+
+rangeAdapterRegistry
+  // do ireally have to type the cmd? it should be inferred
+  .add("REMOVE_COLUMNS_ROWS", (cmd: RemoveColumnsRowsCommand) => ({
+    applyChange: getApplyRangeChangeRemoveColRow(cmd),
+    sheetId: cmd.sheetId,
+    sheetName: { old: cmd.sheetName, current: cmd.sheetName },
+  }))
+  .add("ADD_COLUMNS_ROWS", (cmd: AddColumnsRowsCommand) => ({
+    applyChange: getApplyRangeChangeAddColRow(cmd),
+    sheetId: cmd.sheetId,
+    sheetName: { old: cmd.sheetName, current: cmd.sheetName },
+  }))
+  .add("DELETE_SHEET", (cmd: DeleteSheetCommand) => ({
+    applyChange: getApplyRangeChangeDeleteSheet(cmd),
+    sheetId: cmd.sheetId,
+    sheetName: { old: cmd.sheetName, current: cmd.sheetName },
+  }))
+  .add("RENAME_SHEET", (cmd: RenameSheetCommand) => ({
+    applyChange: getApplyRangeChangeRenameSheet(cmd),
+    sheetId: cmd.sheetId,
+    sheetName: { old: cmd.oldName, current: cmd.newName },
+  }))
+  .add("MOVE_RANGES", (cmd: MoveRangeCommand) => ({
+    applyChange: getApplyRangeChangeMoveRange(cmd),
+    sheetId: cmd.sheetId,
+    sheetName: { old: cmd.sheetName, current: cmd.sheetName },
+  }));
 
 function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRangeChange {
   let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";

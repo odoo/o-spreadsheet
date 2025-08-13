@@ -16,6 +16,7 @@ import {
   RemoveMergeCommand,
   RemovePivotCommand,
   RemoveTableStyleCommand,
+  RenameSheetCommand,
   UnhideColumnsRowsCommand,
   coreTypes,
 } from "../types/commands";
@@ -37,7 +38,8 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
   .add("HIDE_COLUMNS_ROWS", inverseHideColumnsRows)
   .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows)
   .add("CREATE_TABLE_STYLE", inverseCreateTableStyle)
-  .add("ADD_PIVOT", inverseAddPivot);
+  .add("ADD_PIVOT", inverseAddPivot)
+  .add("RENAME_SHEET", inverseRenameSheet);
 
 for (const cmd of coreTypes.values()) {
   if (!inverseCommandRegistry.contains(cmd)) {
@@ -149,4 +151,15 @@ function inverseUnhideColumnsRows(cmd: UnhideColumnsRowsCommand): HideColumnsRow
 
 function inverseCreateTableStyle(cmd: CreateTableStyleCommand): RemoveTableStyleCommand[] {
   return [{ type: "REMOVE_TABLE_STYLE", tableStyleId: cmd.tableStyleId }];
+}
+
+function inverseRenameSheet(cmd: RenameSheetCommand): RenameSheetCommand[] {
+  return [
+    {
+      type: "RENAME_SHEET",
+      sheetId: cmd.sheetId,
+      oldName: cmd.newName,
+      newName: cmd.oldName,
+    },
+  ];
 }

@@ -5,6 +5,7 @@ import {
   isInside,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
+  rangeAdapterRegistry,
 } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
@@ -102,7 +103,10 @@ export function transformAll(
     // If the executed command is not in the registry, we skip it
     // because we know there won't be any transformation impacting the
     // commands to transform.
-    if (possibleTransformations.has(executedCommand.type)) {
+    if (
+      possibleTransformations.has(executedCommand.type) ||
+      rangeAdapterRegistry.contains(executedCommand.type)
+    ) {
       transformedCommands = transformedCommands.reduce<CoreCommand[]>((acc, cmd) => {
         const transformed = transform(cmd, executedCommand);
         if (transformed) {

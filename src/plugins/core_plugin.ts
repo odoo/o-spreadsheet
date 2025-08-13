@@ -1,6 +1,7 @@
 import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   CoreCommand,
   CoreCommandDispatcher,
@@ -64,9 +65,10 @@ export class CorePlugin<State = any>
    * the type of change that occurred.
    *
    * @param applyChange a function that, when called, will adapt the range according to the change on the grid
-   * @param sheetId an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
+   * @param sheetId an sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
+   * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: string): void {}
+  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName): void {}
 
   /**
    * Implement this method to clean unused external resources, such as images

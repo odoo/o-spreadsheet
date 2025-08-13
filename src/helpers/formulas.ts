@@ -39,7 +39,7 @@ export function adaptStringRange(
   const sheetName = splitReference(sheetXC).sheetName;
   if (
     sheetName
-      ? !isSheetNameEqual(sheetName, applyChange.sheetName)
+      ? !isSheetNameEqual(sheetName, applyChange.sheetName.old)
       : defaultSheetId !== applyChange.sheetId
   ) {
     return sheetXC;
@@ -61,7 +61,7 @@ export function adaptStringRange(
 
 function getSheetNameGetter(applyChange: RangeAdapter) {
   return (sheetId: UID): string => {
-    return sheetId === applyChange.sheetId ? applyChange.sheetName : "";
+    return sheetId === applyChange.sheetId ? applyChange.sheetName.current : "";
   };
 }
 
