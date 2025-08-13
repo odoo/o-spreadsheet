@@ -102,7 +102,6 @@ migrationStepRegistry
           continue;
         }
         const oldName = sheet.name;
-        sanitizeSheetName;
         const escapedName: string = sanitizeSheetName(oldName, "_");
         const newName = getUniqueText(escapedName, namesTaken, {
           compute: (name, i) => `${name}${i}`,
@@ -132,7 +131,7 @@ migrationStepRegistry
         }
         //charts
         for (const figure of sheet.figures || []) {
-          if (figure.type === "chart") {
+          if (figure.tag === "chart") {
             const dataSets = figure.data.dataSets.map(replaceName);
             const labelRange = replaceName(figure.data.labelRange);
             figure.data = { ...figure.data, dataSets, labelRange };
