@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { CellIsRule, Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -6,6 +6,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
   addColumns,
+  addDataValidation,
   addRows,
   colorSheet,
   createChart,
@@ -32,8 +33,9 @@ import {
   unhideRows,
   updateChart,
 } from "../test_helpers/commands_helpers";
-import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
-import { createEqualCF, toRangesData } from "../test_helpers/helpers";
+import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import { createEqualCF, getDataValidationRules, toRangesData } from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 function toNumbers(letters: string[][]): number[][] {
@@ -243,8 +245,8 @@ describe("Collaborative Sheet manipulation", () => {
       setCellContent(bob, "A1", `=${sheetName}!A2`);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellError(user, "A1"),
-      `Invalid sheet name: ${sheetName}`
+      (user) => getCellText(user, "A1"),
+      "=NewName!A2"
     );
   });
 
@@ -615,6 +617,48 @@ describe("Collaborative Sheet manipulation", () => {
         ]
       );
     });
+
+    test("Concurrent conditional format update and rename sheet", () => {
+      const sheetId = bob.getters.getActiveSheetId();
+      const sheetName = bob.getters.getSheetName(sheetId);
+      const newSheetName = "NewName";
+      const cf = createEqualCF(`=${sheetName}!A1`, { fillColor: "#FF0000" }, "1");
+      network.concurrent(() => {
+        renameSheet(alice, sheetId, newSheetName);
+        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          ranges: toRangesData(sheetId, "A2"),
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A2"],
+            rule: {
+              ...cf.rule,
+              values: [`=${newSheetName}!A1`],
+            } as CellIsRule,
+          },
+        ]
+      );
+      undo(alice);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A2"],
+            rule: {
+              ...cf.rule,
+              values: [`=${sheetName}!A1`],
+            } as CellIsRule,
+          },
+        ]
+      );
+    });
   });
 
   describe("Chart creation & update", () => {
@@ -795,6 +839,40 @@ describe("Collaborative Sheet manipulation", () => {
           ...chartDef,
           dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A9" }],
           labelRange: "8:8",
+        }
+      );
+    });
+
+    test("Rename a sheet and update a chart concurrently", () => {
+      const sheetId = alice.getters.getActiveSheetId();
+      const chartId = "42";
+      const sheetName2 = "sheet2";
+      const sheetId2 = "sh2";
+      const newName = "NewName";
+      createSheet(bob, { sheetId: sheetId2, name: sheetName2, activate: true });
+      createChart(alice, chartDef, chartId, sheetId);
+      network.concurrent(() => {
+        renameSheet(alice, sheetId2, newName);
+        updateChart(bob, chartId, {
+          dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
+          labelRange: `${sheetName2}!F3`,
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinition(chartId),
+        {
+          ...chartDef,
+          dataSets: [{ dataRange: `${newName}!A1:A3` }],
+          labelRange: `${newName}!F3`,
+        }
+      );
+      undo(alice);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinition(chartId),
+        {
+          ...chartDef,
+          dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
+          labelRange: `${sheetName2}!F3`,
         }
       );
     });
@@ -1022,5 +1100,112 @@ test("test undo redo", () => {
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
     "=" + newSheetName + "!D1"
+  );
+
+  setCellContent(alice, "A4", "=" + newSheetName + "!D1", sheetId);
+  undo(bob);
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 3 })?.content,
+    "=" + otherSheetName + "!D1"
+  );
+});
+
+test("Concurrent datavalidation create and rename sheet", () => {
+  const sheetId = "sid";
+  const sheetName = "SheetName";
+
+  const newSheetName = "NewSheetName";
+
+  const { network, alice, bob, charlie } = setupCollaborativeEnv({
+    sheets: [{ id: sheetId, name: sheetName }],
+  });
+
+  network.concurrent(() => {
+    renameSheet(alice, sheetId, newSheetName);
+    addDataValidation(bob, "B1", "id", { type: "containsText", values: [`=${sheetName}!A1`] });
+  });
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => getDataValidationRules(user, sheetId),
+    [
+      {
+        id: "id",
+        criterion: { type: "containsText", values: [`=${newSheetName}!A1`] },
+        ranges: ["B1"],
+        isBlocking: false,
+      },
+    ]
+  );
+  undo(alice);
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => getDataValidationRules(user, sheetId),
+    [
+      {
+        id: "id",
+        criterion: { type: "containsText", values: [`=${sheetName}!A1`] },
+        ranges: ["B1"],
+        isBlocking: false,
+      },
+    ]
+  );
+});
+
+test("concurrent pivot computed measure and rename sheet", () => {
+  const sheetId = "sid";
+  const sheetName = "SheetName";
+  const newSheetName = "NewSheetName";
+
+  const { network, alice, bob, charlie } = setupCollaborativeEnv({
+    sheets: [{ id: sheetId, name: sheetName }],
+  });
+
+  setCellContent(alice, "A1", "1", sheetId);
+  setCellContent(alice, "B1", "2", sheetId);
+  setCellContent(alice, "A2", "3", sheetId);
+  setCellContent(alice, "B2", "4", sheetId);
+
+  network.concurrent(() => {
+    renameSheet(bob, sheetId, newSheetName);
+    addPivot(
+      alice,
+      "A1:B2",
+      {
+        measures: [
+          {
+            id: "measure",
+            fieldName: "mm",
+            aggregator: "sum",
+            computedBy: { formula: `=${sheetName}!A1*2`, sheetId },
+          },
+        ],
+      },
+      "pivot1"
+    );
+  });
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getPivotCoreDefinition("pivot1").measures,
+    [
+      {
+        id: "measure",
+        fieldName: "mm",
+        aggregator: "sum",
+        computedBy: { formula: `=${newSheetName}!A1*2`, sheetId },
+      },
+    ]
+  );
+
+  undo(bob);
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getPivotCoreDefinition("pivot1").measures,
+    [
+      {
+        id: "measure",
+        fieldName: "mm",
+        aggregator: "sum",
+        computedBy: { formula: `=${sheetName}!A1*2`, sheetId },
+      },
+    ]
   );
 });
