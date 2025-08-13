@@ -28,7 +28,7 @@ import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 import { UIPluginConfig } from "../ui_plugin";
 
-export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT"];
+export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT", "REMOVE_PIVOT"];
 
 function isPivotCommand(cmd: CoreCommand): cmd is AddPivotCommand | UpdatePivotCommand {
   return UNDO_REDO_PIVOT_COMMANDS.includes(cmd.type);
