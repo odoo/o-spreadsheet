@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import { pivotRegistry } from "../../src/helpers/pivot/pivot_registry";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
@@ -26,9 +27,14 @@ import {
   undo,
   unfreezeColumns,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getEvaluatedCell,
+  getStyle,
+} from "../test_helpers/getters_helpers";
 import { spyUiPluginHandle, target } from "../test_helpers/helpers";
-import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
+import { addPivot, removePivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative local history", () => {
@@ -1010,6 +1016,58 @@ describe("Collaborative local history", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("remove pivot, new user joins, then undo", () => {
+    pivotRegistry.get("SPREADSHEET").externalData = true; // simulate external pivot
+    const network = new MockTransportService();
+    const data = {
+      revisionId: DEFAULT_REVISION_ID,
+      sheets: [
+        {
+          id: "sheet1",
+          cells: {
+            A1: "=PIVOT(1)",
+            A10: "Price",
+            A11: "10",
+          },
+        },
+      ],
+      pivots: {
+        "1": {
+          formulaId: "1",
+          name: "Pivot",
+          type: "SPREADSHEET",
+          dataSet: {
+            zone: toZone("A10:A11"),
+            sheetId: "sheet1",
+          },
+          rows: [],
+          columns: [],
+          measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+        },
+      },
+    };
+
+    // intercept Alice's messages to give them as initial messages to Bob
+    const messages: StateUpdateMessage[] = [];
+    network.onNewMessage("dd", (message) => messages.push(message));
+
+    const alice = new Model(data, {
+      transportService: network,
+      client: { id: "alice", name: "Alice" },
+    });
+    removePivot(alice, "1");
+
+    // Bob joins the spreadsheet later
+    const configBob = {
+      transportService: network,
+      client: { id: "bob", name: "Bob" },
+    };
+    const bob = new Model(data, configBob, messages);
+    undo(alice);
+    expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
+    pivotRegistry.get("SPREADSHEET").externalData = false;
   });
 
   test("Concurrently undo a command on which another is based", () => {
