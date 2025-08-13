@@ -1,25 +1,33 @@
-import { Model } from "../../../src";
+import { ChartConfiguration } from "chart.js";
+import { Model, SpreadsheetChildEnv, UID } from "../../../src";
+import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
+import { downloadFile } from "../../../src/components/helpers/dom_helpers";
+import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   addNewChartToCarousel,
   createCarousel,
   createChart,
+  paste,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
-import {
-  click,
-  clickAndDrag,
-  getElStyle,
-  simulateClick,
-  triggerMouseEvent,
-} from "../../test_helpers/dom_helper";
-import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
-mockChart();
+jest.mock("../../../src/components/helpers/dom_helpers", () => {
+  return {
+    ...jest.requireActual("../../../src/components/helpers/dom_helpers"),
+    downloadFile: jest.fn(),
+  };
+});
 
 let model: Model;
+let sheetId: UID;
+let mockChartData: ChartConfiguration;
 
 beforeEach(() => {
   model = new Model();
+  sheetId = model.getters.getActiveSheetId();
+  mockChartData = mockChart();
 });
 
 describe("Carousel figure component", () => {
@@ -99,7 +107,7 @@ describe("Carousel figure component", () => {
     expect(model.getters.getCarousel("carouselId")).toMatchObject({
       items: [{ type: "chart", chartId: "chartId" }],
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(1);
+    expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
 
   test("Can define a carousel title in a carousel item", async () => {
@@ -122,42 +130,112 @@ describe("Carousel figure component", () => {
   });
 
   describe("Carousel menu items", () => {
-    test("Can edit the carousel", async () => {
-      createCarousel(model, { items: [] }, "carouselId");
-      await mountSpreadsheet({ model });
+    let env: SpreadsheetChildEnv;
+    let openSidePanel: jest.Mock;
 
-      triggerMouseEvent(".o-figure", "contextmenu");
-      await nextTick();
+    function getCarouselMenuItem(
+      figureId: UID,
+      actionId: string,
+      onFigureDeleted: () => void = () => {}
+    ) {
+      return getCarouselMenuActions(figureId, onFigureDeleted, env).find(
+        (action) => action.id === actionId
+      );
+    }
 
-      await simulateClick(".o-menu .o-menu-item[data-name='edit_carousel']");
-      expect(".o-sidePanel .o-carousel-panel").toHaveCount(1);
+    beforeEach(() => {
+      openSidePanel = jest.fn();
+      env = makeTestEnv({ model, openSidePanel });
     });
 
-    test("Can edit a carousel chart", async () => {
+    test("Can edit the carousel", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+
+      const action = getCarouselMenuItem("carouselId", "edit_carousel");
+      action?.execute?.(env);
+      expect(openSidePanel).toHaveBeenCalledWith("CarouselPanel", { figureId: "carouselId" });
+    });
+
+    test("Can edit a carousel chart", () => {
       createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
-      await mountSpreadsheet({ model });
 
-      triggerMouseEvent(".o-figure", "contextmenu");
-      await nextTick();
-      expect(".o-menu .o-menu-item[data-name='edit_chart']").toHaveCount(0); // Item not visible when no chart is selected
-
-      await simulateClick(".o-carousel-tab:nth-child(2)");
-      triggerMouseEvent(".o-figure", "contextmenu");
-      await nextTick();
-      await simulateClick(".o-menu .o-menu-item[data-name='edit_chart']");
-      expect(".o-sidePanel .o-chart").toHaveCount(1);
+      const action = getCarouselMenuItem("carouselId", "edit_chart");
+      action?.execute?.(env);
+      expect(openSidePanel).toHaveBeenCalledWith("ChartPanel", {});
     });
 
-    test("Can delete the figure", async () => {
+    test("Can delete the figure", () => {
       createCarousel(model, { items: [] }, "carouselId");
-      await mountSpreadsheet({ model });
 
-      triggerMouseEvent(".o-figure", "contextmenu");
+      const onFigureDeleted = jest.fn();
+      const action = getCarouselMenuItem("carouselId", "delete", onFigureDeleted);
+      action?.execute?.(env);
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      expect(onFigureDeleted).toHaveBeenCalled();
+    });
+
+    test("Can copy the carousel", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      const action = getCarouselMenuItem("carouselId", "copy");
+      action?.execute?.(env);
+
+      paste(model, "A1");
+      expect(model.getters.getFigures(sheetId)).toHaveLength(2);
+    });
+
+    test("Can cut the carousel", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      const action = getCarouselMenuItem("carouselId", "cut");
+      action?.execute?.(env);
+
+      paste(model, "A1");
+      expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+      expect(model.getters.getFigure(sheetId, "carouselId")).toBeUndefined();
+    });
+
+    test("Can copy the carousel chart as image", async () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+      const action = getCarouselMenuItem("carouselId", "copy_as_image");
+      action?.execute?.(env);
       await nextTick();
 
-      await simulateClick(".o-menu .o-menu-item[data-name='delete']");
-      expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(0);
+      const clipboard = await env.clipboard.read!();
+      if (clipboard.status !== "ok") {
+        throw new Error("Clipboard read failed");
+      }
+      const clipboardContent = clipboard.content;
+
+      const imgData = new window.Chart("test", mockChartData).toBase64Image();
+
+      expect(clipboardContent).toMatchObject({
+        "text/html": `<img src="${xmlEscape(imgData)}" />`,
+        "image/png": expect.any(Blob),
+      });
+    });
+
+    test("Can download the carousel chart as image", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+
+      const action = getCarouselMenuItem("carouselId", "download");
+      action?.execute?.(env);
+
+      expect(downloadFile).toHaveBeenCalled();
+    });
+
+    test("Chart menu items are not visible when the carousel selected item is not a chart", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+
+      expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(env)).toBe(false);
+      expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(env)).toBe(false);
+      expect(getCarouselMenuItem("carouselId", "download")?.isVisible(env)).toBe(false);
+
+      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+      expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(env)).toBe(true);
+      expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(env)).toBe(true);
+      expect(getCarouselMenuItem("carouselId", "download")?.isVisible(env)).toBe(true);
     });
   });
 });
