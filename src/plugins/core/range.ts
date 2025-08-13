@@ -17,6 +17,7 @@ import {
 } from "../../helpers/index";
 import { CellErrorType } from "../../types/errors";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   ApplyRangeChangeResult,
   Command,
@@ -62,7 +63,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: CoreCommand): CommandResult {
     if (cmd.type === "MOVE_RANGES") {
       return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
     }
@@ -70,7 +71,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
   beforeHandle(command: Command) {}
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     const rangeAdapter = getRangeAdapter(cmd);
     if (rangeAdapter?.applyChange) {
       this.executeOnAllRanges(
@@ -99,7 +100,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId: UID, sheetName: string) {
+  private executeOnAllRanges(
+    adaptRange: ApplyRangeChange,
+    sheetId: UID,
+    sheetName: AdaptSheetName
+  ) {
     const func = this.verifyRangeRemoved(adaptRange);
     for (const provider of this.providers) {
       provider(func, sheetId, sheetName);
