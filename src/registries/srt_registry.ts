@@ -11,14 +11,9 @@ import { Registry } from "./registry";
  *
  */
 
-export type CommandAdaptRangeFunction<C extends CoreCommand> = (
-  cmd: C,
-  applyChange: RangeAdapter
-) => C;
+type CommandAdaptRangeFunction<C extends CoreCommand> = (cmd: C, applyChange: RangeAdapter) => C;
 
-export class SpecificRangeTransformRegistry extends Registry<
-  CommandAdaptRangeFunction<CoreCommand>
-> {
+class SpecificRangeTransformRegistry extends Registry<CommandAdaptRangeFunction<CoreCommand>> {
   add<C extends CoreCommand>(cmdType: C["type"], fn: CommandAdaptRangeFunction<C>): this {
     super.add(cmdType, fn);
     return this;

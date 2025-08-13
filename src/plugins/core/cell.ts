@@ -20,6 +20,7 @@ import {
   toXC,
 } from "../../helpers/index";
 import {
+  AdaptSheetName,
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
@@ -72,12 +73,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: string) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {
           for (const range of cell.compiledFormula.dependencies) {
-            if (range.sheetId === sheetId || range.invalidSheetName === sheetName) {
+            if (range.sheetId === sheetId || range.invalidSheetName === sheetName.old) {
               const change = applyChange(range);
               if (change.changeType !== "NONE") {
                 this.history.update(
