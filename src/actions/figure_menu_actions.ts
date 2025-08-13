@@ -30,43 +30,8 @@ export function getChartMenuActions(
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
-    {
-      id: "copy_as_image",
-      name: _t("Copy as image"),
-      icon: "o-spreadsheet-Icon.COPY_AS_IMAGE",
-      sequence: 4,
-      execute: async () => {
-        const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
-        const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
-        const chartType = env.model.getters.getChartType(chartId);
-        const runtime = env.model.getters.getChartRuntime(chartId);
-        const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
-        const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
-        const blob = await chartToImageFile(runtime, figure, chartType)!;
-
-        env.clipboard.write({
-          "text/html": innerHTML,
-          "image/png": blob,
-        });
-        env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
-      },
-      isReadonlyAllowed: true,
-    },
-    {
-      id: "download",
-      name: _t("Download"),
-      icon: "o-spreadsheet-Icon.DOWNLOAD",
-      sequence: 6,
-      execute: async () => {
-        const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
-        const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
-        const chartType = env.model.getters.getChartType(chartId);
-        const runtime = env.model.getters.getChartRuntime(chartId);
-        const url = chartToImageUrl(runtime, figure, chartType)!;
-        downloadFile(url, "chart");
-      },
-      isReadonlyAllowed: true,
-    },
+    getCopyAsImageMenuItem(figureId, env),
+    getDownloadChartMenuItem(figureId, env),
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
@@ -134,6 +99,8 @@ export function getCarouselMenuActions(
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
 ): Action[] {
+  const isChartSelected = (env: SpreadsheetChildEnv) =>
+    env.model.getters.getSelectedCarouselItem(figureId)?.type === "chart";
   const menuItemSpecs: ActionSpec[] = [
     {
       id: "edit_carousel",
@@ -156,8 +123,12 @@ export function getCarouselMenuActions(
       },
       icon: "o-spreadsheet-Icon.EDIT",
       isEnabled: (env) => !env.isSmall,
-      isVisible: (env) => env.model.getters.getSelectedCarouselItem(figureId)?.type === "chart",
+      isVisible: isChartSelected,
     },
+    getCopyMenuItem(figureId, env, _t("Carousel copied to clipboard")),
+    getCutMenuItem(figureId, env),
+    { ...getCopyAsImageMenuItem(figureId, env), isVisible: isChartSelected },
+    { ...getDownloadChartMenuItem(figureId, env), isVisible: isChartSelected },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
@@ -200,6 +171,57 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
+  };
+}
+
+function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+  return {
+    id: "copy_as_image",
+    name: _t("Copy as image"),
+    icon: "o-spreadsheet-Icon.COPY_AS_IMAGE",
+    sequence: 4,
+    execute: async () => {
+      const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
+      const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
+      const chartId = env.model.getters.getChartIdFromFigureId(figureId);
+      if (!chartId) {
+        return;
+      }
+      const chartType = env.model.getters.getChartType(chartId);
+      const runtime = env.model.getters.getChartRuntime(chartId);
+      const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
+      const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
+      const blob = await chartToImageFile(runtime, figure, chartType)!;
+
+      env.clipboard.write({
+        "text/html": innerHTML,
+        "image/png": blob,
+      });
+      env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
+    },
+    isReadonlyAllowed: true,
+  };
+}
+
+function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+  return {
+    id: "download",
+    name: _t("Download"),
+    icon: "o-spreadsheet-Icon.DOWNLOAD",
+    sequence: 6,
+    execute: async () => {
+      const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
+      const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
+      const chartId = env.model.getters.getChartIdFromFigureId(figureId);
+      if (!chartId) {
+        return;
+      }
+      const chartType = env.model.getters.getChartType(chartId);
+      const runtime = env.model.getters.getChartRuntime(chartId);
+      const url = chartToImageUrl(runtime, figure, chartType)!;
+      downloadFile(url, "chart");
+    },
+    isReadonlyAllowed: true,
   };
 }
 
