@@ -18,6 +18,7 @@ export interface TreeMapChartDefinition {
   readonly showLabels?: boolean;
   readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
+  readonly humanize?: boolean;
 }
 
 export type TreeMapCategoryColorOptions = {

@@ -23,6 +23,9 @@
             className="'mb-2'"
           />
         </Section>
+        <Section class="'pt-1'" title.translate="Number formatting">
+          <ChartHumanizeNumbers t-props="props"/>
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Waterfall design">

@@ -19,6 +19,7 @@ import { RoundColorPicker } from "../../components/round_color_picker/round_colo
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 
 css/* scss */ `
   .o-gauge-color-set {
@@ -81,6 +82,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     GeneralDesignEditor,
     ChartErrorSection,
     StandaloneComposer,
+    ChartHumanizeNumbers,
   };
   static props = {
     chartId: String,

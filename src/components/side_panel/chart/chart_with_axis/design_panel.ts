@@ -15,6 +15,7 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
@@ -45,6 +46,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     SeriesWithAxisDesignEditor,
     ChartLegend,
     ChartShowValues,
+    ChartHumanizeNumbers,
   };
   static props = {
     chartId: String,

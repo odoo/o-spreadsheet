@@ -5,7 +5,12 @@ import {
   getChartConfiguration,
   getChartTooltipValues,
 } from "../../../test_helpers/chart_helpers";
-import { createChart, setCellContent, setFormat } from "../../../test_helpers/commands_helpers";
+import {
+  createChart,
+  setCellContent,
+  setFormat,
+  updateChart,
+} from "../../../test_helpers/commands_helpers";
 
 let model: Model;
 describe("population pyramid chart", () => {
@@ -28,6 +33,7 @@ describe("population pyramid chart", () => {
       axesDesign: {},
       horizontal: true,
       showValues: false,
+      humanize: false,
     });
   });
 
@@ -126,4 +132,25 @@ describe("population pyramid chart", () => {
       expect(plugin.callback(0, "x")).toBe("");
     });
   });
+});
+
+test("Humanization is taken into account for the axis ticks of a pyramid chart", async () => {
+  model = new Model();
+  createChart(
+    model,
+    {
+      type: "pyramid",
+      labelRange: "A2",
+      dataSets: [{ dataRange: "B2" }],
+      humanize: false,
+    },
+    "1"
+  );
+  let axis = getChartConfiguration(model, "1").options.scales.x;
+  const valuesBefore = [1e3, 1e6].map(axis.ticks.callback);
+  expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
+  updateChart(model, "1", { humanize: true });
+  axis = getChartConfiguration(model, "1").options.scales.x;
+  const valuesAfter = [1e3, 1e6].map(axis.ticks.callback);
+  expect(valuesAfter).toEqual(["1,000", "1,000k"]);
 });

@@ -17,6 +17,7 @@ export interface FunnelChartDefinition {
   readonly showValues?: boolean;
   readonly funnelColors?: FunnelChartColors;
   readonly cumulative?: boolean;
+  readonly humanize?: boolean;
 }
 
 export type FunnelChartRuntime = {

@@ -1,11 +1,12 @@
 import { ChartConfiguration } from "chart.js";
+import { CommonChartDefinition } from ".";
 import { Color } from "../misc";
-import { ComboBarChartDefinition } from "./common_bar_combo";
 
-export interface BarChartDefinition extends ComboBarChartDefinition {
+export interface BarChartDefinition extends CommonChartDefinition {
   readonly type: "bar";
   readonly stacked: boolean;
   readonly horizontal?: boolean;
+  readonly zoomable?: boolean;
 }
 
 export type BarChartRuntime = {

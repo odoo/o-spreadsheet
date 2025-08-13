@@ -27,6 +27,7 @@ describe("pie chart", () => {
       isDoughnut: false,
       pieHolePercentage: 0,
       showValues: false,
+      humanize: false,
     });
   });
 

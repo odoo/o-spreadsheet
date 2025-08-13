@@ -93,6 +93,7 @@ describe("datasource tests", function () {
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+      humanize: false,
     });
   });
 
