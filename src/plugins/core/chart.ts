@@ -4,6 +4,7 @@ import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   Command,
   CommandResult,
@@ -46,12 +47,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private validateChartDefinition = (cmd: CreateChartCommand | UpdateChartCommand) =>
     validateChartDefinition(this, cmd.definition);
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, adaptSheetName: AdaptSheetName) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
       if (!chart) {
         continue;
       }
-      const newChart = chart.chart.updateRanges(applyChange);
+      const newChart = chart.chart.updateRanges(applyChange, sheetId, adaptSheetName);
       this.history.update(
         "charts",
         chartId,
