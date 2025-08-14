@@ -55,7 +55,7 @@ import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
-import { FigureSize } from "./../../src/types/figure";
+import { CarouselItem, FigureSize } from "./../../src/types/figure";
 
 /**
  * Dispatch an UNDO to the model
@@ -1628,4 +1628,17 @@ export function addNewChartToCarousel(
     updateChart(model, chartId, definition);
   }
   return chartId;
+}
+
+export function selectCarouselItem(
+  model: Model,
+  carouselId: UID,
+  item: CarouselItem,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+    figureId: carouselId,
+    item,
+    sheetId,
+  });
 }
