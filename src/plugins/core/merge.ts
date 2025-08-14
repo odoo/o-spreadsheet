@@ -336,16 +336,11 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * top left.
    */
   private isMergeDestructive(sheetId: UID, zone: Zone): boolean {
-    let { left, right, top, bottom } = zone;
-    right = clip(right, 0, this.getters.getNumberCols(sheetId) - 1);
-    bottom = clip(bottom, 0, this.getters.getNumberRows(sheetId) - 1);
-    for (let row = top; row <= bottom; row++) {
-      for (let col = left; col <= right; col++) {
-        if (col !== left || row !== top) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          if (cell && cell.content !== "") {
-            return true;
-          }
+    for (const cell of this.getters.getCellsFromZone(sheetId, zone)) {
+      if (cell.content !== "") {
+        const position = this.getters.getCellPosition(cell.id);
+        if (position.col !== zone.left || position.row !== zone.top) {
+          return true;
         }
       }
     }
