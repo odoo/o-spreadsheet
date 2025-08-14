@@ -1,9 +1,9 @@
-import { SpreadsheetPivotTable } from "../../src";
-import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toZone } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
-import { PivotCoreDefinition } from "../../src/types/pivot";
+import { SpreadsheetPivotTable } from "../../packages/o-spreadsheet/src";
+import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../packages/o-spreadsheet/src/constants";
+import { toZone } from "../../packages/o-spreadsheet/src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../packages/o-spreadsheet/src/helpers/table_presets";
+import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../packages/o-spreadsheet/src/types";
+import { PivotCoreDefinition } from "../../packages/o-spreadsheet/src/types/pivot";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {

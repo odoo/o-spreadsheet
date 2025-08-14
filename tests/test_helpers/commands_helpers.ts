@@ -3,16 +3,16 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-} from "../../src/constants";
+} from "../../packages/o-spreadsheet/src/constants";
 import {
   colorToNumber,
   isInside,
   lettersToNumber,
   toCartesian,
   toZone,
-} from "../../src/helpers/index";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { Model } from "../../src/model";
+} from "../../packages/o-spreadsheet/src/helpers/index";
+import { DEFAULT_TABLE_CONFIG } from "../../packages/o-spreadsheet/src/helpers/table_presets";
+import { Model } from "../../packages/o-spreadsheet/src/model";
 import {
   AnchorZone,
   Border,
@@ -40,22 +40,22 @@ import {
   SplitTextIntoColumnsCommand,
   Style,
   UID,
-} from "../../src/types";
+} from "../../packages/o-spreadsheet/src/types";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
-import { ICON_SETS } from "../../src/components/icons/icons";
-import { SunburstChartDefinition } from "../../src/types/chart";
-import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
-import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
-import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
-import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
-import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
-import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
-import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
-import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
-import { Image } from "../../src/types/image";
-import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
-import { FigureSize } from "./../../src/types/figure";
+import { ICON_SETS } from "../../packages/o-spreadsheet/src/components/icons/icons";
+import { SunburstChartDefinition } from "../../packages/o-spreadsheet/src/types/chart";
+import { ComboChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/combo_chart";
+import { FunnelChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/funnel_chart";
+import { GaugeChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/gauge_chart";
+import { GeoChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/geo_chart";
+import { RadarChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/radar_chart";
+import { ScorecardChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/scorecard_chart";
+import { TreeMapChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/tree_map_chart";
+import { WaterfallChartDefinition } from "../../packages/o-spreadsheet/src/types/chart/waterfall_chart";
+import { Image } from "../../packages/o-spreadsheet/src/types/image";
+import { CoreTableType, CriterionFilter, TableConfig } from "../../packages/o-spreadsheet/src/types/table";
+import { FigureSize } from "../../packages/o-spreadsheet/src/types/figure";
 
 /**
  * Dispatch an UNDO to the model

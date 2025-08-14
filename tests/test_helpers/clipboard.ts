@@ -1,8 +1,8 @@
 import {
   ClipboardInterface,
   ClipboardReadResult,
-} from "../../src/helpers/clipboard/navigator_clipboard_wrapper";
-import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
+} from "../../packages/o-spreadsheet/src/helpers/clipboard/navigator_clipboard_wrapper";
+import { ClipboardMIMEType, OSClipboardContent } from "../../packages/o-spreadsheet/src/types";
 
 export class MockClipboard implements ClipboardInterface {
   content: OSClipboardContent = {};

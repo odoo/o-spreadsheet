@@ -1,4 +1,4 @@
-import { getContextFontSize } from "../../src/helpers/text_helper";
+import { getContextFontSize } from "../../packages/o-spreadsheet/src/helpers/text_helper";
 
 export class MockCanvasRenderingContext2D {
   font: string = "";

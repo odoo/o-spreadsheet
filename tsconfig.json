@@ -4,5 +4,5 @@
     "outDir": "build/js",
     "preserveWatchOutput": true
   },
-  "include": ["src"]
+  "include": ["packages/o-spreadsheet/src"]
 }

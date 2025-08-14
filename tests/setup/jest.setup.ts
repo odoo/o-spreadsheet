@@ -3,8 +3,8 @@
  */
 import { App } from "@odoo/owl";
 import * as Chart from "chart.js";
-import { HEADER_HEIGHT, HEADER_WIDTH, setDefaultSheetViewSize } from "../../src/constants";
-import "../../src/types/chart/chartjs_tree_map_type";
+import { HEADER_HEIGHT, HEADER_WIDTH, setDefaultSheetViewSize } from "../../packages/o-spreadsheet/src/constants";
+import "../../packages/o-spreadsheet/src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import {
   extendMockGetBoundingClientRect,

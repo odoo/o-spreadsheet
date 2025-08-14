@@ -1,6 +1,6 @@
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
-import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
+import { toCartesian, toXC, toZone } from "../../packages/o-spreadsheet/src/helpers/index";
+import { Model } from "../../packages/o-spreadsheet/src/model";
+import { ClipboardPlugin } from "../../packages/o-spreadsheet/src/plugins/ui_stateful";
 import {
   Border,
   Cell,
@@ -12,7 +12,7 @@ import {
   Style,
   UID,
   Zone,
-} from "../../src/types";
+} from "../../packages/o-spreadsheet/src/types";
 import { setSelection } from "./commands_helpers";
 import { getPlugin } from "./helpers";
 
