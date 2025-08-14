@@ -8,6 +8,7 @@ import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { _t } from "../../../translation";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   CellValueType,
   Color,
@@ -30,7 +31,7 @@ import {
 } from "../../../types/chart/gauge_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
-import { adaptStringRange } from "../../formulas";
+import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
@@ -263,11 +264,19 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): GaugeChart {
+  updateRanges(
+    applyChange: ApplyRangeChange,
+    sheetId: UID,
+    adaptSheetName: AdaptSheetName
+  ): GaugeChart {
     const dataRange = adaptChartRange(this.dataRange, applyChange);
 
     const adaptFormula = (formula: string) =>
-      this.getters.adaptFormulaStringDependencies(this.sheetId, formula, applyChange);
+      adaptFormulaStringRanges(this.sheetId, formula, {
+        applyChange,
+        sheetId,
+        sheetName: adaptSheetName,
+      });
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
     const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
     return new GaugeChart(definition, this.sheetId, this.getters);

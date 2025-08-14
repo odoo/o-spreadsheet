@@ -1,4 +1,5 @@
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   CommandResult,
   CoreGetters,
@@ -83,7 +84,11 @@ export abstract class AbstractChart {
    * This function should be used to update all the ranges of the chart after
    * a grid change (add/remove col/row, rename sheet, ...)
    */
-  abstract updateRanges(applyChange: ApplyRangeChange): AbstractChart;
+  abstract updateRanges(
+    applyChange: ApplyRangeChange,
+    sheetId: UID,
+    adaptSheetName: AdaptSheetName
+  ): AbstractChart;
 
   /**
    * Duplicate the chart when a sheet is duplicated.
