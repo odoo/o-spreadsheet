@@ -14,7 +14,8 @@ import {
   Zone,
 } from "../../types";
 import { AllowedImageMimeTypes } from "../../types/image";
-import { mergeOverlappingZones, positions, union } from "../zones";
+import { range } from "../misc";
+import { mergeOverlappingZones, reorderZone, union } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
   const lefts = new Set(zones.map((z) => z.left));
@@ -28,12 +29,15 @@ export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): Clipboar
   // In order to don't paste several times the same cells in intersected zones
   // --> we merge zones that have common cells
   const clippedZones = areZonesCompatible
-    ? mergeOverlappingZones(zones)
-    : [zones[zones.length - 1]];
+    ? mergeOverlappingZones(zones).map(reorderZone)
+    : [zones[zones.length - 1]].map(reorderZone);
 
-  const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
-  const columnsIndexes = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
-  const rowsIndexes = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
+  const columnsIndexes = [
+    ...new Set(clippedZones.map((zone) => range(zone.left, zone.right + 1)).flat()),
+  ].sort((a, b) => a - b);
+  const rowsIndexes = [
+    ...new Set(clippedZones.map((zone) => range(zone.top, zone.bottom + 1)).flat()),
+  ].sort((a, b) => a - b);
   return { sheetId, zones, clippedZones, columnsIndexes, rowsIndexes };
 }
 
