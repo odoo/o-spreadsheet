@@ -1,4 +1,4 @@
-import { DOMCoordinates, HeaderIndex, Pixel, PixelPosition, UID } from ".";
+import { DOMCoordinates, HeaderIndex, Pixel, PixelPosition, TitleDesign, UID } from ".";
 
 export interface FigureInfo {
   id: UID;
@@ -34,5 +34,5 @@ export interface Carousel {
 }
 
 export type CarouselItem =
-  | { type: "chart"; chartId: UID; title?: string }
-  | { type: "carouselDataView"; title?: string };
+  | { type: "chart"; chartId: UID; title?: string; carouselTitle?: TitleDesign }
+  | { type: "carouselDataView"; title?: string; carouselTitle?: TitleDesign };

@@ -1,4 +1,8 @@
 .o-spreadsheet {
+  .o-carousel-content {
+    height: 0; /* To make flex-fill work */
+  }
+
   .o-carousel-empty {
     background-color: #ffffff;
 
@@ -13,6 +17,7 @@
     z-index: 1;
 
     overflow: hidden;
+    padding-left: 19px; /* Align with chartJS title */
 
     border: 1px solid transparent;
 
