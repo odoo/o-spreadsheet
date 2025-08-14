@@ -14,6 +14,7 @@ import {
   largeMax,
   largeMin,
   range,
+  recomputeZones,
   toCartesian,
 } from "../../helpers/index";
 import { isSheetNameEqual } from "../../helpers/sheet";
@@ -63,7 +64,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "doesHeaderExist",
     "doesHeadersExist",
     "getCell",
-    "getCellFromZone",
+    "getCellsFromZone",
+    "getCellsFromZones",
     "getCellPosition",
     "getColsZone",
     "getRowCells",
@@ -397,7 +399,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getters.getCellById(cellId);
   }
 
-  getCellFromZone(
+  getCellsFromZones(
+    sheetId: UID,
+    zones: UnboundedZone[],
+    options: { rowsOrder?: number; colOrder?: number } = {}
+  ): Cell[] {
+    return recomputeZones(zones)
+      .map((zone) => this.getCellsFromZone(sheetId, zone, options))
+      .flat();
+  }
+
+  getCellsFromZone(
     sheetId: UID,
     zone: UnboundedZone,
     options: { rowsOrder?: number; colOrder?: number } = {}
@@ -406,7 +418,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (!sheet) return [];
 
     if (zone.right !== undefined && zone.bottom !== undefined && getZoneArea(zone as Zone) < 1000) {
-      // TODO ask lul
       const cells: Cell[] = [];
       const [colStart, colAdd] = (options.colOrder ?? 1) > 0 ? [zone.left, 1] : [zone.right, -1];
       const [rowStart, rowAdd] = (options.colOrder ?? 1) > 0 ? [zone.top, 1] : [zone.bottom, -1];
@@ -454,7 +465,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getColCells(sheetId: UID, col: HeaderIndex): Cell[] {
-    return this.getCellFromZone(sheetId, this.getColsZone(sheetId, col, col));
+    return this.getCellsFromZone(sheetId, this.getColsZone(sheetId, col, col));
   }
 
   getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
@@ -955,7 +966,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private shiftZone(sheetId: UID, zone: UnboundedZone, shiftCol: number, shiftRow: number) {
-    for (const cell of this.getCellFromZone(sheetId, zone, {
+    for (const cell of this.getCellsFromZone(sheetId, zone, {
       rowsOrder: shiftRow,
       colOrder: shiftCol,
     })) {
