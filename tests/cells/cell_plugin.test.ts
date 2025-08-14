@@ -584,6 +584,18 @@ test.each([
   }
 );
 
+test.each(["5 \n", " \n 5", "5\n5", "fougere\n", "12:00 \n AM"])(
+  "content with a newline character is automatically a string",
+  (content) => {
+    const model = new Model();
+    setCellContent(model, "A1", content);
+    expect(getCellContent(model, "A1")).toEqual(content);
+    const evaluatedCell = getEvaluatedCell(model, "A1");
+    expect(evaluatedCell.type).toBe(CellValueType.text);
+    expect(evaluatedCell.value).toEqual(content);
+  }
+);
+
 describe("Cell dependencies and tokens are updated", () => {
   let model: Model;
 
