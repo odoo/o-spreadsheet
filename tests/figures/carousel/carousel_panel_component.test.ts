@@ -96,4 +96,22 @@ describe("Carousel panel component", () => {
       { chartId: radarId },
     ]);
   });
+
+  test("Can edit the carousel title for a carousel item", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await mountCarouselPanel(model, "carouselId");
+
+    await setInputValueAndTrigger(".o-carousel-item-title .os-input", "Carousel Title");
+    expect(".o-carousel-item-title .os-input").toHaveValue("Carousel Title");
+    expect(model.getters.getCarousel("carouselId").items[0].carouselTitle).toEqual({
+      text: "Carousel Title",
+    });
+
+    await click(fixture, ".o-carousel-item-title [title='Bold']");
+    expect(model.getters.getCarousel("carouselId").items[0].carouselTitle).toEqual({
+      text: "Carousel Title",
+      bold: true,
+    });
+  });
 });
