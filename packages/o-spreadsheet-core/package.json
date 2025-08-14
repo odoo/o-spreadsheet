@@ -1,3 +1,6 @@
 {
-    "name": "@odoo/o-spreadsheet-core"
+  "name": "@odoo/o-spreadsheet-core",
+  "scripts": {
+    "test": "echo 'No tests specified for core package.'"
+  }
 }

@@ -5,9 +5,10 @@
     "packages/*"
   ],
   "scripts": {
+    "check-formatting": "prettier . --check && eslint",
     "prepare": "husky install",
     "prettier": "prettier . --write",
-    "check-formatting": "prettier . --check && eslint"
+    "test": "npm run test ---workspaces"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
