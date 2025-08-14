@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "outDir": "./build",
+    "preserveWatchOutput": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  }
+}

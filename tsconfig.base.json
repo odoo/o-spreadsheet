@@ -17,6 +17,5 @@
     "allowJs": true,
     "sourceMap": true,
     "strictBindCallApply": true
-  },
-  "include": ["src"]
+  }
 }
