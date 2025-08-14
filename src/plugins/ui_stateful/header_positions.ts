@@ -36,12 +36,20 @@ class HeaderPosition {
     return positions[start][1] + (position - positions[start][0]) * defaultHeaderSize;
   }
 
-  getHeaderIndex(dimension: Dimension, position: Pixel): HeaderIndex {
+  getHeaderIndex(
+    dimension: Dimension,
+    position: Pixel,
+    startingIndex: HeaderIndex = 0
+  ): HeaderIndex {
     const positions = this.positions[dimension];
+    if (startingIndex) position += this.getPosition(dimension, startingIndex);
     let start = 0;
     let end = positions.length - 1;
+    if (Number.isNaN(position) || position < positions[0][1] || position >= positions[end][1]) {
+      return -1;
+    }
     const defaultHeaderSize = dimension === "COL" ? DEFAULT_CELL_WIDTH : DEFAULT_CELL_HEIGHT;
-    while (start < end) {
+    while (start <= end) {
       const mid = Math.floor((start + end) / 2);
       const positionLeft = positions[mid][1];
       const positionRight = positions[mid + 1][1];
@@ -126,7 +134,12 @@ class HeaderPosition {
   }
 }
 export class HeaderPositionsUIPlugin extends UIPlugin {
-  static getters = ["getColDimensions", "getRowDimensions", "getColRowOffset"] as const;
+  static getters = [
+    "getColDimensions",
+    "getRowDimensions",
+    "getColRowOffset",
+    "getColRowIndex",
+  ] as const;
 
   private headerPositions: Record<UID, HeaderPosition> = {};
   private isDirty = true;
@@ -234,6 +247,15 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     const referencePosition = this.headerPositions[sheetId].getPosition(dimension, referenceIndex);
     const position = this.headerPositions[sheetId].getPosition(dimension, index);
     return position - referencePosition;
+  }
+
+  getColRowIndex(
+    dimension: Dimension,
+    position: Pixel,
+    startIndex: HeaderIndex,
+    sheetId: UID = this.getters.getActiveSheetId()
+  ): Pixel {
+    return this.headerPositions[sheetId].getHeaderIndex(dimension, position, startIndex);
   }
 
   private setOrResetHeaderPositionsOfSheet(sheetId: UID): HeaderPosition {
