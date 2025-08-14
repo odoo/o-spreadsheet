@@ -160,17 +160,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
-      for (const cell of this.getters.getCellFromZone(sheetId, zone)) {
+    for (const cell of this.getters.getCellsFromZones(sheetId, zones)) {
+      if (cell?.isFormula || cell?.content) {
         const position = this.getters.getCellPosition(cell.id);
-        if (cell?.isFormula || cell?.content) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId: sheetId,
-            content: "",
-            col: position.col,
-            row: position.row,
-          });
-        }
+        this.dispatch("UPDATE_CELL", {
+          sheetId: sheetId,
+          content: "",
+          col: position.col,
+          row: position.row,
+        });
       }
     }
   }
@@ -192,22 +190,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
     }
   }
-
   /**
    * Clear the styles and format of zones
    */
   private clearFormatting(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            format: "",
-          });
-        }
-      }
+    for (const cell of this.getters.getCellsFromZones(sheetId, zones)) {
+      const position = this.getters.getCellPosition(cell.id);
+      this.dispatch("UPDATE_CELL", {
+        sheetId,
+        col: position.col,
+        row: position.row,
+        format: "",
+      });
     }
   }
 
@@ -215,18 +209,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Clear the styles, the format and the content of zones
    */
   private clearCells(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId: sheetId,
-            col,
-            row,
-            content: "",
-            format: "",
-          });
-        }
-      }
+    for (const cell of this.getters.getCellsFromZones(sheetId, zones)) {
+      const position = this.getters.getCellPosition(cell.id);
+      this.dispatch("UPDATE_CELL", {
+        sheetId: sheetId,
+        col: position.col,
+        row: position.row,
+        content: "",
+        format: "",
+      });
     }
   }
 
