@@ -99,7 +99,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
+  private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId: UID, sheetName: string) {
     const func = this.verifyRangeRemoved(adaptRange);
     for (const provider of this.providers) {
       provider(func, sheetId, sheetName);
