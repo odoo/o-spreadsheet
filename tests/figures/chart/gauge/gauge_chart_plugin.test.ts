@@ -17,6 +17,7 @@ import {
   duplicateSheet,
   paste,
   redo,
+  renameSheet,
   setCellContent,
   setFormat,
   undo,
@@ -175,6 +176,24 @@ describe("datasource tests", function () {
         rangeMax: "=C8",
         lowerInflectionPoint: { type: "percentage", value: "=Sheet2!A2" },
         upperInflectionPoint: { type: "number", value: "=SUM('Copy of Sheet1'!B1:C4)" },
+      });
+    });
+
+    test("gauge range are adapted when renaming the sheet", () => {
+      renameSheet(model, "Sheet2", "Boom");
+      let chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
+      expect(chart.sectionRule).toMatchObject({
+        lowerInflectionPoint: { operator: "<", type: "percentage", value: "=Boom!A2" },
+      });
+
+      renameSheet(model, "Sheet1", "Magic");
+      chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
+      expect(chart.dataRange).toStrictEqual("Magic!B1:B4");
+      expect(chart.sectionRule).toMatchObject({
+        rangeMin: "=A1+5",
+        rangeMax: "=C8",
+        lowerInflectionPoint: { operator: "<", type: "percentage", value: "=Boom!A2" },
+        upperInflectionPoint: { operator: "<", type: "number", value: "=SUM(Magic!B1:C4)" },
       });
     });
   });
