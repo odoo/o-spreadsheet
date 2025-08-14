@@ -1,7 +1,7 @@
 import { CorePlugin, coreTypes, Model } from "../src";
 import { duplicateRangeInDuplicatedSheet } from "../src/helpers";
 import { corePluginRegistry } from "../src/plugins";
-import { ApplyRangeChange, Command, Range, UID } from "../src/types";
+import { ApplyRangeChange, Command, Range } from "../src/types";
 import { CellErrorType } from "../src/types/errors";
 import {
   addColumns,
@@ -39,7 +39,7 @@ class PluginTestRange extends CorePlugin {
 
   ranges: Range[] = [];
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange) {
     for (let i = 0; i < this.ranges.length; i++) {
       const range = this.ranges[i];
       const change = applyChange(range);

@@ -139,7 +139,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
+  adaptRanges(applyChange: ApplyRangeChange) {
     for (const sheetId in this.compiledMeasureFormulas) {
       for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
         const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
