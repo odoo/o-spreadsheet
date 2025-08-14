@@ -331,7 +331,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   private isMergeDestructive(sheetId: UID, zone: Zone): boolean {
     for (const cell of this.getters.getCellsFromZone(sheetId, zone)) {
       if (cell.content !== "") {
-        return true;
+        const position = this.getters.getCellPosition(cell.id);
+        if (position.col !== zone.left || position.row !== zone.top) {
+          return true;
+        }
       }
     }
     return false;
