@@ -1,10 +1,30 @@
 {
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "prettier": "prettier . --write",
+    "check-formatting": "prettier . --check && eslint"
   },
   "devDependencies": {
-    "husky": "^7.0.4"
+    "@prettier/plugin-xml": "^2.2.0",
+    "lint-staged": "^12.1.2",
+    "husky": "^7.0.4",
+    "prettier": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.2"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "xmlWhitespaceSensitivity": "ignore",
+    "bracketSameLine": true,
+    "xmlSelfClosingSpace": false
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
