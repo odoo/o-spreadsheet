@@ -255,7 +255,7 @@ describe("sheets", () => {
     const model = new Model();
     setCellContent(model, "A1", "=Sheet133!A1");
 
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
   });
 
   test("does not throw if invalid sheetId", () => {

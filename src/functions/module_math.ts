@@ -1,7 +1,13 @@
+import { functionRegistry } from ".";
+import { tokenColors } from "../components/composer/composer/abstract_composer_store";
+import { splitReference, toZone } from "../helpers";
+import { insertTokenAfterLeftParenthesis } from "../helpers/pivot/pivot_composer_helpers";
+import { autoCompleteProviders } from "../registries/auto_completes";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
+  EvaluatedCell,
   FunctionResultNumber,
   FunctionResultObject,
   Matrix,
@@ -1358,6 +1364,114 @@ export const SQRT = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
+// SUBTOTAL
+// -----------------------------------------------------------------------------
+
+export const SUBTOTAL = {
+  description: _t(
+    "Returns a subtotal for a vertical range of cells using a specified aggregation function."
+  ),
+  args: [
+    arg("function_code (number)", _t("The function to use in subtotal aggregation.")),
+    arg("ref1 (meta, range<meta>)", _t("The range or reference for which you want the subtotal.")),
+    arg(
+      "ref2 (meta, range<meta>, repeating)",
+      _t("Additional ranges or references for which you want the subtotal.")
+    ),
+  ],
+  compute: function (
+    functionCode: Maybe<FunctionResultObject>,
+    ...refs: Matrix<{ value: string }>[]
+  ) {
+    let code = toInteger(functionCode, this.locale);
+    let acceptHiddenCells = true;
+    if (code > 100) {
+      code -= 100;
+      acceptHiddenCells = false;
+    }
+    if (code < 1 || code > 11) {
+      return new EvaluationError(
+        _t("The function code (%s) must be between 1 to 11 or 101 to 111.", code)
+      );
+    }
+
+    const evaluatedCellToKeep: EvaluatedCell[] = [];
+
+    for (const ref of refs) {
+      const ref0 = ref[0][0];
+      const sheetName = splitReference(ref0.value).sheetName;
+      const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : this.__originSheetId;
+
+      if (!sheetId) continue;
+      const { top, left } = toZone(ref0.value);
+      const right = left + ref.length - 1;
+      const bottom = top + ref[0].length - 1;
+
+      for (let row = top; row <= bottom; row++) {
+        if (this.getters.isRowFiltered(sheetId, row)) continue;
+        if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) continue;
+
+        for (let col = left; col <= right; col++) {
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (!cell || !cell.isFormula || !cell.content || !cell.content.includes("SUBTOTAL")) {
+            evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
+          }
+        }
+      }
+    }
+
+    return functionRegistry
+      .get(subtotalFunctionAggregateByCode[code])
+      .compute.apply(this, [[evaluatedCellToKeep]]);
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+const subtotalFunctionAggregateDescriptions = [
+  (fnName: string) => _t("%s (accept hidden cells)", fnName),
+  (fnName: string) => _t(`%s (doesn't accept hidden cells)`, fnName),
+];
+
+autoCompleteProviders.add("subtotal_function_code_aggregate", {
+  sequence: 50,
+  autoSelectFirstProposal: true,
+  getProposals(tokenAtCursor) {
+    const functionContext = tokenAtCursor.functionContext;
+    if (
+      !functionContext ||
+      functionContext.parent.toUpperCase() !== "SUBTOTAL" ||
+      functionContext.argPosition !== 0
+    ) {
+      return;
+    }
+    const subtotalFunctionCodes = Object.keys(subtotalFunctionAggregateByCode);
+    if (subtotalFunctionCodes.includes(tokenAtCursor.value)) {
+      return;
+    }
+
+    const proposals: any[] = [];
+
+    for (let i = 0; i < subtotalFunctionAggregateDescriptions.length; i++) {
+      for (const functionCode of subtotalFunctionCodes) {
+        const str = `${i === 1 ? Number(functionCode) + 100 : functionCode}`;
+        proposals.push({
+          text: str,
+          description: subtotalFunctionAggregateDescriptions[i](
+            subtotalFunctionAggregateByCode[functionCode]
+          ),
+          htmlContent: [{ value: str, color: tokenColors.NUMBER }],
+          fuzzySearchKey: str,
+          alwaysExpanded: true,
+        });
+      }
+    }
+
+    return proposals;
+  },
+  selectProposal: insertTokenAfterLeftParenthesis,
+});
+
+// -----------------------------------------------------------------------------
 // SUM
 // -----------------------------------------------------------------------------
 export const SUM = {
@@ -1514,3 +1628,17 @@ export const INT = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+const subtotalFunctionAggregateByCode = {
+  1: "AVERAGE",
+  2: "COUNT",
+  3: "COUNTA",
+  4: "MAX",
+  5: "MIN",
+  6: "PRODUCT",
+  7: "STDEV",
+  8: "STDEVP",
+  9: "SUM",
+  10: "VAR",
+  11: "VARP",
+};

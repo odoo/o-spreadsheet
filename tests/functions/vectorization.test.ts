@@ -2,6 +2,7 @@ import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
+import { splitReference } from "../../src/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   addToRegistry,
@@ -187,5 +188,27 @@ describe("vectorization", () => {
       const functionDefinition = functionRegistry.content[UNARY_OPERATOR_MAP[op]];
       expect(functionDefinition.args[0].type.every((t) => !t.startsWith("RANGE") && t !== "META"));
     }
+  });
+
+  test("vectorization is possible with meta args", () => {
+    addToRegistry(functionRegistry, "META.FUNCTION.WITHOUT.RANGE.ARGS", {
+      description: "a function with simple args",
+      args: [
+        { name: "metaArg1", description: "", type: ["META"] },
+        { name: "metaArg2", description: "", type: ["META"] },
+      ],
+      compute: function (arg1, arg2) {
+        // @ts-ignore
+        return splitReference(arg1.value).xc + splitReference(arg2.value).xc;
+      },
+    });
+
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=META.FUNCTION.WITHOUT.RANGE.ARGS(A4, B4:C5)");
+    expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
+      ["A4B4", "A4C4"],
+      ["A4B5", "A4C5"],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 });
