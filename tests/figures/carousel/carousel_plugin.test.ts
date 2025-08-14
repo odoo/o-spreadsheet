@@ -6,6 +6,7 @@ import {
   createCarousel,
   createChart,
   duplicateSheet,
+  selectCarouselItem,
   updateCarousel,
   updateChart,
 } from "../../test_helpers/commands_helpers";
@@ -123,5 +124,22 @@ describe("Carousel figure", () => {
       dataSets: [{ dataRange: "A1:A6" }],
     });
     expect(newModel.getters.getChartDefinition("chartId2")).toMatchObject({ type: "radar" });
+  });
+
+  test("Carousel item is still selected when changing its name", () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const chartId = addNewChartToCarousel(model, "carouselId");
+    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({ type: "chart", chartId });
+
+    updateCarousel(model, "carouselId", {
+      items: [{ type: "carouselDataView" }, { type: "chart", chartId, title: "Title" }],
+    });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({
+      type: "chart",
+      chartId,
+      title: "Title",
+    });
   });
 });

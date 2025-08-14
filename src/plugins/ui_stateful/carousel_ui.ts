@@ -1,5 +1,5 @@
 import { AbstractChart, Carousel, CarouselItem, Command, UID } from "../..";
-import { deepEquals, UuidGenerator } from "../../helpers";
+import { UuidGenerator } from "../../helpers";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
 import { UIPlugin } from "../ui_plugin";
 
@@ -12,7 +12,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
   private uuidGenerator = new UuidGenerator();
 
-  carouselStates: Record<UID, CarouselItem | undefined> = {};
+  carouselStates: Record<UID, string | undefined> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -23,7 +23,7 @@ export class CarouselUIPlugin extends UIPlugin {
         this.addFigureChartToCarousel(cmd.carouselFigureId, cmd.chartFigureId, cmd.sheetId);
         break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.figureId] = cmd.item;
+        this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
         break;
       case "DELETE_FIGURE":
         delete this.carouselStates[cmd.figureId];
@@ -48,7 +48,11 @@ export class CarouselUIPlugin extends UIPlugin {
       return undefined;
     }
 
-    return this.carouselStates[figureId] ? this.carouselStates[figureId] : carousel.items[0];
+    return this.carouselStates[figureId]
+      ? carousel.items.find(
+          (item) => this.getCarouselItemId(item) === this.carouselStates[figureId]
+        )
+      : carousel.items[0];
   }
 
   getChartFromFigureId(figureId: UID): AbstractChart | undefined {
@@ -91,11 +95,13 @@ export class CarouselUIPlugin extends UIPlugin {
       return;
     }
     if (!this.carouselStates[figureId]) {
-      this.carouselStates[figureId] = carousel.items[0];
+      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
     } else if (carousel.items.length === 0) {
       delete this.carouselStates[figureId];
-    } else if (!carousel.items.some((item) => deepEquals(item, this.carouselStates[figureId]))) {
-      this.carouselStates[figureId] = carousel.items[0];
+    } else if (
+      !carousel.items.some((item) => this.getCarouselItemId(item) === this.carouselStates[figureId])
+    ) {
+      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
     }
   }
 
@@ -129,5 +135,9 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
+  }
+
+  private getCarouselItemId(item: CarouselItem): UID {
+    return item.type === "chart" ? item.chartId : "carouselDataView";
   }
 }
