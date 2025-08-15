@@ -28,13 +28,13 @@ function getConfigForFormat(format, minified = false) {
 export default (commandLineArgs) => {
   let output = [];
   let input = "";
-  let plugins = [nodeResolve()];
+  let plugins = [nodeResolve({ moduleDirectories: ["node_modules"] })];
   let config = {};
 
   if (commandLineArgs.format) {
     // Only build one version to improve speed
     config = {
-      input: "../../build/js/index.js",
+      input: "../../build/packages/o-spreadsheet/index.js",
       external: ["@odoo/owl"],
       output: [
         {

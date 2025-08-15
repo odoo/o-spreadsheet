@@ -1,8 +1,3 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "build/js",
-    "preserveWatchOutput": true
-  },
-  "include": ["packages/o-spreadsheet/src"]
+  "extends": "./tsconfig.base.json"
 }
