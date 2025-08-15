@@ -1,5 +1,5 @@
 {
-  "name": "@odoo/o-spreadsheet",
+  "name": "@odoo/o-spreadsheet-web",
   "version": "18.5.0-alpha.7",
   "description": "A spreadsheet component",
   "type": "module",
@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
-    "build:js": "tsc --module es6 --incremental",
+    "build:js": "tsc --incremental",
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
     "bundle:xml": "node ../../tools/bundle_xml/main.cjs",

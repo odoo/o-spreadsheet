@@ -206,7 +206,7 @@ import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 
-import { helloWorldFromCorePackage } from "@odoo/o-spreadsheet-core/src";
+import { helloWorldFromCorePackage } from "@odoo/o-spreadsheet-core";
 
 helloWorldFromCorePackage();
 

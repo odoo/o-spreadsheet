@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "ES6",
+    "module": "esnext",
     "target": "ESNext",
     "preserveConstEnums": true,
     "noImplicitThis": true,

@@ -2,7 +2,7 @@ const watch = require("node-watch");
 const { createScssBundle } = require("./scss.cjs");
 
 const watcher = watch(
-  "./packages/o-spreadsheet/src",
+  "./packages/o-spreadsheet-web/src",
   { filter: /\.scss$/, recursive: true },
   (ev, name) => {
     console.log(`\n File ${name}: ${ev}`);

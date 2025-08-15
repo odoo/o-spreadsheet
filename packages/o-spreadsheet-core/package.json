@@ -1,9 +1,14 @@
 {
   "name": "@odoo/o-spreadsheet-core",
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./build/index.js",
+      "types": "./src/index.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc --module es6 --incremental",
+    "build": "tsc --incremental",
     "test": "echo 'No tests specified for core package.'"
   },
   "publishConfig": {

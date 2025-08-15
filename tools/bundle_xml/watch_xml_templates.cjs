@@ -2,7 +2,7 @@ const watch = require("node-watch");
 const bundle = require("./bundle_xml_templates.cjs");
 
 const watcher = watch(
-  "./packages/o-spreadsheet/src",
+  "./packages/o-spreadsheet-web/src",
   { filter: /\.xml$/, recursive: true },
   (ev, name) => {
     console.log(`\n File ${name}: ${ev}`);

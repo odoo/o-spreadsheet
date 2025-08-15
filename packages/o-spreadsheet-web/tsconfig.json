@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
-    "outDir": "../../build/o-spreadsheet",
+    "outDir": "../../build/o-spreadsheet-web",
     "preserveWatchOutput": true
   }
 }

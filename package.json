@@ -11,11 +11,11 @@
     "test": "npm run test --workspaces",
     "build": "npm run build --workspaces",
     "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
-    "bundle:dev": "npm run bundle:dev --workspace=packages/o-spreadsheet",
+    "bundle:dev": "npm run bundle:dev --workspace=packages/o-spreadsheet-web",
     "server": "node tools/server/main.cjs",
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
     "watch": "npm-run-all -p watch:*",
-    "watch:bundle": "npm run bundle:iife --workspace=packages/o-spreadsheet",
+    "watch:bundle": "npm run bundle:iife --workspace=packages/o-spreadsheet-web",
     "watch:ts": "npm run build:js --workspaces -- --watch",
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
     "watch:scss": "node tools/bundle_scss/watch_scss_files.cjs",
@@ -38,10 +38,10 @@
     "testEnvironment": "jsdom",
     "testRegex": "(packages/.*/tests/.*test)\\.ts?$",
     "workerIdleMemoryLimit": "800MB",
-    "globalSetup": "<rootDir>/packages/o-spreadsheet/tests/setup/jest_global_setup.ts",
-    "globalTeardown": "<rootDir>/packages/o-spreadsheet/tests/setup/jest_global_teardown.ts",
+    "globalSetup": "<rootDir>/packages/o-spreadsheet-web/tests/setup/jest_global_setup.ts",
+    "globalTeardown": "<rootDir>/packages/o-spreadsheet-web/tests/setup/jest_global_teardown.ts",
     "setupFilesAfterEnv": [
-      "<rootDir>/packages/o-spreadsheet/tests/setup/jest.setup.ts"
+      "<rootDir>/packages/o-spreadsheet-web/tests/setup/jest.setup.ts"
     ]
   },
   "prettier": {
