@@ -18,6 +18,22 @@
     "prettier": "^2.8.0",
     "prettier-plugin-organize-imports": "^3.2.2"
   },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    },
+    "verbose": false,
+    "testEnvironment": "jsdom",
+    "testRegex": "(packages/.*/tests/.*test)\\.ts?$",
+    "workerIdleMemoryLimit": "800MB",
+    "globalSetup": "<rootDir>/packages/o-spreadsheet/tests/setup/jest_global_setup.ts",
+    "globalTeardown": "<rootDir>/packages/o-spreadsheet/tests/setup/jest_global_teardown.ts",
+    "setupFilesAfterEnv": [
+      "<rootDir>/packages/o-spreadsheet/tests/setup/jest.setup.ts"
+    ]
+  },
   "prettier": {
     "printWidth": 100,
     "xmlWhitespaceSensitivity": "ignore",

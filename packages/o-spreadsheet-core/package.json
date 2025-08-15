@@ -2,5 +2,8 @@
   "name": "@odoo/o-spreadsheet-core",
   "scripts": {
     "test": "echo 'No tests specified for core package.'"
+  },
+  "publishConfig": {
+    "tag": "alpha"
   }
 }
