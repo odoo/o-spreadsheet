@@ -1,5 +1,5 @@
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
+import { Color, DeepPartial } from "../misc";
 import { CustomizedDataSet } from "./chart";
 import { ComboBarChartDefinition } from "./common_bar_combo";
 
@@ -12,7 +12,7 @@ export interface ComboChartDefinition extends ComboBarChartDefinition {
 export type ComboChartDataSet = CustomizedDataSet & { type?: "bar" | "line" };
 
 export type ComboChartRuntime = {
-  chartJsConfig: ChartConfiguration;
-  masterChartConfig?: ChartConfiguration;
+  chartJsConfig: DeepPartial<ChartConfiguration>;
+  masterChartConfig?: DeepPartial<ChartConfiguration>;
   background: Color;
 };

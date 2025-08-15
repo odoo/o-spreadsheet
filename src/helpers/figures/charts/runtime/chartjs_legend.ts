@@ -1,5 +1,5 @@
 import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
+import { DeepPartial } from "../../../..";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
@@ -21,22 +21,25 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { ColorGenerator } from "../../../color";
 import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";
 
-type ChartLegend = DeepPartial<LegendOptions<any>>;
+// type ChartLegend = DeepPartial<LegendOptions<any>>;
 
 function getLegendDisplayOptions(
   definition: GenericDefinition<ChartWithDataSetDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
-  return {
+): DeepPartial<LegendOptions<any>> {
+  const options: DeepPartial<LegendOptions<any>> = {
     display: definition.legendPosition !== "none",
-    position: definition.legendPosition !== "none" ? definition.legendPosition : undefined,
   };
+  if (definition.legendPosition !== "none") {
+    options.position = definition.legendPosition;
+  }
+  return options;
 }
 
 export function getBarChartLegend(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"bar">> {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
@@ -50,7 +53,7 @@ export function getBarChartLegend(
 export function getLineChartLegend(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"line">> {
   const filled = definition.fillArea;
   const pointStyle = filled ? "rect" : "line";
   const lineWidth = filled ? 2 : 3;
@@ -67,7 +70,7 @@ export function getLineChartLegend(
 export function getPieChartLegend(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"pie">> {
   const { dataSetsValues } = args;
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
   const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
@@ -99,7 +102,7 @@ export function getPieChartLegend(
 export function getScatterChartLegend(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"scatter">> {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
@@ -115,7 +118,7 @@ export function getScatterChartLegend(
 export function getComboChartLegend(
   definition: GenericDefinition<ComboChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"bar">> {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
@@ -128,7 +131,7 @@ export function getComboChartLegend(
 export function getWaterfallChartLegend(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"bar">> {
   const fontColor = chartFontColor(definition.background);
   const negativeColor = definition.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = definition.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
@@ -179,7 +182,7 @@ export function getWaterfallChartLegend(
 export function getRadarChartLegend(
   definition: GenericDefinition<RadarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"radar">> {
   const fill = definition.fillArea ?? false;
   const pointStyle = fill ? "rect" : "line";
   const lineWidth = fill ? 2 : 3;
@@ -196,7 +199,7 @@ export function getRadarChartLegend(
 export function getSunburstChartLegend(
   definition: SunburstChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartLegend {
+): DeepPartial<LegendOptions<"doughnut">> {
   const fontColor = chartFontColor(definition.background);
 
   return {

@@ -40,9 +40,11 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     if (!runtime || !("chartJsConfig" in runtime)) {
       return [];
     }
-    return runtime.chartJsConfig.data.datasets
-      .filter((d) => !isTrendLineAxis(d["xAxisID"] ?? ""))
-      .map((d) => d.label);
+    return (
+      runtime.chartJsConfig.data?.datasets
+        ?.filter((d) => !isTrendLineAxis(d["xAxisID"] ?? ""))
+        .map((d) => d.label) ?? []
+    );
   }
 
   updateEditedSeries(ev: Event) {

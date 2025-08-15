@@ -9,7 +9,6 @@ import {
   ChartComponent,
   TooltipPositionerFunction,
 } from "chart.js";
-import { AnyObject } from "chart.js/dist/types/basic";
 
 export function getFunnelChartController(): ChartComponent & {
   prototype: BarController;
@@ -46,7 +45,7 @@ export function getFunnelChartController(): ChartComponent & {
 
 export function getFunnelChartElement(): ChartComponent & {
   prototype: BarElement;
-  new (cfg: AnyObject): BarElement;
+  new (cfg: Record<string, any>): BarElement;
 } {
   /**
    * Similar to a bar chart element, but it's a trapezoid rather than a rectangle. The top is of width

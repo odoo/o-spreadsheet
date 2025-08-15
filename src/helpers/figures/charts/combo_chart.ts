@@ -7,6 +7,7 @@ import {
   CommandResult,
   CoreGetters,
   DataSet,
+  DeepPartial,
   ExcelChartDefinition,
   Getters,
   Range,
@@ -229,7 +230,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const definition = chart.getDefinition();
   const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration = {
+  const config: DeepPartial<ChartConfiguration<"bar" | "line">> = {
     type: "bar",
     data: {
       labels: chartData.labels,

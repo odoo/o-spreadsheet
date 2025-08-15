@@ -1,7 +1,6 @@
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
-import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { toNumber } from "../../../../functions/helpers";
-import { CellValue } from "../../../../types";
+import { CellValue, DeepPartial } from "../../../../types";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -23,7 +22,7 @@ import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
 import { GHOST_SUNBURST_VALUE } from "./chartjs_dataset";
 
-type ChartTooltip = _DeepPartialObject<TooltipOptions<any>>;
+type ChartTooltip = DeepPartial<TooltipOptions<any>>;
 type ChartContext = { chart: Chart; tooltip: TooltipModel<any> };
 
 export function getBarChartTooltip(

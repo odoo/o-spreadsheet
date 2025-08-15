@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "module": "ES6",
+    "module": "esnext",
     "target": "ESNext",
     "preserveConstEnums": true,
     "noImplicitThis": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "removeComments": false,
     "alwaysStrict": true,
     "noUnusedLocals": true,

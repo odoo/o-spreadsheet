@@ -129,7 +129,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
 
   getMaxPolynomialDegree(index) {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
-    return Math.min(10, runtime.chartJsConfig.data.datasets[index].data.length - 1);
+    return Math.min(10, (runtime.chartJsConfig.data?.datasets?.[index]?.data?.length ?? 0) - 1);
   }
 
   get defaultWindowSize() {

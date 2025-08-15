@@ -16,7 +16,7 @@
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
     "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
     "server": "node tools/server/main.cjs",
-    "build:js": "tsc --module es6 --incremental",
+    "build:js": "tsc --incremental",
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
     "bundle:xml": "node tools/bundle_xml/main.cjs",

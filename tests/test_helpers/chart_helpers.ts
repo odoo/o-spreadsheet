@@ -81,13 +81,13 @@ export function getChartTooltipItemFromDataset(
 ): Partial<TooltipItem<any>> {
   const datasetPoint = chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex];
   const y = typeof datasetPoint === "number" ? datasetPoint : datasetPoint?.["y"];
-  const x = chart.chartJsConfig!.data.labels![dataIndex];
+  const x = chart.chartJsConfig!.data!.labels![dataIndex];
   const point = chart.chartJsConfig.type === "pie" ? y : { x, y };
   return {
     label: "",
     parsed: point,
     raw: point,
-    dataset: chart.chartJsConfig.data!.datasets[datasetIndex],
+    dataset: chart.chartJsConfig.data!.datasets?.[datasetIndex],
     datasetIndex,
     dataIndex,
   };

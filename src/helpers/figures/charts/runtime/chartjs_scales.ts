@@ -1,5 +1,4 @@
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
+import { ChartType, LinearScaleOptions, Scale, ScaleChartOptions, Tick } from "chart.js";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_PADDING,
@@ -7,7 +6,7 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "../../../../constants";
-import { LocaleFormat } from "../../../../types";
+import { DeepPartial, LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   BarChartDefinition,
@@ -40,14 +39,14 @@ import {
   truncateLabel,
 } from "../chart_common";
 
-type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
+type ChartScales<T extends ChartType> = DeepPartial<ScaleChartOptions<T>["scales"]>;
 type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;
 
 export function getBarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
-  let scales: ChartScales = {};
+): ChartScales<"bar"> {
+  let scales: ChartScales<"bar"> = {};
   const { trendDataSetsValues: trendDatasets, locale, axisFormats } = args;
   const options = { stacked: definition.stacked, locale: locale };
   if (definition.horizontal) {
@@ -86,12 +85,12 @@ export function getBarChartScales(
 export function getLineChartScales(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"line"> {
   const { locale, axisType, trendDataSetsValues: trendDatasets, labels, axisFormats } = args;
   const labelFormat = axisFormats?.x;
   const stacked = definition.stacked;
 
-  let scales: ChartScales = {
+  let scales: ChartScales<"line"> = {
     x: getChartAxis(definition, "bottom", "labels", { locale }),
     y: getChartAxis(definition, "left", "values", { locale, stacked, format: axisFormats?.y }),
     y1: getChartAxis(definition, "right", "values", { locale, stacked, format: axisFormats?.y1 }),
@@ -155,11 +154,11 @@ export function getScatterChartScales(
 export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"bar"> {
   const { locale, axisFormats } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   definition.dataSets;
-  const scales: ChartScales = {
+  const scales: ChartScales<"bar"> = {
     x: {
       ...getChartAxis(definition, "bottom", "labels", { locale }),
       grid: { display: false },
@@ -192,7 +191,7 @@ export function getWaterfallChartScales(
 export function getPyramidChartScales(
   definition: PyramidChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"bar"> {
   const { dataSetsValues } = args;
   const scales = getBarChartScales(definition, args);
   const scalesXCallback = scales!.x!.ticks!.callback as (value: number) => string;
@@ -210,7 +209,7 @@ export function getPyramidChartScales(
 export function getRadarChartScales(
   definition: GenericDefinition<RadarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"radar"> {
   const { locale, axisFormats, dataSetsValues } = args;
   const minValue = Math.min(
     ...dataSetsValues.map((ds) => Math.min(...ds.data.filter((x) => !isNaN(x))))
@@ -272,7 +271,7 @@ export function getGeoChartScales(
 export function getFunnelChartScales(
   definition: FunnelChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"funnel"> {
   const dataSet = args.dataSetsValues[0];
   return {
     x: {
@@ -281,7 +280,7 @@ export function getFunnelChartScales(
     y: {
       grid: { offset: false }, // bar charts grid is offset by default
       ticks: {
-        callback: function (tickValue: number) {
+        callback: function (this: Scale, tickValue: number) {
           return truncateLabel(this.getLabelForValue(tickValue));
         },
       },
@@ -384,7 +383,7 @@ function getChartAxis(
       ticks: {
         padding: 5,
         color: fontColor,
-        callback: function (tickValue: number, index: number, ticks: Tick[]) {
+        callback: function (this: Scale, tickValue: number, index: number, ticks: Tick[]) {
           // Category axis callback's internal tick value is the index of the label
           // https://www.chartjs.org/docs/latest/axes/labelling.html#creating-custom-tick-formats
           return truncateLabel(this.getLabelForValue(tickValue));
