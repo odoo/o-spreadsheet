@@ -10,7 +10,15 @@
     "prettier": "prettier . --write",
     "test": "npm run test --workspaces",
     "build": "npm run build --workspaces",
-    "dev": "npm run dev --workspace=packages/o-spreadsheet",
+    "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
+    "bundle:dev": "npm run bundle:dev --workspace=packages/o-spreadsheet",
+    "server": "node tools/server/main.cjs",
+    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
+    "watch": "npm-run-all -p watch:*",
+    "watch:bundle": "npm run bundle:iife --workspace=packages/o-spreadsheet",
+    "watch:ts": "npm run build:js --workspaces -- --watch",
+    "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "watch:scss": "node tools/bundle_scss/watch_scss_files.cjs",
     "test-typecheck": "tsc --noEmit --project tsconfig.jest.json"
   },
   "devDependencies": {

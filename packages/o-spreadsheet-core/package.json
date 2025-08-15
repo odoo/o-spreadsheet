@@ -2,7 +2,8 @@
   "name": "@odoo/o-spreadsheet-core",
   "scripts": {
     "build": "echo 'No build specified for core package.'",
-    "test": "echo 'No tests specified for core package.'"
+    "test": "echo 'No tests specified for core package.'",
+    "build:js": "echo 'No JS build specified for core package.'"
   },
   "publishConfig": {
     "tag": "alpha"

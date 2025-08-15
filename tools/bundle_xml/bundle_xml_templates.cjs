@@ -26,7 +26,7 @@ function getOwlTemplatesBundle(removeRootTags = false) {
 }
 
 function getXmlTemplatesFiles() {
-  return globSync("*/src/**/*.xml");
+  return globSync("src/**/*.xml");
 }
 
 function createOwlTemplateBundle(files, removeRootTags) {
@@ -57,7 +57,7 @@ async function writeOwlTemplateBundleToFile(dir, banner = "") {
     templateBundle = banner + "\n" + templateBundle;
   }
   templateBundle = prettify(templateBundle);
-  writeToFile(path.join(__dirname, `../../${dir}/o_spreadsheet.xml`), templateBundle);
+  writeToFile(path.join(__dirname, `${dir}/o_spreadsheet.xml`), templateBundle);
   process.stdout.write("done\n");
 }
 
