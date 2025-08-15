@@ -4,6 +4,7 @@ import { parseLiteral } from "../../helpers/cells";
 import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import {
   CellIsRule,
   CellPosition,
@@ -26,7 +27,6 @@ import {
   invalidateCFEvaluationCommands,
 } from "../../types/index";
 import { CoreViewPlugin } from "../core_view_plugin";
-import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };

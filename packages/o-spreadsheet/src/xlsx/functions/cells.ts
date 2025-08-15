@@ -11,11 +11,11 @@ import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { CellValue, Format } from "../../types";
 import { CellErrorType } from "../../types/errors";
+import { DEFAULT_LOCALE } from "../../types/locale";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
-import { DEFAULT_LOCALE } from "../../types/locale";
 
 export function addFormula(
   formula: string | undefined,

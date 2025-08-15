@@ -1,10 +1,10 @@
+import { NEWLINE } from "../../constants";
 import { deepEquals, toHex } from "../../helpers";
 import {
   getBoundingRectAsPOJO,
   getCurrentSelection,
   iterateChildren,
 } from "../helpers/dom_helpers";
-import { NEWLINE } from "../../constants";
 import { HtmlContent } from "./composer/composer";
 
 export class ContentEditableHelper {

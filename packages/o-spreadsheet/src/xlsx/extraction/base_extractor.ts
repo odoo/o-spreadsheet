@@ -3,6 +3,7 @@ import {
   XLSXColor,
   XLSXColorScheme,
   XLSXFileStructure,
+  XLSXImageFile,
   XLSXImportFile,
   XLSXRel,
   XLSXTheme,
@@ -12,7 +13,6 @@ import { DEFAULT_SYSTEM_COLOR } from "../conversion";
 import { fixXlsxUnicode } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { escapeQueryNameSpaces } from "../helpers/xml_helpers";
-import { XLSXImageFile } from "../../types/xlsx";
 
 interface MapOnElementArgs {
   query: string;

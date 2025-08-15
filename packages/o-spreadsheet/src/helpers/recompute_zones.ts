@@ -1,5 +1,5 @@
-import { deepEqualsArray } from "./misc";
 import { UnboundedZone, Zone } from "../types";
+import { deepEqualsArray } from "./misc";
 
 /**
  * ####################################################

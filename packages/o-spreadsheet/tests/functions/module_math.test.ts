@@ -1,6 +1,6 @@
-import { Model } from "../../packages/o-spreadsheet/src";
-import { toNumber } from "../../packages/o-spreadsheet/src/functions/helpers";
-import { DEFAULT_LOCALE } from "../../packages/o-spreadsheet/src/types";
+import { Model } from "../../src";
+import { toNumber } from "../../src/functions/helpers";
+import { DEFAULT_LOCALE } from "../../src/types/locale";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";

@@ -4,12 +4,12 @@ import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
   XLSXExportFile,
+  XLSXExportXMLFile,
   XLSXRelFile,
   XLSXStructure,
   XMLAttributes,
   XMLString,
 } from "../types/xlsx";
-import { XLSXExportXMLFile } from "../types/xlsx";
 import {
   ARRAY_FORMULA_URI,
   CONTENT_TYPES,

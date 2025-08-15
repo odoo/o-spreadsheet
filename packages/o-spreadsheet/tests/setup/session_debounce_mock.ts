@@ -1,5 +1,5 @@
-import { ClientPosition } from "../../packages/o-spreadsheet/src";
-import { Session } from "../../packages/o-spreadsheet/src/collaborative/session";
+import { ClientPosition } from "../../src";
+import { Session } from "../../src/collaborative/session";
 
 const originalSessionMove = Session.prototype.move;
 

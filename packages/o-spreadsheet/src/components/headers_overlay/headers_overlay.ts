@@ -19,13 +19,13 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
+import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { ContextMenuType } from "../grid/grid";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { MergeErrorMessage } from "../translations_terms";
-import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
 
 // -----------------------------------------------------------------------------

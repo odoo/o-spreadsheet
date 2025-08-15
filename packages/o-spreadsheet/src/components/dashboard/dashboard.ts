@@ -18,7 +18,7 @@ import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/index";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}

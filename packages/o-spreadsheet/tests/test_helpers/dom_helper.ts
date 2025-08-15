@@ -1,6 +1,6 @@
-import { Color, Model } from "../../packages/o-spreadsheet/src";
-import { iterateChildren } from "../../packages/o-spreadsheet/src/components/helpers/dom_helpers";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../packages/o-spreadsheet/src/constants";
+import { Color, Model } from "../../src";
+import { iterateChildren } from "../../src/components/helpers/dom_helpers";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import {
   MIN_DELAY,
   lettersToNumber,
@@ -9,8 +9,8 @@ import {
   toCartesian,
   toHex,
   toZone,
-} from "../../packages/o-spreadsheet/src/helpers";
-import { DOMCoordinates, Pixel } from "../../packages/o-spreadsheet/src/types";
+} from "../../src/helpers";
+import { DOMCoordinates, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
 export type DOMTarget = string | Element | Document | Window | null;

@@ -23,7 +23,7 @@
     "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_scss/main.cjs --out build",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist && node tools/bundle_scss/main.cjs --out dist",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
-    "test": "tsc --noEmit --project ../../tsconfig.jest.json && jest",
+    "test": "jest",
     "test:watch": "jest --watch",
     "watch": "npm-run-all -p watch:*",
     "watch:bundle": "npm run bundle:iife -- --watch",

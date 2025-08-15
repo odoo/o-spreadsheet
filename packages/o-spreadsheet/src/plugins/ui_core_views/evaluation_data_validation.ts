@@ -5,6 +5,7 @@ import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matric
 import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { _t } from "../../translation";
 import {
   CellPosition,
   CellValue,
@@ -23,7 +24,6 @@ import {
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CoreViewPlugin } from "../core_view_plugin";
-import { _t } from "../../translation";
 
 interface InvalidValidationResult {
   readonly isValid: false;

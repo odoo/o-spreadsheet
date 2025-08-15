@@ -1,5 +1,5 @@
-import { AllowedImageMimeTypes } from "../../types/image";
 import { ClipboardMIMEType, OSClipboardContent } from "../../types/clipboard";
+import { AllowedImageMimeTypes } from "../../types/image";
 
 export type ClipboardReadResult =
   | { status: "ok"; content: OSClipboardContent }

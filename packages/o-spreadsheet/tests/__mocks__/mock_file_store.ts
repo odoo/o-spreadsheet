@@ -1,4 +1,4 @@
-import { FileStore as FileStoreInterface } from "../../packages/o-spreadsheet/src/types/files";
+import { FileStore as FileStoreInterface } from "../../src/types/files";
 
 export class FileStore implements FileStoreInterface {
   private fileId = 0;

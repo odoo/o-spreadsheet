@@ -2,6 +2,7 @@ import { toJsDate } from "../functions/helpers";
 import { jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format/format";
+import { AlphanumericIncrementModifier, DateIncrementModifier } from "../types/autofill";
 import {
   AutofillData,
   AutofillModifierImplementation,
@@ -12,7 +13,6 @@ import {
   IncrementModifier,
   LiteralCell,
 } from "../types/index";
-import { AlphanumericIncrementModifier, DateIncrementModifier } from "../types/autofill";
 import { Registry } from "./registry";
 
 /**

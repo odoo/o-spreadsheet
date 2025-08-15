@@ -13,8 +13,8 @@ build/
 .npmrc
 coverage/
 logs/
-tests/**/__snapshots__
-tests/**/xlsx_demo_data
+**/*/tests/**/__snapshots__
+**/*/tests/**/xlsx_demo_data
 # Ignore all PNG files:
 **/*.png
 **/*.xlsx

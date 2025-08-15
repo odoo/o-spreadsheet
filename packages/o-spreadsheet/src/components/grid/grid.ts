@@ -77,7 +77,7 @@ import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/index";
 import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";

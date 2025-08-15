@@ -4,12 +4,12 @@ import { BorderDescr, ExcelWorkbookData } from "../../types";
 import {
   XLSXBorder,
   XLSXBorderDescr,
+  XLSXExportXMLFile,
   XLSXStructure,
   XMLAttributeValue,
   XMLAttributes,
   XMLString,
 } from "../../types/xlsx";
-import { XLSXExportXMLFile } from "../../types/xlsx";
 
 // -------------------------------------
 //            XML HELPERS

@@ -39,6 +39,7 @@ import {
   TEXT_BODY_MUTED,
 } from "../../constants";
 import { batched } from "../../helpers";
+import { instantiateClipboard } from "../../helpers/clipboard/navigator_clipboard_wrapper";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -68,7 +69,6 @@ import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_pane
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { TopBar } from "../top_bar/top_bar";
-import { instantiateClipboard } from "../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet

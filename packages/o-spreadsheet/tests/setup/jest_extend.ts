@@ -1,9 +1,9 @@
-import { Model } from "../../packages/o-spreadsheet/src";
-import { isSameColor } from "../../packages/o-spreadsheet/src/helpers/color";
-import { toXC } from "../../packages/o-spreadsheet/src/helpers/coordinates";
-import { deepEquals } from "../../packages/o-spreadsheet/src/helpers/misc";
-import { positions } from "../../packages/o-spreadsheet/src/helpers/zones";
-import { CancelledReason, DispatchResult, Zone } from "../../packages/o-spreadsheet/src/types";
+import { Model } from "../../src";
+import { isSameColor } from "../../src/helpers/color";
+import { toXC } from "../../src/helpers/coordinates";
+import { deepEquals } from "../../src/helpers/misc";
+import { positions } from "../../src/helpers/zones";
+import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
 type DOMTarget = string | Element | Document | Window | null;
 

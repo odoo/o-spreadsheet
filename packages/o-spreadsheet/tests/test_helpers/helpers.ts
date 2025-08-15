@@ -1,18 +1,18 @@
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
-import { functionCache } from "../../packages/o-spreadsheet/src";
-import { Action } from "../../packages/o-spreadsheet/src/actions/action";
-import { ComposerSelection } from "../../packages/o-spreadsheet/src/components/composer/composer/abstract_composer_store";
-import { CellComposerStore } from "../../packages/o-spreadsheet/src/components/composer/composer/cell_composer_store";
-import { CellComposerProps, Composer } from "../../packages/o-spreadsheet/src/components/composer/composer/composer";
-import { ComposerFocusStore } from "../../packages/o-spreadsheet/src/components/composer/composer_focus_store";
-import { getCurrentSelection, isMobileOS } from "../../packages/o-spreadsheet/src/components/helpers/dom_helpers";
-import { SidePanelStore } from "../../packages/o-spreadsheet/src/components/side_panel/side_panel/side_panel_store";
-import { Spreadsheet, SpreadsheetProps } from "../../packages/o-spreadsheet/src/components/spreadsheet/spreadsheet";
-import { matrixMap } from "../../packages/o-spreadsheet/src/functions/helpers";
-import { functionRegistry } from "../../packages/o-spreadsheet/src/functions/index";
-import { ImageProvider } from "../../packages/o-spreadsheet/src/helpers/figures/images/image_provider";
+import { functionCache } from "../../src";
+import { Action } from "../../src/actions/action";
+import { ComposerSelection } from "../../src/components/composer/composer/abstract_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
+import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
+import { matrixMap } from "../../src/functions/helpers";
+import { functionRegistry } from "../../src/functions/index";
+import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,
   range,
@@ -21,30 +21,30 @@ import {
   toXC,
   toZone,
   zoneToXc,
-} from "../../packages/o-spreadsheet/src/helpers/index";
-import { createEmptyExcelWorkbookData } from "../../packages/o-spreadsheet/src/migrations/data";
-import { Model, ModelExternalConfig } from "../../packages/o-spreadsheet/src/model";
-import { BasePlugin } from "../../packages/o-spreadsheet/src/plugins/base_plugin";
-import { MergePlugin } from "../../packages/o-spreadsheet/src/plugins/core/merge";
-import { CorePluginConstructor } from "../../packages/o-spreadsheet/src/plugins/core_plugin";
-import { SheetUIPlugin } from "../../packages/o-spreadsheet/src/plugins/ui_feature";
-import { UIPluginConstructor } from "../../packages/o-spreadsheet/src/plugins/ui_plugin";
-import { MenuItemRegistry } from "../../packages/o-spreadsheet/src/registries/menu_items_registry";
-import { topbarMenuRegistry } from "../../packages/o-spreadsheet/src/registries/menus";
-import { Registry } from "../../packages/o-spreadsheet/src/registries/registry";
+} from "../../src/helpers/index";
+import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
+import { Model, ModelExternalConfig } from "../../src/model";
+import { BasePlugin } from "../../src/plugins/base_plugin";
+import { MergePlugin } from "../../src/plugins/core/merge";
+import { CorePluginConstructor } from "../../src/plugins/core_plugin";
+import { SheetUIPlugin } from "../../src/plugins/ui_feature";
+import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
+import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { topbarMenuRegistry } from "../../src/registries/menus";
+import { Registry } from "../../src/registries/registry";
 import {
   DependencyContainer,
   Store,
   StoreConstructor,
   proxifyStoreMutation,
   useStore,
-} from "../../packages/o-spreadsheet/src/store_engine";
-import { ModelStore } from "../../packages/o-spreadsheet/src/stores";
-import { FormulaFingerprintStore } from "../../packages/o-spreadsheet/src/stores/formula_fingerprints_store";
-import { HighlightProvider, HighlightStore } from "../../packages/o-spreadsheet/src/stores/highlight_store";
-import { NotificationStore } from "../../packages/o-spreadsheet/src/stores/notification_store";
-import { RendererStore } from "../../packages/o-spreadsheet/src/stores/renderer_store";
-import { _t } from "../../packages/o-spreadsheet/src/translation";
+} from "../../src/store_engine";
+import { ModelStore } from "../../src/stores";
+import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
+import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
+import { NotificationStore } from "../../src/stores/notification_store";
+import { RendererStore } from "../../src/stores/renderer_store";
+import { _t } from "../../src/translation";
 import {
   CellPosition,
   CellValue,
@@ -69,11 +69,11 @@ import {
   Style,
   UID,
   Zone,
-} from "../../packages/o-spreadsheet/src/types";
-import { Image } from "../../packages/o-spreadsheet/src/types/image";
-import { XLSXExport } from "../../packages/o-spreadsheet/src/types/xlsx";
-import { isXLSXExportXMLFile } from "../../packages/o-spreadsheet/src/xlsx/helpers/xlsx_helper";
-import { fixLengthySheetNames, purgeSingleRowTables } from "../../packages/o-spreadsheet/src/xlsx/xlsx_writer";
+} from "../../src/types";
+import { Image } from "../../src/types/image";
+import { XLSXExport } from "../../src/types/xlsx";
+import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
+import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";

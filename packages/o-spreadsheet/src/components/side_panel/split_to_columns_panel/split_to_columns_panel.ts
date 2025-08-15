@@ -4,11 +4,11 @@ import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_
 import { useStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
+import { ComposerFocusStore } from "../../composer/composer_focus_store";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 

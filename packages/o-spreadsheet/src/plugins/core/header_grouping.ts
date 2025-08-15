@@ -7,8 +7,8 @@ import {
   range,
 } from "../../helpers";
 import { CommandResult, CoreCommand, ExcelWorkbookData, UID, WorkbookData } from "../../types";
-import { getSheetDataHeader } from "../../xlsx/helpers/misc";
 import { Dimension, HeaderGroup, HeaderIndex, Zone } from "../../types/misc";
+import { getSheetDataHeader } from "../../xlsx/helpers/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface State {

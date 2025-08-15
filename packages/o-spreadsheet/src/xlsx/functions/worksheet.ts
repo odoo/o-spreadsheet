@@ -14,6 +14,7 @@ import { withHttps } from "../../helpers/links";
 import { PositionMap } from "../../plugins/ui_core_views/cell_evaluation/position_map";
 import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
+import { HeaderIndex } from "../../types/misc";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
@@ -25,7 +26,6 @@ import {
   normalizeStyle,
 } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
-import { HeaderIndex } from "../../types/misc";
 import { addContent, addFormula } from "./cells";
 
 export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString {

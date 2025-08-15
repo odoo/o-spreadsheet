@@ -8,7 +8,8 @@
     "check-formatting": "prettier . --check && eslint",
     "prepare": "husky install",
     "prettier": "prettier . --write",
-    "test": "npm run test ---workspaces"
+    "test": "npm run test --workspaces",
+    "test-typecheck": "tsc --noEmit --project tsconfig.jest.json"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
@@ -25,7 +26,7 @@
   },
   "lint-staged": {
     "*": [
-      "prettier --write",
+      "prettier . --write",
       "eslint --fix"
     ]
   }
