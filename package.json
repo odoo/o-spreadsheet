@@ -9,6 +9,8 @@
     "prepare": "husky install",
     "prettier": "prettier . --write",
     "test": "npm run test --workspaces",
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspace=packages/o-spreadsheet",
     "test-typecheck": "tsc --noEmit --project tsconfig.jest.json"
   },
   "devDependencies": {

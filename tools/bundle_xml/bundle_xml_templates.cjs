@@ -26,7 +26,7 @@ function getOwlTemplatesBundle(removeRootTags = false) {
 }
 
 function getXmlTemplatesFiles() {
-  return globSync("src/**/*.xml");
+  return globSync("*/src/**/*.xml");
 }
 
 function createOwlTemplateBundle(files, removeRootTags) {

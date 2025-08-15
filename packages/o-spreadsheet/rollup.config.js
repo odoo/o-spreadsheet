@@ -2,7 +2,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
-import { bundle } from "./tools/bundle.cjs";
+import { bundle } from "../../tools/bundle.cjs";
 
 const outro = bundle.outro();
 
@@ -34,7 +34,7 @@ export default (commandLineArgs) => {
   if (commandLineArgs.format) {
     // Only build one version to improve speed
     config = {
-      input: "build/js/index.js",
+      input: "../../build/js/index.js",
       external: ["@odoo/owl"],
       output: [
         {
