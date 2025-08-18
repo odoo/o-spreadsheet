@@ -125,14 +125,18 @@ export class CarouselUIPlugin extends UIPlugin {
       return;
     }
     const carousel = this.getters.getCarousel(figureId);
+    const chartDefinition = this.getters.getChartDefinition(chartId);
+    const title = chartDefinition?.title.text ? chartDefinition.title : undefined;
 
-    const definition: Carousel = { items: [...carousel.items, { type: "chart", chartId }] };
+    const definition: Carousel = {
+      items: [...carousel.items, { type: "chart", chartId, carouselTitle: title }],
+    };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
     this.dispatch("UPDATE_CHART", {
       sheetId,
       chartId,
       figureId,
-      definition: this.getters.getChartDefinition(chartId),
+      definition: { ...chartDefinition, title: {} },
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
   }
