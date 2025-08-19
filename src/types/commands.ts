@@ -180,6 +180,7 @@ export const invalidateBordersCommands = new Set<CommandTypes>([
   "AUTOFILL_CELL",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
+  "SET_BORDERS_ON_TARGET",
 ]);
 
 export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
