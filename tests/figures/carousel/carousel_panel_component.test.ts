@@ -2,7 +2,7 @@ import { Model, SpreadsheetChildEnv, UID } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { addNewChartToCarousel, createCarousel } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import { mockChart, mountComponent, nextTick } from "../../test_helpers/helpers";
+import { mockChart, mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockChart();
@@ -25,7 +25,7 @@ beforeEach(() => {
 });
 
 async function mountCarouselPanel(modelArg: Model, figureId: UID) {
-  ({ fixture, env } = await mountComponent(SidePanels, { model }));
+  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   env.openSidePanel("CarouselPanel", { figureId });
   await nextTick();
 }
@@ -66,7 +66,8 @@ describe("Carousel panel component", () => {
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
     await mountCarouselPanel(model, "carouselId");
 
-    await click(fixture, ".o-carousel-preview .o-edit-button");
+    await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
+    await click(fixture, '.o-menu-item[title="Edit chart"]');
     expect(".o-sidePanel .o-chart").toHaveCount(1);
   });
 
@@ -74,11 +75,29 @@ describe("Carousel panel component", () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
     model = new Model(model.exportData());
+
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
 
-    await click(fixture, ".o-carousel-preview .o-delete-button");
+    await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
+    await click(fixture, '.o-menu-item[title="Delete item"]');
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
+    expect(model.getters.getChartIds(model.getters.getActiveSheetId())).toHaveLength(0);
+  });
+
+  test("Can pop a carousel item out", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    model = new Model(model.exportData());
+
+    await mountCarouselPanel(model, "carouselId");
+    expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
+
+    await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
+    await click(fixture, '.o-menu-item[title="Pop out chart"]');
+    expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
+    expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(2);
+    expect(model.getters.getChartIds(model.getters.getActiveSheetId())).toHaveLength(1);
   });
 
   test("Can drag & drop carousel items to re-order them", async () => {

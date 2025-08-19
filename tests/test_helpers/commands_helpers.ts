@@ -1618,6 +1618,15 @@ export function addChartFigureToCarousel(
   });
 }
 
+export function popOutChartFromCarousel(
+  model: Model,
+  sheetId: UID,
+  carouselId: UID,
+  chartId: UID
+): DispatchResult {
+  return model.dispatch("POPOUT_CHART_FROM_CAROUSEL", { carouselId, chartId, sheetId });
+}
+
 export function addNewChartToCarousel(
   model: Model,
   carouselId: UID,

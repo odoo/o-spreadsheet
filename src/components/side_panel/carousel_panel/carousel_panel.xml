@@ -40,17 +40,8 @@
               />
             </div>
             <div class="ms-auto"/>
-            <div
-              t-if="item.type === 'chart'"
-              class="o-edit-button o-button-icon pe-2 ps-1 flex-shrink-0 fa fa-pencil"
-              t-on-click.stop="(ev) => this.editCarouselItem(item, ev)"
-              title="Edit chart"
-            />
-            <div
-              class="o-delete-button o-button-icon pe-2 ps-1 flex-shrink-0"
-              t-on-click.stop="(ev) => this.deleteCarouselItem(item, ev)"
-              title="Remove chart">
-              <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
+            <div class="flex-shrink-0 d-flex align-self-start me-1">
+              <CogWheelMenu items="getCogWheelMenuItems(item)"/>
             </div>
           </div>
         </t>

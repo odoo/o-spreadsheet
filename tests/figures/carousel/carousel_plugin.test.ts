@@ -6,6 +6,7 @@ import {
   createCarousel,
   createChart,
   duplicateSheet,
+  popOutChartFromCarousel,
   selectCarouselItem,
   updateCarousel,
   updateChart,
@@ -141,6 +142,24 @@ describe("Carousel figure", () => {
     expect(model.getters.getChartDefinition("chartId")).toMatchObject({ type: "radar" });
     expect(model.getters.getFigureIdFromChartId("chartId")).toBe("carouselId");
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+  });
+
+  test("Can pop a chart out of a carousel", () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId");
+    expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+    const carouselFigureId = model.getters.getFigures(sheetId)![0].id;
+    const carousel = model.getters.getCarousel(carouselFigureId);
+    const chartId = carousel.items[0]["chartId"];
+
+    popOutChartFromCarousel(model, sheetId, carouselFigureId, chartId);
+    expect(model.getters.getCarousel(carouselFigureId).items).toHaveLength(0);
+
+    const newFigures = model.getters.getFigures(sheetId);
+    expect(newFigures).toHaveLength(2); // the carousel is still there, but without chart
+    expect(newFigures[0].tag).toBe("carousel");
+    expect(model.getters.getCarousel(carouselFigureId).items).toHaveLength(0);
+    expect(newFigures[1].tag).toBe("chart");
   });
 
   test("Can duplicate a sheet with a carousel", () => {

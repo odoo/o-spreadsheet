@@ -55,6 +55,9 @@ export class CarouselUIPlugin extends UIPlugin {
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
         this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
         break;
+      case "POPOUT_CHART_FROM_CAROUSEL":
+        this.popOutChartFromCarousel(cmd.carouselId, cmd.chartId, cmd.sheetId);
+        break;
       case "DELETE_FIGURE":
         delete this.carouselStates[cmd.figureId];
         break;
@@ -70,6 +73,42 @@ export class CarouselUIPlugin extends UIPlugin {
         }
         break;
     }
+  }
+  popOutChartFromCarousel(carouselId: UID, chartId: UID, sheetId: UID) {
+    const carousel = this.getters.getCarousel(carouselId);
+    if (!carousel) {
+      return;
+    }
+    const figure = this.getters.getFigure(sheetId, carouselId);
+
+    const chartDefinition = this.getters.getChartDefinition(chartId);
+    if (!chartDefinition || !figure) {
+      return;
+    }
+    const figureUI = this.getters.getFigureUI(sheetId, figure);
+    const newAnchor = this.getters.getPositionAnchorOffset({
+      x: figureUI.x + 50,
+      y: figureUI.y + 50,
+    });
+
+    const newChartFigureId = this.uuidGenerator.smallUuid();
+    this.dispatch("CREATE_CHART", {
+      ...newAnchor,
+      chartId: this.uuidGenerator.smallUuid(),
+      figureId: newChartFigureId,
+      sheetId,
+      size: { width: figure.width, height: figure.height },
+      definition: { ...chartDefinition },
+    });
+    const items = carousel.items.filter(
+      (item) => item.type !== "chart" || item.chartId !== chartId
+    );
+    this.dispatch("UPDATE_CAROUSEL", {
+      sheetId,
+      figureId: carouselId,
+      definition: { ...carousel, items },
+    });
+    this.dispatch("SELECT_FIGURE", { figureId: newChartFigureId });
   }
 
   getSelectedCarouselItem(figureId: UID): CarouselItem | undefined {
