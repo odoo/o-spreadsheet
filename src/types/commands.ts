@@ -606,6 +606,12 @@ export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   item: CarouselItem;
 }
 
+export interface PopOutChartFromCarouselCommand extends SheetDependentCommand {
+  type: "POPOUT_CHART_FROM_CAROUSEL";
+  carouselId: UID;
+  chartId: UID;
+}
+
 //------------------------------------------------------------------------------
 // Image
 //------------------------------------------------------------------------------
@@ -1273,7 +1279,8 @@ export type LocalCommand =
   | ToggleCheckboxCommand
   | AddNewChartToCarouselCommand
   | AddFigureChartToCarouselCommand
-  | UpdateCarouselActiveItemCommand;
+  | UpdateCarouselActiveItemCommand
+  | PopOutChartFromCarouselCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

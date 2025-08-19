@@ -143,6 +143,23 @@ export function getCarouselMenuActions(
       name: _t("Download chart"),
     },
     {
+      id: "popout_chart",
+      name: _t("Pop out chart"),
+      icon: "o-spreadsheet-Icon.EXTERNAL",
+      execute: () => {
+        const selectedItem = env.model.getters.getSelectedCarouselItem(figureId);
+        if (!selectedItem || selectedItem.type !== "chart") {
+          return;
+        }
+        env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+          carouselId: figureId,
+          chartId: selectedItem.chartId,
+          sheetId: env.model.getters.getActiveSheetId(),
+        });
+      },
+      isVisible: isChartSelected,
+    },
+    {
       id: "delete_carousel_item",
       name: (env) => {
         const item = env.model.getters.getSelectedCarouselItem(figureId);

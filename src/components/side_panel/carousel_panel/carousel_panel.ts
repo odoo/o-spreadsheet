@@ -1,4 +1,5 @@
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { deepEquals } from "../../../helpers";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -8,6 +9,7 @@ import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
+import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../components/section/section";
 
 interface Props {
@@ -18,7 +20,7 @@ interface Props {
 export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static props = { onCloseSidePanel: Function, figureId: String };
-  static components = { Section, TextInput, TextStyler };
+  static components = { Section, TextInput, TextStyler, CogWheelMenu };
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
@@ -58,7 +60,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   addNewChartToCarousel() {
     this.env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
       figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.carouselSheetId,
     });
   }
 
@@ -74,7 +76,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   activateCarouselItem(item: CarouselItem) {
     this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.carouselSheetId,
       item,
     });
   }
@@ -104,6 +106,15 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     const items = carousel.items.filter((itm) => !deepEquals(itm, item));
     this.updateItems(items);
+  }
+
+  popOutCarouselItem(item: CarouselItem) {
+    if (item.type !== "chart") return;
+    this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+      sheetId: this.carouselSheetId,
+      carouselId: this.props.figureId,
+      chartId: item.chartId,
+    });
   }
 
   onDragHandleMouseDown(item: CarouselItem, event: MouseEvent) {
@@ -148,7 +159,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   updateItems(items: CarouselItem[]) {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.carouselSheetId,
       definition: { ...this.carousel, items },
     });
   }
@@ -157,7 +168,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.carouselSheetId,
       definition: {
         ...carousel,
         title: {
@@ -172,7 +183,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.carouselSheetId,
       definition: {
         ...carousel,
         title: {
@@ -187,5 +198,35 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     return _t(
       "Add a chart to the carousel. You can also add a chart by dragging and dropping it over the carousel figure."
     );
+  }
+
+  getCogWheelMenuItems(item: CarouselItem): ActionSpec[] {
+    const actions: ActionSpec[] = [];
+    if (item.type === "chart") {
+      actions.push({
+        name: _t("Edit chart"),
+        execute: () => this.editCarouselItem(item),
+        icon: "o-spreadsheet-Icon.EDIT",
+      });
+      actions.push({
+        name: _t("Pop out chart"),
+        execute: () => this.popOutCarouselItem(item),
+        icon: "o-spreadsheet-Icon.EXTERNAL",
+      });
+    }
+    actions.push({
+      name: _t("Delete item"),
+      execute: () => this.deleteCarouselItem(item),
+      icon: "o-spreadsheet-Icon.TRASH",
+    });
+    return actions;
+  }
+
+  get carouselSheetId(): UID {
+    const sheetId = this.env.model.getters.getFigureSheetId(this.props.figureId);
+    if (!sheetId) {
+      throw new Error("Could not find the sheetId of the carousel figure");
+    }
+    return sheetId;
   }
 }
