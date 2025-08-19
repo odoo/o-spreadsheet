@@ -1005,4 +1005,12 @@ describe("Computed borders", () => {
     setZoneBorders(model, { position: "all" }, ["A1"]);
     expect(getComputedBorder(model, "A1")).not.toBeNull();
   });
+
+  test("SET_BORDERS_ON_TARGET command recomputes the borders", () => {
+    const model = new Model();
+    const border = { top: DEFAULT_BORDER_DESC };
+    expect(getComputedBorder(model, "A1")).toBeNull();
+    setBordersOnTarget(model, ["A1"], border);
+    expect(getComputedBorder(model, "A1")).not.toBeNull();
+  });
 });
