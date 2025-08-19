@@ -81,6 +81,19 @@ describe("Carousel panel component", () => {
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
   });
 
+  test("Can pop a carousel item out", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+
+    model = new Model(model.exportData());
+
+    await mountCarouselPanel(model, "carouselId");
+    expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
+
+    await click(fixture, ".o-carousel-preview .o-popout-button");
+    expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
+  });
+
   test("Can drag & drop carousel items to re-order them", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });

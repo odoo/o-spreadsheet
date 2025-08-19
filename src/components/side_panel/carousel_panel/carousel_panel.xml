@@ -34,6 +34,12 @@
                 title="Edit chart"
               />
               <div
+                t-if="item.type === 'chart'"
+                class="o-popout-button o-button-icon pe-2 ps-1 flex-shrink-0 fa fa-external-link"
+                t-on-click.stop="(ev) => this.popOutCarouselItem(item, ev)"
+                title="Pop out chart"
+              />
+              <div
                 class="o-delete-button o-button-icon pe-2 ps-1 flex-shrink-0"
                 t-on-click.stop="(ev) => this.deleteCarouselItem(item, ev)"
                 title="Remove chart">

@@ -118,6 +118,15 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  popOutCarouselItem(item: CarouselItem, ev: MouseEvent) {
+    if (item.type !== "chart") return;
+    this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      carouselId: this.props.figureId,
+      chartId: item.chartId,
+    });
+  }
+
   onDragHandleMouseDown(item: CarouselItem, event: MouseEvent) {
     if (event.button !== 0) return;
     const previewRects = Array.from(this.previewListRef.el!.children).map((previewEl) =>
