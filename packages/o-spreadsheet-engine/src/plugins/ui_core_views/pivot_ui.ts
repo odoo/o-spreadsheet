@@ -17,10 +17,10 @@ import {
   AddPivotCommand,
   Command,
   CoreCommand,
-  invalidateEvaluationCommands,
   UpdatePivotCommand,
+  invalidateEvaluationCommands,
 } from "../../types/commands";
-import { CellPosition, FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
+import { CellPosition, FunctionResultObject, SortDirection, UID, isMatrix } from "../../types/misc";
 import { PivotCoreMeasure, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
@@ -45,7 +45,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   ] as const;
 
   private pivots: Record<UID, Pivot> = {};
-  private unusedPivots?: UID[];
+  private unusedPivotsInFormulas?: UID[];
   private custom: UIPluginConfig["custom"];
 
   constructor(config: CoreViewPluginConfig) {
@@ -88,12 +88,12 @@ export class PivotUIPlugin extends CoreViewPlugin {
       }
       case "DELETE_SHEET":
       case "UPDATE_CELL": {
-        this.unusedPivots = undefined;
+        this.unusedPivotsInFormulas = undefined;
         break;
       }
       case "UNDO":
       case "REDO": {
-        this.unusedPivots = undefined;
+        this.unusedPivotsInFormulas = undefined;
 
         const pivotCommands = cmd.commands.filter(isPivotCommand);
 
@@ -286,7 +286,11 @@ export class PivotUIPlugin extends CoreViewPlugin {
   }
 
   isPivotUnused(pivotId: UID) {
-    return this._getUnusedPivots().includes(pivotId);
+    const { type } = this.getters.getPivot(pivotId);
+    return (
+      this._getUnusedPivotsInFormulas().includes(pivotId) &&
+      pivotRegistry.get(type).isPivotUnused(this.getters, pivotId)
+    );
   }
 
   getPivotCellSortDirection(position: CellPosition): SortDirection | "none" | undefined {
@@ -325,9 +329,9 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
   }
 
-  _getUnusedPivots() {
-    if (this.unusedPivots !== undefined) {
-      return this.unusedPivots;
+  private _getUnusedPivotsInFormulas(): UID[] {
+    if (this.unusedPivotsInFormulas !== undefined) {
+      return this.unusedPivotsInFormulas;
     }
     const unusedPivots = new Set(this.getters.getPivotIds());
     for (const sheetId of this.getters.getSheetIds()) {
@@ -337,13 +341,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
         if (pivotId) {
           unusedPivots.delete(pivotId);
           if (!unusedPivots.size) {
-            this.unusedPivots = [];
+            this.unusedPivotsInFormulas = [];
             return [];
           }
         }
       }
     }
-    this.unusedPivots = [...unusedPivots];
-    return this.unusedPivots;
+    this.unusedPivotsInFormulas = [...unusedPivots];
+    return this.unusedPivotsInFormulas;
   }
 }
