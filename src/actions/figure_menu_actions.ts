@@ -129,7 +129,33 @@ export function getCarouselMenuActions(
     getCutMenuItem(figureId, env),
     { ...getCopyAsImageMenuItem(figureId, env), isVisible: isChartSelected },
     { ...getDownloadChartMenuItem(figureId, env), isVisible: isChartSelected },
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    {
+      id: "popout_chart",
+      name: _t("Pop out chart"),
+      sequence: 1,
+      icon: "o-spreadsheet-Icon.EXTERNAL",
+      execute: () => {
+        // get the selected carousel item
+        const selectedItem = env.model.getters.getSelectedCarouselItem(figureId);
+        if (!selectedItem || selectedItem.type !== "chart") {
+          return;
+        }
+        env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+          carouselId: figureId,
+          chartId: selectedItem.chartId,
+          sheetId: env.model.getters.getActiveSheetId(),
+        });
+      },
+      isEnabled: isChartSelected,
+    },
+    {
+      ...getDeleteMenuItem(figureId, onFigureDeleted, env),
+      isVisible: (env) => {
+        // only visible if thre are no charts in the carousel
+        const carouselItems = env.model.getters.getCarousel(figureId)?.items;
+        return carouselItems?.length === 0 || !carouselItems?.some((item) => item.type === "chart");
+      },
+    },
   ];
   return createActions(menuItemSpecs).filter((action) =>
     env.model.getters.isReadonly() ? action.isReadonlyAllowed : true

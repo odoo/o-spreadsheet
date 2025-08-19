@@ -161,12 +161,12 @@ sidePanelRegistry.add("PivotMeasureDisplayPanel", {
 sidePanelRegistry.add("CarouselPanel", {
   title: _t("Carousel"),
   Body: CarouselPanel,
-  computeState: (getters: Getters, initialProps: { figureId: UID }) => {
+  computeState: (getters: Getters, initialProps: { figureId: UID; activeSheetId: UID }) => {
     const figureId = initialProps.figureId || getters.getSelectedFigureId();
     if (!figureId || !getters.doesCarouselExist(figureId)) {
       return { isOpen: false };
     }
 
-    return { isOpen: true, props: { figureId } };
+    return { isOpen: true, props: { figureId, activeSheetId: initialProps.activeSheetId } };
   },
 });

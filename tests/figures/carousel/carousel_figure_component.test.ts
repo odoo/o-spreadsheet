@@ -175,6 +175,15 @@ describe("Carousel figure component", () => {
       expect(onFigureDeleted).toHaveBeenCalled();
     });
 
+    test("Can only delete the figure if there are no charts in it", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+
+      const onFigureDeleted = jest.fn();
+      const action = getCarouselMenuItem("carouselId", "delete", onFigureDeleted);
+      expect(action?.isVisible(env)).toBeFalsy();
+    });
+
     test("Can copy the carousel", () => {
       createCarousel(model, { items: [] }, "carouselId");
       const action = getCarouselMenuItem("carouselId", "copy");
