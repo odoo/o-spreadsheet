@@ -31,7 +31,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Cut
       </div>
@@ -69,7 +69,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Copy
       </div>
@@ -109,7 +109,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Paste
       </div>
@@ -149,13 +149,13 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Paste special
       </div>
       
       <div
-        class="o-menu-item-root align-middle ms-auto"
+        class="o-menu-item-root ms-auto align-items-center d-flex"
       >
         <div
           class="o-icon fa-small"
@@ -199,7 +199,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Insert row
       </div>
@@ -234,7 +234,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Insert column
       </div>
@@ -269,13 +269,13 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Insert cells
       </div>
       
       <div
-        class="o-menu-item-root align-middle ms-auto"
+        class="o-menu-item-root ms-auto align-items-center d-flex"
       >
         <div
           class="o-icon fa-small"
@@ -317,7 +317,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Delete row 8
       </div>
@@ -350,7 +350,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Delete column C
       </div>
@@ -383,13 +383,13 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Delete cells
       </div>
       
       <div
-        class="o-menu-item-root align-middle ms-auto"
+        class="o-menu-item-root ms-auto align-items-center d-flex"
       >
         <div
           class="o-icon fa-small"
@@ -431,7 +431,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       </div>
       
       <div
-        class="o-menu-item-name align-middle text-truncate"
+        class="o-menu-item-name text-truncate align-items-center d-flex"
       >
         Insert link
       </div>
