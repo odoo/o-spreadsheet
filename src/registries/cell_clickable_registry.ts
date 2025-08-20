@@ -1,6 +1,9 @@
+import { ComponentConstructor } from "@odoo/owl";
+import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { openLink } from "../helpers/links";
+import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { _t } from "../translation";
-import { CellPosition, Getters, SpreadsheetChildEnv } from "../types";
+import { CellPosition, Getters, SortDirection, SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 
 export interface CellClickableItem {
@@ -8,6 +11,8 @@ export interface CellClickableItem {
   execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
   title?: string | ((position: CellPosition, getters: Getters) => string);
   sequence: number;
+  component?: ComponentConstructor;
+  componentProps?: (position: CellPosition, getters: Getters) => Record<string, unknown>;
 }
 
 export const clickableCellRegistry = new Registry<CellClickableItem>();
@@ -29,3 +34,34 @@ clickableCellRegistry.add("link", {
   },
   sequence: 5,
 });
+
+clickableCellRegistry.add("dashboard_pivot_sorting", {
+  condition: (position: CellPosition, getters: Getters) => {
+    if (!getters.isDashboard()) {
+      return false;
+    }
+    const pivotCell = getters.getPivotCellFromPosition(position);
+    return canSortPivot(getters, position) && pivotCell.type === "MEASURE_HEADER";
+  },
+  execute: (position: CellPosition, env: SpreadsheetChildEnv) => {
+    sortPivot(env, position, getNextSortDirection(env.model.getters, position));
+  },
+  component: ClickableCellSortIcon,
+  componentProps: (position: CellPosition, getters: Getters) => {
+    return {
+      position,
+      sortDirection: getters.getPivotCellSortDirection(position),
+    };
+  },
+  sequence: 2,
+});
+
+const NEXT_SORT_DIRECTION = {
+  none: "asc",
+  asc: "desc",
+  desc: "none",
+} as const;
+
+function getNextSortDirection(getters: Getters, position: CellPosition): SortDirection | "none" {
+  return NEXT_SORT_DIRECTION[getters.getPivotCellSortDirection(position) ?? "none"];
+}

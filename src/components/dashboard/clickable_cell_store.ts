@@ -1,4 +1,4 @@
-import { markRaw } from "@odoo/owl";
+import { ComponentConstructor, markRaw } from "@odoo/owl";
 import { positionToZone, toXC } from "../../helpers";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -16,6 +16,8 @@ export interface ClickableCell {
   position: CellPosition;
   title: string;
   action: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  component: ComponentConstructor | undefined;
+  componentProps: Record<string, unknown>;
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
@@ -77,6 +79,8 @@ export class ClickableCellsStore extends SpreadsheetStore {
         position,
         action: item.execute,
         title: title || "",
+        component: item.component,
+        componentProps: item.componentProps?.(position, getters) ?? {},
       });
     }
     return cells;
