@@ -593,6 +593,9 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   onMouseup() {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
     const selection = this.contentHelper.getCurrentSelection();
     if (selection.start !== selection.end) {
       this.props.composerStore.hoverToken(undefined);
