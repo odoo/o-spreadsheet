@@ -12,31 +12,50 @@ import {
   ChartDefinition,
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
-  FigureData,
   HeaderIndex,
   PixelPosition,
+  SheetData,
   TrendConfiguration,
 } from "../../types";
-import { AnchorOffset } from "../../types/figure";
-import { ExcelImage } from "../../types/image";
+import { AnchorOffset, Figure } from "../../types/figure";
+import { ExcelImage, Image } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
 import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
 import { EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING } from "./conversion_maps";
 
-export function convertFigures(sheetData: XLSXWorksheet): FigureData<any>[] {
+export function convertFigures(sheetData: XLSXWorksheet): {
+  figures: SheetData["figures"];
+  images: SheetData["images"];
+  charts: SheetData["charts"];
+} {
+  const figures: SheetData["figures"] = [];
+  const images: SheetData["images"] = {};
+  const charts: SheetData["charts"] = {};
+
   let id = 1;
-  return sheetData.figures
+  const figs = sheetData.figures
     .map((figure) => convertFigure(figure, (id++).toString(), sheetData))
     .filter(isDefined);
+
+  for (const { figure, chart, image } of figs) {
+    figures.push(figure);
+    if (chart) {
+      charts[figure.id] = { figureId: figure.id, chart };
+    } else if (image) {
+      images[figure.id] = { figureId: figure.id, image };
+    }
+  }
+
+  return { figures, images, charts };
 }
 
 function convertFigure(
   figure: XLSXFigure,
   id: string,
   sheetData: XLSXWorksheet
-): FigureData<any> | undefined {
+): { figure: Figure; chart?: ChartDefinition; image?: Image } | undefined {
   let col: HeaderIndex;
   let row: HeaderIndex;
   let offset: PixelPosition;
@@ -57,21 +76,18 @@ function convertFigure(
 
   if (isChartData(figure.data)) {
     return {
-      ...figureData,
-      width,
-      height,
-      tag: "chart",
-      data: convertChartData(figure.data),
+      figure: { ...figureData, tag: "chart", width, height },
+      chart: convertChartData(figure.data),
     };
   } else if (isImageData(figure.data)) {
+    const width = convertEMUToDotValue(figure.data.size.cx);
+    const height = convertEMUToDotValue(figure.data.size.cy);
     return {
-      ...figureData,
-      width: convertEMUToDotValue(figure.data.size.cx),
-      height: convertEMUToDotValue(figure.data.size.cy),
-      tag: "image",
-      data: {
+      figure: { ...figureData, width, height, tag: "image" },
+      image: {
         path: figure.data.imageSrc,
         mimetype: figure.data.mimetype,
+        size: { width, height },
       },
     };
   }
