@@ -73,6 +73,7 @@ describe("Carousel panel component", () => {
   test("Can remove a carousel item", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    model = new Model(model.exportData());
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
 

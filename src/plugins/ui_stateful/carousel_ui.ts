@@ -121,10 +121,10 @@ export class CarouselUIPlugin extends UIPlugin {
     }
 
     const carousel = this.getters.getCarousel(figureId);
-    if (!this.carouselStates[figureId]) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
-    } else if (carousel.items.length === 0) {
+    if (carousel.items.length === 0) {
       delete this.carouselStates[figureId];
+    } else if (!this.carouselStates[figureId]) {
+      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
     } else if (
       !carousel.items.some((item) => this.getCarouselItemId(item) === this.carouselStates[figureId])
     ) {
