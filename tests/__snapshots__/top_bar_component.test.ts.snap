@@ -654,7 +654,7 @@ exports[`TopBar component can set cell format 1`] = `
             </div>
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Automatic
             </div>
@@ -679,7 +679,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Plain text
             </div>
@@ -708,7 +708,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Number
             </div>
@@ -738,7 +738,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Percent
             </div>
@@ -772,7 +772,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Currency
             </div>
@@ -802,7 +802,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Accounting
             </div>
@@ -832,7 +832,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Currency rounded
             </div>
@@ -862,7 +862,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Custom currency
             </div>
@@ -891,7 +891,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Date
             </div>
@@ -921,7 +921,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Time
             </div>
@@ -951,7 +951,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Date time
             </div>
@@ -981,7 +981,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               Duration
             </div>
@@ -1015,7 +1015,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name align-middle text-truncate"
+              class="o-menu-item-name text-truncate align-items-center d-flex"
             >
               More date formats
             </div>
