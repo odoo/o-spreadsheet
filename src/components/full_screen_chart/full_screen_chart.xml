@@ -1,9 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-FullScreenChart">
-    <div
-      class="position-absolute o-fullscreen-chart-overlay w-100 h-100 d-flex"
-      t-if="chartId"
-      t-on-click="exitFullScreen">
+    <div class="position-absolute o-fullscreen-chart-overlay w-100 h-100 d-flex" t-if="chartId">
+      <div
+        class="position-absolute top-0 start-0 end-0 bottom-0"
+        t-on-click="exitFullScreen"
+        aria-hidden="true"
+      />
       <button
         class="o-exit top-0 end-0 position-absolute o-button primary m-1 shadow"
         t-on-click="exitFullScreen">

@@ -1,6 +1,12 @@
 import { Model } from "../../../src";
 import { createScorecardChart, createWaterfallChart } from "../../test_helpers/commands_helpers";
-import { click, keyDown } from "../../test_helpers/dom_helper";
+import {
+  click,
+  keyDown,
+  pointerDown,
+  pointerUp,
+  triggerMouseEvent,
+} from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 mockChart();
@@ -60,7 +66,7 @@ describe("chart menu for dashboard", () => {
     // Click outside of the chart in the full screen overlay
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
     expect(".o-fullscreen-chart").toHaveCount(1);
-    await click(fixture, ".o-fullscreen-chart-overlay");
+    await click(fixture, ".o-fullscreen-chart-overlay > div:first-child");
     expect(".o-fullscreen-chart").toHaveCount(0);
 
     // Click the exit button in the full screen overlay
@@ -74,5 +80,27 @@ describe("chart menu for dashboard", () => {
     expect(".o-fullscreen-chart").toHaveCount(1);
     await keyDown({ key: "Escape" });
     expect(".o-fullscreen-chart").toHaveCount(0);
+  });
+
+  test("Keeps fullscreen open when pointerdown is inside and pointerup is outside", async () => {
+    createWaterfallChart(model);
+    model.updateMode("dashboard");
+    await nextTick();
+
+    await click(fixture, ".o-figure [data-id='fullScreenChart']");
+    expect(".o-fullscreen-chart").toHaveCount(1);
+
+    const chart = fixture.querySelector(".o-fullscreen-chart")!;
+    const overlay = fixture.querySelector(".o-fullscreen-chart-overlay")!;
+    expect(chart).not.toBeNull();
+    expect(overlay).not.toBeNull();
+
+    await pointerDown(chart);
+    await pointerUp(overlay);
+
+    triggerMouseEvent(overlay, "click");
+    await nextTick();
+
+    expect(".o-fullscreen-chart").toHaveCount(1);
   });
 });
