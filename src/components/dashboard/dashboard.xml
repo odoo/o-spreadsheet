@@ -16,8 +16,13 @@
             t-on-click="(ev) => this.selectClickableCell(ev, clickableCell)"
             t-on-auxclick="(ev) => this.selectClickableCell(ev, clickableCell)"
             t-on-contextmenu.prevent=""
-            t-att-style="getCellClickableStyle(clickableCell.coordinates)"
-          />
+            t-att-style="getCellClickableStyle(clickableCell.coordinates)">
+            <t
+              t-if="clickableCell.component"
+              t-component="clickableCell.component"
+              t-props="clickableCell.componentProps"
+            />
+          </div>
         </GridOverlay>
         <canvas t-ref="canvas"/>
         <GridPopover

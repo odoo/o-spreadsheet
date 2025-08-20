@@ -1,0 +1,16 @@
+.o-spreadsheet {
+  .sorting-icon {
+    margin: 1px;
+
+    .fa-sort-desc {
+      transform: translateY(-2px);
+    }
+    .fa-sort-asc {
+      transform: translateY(4px);
+    }
+  }
+
+  div:not(:hover) > .sorting-icon:has(> .fa-sort) {
+    display: none;
+  }
+}

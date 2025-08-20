@@ -126,7 +126,10 @@ cellMenuRegistry
     name: _t("Sort pivot"),
     sequence: 155,
     icon: "o-spreadsheet-Icon.SORT_RANGE",
-    isVisible: ACTIONS_PIVOT.canSortPivot,
+    isVisible: (env) => {
+      const position = env.model.getters.getActivePosition();
+      return ACTIONS_PIVOT.canSortPivot(env.model.getters, position);
+    },
   })
   .add("pivot_fix_formulas", {
     ...ACTIONS_PIVOT.FIX_FORMULAS,

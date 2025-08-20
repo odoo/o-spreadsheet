@@ -54,6 +54,8 @@ import {
   DEFAULT_CELL_WIDTH,
   DESKTOP_BOTTOMBAR_HEIGHT,
   FIGURE_ID_SPLITTER,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   HIGHLIGHT_COLOR,
@@ -111,6 +113,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
@@ -390,6 +393,7 @@ export const components = {
   ChartPanel,
   ChartFigure,
   ChartJsComponent,
+  ClickableCellSortIcon,
   ZoomableChartJsComponent,
   Grid,
   GridOverlay,
@@ -482,6 +486,8 @@ export const constants = {
   PIVOT_TABLE_CONFIG,
   ChartTerms,
   FIGURE_ID_SPLITTER,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
