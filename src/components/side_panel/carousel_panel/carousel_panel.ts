@@ -108,16 +108,6 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  deleteCarouselItem(item: CarouselItem) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    const items = carousel.items.filter((itm) => !deepEquals(itm, item));
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
-      figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      definition: { items },
-    });
-  }
-
   popOutCarouselItem(item: CarouselItem, ev: MouseEvent) {
     if (item.type !== "chart") return;
     this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
