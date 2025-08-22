@@ -692,7 +692,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const isCutOperation = this.env.model.getters.isCutOperation();
 
     const clipboardId = this.env.model.getters.getClipboardId();
-    const osClipboardContent = parseOSClipboardContent(osClipboard.content, clipboardId);
+    const osClipboardContent = parseOSClipboardContent(osClipboard.content);
     const osClipboardId = osClipboardContent.data?.clipboardId;
     if (clipboardId === osClipboardId) {
       interactivePaste(this.env, target);
