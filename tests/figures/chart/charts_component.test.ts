@@ -30,6 +30,7 @@ import {
 } from "../../test_helpers/chart_helpers";
 import {
   copy,
+  createCalendarChart,
   createChart,
   createGaugeChart,
   createScorecardChart,
@@ -88,6 +89,9 @@ function createTestChart(
       break;
     case "basicChart":
       createChart(model, TEST_CHART_DATA.basicChart, newChartId, undefined, partialFigure);
+      break;
+    case "calendar":
+      createCalendarChart(model, TEST_CHART_DATA.calendar, newChartId, undefined, partialFigure);
       break;
     default:
       createChart(
@@ -167,7 +171,7 @@ describe("charts", () => {
     jest.useRealTimers();
   });
 
-  test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
+  test.each(CHART_TYPES)("Can open a %s chart sidePanel", async (chartType) => {
     await mountSpreadsheet();
     createTestChart(chartType);
     await openChartConfigSidePanel(model, env, chartId);
@@ -1807,7 +1811,7 @@ describe("charts", () => {
     ]);
   });
 
-  test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
+  test.each<ChartType>(["bar", "line", "waterfall", "radar", "calendar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {
       createTestChart(type);

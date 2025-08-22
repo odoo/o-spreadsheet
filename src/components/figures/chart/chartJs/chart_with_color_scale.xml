@@ -1,0 +1,23 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartJsComponentWithColorScale">
+    <div class="d-flex w-100 h-100" t-att-style="canvasStyle">
+      <div class="h-100" t-att-style="heatMapStyle">
+        <canvas class="o-figure-canvas w-100 h-100" t-ref="graphContainer"/>
+      </div>
+      <div t-att-style="colorScaleStyle">
+        <div
+          style="
+            width: 10px;
+            height: 90%;
+            border: 1px solid;
+          "
+          t-ref="colorScale"
+        />
+        <div style="margin-left: 4px; position: relative; height: 90%">
+          <p t-ref="maxValue" style="position: absolute; top: 0; margin: 0"/>
+          <p t-ref="minValue" style="position: absolute; bottom: 0; margin: 0"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>
