@@ -744,14 +744,25 @@ export const WEEKDAY = {
   ) {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
-    const m = _date.getDay();
-    if (![1, 2, 3].includes(_type)) {
-      return new EvaluationError(_t("The type (%s) must be 1, 2 or 3.", _type));
+    const m = _date.getDay(); // "getDay()+1" return 1 for Sunday, 2 for Monday, ..., 7 for Saturday
+
+    if (!(1 <= _type && _type <= 3) && !(11 <= _type && _type <= 17)) {
+      return new EvaluationError(
+        _t("The type (%s) must be between 1 and 3 or between 11 and 17.", _type)
+      );
+    }
+    switch (_type) {
+      case 1:
+        return m + 1;
+      case 2:
+        return m === 0 ? 7 : m;
+      case 3:
+        return m === 0 ? 6 : m - 1;
     }
 
-    if (_type === 1) return m + 1;
-    if (_type === 2) return m === 0 ? 7 : m;
-    return m === 0 ? 6 : m - 1;
+    const delta = _type - 10;
+    const result = (m + 1 - delta + 7) % 7; // +7 to avoid applying modulo on negative numbers
+    return result === 0 ? 7 : result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
