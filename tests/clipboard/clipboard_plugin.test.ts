@@ -2926,7 +2926,7 @@ describe("cross spreadsheet copy/paste", () => {
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
 
     expect(clipboardContent["text/plain"]).toBe("b2");
-    const osClipboardContent = parseOSClipboardContent(clipboardContent, "differentClipboardId");
+    const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D2", osClipboardContent);
 
     expect(getCell(modelA, "B2")?.content).toBe("b2");
@@ -2946,10 +2946,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
-    const osClipboardContent = await parseOSClipboardContent(
-      clipboardContent,
-      "differentClipboardId"
-    );
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D2", osClipboardContent);
 
     expect(getBorder(modelA, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
@@ -2970,10 +2967,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:A5");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
-    const osClipboardContent = await parseOSClipboardContent(
-      clipboardContent,
-      "differentClipboardId"
-    );
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
     expect(getCell(modelB, "D1")?.content).toBe("=SUM(1,2)");
@@ -2992,10 +2986,7 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "A1", markdownLink(urlLabel, url));
     copy(modelA, "A1");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
-    const osClipboardContent = await parseOSClipboardContent(
-      clipboardContent,
-      "differentClipboardId"
-    );
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
     const cell = getEvaluatedCell(modelB, "D1");
@@ -3018,10 +3009,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
-    const osClipboardContent = await parseOSClipboardContent(
-      clipboardContent,
-      "differentClipboardId"
-    );
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
     const tableB = modelB.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
@@ -3054,10 +3042,7 @@ describe("cross spreadsheet copy/paste", () => {
     copy(modelA, "A1");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
     expect(clipboardContent["text/plain"]).toBe("a1");
-    const osClipboardContent = await parseOSClipboardContent(
-      clipboardContent,
-      "differentClipboardId"
-    );
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "B1", osClipboardContent);
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
@@ -3079,8 +3064,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:C3");
     const osClipboardContent = await parseOSClipboardContent(
-      await modelA.getters.getClipboardTextAndImageContent(),
-      "differentClipboardId"
+      await modelA.getters.getClipboardTextAndImageContent()
     );
     pasteFromOSClipboard(modelB, "E1", osClipboardContent);
 
@@ -3099,10 +3083,7 @@ describe("cross spreadsheet copy/paste", () => {
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
 
     expect(clipboardContent["text/plain"]).toBe(escapableString);
-    const osClipboardContent = await parseOSClipboardContent(
-      clipboardContent,
-      "differentClipboardId"
-    );
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D2", osClipboardContent);
     expect(getCell(modelA, "A1")?.content).toBe(escapableString);
     expect(getCell(modelB, "D2")?.content).toBe(escapableString);
@@ -3117,23 +3098,17 @@ describe("cross spreadsheet copy/paste", () => {
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     const oldHTML = await cbPlugin["getHTMLContent"]();
 
-    let content = parseOSClipboardContent(
-      {
-        "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office">${oldHTML}</body></html>`,
-        "text/plain": "newContent",
-      },
-      "differentClipboardId"
-    );
+    let content = parseOSClipboardContent({
+      "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office">${oldHTML}</body></html>`,
+      "text/plain": "newContent",
+    });
     pasteFromOSClipboard(modelB, "D2", content);
     expect(getCellContent(modelB, "D2")).toBe("newContent");
 
-    content = parseOSClipboardContent(
-      {
-        "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office"><body>${oldHTML}<div>randomContent</div></body></html>`,
-        "text/plain": "newContent",
-      },
-      "differentClipboardId"
-    );
+    content = parseOSClipboardContent({
+      "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office"><body>${oldHTML}<div>randomContent</div></body></html>`,
+      "text/plain": "newContent",
+    });
     pasteFromOSClipboard(modelB, "D2", content);
     expect(getCellContent(modelB, "D2")).toBe("newContent");
   });

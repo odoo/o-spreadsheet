@@ -69,10 +69,7 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
 }
 
-export function parseOSClipboardContent(
-  content: OSClipboardContent,
-  clipboardId: string
-): ParsedOSClipboardContent {
+export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSClipboardContent {
   let spreadsheetContent: SpreadsheetClipboardData | undefined = undefined;
   if (content[ClipboardMIMEType.Html]) {
     const htmlDocument = new DOMParser().parseFromString(
