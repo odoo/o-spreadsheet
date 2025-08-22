@@ -196,8 +196,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     copy(model);
 
     const clipboardSpreadsheetContent = await parseOSClipboardContent(
-      await model.getters.getClipboardTextAndImageContent(),
-      model.getters.getClipboardId()
+      await model.getters.getClipboardTextAndImageContent()
     );
     const clipboardData = clipboardSpreadsheetContent.data;
     expect(clipboardData?.figureId).toBe(undefined);
