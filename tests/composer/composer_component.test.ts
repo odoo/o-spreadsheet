@@ -1056,6 +1056,22 @@ describe("composer", () => {
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
   });
+
+  test("Can select text in the composer in readonly mode", async () => {
+    await typeInComposer("=12");
+    model.updateMode("readonly");
+    await nextTick();
+    const spans = fixture.querySelectorAll(".o-composer span");
+    triggerMouseEvent(spans[0], "pointerdown");
+    const selection = document.getSelection()!;
+    const range = document.createRange();
+    range.setStart(spans[0].childNodes[0], 0);
+    range.setEnd(spans[1].childNodes[0], 1);
+    selection.addRange(range);
+    triggerMouseEvent(spans[1], "pointerup");
+    await nextTick();
+    expect(selection.toString()).toBe("=1");
+  });
 });
 
 describe("composer formula color", () => {
