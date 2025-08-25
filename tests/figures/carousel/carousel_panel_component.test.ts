@@ -70,14 +70,16 @@ describe("Carousel panel component", () => {
     expect(".o-sidePanel .o-chart").toHaveCount(1);
   });
 
-  test("Can remove a carousel item", async () => {
+  test("Can pop a carousel item out", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
+
     model = new Model(model.exportData());
+
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
 
-    await click(fixture, ".o-carousel-preview .o-delete-button");
+    await click(fixture, ".o-carousel-preview .o-popout-button");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
   });
 
