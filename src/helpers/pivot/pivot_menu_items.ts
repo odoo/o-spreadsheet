@@ -12,7 +12,7 @@ import {
 import { ActionSpec } from "../../actions/action";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types";
-import { deepCopy, deepEquals } from "../misc";
+import { deepCopy } from "../misc";
 import { cellPositions } from "../zones";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
 import {
@@ -42,19 +42,22 @@ export const pivotProperties: ActionSpec = {
 export const pivotSortingAsc: ActionSpec = {
   name: _t("Ascending"),
   execute: (env) => sortPivot(env, "asc"),
-  isActive: (env) => isPivotSortMenuItemActive(env, "asc"),
+  isActive: (env) =>
+    env.model.getters.getPivotCellSortDirection(env.model.getters.getActivePosition()) === "asc",
 };
 
 export const pivotSortingDesc: ActionSpec = {
   name: _t("Descending"),
   execute: (env) => sortPivot(env, "desc"),
-  isActive: (env) => isPivotSortMenuItemActive(env, "desc"),
+  isActive: (env) =>
+    env.model.getters.getPivotCellSortDirection(env.model.getters.getActivePosition()) === "desc",
 };
 
 export const noPivotSorting: ActionSpec = {
   name: _t("No sorting"),
   execute: (env) => sortPivot(env, "none"),
-  isActive: (env) => isPivotSortMenuItemActive(env, "none"),
+  isActive: (env) =>
+    env.model.getters.getPivotCellSortDirection(env.model.getters.getActivePosition()) === "none",
 };
 
 export const FIX_FORMULAS: ActionSpec = {
@@ -250,30 +253,6 @@ function sortPivot(env: SpreadsheetChildEnv, order: SortDirection | "none") {
       sortedColumn: { domain: colDomain, order, measure: pivotCell.measure },
     },
   });
-}
-
-function isPivotSortMenuItemActive(
-  env: SpreadsheetChildEnv,
-  order: SortDirection | "none"
-): boolean {
-  const position = env.model.getters.getActivePosition();
-  const pivotId = env.model.getters.getPivotIdFromPosition(position);
-  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
-    return false;
-  }
-  const pivot = env.model.getters.getPivot(pivotId);
-  const colDomain = domainToColRowDomain(pivot, pivotCell.domain).colDomain;
-  const sortedColumn = pivot.definition.sortedColumn;
-
-  if (order === "none") {
-    return !sortedColumn;
-  }
-
-  if (!sortedColumn || sortedColumn.order !== order) {
-    return false;
-  }
-  return sortedColumn.measure === pivotCell.measure && deepEquals(sortedColumn.domain, colDomain);
 }
 
 /*
