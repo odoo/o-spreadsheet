@@ -65,7 +65,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<Clipboard
         } else {
           if (spreader && !deepEquals(spreader, position)) {
             const isSpreaderCopied =
-              rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
+              rowsIndexes.has(spreader.row) && columnsIndexes.has(spreader.col);
             const content = isSpreaderCopied
               ? ""
               : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });

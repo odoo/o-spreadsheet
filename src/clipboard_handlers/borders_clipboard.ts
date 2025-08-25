@@ -23,13 +23,10 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<Clipboa
     }
     const sheetId = this.getters.getActiveSheetId();
     const borders: ZoneBorder[] = [];
-    // TODO see if sorting is already done
-    data.columnsIndexes.sort((a, b) => a - b);
-    data.rowsIndexes.sort((a, b) => a - b);
     let colsBefore = 0;
-    for (const cols of groupConsecutive(data.columnsIndexes)) {
+    for (const cols of groupConsecutive([...data.columnsIndexes])) {
       let rowsBefore = 0;
-      for (const rows of groupConsecutive(data.rowsIndexes)) {
+      for (const rows of groupConsecutive([...data.rowsIndexes])) {
         const zone = {
           left: cols[0],
           right: cols[cols.length - 1],
