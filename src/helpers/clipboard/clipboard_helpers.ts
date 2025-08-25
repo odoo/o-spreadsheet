@@ -14,7 +14,7 @@ import {
   Zone,
 } from "../../types";
 import { AllowedImageMimeTypes } from "../../types/image";
-import { range } from "../misc";
+import { RangeSet } from "../cells/range_set";
 import { mergeOverlappingZones, reorderZone, union } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
@@ -32,12 +32,13 @@ export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): Clipboar
     ? mergeOverlappingZones(zones).map(reorderZone)
     : [zones[zones.length - 1]].map(reorderZone);
 
-  const columnsIndexes = [
-    ...new Set(clippedZones.map((zone) => range(zone.left, zone.right + 1)).flat()),
-  ].sort((a, b) => a - b);
-  const rowsIndexes = [
-    ...new Set(clippedZones.map((zone) => range(zone.top, zone.bottom + 1)).flat()),
-  ].sort((a, b) => a - b);
+  const columnsIndexes = new RangeSet();
+  const rowsIndexes = new RangeSet();
+
+  clippedZones.forEach((zone) => {
+    columnsIndexes.add(zone.left, zone.right);
+    rowsIndexes.add(zone.top, zone.bottom);
+  });
   return { sheetId, zones, clippedZones, columnsIndexes, rowsIndexes };
 }
 
@@ -196,6 +197,27 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export function* columnRowIndexesToZones(
+  columnsIndexes: RangeSet,
+  rowsIndexes: RangeSet
+): Generator<[Zone, number, number]> {
+  let colsBefore = 0;
+  for (const [colMin, colMax] of columnsIndexes.consecutives()) {
+    let rowsBefore = 0;
+    for (const [rowMin, rowMax] of rowsIndexes.consecutives()) {
+      const zone = {
+        left: colMin,
+        right: colMax,
+        top: rowMin,
+        bottom: rowMax,
+      };
+      yield [zone, colsBefore, rowsBefore];
+      rowsBefore += rowMax - rowMin + 1;
+    }
+    colsBefore += colMax - colMin + 1;
+  }
+}
 
 export function mapReplacer(key, value) {
   if (value instanceof Map2D) {
