@@ -52,11 +52,11 @@ export class RangeSet {
     return -1;
   }
 
-  get isEmpty() {
+  get isEmpty(): boolean {
     return this._length === 0;
   }
 
-  *[Symbol.iterator]() {
+  *[Symbol.iterator](): Generator<number> {
     for (const range of this.ranges) {
       for (let index = range.min; index <= range.max; index++) {
         yield index;
@@ -64,7 +64,7 @@ export class RangeSet {
     }
   }
 
-  *entries() {
+  *entries(): Generator<[number, number]> {
     let i = 0;
     for (const range of this.ranges) {
       for (let index = range.min; index <= range.max; index++) {
@@ -73,11 +73,17 @@ export class RangeSet {
     }
   }
 
-  get size() {
+  *consecutives(): Generator<[number, number]> {
+    for (const range of this.ranges) {
+      yield [range.min, range.max];
+    }
+  }
+
+  get size(): number {
     return this._length;
   }
 
-  get length() {
+  get length(): number {
     return this._length;
   }
 }

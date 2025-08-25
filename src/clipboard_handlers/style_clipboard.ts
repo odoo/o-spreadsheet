@@ -1,5 +1,4 @@
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
-import { groupConsecutive } from "../helpers/misc";
+import { columnRowIndexesToZones, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { ZoneStyle } from "../plugins/core";
 import {
   ClipboardCellData,
@@ -22,32 +21,23 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<Clipboar
       return;
     }
     const styles: ZoneStyle[] = [];
-    let colsBefore = 0;
-    for (const cols of groupConsecutive(data.columnsIndexes)) {
-      let rowsBefore = 0;
-      for (const rows of groupConsecutive(data.rowsIndexes)) {
-        const zone = {
-          left: cols[0],
-          right: cols[cols.length - 1],
-          top: rows[0],
-          bottom: rows[rows.length - 1],
-        };
-        styles.push(
-          ...this.getters.getZoneStyles(sheetId, zone).map((zb) => {
-            return {
-              zone: {
-                left: zb.zone.left - zone.left + colsBefore,
-                right: zb.zone.right && zb.zone.right - zone.left + colsBefore,
-                top: zb.zone.top - zone.top + rowsBefore,
-                bottom: zb.zone.bottom && zb.zone.bottom - zone.top + rowsBefore,
-              },
-              style: zb.style,
-            };
-          })
-        );
-        rowsBefore += rows.length;
-      }
-      colsBefore += cols.length;
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      styles.push(
+        ...this.getters.getZoneStyles(sheetId, zone).map((zb) => {
+          return {
+            zone: {
+              left: zb.zone.left - zone.left + colsBefore,
+              right: zb.zone.right && zb.zone.right - zone.left + colsBefore,
+              top: zb.zone.top - zone.top + rowsBefore,
+              bottom: zb.zone.bottom && zb.zone.bottom - zone.top + rowsBefore,
+            },
+            style: zb.style,
+          };
+        })
+      );
     }
     return {
       styles: styles,

@@ -711,7 +711,11 @@ export class ClipboardPlugin extends UIPlugin {
     }
     const data = getClipboardDataPositions(sheetId, zones);
     if (!this._isCutOperation) {
-      data.rowsIndexes = data.rowsIndexes.filter((r) => !this.getters.isRowFiltered(sheetId, r));
+      [...data.rowsIndexes].forEach((r) => {
+        if (this.getters.isRowFiltered(sheetId, r)) {
+          data.rowsIndexes.remove(r);
+        }
+      });
     }
     return data;
   }

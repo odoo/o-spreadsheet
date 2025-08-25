@@ -1,3 +1,4 @@
+import { RangeSet } from "../helpers/cells/range_set";
 import { deepCopy } from "../helpers/misc";
 import { SpreadsheetClipboardData } from "../plugins/ui_stateful";
 import { AllowedImageMimeTypes, Image } from "./image";
@@ -38,8 +39,8 @@ export type ClipboardOperation = "CUT" | "COPY";
 export type ClipboardCellData = {
   sheetId: UID;
   zones: Zone[];
-  rowsIndexes: HeaderIndex[];
-  columnsIndexes: HeaderIndex[];
+  rowsIndexes: RangeSet;
+  columnsIndexes: RangeSet;
   clippedZones: Zone[];
 };
 

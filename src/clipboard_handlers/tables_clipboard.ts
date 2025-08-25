@@ -71,7 +71,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<Clipboar
           copiedTablesIds.add(table.id);
           let { numberOfRows } = zoneToDimension(tableZone);
           for (let rowIndex = tableZone.top; rowIndex <= tableZone.bottom; rowIndex++) {
-            if (!isCutOperation && !rowsIndexes.includes(rowIndex)) {
+            if (!isCutOperation && !rowsIndexes.has(rowIndex)) {
               numberOfRows--;
             }
           }

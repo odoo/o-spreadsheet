@@ -1,5 +1,5 @@
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
-import { deepEquals, groupConsecutive } from "../helpers/misc";
+import { columnRowIndexesToZones, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { deepEquals } from "../helpers/misc";
 import { ZoneBorder, ZoneBorderData } from "../plugins/core";
 import {
   BorderDescr,
@@ -23,32 +23,23 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<Clipboa
       return;
     }
     const borders: ZoneBorder[] = [];
-    let colsBefore = 0;
-    for (const cols of groupConsecutive(data.columnsIndexes)) {
-      let rowsBefore = 0;
-      for (const rows of groupConsecutive(data.rowsIndexes)) {
-        const zone = {
-          left: cols[0],
-          right: cols[cols.length - 1],
-          top: rows[0],
-          bottom: rows[rows.length - 1],
-        };
-        borders.push(
-          ...this.getters.getBorders(data.sheetId, zone).map(({ zone: borderZone, style }) => {
-            return {
-              zone: {
-                left: borderZone.left - zone.left + colsBefore,
-                right: borderZone.right && borderZone.right - zone.left + colsBefore,
-                top: borderZone.top - zone.top + rowsBefore,
-                bottom: borderZone.bottom && borderZone.bottom - zone.top + rowsBefore,
-              },
-              style,
-            };
-          })
-        );
-        rowsBefore += rows.length;
-      }
-      colsBefore += cols.length;
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      borders.push(
+        ...this.getters.getBorders(data.sheetId, zone).map(({ zone: borderZone, style }) => {
+          return {
+            zone: {
+              left: borderZone.left - zone.left + colsBefore,
+              right: borderZone.right && borderZone.right - zone.left + colsBefore,
+              top: borderZone.top - zone.top + rowsBefore,
+              bottom: borderZone.bottom && borderZone.bottom - zone.top + rowsBefore,
+            },
+            style,
+          };
+        })
+      );
     }
     return {
       borders,
