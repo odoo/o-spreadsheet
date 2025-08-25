@@ -1,6 +1,7 @@
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { DEFAULT_CELL_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
+import { RangeSet } from "../../helpers/cells/range_set";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
   clip,
@@ -40,46 +41,6 @@ import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 interface SheetInfo {
   gridSelection: Selection;
-}
-
-export class SelectionRangeSet {
-  // TODO ? Sort them to merge zone and have dichotomic has()
-  private ranges: { min: number; max: number }[] = [];
-  private empty: boolean = true;
-
-  add(min: number, max: number) {
-    if (min > max) return;
-    this.ranges.push({ min, max });
-    this.empty = false;
-  }
-
-  has(num: number) {
-    for (const range of this.ranges) {
-      if (range.min <= num && num <= range.max) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  get isEmpty() {
-    return this.empty;
-  }
-
-  *[Symbol.iterator]() {
-    const set = new Set<number>();
-    for (const range of this.ranges) {
-      for (let index = range.min; index <= range.max; index++) {
-        if (set.has(index)) continue;
-        yield index;
-        set.add(index);
-      }
-    }
-  }
-
-  get size() {
-    return [...this].length;
-  }
 }
 
 /**
@@ -333,8 +294,8 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.getters.getEvaluatedCell(this.getActivePosition());
   }
 
-  getActiveCols(): SelectionRangeSet {
-    const activeCols = new SelectionRangeSet();
+  getActiveCols(): RangeSet {
+    const activeCols = new RangeSet();
     for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
@@ -346,8 +307,8 @@ export class GridSelectionPlugin extends UIPlugin {
     return activeCols;
   }
 
-  getActiveRows(): SelectionRangeSet {
-    const activeRows = new SelectionRangeSet();
+  getActiveRows(): RangeSet {
+    const activeRows = new RangeSet();
     const sheetId = this.getters.getActiveSheetId();
     for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
