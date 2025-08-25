@@ -3,6 +3,7 @@ import {
   CHECKBOX_UNCHECKED,
   CHECKBOX_UNCHECKED_HOVERED,
   getCaretDownSvg,
+  getCaretUpSvg,
   getChipSvg,
   getDataFilterIcon,
   getHoveredCaretDownSvg,
@@ -19,6 +20,7 @@ import {
   PIVOT_INDENT,
 } from "../constants";
 import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
+import { canSortPivot } from "../helpers/pivot/pivot_menu_items";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
 import { ImageSVG } from "../types/image";
 import { Registry } from "./registry";
@@ -203,6 +205,30 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
     };
   }
   return undefined;
+});
+
+iconsOnCellRegistry.add("dashboard_pivot_sorting", (getters, position) => {
+  if (!getters.isDashboard()) {
+    return undefined;
+  }
+  return undefined;
+  const sortDirection = getters.getPivotCellSortDirection(position);
+  const isSorted = sortDirection === "asc" || sortDirection === "desc";
+  const pivotCell = getters.getPivotCellFromPosition(position);
+  if (!canSortPivot(getters, position) || !isSorted || pivotCell.type !== "MEASURE_HEADER") {
+    return undefined;
+  }
+  const cellStyle = getters.getCellComputedStyle(position);
+  return {
+    type: "pivot_sorting",
+    priority: 4,
+    horizontalAlign: "right",
+    size: GRID_ICON_EDGE_LENGTH,
+    margin: GRID_ICON_MARGIN,
+    svg: sortDirection === "desc" ? getCaretUpSvg(cellStyle) : getCaretDownSvg(cellStyle),
+    position,
+    onClick: () => {}, // click action is handled by the ClickableCellSortIcon component
+  };
 });
 
 function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {

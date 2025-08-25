@@ -1,5 +1,7 @@
 import {
+  CellPosition,
   CellValue,
+  Getters,
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
@@ -12,7 +14,7 @@ import {
 import { ActionSpec } from "../../actions/action";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types";
-import { deepCopy, deepEquals } from "../misc";
+import { deepCopy } from "../misc";
 import { cellPositions } from "../zones";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
 import {
@@ -41,20 +43,20 @@ export const pivotProperties: ActionSpec = {
 
 export const pivotSortingAsc: ActionSpec = {
   name: _t("Ascending"),
-  execute: (env) => sortPivot(env, "asc"),
-  isActive: (env) => isPivotSortMenuItemActive(env, "asc"),
+  execute: (env) => sortPivot(env, env.model.getters.getActivePosition(),"asc"),
+  isActive: (env) => env.model.getters.getPivotCellSortDirection(env.model.getters.getActivePosition()) === "asc",
 };
 
 export const pivotSortingDesc: ActionSpec = {
   name: _t("Descending"),
-  execute: (env) => sortPivot(env, "desc"),
-  isActive: (env) => isPivotSortMenuItemActive(env, "desc"),
+  execute: (env) => sortPivot(env, env.model.getters.getActivePosition(), "desc"),
+  isActive: (env) => env.model.getters.getPivotCellSortDirection(env.model.getters.getActivePosition()) === "desc",
 };
 
 export const noPivotSorting: ActionSpec = {
   name: _t("No sorting"),
-  execute: (env) => sortPivot(env, "none"),
-  isActive: (env) => isPivotSortMenuItemActive(env, "none"),
+  execute: (env) => sortPivot(env, env.model.getters.getActivePosition(), "none"),
+  isActive: (env) => env.model.getters.getPivotCellSortDirection(env.model.getters.getActivePosition()) === "none",
 };
 
 export const FIX_FORMULAS: ActionSpec = {
@@ -204,26 +206,24 @@ export const ungroupPivotHeadersAction: ActionSpec = {
   },
 };
 
-export function canSortPivot(env: SpreadsheetChildEnv): boolean {
-  const position = env.model.getters.getActivePosition();
-  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+export function canSortPivot(getters: Getters, position: CellPosition): boolean {
+  const pivotId = getters.getPivotIdFromPosition(position);
   if (
     !pivotId ||
-    !env.model.getters.isExistingPivot(pivotId) ||
-    !env.model.getters.isSpillPivotFormula(position)
+    !getters.isExistingPivot(pivotId) ||
+    !getters.isSpillPivotFormula(position)
   ) {
     return false;
   }
-  const pivot = env.model.getters.getPivot(pivotId);
+  const pivot = getters.getPivot(pivotId);
   if (!pivot.isValid()) {
     return false;
   }
-  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+  const pivotCell = getters.getPivotCellFromPosition(position);
   return pivotCell.type === "VALUE" || pivotCell.type === "MEASURE_HEADER";
 }
 
-function sortPivot(env: SpreadsheetChildEnv, order: SortDirection | "none") {
-  const position = env.model.getters.getActivePosition();
+export function sortPivot(env: SpreadsheetChildEnv, position: CellPosition, order: SortDirection | "none") {
   const pivotId = env.model.getters.getPivotIdFromPosition(position);
   const pivotCell = env.model.getters.getPivotCellFromPosition(position);
   if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
@@ -250,30 +250,6 @@ function sortPivot(env: SpreadsheetChildEnv, order: SortDirection | "none") {
       sortedColumn: { domain: colDomain, order, measure: pivotCell.measure },
     },
   });
-}
-
-function isPivotSortMenuItemActive(
-  env: SpreadsheetChildEnv,
-  order: SortDirection | "none"
-): boolean {
-  const position = env.model.getters.getActivePosition();
-  const pivotId = env.model.getters.getPivotIdFromPosition(position);
-  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
-    return false;
-  }
-  const pivot = env.model.getters.getPivot(pivotId);
-  const colDomain = domainToColRowDomain(pivot, pivotCell.domain).colDomain;
-  const sortedColumn = pivot.definition.sortedColumn;
-
-  if (order === "none") {
-    return !sortedColumn;
-  }
-
-  if (!sortedColumn || sortedColumn.order !== order) {
-    return false;
-  }
-  return sortedColumn.measure === pivotCell.measure && deepEquals(sortedColumn.domain, colDomain);
 }
 
 /*

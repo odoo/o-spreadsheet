@@ -308,6 +308,19 @@ export function hexToHSLA(hex: Color): HSLA {
   return rgbaToHSLA(colorToRGBA(hex));
 }
 
+/**
+ * Blend color2 on top of color1, with alpha blending.
+ */
+export function blendColors(color1: Color, color2: Color): Color {
+  const rgba2 = colorToRGBA(color2);
+  const rgba1 = colorToRGBA(color1);
+  const a = rgba2.a + rgba1.a * (1 - rgba2.a);
+  const r = Math.round((rgba2.r * rgba2.a + rgba1.r * rgba1.a * (1 - rgba2.a)) / a);
+  const g = Math.round((rgba2.g * rgba2.a + rgba1.g * rgba1.a * (1 - rgba2.a)) / a);
+  const b = Math.round((rgba2.b * rgba2.a + rgba1.b * rgba1.a * (1 - rgba2.a)) / a);
+  return rgbaToHex({ r, g, b, a });
+}
+
 function colorOrNumberToRGBA(color: Color | number): RGBA {
   if (typeof color === "number") {
     return colorToRGBA(colorNumberToHex(color));
