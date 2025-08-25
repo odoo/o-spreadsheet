@@ -3,6 +3,7 @@ import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants"
 import { functionRegistry } from "../../../functions/index";
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
+import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { Store, useStore } from "../../../store_engine";
@@ -25,7 +26,6 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
 import { SpeechBubble } from "../speech_bubble/speech_bubble";
-import { DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
 import { CellComposerStore } from "./cell_composer_store";
 
 const functions = functionRegistry.content;

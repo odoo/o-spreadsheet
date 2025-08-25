@@ -767,6 +767,41 @@ describe("WEEKDAY formula", () => {
     expect(gridResult.C24).toBe(0);
     expect(gridResult.C25).toBe(1);
   });
+
+  test.each([
+    [11, [1, 2, 3, 4, 5, 6, 7]],
+    [12, [7, 1, 2, 3, 4, 5, 6]],
+    [13, [6, 7, 1, 2, 3, 4, 5]],
+    [14, [5, 6, 7, 1, 2, 3, 4]],
+    [15, [4, 5, 6, 7, 1, 2, 3]],
+    [16, [3, 4, 5, 6, 7, 1, 2]],
+    [17, [2, 3, 4, 5, 6, 7, 1]],
+  ])("functional tests on other type", (type, results) => {
+    const grid = {
+      A1: "08/11/2025", // This date is a Monday
+      A2: "08/12/2025", // This date is a Tuesday
+      A3: "08/13/2025", // This date is a Wednesday
+      A4: "08/14/2025", // This date is a Thursday
+      A5: "08/15/2025", // This date is a Friday
+      A6: "08/16/2025", // This date is a Saturday
+      A7: "08/17/2025", // This date is a Sunday
+      C1: `=WEEKDAY(A1,${type})`,
+      C2: `=WEEKDAY(A2,${type})`,
+      C3: `=WEEKDAY(A3,${type})`,
+      C4: `=WEEKDAY(A4,${type})`,
+      C5: `=WEEKDAY(A5,${type})`,
+      C6: `=WEEKDAY(A6,${type})`,
+      C7: `=WEEKDAY(A7,${type})`,
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.C1).toBe(results[0]);
+    expect(gridResult.C2).toBe(results[1]);
+    expect(gridResult.C3).toBe(results[2]);
+    expect(gridResult.C4).toBe(results[3]);
+    expect(gridResult.C5).toBe(results[4]);
+    expect(gridResult.C6).toBe(results[5]);
+    expect(gridResult.C7).toBe(results[6]);
+  });
 });
 
 describe("WEEKNUM formula", () => {
