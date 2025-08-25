@@ -2,7 +2,7 @@ import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
 import { toBoolean } from "../../functions/helpers";
-import { getUniqueText } from "../../helpers";
+import { deepEquals, getUniqueText } from "../../helpers";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -22,6 +22,7 @@ import {
   PivotCoreMeasure,
   PivotTableCell,
   PivotVisibilityOptions,
+  SortDirection,
   UID,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
@@ -40,6 +41,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   static getters = [
     "getPivot",
     "getFirstPivotFunction",
+    "getPivotCellSortDirection",
     "getPivotIdFromPosition",
     "getPivotCellFromPosition",
     "generateNewCalculatedMeasureName",
@@ -293,6 +295,20 @@ export class PivotUIPlugin extends CoreViewPlugin {
     return this._getUnusedPivots().includes(pivotId);
   }
 
+  getPivotCellSortDirection(position: CellPosition): SortDirection | "none" | undefined {
+    const pivotId = this.getters.getPivotIdFromPosition(position);
+    const pivotCell = this.getters.getPivotCellFromPosition(position);
+    if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
+      return undefined;
+    }
+    const pivot = this.getters.getPivot(pivotId);
+    const colDomain = domainToColRowDomain(pivot, pivotCell.domain).colDomain;
+    const sortedColumn = pivot.definition.sortedColumn;
+    if (sortedColumn?.measure === pivotCell.measure && deepEquals(sortedColumn.domain, colDomain)) {
+      return sortedColumn.order;
+    }
+    return "none";
+  }
   // ---------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------

@@ -769,7 +769,7 @@ describe("Pivot sorting menu item", () => {
     expect(getActiveSortOrder()).toEqual(["pivot_sorting_desc"]);
 
     selectCell(model, "C21"); // Other column
-    expect(getActiveSortOrder()).toEqual([]);
+    expect(getActiveSortOrder()).toEqual(["pivot_sorting_none"]);
   });
 });
 
