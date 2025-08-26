@@ -1056,6 +1056,7 @@ describe("composer", () => {
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
   });
+<<<<<<< eaa43f6de9c0856973636daf86c3648d7f1cbbc5
 
   test("Composer assistant can be hidden", async () => {
     ({ fixture, parent } = await mountComposerWrapper(undefined, { showAssistant: false }));
@@ -1063,6 +1064,25 @@ describe("composer", () => {
     await startComposition("=s");
     expect(fixture.querySelector(".o-composer-assistant-container")).toBeNull();
   });
+||||||| 64cf69dc0ad2a18736979f2c78feb38c0c24c489
+=======
+
+  test("Can select text in the composer in readonly mode", async () => {
+    await typeInComposer("=12");
+    model.updateMode("readonly");
+    await nextTick();
+    const spans = fixture.querySelectorAll(".o-composer span");
+    triggerMouseEvent(spans[0], "pointerdown");
+    const selection = document.getSelection()!;
+    const range = document.createRange();
+    range.setStart(spans[0].childNodes[0], 0);
+    range.setEnd(spans[1].childNodes[0], 1);
+    selection.addRange(range);
+    triggerMouseEvent(spans[1], "pointerup");
+    await nextTick();
+    expect(selection.toString()).toBe("=1");
+  });
+>>>>>>> 537dbb869717106ea3c1f607d2b8a0214e055310
 });
 
 describe("composer formula color", () => {

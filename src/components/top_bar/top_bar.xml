@@ -25,8 +25,13 @@
         </div>
       </div>
       <!-- Toolbar and Cell Content -->
-      <div class="d-flex o-topbar-responsive" t-ref="toolBarContainer">
-        <div class="o-topbar-toolbar d-flex">
+      <div
+        class="d-flex o-topbar-responsive"
+        t-att-class="{'o-topbar-responsive': !env.model.getters.isReadonly()}"
+        t-ref="toolBarContainer">
+        <div
+          class="o-topbar-toolbar d-flex"
+          t-att-class="{'flex-shrink-0': env.model.getters.isReadonly()}">
           <!-- Toolbar -->
           <div
             t-if="env.model.getters.isReadonly()"
