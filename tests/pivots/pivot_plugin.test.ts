@@ -205,6 +205,33 @@ describe("Pivot plugin", () => {
     );
   });
 
+  test("getPivotCellFromPosition can handle vectorization", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Stage", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","Stage",SEQUENCE(2))',
+      A2: "1",     B2: "10",
+      A3: "2",     B3: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+    selectCell(model, "C1");
+    expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
+      {
+        domain: [{ field: "Stage", type: "integer", value: 1 }],
+      }
+    );
+    selectCell(model, "C2");
+    expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
+      {
+        domain: [{ field: "Stage", type: "integer", value: 2 }],
+      }
+    );
+  });
+
   test("cannot update a pivot with a wrong id", () => {
     const model = new Model();
     const updateResult = model.dispatch("UPDATE_PIVOT", {
