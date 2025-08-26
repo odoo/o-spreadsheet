@@ -26,6 +26,7 @@ import {
   UID,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
+  isMatrix,
 } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
@@ -204,7 +205,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
     if (!result) {
       return EMPTY_PIVOT_CELL;
     }
-    const { functionName, args } = result;
+    let { functionName, args } = result;
     const formulaId = args[0];
     if (!formulaId) {
       return EMPTY_PIVOT_CELL;
@@ -243,6 +244,9 @@ export class PivotUIPlugin extends CoreViewPlugin {
       return pivotCells[pivotCol][pivotRow];
     }
     try {
+      const offsetRow = position.row - mainPosition.row;
+      const offsetCol = position.col - mainPosition.col;
+      args = args.map((arg) => (isMatrix(arg) ? arg[offsetCol][offsetRow] : arg));
       if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
         const domain = pivot.parseArgsToPivotDomain(
           args.slice(1, -2).map((value) => ({ value } as FunctionResultObject))
