@@ -1,3 +1,5 @@
+import { isInside, toCartesian, toZone } from "../../helpers";
+import { Zone } from "../../types";
 import {
   XLSXCell,
   XLSXColumn,
@@ -29,6 +31,8 @@ import { XlsxTableExtractor } from "./table_extractor";
 export class XlsxSheetExtractor extends XlsxBaseExtractor {
   theme?: XLSXTheme;
 
+  private arrayFormulaSpillZones: (Zone & { anchorXc: string })[] = [];
+
   constructor(
     sheetFile: XLSXImportFile,
     xlsxStructure: XLSXFileStructure,
@@ -44,6 +48,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
       { query: "worksheet", parent: this.rootFile.file.xml },
       (sheetElement): XLSXWorksheet => {
         const sheetWorkbookInfo = this.getSheetWorkbookInfo();
+        this.arrayFormulaSpillZones = [];
         return {
           sheetName: this.extractSheetName(),
           sheetViews: this.extractSheetViews(sheetElement),
@@ -262,14 +267,25 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
   private extractCells(row: Element): XLSXCell[] {
     return this.mapOnElements({ parent: row, query: "c" }, (cellElement): XLSXCell => {
+      const xc = this.extractAttr(cellElement, "r", { required: true })?.asString()!;
+      const formula = this.extractCellFormula(cellElement);
+
+      if (formula?.ref && formula.sharedIndex === undefined) {
+        const zone = toZone(formula.ref);
+        this.arrayFormulaSpillZones.push({ ...zone, anchorXc: xc });
+      }
+
+      const { col, row } = toCartesian(xc);
+      const isSpillCell = this.isCellInArraySpillZones(col, row, xc);
+
       return {
-        xc: this.extractAttr(cellElement, "r", { required: true })?.asString()!,
+        xc,
         styleIndex: this.extractAttr(cellElement, "s")?.asNum(),
         type: CELL_TYPE_CONVERSION_MAP[
           this.extractAttr(cellElement, "t", { default: "n" })?.asString()!
         ],
-        value: this.extractChildTextContent(cellElement, "v"),
-        formula: this.extractCellFormula(cellElement),
+        value: isSpillCell ? undefined : this.extractChildTextContent(cellElement, "v"),
+        formula: isSpillCell ? undefined : formula,
       };
     });
   }
@@ -277,11 +293,23 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   private extractCellFormula(cellElement: Element): XLSXFormula | undefined {
     const formulaElement = this.querySelector(cellElement, "f");
     if (!formulaElement) return undefined;
-    return {
-      content: this.extractTextContent(formulaElement),
-      sharedIndex: this.extractAttr(formulaElement, "si")?.asNum(),
-      ref: this.extractAttr(formulaElement, "ref")?.asString(),
-    };
+    const content = this.extractTextContent(formulaElement);
+    const sharedIndex = this.extractAttr(formulaElement, "si")?.asNum();
+    const ref = this.extractAttr(formulaElement, "ref")?.asString();
+
+    if ((content === undefined || content.trim() === "") && sharedIndex === undefined) {
+      return undefined;
+    }
+    return { content, sharedIndex, ref };
+  }
+
+  private isCellInArraySpillZones(col: number, row: number, xc: string): boolean {
+    return this.arrayFormulaSpillZones.some((zone) => {
+      if (xc === zone.anchorXc) {
+        return false;
+      }
+      return isInside(col, row, zone);
+    });
   }
 
   private extractHyperLinks(worksheet: Element): XLSXHyperLink[] {
