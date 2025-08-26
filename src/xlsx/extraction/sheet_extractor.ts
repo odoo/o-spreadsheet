@@ -1,3 +1,4 @@
+import { positions, toXC, toZone } from "../../helpers";
 import {
   XLSXCell,
   XLSXColumn,
@@ -283,12 +284,13 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   }
 
   private extractRows(worksheet: Element): XLSXRow[] {
+    const spilledCells = new Set<string>();
     return this.mapOnElements(
       { parent: worksheet, query: "sheetData row" },
       (rowElement): XLSXRow => {
         return {
           index: this.extractAttr(rowElement, "r", { required: true })?.asNum()!,
-          cells: this.extractCells(rowElement),
+          cells: this.extractCells(rowElement, spilledCells),
           height: this.extractAttr(rowElement, "ht")?.asNum(),
           customHeight: this.extractAttr(rowElement, "customHeight")?.asBool(),
           hidden: this.extractAttr(rowElement, "hidden")?.asBool(),
@@ -300,16 +302,30 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     );
   }
 
-  private extractCells(row: Element): XLSXCell[] {
+  private extractCells(row: Element, spilledCells: Set<string>): XLSXCell[] {
     return this.mapOnElements({ parent: row, query: "c" }, (cellElement): XLSXCell => {
+      const xc = this.extractAttr(cellElement, "r", { required: true })?.asString()!;
+      const formula = this.extractCellFormula(cellElement);
+
+      if (formula?.ref && formula.sharedIndex === undefined) {
+        const zone = toZone(formula.ref);
+        for (const { col, row } of positions(zone)) {
+          const followerXc = toXC(col, row);
+          if (followerXc !== xc) {
+            spilledCells.add(followerXc);
+          }
+        }
+      }
+
+      const isSpilled = spilledCells.has(xc);
       return {
-        xc: this.extractAttr(cellElement, "r", { required: true })?.asString()!,
+        xc,
         styleIndex: this.extractAttr(cellElement, "s")?.asNum(),
         type: CELL_TYPE_CONVERSION_MAP[
           this.extractAttr(cellElement, "t", { default: "n" })?.asString()!
         ],
-        value: this.extractChildTextContent(cellElement, "v"),
-        formula: this.extractCellFormula(cellElement),
+        value: isSpilled ? undefined : this.extractChildTextContent(cellElement, "v") ?? undefined,
+        formula: isSpilled ? undefined : formula,
       };
     });
   }
@@ -317,11 +333,15 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   private extractCellFormula(cellElement: Element): XLSXFormula | undefined {
     const formulaElement = this.querySelector(cellElement, "f");
     if (!formulaElement) return undefined;
-    return {
-      content: this.extractTextContent(formulaElement),
-      sharedIndex: this.extractAttr(formulaElement, "si")?.asNum(),
-      ref: this.extractAttr(formulaElement, "ref")?.asString(),
-    };
+    const content = this.extractTextContent(formulaElement);
+    const sharedIndex = this.extractAttr(formulaElement, "si")?.asNum();
+    const ref = this.extractAttr(formulaElement, "ref")?.asString();
+
+    // This is the case of spilled cells of array formulas where <f> is empty
+    if ((content === undefined || content.trim() === "") && sharedIndex === undefined) {
+      return undefined;
+    }
+    return { content, sharedIndex, ref };
   }
 
   private extractHyperLinks(worksheet: Element): XLSXHyperLink[] {
