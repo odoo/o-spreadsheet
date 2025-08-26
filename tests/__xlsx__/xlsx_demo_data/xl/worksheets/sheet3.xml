@@ -54,10 +54,23 @@
       <c r="A4" t="s">
         <v>356</v>
       </c>
+      <c r="G4">
+        <f t="array" ref="G4:H5">RANDARRAY(2,2)</f>
+        <v>0.123456</v>
+      </c>
+      <c r="H4">
+        <v>0.234567</v>
+      </c>
     </row>
     <row r="5" spans="1:8" ht="75" customHeight="1" x14ac:dyDescent="0.2">
       <c r="A5" t="s">
         <v>360</v>
+      </c>
+      <c r="G5">
+        <v>0.345678</v>
+      </c>
+      <c r="H5">
+        <v>0.456789</v>
       </c>
     </row>
   </sheetData>
