@@ -461,8 +461,9 @@ topbarMenuRegistry
     sequence: 40,
     separator: true,
   })
-  .addChild("data_sources_data", ["data"], (env) => {
+  .addChild("pivot_data_sources", ["data"], (env) => {
     const sequence = 50;
+    const numberOfPivots = env.model.getters.getPivotIds().length;
     return env.model.getters.getPivotIds().map((pivotId, index) => {
       const highlightProvider = {
         get highlights() {
@@ -472,7 +473,7 @@ topbarMenuRegistry
       return {
         id: `item_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
         name: env.model.getters.getPivotDisplayName(pivotId),
-        sequence: sequence + index,
+        sequence: sequence + index / numberOfPivots,
         execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
         onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
         onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
