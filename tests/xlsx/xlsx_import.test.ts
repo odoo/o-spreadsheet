@@ -63,6 +63,15 @@ describe("Import xlsx data", () => {
     expect(getWorkbookCell(0, 1, testSheet)).toEqual("=SUM(A1)");
   });
 
+  test("Can import array formula correctly and spill ranges values skipped", () => {
+    const sheet = getWorkbookSheet("jestSheet", convertedData)!;
+
+    expect(getWorkbookCell(0, 29, sheet)).toEqual("=RANDARRAY(2, 2)");
+    expect(getWorkbookCell(0, 30, sheet)).toEqual(undefined);
+    expect(getWorkbookCell(1, 29, sheet)).toEqual(undefined);
+    expect(getWorkbookCell(1, 30, sheet)).toEqual(undefined);
+  });
+
   test("Can import merge", () => {
     const testSheet = getWorkbookSheet("jestSheet", convertedData)!;
     expect(testSheet.merges).toEqual(["D1:E2"]);
