@@ -1,6 +1,23 @@
 <templates>
   <t t-name="o-spreadsheet-CarouselPanel">
     <div class="o-carousel-panel h-100 overflow-auto">
+      <Section title.translate="Carousel Title" class="'o-carousel-title'">
+        <TextInput
+          value="title?.text ?? ''"
+          onChange.bind="updateTitleText"
+          placeholder.translate="Add a Title"
+          alwaysShowBorder="true"
+        />
+        <TextStyler
+          style="title ?? {}"
+          updateStyle.bind="updateTitleStyle"
+          defaultStyle="DEFAULT_CAROUSEL_TITLE_STYLE"
+          hasHorizontalAlign="false"
+        />
+      </Section>
+      <div class="o-section pb-1 pt-0">
+        <div class="o-section-title">Carousel Sections</div>
+      </div>
       <div class="o-carousel-preview-list overflow-auto" t-ref="previewList">
         <t t-foreach="carouselItems" t-as="item" t-key="getItemId(item)">
           <div

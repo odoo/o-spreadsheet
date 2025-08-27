@@ -2,9 +2,9 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
-import { ConsecutiveIndexes, Lazy, UID } from "../types";
+import { ChartStyle, ConsecutiveIndexes, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
-import { Cloneable, DebouncedFunction } from "./../types/misc";
+import { Cloneable, DebouncedFunction, Style } from "./../types/misc";
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 
@@ -695,4 +695,15 @@ export function getUniqueText(
 
 export function isFormula(content: string): boolean {
   return content.startsWith("=") || content.startsWith("+");
+}
+
+// TODO: we should make make ChartStyle be the same as Style sometime ...
+export function chartStyleToCellStyle(style: ChartStyle): Style {
+  return {
+    bold: style.bold,
+    italic: style.italic,
+    fontSize: style.fontSize,
+    textColor: style.color,
+    align: style.align,
+  };
 }

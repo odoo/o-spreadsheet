@@ -1,11 +1,14 @@
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { deepEquals } from "../../../helpers";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { _t } from "../../../translation";
-import { CarouselItem, SpreadsheetChildEnv, UID } from "../../../types";
+import { CarouselItem, SpreadsheetChildEnv, TitleDesign, UID } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
 import { TextInput } from "../../text_input/text_input";
+import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
+import { Section } from "../components/section/section";
 
 interface Props {
   onCloseSidePanel: () => void;
@@ -15,7 +18,9 @@ interface Props {
 export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static props = { onCloseSidePanel: Function, figureId: String };
-  static components = { TextInput };
+  static components = { Section, TextInput, TextStyler };
+
+  DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
   private dragAndDrop = useDragAndDropListItems();
   private previewListRef = useRef("previewList");
@@ -32,6 +37,14 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   get carouselItems(): CarouselItem[] {
     return this.env.model.getters.getCarousel(this.props.figureId).items;
+  }
+
+  get title(): TitleDesign | undefined {
+    return this.env.model.getters.getCarousel(this.props.figureId).title;
+  }
+
+  get carousel() {
+    return this.env.model.getters.getCarousel(this.props.figureId);
   }
 
   getPreviewDivStyle(item: CarouselItem): string {
@@ -55,11 +68,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   addDataViewToCarousel() {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
-      figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      definition: { items: [...carousel.items, { type: "carouselDataView" }] },
-    });
+    this.updateItems([...carousel.items, { type: "carouselDataView" }]);
   }
 
   activateCarouselItem(item: CarouselItem) {
@@ -87,22 +96,14 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     const itemIndex = this.carouselItems.findIndex((itm) => deepEquals(itm, item));
     if (itemIndex !== -1) {
       items[itemIndex] = { ...item, title: trimmedName };
-      this.env.model.dispatch("UPDATE_CAROUSEL", {
-        figureId: this.props.figureId,
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        definition: { items },
-      });
+      this.updateItems(items);
     }
   }
 
   deleteCarouselItem(item: CarouselItem) {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     const items = carousel.items.filter((itm) => !deepEquals(itm, item));
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
-      figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      definition: { items },
-    });
+    this.updateItems(items);
   }
 
   onDragHandleMouseDown(item: CarouselItem, event: MouseEvent) {
@@ -133,11 +134,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     const items = [...carousel.items];
     items.splice(originalIndex, 1);
     items.splice(finalIndex, 0, item);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
-      figureId: this.props.figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      definition: { items },
-    });
+    this.updateItems(items);
   }
 
   getItemTitle(item: CarouselItem): string {
@@ -146,6 +143,44 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   getItemPreview(item: CarouselItem): string {
     return getCarouselItemPreview(this.env.model.getters, item);
+  }
+
+  updateItems(items: CarouselItem[]) {
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureId,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      definition: { ...this.carousel, items },
+    });
+  }
+
+  updateTitleText(title: string) {
+    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureId,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      definition: {
+        ...carousel,
+        title: {
+          ...carousel.title,
+          text: title,
+        },
+      },
+    });
+  }
+
+  updateTitleStyle(style: TitleDesign) {
+    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureId,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      definition: {
+        ...carousel,
+        title: {
+          ...carousel.title,
+          ...style,
+        },
+      },
+    });
   }
 
   get carouselAddChartInfoMessage(): string {

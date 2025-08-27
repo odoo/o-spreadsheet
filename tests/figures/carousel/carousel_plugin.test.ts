@@ -168,7 +168,8 @@ describe("Carousel figure", () => {
   });
 
   test("Can export/import a carousel and its charts", () => {
-    createCarousel(model, { items: [] }, "carouselId");
+    const title = { text: "Title1", fontSize: 20, bold: true };
+    createCarousel(model, { items: [], title }, "carouselId");
     addNewChartToCarousel(model, "carouselId");
     const chartId = model.getters.getCarousel("carouselId").items[0]["chartId"];
     updateChart(model, chartId, { type: "pyramid", dataSets: [{ dataRange: "A1:A6" }] });
@@ -178,6 +179,7 @@ describe("Carousel figure", () => {
 
     const newModel = new Model(model.exportData());
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
+    expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([
       { type: "chart", chartId },
       { type: "chart", chartId: "chartId2" },
