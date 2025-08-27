@@ -5,7 +5,7 @@ import {
   reorderZone,
   setColorAlpha,
 } from "../helpers";
-import { PositionMap } from "../plugins/ui_core_views/cell_evaluation/position_map";
+import { PositionMap } from "../helpers/cells/position_map";
 import {
   Cell,
   CellPosition,
