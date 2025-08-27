@@ -55,6 +55,7 @@ export class Evaluator {
   );
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  private positionsToInvalidate: RTreeBoundingBox[] = [];
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -304,6 +305,8 @@ export class Evaluator {
           this.evaluatedCells.set(position, evaluatedCell);
         }
       }
+
+      this.invalidatePendingPositionsStack();
       onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }
     if (currentIteration >= MAX_ITERATION) {
@@ -395,7 +398,7 @@ export class Evaluator {
       // thanks to the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
       this.spreadValues(formulaPosition, formulaReturn)
     );
-    this.invalidatePositionsDependingOnSpread(formulaPosition.sheetId, resultZone);
+    this.positionsToInvalidate.push({ zone: resultZone, sheetId: formulaPosition.sheetId });
     return createEvaluatedCell(
       nullValueToZeroValue(formulaReturn[0][0]),
       this.getters.getLocale(),
@@ -410,6 +413,32 @@ export class Evaluator {
     );
     invalidatedPositions.delete({ sheetId, col: resultZone.left, row: resultZone.top });
     this.nextPositionsToUpdate.addMany(invalidatedPositions);
+  }
+
+  private invalidatePendingPositionsStack() {
+    if (this.positionsToInvalidate.length > 0) {
+      // the result matrices are split in subzones to exclude the array formula position.
+      // This avoids to invalidate the topleft position of an array formula
+      // and create an infinite loop of self-invalidation
+      const boundingboxes = this.positionsToInvalidate
+        .map((range) =>
+          excludeTopLeft(range.zone).map((zone) => ({
+            sheetId: range.sheetId,
+            zone,
+          }))
+        )
+        .flat();
+      const invalidatedPositions = this.formulaDependencies().getCellsDependingOn(boundingboxes);
+      for (const range of this.positionsToInvalidate) {
+        invalidatedPositions.delete({
+          sheetId: range.sheetId,
+          col: range.zone.left,
+          row: range.zone.top,
+        });
+      }
+      this.nextPositionsToUpdate.addMany(invalidatedPositions);
+      this.positionsToInvalidate = [];
+    }
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
