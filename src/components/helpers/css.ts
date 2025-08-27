@@ -124,9 +124,6 @@ export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
   if (style.italic) {
     attributes["font-style"] = "italic";
   }
-  if (style.fontSize) {
-    attributes["font-size"] = `${style.fontSize}px`;
-  }
   if (style.strikethrough || style.underline) {
     let decoration = style.strikethrough ? "line-through" : "";
     decoration = style.underline ? decoration + " underline" : decoration;
