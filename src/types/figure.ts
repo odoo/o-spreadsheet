@@ -1,4 +1,4 @@
-import { DOMCoordinates, HeaderIndex, Pixel, PixelPosition, UID } from ".";
+import { DOMCoordinates, HeaderIndex, Pixel, PixelPosition, TitleDesign, UID } from ".";
 
 export interface FigureInfo {
   id: UID;
@@ -30,7 +30,8 @@ export interface ExcelFigureSize {
 export type ResizeDirection = -1 | 0 | 1;
 
 export interface Carousel {
-  items: CarouselItem[];
+  readonly items: CarouselItem[];
+  readonly title?: TitleDesign;
 }
 
 export type CarouselItem =
