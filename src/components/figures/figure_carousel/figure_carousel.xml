@@ -1,28 +1,24 @@
 <templates>
   <t t-name="o-spreadsheet-CarouselFigure">
-    <div class="o-carousel w-100 h-100 d-flex flex-column" t-on-dblclick="onCarouselDoubleClick">
+    <div
+      class="o-carousel w-100 h-100 d-flex align-items-stretch flex-column"
+      t-on-dblclick="onCarouselDoubleClick">
       <t t-set="selectedItem" t-value="selectedCarouselItem"/>
       <div
-        class="o-carousel-header d-flex flex-shrink-0 pe-1 rounded pe-auto"
+        class="o-carousel-header position-relative rounded pe-auto border-bottom"
         t-att-class="{
           'o-carousel-header-floating': !env.isDashboard() and selectedItem?.type === 'carouselDataView',
          }"
         t-att-style="headerStyle">
-        <div
-          class="o-carousel-title d-flex align-items-center"
-          t-esc="title"
-          t-att-style="titleStyle"
-        />
-        <div class="ms-auto d-flex">
-          <t t-foreach="carousel.items" t-as="item" t-key="item_index">
-            <div
-              class="o-carousel-tab text-truncate px-2 mt-1 mb-1 flex-shrink-0"
-              t-att-class="{ 'selected': isItemSelected(item) }"
-              t-esc="getItemTitle(item)"
-              t-on-click.stop="() => this.onCarouselTabClick(item)"
-            />
-          </t>
-        </div>
+        <span class="o-carousel-title" t-esc="title" t-att-style="titleStyle"/>
+        <t t-foreach="carousel.items" t-as="item" t-key="item_index">
+          <span
+            class="o-carousel-tab text-truncate px-2 mt-1"
+            t-att-class="{ 'selected': isItemSelected(item) }"
+            t-esc="getItemTitle(item)"
+            t-on-click.stop="() => this.onCarouselTabClick(item)"
+          />
+        </t>
       </div>
       <div
         t-if="!selectedItem"
@@ -30,11 +26,16 @@
         <t t-call="o-spreadsheet-Icon.CAROUSEL"/>
       </div>
       <div t-elif="selectedItem.type === 'chart'" class="o-carousel-content w-100 flex-fill">
-        <div class="o-chart-container w-100 h-100">
+        <div class="o-chart-container w-100 h-100 position-relative">
           <t
             t-component="chartComponent"
             chartId="selectedItem.chartId"
             t-key="selectedItem.chartId"
+          />
+          <ChartDashboardMenu
+            chartId="selectedItem.chartId"
+            t-key="selectedItem.chartId"
+            displayTypeSwitcher="false"
           />
         </div>
       </div>

@@ -1,7 +1,6 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
-import { isDefined } from "../../../../helpers";
 import { Store, useLocalStore, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
@@ -11,6 +10,7 @@ import { ChartDashboardMenuStore } from "./chart_dashboard_menu_store";
 
 interface Props {
   chartId: UID;
+  displayTypeSwitcher: boolean;
 }
 
 interface MenuItem {
@@ -24,7 +24,13 @@ interface MenuItem {
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
   static components = { MenuPopover };
-  static props = { chartId: String };
+  static props = {
+    chartId: String,
+    displayTypeSwitcher: { type: Boolean, optional: true },
+  };
+  static defaultProps = {
+    displayTypeSwitcher: true,
+  };
 
   private fullScreenFigureStore!: Store<FullScreenChartStore>;
   private store!: Store<ChartDashboardMenuStore>;
@@ -43,7 +49,14 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getMenuItems(): MenuItem[] {
-    return [this.fullScreenMenuItem, ...this.store.changeChartTypeMenuItems].filter(isDefined);
+    const menuItems: MenuItem[] = [];
+    if (this.fullScreenMenuItem) {
+      menuItems.push(this.fullScreenMenuItem);
+    }
+    if (this.props.displayTypeSwitcher) {
+      menuItems.push(...this.store.changeChartTypeMenuItems);
+    }
+    return menuItems;
   }
 
   get backgroundColor() {
