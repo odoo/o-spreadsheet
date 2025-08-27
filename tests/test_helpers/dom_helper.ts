@@ -121,6 +121,11 @@ export async function pointerDown(target: DOMTarget) {
   await nextTick();
 }
 
+export async function pointerUp(target: DOMTarget) {
+  triggerMouseEvent(target, "pointerup");
+  await nextTick();
+}
+
 /**
  * Simulate hovering a cell for a given amount of time.
  * Don't forget to use `jest.useFakeTimers();` when using
