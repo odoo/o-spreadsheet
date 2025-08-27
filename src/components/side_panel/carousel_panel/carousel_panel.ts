@@ -2,11 +2,10 @@ import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { deepEquals } from "../../../helpers";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { _t } from "../../../translation";
-import { CarouselItem, SpreadsheetChildEnv, TitleDesign, UID } from "../../../types";
+import { CarouselItem, SpreadsheetChildEnv, UID } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
 import { TextInput } from "../../text_input/text_input";
-import { CarouselItemTitleCollapsible } from "../components/carousel_item_title_collapsible/carousel_item_title_collapsible";
 
 interface Props {
   onCloseSidePanel: () => void;
@@ -16,7 +15,7 @@ interface Props {
 export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static props = { onCloseSidePanel: Function, figureId: String };
-  static components = { TextInput, CarouselItemTitleCollapsible };
+  static components = { TextInput };
 
   private dragAndDrop = useDragAndDropListItems();
   private previewListRef = useRef("previewList");
@@ -88,18 +87,6 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     const itemIndex = this.carouselItems.findIndex((itm) => deepEquals(itm, item));
     if (itemIndex !== -1) {
       items[itemIndex] = { ...item, title: trimmedName };
-      this.env.model.dispatch("UPDATE_CAROUSEL", {
-        figureId: this.props.figureId,
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        definition: { items },
-      });
-    }
-  }
-
-  onUpdateCarouselTitle(itemIndex: number, carouselTitle: TitleDesign) {
-    const items = [...this.carouselItems];
-    if (itemIndex !== -1) {
-      items[itemIndex] = { ...items[itemIndex], carouselTitle };
       this.env.model.dispatch("UPDATE_CAROUSEL", {
         figureId: this.props.figureId,
         sheetId: this.env.model.getters.getActiveSheetId(),

@@ -1,7 +1,6 @@
 import { Component, useExternalListener, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
-import { ACTION_COLOR, GRAY_300, TEXT_BODY } from "../../constants";
-import { isDefined } from "../../helpers";
+import { GRAY_300, TEXT_BODY } from "../../constants";
 import { Ref } from "../../types";
 import { css } from "../helpers";
 import { useAutofocus } from "../helpers/autofocus_hook";
@@ -16,11 +15,8 @@ css/* scss */ `
       color: ${TEXT_BODY};
     }
     .os-input:hover,
-    .os-input.o-input-border {
-      border-color: ${GRAY_300};
-    }
     .os-input:focus {
-      border-color: ${ACTION_COLOR};
+      border-color: ${GRAY_300};
     }
   }
 `;
@@ -32,7 +28,6 @@ interface Props {
   id?: string;
   placeholder?: string;
   autofocus?: boolean;
-  alwaysShowBorder?: boolean;
 }
 
 export class TextInput extends Component<Props, SpreadsheetChildEnv> {
@@ -56,7 +51,6 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       type: Boolean,
       optional: true,
     },
-    alwaysShowBorder: { type: Boolean, optional: true },
   };
   private inputRef: Ref<HTMLInputElement> = useRef("input");
 
@@ -118,11 +112,5 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       ev.preventDefault();
       ev.stopPropagation();
     }
-  }
-
-  get inputClass(): string {
-    return [this.props.class, this.props.alwaysShowBorder ? "o-input-border" : undefined]
-      .filter(isDefined)
-      .join(" ");
   }
 }

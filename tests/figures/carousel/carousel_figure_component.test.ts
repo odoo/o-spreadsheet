@@ -8,7 +8,6 @@ import {
   createCarousel,
   createChart,
   paste,
-  updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
@@ -108,25 +107,6 @@ describe("Carousel figure component", () => {
       items: [{ type: "chart", chartId: "chartId" }],
     });
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
-  });
-
-  test("Can define a carousel title in a carousel item", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    updateCarousel(model, "carouselId", {
-      items: [
-        { type: "chart", chartId: radarId, carouselTitle: { text: "Title1", fontSize: 20 } },
-        { type: "carouselDataView", carouselTitle: { text: "Title2", bold: true } },
-      ],
-    });
-    const { fixture } = await mountSpreadsheet({ model });
-
-    expect(".o-figure .o-carousel-title").toHaveText("Title1");
-    expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe("20px");
-
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(".o-figure .o-carousel-title").toHaveText("Title2");
-    expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
   describe("Carousel menu items", () => {
