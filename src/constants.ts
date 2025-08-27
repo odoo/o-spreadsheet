@@ -1,4 +1,4 @@
-import { BorderDescr, Color, Currency, Style } from "./types";
+import { BorderDescr, ChartStyle, Color, Currency, Style } from "./types";
 
 export const CANVAS_SHIFT = 0.5;
 
@@ -324,4 +324,9 @@ export const DEFAULT_CURRENCY: Currency = {
   decimalPlaces: 2,
   code: "",
   name: "Dollar",
+};
+
+export const DEFAULT_CAROUSEL_TITLE_STYLE: ChartStyle = {
+  fontSize: CHART_TITLE_FONT_SIZE,
+  color: TEXT_BODY,
 };

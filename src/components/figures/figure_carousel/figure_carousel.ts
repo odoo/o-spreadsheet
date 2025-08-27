@@ -1,5 +1,6 @@
 import { Component, useEffect } from "@odoo/owl";
-import { deepEquals } from "../../../helpers";
+import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
+import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import {
@@ -9,7 +10,7 @@ import {
   FigureUI,
   SpreadsheetChildEnv,
 } from "../../../types";
-import { cssPropertiesToCss } from "../../helpers";
+import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 
 interface Props {
   figureUI: FigureUI;
@@ -83,7 +84,19 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     const cssProperties: CSSProperties = {};
     if (this.selectedCarouselItem?.type === "carouselDataView") {
       cssProperties["background-color"] = "#ffffff";
+    } else if (this.selectedCarouselItem?.type === "chart") {
+      const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
+      cssProperties["background-color"] = chart.background;
     }
     return cssPropertiesToCss(cssProperties);
+  }
+
+  get title(): string {
+    return this.carousel.title?.text ?? "";
+  }
+
+  get titleStyle(): string {
+    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
+    return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
   }
 }

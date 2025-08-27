@@ -4,7 +4,7 @@
       t-ref="input"
       class="os-input w-100"
       type="text"
-      t-att-class="props.class"
+      t-att-class="inputClass"
       t-att-id="props.id"
       t-att-placeholder="props.placeholder"
       t-att-value="props.value"
