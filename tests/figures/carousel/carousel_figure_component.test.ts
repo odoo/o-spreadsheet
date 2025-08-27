@@ -8,6 +8,7 @@ import {
   createCarousel,
   createChart,
   paste,
+  updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
@@ -107,6 +108,29 @@ describe("Carousel figure component", () => {
       items: [{ type: "chart", chartId: "chartId" }],
     });
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+  });
+
+  test("Can define a carousel title", async () => {
+    createCarousel(
+      model,
+      {
+        items: [],
+        title: {
+          text: "Title1",
+          fontSize: 20,
+          bold: true,
+        },
+      },
+      "carouselId"
+    );
+    updateCarousel(model, "carouselId", {
+      items: [{ type: "carouselDataView" }],
+    });
+    await mountSpreadsheet({ model });
+
+    expect(".o-figure .o-carousel-title").toHaveText("Title1");
+    expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe("20px");
+    expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
   describe("Carousel menu items", () => {
