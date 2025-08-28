@@ -3974,6 +3974,21 @@ function computeStringCells(cols, rows) {
   return cells;
 }
 
+function computeSplitVlookup(rows) {
+  /*
+* in A1 write =SPLIT("1 2", " ")
+in C1, writ e=B2
+write a VLOOKUP that search in column C --> slow
+* */
+  const cells = {};
+  for (let row = 0; row < rows; row++) {
+    cells["A" + row] = { content: `=SPLIT("1 2", " ")` };
+    cells["C" + row] = { content: `=B${row}` };
+    cells["D" + row] = { content: `=vlookup("2",a1:c${rows},3)` };
+  }
+  return cells;
+}
+
 /**
  *
  * @param {*} cols
@@ -4002,6 +4017,10 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
         break;
       case "strings":
         cells = computeStringCells(cols, rows);
+        break;
+      case "splitVlookup":
+        cells = computeSplitVlookup(rows);
+        break;
     }
     sheets.push({
       name: `Sheet${index + 1}`,
