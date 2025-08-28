@@ -34,6 +34,12 @@ const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY
   - the u flag at the end is for unicode, which enables the `\p{...}` syntax
  */
 const unicodeSymbolCharRegexp = /\p{L}|\p{N}|_|\.|!|\$/u;
+const UNICODE_SYMBOLS = new Set(
+  Array.from({ length: 0xffff }, (_, i) => String.fromCharCode(i)).filter((char) =>
+    unicodeSymbolCharRegexp.test(char)
+  )
+);
+
 const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
 
 const dispatchTable: { [key: string]: (chars: TokenizingChars) => Token } = {
@@ -91,7 +97,7 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
       continue;
     }
 
-    if (SYMBOL_CHARS.has(currentChar) || currentChar.match(unicodeSymbolCharRegexp)) {
+    if (SYMBOL_CHARS.has(currentChar) || UNICODE_SYMBOLS.has(currentChar)) {
       result.push(tokenizeSymbol(chars));
       continue;
     }
@@ -198,10 +204,7 @@ function tokenizeSymbol(chars: TokenizingChars): Token {
       };
     }
   }
-  while (
-    chars.current &&
-    (SYMBOL_CHARS.has(chars.current) || chars.current.match(unicodeSymbolCharRegexp))
-  ) {
+  while (chars.current && (SYMBOL_CHARS.has(chars.current) || UNICODE_SYMBOLS.has(chars.current))) {
     result += chars.shift();
   }
 
