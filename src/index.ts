@@ -104,8 +104,6 @@ import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
-  insertTokenAfterArgSeparator,
-  insertTokenAfterLeftParenthesis,
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
@@ -217,9 +215,8 @@ export const __info__ = {};
 export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
 export { ClientDisconnectedError } from "./collaborative/session";
-export { tokenColors } from "./components/composer/composer/abstract_composer_store";
 export { Spreadsheet } from "./components/index";
-export { setDefaultSheetViewSize } from "./constants";
+export { setDefaultSheetViewSize, tokenColors } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";
 export { astToFormula } from "./formulas/formula_formatter";
 export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
@@ -355,8 +352,6 @@ export const helpers = {
   parseDimension,
   isDateOrDatetimeField,
   makeFieldProposal,
-  insertTokenAfterArgSeparator,
-  insertTokenAfterLeftParenthesis,
   mergeContiguousZones,
   getPivotHighlights,
   pivotTimeAdapter,
