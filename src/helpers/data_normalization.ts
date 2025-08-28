@@ -50,8 +50,7 @@ export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<st
     const itemId = itemIdsByZones[zoneXc];
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const position = { sheetId, col, row };
-        yield [position, itemId] as const;
+        yield [{ sheetId, col, row }, itemId] as const;
       }
     }
   }

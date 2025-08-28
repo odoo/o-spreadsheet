@@ -111,31 +111,39 @@ const machine: Machine = {
 };
 
 /**
- * Check if the list of tokens starts with a sequence of tokens representing
+ * Check if the list of tokens starting at the given position represents
  * a range.
- * If a range is found, the sequence is removed from the list and is returned
- * as a single token.
+ * If a range is found, the sequence is returned as a single token along
+ * with the number of tokens consumed.
  */
-function matchReference(tokens: Token[]): Token | null {
-  let head = 0;
+function matchReference(
+  tokens: Token[],
+  startIndex: number
+): { token: Token | null; consumed: number } {
+  let head = startIndex;
   let transitions = machine[State.LeftRef];
   let matchedTokens: string = "";
+  let consumed = 0;
+
   while (transitions !== undefined) {
     const token = tokens[head++];
+    consumed++;
     if (!token) {
-      return null;
+      return { token: null, consumed: 0 };
     }
     const transition = transitions[token.type]?.find((transition) => transition.guard(token));
     const nextState = transition ? transition.goTo : undefined;
     switch (nextState) {
       case undefined:
-        return null;
+        return { token: null, consumed: 0 };
       case State.Found:
         matchedTokens += token.value;
-        tokens.splice(0, head);
         return {
-          type: "REFERENCE",
-          value: matchedTokens,
+          token: {
+            type: "REFERENCE",
+            value: matchedTokens,
+          },
+          consumed,
         };
       default:
         transitions = machine[nextState];
@@ -143,7 +151,7 @@ function matchReference(tokens: Token[]): Token | null {
         break;
     }
   }
-  return null;
+  return { token: null, consumed: 0 };
 }
 
 /**
@@ -154,9 +162,19 @@ function matchReference(tokens: Token[]): Token | null {
  */
 export function rangeTokenize(formula: string, locale = DEFAULT_LOCALE): Token[] {
   const tokens = tokenize(formula, locale);
-  const result: Token[] = [];
-  while (tokens.length) {
-    result.push(matchReference(tokens) || tokens.shift()!);
+  const result: Token[] = new Array(tokens.length);
+  let index = 0;
+  let resultIndex = 0;
+
+  while (index < tokens.length) {
+    const { token, consumed } = matchReference(tokens, index);
+    if (token) {
+      result[resultIndex++] = token;
+      index += consumed;
+    } else {
+      result[resultIndex++] = tokens[index++];
+    }
   }
-  return result;
+
+  return result.slice(0, resultIndex);
 }

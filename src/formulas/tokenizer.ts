@@ -4,7 +4,7 @@ import {
   getFormulaNumberRegex,
   rangeReference,
   replaceNewLines,
-  specialWhiteSpaceRegexp,
+  whiteSpaceCharacters,
 } from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
 import { CellErrorType } from "../types/errors";
@@ -28,6 +28,32 @@ import { CellErrorType } from "../types/errors";
 
 export const POSTFIX_UNARY_OPERATORS = ["%"];
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
+/**
+  - \p{L} is for any letter (from any language)
+  - \p{N} is for any number
+  - the u flag at the end is for unicode, which enables the `\p{...}` syntax
+ */
+const unicodeSymbolCharRegexp = /\p{L}|\p{N}|_|\.|!|\$/u;
+const UNICODE_SYMBOLS = new Set(
+  Array.from({ length: 0xffff }, (_, i) => String.fromCharCode(i)).filter((char) =>
+    unicodeSymbolCharRegexp.test(char)
+  )
+);
+
+const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
+
+const dispatchTable: { [key: string]: (chars: TokenizingChars) => Token } = {
+  "?": tokenizeDebugger,
+  "(": tokenizeParenthesis,
+  ")": tokenizeParenthesis,
+  '"': tokenizeString,
+  "'": tokenizeSymbol,
+  "#": tokenizeInvalidRange,
+  [NEWLINE]: tokenizeNewLine,
+  ...Object.fromEntries(whiteSpaceCharacters.map((char) => [char, tokenizeSpace])),
+  ...Object.fromEntries(OPERATORS.map((op) => [op[0], tokenizeOperator])),
+  // Add other specific characters here
+};
 
 type TokenType =
   | "OPERATOR"
@@ -52,38 +78,38 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
   str = replaceNewLines(str);
   const chars = new TokenizingChars(str);
   const result: Token[] = [];
-  const tokenizeSpace = specialWhiteSpaceRegexp.test(str)
-    ? tokenizeSpecialCharacterSpace
-    : tokenizeSimpleSpace;
 
   while (!chars.isOver()) {
-    let token =
-      tokenizeNewLine(chars) ||
-      tokenizeSpace(chars) ||
-      tokenizeArgsSeparator(chars, locale) ||
-      tokenizeParenthesis(chars) ||
-      tokenizeOperator(chars) ||
-      tokenizeString(chars) ||
-      tokenizeDebugger(chars) ||
-      tokenizeInvalidRange(chars) ||
-      tokenizeNumber(chars, locale) ||
-      tokenizeSymbol(chars);
-
-    if (!token) {
-      token = { type: "UNKNOWN", value: chars.shift() };
+    const currentChar = chars.current;
+    // Check if a specific tokenizer exists for this character
+    if (dispatchTable[currentChar]) {
+      result.push(dispatchTable[currentChar](chars));
+      continue;
     }
 
-    result.push(token);
+    if (currentChar === locale.formulaArgSeparator) {
+      result.push(tokenizeArgsSeparator(chars));
+      continue;
+    }
+
+    if (FIRST_POSSIBLE_NUMBER_CHARS.has(currentChar) || currentChar === locale.decimalSeparator) {
+      result.push(tokenizeNumber(chars, locale));
+      continue;
+    }
+
+    if (SYMBOL_CHARS.has(currentChar) || UNICODE_SYMBOLS.has(currentChar)) {
+      result.push(tokenizeSymbol(chars));
+      continue;
+    }
+
+    result.push({ type: "UNKNOWN", value: chars.shift() });
   }
   return result;
 }
 
-function tokenizeDebugger(chars: TokenizingChars): Token | null {
-  if (chars.current === "?") {
-    chars.shift();
-    return { type: "DEBUGGER", value: "?" };
-  }
-  return null;
+function tokenizeDebugger(chars: TokenizingChars): Token {
+  chars.shift();
+  return { type: "DEBUGGER", value: "?" };
 }
 
 const parenthesis = {
@@ -91,76 +117,53 @@ const parenthesis = {
   ")": { type: "RIGHT_PAREN", value: ")" },
 } as const;
 
-function tokenizeParenthesis(chars: TokenizingChars): Token | null {
-  if (chars.current === "(" || chars.current === ")") {
-    const value = chars.shift();
-    return parenthesis[value];
-  }
-  return null;
+function tokenizeParenthesis(chars: TokenizingChars): Token {
+  const value = chars.shift();
+  return parenthesis[value];
 }
 
-function tokenizeArgsSeparator(chars: TokenizingChars, locale: Locale): Token | null {
-  if (chars.current === locale.formulaArgSeparator) {
-    const value = chars.shift();
-    const type = "ARG_SEPARATOR";
-    return { type, value };
-  }
-
-  return null;
+function tokenizeArgsSeparator(chars: TokenizingChars): Token {
+  const value = chars.shift();
+  return { type: "ARG_SEPARATOR", value };
 }
 
-function tokenizeOperator(chars: TokenizingChars): Token | null {
-  for (const op of OPERATORS) {
-    if (chars.currentStartsWith(op)) {
-      chars.advanceBy(op.length);
-      return { type: "OPERATOR", value: op };
+function tokenizeOperator(chars: TokenizingChars): Token {
+  let op = chars.shift();
+  if (op === "<") {
+    if (chars.current === "=" || chars.current === ">") {
+      op += chars.shift();
     }
+  } else if (op === ">" && chars.current === "=") {
+    op += chars.shift();
   }
-  return null;
+  return { type: "OPERATOR", value: op };
 }
 
 const FIRST_POSSIBLE_NUMBER_CHARS = new Set("0123456789");
 
-function tokenizeNumber(chars: TokenizingChars, locale: Locale): Token | null {
-  if (
-    !FIRST_POSSIBLE_NUMBER_CHARS.has(chars.current) &&
-    chars.current !== locale.decimalSeparator
-  ) {
-    return null;
-  }
+function tokenizeNumber(chars: TokenizingChars, locale: Locale): Token {
   const match = chars.remaining().match(getFormulaNumberRegex(locale.decimalSeparator));
   if (match) {
     chars.advanceBy(match[0].length);
     return { type: "NUMBER", value: match[0] };
   }
-  return null;
+  return tokenizeSymbol(chars);
 }
 
-function tokenizeString(chars: TokenizingChars): Token | null {
-  if (chars.current === '"') {
-    const startChar = chars.shift();
-    let letters: string = startChar;
-    while (chars.current && (chars.current !== startChar || letters[letters.length - 1] === "\\")) {
-      letters += chars.shift();
-    }
-    if (chars.current === '"') {
-      letters += chars.shift();
-    }
-    return {
-      type: "STRING",
-      value: letters,
-    };
+function tokenizeString(chars: TokenizingChars): Token {
+  const startChar = chars.shift();
+  let letters: string = startChar;
+  while (chars.current && (chars.current !== startChar || letters[letters.length - 1] === "\\")) {
+    letters += chars.shift();
   }
-  return null;
+  if (chars.current === '"') {
+    letters += chars.shift();
+  }
+  return {
+    type: "STRING",
+    value: letters,
+  };
 }
-
-/**
-  - \p{L} is for any letter (from any language)
-  - \p{N} is for any number
-  - the u flag at the end is for unicode, which enables the `\p{...}` syntax
- */
-const unicodeSymbolCharRegexp = /\p{L}|\p{N}|_|\.|!|\$/u;
-const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
 
 /**
  * A "Symbol" is just basically any word-like element that can appear in a
@@ -174,7 +177,7 @@ const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
  *
  * are examples of symbols
  */
-function tokenizeSymbol(chars: TokenizingChars): Token | null {
+function tokenizeSymbol(chars: TokenizingChars): Token {
   let result: string = "";
   // there are two main cases to manage: either something which starts with
   // a ', like 'Sheet 2'A2, or a word-like element.
@@ -201,63 +204,40 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
       };
     }
   }
-  while (
-    chars.current &&
-    (SYMBOL_CHARS.has(chars.current) || chars.current.match(unicodeSymbolCharRegexp))
-  ) {
+  while (chars.current && (SYMBOL_CHARS.has(chars.current) || UNICODE_SYMBOLS.has(chars.current))) {
     result += chars.shift();
   }
-  if (result.length) {
-    const value = result;
-    const isReference = rangeReference.test(value);
-    if (isReference) {
-      return { type: "REFERENCE", value };
-    }
-    return { type: "SYMBOL", value };
+
+  const value = result;
+  const isReference = rangeReference.test(value);
+  if (isReference) {
+    return { type: "REFERENCE", value };
   }
-  return null;
+  return { type: "SYMBOL", value };
 }
 
-function tokenizeSpecialCharacterSpace(chars: TokenizingChars): Token | null {
+const whiteSpaceSet = new Set(whiteSpaceCharacters);
+function tokenizeSpace(chars: TokenizingChars): Token {
   let spaces = "";
-  while (chars.current === " " || (chars.current && chars.current.match(specialWhiteSpaceRegexp))) {
+  while (whiteSpaceSet.has(chars.current)) {
     spaces += chars.shift();
   }
-
-  if (spaces) {
-    return { type: "SPACE", value: spaces };
-  }
-  return null;
+  return { type: "SPACE", value: spaces };
 }
 
-function tokenizeSimpleSpace(chars: TokenizingChars): Token | null {
-  let spaces = "";
-  while (chars.current === " ") {
-    spaces += chars.shift();
-  }
-
-  if (spaces) {
-    return { type: "SPACE", value: spaces };
-  }
-  return null;
-}
-
-function tokenizeNewLine(chars: TokenizingChars): Token | null {
+function tokenizeNewLine(chars: TokenizingChars): Token {
   let length = 0;
   while (chars.current === NEWLINE) {
     length++;
     chars.shift();
   }
-  if (length) {
-    return { type: "SPACE", value: NEWLINE.repeat(length) };
-  }
-  return null;
+  return { type: "SPACE", value: NEWLINE.repeat(length) };
 }
 
-function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
+function tokenizeInvalidRange(chars: TokenizingChars): Token {
   if (chars.currentStartsWith(CellErrorType.InvalidReference)) {
     chars.advanceBy(CellErrorType.InvalidReference.length);
     return { type: "INVALID_REFERENCE", value: CellErrorType.InvalidReference };
   }
-  return null;
+  return tokenizeSymbol(chars);
 }
