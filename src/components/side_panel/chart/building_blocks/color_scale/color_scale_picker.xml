@@ -1,8 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-ColorScalePicker">
     <Section class="'pt-0 o-color-scale'" title.translate="Color Scale">
-      <div style="width: 100%">
-        <div class="color-scale-container" t-on-click="onPointerDown">
+      <div style="width: 100%" t-ref="colorScalePreview">
+        <button
+          class="color-scale-container w-100 border-0 bg-transparent d-flex justify-content-end"
+          popovertarget="color-scale-picker">
           <span class="color-scale-label">
             <t t-esc="currentColorScaleLabel"/>
           </span>
@@ -10,22 +12,22 @@
           <span class="ms-1">
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
           </span>
-        </div>
-      </div>
-      <Popover t-if="state.popoverProps" t-props="state.popoverProps">
-        <div t-ref="popoverRef" class="o-chart-select-popover" t-att-style="state.popoverStyle">
+        </button>
+        <div
+          popover=""
+          id="color-scale-picker"
+          class="o-chart-select-popover"
+          t-att-style="popoverStyle">
           <div class="w-100">
             <div
-              class="color-scale-container custom-color-scale-container"
+              class="color-scale-container d-flex justify-content-end custom-color-scale-container"
               t-on-click="() => this.onColorScaleChange('custom')">
-              <span class="color-scale-label">
-                <t t-esc="'Custom'"/>
-              </span>
-              <div class="color-scale-preview custom-color-scale"/>
+              <span class="color-scale-label">Custom</span>
+              <div class="color-scale-preview border-0"/>
             </div>
             <t t-foreach="colorScales" t-as="colorScale" t-key="colorScale.value">
               <div
-                class="color-scale-container"
+                class="color-scale-container d-flex justify-content-end"
                 t-on-click="() => this.onColorScaleChange(colorScale.value)">
                 <span class="color-scale-label">
                   <t t-esc="colorScale.label"/>
@@ -35,7 +37,7 @@
             </t>
           </div>
         </div>
-      </Popover>
+      </div>
       <t t-if="customColorScale">
         <div class="o-min-color d-flex align-items-center mb-2 mt-2 ms-2">
           <RoundColorPicker

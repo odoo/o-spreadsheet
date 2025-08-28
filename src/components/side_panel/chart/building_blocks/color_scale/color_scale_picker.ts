@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, useRef } from "@odoo/owl";
 import { COLORSCALES, COLORSCHEMES } from "../../../../../helpers";
 import { _t } from "../../../../../translation";
 import {
@@ -8,15 +8,12 @@ import {
   SpreadsheetChildEnv,
 } from "../../../../../types";
 import { css, cssPropertiesToCss } from "../../../../helpers";
-import { isChildEvent } from "../../../../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../../../../popover";
+import { Popover } from "../../../../popover";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 
 css/* scss */ `
   .color-scale-container {
-    display: flex;
-    justify-content: right;
     margin: 5px;
   }
   .color-scale-label {
@@ -54,11 +51,12 @@ css/* scss */ `
   .rainbow-color-scale {
     background: linear-gradient(90deg, ${COLORSCHEMES.rainbow.join(", ")});
   }
-  .custom-color-scale {
-    border: none !important;
-  }
   .custom-color-scale-container {
     border-bottom: 1px solid #d8dadd;
+  }
+  .o-chart-select-popover {
+    background-color: white;
+    border: 1px solid #d8dadd;
   }
 `;
 
@@ -73,11 +71,6 @@ const DEFAULT_CUSTOM_COLOR_SCALE: ChartCustomColorScale = {
 interface Props {
   definition: { colorScale: ChartColorScale };
   onUpdateColorScale: (colorscale: ChartColorScale) => void;
-}
-
-interface ColorScalePickerState {
-  popoverStyle: string;
-  popoverProps: PopoverProps | undefined;
 }
 
 export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
@@ -98,18 +91,12 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     className: `${colorScale}-color-scale`,
   }));
 
-  state = useState<ColorScalePickerState>({ popoverProps: undefined, popoverStyle: "" });
-  popoverRef = useRef("popoverRef");
+  colorScalePreview = useRef("colorScalePreview");
 
-  setup(): void {
-    useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
-  }
-
-  onExternalClick(ev: MouseEvent) {
-    if (isChildEvent(this.popoverRef.el?.parentElement, ev)) {
-      return;
-    }
-    this.closePopover();
+  setup() {
+    onMounted(() => {
+      this.render();
+    });
   }
 
   get currentColorScale(): ChartColorScale {
@@ -129,7 +116,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
       return _t("Custom");
     }
     const currentColorScale = this.currentColorScale;
-    return _t(currentColorScale.charAt(0).toUpperCase() + currentColorScale.slice(1));
+    return currentColorScale.charAt(0).toUpperCase() + currentColorScale.slice(1);
   }
 
   onColorScaleChange(value): void {
@@ -138,27 +125,21 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.props.onUpdateColorScale(value as ChartColorScale);
     }
-    this.closePopover();
   }
 
-  onPointerDown(ev: PointerEvent) {
-    if (this.state.popoverProps) {
-      this.closePopover();
-      return;
+  get popoverStyle() {
+    const element = this.colorScalePreview.el;
+    if (!element) {
+      return "";
     }
-    const target = ev.currentTarget as HTMLElement;
-    const { bottom, right, width } = target.getBoundingClientRect();
-    this.state.popoverProps = {
-      anchorRect: { x: right, y: bottom, width: 0, height: 0 },
-      positioning: "top-right",
-      verticalOffset: 0,
-    };
-
-    this.state.popoverStyle = cssPropertiesToCss({ width: `${width}px` });
-  }
-
-  private closePopover() {
-    this.state.popoverProps = undefined;
+    const { left, width, bottom } = element.getBoundingClientRect();
+    return cssPropertiesToCss({
+      inset: "unset",
+      width: `${width}px`,
+      position: "relative",
+      left: `${left}px`,
+      top: `${bottom}px`,
+    });
   }
 
   get customColorScale(): ChartCustomColorScale | undefined {
