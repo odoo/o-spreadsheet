@@ -133,6 +133,16 @@ describe("Carousel figure component", () => {
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
+  test("display chart menu", async () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    model.updateMode("dashboard");
+    const { fixture } = await mountSpreadsheet({ model });
+    expect(".o-chart-dashboard-item").toHaveCount(0); // nothing for the data view
+    await click(fixture, ".o-carousel-tab:nth-child(2)");
+    expect(".o-chart-dashboard-item").toHaveCount(2); // ellipsis and fullscreen
+  });
+
   describe("Carousel menu items", () => {
     let env: SpreadsheetChildEnv;
     let openSidePanel: jest.Mock;

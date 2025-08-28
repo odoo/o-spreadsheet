@@ -3,20 +3,17 @@
     <div class="o-carousel w-100 h-100 d-flex flex-column" t-on-dblclick="onCarouselDoubleClick">
       <t t-set="selectedItem" t-value="selectedCarouselItem"/>
       <div
-        class="o-carousel-header d-flex flex-shrink-0 pe-1 rounded pe-auto"
+        class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
         t-att-class="{
+          'border-bottom': env.isDashboard(),
           'o-carousel-header-floating': !env.isDashboard() and selectedItem?.type === 'carouselDataView',
          }"
         t-att-style="headerStyle">
-        <div
-          class="o-carousel-title d-flex align-items-center"
-          t-esc="title"
-          t-att-style="titleStyle"
-        />
+        <div class="o-carousel-title text-truncate" t-esc="title" t-att-style="titleStyle"/>
         <div class="ms-auto d-flex">
           <t t-foreach="carousel.items" t-as="item" t-key="item_index">
             <div
-              class="o-carousel-tab text-truncate px-2 mt-1 mb-1 flex-shrink-0"
+              class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
               t-att-class="{ 'selected': isItemSelected(item) }"
               t-esc="getItemTitle(item)"
               t-on-click.stop="() => this.onCarouselTabClick(item)"
@@ -29,7 +26,9 @@
         class="o-carousel-empty w-100 flex-fill d-flex align-items-center justify-content-center">
         <t t-call="o-spreadsheet-Icon.CAROUSEL"/>
       </div>
-      <div t-elif="selectedItem.type === 'chart'" class="o-carousel-content w-100 flex-fill">
+      <div
+        t-elif="selectedItem.type === 'chart'"
+        class="o-carousel-content w-100 flex-fill position-relative">
         <div class="o-chart-container w-100 h-100">
           <t
             t-component="chartComponent"
@@ -37,6 +36,11 @@
             t-key="selectedItem.chartId"
           />
         </div>
+        <ChartDashboardMenu
+          t-if="env.isDashboard()"
+          chartId="selectedItem.chartId"
+          t-key="selectedItem.chartId"
+        />
       </div>
     </div>
   </t>
