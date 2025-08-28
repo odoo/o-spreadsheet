@@ -898,8 +898,8 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     }
     const data = ds.dataRange ? getData(getters, ds) : [];
     if (
-      data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
-      data.some((e) => e !== "")
+      data.every((e) => e === null || (typeof e === "string" && !isEvaluationError(e))) &&
+      data.some((e) => typeof e === "string" && e !== "")
     ) {
       // In this case, we want a chart based on the string occurrences count
       // This will be done by associating each string with a value of 1 and
