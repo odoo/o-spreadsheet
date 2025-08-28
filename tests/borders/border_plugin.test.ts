@@ -11,6 +11,8 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  moveColumns,
+  moveRows,
   paste,
   selectCell,
   setAnchorCorner,
@@ -795,6 +797,102 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "C3")).toBeNull();
     // untouched as the border are the same
     expect(getBorder(model, "D2")).toEqual({ top: DEFAULT_BORDER_DESC });
+  });
+
+  test("Moving top row", () => {
+    setZoneBorders(model, { position: "external" }, ["B2:D4"]);
+    moveRows(model, 9, [1], "after");
+    const newBorders = model.getters.getBorders(model.getters.getActiveSheetId(), toZone("A1:Z25"));
+
+    expect(newBorders[0]).toMatchObject({
+      style: {
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("B2:D3"),
+    });
+
+    expect(newBorders[1]).toMatchObject({
+      style: {
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+        top: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("B10:D10"),
+    });
+  });
+
+  test("Moving bottom row", () => {
+    setZoneBorders(model, { position: "external" }, ["B2:D4"]);
+    moveRows(model, 9, [3], "after");
+    const newBorders = model.getters.getBorders(model.getters.getActiveSheetId(), toZone("A1:Z25"));
+
+    expect(newBorders[0]).toMatchObject({
+      style: {
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+        top: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("B2:D3"),
+    });
+
+    expect(newBorders[1]).toMatchObject({
+      style: {
+        left: DEFAULT_BORDER_DESC,
+        right: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("B10:D10"),
+    });
+  });
+
+  test("Moving left col", () => {
+    setZoneBorders(model, { position: "external" }, ["B2:D4"]);
+    moveColumns(model, "F", ["B"], "after");
+    const newBorders = model.getters.getBorders(model.getters.getActiveSheetId(), toZone("A1:Z25"));
+
+    expect(newBorders[0]).toMatchObject({
+      style: {
+        right: DEFAULT_BORDER_DESC,
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("B2:C4"),
+    });
+
+    expect(newBorders[1]).toMatchObject({
+      style: {
+        left: DEFAULT_BORDER_DESC,
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("F2:F4"),
+    });
+  });
+
+  test("Moving right col", () => {
+    setZoneBorders(model, { position: "external" }, ["B2:D4"]);
+    moveColumns(model, "F", ["D"], "after");
+    const newBorders = model.getters.getBorders(model.getters.getActiveSheetId(), toZone("A1:Z25"));
+
+    expect(newBorders[0]).toMatchObject({
+      style: {
+        left: DEFAULT_BORDER_DESC,
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("B2:C4"),
+    });
+
+    expect(newBorders[1]).toMatchObject({
+      style: {
+        right: DEFAULT_BORDER_DESC,
+        top: DEFAULT_BORDER_DESC,
+        bottom: DEFAULT_BORDER_DESC,
+      },
+      zone: toZone("F2:F4"),
+    });
   });
 
   test("Setting a *clear* border on a cell removes the adjacent border cell", () => {
