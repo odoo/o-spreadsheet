@@ -1,4 +1,5 @@
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
+import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { DEFAULT_CELL_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
@@ -590,13 +591,28 @@ export class GridSelectionPlugin extends UIPlugin {
       },
     ];
 
-    for (const Handler of clipboardHandlersRegistries.cellHandlers.getAll()) {
-      const handler = new Handler(this.getters, this.dispatch);
-      const data = handler.copy(getClipboardDataPositions(sheetId, target), false, "shiftCells");
-      if (!data) {
+    // The clipboards copy the data before pasting to ensure that
+    // clipboardA paste doesn't interfere with clipboardB copy
+    const handlers: [string, AbstractCellClipboardHandler<unknown, unknown>][] =
+      clipboardHandlersRegistries.cellHandlers.getKeys().map((name) => {
+        const Handler = clipboardHandlersRegistries.cellHandlers.get(name);
+        return [name, new Handler(this.getters, this.dispatch)];
+      });
+    const data: Record<string, unknown> = {};
+
+    for (const [handlerName, handler] of handlers) {
+      data[handlerName] = handler.copy(
+        getClipboardDataPositions(sheetId, target),
+        false,
+        "shiftCells"
+      );
+    }
+
+    for (const [handlerName, handler] of handlers) {
+      if (!data[handlerName]) {
         continue;
       }
-      handler.paste({ zones: pasteTarget, sheetId }, data, { isCutOperation: true });
+      handler.paste({ zones: pasteTarget, sheetId }, data[handlerName], { isCutOperation: true });
     }
 
     const selection = pasteTarget[0];
