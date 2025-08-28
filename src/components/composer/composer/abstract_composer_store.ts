@@ -1,6 +1,5 @@
-import { AST } from "prettier";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
-import { iterateAstNodes, parseTokens } from "../../../formulas/parser";
+import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
 import { isEvaluationError, transposeMatrix } from "../../../functions/helpers";
