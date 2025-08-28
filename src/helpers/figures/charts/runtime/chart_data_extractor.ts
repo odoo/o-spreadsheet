@@ -878,33 +878,23 @@ function getChartDatasetFormat(
 function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
-    let label: string;
+    let label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     let hidden = getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left);
     if (ds.labelCell) {
-      const labelRange = ds.labelCell;
-      const cell = labelRange
-        ? getters.getEvaluatedCell({
-            sheetId: labelRange.sheetId,
-            col: labelRange.zone.left,
-            row: labelRange.zone.top,
-          })
-        : undefined;
-      label =
-        cell && labelRange
-          ? cell.formattedValue
-          : (label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`);
-    } else {
-      label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
+      const { sheetId, zone } = ds.labelCell;
+      const cell = getters.getEvaluatedCell({ sheetId, col: zone.left, row: zone.top });
+      if (cell) {
+        label = cell.formattedValue;
+      }
     }
-    const data = ds.dataRange ? getData(getters, ds) : [];
+
+    let data = ds.dataRange ? getData(getters, ds) : [];
     if (
-      data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
-      data.some((e) => e !== "")
+      data.every((e) => !e || (typeof e === "string" && !isEvaluationError(e))) &&
+      data.filter((e) => typeof e === "string").length > 1
     ) {
-      // In this case, we want a chart based on the string occurrences count
-      // This will be done by associating each string with a value of 1 and
-      // then using the classical aggregation method to sum the values.
-      data.fill(1);
+      // Convert categorical data into counts
+      data = data.map((e) => (e && !isEvaluationError(e) ? 1 : null));
     } else if (
       data.every(
         (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
