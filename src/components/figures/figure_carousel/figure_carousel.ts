@@ -11,6 +11,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../../types";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
+import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 interface Props {
   figureUI: FigureUI;
@@ -25,7 +26,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
   };
-  static components = {};
+  static components = { ChartDashboardMenu };
 
   setup(): void {
     useEffect(() => {
