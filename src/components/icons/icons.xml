@@ -571,6 +571,11 @@
       <i class="fa fa-pencil-square-o"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.EXTERNAL">
+    <div class="o-icon">
+      <i class="fa fa-external-link"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.UNLINK">
     <div class="o-icon">
       <i class="fa fa-chain-broken"/>
