@@ -124,7 +124,10 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     for (const sheet of data.sheets) {
       const carousels = (sheet.figures || []).filter((figure) => figure.tag === "carousel");
       for (const carousel of carousels) {
-        this.history.update("carousels", sheet.id, carousel.id, { items: carousel.data.items });
+        this.history.update("carousels", sheet.id, carousel.id, {
+          items: carousel.data.items,
+          title: carousel.data.title,
+        });
       }
     }
   }
