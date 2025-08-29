@@ -57,6 +57,14 @@ export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<st
   }
 }
 
+export function* iterateItemIdsZone(sheetId: UID, itemIdsByZones: Record<string, number>) {
+  for (const zoneXc in itemIdsByZones) {
+    const zone = toZone(zoneXc);
+    const itemId = itemIdsByZones[zoneXc];
+    yield [zone, itemId] as const;
+  }
+}
+
 export function getCanonicalRepresentation(item: any): string {
   if (item === null) return "null";
   if (item === undefined) return "undefined";

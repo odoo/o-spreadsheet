@@ -9,6 +9,7 @@ import {
   SplitTextIntoColumnsCommand,
   Zone,
 } from "../../types/index";
+import { DEFAULT_STYLE_NO_ALIGN } from "../core";
 import { UIPlugin } from "../ui_plugin";
 
 export class SplitToColumnsPlugin extends UIPlugin {
@@ -85,7 +86,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
           row,
           content: canonicalizeNumberContent(content, this.getters.getLocale()),
           format: "",
-          style: mainCellStyle || null,
+          style: { ...DEFAULT_STYLE_NO_ALIGN, ...mainCellStyle },
         });
       }
     }
