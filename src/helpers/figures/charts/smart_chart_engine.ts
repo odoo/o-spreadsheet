@@ -327,7 +327,7 @@ function buildMultiColumnChart(
 }
 
 function buildScorecard(zone: Zone, getters: Getters): ChartDefinition {
-  const cell = getters.getCell({
+  const style = getters.getCellStyle({
     sheetId: getters.getActiveSheetId(),
     col: zone.left,
     row: zone.top,
@@ -336,7 +336,7 @@ function buildScorecard(zone: Zone, getters: Getters): ChartDefinition {
     type: "scorecard",
     title: {},
     keyValue: getUnboundRange(getters, zone),
-    background: cell?.style?.fillColor,
+    background: style?.fillColor,
     baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
     baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
     baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,

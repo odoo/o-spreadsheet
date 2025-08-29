@@ -499,8 +499,8 @@ describe("TopBar component", () => {
     test.each([
       ["Top", { verticalAlign: "top" }],
       ["Middle", { verticalAlign: "middle" }],
-      ["Bottom", { verticalAlign: "bottom" }],
-    ])("can set vertical alignmen '%s't with the toolbar", async (iconTitle, expectedStyle) => {
+      ["Bottom", {}],
+    ])("can set vertical alignment '%s' with the toolbar", async (iconTitle, expectedStyle) => {
       const { model } = await mountParent();
       await click(fixture, '.o-menu-item-button[title="Vertical align"]');
       await click(fixture, `.o-menu-item-button[title="${iconTitle}"]`);
@@ -530,7 +530,7 @@ describe("TopBar component", () => {
 
   describe("text wrapping", () => {
     test.each([
-      ["Overflow", { wrapping: "overflow" }],
+      ["Overflow", {}],
       ["Wrap", { wrapping: "wrap" }],
       ["Clip", { wrapping: "clip" }],
     ])("can set the wrapping state '%s' with the toolbar", async (iconTitle, expectedStyle) => {

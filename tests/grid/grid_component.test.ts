@@ -511,7 +511,7 @@ describe("Grid component", () => {
       expect(getCellStyle(model, "A1")).toEqual({ bold: true });
       expect(getStyle(model, "A1")).toEqual({ bold: true });
       await keyDown({ key: "B", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).toEqual({ bold: false });
+      expect(getCellStyle(model, "A1")).not.toBeDefined();
       expect(getStyle(model, "A1")).toEqual({});
     });
 
@@ -522,7 +522,7 @@ describe("Grid component", () => {
       expect(getCellStyle(model, "A1")).toEqual({ italic: true });
       expect(getStyle(model, "A1")).toEqual({ italic: true });
       await keyDown({ key: "I", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).toEqual({ italic: false });
+      expect(getCellStyle(model, "A1")).not.toBeDefined();
       expect(getStyle(model, "A1")).toEqual({});
     });
 
