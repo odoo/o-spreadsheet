@@ -1216,4 +1216,28 @@ describe("edition", () => {
       ")"
     );
   });
+
+  test("display as one-liner when inactive", () => {
+    const content = // prettier-ignore
+      "=SUM(\n" +
+      "\t11111111, \n" +
+      "\t22222222, \n" +
+      "\t33333333, \n" +
+      "\t44444444, \n" +
+      "\t55555555, \n" +
+      "\t66666666, \n" +
+      "\t77777777, \n" +
+      "\t88888888\n" +
+      ")";
+    setCellContent(model, "A1", content);
+    expect(composerStore.currentContent).toBe(
+      "=SUM(11111111, 22222222, 33333333, 44444444, 55555555, 66666666, 77777777, 88888888)"
+    );
+    composerStore.startEdition();
+    expect(composerStore.currentContent).toBe(content);
+    composerStore.stopEdition();
+    expect(composerStore.currentContent).toBe(
+      "=SUM(11111111, 22222222, 33333333, 44444444, 55555555, 66666666, 77777777, 88888888)"
+    );
+  });
 });

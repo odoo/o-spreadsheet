@@ -24,6 +24,7 @@ import {
   Command,
   Direction,
   Format,
+  FormulaCell,
   Locale,
   RemoveColumnsRowsCommand,
   isMatrix,
@@ -204,9 +205,7 @@ export class CellComposerStore extends AbstractComposerStore {
     const locale = this.getters.getLocale();
     const cell = this.getters.getCell(position);
     if (cell?.isFormula) {
-      const prettifiedContent = cell.compiledFormula.isBadExpression
-        ? cell.content
-        : prettify(parseTokens(cell.compiledFormula.tokens), 80);
+      const prettifiedContent = this.getPrettifiedFormula(cell);
       return localizeFormula(prettifiedContent, locale);
     }
     const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
@@ -236,6 +235,17 @@ export class CellComposerStore extends AbstractComposerStore {
         }
         return this.numberComposerContent(value, format, locale);
     }
+  }
+
+  private getPrettifiedFormula(cell: FormulaCell): string {
+    if (cell.compiledFormula.isBadExpression) {
+      return cell.content;
+    }
+    const width =
+      this.editionMode === "inactive"
+        ? Infinity // one liner
+        : 80;
+    return prettify(parseTokens(cell.compiledFormula.tokens), width);
   }
 
   private numberComposerContent(value: number, format: Format | undefined, locale: Locale): string {

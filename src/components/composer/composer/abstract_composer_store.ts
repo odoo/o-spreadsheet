@@ -461,8 +461,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.col = col;
     this.sheetId = sheetId;
     this.row = row;
-    this.initialContent = this.getComposerContent({ sheetId, col, row });
     this.editionMode = "editing";
+    this.initialContent = this.getComposerContent({ sheetId, col, row });
     this.setContent(str || this.initialContent, selection);
     this.colorIndexByRange = {};
     const zone = positionToZone({ col: this.col, row: this.row });
