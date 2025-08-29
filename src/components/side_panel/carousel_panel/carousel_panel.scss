@@ -1,5 +1,6 @@
 .o-spreadsheet .o-carousel-panel {
   .o-carousel-preview {
+    height: 60px;
     background-color: #fff;
 
     &:not(:hover):not(.o-dragging) .o-drag-handle {
@@ -8,7 +9,6 @@
 
     .o-drag-handle {
       cursor: move;
-      color: $os-text-body-muted;
 
       .o-icon {
         width: 6px;

@@ -30,9 +30,10 @@ export interface ExcelFigureSize {
 export type ResizeDirection = -1 | 0 | 1;
 
 export interface Carousel {
-  items: CarouselItem[];
+  readonly items: CarouselItem[];
+  readonly title?: TitleDesign;
 }
 
 export type CarouselItem =
-  | { type: "chart"; chartId: UID; title?: string; carouselTitle?: TitleDesign }
-  | { type: "carouselDataView"; title?: string; carouselTitle?: TitleDesign };
+  | { type: "chart"; chartId: UID; title?: string }
+  | { type: "carouselDataView"; title?: string };

@@ -130,9 +130,7 @@ describe("Carousel figure", () => {
 
   test("Can add an existing chart to a carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
-    createChart(model, { type: "radar", title: {} }, "chartId", undefined, {
-      figureId: "chartFigureId",
-    });
+    createChart(model, { type: "radar" }, "chartId", undefined, { figureId: "chartFigureId" });
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
 
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
@@ -143,23 +141,6 @@ describe("Carousel figure", () => {
     expect(model.getters.getChartDefinition("chartId")).toMatchObject({ type: "radar" });
     expect(model.getters.getFigureIdFromChartId("chartId")).toBe("carouselId");
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
-  });
-
-  test("title is moved from chart to carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    createChart(
-      model,
-      { type: "radar", title: { text: "hello", bold: true } },
-      "chartId",
-      undefined,
-      { figureId: "chartFigureId" }
-    );
-
-    addChartFigureToCarousel(model, "carouselId", "chartFigureId");
-    expect(model.getters.getChartDefinition("chartId").title).toEqual({});
-    expect(model.getters.getCarousel("carouselId").items).toEqual([
-      { type: "chart", chartId: "chartId", carouselTitle: { text: "hello", bold: true } },
-    ]);
   });
 
   test("Can duplicate a sheet with a carousel", () => {
@@ -187,18 +168,18 @@ describe("Carousel figure", () => {
   });
 
   test("Can export/import a carousel and its charts", () => {
-    createCarousel(model, { items: [] }, "carouselId");
+    const title = { text: "Title1", fontSize: 20, bold: true };
+    createCarousel(model, { items: [], title }, "carouselId");
     addNewChartToCarousel(model, "carouselId");
     const chartId = model.getters.getCarousel("carouselId").items[0]["chartId"];
     updateChart(model, chartId, { type: "pyramid", dataSets: [{ dataRange: "A1:A6" }] });
 
-    createChart(model, { type: "radar", title: {} }, "chartId2", undefined, {
-      figureId: "chartFigureId",
-    });
+    createChart(model, { type: "radar" }, "chartId2", undefined, { figureId: "chartFigureId" });
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
 
     const newModel = new Model(model.exportData());
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
+    expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([
       { type: "chart", chartId },
       { type: "chart", chartId: "chartId2" },
