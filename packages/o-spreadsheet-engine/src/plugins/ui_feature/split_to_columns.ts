@@ -4,6 +4,7 @@ import { range } from "../../helpers/misc";
 import { CellValueType } from "../../types/cells";
 import { Command, CommandResult, SplitTextIntoColumnsCommand } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";
+import { DEFAULT_STYLE_NO_ALIGN } from "../core/style";
 import { UIPlugin } from "../ui_plugin";
 
 export class SplitToColumnsPlugin extends UIPlugin {
@@ -80,7 +81,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
           row,
           content: canonicalizeNumberContent(content, this.getters.getLocale()),
           format: "",
-          style: mainCellStyle || null,
+          style: { ...DEFAULT_STYLE_NO_ALIGN, ...mainCellStyle },
         });
       }
     }
