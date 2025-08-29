@@ -1,6 +1,7 @@
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
+import { ConditionalFormatEditorPanel } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
+import { ConditionalFormatPreviewPanel } from "../components/side_panel/conditional_formatting/cf_preview_panel/cf_preview_panel";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
 import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
@@ -39,9 +40,17 @@ export interface SidePanelContent {
 
 export const sidePanelRegistry = new Registry<SidePanelContent>();
 
-sidePanelRegistry.add("ConditionalFormatting", {
-  title: _t("Conditional formatting"),
-  Body: ConditionalFormattingPanel,
+sidePanelRegistry.add("ConditionalFormatPreviewPanel", {
+  title: _t("Conditional formatting preview"),
+  Body: ConditionalFormatPreviewPanel,
+});
+
+sidePanelRegistry.add("ConditionalFormatEditorPanel", {
+  title: _t("Conditional formatting editor"),
+  Body: ConditionalFormatEditorPanel,
+  computeState: (getters: Getters, props: { cfId: UID }) => {
+    return { isOpen: true, props, key: `conditional_format_editor_panel_${props.cfId}` };
+  },
 });
 
 sidePanelRegistry.add("ChartPanel", {

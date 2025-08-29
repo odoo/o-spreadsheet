@@ -9,7 +9,7 @@ import {
   GRAY_300,
 } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
-import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { canonicalizeCFRule, localizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import {
   criterionComponentRegistry,
@@ -33,6 +33,7 @@ import {
   IconThreshold,
   SpreadsheetChildEnv,
   ThresholdType,
+  UID,
   availableConditionalFormatOperators,
 } from "../../../../types";
 import { hexaToInt } from "../../../../xlsx/conversion";
@@ -48,7 +49,7 @@ import { BadgeSelection } from "../../components/badge_selection/badge_selection
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
-import { ConditionalFormatPreviewList } from "../cf_preview_list/cf_preview_list";
+import { ConditionalFormatPreviewPanel } from "../cf_preview_panel/cf_preview_panel";
 
 css/* scss */ `
   .o-cf-ruleEditor {
@@ -140,10 +141,8 @@ css/* scss */ `
   }
 `;
 interface Props {
-  editedCf: ConditionalFormat;
-  onExit: () => void;
-  onCancel: () => void;
-  isNewCf: boolean;
+  cfId: UID;
+  onCloseSidePanel: () => void;
 }
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule" | "DataBarRule";
@@ -174,19 +173,18 @@ interface State {
   hasEditedCf: boolean;
 }
 
-export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-ConditionalFormattingEditor";
+export class ConditionalFormatEditorPanel extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-ConditionalFormatEditorPanel";
   static props = {
-    editedCf: Object,
-    onCancel: Function,
-    onExit: Function,
-    isNewCf: Boolean,
+    cfId: String,
+    onCloseSidePanel: Function,
   };
+
   static components = {
     SelectionInput,
     IconPicker,
     ColorPickerWidget,
-    ConditionalFormatPreviewList,
+    ConditionalFormatPreviewPanel,
     Section,
     RoundColorPicker,
     StandaloneComposer,
@@ -201,31 +199,46 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   colorNumberToHex = colorNumberToHex;
 
   private state!: State;
+  private editedCf!: ConditionalFormat;
 
   setup() {
+    const cf = this.conditionalFormats.find((cf) => cf.id === this.props.cfId);
+    if (cf) {
+      this.editedCf = cf;
+    }
     this.state = useState<State>({
       errors: [],
-      currentCFType: this.props.editedCf.rule.type,
-      ranges: this.props.editedCf.ranges,
+      currentCFType: this.editedCf.rule.type,
+      ranges: this.editedCf.ranges,
       rules: this.getDefaultRules(),
-      hasEditedCf: this.props.isNewCf,
+      hasEditedCf: true,
     });
-    switch (this.props.editedCf.rule.type) {
+    switch (this.editedCf.rule.type) {
       case "CellIsRule":
-        this.state.rules.cellIs = this.props.editedCf.rule;
+        this.state.rules.cellIs = this.editedCf.rule;
         break;
       case "ColorScaleRule":
-        this.state.rules.colorScale = this.props.editedCf.rule;
+        this.state.rules.colorScale = this.editedCf.rule;
         break;
       case "IconSetRule":
-        this.state.rules.iconSet = this.props.editedCf.rule;
+        this.state.rules.iconSet = this.editedCf.rule;
         break;
       case "DataBarRule":
-        this.state.rules.dataBar = this.props.editedCf.rule;
+        this.state.rules.dataBar = this.editedCf.rule;
         break;
     }
 
     useExternalListener(window as any, "click", this.closeMenus);
+  }
+
+  get conditionalFormats(): ConditionalFormat[] {
+    const cfs = this.env.model.getters.getConditionalFormats(
+      this.env.model.getters.getActiveSheetId()
+    );
+    return cfs.map((cf) => ({
+      ...cf,
+      rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
+    }));
   }
 
   get isRangeValid(): boolean {
@@ -262,7 +275,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: canonicalizeCFRule(rule, locale),
-        id: this.props.editedCf.id,
+        id: this.editedCf.id,
       },
       ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),
       sheetId,
@@ -293,15 +306,24 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   onSave() {
     const result = this.updateConditionalFormat({});
     if (result.length === 0) {
-      this.props.onExit();
+      this.env.replaceSidePanel(
+        "ConditionalFormatPreviewPanel",
+        `conditional_format_editor_panel_${this.props.cfId}`
+      );
     }
   }
 
   onCancel() {
     if (this.state.hasEditedCf) {
-      this.props.onCancel();
+      this.env.replaceSidePanel(
+        "ConditionalFormatPreviewPanel",
+        `conditional_format_editor_panel_${this.props.cfId}`
+      );
     } else {
-      this.props.onExit();
+      this.env.replaceSidePanel(
+        "ConditionalFormatPreviewPanel",
+        `conditional_format_editor_panel_${this.props.cfId}`
+      );
     }
   }
 

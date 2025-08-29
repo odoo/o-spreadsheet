@@ -552,7 +552,7 @@ export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(
 // Side panel
 //------------------------------------------------------------------------------
 export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
-  env.openSidePanel("ConditionalFormatting", { selection: env.model.getters.getSelectedZones() });
+  env.openSidePanel("ConditionalFormatPreviewPanel", {});
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {

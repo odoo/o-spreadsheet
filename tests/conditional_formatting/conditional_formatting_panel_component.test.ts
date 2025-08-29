@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
-import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
+import { ConditionalFormatEditorPanel } from "../../src/components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { toHex, toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import {
@@ -153,9 +153,7 @@ describe("UI of conditional formats", () => {
   });
 
   beforeEach(async () => {
-    ({ model, fixture, env } = await mountComponentWithPortalTarget(ConditionalFormattingPanel, {
-      props: { onCloseSidePanel: () => {} },
-    }));
+    ({ model, fixture, env } = await mountComponentWithPortalTarget(ConditionalFormatEditorPanel));
     sheetId = model.getters.getActiveSheetId();
   });
 

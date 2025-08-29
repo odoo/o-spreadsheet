@@ -1,12 +1,12 @@
 import { Component, useRef } from "@odoo/owl";
-import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
-import { colorNumberToHex } from "../../../../helpers";
-import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
-import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
-import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
-import { ICONS } from "../../../icons/icons";
-import { CfTerms } from "../../../translations_terms";
+import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../../constants";
+import { colorNumberToHex } from "../../../../../helpers";
+import { criterionEvaluatorRegistry } from "../../../../../registries/criterion_registry";
+import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../../types";
+import { cellStyleToCss, css, cssPropertiesToCss } from "../../../../helpers";
+import { useHighlightsOnHover } from "../../../../helpers/highlight_hook";
+import { ICONS } from "../../../../icons/icons";
+import { CfTerms } from "../../../../translations_terms";
 
 css/* scss */ `
   .o-cf-preview {
@@ -139,9 +139,9 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     });
   }
 
-  onMouseDown(event: MouseEvent) {
-    this.props.onMouseDown(event);
-  }
+  // onMouseDown(event: MouseEvent) {
+  //   this.props.onMouseDown(event);
+  // }
 
   get highlights(): Highlight[] {
     const sheetId = this.env.model.getters.getActiveSheetId();

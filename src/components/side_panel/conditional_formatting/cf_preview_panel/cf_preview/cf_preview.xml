@@ -7,7 +7,7 @@
       t-att-class="props.class"
       t-att-data-id="cf.id"
       t-on-click="props.onPreviewClick"
-      t-on-pointerdown="(ev) => this.onMouseDown(ev)">
+      t-on-pointerdown="(ev) => props.onMouseDown(ev)">
       <div class="position-relative h-100 w-100 d-flex align-items-center">
         <div
           class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon">
