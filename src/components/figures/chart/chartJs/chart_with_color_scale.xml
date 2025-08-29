@@ -1,0 +1,23 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartJsComponentWithColorScale">
+    <div class="d-flex w-100 h-100" t-att-style="canvasStyle">
+      <div t-if="colorScalePosition === 'left'" class="chart-color-scale d-flex h-50">
+        <div class="chart-color-scale-preview" t-att-style="colorScalePreviewStyle"/>
+        <div class="d-flex flex-column chart-color-scale-labels d-flex flex-column h-100">
+          <div class="mb-auto" t-esc="boundaries.max"/>
+          <div t-esc="boundaries.min"/>
+        </div>
+      </div>
+      <div class="w-100 h-100">
+        <canvas class="o-figure-canvas w-100 h-100" t-ref="graphContainer"/>
+      </div>
+      <div t-if="colorScalePosition === 'right'" class="chart-color-scale d-flex h-50">
+        <div class="chart-color-scale-preview" t-att-style="colorScalePreviewStyle"/>
+        <div class="d-flex flex-column chart-color-scale-labels d-flex flex-column h-100">
+          <div class="mb-auto" t-esc="boundaries.max"/>
+          <div t-esc="boundaries.min"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

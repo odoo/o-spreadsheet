@@ -21,3 +21,18 @@ export function getChartLayout(
     },
   };
 }
+
+export function getCalendarChartLayout(
+  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  args: ChartRuntimeGenerationArgs
+): ChartLayout {
+  const legendPosition = definition.legendPosition;
+  return {
+    padding: {
+      left: legendPosition === "left" ? 0 : CHART_PADDING,
+      right: legendPosition === "right" ? 0 : CHART_PADDING,
+      top: Math.max(CHART_PADDING_TOP, args.topPadding || 0),
+      bottom: CHART_PADDING_BOTTOM,
+    },
+  };
+}

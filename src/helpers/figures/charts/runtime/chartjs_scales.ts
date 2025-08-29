@@ -1,4 +1,4 @@
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
@@ -11,6 +11,7 @@ import { LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   BarChartDefinition,
+  ChartColorScale,
   ChartRuntimeGenerationArgs,
   ChartWithAxisDefinition,
   FunnelChartDefinition,
@@ -28,7 +29,7 @@ import {
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { getChartTimeOptions } from "../../../chart_date";
-import { getColorScale } from "../../../color";
+import { COLORSCHEMES, getColorScale } from "../../../color";
 import { formatValue, humanizeNumber } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
 import {
@@ -81,6 +82,37 @@ export function getBarChartScales(
   }
 
   return scales;
+}
+
+export function getCalendarChartScales(
+  definition: GenericDefinition<BarChartDefinition>,
+  datasets: ChartDataset[]
+): ChartScales {
+  const yLabels = datasets.map((dataset) => dataset.label || "");
+  return {
+    y: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+      stacked: true,
+      min: 0,
+      max: yLabels.length,
+      ticks: {
+        stepSize: 0.5,
+        callback: function (label, index, labels) {
+          if (index % 2 === 0) {
+            return undefined;
+          }
+          return yLabels[Math.floor((index - 1) / 2)];
+        },
+      },
+      grid: {
+        display: false,
+      },
+    },
+    x: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.x),
+      stacked: true,
+    },
+  };
 }
 
 export function getLineChartScales(
@@ -265,7 +297,7 @@ export function getGeoChartScales(
         align: geoLegendPosition.includes("right") ? "left" : "right",
         margin: getLegendMargin(definition),
       },
-      interpolate: getRuntimeColorScale(definition),
+      interpolate: getRuntimeColorScale(definition.colorScale || "oranges"),
       missing: definition.missingValueColor || "#ffffff",
     },
   };
@@ -401,15 +433,20 @@ function getChartAxis(
   }
 }
 
-function getRuntimeColorScale(definition: GeoChartDefinition) {
-  if (!definition.colorScale || typeof definition.colorScale === "string") {
-    return definition.colorScale || "oranges";
+export function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
+  if (typeof colorScale === "string") {
+    const colorScheme = COLORSCHEMES[colorScale || "oranges"];
+    return getColorScale([
+      { value: minValue, color: colorScheme[0] },
+      { value: (minValue + maxValue) / 2, color: colorScheme[1] },
+      { value: maxValue, color: colorScheme[2] },
+    ]);
   }
-  const scaleColors = [{ value: 0, color: definition.colorScale.minColor }];
-  if (definition.colorScale.midColor) {
-    scaleColors.push({ value: 0.5, color: definition.colorScale.midColor });
+  const scaleColors = [{ value: minValue, color: colorScale.minColor }];
+  if (colorScale.midColor) {
+    scaleColors.push({ value: (minValue + maxValue) / 2, color: colorScale.midColor });
   }
-  scaleColors.push({ value: 1, color: definition.colorScale.maxColor });
+  scaleColors.push({ value: maxValue, color: colorScale.maxColor });
   return getColorScale(scaleColors);
 }
 
