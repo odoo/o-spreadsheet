@@ -237,8 +237,13 @@ function getSheetDims(sheet: XLSXWorksheet): number[] {
     dims[1] = Math.max(dims[1], row.index);
   }
 
-  dims[0] = Math.max(dims[0], EXCEL_IMPORT_DEFAULT_NUMBER_OF_COLS);
-  dims[1] = Math.max(dims[1], EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS);
+  for (const fig of sheet.figures) {
+    dims[0] = Math.max(dims[0], fig.anchors[fig.anchors.length - 1]?.col ?? 0);
+    dims[1] = Math.max(dims[1], fig.anchors[fig.anchors.length - 1]?.row ?? 0);
+  }
+
+  dims[0] = Math.max(dims[0] + 5, EXCEL_IMPORT_DEFAULT_NUMBER_OF_COLS);
+  dims[1] = Math.max(dims[1] + 5, EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS);
 
   return dims;
 }
