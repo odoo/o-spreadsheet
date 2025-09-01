@@ -1,6 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Model, SpreadsheetChildEnv, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
+import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
@@ -141,6 +142,24 @@ describe("Carousel figure component", () => {
     expect(".o-chart-dashboard-item").toHaveCount(0); // nothing for the data view
     await click(fixture, ".o-carousel-tab:nth-child(2)");
     expect(".o-chart-dashboard-item").toHaveCount(2); // ellipsis and fullscreen
+  });
+
+  test("Chart animation is played at each carousel tab change", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    model.updateMode("dashboard");
+
+    const { fixture, env } = await mountSpreadsheet({ model });
+    const chartAnimationStore = env.getStore(ChartAnimationStore);
+    const enableAnimationSpy = jest.spyOn(chartAnimationStore, "enableAnimationForChart");
+
+    await click(fixture, ".o-carousel-tab:nth-child(2)");
+    expect(enableAnimationSpy).toHaveBeenLastCalledWith(barId);
+    await click(fixture, ".o-carousel-tab:nth-child(1)");
+    expect(enableAnimationSpy).toHaveBeenLastCalledWith(radarId);
+    await click(fixture, ".o-carousel-tab:nth-child(2)");
+    expect(enableAnimationSpy).toHaveBeenLastCalledWith(barId);
   });
 
   describe("Carousel menu items", () => {

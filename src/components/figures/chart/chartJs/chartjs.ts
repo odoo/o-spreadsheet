@@ -95,7 +95,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    if (this.env.model.getters.isDashboard()) {
+    if (this.shouldAnimate) {
       this.animationStore = useStore(ChartAnimationStore);
     }
     onMounted(() => {
@@ -127,7 +127,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart?.destroy();
   }
 
-  protected get shouldAnimate() {
+  protected get shouldAnimate(): boolean {
     return this.env.model.getters.isDashboard();
   }
 

@@ -3,6 +3,7 @@ import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_types";
+import { Store, useStore } from "../../../store_engine";
 import {
   Carousel,
   CarouselItem,
@@ -12,6 +13,7 @@ import {
 } from "../../../types";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 
 interface Props {
   figureUI: FigureUI;
@@ -28,7 +30,11 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { ChartDashboardMenu };
 
+  protected animationStore: Store<ChartAnimationStore> | undefined;
+
   setup(): void {
+    this.animationStore = useStore(ChartAnimationStore);
+
     useEffect(() => {
       if (this.selectedCarouselItem?.type === "carouselDataView") {
         this.props.editFigureStyle?.({ "pointer-events": "none" });
@@ -79,6 +85,9 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       sheetId: this.env.model.getters.getActiveSheetId(),
       item,
     });
+    if (item.type === "chart") {
+      this.animationStore?.enableAnimationForChart(item.chartId);
+    }
   }
 
   get headerStyle(): string {
