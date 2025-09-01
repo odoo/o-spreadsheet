@@ -1,7 +1,6 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
-import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 
@@ -21,9 +20,8 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get title(): string {
-    const title = this.env.model.getters.getChartDefinition(this.props.chartId).title.text ?? "";
-    // chart titles are extracted from .json files and they are translated at runtime here
-    return _t(title);
+    const title = this.env.model.getters.getChartDefinition(this.props.chartId).title.text;
+    return title ? this.env.model.getters.dynamicTranslate(title) : "";
   }
 
   setup() {

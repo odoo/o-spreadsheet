@@ -48,6 +48,7 @@ import {
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
+import { DynamicTranslate } from "./ui_feature/dynamic_translate";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
@@ -104,6 +105,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("table_ui_resize", TableResizeUI)
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("checkbox_toggle", CheckboxTogglePlugin)
+  .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative

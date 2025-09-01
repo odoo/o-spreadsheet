@@ -58,8 +58,8 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     return SCORECARD_CHART_TITLE_FONT_SIZE;
   }
 
-  translate(term) {
-    return _t(term);
+  translate(term: string): string {
+    return this.env.model.getters.dynamicTranslate(term);
   }
 
   setColor(color: Color, colorPickerId: ColorPickerId) {
