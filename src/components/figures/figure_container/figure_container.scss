@@ -1,4 +1,20 @@
 .o-spreadsheet {
+  .o-figure-snap-line {
+    position: relative;
+    z-index: $os-components-importance-figure-snap-line;
+    &.vertical {
+      width: 0px;
+      border-left: 1px dashed black;
+    }
+    &.horizontal {
+      border-top: 1px dashed black;
+      height: 0px;
+    }
+  }
+  .o-figure-container {
+    -webkit-user-select: none; /* safari */
+    user-select: none;
+  }
   .o-figure.o-add-to-carousel::before {
     content: "";
     position: absolute;

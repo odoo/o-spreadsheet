@@ -1,0 +1,39 @@
+.o-spreadsheet {
+  .o-gauge-color-set {
+    table {
+      table-layout: fixed;
+      margin-top: 2%;
+      display: table;
+      text-align: left;
+      font-size: 12px;
+      line-height: 18px;
+      width: 100%;
+      font-size: 12px;
+    }
+
+    td {
+      height: 30px;
+      padding: 6px 0;
+    }
+    th.o-gauge-color-set-colorPicker {
+      width: 8%;
+    }
+    th.o-gauge-color-set-text {
+      width: 25%;
+    }
+    th.o-gauge-color-set-operator {
+      width: 10%;
+    }
+    th.o-gauge-color-set-value {
+      width: 22%;
+    }
+    th.o-gauge-color-set-type {
+      width: 30%;
+    }
+    input,
+    select {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

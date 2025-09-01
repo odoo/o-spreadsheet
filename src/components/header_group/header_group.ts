@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import {
-  ComponentsImportance,
   GROUP_LAYER_WIDTH,
   HEADER_GROUPING_BORDER_COLOR,
   HEADER_HEIGHT,
@@ -11,7 +10,7 @@ import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactiv
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates, Dimension, HeaderGroup, Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
-import { css, cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers";
 
 interface Props {
   group: HeaderGroup;
@@ -24,28 +23,6 @@ interface GroupBox {
   headerRect: Rect;
   isEndHidden: boolean;
 }
-
-css/* scss */ `
-  .o-header-group {
-    .o-header-group-header {
-      z-index: ${ComponentsImportance.HeaderGroupingButton};
-      .o-group-fold-button {
-        cursor: pointer;
-        width: 15px;
-        height: 15px;
-        border: 1px solid ${HEADER_GROUPING_BORDER_COLOR};
-        .o-icon {
-          width: 7px;
-          height: 7px;
-        }
-
-        &:hover {
-          border-color: #777;
-        }
-      }
-    }
-  }
-`;
 
 abstract class AbstractHeaderGroup extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroup";

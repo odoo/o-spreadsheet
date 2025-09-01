@@ -1,5 +1,4 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
-import { ComponentsImportance } from "../../constants";
 import { Store, useStore } from "../../store_engine";
 import { ComposerFocusType, Rect, SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
@@ -7,19 +6,13 @@ import { BottomBar } from "../bottom_bar/bottom_bar";
 import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
-import { css, cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers";
 import { getBoundingRectAsPOJO, isIOS } from "../helpers/dom_helpers";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
 interface Props {
   onClick: () => void;
 }
-
-css`
-  .o-small-composer {
-    z-index: ${ComponentsImportance.TopBarComposer};
-  }
-`;
 
 export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
   static components = { Composer, BottomBar, Ripple, RibbonMenu };

@@ -15,7 +15,7 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../types/index";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 
@@ -35,80 +35,6 @@ type ResizeAnchor =
 const ANCHOR_SIZE = 8;
 const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
-
-css/*SCSS*/ `
-  div.o-figure {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    user-select: none;
-
-    &:focus {
-      outline: none;
-    }
-  }
-
-  div.o-figure-border {
-    z-index: 1;
-  }
-
-  .o-figure-wrapper {
-    position: absolute;
-    box-sizing: content-box;
-    pointer-events: auto;
-
-    .o-fig-anchor {
-      z-index: ${ComponentsImportance.FigureAnchor};
-      position: absolute;
-      width: ${ANCHOR_SIZE}px;
-      height: ${ANCHOR_SIZE}px;
-      background-color: #1a73e8;
-      outline: ${BORDER_WIDTH}px solid white;
-
-      &.o-top {
-        cursor: n-resize;
-      }
-      &.o-topRight {
-        cursor: ne-resize;
-      }
-      &.o-right {
-        cursor: e-resize;
-      }
-      &.o-bottomRight {
-        cursor: se-resize;
-      }
-      &.o-bottom {
-        cursor: s-resize;
-      }
-      &.o-bottomLeft {
-        cursor: sw-resize;
-      }
-      &.o-left {
-        cursor: w-resize;
-      }
-      &.o-topLeft {
-        cursor: nw-resize;
-      }
-    }
-
-    .o-figure-menu {
-      right: 0px;
-      top: 0px;
-      display: none;
-    }
-
-    .o-figure-menu-item {
-      cursor: pointer;
-    }
-
-    .o-figure.active:focus,
-    .o-figure:hover {
-      .o-figure-menu {
-        display: flex;
-      }
-    }
-  }
-`;
 
 interface Props {
   figureUI: FigureUI;

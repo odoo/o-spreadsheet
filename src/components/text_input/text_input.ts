@@ -1,29 +1,8 @@
 import { Component, useExternalListener, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
-import { ACTION_COLOR, GRAY_300, TEXT_BODY } from "../../constants";
 import { isDefined } from "../../helpers";
 import { Ref } from "../../types";
-import { css } from "../helpers";
 import { useAutofocus } from "../helpers/autofocus_hook";
-
-css/* scss */ `
-  .o-spreadsheet {
-    .os-input {
-      border-width: 0 0 1px 0;
-      border-color: transparent;
-      outline: none;
-      text-overflow: ellipsis;
-      color: ${TEXT_BODY};
-    }
-    .os-input:hover,
-    .os-input.o-input-border {
-      border-color: ${GRAY_300};
-    }
-    .os-input:focus {
-      border-color: ${ACTION_COLOR};
-    }
-  }
-`;
 
 interface Props {
   value: string;

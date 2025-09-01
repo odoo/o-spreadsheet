@@ -1,8 +1,6 @@
 import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, ComponentsImportance, SCROLLBAR_WIDTH } from "../../constants";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
-import { css } from "../helpers/css";
 import { ScrollBar as ScrollBarElement, ScrollDirection } from "../scrollbar";
 
 interface Props {
@@ -13,25 +11,6 @@ interface Props {
   offset: Pixel;
   onScroll: (offset: Pixel) => void;
 }
-
-css/* scss */ `
-  .o-scrollbar {
-    position: absolute;
-    overflow: auto;
-    z-index: ${ComponentsImportance.ScrollBar};
-    background-color: ${BACKGROUND_GRAY_COLOR};
-
-    &.corner {
-      box-sizing: content-box;
-      right: 0px;
-      bottom: 0px;
-      height: ${SCROLLBAR_WIDTH}px;
-      width: ${SCROLLBAR_WIDTH}px;
-      border-top: 1px solid #e2e3e3;
-      border-left: 1px solid #e2e3e3;
-    }
-  }
-`;
 
 export class ScrollBar extends Component<Props> {
   static props = {

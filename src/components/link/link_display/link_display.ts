@@ -5,60 +5,8 @@ import { openLink, urlRepresentation } from "../../../helpers/links";
 import { Store, useStore } from "../../../store_engine";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { css } from "../../helpers/css";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
-
-const LINK_TOOLTIP_HEIGHT = 32;
-const LINK_TOOLTIP_WIDTH = 220;
-
-css/* scss */ `
-  .o-link-tool {
-    font-size: 13px;
-    background-color: white;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    padding: 6px 12px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    height: ${LINK_TOOLTIP_HEIGHT}px;
-    width: ${LINK_TOOLTIP_WIDTH}px;
-
-    img {
-      margin-right: 3px;
-      width: 16px;
-      height: 16px;
-    }
-
-    a.o-link {
-      color: ${LINK_COLOR};
-      text-decoration: none;
-      flex-grow: 2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    a.o-link:hover {
-      text-decoration: none;
-      color: #001d1f;
-      cursor: pointer;
-    }
-  }
-  .o-link-icon {
-    float: right;
-    padding-left: 5px;
-    .o-icon {
-      height: 16px;
-    }
-  }
-  .o-link-icon .o-icon {
-    height: 13px;
-  }
-  .o-link-icon:hover {
-    cursor: pointer;
-    color: #000;
-  }
-`;
 
 interface LinkDisplayProps {
   cellPosition: Position;

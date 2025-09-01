@@ -9,7 +9,6 @@ import {
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
-import { css } from "../helpers";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
 interface PivotDialogColumn {
@@ -41,44 +40,6 @@ interface Props {
 interface State {
   showMissingValuesOnly: boolean;
 }
-
-css/* scss */ `
-  .o_pivot_html_renderer {
-    width: 100%;
-    border-collapse: collapse;
-
-    &:hover {
-      cursor: pointer;
-    }
-
-    td,
-    th {
-      border: 1px solid #dee2e6;
-      background-color: #fff;
-      padding: 0.3rem;
-      white-space: nowrap;
-
-      &:hover {
-        filter: brightness(0.9);
-      }
-    }
-
-    td {
-      text-align: right;
-    }
-
-    th {
-      background-color: #f5f5f5;
-      font-weight: bold;
-      color: black;
-    }
-
-    .o_missing_value {
-      color: #46646d;
-      background: #e7f2f6;
-    }
-  }
-`;
 
 interface TableData {
   columns: PivotDialogColumn[][];

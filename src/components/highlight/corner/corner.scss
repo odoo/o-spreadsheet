@@ -1,0 +1,26 @@
+.o-spreadsheet {
+  .o-corner {
+    position: absolute;
+  }
+
+  .o-corner-button {
+    border: 1px solid white;
+    height: $os-autofill-edge-length;
+    width: $os-autofill-edge-length;
+  }
+  .o-corner-nw,
+  .o-corner-se {
+    &:hover {
+      cursor: nwse-resize;
+    }
+  }
+  .o-corner-ne,
+  .o-corner-sw {
+    &:hover {
+      cursor: nesw-resize;
+    }
+  }
+  .o-resizing {
+    cursor: grabbing;
+  }
+}

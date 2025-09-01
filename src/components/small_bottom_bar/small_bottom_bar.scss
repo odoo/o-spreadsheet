@@ -1,5 +1,5 @@
 .o-spreadsheet .o-spreadsheet-small-bottom-bar {
-  background-color: $background-gray-color;
+  background-color: $os-background-gray-color;
   border-bottom: #f2f2f2;
 
   .o-selection-button {
@@ -17,10 +17,11 @@
     border: lightgrey solid 1px;
     line-height: 26px;
     display: flex;
+    z-index: $os-components-importance-top-bar-composer;
   }
 
   .bottom-bar-menu {
-    background-color: $background-gray-color;
+    background-color: $os-background-gray-color;
     border-top: 1px solid lightgrey;
     border-bottom: 1px solid lightgrey;
   }

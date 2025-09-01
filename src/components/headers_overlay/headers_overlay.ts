@@ -1,14 +1,5 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import {
-  ComponentsImportance,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  ICONS_COLOR,
-  MIN_COL_WIDTH,
-  MIN_ROW_HEIGHT,
-  SCROLLBAR_WIDTH,
-  SELECTION_BORDER_COLOR,
-} from "../../constants";
+import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -20,7 +11,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
@@ -333,59 +324,6 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 }
 
-css/* scss */ `
-  .o-col-resizer {
-    position: absolute;
-    top: 0;
-    left: ${HEADER_WIDTH}px;
-    right: ${SCROLLBAR_WIDTH}px;
-    height: ${HEADER_HEIGHT}px;
-    width: calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px);
-    &.o-dragging {
-      cursor: grabbing;
-    }
-    &.o-grab {
-      cursor: grab;
-    }
-    .dragging-col-line {
-      top: ${HEADER_HEIGHT}px;
-      position: absolute;
-      width: 2px;
-      height: 10000px;
-      background-color: black;
-    }
-    .dragging-col-shadow {
-      top: ${HEADER_HEIGHT}px;
-      position: absolute;
-      height: 10000px;
-      background-color: black;
-      opacity: 0.1;
-    }
-    .o-handle {
-      position: absolute;
-      height: ${HEADER_HEIGHT}px;
-      width: 4px;
-      cursor: e-resize;
-      background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .dragging-resizer {
-      top: ${HEADER_HEIGHT}px;
-      position: absolute;
-      margin-left: 2px;
-      width: 1px;
-      height: 10000px;
-      background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .o-unhide {
-      color: ${ICONS_COLOR};
-    }
-    .o-unhide:hover {
-      z-index: ${ComponentsImportance.Grid + 1};
-      background-color: lightgrey;
-    }
-  }
-`;
-
 export class ColResizer extends AbstractResizer {
   static props = {
     onOpenContextMenu: Function,
@@ -560,58 +498,6 @@ export class ColResizer extends AbstractResizer {
   }
 }
 
-css/* scss */ `
-  .o-row-resizer {
-    position: absolute;
-    top: ${HEADER_HEIGHT}px;
-    left: 0;
-    bottom: ${SCROLLBAR_WIDTH}px;
-    width: ${HEADER_WIDTH}px;
-    &.o-dragging {
-      cursor: grabbing;
-    }
-    &.o-grab {
-      cursor: grab;
-    }
-    .dragging-row-line {
-      left: ${HEADER_WIDTH}px;
-      position: absolute;
-      width: 10000px;
-      height: 2px;
-      background-color: black;
-    }
-    .dragging-row-shadow {
-      left: ${HEADER_WIDTH}px;
-      position: absolute;
-      width: 10000px;
-      background-color: black;
-      opacity: 0.1;
-    }
-    .o-handle {
-      position: absolute;
-      height: 4px;
-      width: ${HEADER_WIDTH}px;
-      cursor: n-resize;
-      background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .dragging-resizer {
-      left: ${HEADER_WIDTH}px;
-      position: absolute;
-      margin-top: 2px;
-      width: 10000px;
-      height: 1px;
-      background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .o-unhide {
-      color: ${ICONS_COLOR};
-    }
-    .o-unhide:hover {
-      z-index: ${ComponentsImportance.Grid + 1};
-      background-color: lightgrey;
-    }
-  }
-`;
-
 export class RowResizer extends AbstractResizer {
   static props = {
     onOpenContextMenu: Function,
@@ -781,19 +667,6 @@ export class RowResizer extends AbstractResizer {
     return this.env.model.getters.getPaneDivisions(this.sheetId).ySplit > 0;
   }
 }
-
-css/* scss */ `
-  .o-overlay {
-    .all {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      width: ${HEADER_WIDTH}px;
-      height: ${HEADER_HEIGHT}px;
-    }
-  }
-`;
 
 export class HeadersOverlay extends Component<any, SpreadsheetChildEnv> {
   static props = {

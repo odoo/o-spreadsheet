@@ -3,7 +3,7 @@ import { ComponentsImportance } from "../../constants";
 import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 import { CSSProperties } from "./../../types/misc";
 
@@ -35,17 +35,6 @@ export interface PopoverProps {
 
   class?: string;
 }
-
-css/* scss */ `
-  .o-popover {
-    position: absolute;
-    z-index: ${ComponentsImportance.Popover};
-    overflow: auto;
-    box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
-    width: fit-content;
-    height: fit-content;
-  }
-`;
 
 export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";

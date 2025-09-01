@@ -20,7 +20,6 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
-import { css } from "../../../helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
@@ -42,12 +41,6 @@ interface Props {
   getScrollableContainerEl?: () => HTMLElement;
   pivotId: UID;
 }
-
-css/* scss */ `
-  .add-calculated-measure {
-    cursor: pointer;
-  }
-`;
 
 export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotLayoutConfigurator";

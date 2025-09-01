@@ -4,7 +4,6 @@ import { criterionEvaluatorRegistry } from "../../../../registries/criterion_reg
 import { _t } from "../../../../translation";
 import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../types";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { css } from "../../../helpers";
 
 interface Props {
   value: string;
@@ -15,18 +14,6 @@ interface Props {
   onBlur: () => void;
   disableFormulas?: boolean;
 }
-
-css/* scss */ `
-  .o-dv-input {
-    &.o-invalid {
-      background-color: #ffdddd;
-    }
-    .error-icon {
-      right: 7px;
-      top: 7px;
-    }
-  }
-`;
 
 export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CriterionInput";

@@ -1,11 +1,9 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import { ComponentsImportance } from "../../../../constants";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { css } from "../../../helpers";
 import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import {
@@ -22,16 +20,6 @@ interface Props {
   chartId: UID;
   isFullScreen?: boolean;
 }
-
-css/* scss */ `
-  .o-spreadsheet {
-    .o-chart-custom-tooltip {
-      font-size: 12px;
-      background-color: #fff;
-      z-index: ${ComponentsImportance.FigureTooltip};
-    }
-  }
-`;
 
 chartJsExtensionRegistry.add("chartShowValuesPlugin", {
   register: (Chart) => Chart.register(chartShowValuesPlugin),
