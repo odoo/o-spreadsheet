@@ -592,6 +592,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     style=""
                   >
                     <svg
+                      class="o-icon"
                       height="18"
                       width="18"
                       xmlns="http://www.w3.org/2000/svg"
@@ -1562,6 +1563,7 @@ exports[`components take the small screen into account 1`] = `
                     style=""
                   >
                     <svg
+                      class="o-icon"
                       height="18"
                       width="18"
                       xmlns="http://www.w3.org/2000/svg"
