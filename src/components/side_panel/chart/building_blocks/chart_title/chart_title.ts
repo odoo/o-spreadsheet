@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { css } from "../../../../helpers";
+import { TextInput } from "../../../../text_input/text_input";
 import { Section } from "../../../components/section/section";
 import { TextStyler } from "../text_styler/text_styler";
 
@@ -24,7 +25,7 @@ interface Props {
 
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
-  static components = { Section, TextStyler };
+  static components = { Section, TextStyler, TextInput };
   static props = {
     title: { type: String, optional: true },
     placeholder: { type: String, optional: true },
@@ -39,7 +40,7 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
     placeholder: "",
   };
 
-  updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+  updateTitle(value: string) {
+    this.props.updateTitle(value);
   }
 }
