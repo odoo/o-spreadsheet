@@ -64,7 +64,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     if (definition.type === "scorecard") {
       return undefined;
     }
-    const isFullScreen = this.props.chartId === this.fullScreenFigureStore.fullScreenFigure?.id;
+    const isFullScreen = figureId === this.fullScreenFigureStore.fullScreenFigure?.id;
     return {
       id: "fullScreenChart",
       label: isFullScreen ? _t("Exit Full Screen") : _t("Full Screen"),
