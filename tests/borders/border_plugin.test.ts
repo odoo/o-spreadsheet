@@ -782,6 +782,23 @@ describe("Grid manipulation", () => {
     expect(model.exportData().borders).toEqual({});
   });
 
+  test("Adding a border on a cell removes it on the adjacent cells if it differs", () => {
+    const model = new Model();
+    const b = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "bottom", color: "red", style: "dashed" }, ["B2"]);
+    setZoneBorders(model, { position: "right", color: "red", style: "dashed" }, ["A3"]);
+    setZoneBorders(model, { position: "left", color: "red", style: "dashed" }, ["C3"]);
+    setZoneBorders(model, { position: "top" }, ["D2"]);
+    setZoneBorders(model, { position: "external" }, ["B3"]);
+    expect(getBorder(model, "B3")).toEqual({ top: b, bottom: b, left: b, right: b });
+    // deleted as the borders are different
+    expect(getBorder(model, "B2")).toBeNull();
+    expect(getBorder(model, "A3")).toBeNull();
+    expect(getBorder(model, "C3")).toBeNull();
+    // untouched as the border are the same
+    expect(getBorder(model, "D2")).toEqual({ top: DEFAULT_BORDER_DESC });
+  });
+
   test("Moving top row", () => {
     setZoneBorders(model, { position: "external" }, ["B2:D4"]);
     moveRows(model, 9, [1], "after");

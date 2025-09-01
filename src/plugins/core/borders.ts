@@ -355,13 +355,44 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   ) {
     const borders: ZoneBorder[] = [];
     const plannedBorder = newBorder ? { zone, style: newBorder } : undefined;
+    const sideToClear = {
+      left: force || !!newBorder?.left,
+      right: force || !!newBorder?.right,
+      top: force || !!newBorder?.top,
+      bottom: force || !!newBorder?.bottom,
+    };
     let editingZone: Zone[] = [zone];
     for (const existingBorder of this.borders[sheetId] ?? []) {
       const inter = intersection(existingBorder.zone, zone);
       if (!inter) {
-        borders.push(existingBorder);
+        // Clear adjacent borders on which you write
+        const adjacentEdge = adjacent(existingBorder.zone, zone);
+        if (adjacentEdge && sideToClear[adjacentEdge.position]) {
+          for (const newZone of splitIfAdjacent(existingBorder.zone, zone)) {
+            const border = this.computeBorderFromZone(newZone, existingBorder);
+            const adjacentEdge = adjacent(newZone, zone);
+            switch (adjacentEdge?.position) {
+              case "left":
+                border.style.left = undefined;
+                break;
+              case "right":
+                border.style.right = undefined;
+                break;
+              case "top":
+                border.style.top = undefined;
+                break;
+              case "bottom":
+                border.style.bottom = undefined;
+                break;
+            }
+            borders.push(border);
+          }
+        } else {
+          borders.push(existingBorder);
+        }
         continue;
       }
+
       if (plannedBorder) {
         let border = this.computeBorderFromZone(inter, plannedBorder).style;
         if (!force) {
