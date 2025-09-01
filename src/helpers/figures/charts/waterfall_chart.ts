@@ -245,7 +245,7 @@ export function createWaterfallChartRuntime(
       layout: getChartLayout(definition, chartData),
       scales: getWaterfallChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, getters),
         legend: getWaterfallChartLegend(definition, chartData),
         tooltip: getWaterfallChartTooltip(definition, chartData),
         chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),

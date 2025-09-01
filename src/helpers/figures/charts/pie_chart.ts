@@ -210,7 +210,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
           : undefined,
       layout: getChartLayout(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, getters),
         legend: getPieChartLegend(definition, chartData),
         tooltip: getPieChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
