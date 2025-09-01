@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
-import { DEFAULT_FONT_SIZE } from "../../constants";
 import { Color, HeaderIndex, SpreadsheetChildEnv } from "../../types";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 
 interface ClientTagProps {
   active: boolean;
@@ -11,16 +10,6 @@ interface ClientTagProps {
   row: HeaderIndex;
 }
 
-css/* scss */ `
-  .o-client-tag {
-    position: absolute;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    font-size: ${DEFAULT_FONT_SIZE};
-    color: white;
-    pointer-events: none;
-  }
-`;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClientTag";
   static props = {

@@ -11,7 +11,6 @@ import {
 } from "../../../types";
 
 import { getTableTopLeft } from "../../../helpers/table_helpers";
-import { css } from "../../helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";
 import { TableTerms } from "../../translations_terms";
@@ -31,20 +30,6 @@ interface State {
    * disable the filters), then toggling it back on doesn't change the "hasFilter" state*/
   filtersEnabledIfPossible: boolean;
 }
-
-css/* scss */ `
-  .o-table-panel {
-    input.o-table-n-of-headers {
-      width: 14px;
-      text-align: center;
-    }
-
-    .o-info-icon {
-      width: 14px;
-      height: 14px;
-    }
-  }
-`;
 
 export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TablePanel";

@@ -4,37 +4,11 @@ import {
   GRAY_200,
   GRAY_300,
   GRAY_900,
-  ICON_EDGE_LENGTH,
   TEXT_BODY_MUTED,
 } from "../../constants";
 import { isDefined } from "../../helpers";
 import { Style } from "../../types";
 import { ImageSVG } from "../../types/image";
-import { css } from "../helpers";
-
-css/* scss */ `
-  .o-spreadsheet {
-    .o-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: ${ICON_EDGE_LENGTH}px;
-      height: ${ICON_EDGE_LENGTH}px;
-      font-size: ${ICON_EDGE_LENGTH}px;
-      vertical-align: middle;
-
-      .small-text {
-        font: bold 9px sans-serif;
-      }
-      .heavy-text {
-        font: bold 16px sans-serif;
-      }
-    }
-    .fa-small {
-      font-size: 14px;
-    }
-  }
-`;
 
 export type IconSetType = keyof typeof ICON_SETS;
 

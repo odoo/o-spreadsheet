@@ -1,13 +1,6 @@
 import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
-import {
-  ACTION_COLOR,
-  BADGE_SELECTED_COLOR,
-  CF_ICON_EDGE_LENGTH,
-  DEFAULT_COLOR_SCALE_MIDPOINT_COLOR,
-  GRAY_200,
-  GRAY_300,
-} from "../../../../constants";
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
@@ -38,7 +31,7 @@ import {
 import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { css, getTextDecoration } from "../../../helpers";
+import { getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -50,95 +43,6 @@ import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
 import { ConditionalFormatPreviewList } from "../cf_preview_list/cf_preview_list";
 
-css/* scss */ `
-  .o-cf-ruleEditor {
-    .o-cf-preview-display {
-      border: 1px solid ${GRAY_300};
-      padding: 10px;
-    }
-
-    .o-cf-cell-is-rule {
-      .o-divider {
-        border-right: 1px solid ${GRAY_300};
-        margin: 4px 6px;
-      }
-    }
-    .o-cf-color-scale-editor {
-      .o-threshold {
-        .o-select-with-input {
-          max-width: 150px;
-        }
-        .o-threshold-value {
-          flex-grow: 1;
-          flex-basis: 60%;
-          min-width: 0px; /* input overflows in Firefox otherwise */
-        }
-        .o-threshold-value input:disabled {
-          background-color: #edebed;
-        }
-      }
-    }
-    .o-cf-iconset-rule {
-      .o-cf-clickable-icon {
-        border: 1px solid ${GRAY_200};
-        border-radius: 4px;
-        cursor: pointer;
-        &:hover {
-          border-color: ${ACTION_COLOR};
-          background-color: ${BADGE_SELECTED_COLOR};
-        }
-        .o-icon {
-          width: ${CF_ICON_EDGE_LENGTH}px;
-          height: ${CF_ICON_EDGE_LENGTH}px;
-        }
-      }
-      .o-cf-iconsets {
-        gap: 11px;
-        .o-cf-iconset {
-          padding: 7px 8px;
-          width: 95px;
-          .o-icon {
-            margin: 0 3px;
-          }
-          svg {
-            vertical-align: baseline;
-          }
-        }
-      }
-      .o-inflection {
-        .o-cf-icon-button {
-          padding: 4px 10px;
-        }
-        table {
-          font-size: 13px;
-          td {
-            padding: 6px 0;
-          }
-
-          th.o-cf-iconset-icons {
-            width: 25px;
-          }
-          th.o-cf-iconset-text {
-            width: 82px;
-          }
-          th.o-cf-iconset-operator {
-            width: 20px;
-          }
-          .o-cf-iconset-type {
-            min-width: 80px;
-          }
-        }
-      }
-    }
-
-    .o-icon.arrow-down {
-      color: #e06666;
-    }
-    .o-icon.arrow-up {
-      color: #6aa84f;
-    }
-  }
-`;
 interface Props {
   editedCf: ConditionalFormat;
   onExit: () => void;

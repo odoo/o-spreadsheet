@@ -1,11 +1,9 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
-import { css } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
@@ -16,78 +14,6 @@ import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic"
 // -----------------------------------------------------------------------------
 
 const MENU_MAX_HEIGHT = 250;
-
-css/* scss */ `
-  .o-spreadsheet-bottom-bar {
-    background-color: ${BACKGROUND_GRAY_COLOR};
-    padding-left: ${HEADER_WIDTH}px;
-    font-size: 15px;
-    border-top: 1px solid lightgrey;
-
-    .o-sheet-item {
-      cursor: pointer;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .o-all-sheets {
-      max-width: 70%;
-      .o-bottom-bar-fade-out {
-        background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
-      }
-
-      .o-bottom-bar-fade-in {
-        z-index: 1;
-        background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
-      }
-
-      .o-sheet-list {
-        overflow-y: hidden;
-        overflow-x: auto;
-
-        &::-webkit-scrollbar {
-          display: none; /* Chrome */
-        }
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
-      }
-    }
-
-    .o-bottom-bar-arrows {
-      .o-bottom-bar-arrow {
-        cursor: pointer;
-        &:hover:not([class*="o-disabled"]) {
-          .o-icon {
-            opacity: 0.9;
-          }
-        }
-
-        .o-icon {
-          height: 18px;
-          width: 18px;
-          font-size: 18px;
-        }
-      }
-    }
-  }
-
-  .o-spreadsheet-mobile .o-spreadsheet-bottom-bar {
-    padding-left: 0;
-
-    .add-sheet-container {
-      order: 2;
-    }
-
-    .o-add-sheet {
-      margin-left: 0.5rem;
-    }
-
-    .o-all-sheets {
-      max-width: none;
-    }
-  }
-`;
 
 interface BottomBarSheetItem {
   id: UID;

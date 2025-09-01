@@ -1,5 +1,4 @@
 import { Component, useState } from "@odoo/owl";
-import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
 import {
   Color,
@@ -9,7 +8,6 @@ import {
   SpreadsheetChildEnv,
   Zone,
 } from "../../../types";
-import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import {
   DnDDirection,
@@ -17,12 +15,6 @@ import {
 } from "../../helpers/drag_and_drop_grid_hook";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
-
-css/*SCSS*/ `
-  .o-highlight {
-    z-index: ${ComponentsImportance.Highlight};
-  }
-`;
 
 export interface HighlightProps {
   range: Range;

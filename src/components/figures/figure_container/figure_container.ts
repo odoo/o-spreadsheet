@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
-import { ComponentsImportance, DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
+import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
@@ -12,7 +12,7 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../types/index";
-import { css, cssPropertiesToCss } from "../../helpers";
+import { cssPropertiesToCss } from "../../helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
@@ -50,25 +50,6 @@ interface DndState {
   cancelDnd: (() => void) | undefined;
   overlappingCarousel?: FigureUI;
 }
-
-css/*SCSS*/ `
-  .o-figure-snap-line {
-    position: relative;
-    z-index: ${ComponentsImportance.FigureSnapLine};
-    &.vertical {
-      width: 0px;
-      border-left: 1px dashed black;
-    }
-    &.horizontal {
-      border-top: 1px dashed black;
-      height: 0px;
-    }
-  }
-  .o-figure-container {
-    -webkit-user-select: none; /* safari */
-    user-select: none;
-  }
-`;
 
 /**
  * Each figure ⭐ is positioned inside a container `div` placed and sized
