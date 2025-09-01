@@ -42,7 +42,12 @@ interface StylePluginState {
 }
 
 export class StylePlugin extends CorePlugin<StylePluginState> implements StylePluginState {
-  static getters = ["getCellStyle", "getStyleCustomColor"] as const;
+  static getters = [
+    "getCellStyle",
+    "getCellStyleInZone",
+    "getZoneStyles",
+    "getStyleCustomColor",
+  ] as const;
 
   readonly styles: Record<UID, ZoneStyle[] | undefined> = {};
 
@@ -78,9 +83,6 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
         break;
       case "CLEAR_CELLS":
-        this.clearStyle(cmd.sheetId, cmd.target);
-        break;
-      case "DELETE_CONTENT":
         this.clearStyle(cmd.sheetId, cmd.target);
         break;
       case "DELETE_SHEET":
@@ -210,6 +212,15 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           styles.set({ sheetId, col, row }, style);
         }
       }
+    }
+    return styles;
+  }
+
+  getZoneStyles(sheetId: UID, zone: Zone): ZoneStyle[] {
+    const styles: ZoneStyle[] = [];
+    for (const style of this.styles[sheetId] ?? []) {
+      const inter = intersection(style.zone, zone);
+      if (inter) styles.push({ zone: inter, style: style.style });
     }
     return styles;
   }
