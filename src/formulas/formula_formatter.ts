@@ -1,3 +1,5 @@
+import { functionRegistry } from "../functions";
+import { argTargeting } from "../functions/arguments";
 import { memoize } from "../helpers";
 import { AST, ASTOperation, ASTUnaryOperation, OP_PRIORITY } from "./parser";
 
@@ -240,12 +242,26 @@ function astToDoc(ast: AST): Doc {
       return ast.value;
 
     case "FUNCALL":
-      const docs = ast.args.map(astToDoc);
-      return wrapInParentheses(
-        concat(docs.map((doc, i) => (i < 1 ? doc : concat([", ", line(), doc])))),
-        ast.value
-      );
-
+      const functionDescription = functionRegistry.get(ast.value.toUpperCase());
+      const getArgToFocus = argTargeting(functionDescription, ast.args.length);
+      const docs: Doc[] = ast.args.length ? [astToDoc(ast.args[0])] : [];
+      let i = 1;
+      while (i < ast.args.length) {
+        docs.push(", ", line());
+        const isRepeating = functionDescription.args[getArgToFocus(i) || -1]?.repeating;
+        if (isRepeating) {
+          const repeatingArgSeries = ast.args.slice(i, i + functionDescription.nbrArgRepeating);
+          const docsSeries = repeatingArgSeries.map((arg) => astToDoc(arg));
+          docs.push(
+            group(concat(docsSeries.flatMap((doc, j) => (j === 0 ? [doc] : [", ", line(), doc]))))
+          );
+          i += functionDescription.nbrArgRepeating;
+        } else {
+          docs.push(astToDoc(ast.args[i]));
+          i++;
+        }
+      }
+      return wrapInParentheses(concat(docs), ast.value);
     case "UNARY_OPERATION":
       const operandDoc = astToDoc(ast.operand);
       const needParenthesis = ast.postfix
