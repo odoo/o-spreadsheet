@@ -199,9 +199,6 @@ describe("UI of conditional formats", () => {
 
       // --> should be a nothing of color gradient for ColorScaleRule
       expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("B1:B5");
-      expect(
-        window.getComputedStyle(previews[1].querySelector(selectors.previewImage)!).backgroundColor
-      ).toBeSameColorAs("#fff");
       // TODO VSC: see how we can test the gradient background image
     });
 

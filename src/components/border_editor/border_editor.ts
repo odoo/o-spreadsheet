@@ -1,5 +1,4 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import { BUTTON_ACTIVE_BG, BUTTON_HOVER_BG, GRAY_300 } from "../../constants";
 import {
   BorderPosition,
   BorderStyle,
@@ -10,7 +9,6 @@ import {
   borderStyles,
 } from "../../types/index";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
-import { css } from "../helpers/css";
 import { Popover, PopoverProps } from "../popover/popover";
 
 type Tool = "borderColorTool" | "borderTypeTool";
@@ -56,79 +54,6 @@ export interface BorderEditorProps {
 // -----------------------------------------------------------------------------
 // Border Editor
 // -----------------------------------------------------------------------------
-css/* scss */ `
-  .o-border-selector {
-    padding: 4px;
-    background-color: white;
-
-    .o-divider {
-      border-right: 1px solid ${GRAY_300};
-      margin: 0 6px;
-    }
-
-    .o-border-selector-section {
-      .o-dropdown-line {
-        height: 30px;
-        margin: 1px;
-        .o-line-item {
-          padding: 4px;
-          width: 26px;
-          height: 26px;
-          &.active {
-            background-color: ${BUTTON_ACTIVE_BG};
-          }
-        }
-      }
-      .o-border-style-tool {
-        padding: 0px 3px;
-        margin: 2px;
-        height: 25px;
-      }
-    }
-  }
-
-  .o-border-style-dropdown {
-    background: #ffffff;
-    padding: 4px;
-    .o-dropdown-line {
-    }
-    .o-style-preview {
-      margin: 7px 5px 7px 5px;
-      width: 60px;
-      height: 5px;
-    }
-    .o-style-thin {
-      border-bottom: 1px solid #000000;
-    }
-    .o-style-medium {
-      border-bottom: 2px solid #000000;
-    }
-    .o-style-thick {
-      border-bottom: 3px solid #000000;
-    }
-    .o-style-dashed {
-      border-bottom: 1px dashed #000000;
-    }
-    .o-style-dotted {
-      border-bottom: 1px dotted #000000;
-    }
-    .o-dropdown-border-type {
-      cursor: pointer;
-      &:not(.o-disabled):not(.active):hover {
-        background-color: ${BUTTON_HOVER_BG};
-      }
-    }
-    .o-dropdown-border-check {
-      width: 20px;
-      font-size: 12px;
-    }
-    .o-border-picker-button {
-      padding: 0px !important;
-      margin: 5px 0px 0px 0px !important;
-      height: 25px !important;
-    }
-  }
-`;
 
 export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditor";

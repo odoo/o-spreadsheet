@@ -1,42 +1,12 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH } from "../../constants";
 import { clip } from "../../helpers";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 
 // -----------------------------------------------------------------------------
 // Autofill
 // -----------------------------------------------------------------------------
-
-css/* scss */ `
-  .o-autofill {
-    position: absolute;
-    height: ${AUTOFILL_EDGE_LENGTH}px;
-    width: ${AUTOFILL_EDGE_LENGTH}px;
-    border: 1px solid white;
-    background-color: #1a73e8;
-  }
-
-  .o-autofill-handler {
-    position: absolute;
-    height: ${AUTOFILL_EDGE_LENGTH}px;
-    width: ${AUTOFILL_EDGE_LENGTH}px;
-    &:hover {
-      cursor: crosshair;
-    }
-  }
-
-  .o-autofill-nextvalue {
-    position: absolute;
-    background-color: #ffffff;
-    border: 1px solid black;
-    padding: 5px;
-    font-size: 12px;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-`;
 
 interface Props {
   isVisible: boolean;

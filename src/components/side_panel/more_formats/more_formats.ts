@@ -18,28 +18,10 @@ import {
   formatNumberTime,
 } from "../../../actions/format_actions";
 import { SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers";
 
 interface Props {
   onCloseSidePanel: () => void;
 }
-
-css/* scss */ `
-  .o-more-formats-panel {
-    .format-preview {
-      height: 49px;
-      background-color: white;
-      cursor: pointer;
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-    .check-icon {
-      width: 24px;
-    }
-  }
-`;
 
 const DATE_FORMAT_ACTIONS = createActions([
   formatNumberFullDateTime,

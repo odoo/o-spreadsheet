@@ -1,0 +1,32 @@
+.o-spreadsheet {
+  .o-chart {
+    .o-panel {
+      display: flex;
+      .o-panel-element {
+        flex: 1 0 auto;
+        padding: 8px 0px;
+        text-align: center;
+        cursor: pointer;
+        border-right: 1px solid $os-gray-300;
+
+        &.inactive {
+          color: $os-text-body;
+          background-color: $os-gray-100;
+          border-bottom: 1px solid $os-gray-300;
+        }
+
+        &:not(.inactive) {
+          color: $os-text-heading;
+          border-bottom: 1px solid #fff;
+        }
+
+        .fa {
+          margin-right: 4px;
+        }
+      }
+      .o-panel-element:last-child {
+        border-right: none;
+      }
+    }
+  }
+}

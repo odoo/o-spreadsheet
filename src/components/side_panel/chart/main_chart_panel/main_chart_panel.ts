@@ -1,6 +1,5 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
-import { GRAY_100, GRAY_300, TEXT_BODY, TEXT_HEADING } from "../../../../constants";
 import { Store, useLocalStore } from "../../../../store_engine";
 import {
   ChartDefinition,
@@ -10,43 +9,9 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
-import { css } from "../../../helpers/css";
 import { Section } from "../../components/section/section";
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
 import { MainChartPanelStore } from "./main_chart_panel_store";
-
-css/* scss */ `
-  .o-chart {
-    .o-panel {
-      display: flex;
-      .o-panel-element {
-        flex: 1 0 auto;
-        padding: 8px 0px;
-        text-align: center;
-        cursor: pointer;
-        border-right: 1px solid ${GRAY_300};
-
-        &.inactive {
-          color: ${TEXT_BODY};
-          background-color: ${GRAY_100};
-          border-bottom: 1px solid ${GRAY_300};
-        }
-
-        &:not(.inactive) {
-          color: ${TEXT_HEADING};
-          border-bottom: 1px solid #fff;
-        }
-
-        .fa {
-          margin-right: 4px;
-        }
-      }
-      .o-panel-element:last-child {
-        border-right: none;
-      }
-    }
-  }
-`;
 
 interface Props {
   onCloseSidePanel: () => void;

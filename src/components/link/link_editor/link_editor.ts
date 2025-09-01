@@ -5,59 +5,8 @@ import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { Link, Position, Rect, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { css } from "../../helpers/css";
 import { getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover } from "../../menu_popover/menu_popover";
-
-const PADDING = 12;
-const LINK_EDITOR_WIDTH = 340 + 2 * PADDING;
-
-css/* scss */ `
-  .o-link-editor {
-    font-size: 13px;
-    background-color: white;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    padding: ${PADDING}px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 4px;
-    width: ${LINK_EDITOR_WIDTH}px;
-
-    .o-section {
-      .o-section-title {
-        font-weight: bold;
-        margin-bottom: 5px;
-      }
-    }
-    .o-buttons {
-      padding-left: 16px;
-      padding-top: 16px;
-      text-align: right;
-    }
-    input.o-input {
-      width: 100%;
-      padding: 0 23px 4px 0;
-    }
-    .o-link-url {
-      position: relative;
-      flex-grow: 1;
-      button {
-        position: absolute;
-        right: 0px;
-        top: 0px;
-        border: none;
-        height: 20px;
-        width: 20px;
-        background-color: #fff;
-        margin: 2px 3px 1px 0px;
-        padding: 0px 1px 0px 0px;
-      }
-      button:hover {
-        cursor: pointer;
-      }
-    }
-  }
-`;
 
 interface LinkEditorProps {
   cellPosition: Position;

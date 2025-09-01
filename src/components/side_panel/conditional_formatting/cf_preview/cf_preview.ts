@@ -1,84 +1,13 @@
 import { Component, useRef } from "@odoo/owl";
-import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
+import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
-import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
+import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
 import { CfTerms } from "../../../translations_terms";
 
-css/* scss */ `
-  .o-cf-preview {
-    &.o-cf-cursor-ptr {
-      cursor: pointer;
-    }
-
-    border-bottom: 1px solid ${GRAY_300};
-    height: 80px;
-    padding: 10px;
-    position: relative;
-    cursor: pointer;
-    &:hover,
-    &.o-cf-dragging {
-      background-color: ${GRAY_200};
-    }
-
-    &:not(:hover) .o-cf-delete-button {
-      display: none;
-    }
-    .o-cf-preview-icon {
-      border: 1px solid ${GRAY_300};
-      background-color: #fff;
-      position: absolute;
-      height: 50px;
-      width: 50px;
-      .o-icon {
-        width: ${CF_ICON_EDGE_LENGTH}px;
-        height: ${CF_ICON_EDGE_LENGTH}px;
-      }
-    }
-    .o-cf-preview-description {
-      left: 65px;
-      margin-bottom: auto;
-      margin-right: 8px;
-      margin-top: auto;
-      position: relative;
-      width: 142px;
-      .o-cf-preview-description-rule {
-        margin-bottom: 4px;
-        max-height: 2.8em;
-        line-height: 1.4em;
-      }
-      .o-cf-preview-range {
-        font-size: 12px;
-      }
-    }
-    .o-cf-delete {
-      left: 90%;
-      top: 39%;
-      position: absolute;
-    }
-    &:not(:hover):not(.o-cf-dragging) .o-cf-drag-handle {
-      display: none !important;
-    }
-    .o-cf-drag-handle {
-      left: -8px;
-      cursor: move;
-      .o-icon {
-        width: 6px;
-        height: 30px;
-      }
-    }
-
-    .o-icon.arrow-down {
-      color: #e06666;
-    }
-    .o-icon.arrow-up {
-      color: #6aa84f;
-    }
-  }
-`;
 interface Props {
   conditionalFormat: ConditionalFormat;
   onPreviewClick: () => void;

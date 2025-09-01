@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
+import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
@@ -18,7 +18,7 @@ import {
   Rect,
   SpreadsheetChildEnv,
 } from "../../../types/index";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
@@ -33,11 +33,9 @@ const functions = functionRegistry.content;
 const ASSISTANT_WIDTH = 300;
 const CLOSE_ICON_RADIUS = 9;
 
-export const selectionIndicatorClass = "selector-flag";
-export const highlightParenthesisClass = "highlight-parenthesis-flag";
+const selectionIndicatorClass = "selector-flag";
+const highlightParenthesisClass = "highlight-parenthesis-flag";
 const highlightClass = "highlight-flag";
-const selectionIndicatorColor = "#a9a9a9";
-const selectionIndicator = "␣";
 
 export type HtmlContent = {
   value: string;
@@ -47,84 +45,6 @@ export type HtmlContent = {
   backgroundColor?: Color;
   classes?: string[];
 };
-
-css/* scss */ `
-  .o-composer-container {
-    .o-composer {
-      overflow-y: auto;
-      overflow-x: hidden;
-      word-break: break-all;
-      padding-right: 2px;
-
-      caret-color: black;
-      padding-left: 3px;
-      padding-right: 3px;
-      outline: none;
-
-      tab-size: 4;
-
-      p {
-        margin-bottom: 0px;
-
-        span {
-          white-space: pre-wrap;
-          /* On some browsers (chromium ?) it is somehow possible to hover two of the composer's spans at the same time, leading to
-           * flickering with a succession of onmouseenter/onmouseleave events. A small invisible padding seems to prevent the issue.*/
-          padding-left: 0.01px;
-
-          &.${selectionIndicatorClass}:after {
-            content: "${selectionIndicator}";
-            color: ${selectionIndicatorColor};
-          }
-
-          &.${highlightParenthesisClass}:not(.${highlightClass}) {
-            border-radius: 5px;
-            background-color: lightgray;
-            padding: 1.5px 0px 1.5px 0px;
-          }
-
-          &.${highlightClass} {
-            background-color: #e6edf3;
-          }
-        }
-      }
-    }
-    .o-composer[placeholder]:empty:not(:focus):not(.active)::before {
-      content: attr(placeholder);
-      color: #bdbdbd;
-      position: relative;
-      top: 0%;
-      pointer-events: none;
-    }
-
-    .fa-stack {
-      /* reset stack size which is doubled by default */
-      width: ${CLOSE_ICON_RADIUS * 2}px;
-      height: ${CLOSE_ICON_RADIUS * 2}px;
-      line-height: ${CLOSE_ICON_RADIUS * 2}px;
-    }
-
-    .force-open-assistant {
-      left: -1px;
-      top: -1px;
-
-      .fa-question-circle {
-        color: ${PRIMARY_BUTTON_BG};
-      }
-    }
-
-    .o-composer-assistant {
-      margin-top: 1px;
-
-      .o-semi-bold {
-        /* FIXME: to remove in favor of Bootstrap
-        * 'fw-semibold' when we upgrade to Bootstrap 5.2
-        */
-        font-weight: 600 !important;
-      }
-    }
-  }
-`;
 
 export interface CellComposerProps {
   focus: ComposerFocusType;
