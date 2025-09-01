@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
 import { ACTION_COLOR, GRAY_300, TEXT_BODY } from "../../constants";
 import { isDefined } from "../../helpers";
@@ -74,6 +74,17 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
     if (this.props.autofocus) {
       useAutofocus({ refName: "input" });
     }
+
+    onWillUpdateProps((newProps) => {
+      if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
+        this.inputRef.el.value = newProps.value;
+      }
+      // if (newProps.value !== this.props.value && this.props.value === this.inputRef.el?.value) {
+      // }
+    });
+    onMounted(() => {
+      if (this.inputRef.el) this.inputRef.el.value = this.props.value;
+    });
   }
 
   onKeyDown(ev: KeyboardEvent) {
