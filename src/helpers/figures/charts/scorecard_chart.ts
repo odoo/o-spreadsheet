@@ -5,7 +5,6 @@ import {
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
-import { _t } from "../../../translation";
 import {
   ApplyRangeChange,
   CellValueType,
@@ -474,13 +473,10 @@ export function createScorecardChartRuntime(
   return {
     title: {
       ...chart.title,
-      // chart titles are extracted from .json files and they are translated at runtime here
-      text: chart.title.text ? _t(chart.title.text) : "",
+      text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
     },
     keyValue: formattedKeyValue,
-    keyDescr: chart.keyDescr?.text
-      ? _t(chart.keyDescr.text) // descriptions are extracted from .json files and they are translated at runtime here
-      : "",
+    keyDescr: chart.keyDescr?.text ? getters.dynamicTranslate(chart.keyDescr.text) : "",
     baselineDisplay,
     baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),
     baselineColor: getBaselineColor(
@@ -492,7 +488,7 @@ export function createScorecardChartRuntime(
     ),
     baselineDescr:
       chart.baselineMode !== "progress" && chart.baselineDescr?.text
-        ? _t(chart.baselineDescr.text) // descriptions are extracted from .json files and they are translated at runtime here
+        ? getters.dynamicTranslate(chart.baselineDescr.text)
         : "",
     fontColor,
     background,

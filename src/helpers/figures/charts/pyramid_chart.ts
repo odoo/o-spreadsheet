@@ -243,7 +243,7 @@ export function createPyramidChartRuntime(
       layout: getChartLayout(definition, chartData),
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, getters),
         legend: getBarChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
         chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),

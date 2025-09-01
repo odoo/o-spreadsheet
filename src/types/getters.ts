@@ -31,6 +31,7 @@ import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "../plugins/ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
+import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
@@ -157,4 +158,5 @@ export type Getters = {
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof CheckboxTogglePlugin> &
   PluginGetters<typeof CellIconPlugin> &
+  PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof CarouselUIPlugin>;

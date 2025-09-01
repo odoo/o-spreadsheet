@@ -225,7 +225,7 @@ export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): 
       layout: getChartLayout(definition, chartData),
       scales: getFunnelChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, getters),
         legend: { display: false },
         tooltip: getFunnelChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),

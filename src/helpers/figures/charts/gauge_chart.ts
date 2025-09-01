@@ -6,7 +6,6 @@ import {
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
-import { _t } from "../../../translation";
 import {
   AdaptSheetName,
   ApplyRangeChange,
@@ -367,8 +366,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
     title: {
       ...chart.title,
-      // chart titles are extracted from .json files and they are translated at runtime here
-      text: _t(chart.title.text ?? ""),
+      text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
     },
     minValue: {
       value: minValue,

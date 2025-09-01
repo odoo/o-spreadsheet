@@ -1,18 +1,19 @@
 import { TitleOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
-import { _t } from "../../../../translation";
+import { Getters } from "../../../../types";
 import { ChartWithDataSetDefinition } from "../../../../types/chart";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
-  definition: ChartWithDataSetDefinition
+  definition: ChartWithDataSetDefinition,
+  getters: Getters
 ): _DeepPartialObject<TitleOptions> {
   const chartTitle = definition.title;
   const fontColor = chartMutedFontColor(definition.background);
   return {
     display: !!chartTitle.text,
-    text: _t(chartTitle.text!),
+    text: chartTitle.text ? getters.dynamicTranslate(chartTitle.text) : "",
     color: chartTitle?.color ?? fontColor,
     align:
       chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
