@@ -7,7 +7,7 @@ interface CellAttributes {
    * Raw cell content
    */
   readonly content: string;
-  readonly style?: Style;
+  style?: Style;
   readonly format?: Format;
 }
 
