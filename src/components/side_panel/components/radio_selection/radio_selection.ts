@@ -33,6 +33,7 @@ css/* scss */ `
       border: 1px solid ${GRAY_300};
       outline: none;
       border-radius: 8px;
+      flex-shrink: 0;
 
       &:checked {
         background: url("data:image/svg+xml,${encodeURIComponent(CIRCLE_SVG)}");
