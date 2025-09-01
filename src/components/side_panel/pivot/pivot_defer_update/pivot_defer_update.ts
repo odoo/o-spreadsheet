@@ -1,15 +1,8 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv } from "../../../../types";
-import { css } from "../../../helpers/css";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
-
-css/* scss */ `
-  .pivot-defer-update {
-    min-height: 40px;
-  }
-`;
 
 interface Props {
   deferUpdate: boolean;

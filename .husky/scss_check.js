@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import process from "process";
 
 const commentPattern = /\/\/.*|\/\*[\s\S]*?\*\//g;
-const firstLevelSelectorPattern = /^(?!(\s|\$|\})).+/gm;
+const firstLevelSelectorPattern = /^(?!(\s|\$|\}|\))).+/gm;
 
 // Get scss files in diff
 const files = execSync("git diff --name-only --cached")

@@ -1,9 +1,4 @@
 import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
-import {
-  ACTION_COLOR,
-  DESKTOP_BOTTOMBAR_HEIGHT,
-  MOBILE_BOTTOMBAR_HEIGHT,
-} from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
@@ -12,62 +7,8 @@ import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { Rect, SpreadsheetChildEnv } from "../../../types";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
-
-css/* scss */ `
-  .o-sheet {
-    padding: 0 15px;
-    padding-right: 10px;
-    height: ${DESKTOP_BOTTOMBAR_HEIGHT}px;
-    border-left: 1px solid #c1c1c1;
-    border-right: 1px solid #c1c1c1;
-    margin-left: -1px;
-    cursor: pointer;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-
-    &.active {
-      color: ${ACTION_COLOR};
-      background-color: #ffffff;
-      box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
-    }
-
-    .o-sheet-icon {
-      z-index: 1;
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .o-sheet-name {
-      outline: none;
-      padding: 2px 4px;
-
-      &.o-sheet-name-editable {
-        border-radius: 2px;
-        border: 2px solid mediumblue;
-        /* negative margins so nothing moves when the border is added */
-        margin-left: -2px;
-        margin-right: -2px;
-      }
-    }
-
-    .o-sheet-color {
-      bottom: 0;
-      left: 0;
-      height: 6px;
-      z-index: 1;
-      width: calc(100% - 1px);
-    }
-  }
-
-  .o-spreadshet-mobile .o-sheet {
-    height: ${MOBILE_BOTTOMBAR_HEIGHT}px;
-  }
-`;
 
 interface Props {
   sheetId: string;

@@ -1,0 +1,20 @@
+.o-spreadsheet {
+  .o-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    width: $os-icon-edge-length;
+    height: $os-icon-edge-length;
+    font-size: $os-icon-edge-length;
+    .small-text {
+      font: bold 9px sans-serif;
+    }
+    .heavy-text {
+      font: bold 16px sans-serif;
+    }
+  }
+  .fa-small {
+    font-size: 14px;
+  }
+}

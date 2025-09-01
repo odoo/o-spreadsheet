@@ -1,72 +1,11 @@
 import { Component, onWillUnmount } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import {
-  BUTTON_ACTIVE_BG,
-  BUTTON_ACTIVE_TEXT_COLOR,
-  DESKTOP_MENU_ITEM_HEIGHT,
-  DISABLED_TEXT_COLOR,
-  ICONS_COLOR,
-  MENU_ITEM_PADDING_HORIZONTAL,
-  MENU_ITEM_PADDING_VERTICAL,
-  MOBILE_MENU_ITEM_HEIGHT,
-} from "../../constants";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 
 //------------------------------------------------------------------------------
 // Context Menu Component
 //------------------------------------------------------------------------------
-
-css/* scss */ `
-  .o-menu {
-    background-color: white;
-    user-select: none;
-
-    .o-menu-item {
-      height: ${DESKTOP_MENU_ITEM_HEIGHT}px;
-      padding: ${MENU_ITEM_PADDING_VERTICAL}px ${MENU_ITEM_PADDING_HORIZONTAL}px;
-      cursor: pointer;
-      user-select: none;
-
-      .o-menu-item-name {
-        min-width: 40%;
-      }
-
-      .o-menu-item-icon {
-        display: inline-block;
-        margin: 0px 8px 0px 0px;
-        width: ${DESKTOP_MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
-        line-height: ${DESKTOP_MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
-      }
-
-      &:not(.disabled) {
-        &:hover,
-        &.o-menu-item-active {
-          background-color: ${BUTTON_ACTIVE_BG};
-          color: ${BUTTON_ACTIVE_TEXT_COLOR};
-        }
-        .o-menu-item-description {
-          color: grey;
-        }
-        .o-menu-item-icon {
-          .o-icon {
-            color: ${ICONS_COLOR};
-          }
-        }
-      }
-      &.disabled {
-        color: ${DISABLED_TEXT_COLOR};
-        cursor: not-allowed;
-      }
-    }
-  }
-
-  .o-spreadsheet-mobile {
-    .o-menu-item {
-      height: ${MOBILE_MENU_ITEM_HEIGHT}px;
-    }
-  }
-`;
 
 type MenuItemOrSeparator = Action | "separator";
 

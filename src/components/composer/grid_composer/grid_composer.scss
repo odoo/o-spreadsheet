@@ -1,0 +1,21 @@
+.o-spreadsheet {
+  div.o-grid-composer {
+    z-index: $os-components-importance-grid-composer;
+    position: absolute;
+    font-family: $os-default-font;
+
+    display: flex;
+    align-items: center;
+  }
+
+  div.o-cell-reference {
+    position: absolute;
+    z-index: $os-components-importance-grid-composer;
+    background: $os-selection-border-color;
+    color: white;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 6px 7px;
+    border-radius: 4px;
+  }
+}

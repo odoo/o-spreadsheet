@@ -1,42 +1,9 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
-import { ComponentsImportance } from "../../../constants";
 import { Rect, SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 
 const BUBBLE_ARROW_SIZE = 7;
-
-css/* scss */ `
-  .o-spreadsheet {
-    .o-speech-bubble {
-      background-color: white;
-      box-sizing: border-box;
-      box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
-      border: 1px solid #ccc;
-      z-index: ${ComponentsImportance.Popover};
-
-      &::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        background-color: white;
-        height: ${BUBBLE_ARROW_SIZE}px;
-        width: ${BUBBLE_ARROW_SIZE}px;
-        transform-origin: top left;
-        transform: translate(0, -67%) rotate(45deg);
-        border-right: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
-        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
-      }
-    }
-
-    .o-speech-content {
-      max-width: 300px;
-    }
-  }
-`;
 
 export interface Props {
   anchorRect: Rect;
