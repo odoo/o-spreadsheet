@@ -7,7 +7,6 @@
       t-att-class="inputClass"
       t-att-id="props.id"
       t-att-placeholder="props.placeholder"
-      t-att-value="props.value"
       t-on-change="save"
       t-on-blur="save"
       t-on-pointerdown="onMouseDown"
