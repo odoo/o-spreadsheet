@@ -133,7 +133,7 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
     }
 
     const emptyCurrency: Currency = {
-      name: _t(CustomCurrencyTerms.Custom),
+      name: CustomCurrencyTerms.Custom,
       code: "",
       symbol: "",
       decimalPlaces: 2,

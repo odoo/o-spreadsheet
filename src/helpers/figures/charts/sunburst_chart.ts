@@ -212,7 +212,7 @@ export function createSunburstChartRuntime(
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
       layout: getChartLayout(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, getters),
         legend: getSunburstChartLegend(definition, chartData),
         tooltip: getSunburstChartTooltip(definition, chartData),
         sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
