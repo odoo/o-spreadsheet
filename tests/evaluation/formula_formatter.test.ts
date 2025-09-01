@@ -105,4 +105,20 @@ describe("formula formatter", () => {
         "\t)"
     );
   });
+
+  test("formula with groups of repeatable arguments keep group on same line", () => {
+    expect(
+      prettifyContent(
+        '=SUMIFS(A1:A10, B1:B10, ">0", C1:C10, "<100", D1:D10, "<>50", E1:E10, "=20" )'
+      )
+    ).toBe(
+      "=SUMIFS(\n" +
+        "\tA1:A10, \n" + // <-- values
+        '\tB1:B10, ">0", \n' + // <-- group 1
+        '\tC1:C10, "<100", \n' + // <-- group 2
+        '\tD1:D10, "<>50", \n' + // <-- group 3
+        '\tE1:E10, "=20"\n' + // <-- group 4
+        ")"
+    );
+  });
 });
