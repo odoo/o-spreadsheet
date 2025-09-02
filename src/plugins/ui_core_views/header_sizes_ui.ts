@@ -9,7 +9,15 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
-import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
+import {
+  CellPosition,
+  Dimension,
+  HeaderIndex,
+  Immutable,
+  Pixel,
+  UID,
+  Zone,
+} from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {
@@ -100,6 +108,14 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
           }
         }
         break;
+      case "SET_FORMATTING":
+        if (cmd.style && ("fontSize" in cmd.style || "wrapping" in cmd.style)) {
+          for (const zone of cmd.target) {
+            // TODO FLDA use rangeSet
+            this.updateRowSizeForZoneChange(cmd.sheetId, zone);
+          }
+        }
+        break;
       case "UPDATE_CELL":
         this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
         break;
@@ -146,6 +162,13 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     return dimension === "ROW"
       ? this.getRowSize(sheetId, index)
       : this.getters.getColSize(sheetId, index);
+  }
+
+  private updateRowSizeForZoneChange(sheetId: UID, zone: Zone) {
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      const newTallestCell = this.getRowTallestCell(sheetId, row);
+      this.history.update("tallestCellInRow", sheetId, row, newTallestCell);
+    }
   }
 
   private updateRowSizeForCellChange(sheetId: UID, row: HeaderIndex, col: HeaderIndex) {
