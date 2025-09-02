@@ -175,6 +175,17 @@ describe("Carousel figure component", () => {
       expect(onFigureDeleted).toHaveBeenCalled();
     });
 
+    test("Can delete a carousel item", () => {
+      createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+
+      const action = getCarouselMenuItem("carouselId", "delete_carousel_item");
+      expect(action?.isVisible(env)).toBe(true);
+      action?.execute?.(env);
+
+      expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
+      expect(action?.isVisible(env)).toBe(false);
+    });
+
     test("Can copy the carousel", () => {
       createCarousel(model, { items: [] }, "carouselId");
       const action = getCarouselMenuItem("carouselId", "copy");
