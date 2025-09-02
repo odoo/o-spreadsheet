@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
-import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
+import { ComponentsImportance, DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
@@ -331,9 +331,18 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       ).end,
     };
 
+    let hasStartedDnd = false;
     const onMouseMove = (ev: MouseEvent) => {
       const getters = this.env.model.getters;
       const currentMousePosition = { x: ev.clientX, y: ev.clientY };
+
+      const offsetX = Math.abs(currentMousePosition.x - initialMousePosition.x);
+      const offsetY = Math.abs(currentMousePosition.y - initialMousePosition.y);
+      if (!hasStartedDnd && offsetX < DRAG_THRESHOLD && offsetY < DRAG_THRESHOLD) {
+        return; // add a small threshold to avoid dnd when just clicking
+      }
+      hasStartedDnd = true;
+
       const draggedFigure = dragFigureForMove(
         currentMousePosition,
         initialMousePosition,
