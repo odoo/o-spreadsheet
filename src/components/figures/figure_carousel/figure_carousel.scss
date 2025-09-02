@@ -26,6 +26,27 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
+    .o-carousel-title {
+      max-width: 60%;
+    }
+
+    .o-carousel-tabs {
+      width: 0; /* To make flex-fill work */
+    }
+
+    .o-carousel-tabs-dropdown {
+      cursor: pointer;
+      padding: 2px;
+      font-size: 16px;
+      line-height: 16px;
+
+      &.active,
+      &:hover {
+        background-color: $os-button-hover-bg;
+        color: $os-button-hover-text-color;
+      }
+    }
+
     .o-carousel-tab {
       cursor: pointer;
       max-width: 150px;
