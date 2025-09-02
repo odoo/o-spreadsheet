@@ -2,6 +2,7 @@ import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_c
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { schemeToColorScale } from "../../../../src/types";
 import {
   changeRoundColorPickerColor,
   click,
@@ -88,7 +89,7 @@ describe("Geo chart side panel", () => {
   describe("Design panel", () => {
     test("Geo design panel is correctly initialized", async () => {
       createGeoChart(model, {
-        colorScale: "purples",
+        colorScale: schemeToColorScale("purples"),
         legendPosition: "right",
         background: "#000000",
         title: { text: "Title", bold: true },
@@ -106,12 +107,12 @@ describe("Geo chart side panel", () => {
     });
 
     test("Can edit the color scale", async () => {
-      createGeoChart(model, { colorScale: "purples" });
+      createGeoChart(model, { colorScale: schemeToColorScale("purples") });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await click(fixture, ".color-scale-container");
       await click(fixture, "[data-test-id=oranges-color-scale]");
-      expect(getGeoChartDefinition(chartId)?.colorScale).toEqual("oranges");
+      expect(getGeoChartDefinition(chartId)?.colorScale).toEqual(schemeToColorScale("oranges"));
       expect(".o-color-scale .color-scale-preview").toHaveAttribute(
         "data-test-colorscale",
         "oranges"

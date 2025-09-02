@@ -8,7 +8,7 @@ import {
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { CellIsRule, Model } from "../../src";
-import { toCartesian, toZone } from "../../src/helpers";
+import { COLORSCHEMES, toCartesian, toZone } from "../../src/helpers";
 import {
   BorderDescr,
   ColorScaleRule,
@@ -779,6 +779,26 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
   };
   const model = new Model(data);
   expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
+});
+
+test("migrate version 19.2: colorScale is changed to a trio of color", () => {
+  const data = {
+    version: "18.5.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "someuuid",
+            tag: "chart",
+            data: { type: "geo", colorScale: "reds", labelRange: "", dataSets: [] },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  expect(model.exportData().sheets[0].figures[0].data.colorScale).toEqual(COLORSCHEMES.reds);
 });
 
 describe("Import", () => {

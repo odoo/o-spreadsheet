@@ -10,7 +10,7 @@
           </span>
           <div
             class="color-scale-preview w-100"
-            t-att-data-test-colorscale="currentColorScalePreview"
+            t-att-data-test-colorscale="selectedColorScale"
             t-att-style="currentColorScaleStyle"
           />
           <span class="ms-1">
@@ -50,31 +50,31 @@
           </table>
         </Popover>
       </div>
-      <t t-if="customColorScale">
-        <div class="o-min-color d-flex align-items-center mb-2 mt-2 ms-2">
+      <div class="ps-3 mt-2">
+        <div class="o-min-color d-flex align-items-center mb-2">
           <RoundColorPicker
-            currentColor="getCustomColorScaleColor('minColor')"
+            currentColor="currentColorScale.minColor"
             onColorPicked="(color) => this.setCustomColorScaleColor('minColor', color)"
             disableNoColor="true"
           />
           <span class="ps-2">Color of minimum values</span>
         </div>
-        <div class="o-mid-color d-flex align-items-center mb-2 ms-2">
+        <div class="o-mid-color d-flex align-items-center mb-2">
           <RoundColorPicker
-            currentColor="getCustomColorScaleColor('midColor')"
+            currentColor="currentColorScale.midColor"
             onColorPicked="(color) => this.setCustomColorScaleColor('midColor', color)"
           />
           <span class="ps-2">Color of middle values</span>
         </div>
-        <div class="o-max-color d-flex align-items-center ms-2">
+        <div class="o-max-color d-flex align-items-center">
           <RoundColorPicker
-            currentColor="getCustomColorScaleColor('maxColor')"
+            currentColor="currentColorScale.maxColor"
             onColorPicked="(color) => this.setCustomColorScaleColor('maxColor', color)"
             disableNoColor="true"
           />
           <span class="ps-2">Color of maximum values</span>
         </div>
-      </t>
+      </div>
     </Section>
   </t>
 </templates>

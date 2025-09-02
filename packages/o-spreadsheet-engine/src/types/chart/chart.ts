@@ -22,7 +22,7 @@ import {
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 import { Align, Color, VerticalAlign } from "../..";
-import { ColorScale } from "../../helpers/color";
+import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Range } from "../range";
@@ -256,10 +256,19 @@ export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
   dataSets?: Omit<T["dataSets"][number], "dataRange">[];
 };
 
-export interface ChartCustomColorScale {
+export interface ChartColorScale {
   minColor: Color;
   midColor?: Color;
   maxColor: Color;
 }
 
-export type ChartColorScale = ChartCustomColorScale | ColorScale;
+export function schemeToColorScale(scheme: string): ChartColorScale | undefined {
+  const colors = COLORSCHEMES[scheme];
+  return colors === undefined
+    ? undefined
+    : {
+        minColor: colors[0],
+        midColor: colors.length === 3 ? colors[1] : undefined,
+        maxColor: colors[colors.length - 1],
+      };
+}

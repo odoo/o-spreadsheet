@@ -1,4 +1,5 @@
 import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
+import { COLORSCHEMES } from "../helpers/color";
 import { toXC } from "../helpers/coordinates";
 import { getItemId } from "../helpers/data_normalization";
 import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
@@ -548,6 +549,20 @@ migrationStepRegistry
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart") {
             figure.data.chartId = figure.id;
+          }
+        }
+      }
+      return data;
+    },
+  })
+  .add("19.2", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart" && figure.data.type === "geo") {
+            if ("colorScale" in figure.data && typeof figure.data.colorScale === "string") {
+              figure.data.colorScale = COLORSCHEMES[figure.data.colorScale];
+            }
           }
         }
       }
