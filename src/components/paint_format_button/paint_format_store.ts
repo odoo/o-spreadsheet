@@ -22,6 +22,7 @@ interface ClipboardContent {
 const PAINT_FORMAT_HANDLER_KEYS = [
   "cell",
   "border",
+  "style",
   "table",
   "conditionalFormat",
   "merge",

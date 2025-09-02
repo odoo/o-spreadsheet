@@ -41,6 +41,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellStyle,
   getEvaluatedCell,
   getMerges,
   getStyle,
@@ -264,10 +265,10 @@ describe("Multi users synchronisation", () => {
     });
     copy(alice, "A1");
     paste(alice, "A2");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), {
       fillColor: "#fefefe",
     });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A2")!.style, {
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellStyle(user, "A2"), {
       fillColor: "#fefefe",
     });
   });
@@ -283,7 +284,7 @@ describe("Multi users synchronisation", () => {
     copy(alice, "A1");
     paste(alice, "B2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B2")!.style,
+      (user) => getCellStyle(user, "B2"),
       undefined
     );
   });
@@ -634,7 +635,7 @@ describe("Multi users synchronisation", () => {
       bob.dispatch("AUTOFILL");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2")?.style,
+      (user) => getCellStyle(user, "A2"),
       undefined
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
