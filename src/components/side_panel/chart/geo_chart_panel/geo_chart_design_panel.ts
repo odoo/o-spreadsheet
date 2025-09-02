@@ -20,7 +20,7 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
     ColorScalePicker,
   };
 
-  updateColorScale(colorScale: ChartColorScale) {
+  updateColorScale(colorScale: ChartColorScale | undefined) {
     this.props.updateChart(this.props.chartId, { colorScale });
   }
 

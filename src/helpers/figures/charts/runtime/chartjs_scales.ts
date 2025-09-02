@@ -5,6 +5,7 @@ import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
+  DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
 import { LocaleFormat } from "../../../../types";
@@ -29,7 +30,7 @@ import {
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { getChartTimeOptions } from "../../../chart_date";
-import { COLORSCHEMES, getColorScale } from "../../../color";
+import { getColorScale } from "../../../color";
 import { formatValue, humanizeNumber } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
 import {
@@ -297,7 +298,7 @@ export function getGeoChartScales(
         align: geoLegendPosition.includes("right") ? "left" : "right",
         margin: getLegendMargin(definition),
       },
-      interpolate: getRuntimeColorScale(definition.colorScale || "oranges"),
+      interpolate: getRuntimeColorScale(definition.colorScale ?? DEFAULT_CHART_COLOR_SCALE),
       missing: definition.missingValueColor || "#ffffff",
     },
   };
@@ -434,14 +435,6 @@ function getChartAxis(
 }
 
 export function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
-  if (typeof colorScale === "string") {
-    const colorScheme = COLORSCHEMES[colorScale || "oranges"];
-    return getColorScale([
-      { value: minValue, color: colorScheme[0] },
-      { value: (minValue + maxValue) / 2, color: colorScheme[1] },
-      { value: maxValue, color: colorScheme[2] },
-    ]);
-  }
   const scaleColors = [{ value: minValue, color: colorScale.minColor }];
   if (colorScale.midColor) {
     scaleColors.push({ value: (minValue + maxValue) / 2, color: colorScale.midColor });

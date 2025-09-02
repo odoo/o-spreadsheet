@@ -1,12 +1,8 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { DEFAULT_CHART_COLOR_SCALE } from "../../../../../constants";
 import { COLORSCALES, COLORSCHEMES } from "../../../../../helpers";
-import { _t } from "../../../../../translation";
-import {
-  ChartColorScale,
-  ChartCustomColorScale,
-  Color,
-  SpreadsheetChildEnv,
-} from "../../../../../types";
+import { ChartColorScale, Color, SpreadsheetChildEnv } from "../../../../../types";
+import { schemeToColorScale } from "../../../../../types/chart/chart";
 import { css } from "../../../../helpers";
 import { isChildEvent } from "../../../../helpers/dom_helpers";
 import { ChartTerms } from "../../../../translations_terms";
@@ -61,14 +57,6 @@ css/* scss */ `
   }
 `;
 
-//https://victorpoughon.fr/css-gradients-colorcet/
-
-const DEFAULT_CUSTOM_COLOR_SCALE: ChartCustomColorScale = {
-  minColor: "#FFF5EB",
-  midColor: "#FD8D3C",
-  maxColor: "#7F2704",
-};
-
 interface Props {
   definition: { colorScale: ChartColorScale };
   onUpdateColorScale: (colorscale: ChartColorScale) => void;
@@ -110,44 +98,34 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get currentColorScale(): ChartColorScale {
-    return this.props.definition.colorScale || "oranges";
+    return this.props.definition.colorScale || schemeToColorScale("oranges");
   }
 
   get currentColorScalePreview(): string {
-    const currentColorScale = this.currentColorScale;
-    if (typeof currentColorScale === "object") {
-      return "custom-color-scale";
-    }
-    return currentColorScale + "-color-scale";
+    return this.selectedColorScale + "-color-scale";
   }
 
   get currentColorScaleStyle(): string | undefined {
-    const currentColorScale = this.currentColorScale;
-    if (typeof currentColorScale === "object") {
-      const minColor = currentColorScale.minColor || "#fff";
-      const midColor = currentColorScale.midColor;
-      const maxColor = currentColorScale.maxColor || "#000";
-      if (midColor) {
-        return `background: linear-gradient(90deg, ${minColor}, ${midColor}, ${maxColor});`;
-      } else {
-        return `background: linear-gradient(90deg, ${minColor}, ${maxColor});`;
-      }
+    const colorScale = this.currentColorScale;
+    const minColor = colorScale.minColor || "#fff";
+    const midColor = colorScale.midColor;
+    const maxColor = colorScale.maxColor || "#000";
+    if (midColor) {
+      return `background: linear-gradient(90deg, ${minColor}, ${midColor}, ${maxColor});`;
+    } else {
+      return `background: linear-gradient(90deg, ${minColor}, ${maxColor});`;
     }
-    return undefined;
   }
 
   get currentColorScaleLabel(): string {
-    if (typeof this.currentColorScale === "object") {
-      return _t("Custom");
-    }
-    return ChartTerms.ColorScales[this.currentColorScale];
+    return ChartTerms.ColorScales[this.selectedColorScale];
   }
 
   onColorScaleChange(value): void {
     if (value === "custom") {
-      this.props.onUpdateColorScale(DEFAULT_CUSTOM_COLOR_SCALE);
+      this.props.onUpdateColorScale(DEFAULT_CHART_COLOR_SCALE);
     } else {
-      this.props.onUpdateColorScale(value as ChartColorScale);
+      this.props.onUpdateColorScale(schemeToColorScale(value)!);
     }
     this.closePopover();
   }
@@ -164,22 +142,28 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     this.state.isListOpen = false;
   }
 
-  get customColorScale(): ChartCustomColorScale | undefined {
-    if (typeof this.currentColorScale === "object") {
-      return this.currentColorScale;
+  get selectedColorScale(): string {
+    if (!this.props.definition.colorScale) {
+      return "oranges";
     }
-    return undefined;
+    const { minColor, midColor, maxColor } = this.props.definition.colorScale || {};
+    for (const [name, scale] of Object.entries(COLORSCHEMES)) {
+      if (scale[0] === minColor && scale[2] === maxColor && scale[1] === midColor) {
+        return name;
+      }
+    }
+    return "custom";
   }
 
   getCustomColorScaleColor(color: "minColor" | "midColor" | "maxColor") {
-    return this.customColorScale?.[color] ?? "";
+    return this.props.definition.colorScale?.[color] ?? "";
   }
 
   setCustomColorScaleColor(colorType: "minColor" | "midColor" | "maxColor", color: Color) {
     if (!color && colorType !== "midColor") {
       color = "#fff";
     }
-    const customColorScale = this.customColorScale;
+    const customColorScale = this.currentColorScale;
     if (!customColorScale) {
       return;
     }

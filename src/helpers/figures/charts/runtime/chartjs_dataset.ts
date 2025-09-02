@@ -5,6 +5,7 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
   COLOR_TRANSPARENT,
+  DEFAULT_CHART_COLOR_SCALE,
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "../../../../constants";
@@ -119,7 +120,11 @@ export function getCalendarChartDatasetAndLabels(
 
   const maxValue = Math.max(...values);
   const minValue = Math.min(...values);
-  const colorMap = getRuntimeColorScale(definition.colorScale ?? "oranges", minValue, maxValue);
+  const colorMap = getRuntimeColorScale(
+    definition.colorScale ?? DEFAULT_CHART_COLOR_SCALE,
+    minValue,
+    maxValue
+  );
 
   const dataSets: ChartDataset[] = [];
   for (const dataSetValues of dataSetsValues) {
