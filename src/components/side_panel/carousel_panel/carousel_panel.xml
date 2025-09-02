@@ -22,7 +22,10 @@
         <t t-foreach="carouselItems" t-as="item" t-key="getItemId(item)">
           <div
             class="o-carousel-preview border-bottom pe-2 position-relative w-100 d-flex align-items-center"
-            t-att-class="{ 'o-dragging': dragAndDrop.draggedItemId === getItemId(item) }"
+            t-att-class="{
+              'o-dragging': dragAndDrop.draggedItemId === getItemId(item),
+              'o-selected': isCarouselItemActive(item)
+            }"
             t-att-style="getPreviewDivStyle(item)">
             <div
               class="o-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon ps-1 flex-shrink-0"
@@ -47,17 +50,16 @@
         </t>
       </div>
       <div
-        class="o-button-link o-carousel-add-chart float-end d-flex align-items-center pt-4 pe-4 gap-2"
-        t-on-click="addNewChartToCarousel">
+        class="o-button-link o-carousel-add-chart float-end d-flex align-items-center py-4 pe-4 gap-2"
+        t-on-click="addNewChartToCarousel"
+        t-att-title="carouselAddChartInfoMessage">
         + Add chart
-        <span t-att-title="carouselAddChartInfoMessage">
-          <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
-        </span>
       </div>
       <div
         t-if="!hasDataView"
-        class="o-button-link o-carousel-add-data-view float-end pt-4 pe-4"
-        t-on-click="addDataViewToCarousel">
+        class="o-button-link o-carousel-add-data-view float-end py-4 pe-4"
+        t-on-click="addDataViewToCarousel"
+        t-att-title="carouselDataViewMessage">
         + Add data view
       </div>
     </div>

@@ -1,6 +1,10 @@
 import { Model, SpreadsheetChildEnv, UID } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
-import { addNewChartToCarousel, createCarousel } from "../../test_helpers/commands_helpers";
+import {
+  addNewChartToCarousel,
+  createCarousel,
+  selectCarouselItem,
+} from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mockChart, mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
@@ -133,5 +137,22 @@ describe("Carousel panel component", () => {
       text: "Carousel Title",
       bold: true,
     });
+  });
+
+  test("Selected carousel item is highlighted", async () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await mountCarouselPanel(model, "carouselId");
+
+    await setInputValueAndTrigger(".o-carousel-preview .os-input", "New Chart Name");
+
+    const previews = fixture.querySelectorAll(".o-carousel-preview");
+    expect(previews[0]).toHaveClass("o-selected");
+    expect(previews[1]).not.toHaveClass("o-selected");
+
+    selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
+    await nextTick();
+    expect(previews[0]).not.toHaveClass("o-selected");
+    expect(previews[1]).toHaveClass("o-selected");
   });
 });
