@@ -1,6 +1,5 @@
 import { positionToZone } from "../../../helpers";
-import { recomputeZones } from "../../../helpers/recompute_zones";
-import { CellPosition, UID, Zone } from "../../../types";
+import { CellPosition, Zone } from "../../../types";
 import { PositionMap } from "./position_map";
 import { PositionSet } from "./position_set";
 import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
@@ -13,12 +12,12 @@ import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
  * It uses an R-Tree data structure to efficiently find dependent cells.
  */
 export class FormulaDependencyGraph {
-  private readonly dependencies: PositionMap<RTreeItem<CellPosition>[]> = new PositionMap();
-  private readonly rTree: SpreadsheetRTree<CellPosition>;
+  private readonly dependencies: PositionMap<RTreeItem<Zone>[]> = new PositionMap();
+  private readonly rTree: SpreadsheetRTree<Zone>;
 
   constructor(
     private readonly createEmptyPositionSet: () => PositionSet,
-    data: RTreeItem<CellPosition>[] = []
+    data: RTreeItem<Zone>[] = []
   ) {
     this.rTree = new SpreadsheetRTree(data);
   }
@@ -36,7 +35,7 @@ export class FormulaDependencyGraph {
 
   addDependencies(formulaPosition: CellPosition, dependencies: RTreeBoundingBox[]): void {
     const rTreeItems = dependencies.map(({ sheetId, zone }) => ({
-      data: formulaPosition,
+      data: positionToZone(formulaPosition),
       boundingBox: {
         zone,
         sheetId,
@@ -71,20 +70,24 @@ export class FormulaDependencyGraph {
         }
       }
 
-      const impactedPositions = this.rTree.search(range);
-      const nextInQueue: Record<UID, Zone[]> = {};
-      for (const position of impactedPositions) {
-        if (!visited.has(position)) {
-          if (!nextInQueue[position.sheetId]) {
-            nextInQueue[position.sheetId] = [];
-          }
-          nextInQueue[position.sheetId].push(positionToZone(position));
-        }
-      }
-      for (const sheetId in nextInQueue) {
-        const zones = recomputeZones(nextInQueue[sheetId], []);
-        queue.push(...zones.map((zone) => ({ sheetId, zone })));
-      }
+      const impactedZones = this.rTree.search(range);
+      // const nextInQueue: Record<UID, Zone[]> = {};
+      // for (const zone of impactedZones) {
+      //   for (const position of positions(zone)) {
+      //     if (!visited.has({...position, sheetId})) {
+      //       if (!nextInQueue[sheetId]) {
+      //         nextInQueue[sheetId] = [];
+      //       }
+      //       nextInQueue[sheetId].push(positionToZone(position));
+      //     }
+
+      //   }
+      // }
+      queue.push(...impactedZones.map((zone) => ({ sheetId, zone })));
+      // for (const sheetId in nextInQueue) {
+      //   const zones = recomputeZones(nextInQueue[sheetId], []);
+      //   queue.push(...zones.map((zone) => ({ sheetId, zone })));
+      // }
     }
 
     // remove initial ranges

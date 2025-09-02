@@ -200,7 +200,7 @@ export class Evaluator {
         this.getDirectDependencies(position)
           .filter((range) => !range.invalidSheetName && !range.invalidXc)
           .map((range) => ({
-            data: position,
+            data: positionToZone(position),
             boundingBox: {
               zone: range.zone,
               sheetId: range.sheetId,

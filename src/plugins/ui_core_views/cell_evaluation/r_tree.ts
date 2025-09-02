@@ -1,5 +1,6 @@
 import RBush from "rbush";
 
+import { recomputeZones } from "../../../helpers";
 import { deepEqualsArray } from "../../../helpers/misc";
 import { UID, Zone } from "../../../types";
 
@@ -115,14 +116,17 @@ export class SpreadsheetRTree<T> {
     if (!this.rTrees[sheetId]) {
       return [];
     }
-    return this.rTrees[sheetId]
-      .search({
-        minX: zone.left,
-        minY: zone.top,
-        maxX: zone.right,
-        maxY: zone.bottom,
-      })
-      .flatMap((item) => item.data);
+    // @ts-ignore
+    return (
+      this.rTrees[sheetId]
+        .search({
+          minX: zone.left,
+          minY: zone.top,
+          maxX: zone.right,
+          maxY: zone.bottom,
+        })
+        .flatMap((item) => item.data) || []
+    );
   }
 
   remove(item: RTreeItem<T>) {
@@ -163,6 +167,10 @@ export class SpreadsheetRTree<T> {
       } else {
         compacted.push({ boundingBox, data: [data] });
       }
+    }
+    for (const item of compacted) {
+      // @ts-ignore
+      item.data = recomputeZones(item.data, []);
     }
     console.log("Compacted to", compacted.length, "items");
     return compacted;
