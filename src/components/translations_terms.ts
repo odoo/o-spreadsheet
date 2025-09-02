@@ -71,6 +71,7 @@ export const ChartTerms: {
   ColorScales: {
     blues: _t("Blues"),
     cividis: _t("Cividis"),
+    custom: _t("Custom"),
     greens: _t("Greens"),
     greys: _t("Greys"),
     oranges: _t("Oranges"),
