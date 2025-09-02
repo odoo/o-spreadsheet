@@ -11,7 +11,7 @@ import { ChartJSRuntime } from "../../../../../types";
 import { css } from "../../../../helpers";
 import { chartJsExtensionRegistry } from "../chart_js_extension";
 import { ChartJsComponent } from "../chartjs";
-import { ZoomableChartStore } from "./zoomable_chart_store";
+import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 import { zoomWindowPlugin } from "./zoomable_chartjs_plugins";
 
 css/* scss */ `
@@ -38,8 +38,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   private hasLinearScale?: boolean;
   private isBarChart?: boolean;
   private chartId: string = "";
-  private datasetBoundaries: { xMin: number; xMax: number } = { xMin: 0, xMax: 0 };
+  private datasetBoundaries: Boundaries = { min: 0, max: 0 };
   private removeEventListeners = () => {};
+  private isMasterChartAllowed: boolean = false;
 
   setup() {
     this.store = useStore(ZoomableChartStore);
@@ -59,12 +60,20 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     `;
   }
 
+  get masterChartContainerStyle() {
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
+    if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
+      return "opacity: 0.3;";
+    }
+    return "";
+  }
+
   get sliceable(): boolean {
     if (this.props.isFullScreen) {
       return true;
     }
     const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
-    return ("zoomable" in definition && definition?.zoomable) ?? false;
+    return ("zoomable" in definition && definition.zoomable) ?? false;
   }
 
   get axisOffset(): number {
@@ -92,15 +101,13 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (!this.sliceable) {
       return chartData;
     }
-    const xAxis = this.store.currentAxesLimits[this.chartId]?.x;
-    const xScale = {
-      ...chartData.options.scales?.x,
-    };
-    if (xAxis?.min !== undefined) {
-      xScale.min = this.hasLinearScale ? xAxis.min : Math.ceil(xAxis.min) - this.axisOffset;
-    }
-    if (xAxis?.max !== undefined) {
-      xScale.max = this.hasLinearScale ? xAxis.max : Math.floor(xAxis.max) - this.axisOffset;
+    let x = chartData.options.scales.x;
+    const limits = this.store.currentAxesLimits[this.chartId]?.x;
+    if (limits) {
+      x = {
+        ...x,
+        ...this.getStoredBoundaries(),
+      };
     }
     return {
       ...chartData,
@@ -108,7 +115,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
         ...chartData.options,
         scales: {
           ...chartData.options.scales,
-          x: xScale,
+          x,
         },
         layout: {
           ...chartData.options.layout,
@@ -121,15 +128,23 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     };
   }
 
-  private getAxisLimitsFromDataset(chartData: ChartConfiguration<any>): {
-    xMin: number;
-    xMax: number;
-  } {
+  private getAxisLimitsFromDataset(chartData: ChartConfiguration<any>): Boundaries {
     const data = chartData.data.datasets.map((ds) => ds.data).flat();
     const xValues = data.map((d, i) => (typeof d === "object" && d !== null ? d.x : i));
-    const xMin = Math.min(...xValues);
-    const xMax = Math.max(...xValues);
-    return { xMin, xMax };
+    const min = Math.min(...xValues);
+    const max = Math.max(...xValues);
+    return { min, max };
+  }
+
+  private setMasterChartCursor(runtime: ChartJSRuntime) {
+    const masterElement = this.masterChartCanvas?.el as HTMLCanvasElement;
+    if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
+      masterElement.style.cursor = "not-allowed";
+      this.isMasterChartAllowed = false;
+      return;
+    }
+    masterElement.style.cursor = "default";
+    this.isMasterChartAllowed = true;
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
@@ -144,14 +159,16 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
 
     super.createChart(chartRuntime);
-    this.hasLinearScale = this.chart?.scales?.x.type === "linear";
+    this.hasLinearScale = this.chart?.scales?.x?.type === "linear";
     if (!this.sliceable || !("masterChartConfig" in chartRuntime)) {
+      this.isMasterChartAllowed = false;
       return;
     }
 
     this.masterChart?.destroy();
-    const masterChartCtx = (this.masterChartCanvas!.el as HTMLCanvasElement).getContext("2d")!;
+    const masterChartCtx = (this.masterChartCanvas?.el as HTMLCanvasElement).getContext("2d")!;
 
+    this.setMasterChartCursor(chartRuntime);
     this.masterChart = new window.Chart(
       masterChartCtx,
       this.getMasterChartConfiguration(chartRuntime["masterChartConfig"] as ChartConfiguration<any>)
@@ -164,13 +181,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     const chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    const newDatasetBoundaries = this.getAxisLimitsFromDataset(chartData);
-    if (
-      this.datasetBoundaries.xMin !== newDatasetBoundaries.xMin ||
-      this.datasetBoundaries.xMax !== newDatasetBoundaries.xMax
-    ) {
+    const { min, max } = this.getAxisLimitsFromDataset(chartData);
+    if (this.datasetBoundaries.min !== min || this.datasetBoundaries.max !== max) {
       this.store.clearAxisLimits(this.chartId);
-      this.datasetBoundaries = newDatasetBoundaries;
+      this.datasetBoundaries = { min, max };
     }
     this.isBarChart = chartData?.type === "bar";
     this.chartId = `${chartData.type}-${this.props.chartId}`;
@@ -181,9 +195,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
 
     super.updateChartJs(chartRuntime);
-    this.hasLinearScale = this.chart?.scales?.x.type === "linear";
+    this.hasLinearScale = this.chart?.scales?.x?.type === "linear";
     if (!this.sliceable || !("masterChartConfig" in chartRuntime)) {
       this.masterChart = undefined;
+      this.isMasterChartAllowed = false;
     } else {
       const masterChartConfig = this.getMasterChartConfiguration(
         chartRuntime["masterChartConfig"] as ChartConfiguration<any>
@@ -196,6 +211,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
         this.masterChart.config.options = masterChartConfig.options;
         this.masterChart.update();
       }
+      this.setMasterChartCursor(chartRuntime);
     }
     this.resetAxesLimits();
     if (this.chart?.options) {
@@ -207,18 +223,15 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (!this.chart) {
       return;
     }
-    const previousAxisLimits = this.store.originalAxisLimits[this.chartId];
-    if (previousAxisLimits?.x?.min === undefined && previousAxisLimits?.x?.max === undefined) {
-      let scales: { [key: string]: { min: number; max: number } } = this.masterChart
+    const storedLimits = this.store.originalAxisLimits[this.chartId]?.x;
+    if (!storedLimits) {
+      let scales: { [key: string]: Boundaries } = this.masterChart
         ? this.masterChart.scales
         : this.chart.scales;
-      if (!this.hasLinearScale && scales?.x) {
+      if (!this.hasLinearScale && scales.x) {
         scales = {
           ...scales,
-          x: {
-            min: Math.ceil(scales.x.min) - this.axisOffset,
-            max: Math.floor(scales.x.max) + this.axisOffset,
-          },
+          x: this.adjustBoundaries(scales.x),
         };
       }
       this.store.resetAxisLimits(this.chartId, scales);
@@ -234,13 +247,13 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   private updateTrendingLineAxes() {
     this.store.updateTrendLineConfiguration(this.chartId);
-    const config = this.store.currentAxesLimits[this.chartId];
+    const limits = this.store.currentAxesLimits[this.chartId];
     for (const axisId of [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID]) {
-      if (!this.chart?.config.options?.scales?.[axisId] || !config?.[axisId]) {
+      if (!this.chart?.config?.options?.scales?.[axisId] || !limits?.[axisId]) {
         continue;
       }
-      this.chart.config.options.scales[axisId].min = config[axisId].min;
-      this.chart.config.options.scales[axisId].max = config[axisId].max;
+      this.chart.config.options.scales[axisId].min = limits[axisId].min;
+      this.chart.config.options.scales[axisId].max = limits[axisId].max;
     }
   }
 
@@ -290,29 +303,76 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     );
   }
 
-  private updateAxisLimits(xMin: number, xMax: number) {
+  /**
+   * Compute min and max from the store, adjusting them if needed for non linear scales.
+   * Getting the value from the store, we have to ensure that the values are integers for
+   * non linear scales (bar and category). To select a bar in the chart, we have to include
+   * the whole bar, which means that for the i-th bar, the selected min should be <= i and
+   * the selected max should be >= i, so using the Math.floor and Math.ceil functions is
+   * the right way to do it.
+   * Sometimes, we can get a minimal value > the maximal value, which arise when the user
+   * select a very small area in the master chart, and hasn't selected the middle of a bar
+   * or a group of bars (in case of more than one data series).
+   * Assuming we have to select the middle of a bar/a groupe of bars, we will reject the
+   * coming value afterward. In this case, we do not update the chart because it would lead
+   * to an empty chart.
+   */
+
+  private getStoredBoundaries(): Boundaries {
+    let { min, max } = this.store.currentAxesLimits[this.chartId].x;
     if (!this.hasLinearScale) {
-      this.chart!.config.options!.scales!.x!.min = Math.ceil(xMin);
-      this.chart!.config.options!.scales!.x!.max = Math.floor(xMax);
-    } else {
-      this.chart!.config.options!.scales!.x!.min = xMin;
-      this.chart!.config.options!.scales!.x!.max = xMax;
+      min = Math.ceil(min);
+      max = Math.floor(max);
     }
-    this.store.updateAxisLimits(this.chartId, { min: xMin, max: xMax });
-    this.updateTrendingLineAxes();
-    this.masterChart?.update();
-    this.chart?.update();
+    return { min, max };
   }
 
-  onPointerDownInMasterChart(ev: PointerEvent) {
+  /**
+   * Adjust the min and max values of an axis if needed for non linear scales.
+   * Here, after rounding (see docstring of getStoredBoundaries), we adjust the min by
+   * substracting the axis offset, and we add it to the max, because when computing from the
+   * scale, chartJs use integer values as the limits for non linear scales. If we have a min
+   * value of 1, it means we want to start displaying from 0.5, and if we have a max value of
+   * 4, it means we want to display until 4.5.
+   * Here, we don't have to check if min > max because we are computing from the scale, and
+   * chartJs ensures that this won't happen, even after our adjustments.
+   */
+
+  private adjustBoundaries({ min, max }: Boundaries): Boundaries {
+    if (!this.hasLinearScale) {
+      min = Math.ceil(min) - this.axisOffset;
+      max = Math.floor(max) + this.axisOffset;
+    }
+    return { min, max };
+  }
+
+  private updateAxisLimits(xMin: number, xMax: number) {
+    if (xMin === xMax) {
+      return;
+    }
+    if (!this.chart) {
+      return;
+    }
+    this.store.updateAxisLimits(this.chartId, { min: xMin, max: xMax });
+    const { min, max } = this.getStoredBoundaries();
+    if (max > min || (this.isBarChart && max === min)) {
+      this.chart.config.options!.scales!.x!.min = min;
+      this.chart.config.options!.scales!.x!.max = max;
+      this.updateTrendingLineAxes();
+      this.chart.update();
+    }
+    this.masterChart?.update();
+  }
+
+  onMasterChartPointerDown(ev: PointerEvent) {
     this.removeEventListeners();
     const position = ev.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
     }
     const { left, right, top, bottom } = this.masterChart.chartArea;
-    const xMax = this.upperBound ?? right;
-    const xMin = this.lowerBound ?? left;
+    const upperBound = this.upperBound ?? right;
+    const lowerBound = this.lowerBound ?? left;
     if (position < left - 5 || position > right + 5 || ev.offsetY < top || ev.offsetY > bottom) {
       return;
     }
@@ -321,8 +381,12 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     let startingPositionOnChart: number, windowSize: number, startX: number | undefined;
     const startingEventPosition =
       ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
-    if ((xMin !== left || xMax !== right) && position > xMin + 5 && position < xMax - 5) {
-      startingPositionOnChart = ev.offsetX - xMin;
+    if (
+      (lowerBound !== left || upperBound !== right) &&
+      position > lowerBound + 5 &&
+      position < upperBound - 5
+    ) {
+      startingPositionOnChart = ev.offsetX - lowerBound;
       this.mode = "moveInMaster";
       const currentLimits = this.store.currentAxesLimits[this.chartId]?.x;
       windowSize =
@@ -330,29 +394,27 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
         (currentLimits?.min ?? this.chart.scales.x.min);
     } else {
       this.mode = "selectInMaster";
-      if (Math.abs(position - xMin) < 5) {
-        startingPositionOnChart = xMax;
-      } else if (Math.abs(position - xMax) < 5) {
-        startingPositionOnChart = xMin;
+      if (Math.abs(position - lowerBound) < 5) {
+        startingPositionOnChart = upperBound;
+      } else if (Math.abs(position - upperBound) < 5) {
+        startingPositionOnChart = lowerBound;
       } else {
         startingPositionOnChart = clip(position, left, right);
       }
       startX = this.computeCoordinate(startingPositionOnChart);
     }
-    const originalXMin = this.store.originalAxisLimits[this.chartId].x!.min;
-    const originalXMax = this.store.originalAxisLimits[this.chartId].x!.max;
+    const storedMin = this.store.originalAxisLimits[this.chartId].x.min;
+    const storedMax = this.store.originalAxisLimits[this.chartId].x.max;
 
     const computeNewAxisLimits = (position: number) => {
-      let xMin: number | undefined, xMax: number | undefined;
-      const { left, right } = this.masterChart!.chartArea;
       if (this.mode === "moveInMaster") {
-        xMin = this.computeCoordinate(position - startingPositionOnChart)!;
-        if (xMin < originalXMin) {
-          xMin = originalXMin;
-        } else if (xMin > originalXMax - windowSize) {
-          xMin = originalXMax - windowSize;
+        let min = this.computeCoordinate(position - startingPositionOnChart)!;
+        if (min < storedMin) {
+          min = storedMin;
+        } else if (min > storedMax - windowSize) {
+          min = storedMax - windowSize;
         }
-        xMax = xMin + windowSize;
+        return { min, max: min + windowSize };
       } else if (this.mode === "selectInMaster") {
         const upperBound = clip(position, left, right);
         if (Math.abs(startingPositionOnChart - upperBound) > 5) {
@@ -360,57 +422,55 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
           if (startX === undefined || endX === undefined) {
             return {};
           }
-          xMin = Math.min(startX, endX);
-          xMax = Math.max(startX, endX);
+          return {
+            min: Math.min(startX, endX),
+            max: Math.max(startX, endX),
+          };
         }
       }
-      return { min: xMin, max: xMax };
+      return {};
     };
 
-    const onDragFromMasterChart = (ev: PointerEvent) => {
+    const onMasterChartDrag = (ev: PointerEvent) => {
       const position = ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
       if (Math.abs(position - startingEventPosition) < 5) {
         return;
       }
-      const { min: xMin, max: xMax } = computeNewAxisLimits(position);
-      if (xMin !== undefined && xMax !== undefined) {
-        this.updateAxisLimits(xMin, xMax);
+      const { min, max } = computeNewAxisLimits(position);
+      if (min !== undefined && max !== undefined) {
+        this.updateAxisLimits(min, max);
       }
     };
 
-    const onPointerUpInMasterChart = (ev: PointerEvent) => {
+    const onMasterChartPointerUp = (ev: PointerEvent) => {
       this.removeEventListeners();
-      const position = ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
-      if (Math.abs(position - startingEventPosition) > 5) {
-        let { min: xMin, max: xMax } = computeNewAxisLimits(position);
-        if (xMin !== undefined && xMax !== undefined) {
-          if (!this.hasLinearScale) {
-            if (this.mode === "moveInMaster" && windowSize && !this.isBarChart) {
-              xMin = Math.round(xMin) - this.axisOffset;
-              xMax = xMin + windowSize;
-            } else {
-              xMin = Math.ceil(xMin) - this.axisOffset;
-              xMax = Math.floor(xMax) + this.axisOffset;
-            }
-          }
-          this.updateAxisLimits(xMin, xMax);
+      let { min, max } = this.chart!.scales.x;
+      if (!this.hasLinearScale) {
+        if (this.mode === "moveInMaster") {
+          min = Math.round(min) - this.axisOffset;
+          max = min + windowSize;
+        } else {
+          ({ min, max } = this.adjustBoundaries({ min, max }));
         }
       }
+      this.updateAxisLimits(min, max);
       this.mode = undefined;
     };
     this.removeEventListeners = () => {
-      window.removeEventListener("pointermove", onDragFromMasterChart, true);
-      window.removeEventListener("pointerup", onPointerUpInMasterChart, true);
+      window.removeEventListener("pointermove", onMasterChartDrag, true);
+      window.removeEventListener("pointerup", onMasterChartPointerUp, true);
     };
 
-    window.addEventListener("pointermove", onDragFromMasterChart, true);
-    window.addEventListener("pointerup", onPointerUpInMasterChart, true);
+    window.addEventListener("pointermove", onMasterChartDrag, true);
+    window.addEventListener("pointerup", onMasterChartPointerUp, true);
   }
 
-  onPointerMoveInMasterChart(ev: PointerEvent) {
-    const { offsetX: x, offsetY: y } = ev;
+  onMasterChartPointerMove(ev: PointerEvent) {
+    const { offsetX: x, offsetY: y, target } = ev;
+    if (!target || !this.isMasterChartAllowed) {
+      return;
+    }
     if (this.mode === undefined) {
-      const target = ev.target!;
       if (!this.masterChart?.chartArea) {
         target["style"].cursor = "default";
         return;
@@ -430,15 +490,15 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
   }
 
-  onMouseLeaveMasterChart(ev: PointerEvent) {
+  onMasterChartMouseLeave(ev: PointerEvent) {
     const target = ev.target;
-    if (!target) {
+    if (!target || !this.isMasterChartAllowed) {
       return;
     }
     target["style"].cursor = "default";
   }
 
-  onDoubleClickInMasterChart(ev: PointerEvent) {
+  onMasterChartDoubleClick(ev: PointerEvent) {
     this.mode = undefined;
     const position = ev.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
@@ -455,30 +515,21 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
     ev.preventDefault();
     ev.stopPropagation();
-    let { min: xMin, max: xMax } =
-      this.store.currentAxesLimits[this.chartId]?.x ?? this.chart.scales.x;
+    let { min, max } = this.store.currentAxesLimits[this.chartId]?.x ?? this.chart.scales.x;
     const originalAxisLimits = this.store.originalAxisLimits[this.chartId].x;
     if (!originalAxisLimits) {
       return;
     }
-    let originalXMin = originalAxisLimits.min;
-    let originalXMax = originalAxisLimits.max;
-    if (this.hasLinearScale) {
-      originalXMin = Math.ceil(originalXMin) - this.axisOffset;
-      originalXMax = Math.floor(originalXMax) + this.axisOffset;
-    }
     if (Math.abs(position - lowerBound) < 5) {
-      // Reset to original min
-      xMin = originalXMin;
+      min = originalAxisLimits.min;
     } else if (Math.abs(position - upperBound) < 5) {
-      xMax = originalXMax;
+      max = originalAxisLimits.max;
     } else if (lowerBound < position && position < upperBound) {
-      // Reset to original limits
-      xMin = originalXMin;
-      xMax = originalXMax;
+      min = originalAxisLimits.min;
+      max = originalAxisLimits.max;
     } else {
       return;
     }
-    this.updateAxisLimits(xMin, xMax);
+    this.updateAxisLimits(min, max);
   }
 }
