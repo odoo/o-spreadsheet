@@ -1,4 +1,3 @@
-import { DEFAULT_STYLE } from "../../constants";
 import { compile, compileTokens } from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
@@ -307,11 +306,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   export(data: WorkbookData) {
-    const styles: { [styleId: number]: Style } = {};
     const formats: { [formatId: number]: string } = {};
 
     for (const _sheet of data.sheets) {
-      const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: string } = {};
       const positions = Object.keys(this.cells[_sheet.id] || {})
@@ -320,12 +317,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-        const style = this.removeDefaultStyleValues(this.getters.getCellStyle(position));
-        if (Object.keys(style).length) {
-          const styleId = getItemId<Style>(style, styles);
-          positionsByStyle[styleId] ??= [];
-          positionsByStyle[styleId].push(position);
-        }
         if (cell.format) {
           const formatId = getItemId<Format>(cell.format, formats);
           positionsByFormat[formatId] ??= [];
@@ -335,11 +326,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           cells[xc] = cell.content;
         }
       }
-      _sheet.styles = groupItemIdsByZones(positionsByStyle);
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
       _sheet.cells = cells;
     }
-    data.styles = styles;
     data.formats = formats;
   }
 
@@ -367,16 +356,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
-  }
-
-  private removeDefaultStyleValues(style: Style | undefined): Style {
-    const cleanedStyle = { ...style };
-    for (const property in DEFAULT_STYLE) {
-      if (cleanedStyle[property] === DEFAULT_STYLE[property]) {
-        delete cleanedStyle[property];
-      }
-    }
-    return cleanedStyle;
   }
 
   // ---------------------------------------------------------------------------

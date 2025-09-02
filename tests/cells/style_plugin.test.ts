@@ -1,10 +1,10 @@
 import {
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT_SIZE,
-  DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { DEFAULT_STYLE_NO_ALIGN } from "@odoo/o-spreadsheet-engine/plugins/core/style";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import {
   addDataValidation,
@@ -56,7 +56,7 @@ describe("styles", () => {
 
   test("default style values are not exported", () => {
     const model = new Model();
-    setStyle(model, "A1", DEFAULT_STYLE);
+    setStyle(model, "A1", DEFAULT_STYLE_NO_ALIGN);
     const data = model.exportData();
     expect(data.sheets[0].styles.A1).toBeUndefined();
     expect(data.styles).toEqual({});
