@@ -32,11 +32,11 @@
       font-size: 14px;
 
       &:hover {
-        color: #714b67;
+        color: $os-button-primary-bg;
       }
 
       &.selected {
-        color: #714b67;
+        color: $os-button-primary-bg;
         font-weight: 600;
       }
     }

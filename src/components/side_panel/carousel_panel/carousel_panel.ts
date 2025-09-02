@@ -68,6 +68,11 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     return this.carouselItems.some((item) => item.type === "carouselDataView");
   }
 
+  isCarouselItemActive(item: CarouselItem): boolean {
+    const activeItem = this.env.model.getters.getSelectedCarouselItem(this.props.figureId);
+    return deepEquals(activeItem, item);
+  }
+
   addDataViewToCarousel() {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     this.updateItems([...carousel.items, { type: "carouselDataView" }]);
@@ -228,5 +233,9 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
       throw new Error("Could not find the sheetId of the carousel figure");
     }
     return sheetId;
+  }
+
+  get carouselDataViewMessage(): string {
+    return _t("The data view makes the carousel transparent, revealing the data underneath.");
   }
 }

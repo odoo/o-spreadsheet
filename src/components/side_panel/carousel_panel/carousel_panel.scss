@@ -2,9 +2,14 @@
   .o-carousel-preview {
     height: 60px;
     background-color: #fff;
+    border-left: 5px solid transparent;
 
     &:not(:hover):not(.o-dragging) .o-drag-handle {
       display: none !important;
+    }
+
+    &.o-selected {
+      border-color: $os-button-primary-bg;
     }
 
     .o-drag-handle {

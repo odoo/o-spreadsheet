@@ -1016,4 +1016,12 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.DATA">
+    <svg class="o-icon" viewBox="0 0 18 18">
+      <path
+        fill="currentColor"
+        d="M.5 1.5a1 1 0 0 1 1-1h15a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1zM6 6V1.5H1.5V6m10 0V1.5h-5V6m10 0V1.5H12V6m-6 5.5v-5H1.5v5m10 0v-5h-5v5m10 0v-5H12v5m-6 5V12H1.5v4.5m10 0V12h-5v4.5m10 0V12H12v4.5"
+      />
+    </svg>
+  </t>
 </templates>
