@@ -1,4 +1,4 @@
-import { ChartStyle } from "./types/chart";
+import { ChartColorScale, ChartStyle } from "./types/chart";
 import { Currency } from "./types/currency";
 import { BorderDescr, Color, Style } from "./types/misc";
 
@@ -41,6 +41,12 @@ export const CHART_TITLE_FONT_SIZE = 16;
 export const CHART_AXIS_TITLE_FONT_SIZE = 12;
 export const MASTER_CHART_HEIGHT = 60;
 export const CHART_COLORSCALE_WIDTH = 70;
+
+export const DEFAULT_CHART_COLOR_SCALE: ChartColorScale = {
+  minColor: "#FFF5EB",
+  midColor: "#FD8D3C",
+  maxColor: "#7F2704",
+};
 
 export const SCORECARD_CHART_TITLE_FONT_SIZE = 14;
 

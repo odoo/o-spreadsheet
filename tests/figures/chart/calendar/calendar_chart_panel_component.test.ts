@@ -2,6 +2,7 @@ import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { schemeToColorScale } from "../../../../src/types";
 import {
   changeRoundColorPickerColor,
   click,
@@ -126,7 +127,7 @@ describe("Calendar chart side panel", () => {
           title: { text: "Title", bold: true },
           legendPosition: "right",
           background: "#FF0000",
-          colorScale: "purples",
+          colorScale: schemeToColorScale("purples"),
         },
         chartId
       );
@@ -143,12 +144,14 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Can edit the color scale", async () => {
-      createCalendarChart(model, { colorScale: "purples" }, chartId);
+      createCalendarChart(model, { colorScale: schemeToColorScale("purples") }, chartId);
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await click(fixture, ".color-scale-container");
       await click(fixture, "[data-test-id=oranges-color-scale]");
-      expect(getCalendarChartDefinition(chartId)?.colorScale).toEqual("oranges");
+      expect(getCalendarChartDefinition(chartId)?.colorScale).toEqual(
+        schemeToColorScale("oranges")
+      );
       expect(".o-color-scale .color-scale-preview").toHaveAttribute(
         "data-test-colorscale",
         "oranges"
