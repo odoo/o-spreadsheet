@@ -136,7 +136,7 @@ describe("Clear columns", () => {
     clearColumns(["B", "C"]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(3);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
@@ -187,7 +187,7 @@ describe("Clear rows", () => {
     clearRows([1, 2]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(3);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCellStyle(model, "A2")).toMatchObject(style);
     expect(getBorder(model, "A2")).toEqual(border);
@@ -907,13 +907,10 @@ describe("Rows", () => {
     });
     test("On deletion", () => {
       const style = { textColor: "#fe0000" };
-      const sheetId = model.getters.getActiveSheetId();
-      expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(8); // 7 NumberCells + 1 emptyCell in merge with style
       deleteRows(model, [1]);
       expect(getCell(model, "A2")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "C2")).toBeUndefined();
-      expect(Object.values(model.getters.getCells(sheetId))).toHaveLength(5); // 4 NumberCells +1 emptyCell with no merge, but with style
       expect(getCellStyle(model, "A1")).toMatchObject(style);
       expect(getCellStyle(model, "A3")).toMatchObject(style);
       expect(getCellStyle(model, "C1")).toMatchObject(style);
@@ -922,8 +919,8 @@ describe("Rows", () => {
     });
 
     test("On addition", () => {
-      addRows(model, "before", 1, 1);
       const style = { textColor: "#fe0000" };
+      addRows(model, "before", 1, 1);
       addRows(model, "after", 2, 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style },

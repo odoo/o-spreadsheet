@@ -1,6 +1,6 @@
 import { isExportableToExcel } from "../../../formulas/index";
 import { matrixMap } from "../../../functions/helpers";
-import { getItemId, positions, toXC } from "../../../helpers/index";
+import { cellPositions, getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -153,6 +153,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
+    "getEvaluatedCellsPositionInZone",
     "getEvaluatedCellsPositions",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
@@ -287,9 +288,11 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
-    return positions(zone).map(({ col, row }) =>
-      this.getters.getEvaluatedCell({ sheetId, col, row })
-    );
+    return cellPositions(sheetId, zone).map(this.getters.getEvaluatedCell);
+  }
+
+  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): [CellPosition, EvaluatedCell][] {
+    return cellPositions(sheetId, zone).map((pos) => [pos, this.getters.getEvaluatedCell(pos)]);
   }
 
   /**

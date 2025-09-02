@@ -8,6 +8,7 @@ import {
   isEqual,
   isFullColRange,
   isFullRowRange,
+  isInside,
   overlap,
   positions,
   splitReference,
@@ -53,6 +54,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "expandZone",
     "doesIntersectMerge",
     "doesColumnsHaveCommonMerges",
+    "getMergesZoneWithTopLeftInZone",
     "doesRowsHaveCommonMerges",
     "getMerges",
     "getMerge",
@@ -163,6 +165,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return Array.from(mergeIds)
       .map((mergeId) => this.getMergeById(sheetId, mergeId))
       .filter(isDefined);
+  }
+
+  getMergesZoneWithTopLeftInZone(sheetId: UID, zone: Zone): Zone[] {
+    const merges: Zone[] = [];
+    for (const merge of Object.values(this.merges[sheetId] ?? [])) {
+      if (merge && isInside(merge.zone.left, merge.zone.top, zone)) merges.push(merge.zone);
+    }
+    return merges;
   }
 
   /**
@@ -410,8 +420,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     if (tl === br) {
       return;
     }
-    const topLeft = this.getters.getCell({ sheetId, col: left, row: top });
-
     const id = this.nextId++;
     this.history.update(
       "merges",
@@ -427,7 +435,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
             sheetId,
             col,
             row,
-            style: topLeft ? topLeft.style : null,
             content: "",
           });
         }

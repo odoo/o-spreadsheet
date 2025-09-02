@@ -157,10 +157,19 @@ describe("merges", () => {
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCellStyle(model, "B2")).not.toBeDefined();
 
-    setStyle(model, "B2:C3", { fillColor: "#333" });
+    setStyle(model, "B2", { fillColor: "#333" });
 
-    expect(getCellsXC(model)).toEqual(["B2", "B3", "C2", "C3"]);
     expect(getCellStyle(model, "B2")).toBeDefined();
+    expect(getCellStyle(model, "B3")).toBeDefined();
+    expect(getCellStyle(model, "C2")).toBeDefined();
+    expect(getCellStyle(model, "C3")).toBeDefined();
+
+    unMerge(model, "B2:C3");
+
+    expect(getCellStyle(model, "B2")).toBeDefined();
+    expect(getCellStyle(model, "B3")).toBeDefined();
+    expect(getCellStyle(model, "C2")).toBeDefined();
+    expect(getCellStyle(model, "C3")).toBeDefined();
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
