@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { isSameColor } from "../../src/helpers/color";
+import { isSameColor, toHex } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { positions } from "../../src/helpers/zones";
@@ -308,6 +308,9 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
     const receivedStyle: Record<string, string> = {};
     for (const key of Object.keys(expectedStyle)) {
       receivedStyle[key] = element.style.getPropertyValue(key);
+      if (receivedStyle[key].startsWith("rgb")) {
+        receivedStyle[key] = toHex(receivedStyle[key]);
+      }
     }
     const pass = this.equals(receivedStyle, expectedStyle, [this.utils.iterableEquality]);
     const message = () =>
