@@ -51,9 +51,7 @@ export class SpreadingRelation {
   private readonly arrayFormulasToResults: PositionMap<Zone> = new PositionMap();
 
   searchFormulaPositionsSpreadingOn(sheetId: UID, zone: Zone): Iterable<CellPosition> {
-    return (
-      this.resultsToArrayFormulas.search({ sheetId, zone }).map((node) => node.data) || EMPTY_ARRAY
-    );
+    return this.resultsToArrayFormulas.search({ sheetId, zone }) || EMPTY_ARRAY;
   }
 
   getArrayResultZone(formulasPosition: CellPosition): Zone | undefined {

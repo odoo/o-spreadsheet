@@ -1,5 +1,6 @@
 import RBush from "rbush";
 
+import { deepEqualsArray } from "../../../helpers/misc";
 import { UID, Zone } from "../../../types";
 
 /**
@@ -80,15 +81,15 @@ export class SpreadsheetRTree<T> {
   /**
    * One 2D R-tree per sheet
    */
-  private rTrees: Record<UID, RBush<RTreeItem<T>>> = {};
+  private rTrees: Record<UID, RBush<CompactRTreeItems<T>>> = {};
 
   /**
    * Bulk-inserts the given items into the tree. Bulk insertion is usually ~2-3 times
    * faster than inserting items one by one. After bulk loading (bulk insertion into
    * an empty tree), subsequent query performance is also ~20-30% better.
    */
-  constructor(items: RTreeItem[] = []) {
-    const rangesPerSheet = {};
+  constructor(items: RTreeItem<T>[] = []) {
+    const rangesPerSheet: Record<UID, RTreeItem<T>[]> = {};
     for (const item of items) {
       const sheetId = item.boundingBox.sheetId;
       if (!rangesPerSheet[sheetId]) {
@@ -98,7 +99,7 @@ export class SpreadsheetRTree<T> {
     }
     for (const sheetId in rangesPerSheet) {
       this.rTrees[sheetId] = new ZoneRBush();
-      this.rTrees[sheetId].load(rangesPerSheet[sheetId]); // bulk-insert
+      this.rTrees[sheetId].load(this.compactItems(rangesPerSheet[sheetId])); // bulk-insert
     }
   }
 
@@ -107,19 +108,21 @@ export class SpreadsheetRTree<T> {
     if (!this.rTrees[sheetId]) {
       this.rTrees[sheetId] = new ZoneRBush();
     }
-    this.rTrees[sheetId].insert(item);
+    this.rTrees[sheetId].insert({ ...item, data: [item.data] });
   }
 
-  search({ zone, sheetId }: RTreeBoundingBox): RTreeItem<T>[] {
+  search({ zone, sheetId }: RTreeBoundingBox): T[] {
     if (!this.rTrees[sheetId]) {
       return [];
     }
-    return this.rTrees[sheetId].search({
-      minX: zone.left,
-      minY: zone.top,
-      maxX: zone.right,
-      maxY: zone.bottom,
-    });
+    return this.rTrees[sheetId]
+      .search({
+        minX: zone.left,
+        minY: zone.top,
+        maxX: zone.right,
+        maxY: zone.bottom,
+      })
+      .flatMap((item) => item.data);
   }
 
   remove(item: RTreeItem<T>) {
@@ -127,18 +130,42 @@ export class SpreadsheetRTree<T> {
     if (!this.rTrees[sheetId]) {
       return;
     }
-    this.rTrees[sheetId].remove(item, this.rtreeItemComparer);
+    this.rTrees[sheetId].remove({ ...item, data: [item.data] }, this.rtreeItemComparer);
   }
 
-  rtreeItemComparer(left: RTreeItem<T>, right: RTreeItem<T>) {
+  private rtreeItemComparer(left: CompactRTreeItems<T>, right: CompactRTreeItems<T>) {
     return (
-      left.data === right.data &&
+      deepEqualsArray(left.data, right.data) && // doesn't work to remove a single item if multiple items share the same bounding box
       left.boundingBox.sheetId === right.boundingBox.sheetId &&
       left.boundingBox?.zone.left === right.boundingBox.zone.left &&
       left.boundingBox?.zone.top === right.boundingBox.zone.top &&
       left.boundingBox?.zone.right === right.boundingBox.zone.right &&
       left.boundingBox?.zone.bottom === right.boundingBox.zone.bottom
     );
+  }
+
+  private compactItems(items: RTreeItem<T>[]): CompactRTreeItems<T>[] {
+    console.log("Compacting", items.length, "items");
+    const compacted: CompactRTreeItems<T>[] = [];
+    for (const item of items) {
+      const { boundingBox, data } = item;
+      // terribly inefficient
+      const existing = compacted.find(
+        (c) =>
+          c.boundingBox.sheetId === boundingBox.sheetId &&
+          c.boundingBox.zone.left === boundingBox.zone.left &&
+          c.boundingBox.zone.top === boundingBox.zone.top &&
+          c.boundingBox.zone.right === boundingBox.zone.right &&
+          c.boundingBox.zone.bottom === boundingBox.zone.bottom
+      );
+      if (existing) {
+        existing.data.push(data);
+      } else {
+        compacted.push({ boundingBox, data: [data] });
+      }
+    }
+    console.log("Compacted to", compacted.length, "items");
+    return compacted;
   }
 }
 
@@ -175,6 +202,16 @@ export interface RTreeItem<T = unknown> {
    * Any arbitrary data associated with the bounding box
    */
   data: T;
+}
+interface CompactRTreeItems<T = unknown> {
+  /**
+   * A bounding box to locate the item in the space
+   */
+  boundingBox: RTreeBoundingBox;
+  /**
+   * Any arbitrary data associated with the bounding box
+   */
+  data: T[];
 }
 
 export interface RTreeBoundingBox {

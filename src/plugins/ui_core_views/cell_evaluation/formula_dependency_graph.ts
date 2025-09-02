@@ -71,7 +71,7 @@ export class FormulaDependencyGraph {
         }
       }
 
-      const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
+      const impactedPositions = this.rTree.search(range);
       const nextInQueue: Record<UID, Zone[]> = {};
       for (const position of impactedPositions) {
         if (!visited.has(position)) {
