@@ -111,6 +111,35 @@ describe("Carousel figure component", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
 
+  test("When drag & dropping a chart, the chart merges with the closest carousel rather than the first one", async () => {
+    createCarousel(model, { items: [] }, "carouselId1", undefined, {
+      col: 0,
+      row: 0,
+      size: { width: 200, height: 200 },
+      figureId: "carouselId1",
+    });
+    createCarousel(model, { items: [] }, "carouselId2", undefined, {
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 200 },
+      size: { width: 200, height: 200 },
+      figureId: "carouselId2",
+    });
+    createChart(model, { type: "bar" }, "chartId", undefined, {
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+      size: { width: 300, height: 300 },
+      figureId: "chartFigureId",
+    });
+    await mountSpreadsheet({ model });
+
+    // Move the chart down a bit, so it still overlaps the first carousel but is closer to the second one.
+    await clickAndDrag(".o-figure[data-id=chartFigureId]", { x: 0, y: 80 }, { x: 0, y: 0 }, true);
+    expect(model.getters.getCarousel("carouselId1").items).toHaveLength(0);
+    expect(model.getters.getCarousel("carouselId2").items).toHaveLength(1);
+  });
+
   test("Can define a carousel title", async () => {
     createCarousel(
       model,

@@ -559,21 +559,34 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     if (figureUI.tag !== "chart") {
       return undefined;
     }
-    const minimumOverlap = 20; // Minimum overlap in pixels to consider a carousel overlapping
-    const carousels = otherFigures.filter((f) => f.tag === "carousel");
 
-    return carousels.find((carousel) => {
-      const xOverlap = Math.max(
-        0,
-        Math.min(figureUI.x + figureUI.width, carousel.x + carousel.width) -
-          Math.max(figureUI.x, carousel.x)
-      );
-      const yOverlap = Math.max(
-        0,
-        Math.min(figureUI.y + figureUI.height, carousel.y + carousel.height) -
-          Math.max(figureUI.y, carousel.y)
-      );
-      return xOverlap >= minimumOverlap && yOverlap >= minimumOverlap;
-    });
+    const figureCenterX = figureUI.x + figureUI.width / 2;
+    const figureCenterY = figureUI.y + figureUI.height / 2;
+
+    let bestMatch: FigureUI | undefined;
+    let smallestDistance = Infinity;
+
+    for (const figure of otherFigures) {
+      if (figure.tag !== "carousel") {
+        continue;
+      }
+      const carouselCenterX = figure.x + figure.width / 2;
+      const carouselCenterY = figure.y + figure.height / 2;
+
+      const distanceX = Math.abs(figureCenterX - carouselCenterX);
+      const distanceY = Math.abs(figureCenterY - carouselCenterY);
+      const squaredDistance = distanceX ** 2 + distanceY ** 2;
+
+      if (
+        distanceX <= figureUI.width / 2 &&
+        distanceY <= figureUI.height / 2 &&
+        squaredDistance < smallestDistance
+      ) {
+        smallestDistance = squaredDistance;
+        bestMatch = figure;
+      }
+    }
+
+    return bestMatch;
   }
 }
