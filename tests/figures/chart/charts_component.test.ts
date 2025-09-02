@@ -1891,7 +1891,7 @@ describe("charts", () => {
   );
 
   test.each<ChartType>(["bar", "line", "waterfall", "treemap", "sunburst"])(
-    "humanizeNumbers checkbox updates the chart",
+    "humanizeNumbers checkbox updates the %s chart",
     async (type: ChartType) => {
       createTestChart(type);
       await mountChartSidePanel();

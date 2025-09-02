@@ -1,6 +1,7 @@
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Component } from "@odoo/owl";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
+import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
 import { CalendarChartConfigPanel } from "./calendar_chart/calendar_chart_config_panel";
 import { CalendarChartDesignPanel } from "./calendar_chart/calendar_chart_design_panel";
@@ -52,7 +53,7 @@ chartSidePanelComponentRegistry
   })
   .add("bar", {
     configuration: BarConfigPanel,
-    design: GenericZoomableChartDesignPanel,
+    design: BarChartDesignPanel,
   })
   .add("combo", {
     configuration: GenericChartConfigPanel,
