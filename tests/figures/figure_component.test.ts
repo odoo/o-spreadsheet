@@ -58,6 +58,13 @@ jest.mock("../../src/components/helpers/dom_helpers", () => {
   };
 });
 
+const constantsMocks = jest.requireMock("../../src/constants");
+jest.mock("../../src/constants", () => ({ ...jest.requireActual("../../src/constants") }));
+
+beforeEach(() => {
+  constantsMocks.DRAG_THRESHOLD = 0; // mock drag threshold to 0 for easier testing of snap
+});
+
 const cellHeight = DEFAULT_CELL_HEIGHT;
 const cellWidth = DEFAULT_CELL_WIDTH;
 
@@ -669,14 +676,14 @@ describe("figures", () => {
     createFigure(model, { id: figureId, offset: { x: 0, y: 200 } });
     model.updateMode("readonly");
     await nextTick();
-    const figure = fixture.querySelector(".o-figure")!;
+    const figure = fixture.querySelector<HTMLElement>(".o-figure")!;
     await simulateClick(".o-figure");
     expect(document.activeElement).not.toBe(figure);
     expect(fixture.querySelector(".o-fig-anchor")).toBeNull();
 
     triggerMouseEvent(figure, "pointerdown", 300, 200);
     await nextTick();
-    expect(figure.classList).not.toContain("o-dragging");
+    expect(figure).not.toHaveStyle({ cursor: "grabbing" });
   });
 
   describe("Figure border", () => {
@@ -926,7 +933,20 @@ describe("figures", () => {
     await nextTick();
     triggerMouseEvent(".o-figure", "pointerdown", 0, 0);
     await nextTick();
-    expect(fixture.querySelector(".o-figure")?.classList.contains("o-dragging")).toBeFalsy();
+    expect(".o-figure").not.toHaveStyle({ cursor: "grabbing" });
+  });
+
+  test("There is a small threshold before the figure is marked as dragging", async () => {
+    constantsMocks.DRAG_THRESHOLD = 5;
+    createFigure(model);
+    await nextTick();
+
+    await clickAndDrag(".o-figure", { x: 3, y: 1 }, undefined, false);
+    expect(".o-figure").not.toHaveStyle({ cursor: "grabbing" });
+    expect(fixture.querySelector<HTMLElement>(".o-figure")?.style.cursor).not.toBe("grabbing");
+
+    await clickAndDrag(".o-figure", { x: 6, y: 1 }, undefined, false);
+    expect(".o-figure").toHaveStyle({ cursor: "grabbing" });
   });
 
   test("Figure container is properly computed based on the sheetView size", async () => {
