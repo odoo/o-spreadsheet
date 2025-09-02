@@ -233,6 +233,121 @@ describe("Pivot calculated measure", () => {
     );
   });
 
+  test("calculated measure without (sub)totals aggregates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Product", B1: "Price",  C1: "Margin",
+      A2: "Table",   B2: "1000",   C2: "200",
+      A3: "Chair",   B3: "100",    C3: "50",
+      A5: "=PIVOT(1)"
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:C3", {
+      columns: [],
+      rows: [{ fieldName: "Product" }],
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
+        { id: "Margin:sum", fieldName: "Margin", aggregator: "sum" },
+        {
+          id: "percent_margin",
+          fieldName: "% Margin",
+          aggregator: "",
+          computedBy: { formula: "='Margin:sum'/'Price:sum'", sheetId },
+          format: "0.00%",
+        },
+      ],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A6:D9")).toEqual(
+      [
+        ["",      "Price",  "Margin", "% Margin"],
+        ["Table", "1000",   "200",    "20.00%"],
+        ["Chair", "100",    "50",     "50.00%"],
+        ["Total", "1100",   "250",    "22.73%"],
+      ]
+    );
+  });
+
+  test("row header value is #N/A in formula in totals without aggregates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Product", B1: "Color",
+      A2: "Table",   B2: "black",
+      A3: "Chair",   B3: "blue",
+      A5: "=PIVOT(1)"
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:B3", {
+      rows: [{ fieldName: "Product" }, { fieldName: "Color" }],
+      measures: [
+        {
+          id: "p",
+          fieldName: "p",
+          aggregator: "",
+          computedBy: { formula: "=Product", sheetId },
+        },
+        {
+          id: "c",
+          fieldName: "c",
+          aggregator: "",
+          computedBy: { formula: "=Color", sheetId },
+        },
+      ],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A6:C11")).toEqual(
+      [
+        ["",          "p",      "c",],
+        ["Table",     "Table",  "#N/A"],
+        ["black", "Table",  "black"],
+        ["Chair",     "Chair",  "#N/A"],
+        ["blue",  "Chair",  "blue"],
+        ["Total",     "#N/A",   "#N/A"],
+      ]
+    );
+  });
+
+  test("col header value is #N/A in formula in totals without aggregates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Product", B1: "Color",
+      A2: "Table",   B2: "black",
+      A3: "Chair",   B3: "blue",
+      A5: "=PIVOT(1)"
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:B3", {
+      columns: [{ fieldName: "Product" }, { fieldName: "Color" }],
+      rows: [],
+      measures: [
+        {
+          id: "p",
+          fieldName: "p",
+          aggregator: "",
+          computedBy: { formula: "=Product", sheetId },
+        },
+        {
+          id: "c",
+          fieldName: "c",
+          aggregator: "",
+          computedBy: { formula: "=Color", sheetId },
+        },
+      ],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A5:G8")).toEqual(
+      [
+        ["Pivot",  "Table",  "",       "Chair",  "",     "",     ""],
+        ["",       "black",  "",       "blue",   "",     "Total",""],
+        ["",       "p",      "c",      "p",      "c",    "p",    "c"],
+        ["Total",  "Table",  "black",  "Chair",  "blue", "#N/A", "#N/A"],
+      ]
+    );
+  });
+
   test("aggregate intermediary row aggregates in a column group", () => {
     // prettier-ignore
     const grid = {
