@@ -62,6 +62,14 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     `;
   }
 
+  get masterChartContainerStyle() {
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
+    if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
+      return "opacity: 0.3;";
+    }
+    return "";
+  }
+
   get sliceable(): boolean {
     if (this.env.isDashboard()) {
       const fullScreenFigureId = this.fullScreenChartStore.fullScreenFigure?.id;
@@ -296,6 +304,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   private updateAxisLimits(xMin: number, xMax: number) {
+    if (xMin === xMax) {
+      return;
+    }
     if (!this.hasLinearScale) {
       this.chart!.config.options!.scales!.x!.min = Math.ceil(xMin);
       this.chart!.config.options!.scales!.x!.max = Math.floor(xMax);
@@ -413,9 +424,16 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   onPointerMoveInMasterChart(ev: PointerEvent) {
-    const { offsetX: x, offsetY: y } = ev;
+    const { offsetX: x, offsetY: y, target } = ev;
+    if (!target) {
+      return;
+    }
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
+    if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
+      target["style"].cursor = "not-allowed";
+      return;
+    }
     if (this.mode === undefined) {
-      const target = ev.target!;
       if (!this.masterChart?.chartArea) {
         target["style"].cursor = "default";
         return;

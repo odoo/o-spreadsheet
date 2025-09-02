@@ -4,7 +4,7 @@ import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_
 import { CreateFigureCommand, SpreadsheetChildEnv, UID } from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
-import { createChart, setCellContent } from "../../test_helpers/commands_helpers";
+import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import {
@@ -435,5 +435,20 @@ describe("zoom", () => {
       expect(newMin).toBeUndefined();
       expect(newMax).toBeUndefined();
     });
+  });
+
+  test("Chart with one point is not shown as disabled", async () => {
+    await mountSpreadsheet();
+    createTestChart(chartId, {}, { zoomable: true });
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    let container = fixture.querySelector(".o-master-chart-container");
+    let style = container?.getAttribute("style");
+    expect(style).toEqual("");
+
+    await updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
+    await nextTick();
+    container = fixture.querySelector(".o-master-chart-container");
+    style = container?.getAttribute("style");
+    expect(style).toContain("opacity: 0.3");
   });
 });
