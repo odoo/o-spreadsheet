@@ -43,6 +43,12 @@
               t-att-selected="agg === measure.aggregator"
               t-esc="props.aggregators[measure.type][agg]"
             />
+            <option
+              t-if="measure.computedBy"
+              t-att-value="''"
+              t-att-selected="'' === measure.aggregator">
+              Compute from totals
+            </option>
           </select>
         </div>
       </div>
