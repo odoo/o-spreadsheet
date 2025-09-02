@@ -110,7 +110,7 @@
     "@odoo/owl": "2.5.1",
     "bootstrap": "^5.3.3",
     "font-awesome": "^4.7.0",
-    "rbush": "^3.0.1"
+    "quickselect": "^3.0.0"
   },
   "jest": {
     "roots": [
