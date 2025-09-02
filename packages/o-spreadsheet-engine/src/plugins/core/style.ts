@@ -1,10 +1,11 @@
 import { ApplyRangeChange, Color, deepEquals, UID, UnboundedZone, Zone } from "../..";
 import { PositionMap } from "../../helpers/cells/position_map";
+import { getItemId } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
-import { intersection, isInside, positionToZone, toZone } from "../../helpers/zones";
+import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
 import { CoreCommand } from "../../types/commands";
 import { CellPosition, Style } from "../../types/misc";
-import { WorkbookData } from "../../types/workbook_data";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 export const DEFAULT_STYLE_NO_ALIGN = {
@@ -233,9 +234,9 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   import(data: WorkbookData) {
     if (Object.keys(data.styles || {}).length) {
       for (const sheet of data.sheets) {
-        for (const [zone, styleId] of iterateItemIdsZone(sheet.styles)) {
-          const style = data.styles[styleId];
-          this.setStyle(sheet.id, zone, style);
+        for (const zoneXc in sheet.styles) {
+          const styleId = sheet.styles[zoneXc];
+          this.setStyle(sheet.id, toZone(zoneXc), data.styles[styleId]);
         }
       }
       for (const sheetData of data.sheets) {
@@ -246,5 +247,20 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         }
       }
     }
+  }
+
+  export(data: WorkbookData) {
+    const styles: { [styleId: number]: Style } = {};
+    for (const sheet of data.sheets) {
+      sheet.styles = {};
+      for (const style of this.styles[sheet.id] ?? []) {
+        sheet.styles[zoneToXc(style.zone)] = getItemId(style.style, styles);
+      }
+    }
+    data.styles = styles;
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 }
