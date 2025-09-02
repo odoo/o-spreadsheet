@@ -9,7 +9,13 @@ import {
 } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
-mockChart();
+mockChart({
+  scales: {
+    x: {
+      type: "categorical",
+    },
+  },
+});
 
 let model: Model;
 let fixture: HTMLElement;

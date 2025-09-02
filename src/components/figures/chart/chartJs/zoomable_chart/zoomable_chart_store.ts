@@ -8,9 +8,15 @@ import { SpreadsheetStore } from "../../../../../stores";
 const TREND_LINE_AXES_IDS = [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID] as const;
 const ZOOMABLE_AXIS_IDS = ["x", ...TREND_LINE_AXES_IDS] as const;
 export type AxisId = (typeof ZOOMABLE_AXIS_IDS)[number];
+
+export interface Boundaries {
+  min: number;
+  max: number;
+}
 export type AxesLimits = {
-  [chartId: UID]: { [axisId in AxisId]?: { min: number; max: number } | undefined };
+  [chartId: UID]: { [axisId in AxisId]?: Boundaries } & { x: Boundaries };
 };
+
 export class ZoomableChartStore extends SpreadsheetStore {
   mutators = [
     "resetAxisLimits",
@@ -53,34 +59,21 @@ export class ZoomableChartStore extends SpreadsheetStore {
     return "noStateChange";
   }
 
-  resetAxisLimits(
-    chartId: UID,
-    limits: { [key: string]: { min: number; max: number } | undefined } | undefined
-  ) {
+  resetAxisLimits(chartId: UID, limits: { [key: string]: Boundaries }) {
     for (const axisId of ZOOMABLE_AXIS_IDS) {
-      if (limits?.[axisId]) {
-        if (!this.originalAxisLimits[chartId]?.[axisId]) {
-          this.originalAxisLimits[chartId] = {
-            ...this.originalAxisLimits[chartId],
-            [axisId]: {},
-          };
-        }
-        this.originalAxisLimits[chartId][axisId]!["min"] = limits[axisId].min;
-        this.originalAxisLimits[chartId][axisId]!["max"] = limits[axisId].max;
-      } else {
-        if (this.originalAxisLimits[chartId]?.[axisId]) {
-          delete this.originalAxisLimits[chartId][axisId];
-        }
+      if (limits[axisId]) {
+        this.originalAxisLimits[chartId] = {
+          ...this.originalAxisLimits[chartId],
+          [axisId]: { ...limits[axisId] },
+        };
+      } else if (this.originalAxisLimits[chartId]?.[axisId]) {
+        delete this.originalAxisLimits[chartId][axisId];
       }
     }
     return "noStateChange";
   }
 
-  updateAxisLimits(chartId: UID, limits?: { min: number; max: number } | undefined) {
-    if (limits === undefined) {
-      delete this.currentAxesLimits[chartId];
-      return "noStateChange";
-    }
+  updateAxisLimits(chartId: UID, limits: Boundaries) {
     let { min, max } = limits;
     if (min > max) {
       [min, max] = [max, min];
@@ -97,35 +90,25 @@ export class ZoomableChartStore extends SpreadsheetStore {
    * for the current trend line axes.
    */
   updateTrendLineConfiguration(chartId: UID) {
-    if (!this.originalAxisLimits[chartId]) {
+    if (!this.originalAxisLimits[chartId]?.x || !this.currentAxesLimits[chartId]?.x) {
       return "noStateChange";
     }
     const chartLimits = this.originalAxisLimits[chartId].x;
-    if (chartLimits === undefined) {
-      return "noStateChange";
-    }
     for (const axisId of TREND_LINE_AXES_IDS) {
       if (!this.originalAxisLimits[chartId][axisId]) {
         continue;
       }
-      if (!this.currentAxesLimits[chartId]?.[axisId]) {
-        this.currentAxesLimits[chartId] = {
-          ...this.currentAxesLimits[chartId],
-          [axisId]: {},
-        };
-      }
-      if (this.currentAxesLimits[chartId]?.x === undefined) {
-        return "noStateChange";
-      }
       const realRange = chartLimits.max - chartLimits.min;
       const trendingLimits = this.originalAxisLimits[chartId][axisId];
-      const trendingRange = trendingLimits.max! - trendingLimits.min!;
+      const trendingRange = trendingLimits.max - trendingLimits.min;
       const slope = trendingRange / realRange;
-      const intercept = trendingLimits.min! - chartLimits.min * slope;
+      const intercept = trendingLimits.min - chartLimits.min * slope;
       const newXMin = this.currentAxesLimits[chartId].x.min;
       const newXMax = this.currentAxesLimits[chartId].x.max;
-      this.currentAxesLimits[chartId][axisId]!.min = newXMin * slope + intercept;
-      this.currentAxesLimits[chartId][axisId]!.max = newXMax * slope + intercept;
+      this.currentAxesLimits[chartId][axisId] = {
+        min: newXMin * slope + intercept,
+        max: newXMax * slope + intercept,
+      };
     }
     return "noStateChange";
   }
