@@ -348,7 +348,7 @@ export function createCalendarChart(
       horizontalGroupBy: data.horizontalGroupBy,
       verticalGroupBy: data.verticalGroupBy,
       legendPosition: data.legendPosition || "top",
-      colorScale: data.colorScale || "rainbow",
+      colorScale: data.colorScale,
     },
   });
 }
