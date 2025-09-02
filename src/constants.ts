@@ -346,3 +346,5 @@ export const tokenColors = {
   ARG_SEPARATOR: functionColor,
   ORPHAN_RIGHT_PAREN: "#ff0000",
 } as const;
+
+export const DRAG_THRESHOLD = 5; // in pixels, to avoid unwanted drag when clicking
