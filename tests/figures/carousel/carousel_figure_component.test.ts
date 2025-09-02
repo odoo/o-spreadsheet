@@ -13,6 +13,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 jest.mock("../../../src/components/helpers/dom_helpers", () => {
   return {
@@ -189,6 +190,51 @@ describe("Carousel figure component", () => {
     expect(enableAnimationSpy).toHaveBeenLastCalledWith(radarId);
     await click(fixture, ".o-carousel-tab:nth-child(2)");
     expect(enableAnimationSpy).toHaveBeenLastCalledWith(barId);
+  });
+
+  test("Having too many tabs will put some of them inside a dropdown", async () => {
+    extendMockGetBoundingClientRect({
+      "o-carousel-tabs": () => ({ width: 200 }),
+      "o-carousel-tab": () => ({ width: 100 }),
+    });
+
+    const getCarouselTabs = () =>
+      Array.from(document.querySelectorAll<HTMLElement>(".o-carousel-tab")).map((tab) => ({
+        label: tab.textContent,
+        isHidden: tab.style.display === "none",
+      }));
+
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "pie" });
+    const { fixture } = await mountSpreadsheet({ model });
+
+    expect(getCarouselTabs()).toEqual([
+      { label: "Data", isHidden: false },
+      { label: "Pie", isHidden: false },
+    ]);
+    expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "none" });
+
+    const radarChartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    addNewChartToCarousel(model, "carouselId", { type: "line" });
+    await nextTick();
+
+    expect(getCarouselTabs()).toEqual([
+      { label: "Data", isHidden: false },
+      { label: "Pie", isHidden: false },
+      { label: "Radar", isHidden: true },
+      { label: "Line", isHidden: true },
+    ]);
+    expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "block" });
+
+    await click(fixture, ".o-carousel-tabs-dropdown");
+    expect(".o-menu-item").toHaveCount(2);
+    expect(".o-menu-item:nth-child(1)").toHaveText("Radar");
+    expect(".o-menu-item:nth-child(2)").toHaveText("Line");
+
+    await click(fixture, ".o-menu-item:nth-child(1)");
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
+      chartId: radarChartId,
+    });
   });
 
   describe("Carousel menu items", () => {
