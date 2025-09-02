@@ -6,7 +6,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
-import { Cell, CommandResult, Sheet, Wrapping } from "../../src/types";
+import { CommandResult, Sheet, Wrapping } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -26,11 +26,13 @@ import {
   unMerge,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCell, getCellStyle } from "../test_helpers/getters_helpers";
 
 const ctx = document.createElement("canvas").getContext("2d")!;
-function getDefaultCellHeight(cell: Cell | undefined, colSize = DEFAULT_CELL_WIDTH) {
-  return Math.round(getDefaultCellHeightHelper(ctx, cell, cell?.style, colSize));
+function getDefaultCellHeight(model: Model, xc: string, colSize = DEFAULT_CELL_WIDTH) {
+  const cell = getCell(model, xc);
+  const style = getCellStyle(model, xc);
+  return Math.round(getDefaultCellHeightHelper(ctx, cell, style, colSize));
 }
 
 describe("Model resizer", () => {
@@ -293,7 +295,7 @@ describe("Model resizer", () => {
       addRows(model, "after", 0, 1, sheetId);
       setStyle(model, "A1", { fontSize: 36 });
       setCellContent(model, "A2", "something");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A1"));
+      const font36CellHeight = getDefaultCellHeight(model, "A1");
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(font36CellHeight);
       expect(model.getters.getRowSize(sheetId, 1)).toEqual(DEFAULT_CELL_HEIGHT);
     });
@@ -341,9 +343,7 @@ describe("Model resizer", () => {
     test("After import, the rows are resized based on the font size", () => {
       expect(model.getters.getRowSize(sheet.id, 6)).toBe(40);
 
-      expect(model.getters.getRowSize(sheet.id, 3)).toBe(
-        getDefaultCellHeight(getCell(model, "A4"))
-      );
+      expect(model.getters.getRowSize(sheet.id, 3)).toBe(getDefaultCellHeight(model, "A4"));
     });
 
     test("Row sizes that were automatically computed based on font size are not exported", () => {
@@ -359,7 +359,7 @@ describe("Model resizer", () => {
 
     test("changing the font size for a non-empty cell change the row height", () => {
       setStyle(model, "A1", { fontSize: 22 });
-      const font22Height = getDefaultCellHeight(getCell(model, "A1"));
+      const font22Height = getDefaultCellHeight(model, "A1");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font22Height);
 
       setStyle(model, "A1", { fontSize: 11 });
@@ -369,11 +369,11 @@ describe("Model resizer", () => {
 
     test("changing the font size don't modify row height if there is a bigger cell", () => {
       setStyle(model, "A1", { fontSize: 36 });
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A1"));
+      const font36CellHeight = getDefaultCellHeight(model, "A1");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font36CellHeight);
 
       setStyle(model, "B1", { fontSize: 26 });
-      const font26CellHeight = getDefaultCellHeight(getCell(model, "B1"));
+      const font26CellHeight = getDefaultCellHeight(model, "B1");
       expect(font26CellHeight).toBeLessThan(font36CellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font36CellHeight);
     });
@@ -399,7 +399,7 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
 
       setCellContent(model, "C1", "C1");
-      const newHeight = getDefaultCellHeight(getCell(model, "C1"));
+      const newHeight = getDefaultCellHeight(model, "C1");
       expect(newHeight).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(newHeight);
     });
@@ -407,10 +407,9 @@ describe("Model resizer", () => {
     test("multiline text update the row size", () => {
       setStyle(model, "C1", { fontSize: 36 });
       setCellContent(model, "C1", "C1");
-      const oneLineHeight =
-        getDefaultCellHeight(getCell(model, "C1")) - 2 * PADDING_AUTORESIZE_VERTICAL;
+      const oneLineHeight = getDefaultCellHeight(model, "C1") - 2 * PADDING_AUTORESIZE_VERTICAL;
       setCellContent(model, "C1", "C1\nabc\ntest");
-      const multiLineHeight = getDefaultCellHeight(getCell(model, "C1"));
+      const multiLineHeight = getDefaultCellHeight(model, "C1");
       expect(multiLineHeight).toEqual(
         3 * (oneLineHeight + MIN_CELL_TEXT_MARGIN) +
           2 * PADDING_AUTORESIZE_VERTICAL -
@@ -424,8 +423,7 @@ describe("Model resizer", () => {
       resizeColumns(model, ["C"], 100);
       setCellContent(model, "C1", "multiples wrapped lines");
 
-      const cell = getCell(model, "C1");
-      const expectedHeight = getDefaultCellHeight(cell, 100);
+      const expectedHeight = getDefaultCellHeight(model, "C1", 100);
       expect(expectedHeight).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(expectedHeight);
     });
@@ -442,6 +440,12 @@ describe("Model resizer", () => {
 
       expect(wrappedCellHeight).toBeGreaterThan(initialCellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(wrappedCellHeight);
+
+      setStyle(model, "A1", { wrapping: undefined });
+      const unwrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1);
+
+      expect(unwrappedCellHeight).toBe(initialCellHeight);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
     });
 
     test.each<Wrapping>(["overflow", "clip"])(
@@ -471,12 +475,10 @@ describe("Model resizer", () => {
     test("updating column size updates row height with wrapped text", () => {
       setCellContent(model, "A1", "multiples wrapped lines");
       setStyle(model, "A1", { fontSize: 10, wrapping: "wrap" });
-
-      const cell = getCell(model, "A1");
-      expect(model.getters.getRowSize(sheet.id, 0)).toBe(getDefaultCellHeight(cell));
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(getDefaultCellHeight(model, "A1"));
 
       resizeColumns(model, ["A"], 5);
-      expect(model.getters.getRowSize(sheet.id, 0)).toBe(getDefaultCellHeight(cell, 5));
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(getDefaultCellHeight(model, "A1", 5));
     });
 
     test("deleting tallest cell in the row update row height", () => {
@@ -509,7 +511,7 @@ describe("Model resizer", () => {
         setStyle(model, "A12", { fontSize: 36 });
         setCellContent(model, "A4", "test");
         setCellContent(model, "A12", "test");
-        const font36CellHeight = getDefaultCellHeight(getCell(model, "A4"));
+        const font36CellHeight = getDefaultCellHeight(model, "A4");
         expect(model.getters.getRowSize(sheetId, 3)).toBe(font36CellHeight);
         expect(model.getters.getRowSize(sheetId, 11)).toBe(font36CellHeight);
         deleteRows(model, deletedRows); // a naive sort [10, 1, 2].sort() gives [1, 10, 2] (alphabetical sort)
@@ -525,7 +527,7 @@ describe("Model resizer", () => {
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A7"));
+      const font36CellHeight = getDefaultCellHeight(model, "A7");
       deleteRows(model, [5]);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(font36CellHeight);
       expect(model.getters.getRowSize(sheetId, 6)).toBe(DEFAULT_CELL_HEIGHT);
@@ -536,7 +538,7 @@ describe("Model resizer", () => {
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A7"));
+      const font36CellHeight = getDefaultCellHeight(model, "A7");
       deleteRows(model, [9]);
       expect(model.getters.getRowSize(sheetId, 6)).toBe(font36CellHeight);
     });
@@ -546,7 +548,7 @@ describe("Model resizer", () => {
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A7"));
+      const font36CellHeight = getDefaultCellHeight(model, "A7");
       const lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
       deleteRows(model, [lastRowIndex]);
       expect(model.getters.getRowSize(sheetId, 6)).toBe(font36CellHeight);
@@ -567,7 +569,7 @@ describe("Model resizer", () => {
       const lastRowCellXC = toXC(0, lastRowIndex);
       setStyle(model, lastRowCellXC, { fontSize: 36 });
       setCellContent(model, lastRowCellXC, "test");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, lastRowCellXC));
+      const font36CellHeight = getDefaultCellHeight(model, lastRowCellXC);
       deleteRows(model, [5]);
       lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
       expect(model.getters.getRowSize(sheetId, lastRowIndex)).toBe(font36CellHeight);
@@ -578,7 +580,7 @@ describe("Model resizer", () => {
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "B1", { fontSize: 36 });
       setCellContent(model, "B1", "test");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "B1"));
+      const font36CellHeight = getDefaultCellHeight(model, "B1");
       expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
       deleteColumns(model, ["A"]);
       expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
@@ -589,7 +591,7 @@ describe("Model resizer", () => {
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "B1", { fontSize: 36 });
       setCellContent(model, "B1", "test");
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "B1"));
+      const font36CellHeight = getDefaultCellHeight(model, "B1");
       expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
       deleteColumns(model, ["C"]);
       expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
@@ -617,16 +619,16 @@ describe("Model resizer", () => {
     test("adding style to a single-row merge merge auto-resize the row", () => {
       merge(model, "A1:B1");
       setStyle(model, "A1", { fontSize: 36 });
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A1"));
+      const font36CellHeight = getDefaultCellHeight(model, "A1");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font36CellHeight);
     });
 
     test("auto-resize the row take the size of the highest single-row cell when the tallest cell is removed ", () => {
       setStyle(model, "A1", { fontSize: 36 });
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A1"));
+      const font36CellHeight = getDefaultCellHeight(model, "A1");
       merge(model, "B1:C1");
       setStyle(model, "B1", { fontSize: 26 });
-      const font26CellHeight = getDefaultCellHeight(getCell(model, "B1"));
+      const font26CellHeight = getDefaultCellHeight(model, "B1");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font36CellHeight);
       deleteColumns(model, ["A"]);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font26CellHeight);
@@ -635,7 +637,7 @@ describe("Model resizer", () => {
     test("removing a merge with a font height will update the row height", () => {
       merge(model, "A1:A2");
       setStyle(model, "A1", { fontSize: 36 });
-      const font36CellHeight = getDefaultCellHeight(getCell(model, "A1"));
+      const font36CellHeight = getDefaultCellHeight(model, "A1");
       unMerge(model, "A1:A2");
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font36CellHeight);
     });
@@ -644,7 +646,7 @@ describe("Model resizer", () => {
       merge(model, "A1:A2");
       setStyle(model, "A1", { fontSize: 36 });
       setStyle(model, "B1", { fontSize: 18 });
-      const font18CellHeight = getDefaultCellHeight(getCell(model, "B1"));
+      const font18CellHeight = getDefaultCellHeight(model, "B1");
 
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(font18CellHeight);
     });
@@ -664,7 +666,7 @@ describe("Model resizer", () => {
     const sheetId = model.getters.getActiveSheetId();
 
     setStyle(model, "A1", { wrapping: "wrap" });
-    const initialCellHeight = getDefaultCellHeight(getCell(model, "A1"));
+    const initialCellHeight = getDefaultCellHeight(model, "A1");
     expect(model.getters.getRowSize(sheetId, 0)).toBe(initialCellHeight);
 
     setCellContent(model, "A1", "[link](https://example.com)");

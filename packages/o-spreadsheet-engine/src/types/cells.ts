@@ -1,5 +1,5 @@
 import { Format, FormattedValue } from "./format";
-import { FunctionResultObject, Link, RangeCompiledFormula, Style, UID } from "./misc";
+import { FunctionResultObject, Link, RangeCompiledFormula, UID } from "./misc";
 
 interface CellAttributes {
   readonly id: UID;
@@ -7,7 +7,6 @@ interface CellAttributes {
    * Raw cell content
    */
   readonly content: string;
-  style?: Style;
   readonly format?: Format;
 }
 

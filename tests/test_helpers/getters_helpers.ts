@@ -39,9 +39,6 @@ export function getCell(
 ): Cell | undefined {
   const { col, row } = toCartesian(xc);
   const cell = model.getters.getCell({ sheetId, col, row });
-  if (cell) {
-    cell.style = model.getters.getCellStyle({ sheetId, col, row });
-  }
   return cell;
 }
 

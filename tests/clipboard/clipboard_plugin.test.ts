@@ -277,7 +277,7 @@ describe("clipboard", () => {
     deleteSheet(model, sheet1Id);
     paste(model, "A2");
     expect(getCellContent(model, "A2", sheet2Id)).toBe("Apple");
-    expect(getCell(model, "A2", sheet2Id)!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "A2", sheet2Id)).toEqual({ bold: true });
   });
 
   test("can copy into a cell with style", () => {
@@ -545,10 +545,8 @@ describe("clipboard", () => {
     cut(model, "B2");
     paste(model, "C2");
 
-    expect(getCell(model, "C2")).toMatchObject({
-      style: { bold: true },
-      content: "b2",
-    });
+    expect(getCell(model, "C2")).toMatchObject({ content: "b2" });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
@@ -2953,10 +2951,8 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "B2", "b2");
     setStyle(modelA, "B2", cellStyle);
 
-    expect(getCell(modelA, "B2")).toMatchObject({
-      content: "b2",
-      style: cellStyle,
-    });
+    expect(getCell(modelA, "B2")).toMatchObject({ content: "b2" });
+    expect(getCellStyle(modelA, "B2")).toEqual(cellStyle);
 
     copy(modelA, "B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
@@ -3064,15 +3060,11 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelB, "C1", "c1");
     setStyle(modelB, "C1", cellStyle);
 
-    expect(getCell(modelA, "A1")).toMatchObject({
-      content: "a1",
-      style: cellStyle,
-    });
+    expect(getCell(modelA, "A1")).toMatchObject({ content: "a1" });
+    expect(getCellStyle(modelA, "A1")).toEqual(cellStyle);
 
-    expect(getCell(modelB, "C1")).toMatchObject({
-      content: "c1",
-      style: cellStyle,
-    });
+    expect(getCell(modelB, "C1")).toMatchObject({ content: "c1" });
+    expect(getCellStyle(modelB, "C1")).toEqual(cellStyle);
 
     copy(modelB, "C1");
     copy(modelA, "A1");
