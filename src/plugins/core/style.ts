@@ -2,6 +2,7 @@ import {
   ApplyRangeChange,
   Color,
   CoreCommand,
+  ExcelWorkbookData,
   UID,
   UnboundedZone,
   WorkbookData,
@@ -9,12 +10,14 @@ import {
 } from "../..";
 import {
   deepEquals,
+  getItemId,
   intersection,
   isInside,
   iterateItemIdsZone,
   positionToZone,
   recomputeZones,
   toZone,
+  zoneToXc,
 } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { CellPosition, Style } from "../../types/misc";
@@ -259,5 +262,20 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         }
       }
     }
+  }
+
+  export(data: WorkbookData) {
+    const styles: { [styleId: number]: Style } = {};
+    for (const sheet of data.sheets) {
+      sheet.styles = {};
+      for (const style of this.styles[sheet.id] ?? []) {
+        sheet.styles[zoneToXc(style.zone)] = getItemId(style.style, styles);
+      }
+    }
+    data.styles = styles;
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 }
