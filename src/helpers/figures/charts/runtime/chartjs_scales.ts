@@ -6,6 +6,7 @@ import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
+  DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
 import { Color, LocaleFormat } from "../../../../types";
@@ -336,7 +337,7 @@ export function getGeoChartScales(
         align: geoLegendPosition.includes("right") ? "left" : "right",
         margin: getLegendMargin(definition),
       },
-      interpolate: getRuntimeColorScale(definition.colorScale || "oranges"),
+      interpolate: getRuntimeColorScale(definition.colorScale ?? DEFAULT_CHART_COLOR_SCALE),
       missing: definition.missingValueColor || "#ffffff",
     },
   };
@@ -473,14 +474,6 @@ function getChartAxis(
 }
 
 export function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
-  if (typeof colorScale === "string") {
-    const colorScheme = COLORSCHEMES[colorScale || "oranges"];
-    return getColorScale([
-      { value: minValue, color: colorScheme[0] },
-      { value: (minValue + maxValue) / 2, color: colorScheme[1] },
-      { value: maxValue, color: colorScheme[2] },
-    ]);
-  }
   const scaleColors = [{ value: minValue, color: colorScale.minColor }];
   if (colorScale.midColor) {
     scaleColors.push({ value: (minValue + maxValue) / 2, color: colorScale.midColor });

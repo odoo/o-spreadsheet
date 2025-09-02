@@ -171,9 +171,9 @@ describe("charts", () => {
     jest.useRealTimers();
   });
 
-  test.each(CHART_TYPES)("Can open a %s chart sidePanel", async (chartType) => {
+  test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
     await mountSpreadsheet();
-    createTestChart(chartType, chartId);
+    createTestChart(chartType);
     await openChartConfigSidePanel(model, env, chartId);
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
   });
