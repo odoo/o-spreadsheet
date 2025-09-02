@@ -2,7 +2,7 @@ import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
-import { positions } from "../../../helpers/zones";
+import { cellPositions, positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
@@ -154,6 +154,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
+    "getEvaluatedCellsPositionInZone",
     "getEvaluatedCellsPositions",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
@@ -288,9 +289,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
-    return positions(zone).map(({ col, row }) =>
-      this.getters.getEvaluatedCell({ sheetId, col, row })
-    );
+    return cellPositions(sheetId, zone).map(this.getters.getEvaluatedCell);
+  }
+
+  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): [CellPosition, EvaluatedCell][] {
+    return cellPositions(sheetId, zone).map((position) => [
+      position,
+      this.getters.getEvaluatedCell(position),
+    ]);
   }
 
   /**

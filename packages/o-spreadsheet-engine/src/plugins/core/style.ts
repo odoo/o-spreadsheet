@@ -3,7 +3,7 @@ import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
-import { CoreCommand } from "../../types/commands";
+import { AddColumnsRowsCommand, CoreCommand } from "../../types/commands";
 import { CellPosition, Style } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -67,6 +67,13 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           }
         }
         break;
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.handleAddColumnn(cmd);
+        } else {
+          this.handleAddRows(cmd);
+        }
+        break;
       case "CLEAR_CELL":
         this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
         break;
@@ -95,6 +102,58 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       }
     }
     this.history.update("styles", sheetId, newStyles);
+  }
+
+  private handleAddColumnn(cmd: AddColumnsRowsCommand) {
+    const styles = this.styles[cmd.sheetId] ?? [];
+    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
+      const style = styles[styleIdx];
+      if (style.zone.left - cmd.quantity === cmd.base && cmd.position === "before") {
+        this.history.update(
+          "styles",
+          cmd.sheetId,
+          styleIdx,
+          "zone",
+          "left",
+          style.zone.left - cmd.quantity
+        );
+      } else if (style.zone.right === cmd.base && cmd.position === "after") {
+        this.history.update(
+          "styles",
+          cmd.sheetId,
+          styleIdx,
+          "zone",
+          "right",
+          style.zone.right + cmd.quantity
+        );
+      }
+    }
+  }
+
+  private handleAddRows(cmd: AddColumnsRowsCommand) {
+    const styles = this.styles[cmd.sheetId] ?? [];
+    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
+      const style = styles[styleIdx];
+      if (style.zone.top - cmd.quantity === cmd.base && cmd.position === "before") {
+        this.history.update(
+          "styles",
+          cmd.sheetId,
+          styleIdx,
+          "zone",
+          "top",
+          style.zone.top - cmd.quantity
+        );
+      } else if (style.zone.bottom === cmd.base && cmd.position === "after") {
+        this.history.update(
+          "styles",
+          cmd.sheetId,
+          styleIdx,
+          "zone",
+          "bottom",
+          style.zone.bottom + cmd.quantity
+        );
+      }
+    }
   }
 
   private styleIsDefault(style: Style) {
@@ -136,6 +195,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   ) {
     const styles: ZoneStyle[] = [];
     let editingZone: Zone[] = [zone];
+    editingZone.push(...this.getters.getMergedZoneWithTopLeftInZone(sheetId, zone));
     for (const existingStyle of this.styles[sheetId] ?? []) {
       const inter = intersection(existingStyle.zone, zone);
       if (!inter) {
@@ -214,14 +274,13 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   }
 
   getStyleCustomColor(sheetId: UID): Color[] {
-    const cells = Object.values(this.getters.getCells(sheetId));
     const colors: Set<Color> = new Set();
-    for (const cell of cells) {
-      if (cell.style?.textColor) {
-        colors.add(cell.style.textColor);
+    for (const style of this.styles[sheetId] ?? []) {
+      if (style.style.textColor) {
+        colors.add(style.style.textColor);
       }
-      if (cell.style?.fillColor) {
-        colors.add(cell.style.fillColor);
+      if (style.style.fillColor) {
+        colors.add(style.style.fillColor);
       }
     }
     return [...colors];
