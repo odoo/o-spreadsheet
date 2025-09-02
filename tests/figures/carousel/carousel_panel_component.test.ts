@@ -103,14 +103,14 @@ describe("Carousel panel component", () => {
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
     await mountCarouselPanel(model, "carouselId");
 
-    await setInputValueAndTrigger(".o-carousel-item-title .os-input", "Carousel Title");
-    expect(".o-carousel-item-title .os-input").toHaveValue("Carousel Title");
-    expect(model.getters.getCarousel("carouselId").items[0].carouselTitle).toEqual({
+    await setInputValueAndTrigger(".o-carousel-title .os-input", "Carousel Title");
+    expect(".o-carousel-title .os-input").toHaveValue("Carousel Title");
+    expect(model.getters.getCarousel("carouselId").title).toEqual({
       text: "Carousel Title",
     });
 
-    await click(fixture, ".o-carousel-item-title [title='Bold']");
-    expect(model.getters.getCarousel("carouselId").items[0].carouselTitle).toEqual({
+    await click(fixture, ".o-carousel-title [title='Bold']");
+    expect(model.getters.getCarousel("carouselId").title).toEqual({
       text: "Carousel Title",
       bold: true,
     });

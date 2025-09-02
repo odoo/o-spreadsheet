@@ -12,6 +12,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 jest.mock("../../../src/components/helpers/dom_helpers", () => {
   return {
@@ -110,23 +111,82 @@ describe("Carousel figure component", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
 
-  test("Can define a carousel title in a carousel item", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+  test("Can define a carousel title", async () => {
+    createCarousel(
+      model,
+      {
+        items: [],
+        title: {
+          text: "Title1",
+          fontSize: 20,
+          bold: true,
+        },
+      },
+      "carouselId"
+    );
     updateCarousel(model, "carouselId", {
-      items: [
-        { type: "chart", chartId: radarId, carouselTitle: { text: "Title1", fontSize: 20 } },
-        { type: "carouselDataView", carouselTitle: { text: "Title2", bold: true } },
-      ],
+      items: [{ type: "carouselDataView" }],
     });
-    const { fixture } = await mountSpreadsheet({ model });
+    await mountSpreadsheet({ model });
 
     expect(".o-figure .o-carousel-title").toHaveText("Title1");
     expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe("20px");
-
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(".o-figure .o-carousel-title").toHaveText("Title2");
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
+  });
+
+  test("display chart menu", async () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    model.updateMode("dashboard");
+    const { fixture } = await mountSpreadsheet({ model });
+    expect(".o-chart-dashboard-item").toHaveCount(0); // nothing for the data view
+    await click(fixture, ".o-carousel-tab:nth-child(2)");
+    expect(".o-chart-dashboard-item").toHaveCount(2); // ellipsis and fullscreen
+  });
+
+  test("Having too many tabs will put some of them inside a dropdown", async () => {
+    extendMockGetBoundingClientRect({
+      "o-carousel-tabs": () => ({ width: 200 }),
+      "o-carousel-tab": () => ({ width: 100 }),
+    });
+
+    const getCarouselTabs = () =>
+      Array.from(document.querySelectorAll<HTMLElement>(".o-carousel-tab")).map((tab) => ({
+        label: tab.textContent,
+        isHidden: tab.style.display === "none",
+      }));
+
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "pie" });
+    const { fixture } = await mountSpreadsheet({ model });
+
+    expect(getCarouselTabs()).toEqual([
+      { label: "Data", isHidden: false },
+      { label: "Pie", isHidden: false },
+    ]);
+    expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "none" });
+
+    const radarChartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    addNewChartToCarousel(model, "carouselId", { type: "line" });
+    await nextTick();
+
+    expect(getCarouselTabs()).toEqual([
+      { label: "Data", isHidden: false },
+      { label: "Pie", isHidden: false },
+      { label: "Radar", isHidden: true },
+      { label: "Line", isHidden: true },
+    ]);
+    expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "block" });
+
+    await click(fixture, ".o-carousel-tabs-dropdown");
+    expect(".o-menu-item").toHaveCount(2);
+    expect(".o-menu-item:nth-child(1)").toHaveText("Radar");
+    expect(".o-menu-item:nth-child(2)").toHaveText("Line");
+
+    await click(fixture, ".o-menu-item:nth-child(1)");
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
+      chartId: radarChartId,
+    });
   });
 
   describe("Carousel menu items", () => {

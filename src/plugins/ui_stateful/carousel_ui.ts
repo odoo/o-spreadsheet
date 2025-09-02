@@ -142,7 +142,10 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: CAROUSEL_DEFAULT_CHART_DEFINITION,
     });
 
-    const definition: Carousel = { items: [...carousel.items, { type: "chart", chartId }] };
+    const definition: Carousel = {
+      ...carousel,
+      items: [...carousel.items, { type: "chart", chartId }],
+    };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
   }
 
@@ -152,18 +155,17 @@ export class CarouselUIPlugin extends UIPlugin {
       return;
     }
     const carousel = this.getters.getCarousel(figureId);
-    const chartDefinition = this.getters.getChartDefinition(chartId);
-    const title = chartDefinition?.title.text ? chartDefinition.title : undefined;
 
     const definition: Carousel = {
-      items: [...carousel.items, { type: "chart", chartId, carouselTitle: title }],
+      ...carousel,
+      items: [...carousel.items, { type: "chart", chartId }],
     };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
     this.dispatch("UPDATE_CHART", {
       sheetId,
       chartId,
       figureId,
-      definition: { ...chartDefinition, title: {} },
+      definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
   }

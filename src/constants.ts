@@ -330,3 +330,5 @@ export const DEFAULT_CAROUSEL_TITLE_STYLE: ChartStyle = {
   fontSize: CHART_TITLE_FONT_SIZE,
   color: TEXT_BODY,
 };
+
+export const DRAG_THRESHOLD = 3; // in pixels, to avoid unwanted drag when clicking

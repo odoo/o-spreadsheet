@@ -1,4 +1,5 @@
-import { Component, useEffect } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -8,9 +9,13 @@ import {
   CarouselItem,
   CSSProperties,
   FigureUI,
+  MenuMouseEvent,
   SpreadsheetChildEnv,
 } from "../../../types";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
+import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
+import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 interface Props {
   figureUI: FigureUI;
@@ -25,7 +30,13 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
   };
-  static components = {};
+  static components = { ChartDashboardMenu, MenuPopover };
+
+  private carouselTabsRef = useRef("carouselTabs");
+  private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
+
+  private menuState = useState<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
+  private hiddenItems: CarouselItem[] = [];
 
   setup(): void {
     useEffect(() => {
@@ -34,6 +45,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       } else {
         this.props.editFigureStyle?.({ "pointer-events": "auto" });
       }
+      this.updateTabsVisibility();
     });
   }
 
@@ -88,16 +100,66 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
       cssProperties["background-color"] = chart.background;
     }
-
     return cssPropertiesToCss(cssProperties);
   }
 
   get title(): string {
-    return this.selectedCarouselItem?.carouselTitle?.text || "";
+    return this.carousel.title?.text ?? "";
   }
 
   get titleStyle(): string {
-    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.selectedCarouselItem?.carouselTitle };
+    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
+  }
+
+  private updateTabsVisibility(): void {
+    const tabsContainerEl = this.carouselTabsRef.el;
+    const dropDownEl = this.carouselTabsDropdownRef.el;
+    if (!tabsContainerEl || !dropDownEl) {
+      return;
+    }
+
+    this.hiddenItems = [];
+
+    const containerRect = getBoundingRectAsPOJO(tabsContainerEl);
+    const tabs = Array.from(tabsContainerEl.children) as HTMLElement[];
+
+    for (const tab of tabs) {
+      tab.style.display = "block";
+    }
+
+    const tabWidths = tabs.map((tab) => getBoundingRectAsPOJO(tab).width);
+
+    let currentWidth = 0;
+    for (let i = 0; i < tabs.length; i++) {
+      const shouldBeHidden = currentWidth + tabWidths[i] > containerRect.width;
+      currentWidth += tabWidths[i];
+      if (shouldBeHidden) {
+        tabs[i].style.display = "none";
+        this.hiddenItems.push(this.carousel.items[i]);
+      }
+    }
+
+    dropDownEl.style.display = this.hiddenItems.length ? "block" : "none";
+  }
+
+  get menuId() {
+    return "carousel-tabs-menu-";
+  }
+
+  toggleMenu(ev: MenuMouseEvent) {
+    if (ev.closedMenuId === this.menuId) {
+      this.menuState.isOpen = false;
+      return;
+    }
+    const rect = getRefBoundingRect(this.carouselTabsDropdownRef);
+    const menuItems: ActionSpec[] = this.hiddenItems.map((item) => ({
+      name: this.getItemTitle(item),
+      execute: () => this.onCarouselTabClick(item),
+      isActive: () => this.isItemSelected(item),
+    }));
+    this.menuState.isOpen = true;
+    this.menuState.anchorRect = rect;
+    this.menuState.menuItems = createActions(menuItems);
   }
 }
