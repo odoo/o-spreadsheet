@@ -713,6 +713,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     let data = createEmptyExcelWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof BasePlugin) {
+        console.log(handler.constructor.name);
         handler.exportForExcel(data);
       }
     }

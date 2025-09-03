@@ -1,13 +1,14 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
-import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
+import { Color, ExcelWorkbookData, Range, UID } from "../../types";
+import { ChartRuntime } from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
+import { Image } from "../../types/image";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface EvaluationChartStyle {
@@ -94,49 +95,34 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
 
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
-      if (!sheet.images) {
-        sheet.images = [];
-      }
-      const sheetFigures = this.getters.getFigures(sheet.id);
-      const figures: FigureData<ExcelChartDefinition>[] = [];
-      for (const figure of sheetFigures) {
-        if (!figure || figure.tag !== "chart") {
-          continue;
-        }
-        const chartId = this.getters
-          .getChartIds(sheet.id)
-          .find((chartId) => this.getters.getFigureIdFromChartId(chartId) === figure.id);
-        if (!chartId) {
-          continue;
-        }
+      for (const chartId of Object.keys(sheet.charts || {})) {
         const chart = this.getters.getChart(chartId);
-        const figureData = chart?.getDefinitionForExcel(this.getters);
-        if (figureData) {
-          figures.push({
-            ...figure,
-            data: figureData,
-          });
+        const excelDefinition = chart?.getDefinitionForExcel(this.getters);
+        const figureId = sheet.charts[chartId].figureId;
+
+        if (excelDefinition) {
+          sheet.charts[chartId].chart = excelDefinition;
         } else {
-          if (!chart) {
-            continue;
-          }
           const type = this.getters.getChartType(chartId);
           const runtime = this.getters.getChartRuntime(chartId);
-          const img = chartToImageUrl(runtime, figure, type);
-          if (img) {
-            sheet.images.push({
-              ...figure,
-              tag: "image",
-              data: {
+          const figure = this.getters.getFigure(sheet.id, figureId);
+          const figureData = sheet.figures.find((f) => f.id === figureId);
+
+          if (figure && figureData) {
+            const imgSrc = chartToImageUrl(runtime, figure, type);
+            if (imgSrc) {
+              const image: Image = {
                 mimetype: "image/png",
-                path: img,
+                path: imgSrc,
                 size: { width: figure.width, height: figure.height },
-              },
-            });
+              };
+              sheet.images[figureId] = { figureId, image };
+              figureData.tag = "image";
+              delete sheet.charts[chartId];
+            }
           }
         }
       }
-      sheet.charts = figures;
     }
   }
 }

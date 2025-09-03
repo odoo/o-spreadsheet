@@ -17,6 +17,7 @@ import {
   toCartesian,
 } from "../../helpers/index";
 import { isSheetNameEqual } from "../../helpers/sheet";
+import { createEmptySheet } from "../../migrations/data";
 import {
   Cell,
   CellPosition,
@@ -283,21 +284,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     data.sheets = this.orderedSheetIds.filter(isDefined).map((id) => {
       const sheet = this.sheets[id]!;
       const sheetData: SheetData = {
+        ...createEmptySheet(sheet.id, sheet.name),
         id: sheet.id,
         name: sheet.name,
         colNumber: sheet.numberOfCols,
         rowNumber: this.getters.getNumberRows(sheet.id),
-        rows: {},
-        cols: {},
-        merges: [],
-        cells: {},
-        styles: {},
-        formats: {},
-        borders: {},
-        conditionalFormats: [],
-        dataValidationRules: [],
-        figures: [],
-        tables: [],
         areGridLinesVisible:
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
         isVisible: sheet.isVisible,
