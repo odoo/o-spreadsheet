@@ -7,6 +7,7 @@ import {
   DateIsNotBetweenCriterion,
 } from "../../types";
 import { XLSXDataValidation } from "../../types/xlsx";
+import { prefixFormulaWithEqual } from "../helpers/misc";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import {
   XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,
@@ -42,7 +43,7 @@ export function convertDataValidationRules(
         dvRules.push(decimalRule);
         break;
       case "list":
-        const listRule = convertListrule(dvId++, dv);
+        const listRule = convertListRule(dvId++, dv);
         dvRules.push(listRule);
         break;
       case "date":
@@ -65,9 +66,9 @@ export function convertDataValidationRules(
 }
 
 function convertDecimalRule(id: number, dv: XLSXDataValidation): DataValidationRuleData {
-  const values = [dv.formula1.toString()];
+  const values = [prefixFormulaWithEqual(dv.formula1.toString())];
   if (dv.formula2) {
-    values.push(dv.formula2.toString());
+    values.push(prefixFormulaWithEqual(dv.formula2.toString()));
   }
   return {
     id: id.toString(),
@@ -80,7 +81,7 @@ function convertDecimalRule(id: number, dv: XLSXDataValidation): DataValidationR
   };
 }
 
-function convertListrule(id: number, dv: XLSXDataValidation): DataValidationRuleData {
+function convertListRule(id: number, dv: XLSXDataValidation): DataValidationRuleData {
   const formula1 = dv.formula1.toString();
   const isRangeRule = rangeReference.test(formula1);
   return {
@@ -97,9 +98,9 @@ function convertListrule(id: number, dv: XLSXDataValidation): DataValidationRule
 
 function convertDateRule(id: number, dv: XLSXDataValidation): DataValidationRuleData {
   let criterion: DataValidationDateCriterion | DateIsBetweenCriterion | DateIsNotBetweenCriterion;
-  const values = [dv.formula1.toString()];
+  const values = [prefixFormulaWithEqual(dv.formula1.toString())];
   if (dv.formula2) {
-    values.push(dv.formula2.toString());
+    values.push(prefixFormulaWithEqual(dv.formula2.toString()));
     criterion = {
       type: XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING[dv.operator],
       values: getDateCriterionFormattedValues(values, DEFAULT_LOCALE),
@@ -126,7 +127,7 @@ function convertCustomRule(id: number, dv: XLSXDataValidation): DataValidationRu
     isBlocking: dv.errorStyle !== "warning",
     criterion: {
       type: "customFormula",
-      values: [`=${dv.formula1.toString()}`],
+      values: [prefixFormulaWithEqual(dv.formula1.toString())],
     },
   };
 }
