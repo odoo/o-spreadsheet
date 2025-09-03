@@ -158,8 +158,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private hasChartDataChanged() {
     return !deepEquals(
-      this.currentRuntime.chartJsConfig.data,
-      this.chartRuntime.chartJsConfig.data
+      this.getChartDataInRuntime(this.currentRuntime),
+      this.getChartDataInRuntime(this.chartRuntime)
     );
   }
 
@@ -167,6 +167,18 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     return {
       ...chartData,
       options: { ...chartData.options, animation: { animateRotate: true } },
+    };
+  }
+
+  private getChartDataInRuntime(runtime: ChartJSRuntime) {
+    const data = runtime.chartJsConfig.data;
+    return {
+      labels: data.labels,
+      dataset: data.datasets.map((dataset) => ({
+        data: dataset.data,
+        label: dataset.label,
+        tree: dataset.tree,
+      })),
     };
   }
 
