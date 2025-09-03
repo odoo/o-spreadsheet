@@ -21,7 +21,11 @@ import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
 import { addDataValidationRules } from "./functions/data_validation";
-import { createDrawing } from "./functions/drawings";
+import {
+  convertCarouselsToSeparateFigures,
+  convertImageChartsToImageFigures,
+  createDrawing,
+} from "./functions/drawings";
 import {
   addBorders,
   addCellWiseConditionalFormatting,
@@ -129,11 +133,14 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     const tablesNode = createTablesForSheet(sheet, sheetIndex, currentTableIndex, construct, files);
     currentTableIndex += sheet.tables.length;
 
+    convertCarouselsToSeparateFigures(data);
+    convertImageChartsToImageFigures(data);
+
     // Figures and Charts
     let drawingNode = escapeXml``;
     const drawingRelIds: string[] = [];
     for (const chartId in sheet.charts) {
-      const { chart } = sheet.charts[chartId];
+      const chart = sheet.charts[chartId].chart.definition;
       const xlsxChartId = convertChartId(chartId, construct);
       const chartRelId = addRelsToFile(
         construct.relsFiles,

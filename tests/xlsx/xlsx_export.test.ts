@@ -11,6 +11,8 @@ import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
 import {
+  addNewChartToCarousel,
+  createCarousel,
   createChart,
   createGaugeChart,
   createImage,
@@ -1349,20 +1351,18 @@ describe("Test XLSX export", () => {
       const model = new Model({
         sheets: chartData.sheets,
       });
-      createScorecardChart(model, TEST_CHART_DATA.scorecard);
+      createScorecardChart(model, TEST_CHART_DATA.scorecard, "chartId");
       const exportedData = getExportedExcelData(model);
-      expect(Object.keys(exportedData.sheets[0].charts).length).toBe(0);
-      expect(Object.keys(exportedData.sheets[0].images).length).toBe(1);
+      expect(exportedData.sheets[0].charts["chartId"].chart.type).toBe("image");
     });
 
     test("Gauge Chart is exported as an image", () => {
       const model = new Model({
         sheets: chartData.sheets,
       });
-      createGaugeChart(model, TEST_CHART_DATA.gauge);
+      createGaugeChart(model, TEST_CHART_DATA.gauge, "chartId");
       const exportedData = getExportedExcelData(model);
-      expect(Object.keys(exportedData.sheets[0].charts).length).toBe(0);
-      expect(Object.keys(exportedData.sheets[0].images).length).toBe(1);
+      expect(exportedData.sheets[0].charts["chartId"].chart.type).toBe("image");
     });
 
     test("stacked bar chart", async () => {
@@ -1922,10 +1922,10 @@ describe("Test XLSX export", () => {
     expect(exportedData.sheets[1].name).toBe(fixedSheetName);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
-    expect(exportedData.sheets[0].charts["chartId"].chart.labelRange).toBe(
+    expect(exportedData.sheets[0].charts["chartId"].chart.definition.labelRange).toBe(
       `${fixedSheetName}!A2:A4`
     );
-    expect(exportedData.sheets[0].charts["chartId"].chart.dataSets[0]).toEqual({
+    expect(exportedData.sheets[0].charts["chartId"].chart.definition.dataSets[0]).toEqual({
       label: {
         reference: `${fixedSheetName}!A1`,
       },
@@ -1954,6 +1954,23 @@ describe("Test XLSX export", () => {
     expect(exportedExcelData.sheets[1].name).toBe(longFormula.slice(0, 31));
     expect(exportedExcelData.sheets[0].cells["A1"]).toBe(longFormula);
     expect(exportedExcelData.sheets[0].cells["A1"]).toBe(longFormula);
+  });
+
+  test("Carousel is exported as multiple chart figures", async () => {
+    const model = new Model();
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    addNewChartToCarousel(model, "carouselId", { type: "line" });
+    addNewChartToCarousel(model, "carouselId", { type: "scorecard" });
+
+    const xlsxExport = await exportPrettifiedXlsx(model);
+    const contentTypes = xlsxExport.files.map((file) =>
+      "contentType" in file ? file.contentType : "image"
+    );
+    expect(contentTypes.filter((t) => t === "drawing")).toHaveLength(1); // One drawing file with all the figures
+    expect(contentTypes.filter((t) => t === "chart")).toHaveLength(2); // Bar and line charts
+    expect(contentTypes.filter((t) => t === "image")).toHaveLength(1); // Scorecard as an image
+    expect(xlsxExport).toMatchSnapshot();
   });
 });
 

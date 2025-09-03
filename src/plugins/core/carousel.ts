@@ -4,6 +4,7 @@ import {
   CarouselItem,
   CommandResult,
   CoreCommand,
+  ExcelWorkbookData,
   UID,
   UpdateCarouselCommand,
   WorkbookData,
@@ -138,5 +139,9 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         }
       }
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData): void {
+    return this.export(data);
   }
 }

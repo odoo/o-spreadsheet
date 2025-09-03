@@ -8,7 +8,6 @@ import {
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { Image } from "../../types/image";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface EvaluationChartStyle {
@@ -100,27 +99,20 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
         const excelDefinition = chart?.getDefinitionForExcel(this.getters);
         const figureId = this.getters.getFigureIdFromChartId(chartId);
 
+        sheet.charts[chartId] = { figureId, chart: undefined };
         if (excelDefinition) {
-          sheet.charts[chartId] = { figureId, chart: excelDefinition };
+          sheet.charts[chartId].chart = { type: "chart", definition: excelDefinition };
         } else {
           const type = this.getters.getChartType(chartId);
           const runtime = this.getters.getChartRuntime(chartId);
           const figure = this.getters.getFigure(sheet.id, figureId);
-          const figureData = sheet.figures.find((f) => f.id === figureId);
-
-          if (figure && figureData) {
-            const imgSrc = chartToImageUrl(runtime, figure, type);
-            if (imgSrc) {
-              const image: Image = {
-                mimetype: "image/png",
-                path: imgSrc,
-                size: { width: figure.width, height: figure.height },
-              };
-              sheet.images[figureId] = { figureId, image };
-              figureData.tag = "image";
-              delete sheet.charts[chartId];
-            }
+          if (!figure) {
+            throw new Error(`Figure with id ${figureId} not found in sheet ${sheet.name}`);
           }
+          sheet.charts[chartId].chart = {
+            type: "image",
+            imgSrc: chartToImageUrl(runtime, figure, type),
+          };
         }
       }
     }

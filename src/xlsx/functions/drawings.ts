@@ -1,10 +1,12 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
+import { UuidGenerator } from "../../helpers";
 import { Figure, HeaderIndex, SheetData } from "../../types";
+import { Image } from "../../types/image";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
-import { HeaderData } from "./../../types/workbook_data";
+import { ExcelWorkbookData, HeaderData } from "./../../types/workbook_data";
 
 type FigurePosition = {
   to: {
@@ -236,4 +238,62 @@ function createImageDrawing(
       <xdr:clientData fLocksWithSheet="0"/>
     </xdr:twoCellAnchor>
   `;
+}
+
+/** Take all of the carousels of the data, and split them into multiple figures (one for each chart) */
+export function convertCarouselsToSeparateFigures(data: ExcelWorkbookData) {
+  const uuidGenerator = new UuidGenerator();
+
+  for (const sheet of data.sheets) {
+    for (const carouselId in sheet.carousels) {
+      const carouselFigure = sheet.figures.find((fig) => fig.id === carouselId);
+      const carousel = sheet.carousels[carouselId].carousel;
+      if (!carouselFigure || !carousel) {
+        continue;
+      }
+      sheet.figures = sheet.figures.filter((fig) => fig.id !== carouselId);
+
+      let offset = 0;
+      for (const item of carousel.items) {
+        if (item.type === "chart") {
+          const chartData = sheet.charts[item.chartId];
+          const newFigure = {
+            ...carouselFigure,
+            id: uuidGenerator.smallUuid(),
+            tag: "chart",
+            offset: { x: carouselFigure.offset.x + offset, y: carouselFigure.offset.y + offset },
+          };
+          offset += 10;
+          chartData.figureId = newFigure.id;
+          sheet.figures.push(newFigure);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Some charts cannot be exported to excel and have been covnerted into images byt the chart UI plugin.
+ * This helper transform those charts into image figures.
+ */
+export function convertImageChartsToImageFigures(data: ExcelWorkbookData) {
+  for (const sheet of data.sheets) {
+    for (const chartId of Object.keys(sheet.charts || {})) {
+      const { chart, figureId } = sheet.charts[chartId];
+      if (chart?.type === "image") {
+        const figure = sheet.figures.find((f) => f.id === figureId);
+        if (!figure) {
+          throw new Error(`Figure with id ${figureId} not found in sheet ${sheet.name}`);
+        }
+        const image: Image = {
+          mimetype: "image/png",
+          path: chart.imgSrc,
+          size: { width: figure.width, height: figure.height },
+        };
+        sheet.images[figureId] = { figureId, image };
+        figure.tag = "image";
+        delete sheet.charts[chartId];
+      }
+    }
+  }
 }
