@@ -95,13 +95,13 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
 
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
-      for (const chartId of this.getters.getChartIds(sheet.id)) {
+      for (const chartId of Object.keys(sheet.charts || {})) {
         const chart = this.getters.getChart(chartId);
         const excelDefinition = chart?.getDefinitionForExcel(this.getters);
-        const figureId = this.getters.getFigureIdFromChartId(chartId);
+        const figureId = sheet.charts[chartId].figureId;
 
         if (excelDefinition) {
-          sheet.charts[chartId] = { figureId, chart: excelDefinition };
+          sheet.charts[chartId].chart = excelDefinition;
         } else {
           const type = this.getters.getChartType(chartId);
           const runtime = this.getters.getChartRuntime(chartId);

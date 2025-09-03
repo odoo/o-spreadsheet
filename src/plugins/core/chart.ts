@@ -12,6 +12,7 @@ import {
   CreateChartCommand,
   DeleteChartCommand,
   DOMDimension,
+  ExcelWorkbookData,
   HeaderIndex,
   PixelPosition,
   UID,
@@ -233,6 +234,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         }
       }
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData): void {
+    this.export(data);
   }
 
   // ---------------------------------------------------------------------------

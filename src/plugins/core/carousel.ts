@@ -1,9 +1,11 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
+import { UuidGenerator } from "../../helpers";
 import {
   Carousel,
   CarouselItem,
   CommandResult,
   CoreCommand,
+  ExcelWorkbookData,
   UID,
   UpdateCarouselCommand,
   WorkbookData,
@@ -135,6 +137,38 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         const carousel = this.carousels[sheet.id]?.[carouselId];
         if (carousel) {
           sheet.carousels[carouselId] = { figureId: carouselId, carousel };
+        }
+      }
+    }
+  }
+
+  exportForExcel(data: ExcelWorkbookData): void {
+    // TODO ask around: should I create mock figure here, or at the xlsx_writer ? The problem of creating here is that the
+    // figures are only in the workbook, making calls to getters wrong inside the plugins following this
+    const uuidGenerator = new UuidGenerator();
+    for (const sheet of data.sheets) {
+      for (const carouselId in this.carousels[sheet.id] || {}) {
+        const carouselFigure = sheet.figures.find((fig) => fig.id === carouselId);
+        const carousel = this.carousels[sheet.id]?.[carouselId];
+        if (!carouselFigure || !carousel) {
+          continue;
+        }
+        sheet.figures = sheet.figures.filter((fig) => fig.id !== carouselId);
+
+        let offset = 0;
+        for (const item of carousel.items) {
+          if (item.type === "chart") {
+            const chartData = sheet.charts[item.chartId];
+            const newFigure = {
+              ...carouselFigure,
+              id: uuidGenerator.smallUuid(),
+              tag: "chart",
+              offset: { x: carouselFigure.offset.x + offset, y: carouselFigure.offset.y },
+            };
+            offset += 20;
+            chartData.figureId = newFigure.id;
+            sheet.figures.push(newFigure);
+          }
         }
       }
     }
