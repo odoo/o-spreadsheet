@@ -374,10 +374,16 @@ describe("Model", () => {
     const transport = new MockTransportService();
     const spy = jest.spyOn(transport, "sendMessage");
     const xlsxData = await getTextXlsxFiles();
-    new Model(xlsxData, {
-      transportService: transport,
-      client: { id: "test", name: "Test" },
-    });
+    new Model(
+      xlsxData,
+      {
+        transportService: transport,
+        client: { id: "test", name: "Test" },
+      },
+      undefined,
+      undefined,
+      false
+    );
     expect(spy).toHaveBeenCalledWith({
       type: "SNAPSHOT",
       version: MESSAGE_VERSION,
@@ -391,11 +397,17 @@ describe("Model", () => {
     const transport = new MockTransportService();
     const spy = jest.spyOn(transport, "sendMessage");
     const xlsxData = await getTextXlsxFiles();
-    new Model(xlsxData, {
-      transportService: transport,
-      client: { id: "test", name: "Test" },
-      mode: "readonly",
-    });
+    new Model(
+      xlsxData,
+      {
+        transportService: transport,
+        client: { id: "test", name: "Test" },
+        mode: "readonly",
+      },
+      undefined,
+      undefined,
+      false
+    );
     expect(spy).not.toHaveBeenCalled();
   });
 });
