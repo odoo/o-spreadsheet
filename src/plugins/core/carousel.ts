@@ -122,19 +122,19 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const carousels = (sheet.figures || []).filter((figure) => figure.tag === "carousel");
-      for (const carousel of carousels) {
-        this.history.update("carousels", sheet.id, carousel.id, { items: carousel.data.items });
+      for (const carouselId in sheet.carousels || {}) {
+        const { carousel } = sheet.carousels[carouselId];
+        this.history.update("carousels", sheet.id, carouselId, carousel);
       }
     }
   }
 
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const carousels = sheet.figures.filter((figure) => figure.tag === "carousel");
-      for (const carousel of carousels) {
-        if (this.carousels[sheet.id]?.[carousel.id]) {
-          carousel.data = { ...carousel.data, ...this.carousels[sheet.id]?.[carousel.id] };
+      for (const carouselId in this.carousels[sheet.id] || {}) {
+        const carousel = this.carousels[sheet.id]?.[carouselId];
+        if (carousel) {
+          sheet.carousels[carouselId] = { figureId: carouselId, carousel };
         }
       }
     }

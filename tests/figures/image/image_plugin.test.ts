@@ -161,15 +161,15 @@ describe("test image import & export", function () {
         tag: "image",
         height: 300,
         width: 400,
-        offset: {
-          x: 0,
-          y: 0,
-        },
+        offset: { x: 0, y: 0 },
         col: 0,
         row: 0,
-        data: model.getters.getImage(imageId),
       },
     ]);
+    expect(sheet.images[imageId]).toEqual({
+      figureId: imageId,
+      image: model.getters.getImage(imageId),
+    });
   });
   test("can import an image", () => {
     const model = new Model();

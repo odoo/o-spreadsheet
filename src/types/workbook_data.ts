@@ -1,19 +1,8 @@
-import { CellValue, DataValidationRule, Format, Locale } from ".";
-import { ExcelChartDefinition } from "./chart/chart";
+import { Carousel, CellValue, DataValidationRule, Figure, Format, Locale } from ".";
+import { ChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
-import {
-  Border,
-  Color,
-  Dimension,
-  HeaderGroup,
-  HeaderIndex,
-  PaneDivision,
-  Pixel,
-  PixelPosition,
-  Style,
-  UID,
-} from "./misc";
+import { Border, Color, Dimension, HeaderGroup, PaneDivision, Style, UID } from "./misc";
 import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 
@@ -28,17 +17,6 @@ export interface HeaderData {
   isHidden?: boolean;
 }
 
-export interface FigureData<T> {
-  id: UID;
-  col: HeaderIndex;
-  row: HeaderIndex;
-  offset: PixelPosition;
-  width: Pixel;
-  height: Pixel;
-  tag: string;
-  data: T;
-}
-
 export interface SheetData {
   id: string;
   name: string;
@@ -49,7 +27,10 @@ export interface SheetData {
   formats: { [zone: string]: number };
   borders: { [zone: string]: number };
   merges: string[];
-  figures: FigureData<any>[];
+  figures: Figure[];
+  charts: { [chartId: string]: { figureId: UID; chart: ChartDefinition } };
+  carousels: { [carouselId: string]: { figureId: UID; carousel: Carousel } };
+  images: { [imageId: string]: { figureId: UID; image: Image } };
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
@@ -87,11 +68,11 @@ export interface ExcelWorkbookData extends WorkbookData {
   sheets: ExcelSheetData[];
 }
 
-export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" | "rows"> {
+export interface ExcelSheetData
+  extends Omit<SheetData, "figureTables" | "cols" | "rows" | "charts"> {
   cellValues: { [xc: string]: CellValue | undefined };
   formulaSpillRanges: { [xc: string]: string };
-  charts: FigureData<ExcelChartDefinition>[];
-  images: FigureData<Image>[];
+  charts: { [chartId: string]: { figureId: UID; chart: any } };
   tables: ExcelTableData[];
   cols: { [key: number]: ExcelHeaderData };
   rows: { [key: number]: ExcelHeaderData };
