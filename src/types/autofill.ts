@@ -10,7 +10,7 @@
 
 import { Getters } from ".";
 import { Cell } from "./cells";
-import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
+import { CellPosition, DIRECTION } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
@@ -58,36 +58,22 @@ export interface Tooltip {
   component?: any;
 }
 
-export interface AutofillCellData extends UpdateCellData {
-  border?: Border;
-}
-
-export interface AutofillData {
-  cell?: Cell;
-  col: number;
-  row: number;
-  sheetId: UID;
-  border?: Border;
-}
-
 export interface AutofillResult {
-  cellData: AutofillCellData;
+  content: string;
   tooltip?: Tooltip;
-  origin: {
-    col: number;
-    row: number;
-  };
+  origin: CellPosition;
 }
 export interface GeneratorCell {
-  data: AutofillData;
+  origin: CellPosition;
+  originCell: Cell | undefined;
   rule: AutofillModifier;
 }
 
 export interface AutofillModifierImplementation {
   apply: (
-    rule: AutofillModifier,
-    data: AutofillData,
     getters: Getters,
+    rule: AutofillModifier,
+    originCell: Cell,
     direction: DIRECTION
-  ) => Omit<AutofillResult, "origin">;
+  ) => { tooltip?: AutofillResult["tooltip"]; content: string };
 }
