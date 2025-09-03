@@ -874,10 +874,6 @@ export interface AutoFillCellCommand {
   originRow: number;
   col: HeaderIndex;
   row: HeaderIndex;
-  content?: string;
-  style?: Style | null;
-  border?: Border;
-  format?: Format;
 }
 
 export interface PasteFromOSClipboardCommand {
