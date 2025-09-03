@@ -120,7 +120,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelector(".o-popover")).toBeNull();
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
-        id: "Calculated measure 1",
+        id: "Calculated measure 1:sum",
         fieldName: "Calculated measure 1",
         aggregator: "sum",
         computedBy: {
@@ -132,7 +132,7 @@ describe("Spreadsheet pivot side panel", () => {
     await editStandaloneComposer(".pivot-dimension .o-composer", "=1+1");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
-        id: "Calculated measure 1",
+        id: "Calculated measure 1:sum",
         fieldName: "Calculated measure 1",
         aggregator: "sum",
         computedBy: {
@@ -156,7 +156,7 @@ describe("Spreadsheet pivot side panel", () => {
     await editStandaloneComposer(".pivot-dimension .o-composer", "1+1");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
-        id: "Calculated measure 1",
+        id: "Calculated measure 1:sum",
         fieldName: "Calculated measure 1",
         aggregator: "sum",
         computedBy: {
