@@ -160,9 +160,21 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private hasChartDataChanged() {
     return !deepEquals(
-      this.currentRuntime.chartJsConfig.data,
-      this.chartRuntime.chartJsConfig.data
+      this.getChartDataInRuntime(this.currentRuntime),
+      this.getChartDataInRuntime(this.chartRuntime)
     );
+  }
+
+  private getChartDataInRuntime(runtime: ChartJSRuntime) {
+    const data = runtime.chartJsConfig.data;
+    return {
+      labels: data.labels,
+      dataset: data.datasets.map((dataset) => ({
+        data: dataset.data,
+        label: dataset.label,
+        tree: dataset.tree,
+      })),
+    };
   }
 
   private enableAnimationInChartData(chartData: ChartConfiguration<any>) {
