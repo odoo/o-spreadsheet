@@ -88,16 +88,15 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
       cssProperties["background-color"] = chart.background;
     }
-
     return cssPropertiesToCss(cssProperties);
   }
 
   get title(): string {
-    return this.selectedCarouselItem?.carouselTitle?.text || "";
+    return this.carousel.title?.text ?? "";
   }
 
   get titleStyle(): string {
-    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.selectedCarouselItem?.carouselTitle };
+    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
   }
 }

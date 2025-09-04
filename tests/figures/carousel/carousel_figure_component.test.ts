@@ -110,22 +110,26 @@ describe("Carousel figure component", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
 
-  test("Can define a carousel title in a carousel item", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+  test("Can define a carousel title", async () => {
+    createCarousel(
+      model,
+      {
+        items: [],
+        title: {
+          text: "Title1",
+          fontSize: 20,
+          bold: true,
+        },
+      },
+      "carouselId"
+    );
     updateCarousel(model, "carouselId", {
-      items: [
-        { type: "chart", chartId: radarId, carouselTitle: { text: "Title1", fontSize: 20 } },
-        { type: "carouselDataView", carouselTitle: { text: "Title2", bold: true } },
-      ],
+      items: [{ type: "carouselDataView" }],
     });
-    const { fixture } = await mountSpreadsheet({ model });
+    await mountSpreadsheet({ model });
 
     expect(".o-figure .o-carousel-title").toHaveText("Title1");
     expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe("20px");
-
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(".o-figure .o-carousel-title").toHaveText("Title2");
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
