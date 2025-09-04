@@ -1714,8 +1714,7 @@ export const NPV = {
   ),
   args: [
     arg("discount (number)", _t("The discount rate of the investment over one period.")),
-    arg("cashflow1 (number, range<number>)", _t("The first future cash flow.")),
-    arg("cashflow2 (number, range<number>, repeating)", _t("Additional future cash flows.")),
+    arg("cashflow (number, range<number>, repeating)", _t("The future cash flows.")),
   ],
   // to do: replace by dollar format
   compute: function (discount: Maybe<FunctionResultObject>, ...values: Arg[]) {

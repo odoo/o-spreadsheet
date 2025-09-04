@@ -154,7 +154,7 @@ function createComputeFunction(
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       const getArgToFocus = argTargeting(descr, args.length);
-      const argDefinition = descr.args[getArgToFocus(i) || i];
+      const argDefinition = descr.args[getArgToFocus(i) ?? i];
 
       // Early exit if the argument is an error and the function does not accept errors
       // We only check scalar arguments, not matrix arguments for performance reasons.

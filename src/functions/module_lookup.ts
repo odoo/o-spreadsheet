@@ -794,8 +794,8 @@ export const PIVOT_VALUE = {
   args: [
     arg("pivot_id (number,string)", _t("ID of the pivot.")),
     arg("measure_name (string)", _t("Name of the measure.")),
-    arg("domain_field_name (string,repeating)", _t("Field name.")),
-    arg("domain_value (number,string,boolean,repeating)", _t("Value.")),
+    arg("domain_field_name (string,repeating,optional)", _t("Field name.")),
+    arg("domain_value (number,string,boolean,repeating,optional)", _t("Value.")),
   ],
   compute: function (
     formulaId: Maybe<FunctionResultObject>,
@@ -845,8 +845,8 @@ export const PIVOT_HEADER = {
   description: _t("Get the header of a pivot."),
   args: [
     arg("pivot_id (number,string)", _t("ID of the pivot.")),
-    arg("domain_field_name (string,repeating)", _t("Field name.")),
-    arg("domain_value (number,string,value,repeating)", _t("Value.")),
+    arg("domain_field_name (string,repeating,optional)", _t("Field name.")),
+    arg("domain_value (number,string,value,repeating,optional)", _t("Value.")),
   ],
   compute: function (
     pivotId: Maybe<FunctionResultObject>,
