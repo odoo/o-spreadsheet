@@ -1,13 +1,12 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
-import { Store, useLocalStore, useStore } from "../../../../store_engine";
+import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
-import { ChartDashboardMenuStore } from "./chart_dashboard_menu_store";
 
 interface Props {
   chartId: UID;
@@ -27,23 +26,15 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static props = { chartId: String };
 
   private fullScreenFigureStore!: Store<FullScreenChartStore>;
-  private store!: Store<ChartDashboardMenuStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
   setup() {
     super.setup();
-    this.store = useLocalStore(ChartDashboardMenuStore, this.props.chartId);
     this.fullScreenFigureStore = useStore(FullScreenChartStore);
-
-    onWillUpdateProps(({ chartId }: Props) => {
-      if (chartId !== this.props.chartId) {
-        this.store.reset(chartId);
-      }
-    });
   }
 
   getMenuItems(): MenuItem[] {
-    return [this.fullScreenMenuItem, ...this.store.changeChartTypeMenuItems].filter(isDefined);
+    return [this.fullScreenMenuItem].filter(isDefined);
   }
 
   get backgroundColor() {
