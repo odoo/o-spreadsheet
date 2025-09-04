@@ -178,13 +178,7 @@ function centile(
 // -----------------------------------------------------------------------------
 export const AVEDEV = {
   description: _t("Average magnitude of deviations from mean."),
-  args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
-    ),
-  ],
+  args: [arg("value (number, range<number>, repeating)", _t("Values or ranges of the sample."))],
   compute: function (...values: Arg[]) {
     let count = 0;
     const sum = reduceNumbers(
@@ -214,12 +208,8 @@ export const AVERAGE = {
   description: _t("Numerical average value in a dataset, ignoring text."),
   args: [
     arg(
-      "value1 (number, range<number>)",
-      _t("The first value or range to consider when calculating the average value.")
-    ),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to consider when calculating the average value.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to consider when calculating the average value.")
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
@@ -242,13 +232,8 @@ const negativeWeightError = _t(
 export const AVERAGE_WEIGHTED = {
   description: _t("Weighted average."),
   args: [
-    arg("values (number, range<number>)", _t("Values to average.")),
-    arg("weights (number, range<number>)", _t("Weights for each corresponding value.")),
-    arg(
-      "additional_values (number, range<number>, repeating)",
-      _t("Additional values to average.")
-    ),
-    arg("additional_weights (number, range<number>, repeating)", _t("Additional weights.")),
+    arg("values (number, range<number>, repeating)", _t("Values to average.")),
+    arg("weights (number, range<number>, repeating)", _t("Weights for each corresponding value.")),
   ],
   compute: function (...args: Arg[]) {
     let sum = 0;
@@ -309,12 +294,8 @@ export const AVERAGEA = {
   description: _t("Numerical average value in a dataset."),
   args: [
     arg(
-      "value1 (number, range<number>)",
-      _t("The first value or range to consider when calculating the average value.")
-    ),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to consider when calculating the average value.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to consider when calculating the average value.")
     ),
   ],
   compute: function (...args: Arg[]) {
@@ -393,13 +374,8 @@ export const AVERAGEIFS = {
   description: _t("Average of values depending on multiple criteria."),
   args: [
     arg("average_range (range)", _t("The range to average.")),
-    arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
-    arg("criterion1 (string)", _t("The pattern or test to apply to criteria_range1.")),
-    arg(
-      "criteria_range2 (any, range, repeating)",
-      _t("Additional criteria_range and criterion to check.")
-    ),
-    arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
+    arg("criteria_range (any, range, repeating)", _t("Ranges to check.")),
+    arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
   compute: function (averageRange: Matrix<FunctionResultObject>, ...args: Arg[]) {
     const _averageRange = toMatrix(averageRange);
@@ -433,12 +409,8 @@ export const COUNT = {
   description: _t("The number of numeric values in dataset."),
   args: [
     arg(
-      "value1 (number, any, range<number>)",
-      _t("The first value or range to consider when counting.")
-    ),
-    arg(
-      "value2 (number, any, range<number>, repeating)",
-      _t("Additional values or ranges to consider when counting.")
+      "value (number, any, range<number>, repeating)",
+      _t("Values or ranges to consider when counting.")
     ),
   ],
   compute: function (...values: Arg[]): number {
@@ -452,13 +424,7 @@ export const COUNT = {
 // -----------------------------------------------------------------------------
 export const COUNTA = {
   description: _t("The number of values in a dataset."),
-  args: [
-    arg("value1 (any, range)", _t("The first value or range to consider when counting.")),
-    arg(
-      "value2 (any, range, repeating)",
-      _t("Additional values or ranges to consider when counting.")
-    ),
-  ],
+  args: [arg("value (any, range, repeating)", _t("Values or ranges to consider when counting."))],
   compute: function (...values: Arg[]): number {
     return countAny(values);
   },
@@ -829,12 +795,8 @@ export const MAX = {
   description: _t("Maximum value in a numeric dataset."),
   args: [
     arg(
-      "value1 (number, range<number>)",
-      _t("The first value or range to consider when calculating the maximum value.")
-    ),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to consider when calculating the maximum value.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to consider when calculating the maximum value.")
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
@@ -850,12 +812,8 @@ export const MAXA = {
   description: _t("Maximum numeric value in a dataset."),
   args: [
     arg(
-      "value1 (any, range)",
-      _t("The first value or range to consider when calculating the maximum value.")
-    ),
-    arg(
-      "value2 (any, range, repeating)",
-      _t("Additional values or ranges to consider when calculating the maximum value.")
+      "value (any, range, repeating)",
+      _t("Values or ranges to consider when calculating the maximum value.")
     ),
   ],
   compute: function (...args: Arg[]): FunctionResultNumber {
@@ -879,20 +837,8 @@ export const MAXIFS = {
   description: _t("Returns the maximum value in a range of cells, filtered by a set of criteria."),
   args: [
     arg("range (range)", _t("The range of cells from which the maximum will be determined.")),
-    arg("criteria_range1 (range)", _t("The range of cells over which to evaluate criterion1.")),
-    arg(
-      "criterion1 (string)",
-      _t(
-        "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
-      )
-    ),
-    arg(
-      "criteria_range2 (any, range, repeating)",
-      _t(
-        "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
-      )
-    ),
-    arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
+    arg("criteria_range (any, range, repeating)", _t("Ranges over which to evaluate criteria.")),
+    arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
   compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     let result = -Infinity;
@@ -918,12 +864,8 @@ export const MEDIAN = {
   description: _t("Median value in a numeric dataset."),
   args: [
     arg(
-      "value1 (any, range)",
-      _t("The first value or range to consider when calculating the median value.")
-    ),
-    arg(
-      "value2 (any, range, repeating)",
-      _t("Additional values or ranges to consider when calculating the median value.")
+      "value (any, range, repeating)",
+      _t("Values or ranges to consider when calculating the median value.")
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
@@ -950,12 +892,8 @@ export const MIN = {
   description: _t("Minimum value in a numeric dataset."),
   args: [
     arg(
-      "value1 (number, range<number>)",
-      _t("The first value or range to consider when calculating the minimum value.")
-    ),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to consider when calculating the minimum value.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to consider when calculating the minimum value.")
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
@@ -971,12 +909,8 @@ export const MINA = {
   description: _t("Minimum numeric value in a dataset."),
   args: [
     arg(
-      "value1 (number, range<number>)",
-      _t("The first value or range to consider when calculating the minimum value.")
-    ),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to consider when calculating the minimum value.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to consider when calculating the minimum value.")
     ),
   ],
   compute: function (...args: Arg[]): FunctionResultNumber {
@@ -1000,20 +934,8 @@ export const MINIFS = {
   description: _t("Returns the minimum value in a range of cells, filtered by a set of criteria."),
   args: [
     arg("range (range)", _t("The range of cells from which the minimum will be determined.")),
-    arg("criteria_range1 (range)", _t("The range of cells over which to evaluate criterion1.")),
-    arg(
-      "criterion1 (string)",
-      _t(
-        "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
-      )
-    ),
-    arg(
-      "criteria_range2 (any, range, repeating)",
-      _t(
-        "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
-      )
-    ),
-    arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
+    arg("criteria_range (any, range, repeating)", _t("Ranges over which to evaluate criteria.")),
+    arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
   compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     let result = Infinity;
@@ -1474,10 +1396,9 @@ export const SPEARMAN: AddFunctionDescription = {
 export const STDEV = {
   description: _t("Standard deviation."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the sample.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1492,10 +1413,9 @@ export const STDEV = {
 export const STDEV_P = {
   description: _t("Standard deviation of entire population."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the population.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the population.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1510,10 +1430,9 @@ export const STDEV_P = {
 export const STDEV_S = {
   description: _t("Standard deviation."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the sample.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1528,10 +1447,9 @@ export const STDEV_S = {
 export const STDEVA = {
   description: _t("Standard deviation of sample (text as 0)."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the sample.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1546,10 +1464,9 @@ export const STDEVA = {
 export const STDEVP = {
   description: _t("Standard deviation of entire population."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the population.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the population.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1564,10 +1481,9 @@ export const STDEVP = {
 export const STDEVPA = {
   description: _t("Standard deviation of entire population (text as 0)."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the population.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the population.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1655,10 +1571,9 @@ export const TREND: AddFunctionDescription = {
 export const VAR = {
   description: _t("Variance."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the sample.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1673,10 +1588,9 @@ export const VAR = {
 export const VAR_P = {
   description: _t("Variance of entire population."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the population.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the population.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1691,10 +1605,9 @@ export const VAR_P = {
 export const VAR_S = {
   description: _t("Variance."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the sample.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1709,10 +1622,9 @@ export const VAR_S = {
 export const VARA = {
   description: _t("Variance of sample (text as 0)."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the sample.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the sample.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the sample.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1727,10 +1639,9 @@ export const VARA = {
 export const VARP = {
   description: _t("Variance of entire population."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the population.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the population.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -1745,10 +1656,9 @@ export const VARP = {
 export const VARPA = {
   description: _t("Variance of entire population (text as 0)."),
   args: [
-    arg("value1 (number, range<number>)", _t("The first value or range of the population.")),
     arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional values or ranges to include in the population.")
+      "value (number, range<number>, repeating)",
+      _t("Values or ranges to include in the population.")
     ),
   ],
   compute: function (...args: Arg[]): number {

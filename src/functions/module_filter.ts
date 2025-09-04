@@ -113,14 +113,8 @@ export const FILTER = {
   args: [
     arg("range (any, range<any>)", _t("The data to be filtered.")),
     arg(
-      "condition1 (boolean, range<boolean>)",
-      _t(
-        "A column or row containing true or false values corresponding to the first column or row of range."
-      )
-    ),
-    arg(
-      "condition2 (boolean, range<boolean>, repeating)",
-      _t("Additional column or row containing true or false values.")
+      "condition (boolean, range<boolean>, repeating)",
+      _t("Columns or rows containing true or false values corresponding to the range.")
     ),
   ],
   compute: function (range: Arg, ...conditions: Arg[]) {
@@ -171,13 +165,13 @@ export const SORT: AddFunctionDescription = {
   args: [
     arg("range (range)", _t("The data to be sorted.")),
     arg(
-      "sort_column (any, range<number>, repeating)",
+      "sort_column (any, range<number>, repeating, optional)",
       _t(
         "The index of the column in range or a range outside of range containing the values by which to sort."
       )
     ),
     arg(
-      "is_ascending (boolean, repeating)",
+      "is_ascending (boolean, repeating, optional)",
       _t(
         "TRUE or FALSE indicating whether to sort sort_column in ascending order. FALSE sorts in descending order."
       )
@@ -206,13 +200,13 @@ export const SORTN: AddFunctionDescription = {
       _t("A number representing the way to display ties.")
     ),
     arg(
-      "sort_column (number, range<number>, repeating)",
+      "sort_column (number, range<number>, repeating, optional)",
       _t(
         "The index of the column in range or a range outside of range containing the values by which to sort."
       )
     ),
     arg(
-      "is_ascending (boolean, repeating)",
+      "is_ascending (boolean, repeating, optional)",
       _t(
         "TRUE or FALSE indicating whether to sort sort_column in ascending order. FALSE sorts in descending order."
       )

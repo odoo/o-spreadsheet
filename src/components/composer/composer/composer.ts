@@ -856,7 +856,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     nbrArgSupplied: number,
     argPosition: number
   ): number[] {
-    const { nbrArgRepeating, minArgRequired, nbrArgOptional, maxArgPossible } = description;
+    const { nbrArgRepeating, minArgRequired, nbrArgOptionalThatIsNotRepeating, maxArgPossible } =
+      description;
 
     // When the parenthesis is closed, we consider the user is done with the function,
     // so we know exactly the number of arguments supplied.
@@ -874,7 +875,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     const maxArgsNumberPossibility = nbrArgRepeating
       ? minArgRequired +
         Math.ceil((minArgsNumberPossibility - minArgRequired) / nbrArgRepeating) * nbrArgRepeating +
-        nbrArgOptional
+        nbrArgOptionalThatIsNotRepeating
       : maxArgPossible;
 
     const argsToFocus: number[] = [];
