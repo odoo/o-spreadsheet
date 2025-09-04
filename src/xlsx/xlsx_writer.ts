@@ -160,7 +160,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       const extension = IMAGE_MIMETYPE_TO_EXTENSION_MAPPING[mimeType];
       // only support exporting images with mimetypes specified in the mapping
       if (extension === undefined) continue;
-      const xlsxImageId = convertImageId(imageId);
+      const xlsxImageId = convertImageId(imageId, construct);
       const imageFileName = `image${xlsxImageId}.${extension}`;
 
       const imageRelId = addRelsToFile(

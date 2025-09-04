@@ -248,17 +248,15 @@ export function convertChartId(chartId: UID, construct: XLSXStructure) {
   return xlsxId + 1;
 }
 
-const imageIds: UID[] = [];
-
 /**
  * Convert a image o-spreadsheet id to a xlsx id which
  * are unsigned integers (starting from 1).
  */
-export function convertImageId(imageId: UID) {
-  const xlsxId = imageIds.findIndex((id) => id === imageId);
+export function convertImageId(imageId: UID, construct: XLSXStructure) {
+  const xlsxId = construct.imageIds.findIndex((id) => id === imageId);
   if (xlsxId === -1) {
-    imageIds.push(imageId);
-    return imageIds.length;
+    construct.imageIds.push(imageId);
+    return construct.imageIds.length;
   }
   return xlsxId + 1;
 }

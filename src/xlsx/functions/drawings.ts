@@ -60,7 +60,12 @@ export function createDrawing(
           throw new Error(`Image with figureId ${figure.id} not found in sheet ${sheet.name}`);
         }
         figuresNodes.push(
-          createImageDrawing(figure, convertImageId(imageId), sheet, drawingRelIds[figureIndex])
+          createImageDrawing(
+            figure,
+            convertImageId(imageId, construct),
+            sheet,
+            drawingRelIds[figureIndex]
+          )
         );
         break;
     }
