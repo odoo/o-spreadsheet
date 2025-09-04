@@ -339,7 +339,10 @@ function assertEnoughArgs(ast: ASTFuncall) {
     const nbrValueRepeating =
       nbrArgRepeating * Math.floor((nbrArgSupplied - minArgRequired) / nbrArgRepeating);
     const nbrValueRemaining =
-      nbrArgSupplied - minArgRequired - nbrValueRepeating - functionDefinition.nbrArgOptional;
+      nbrArgSupplied -
+      minArgRequired -
+      nbrValueRepeating -
+      functionDefinition.nbrOptionalNonRepeatingArgs;
 
     if (nbrValueRemaining > 0) {
       throw new BadExpressionError(
@@ -348,7 +351,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
           {
             functionName,
             nbrArgRepeating,
-            nbrArgOptional: functionDefinition.nbrArgOptional,
+            nbrArgOptional: functionDefinition.nbrOptionalNonRepeatingArgs,
             nbrValueRemaining,
           }
         )

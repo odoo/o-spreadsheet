@@ -20,14 +20,10 @@ export const AND = {
   description: _t("Logical `and` operator."),
   args: [
     arg(
-      "logical_expression1 (boolean, range<boolean>)",
+      "logical_expression (boolean, range<boolean>, repeating)",
       _t(
-        "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
+        "Expression or reference to a cell containing a logical value (TRUE/FALSE) or an expression that can be coerced to a logical value."
       )
-    ),
-    arg(
-      "logical_expression2 (boolean, range<boolean>, repeating)",
-      _t("More expressions that represent logical values.")
     ),
   ],
   compute: function (...logicalExpressions: Arg[]) {
@@ -134,19 +130,14 @@ export const IFS = {
   description: _t("Returns a value depending on multiple logical expressions."),
   args: [
     arg(
-      "condition1 (boolean, range<boolean>)",
+      "condition (any, range, repeating)",
       _t(
-        "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
+        "The condition to be evaluated. It can be a boolean, a number, an array, or a reference to any of those."
       )
     ),
-    arg("value1 (any, range)", _t("The returned value if condition1 is TRUE.")),
     arg(
-      "condition2 (boolean, any, range, repeating)",
-      _t("Additional conditions to be evaluated if the previous ones are FALSE.")
-    ),
-    arg(
-      "value2 (any, range, repeating)",
-      _t("Additional values to be returned if their corresponding conditions are TRUE.")
+      "value (any, range, repeating)",
+      _t("The value to be returned if its corresponding condition is TRUE.")
     ),
   ],
   compute: function (...values: Arg[]) {
@@ -196,14 +187,10 @@ export const OR = {
   description: _t("Logical `or` operator."),
   args: [
     arg(
-      "logical_expression1 (boolean, range<boolean>)",
+      "logical_expression (boolean, range<boolean>, repeating)",
       _t(
-        "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
+        "Expression or reference to a cell containing a logical value (TRUE/FALSE) or an expression that can be coerced to a logical value."
       )
-    ),
-    arg(
-      "logical_expression2 (boolean, range<boolean>, repeating)",
-      _t("More expressions that evaluate to logical values.")
     ),
   ],
   compute: function (...logicalExpressions: Arg[]) {
@@ -224,15 +211,10 @@ export const SWITCH = {
   description: _t("Returns a value by comparing cases to an expression."),
   args: [
     arg("expression (number, boolean, string)", _t("The value to be checked.")),
-    arg("case1 (number, boolean, string)", _t("The first case to be checked against expression.")),
-    arg("value1 (any)", _t("The corresponding value to be returned if case1 matches expression.")),
+    arg("case (any, repeating)", _t("Case to be checked against expression.")),
     arg(
-      "case2 (any, repeating)",
-      _t("Additional cases to try if the previous ones don't match expression.")
-    ),
-    arg(
-      "value2 (any, repeating)",
-      _t("Additional values to be returned if their corresponding cases match expression.")
+      "value (any, repeating)",
+      _t("Value to be returned if its corresponding case matches expression.")
     ),
     arg(
       `default (any, default="empty")`,
@@ -282,14 +264,10 @@ export const XOR = {
   description: _t("Logical `xor` operator."),
   args: [
     arg(
-      "logical_expression1 (boolean, range<boolean>)",
+      "logical_expression (boolean, range<boolean>, repeating)",
       _t(
-        "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
+        "Expression or reference to a cell containing a logical value (TRUE/FALSE) or an expression that can be coerced to a logical value."
       )
-    ),
-    arg(
-      "logical_expression2 (boolean, range<boolean>, repeating)",
-      _t("More expressions that evaluate to logical values.")
     ),
   ],
   compute: function (...logicalExpressions: Arg[]) {

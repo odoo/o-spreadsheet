@@ -107,13 +107,13 @@ export function addMetaInfoFromArg(
   let optionalArg = 0;
   for (const arg of addDescr.args) {
     countArg++;
-    if (!arg.optional && !arg.repeating && !arg.default) {
+    if (!arg.optional && !arg.default) {
       minArg++;
     }
     if (arg.repeating) {
       repeatingArg++;
     }
-    if (arg.optional || arg.default) {
+    if ((arg.optional || arg.default) && !arg.repeating) {
       optionalArg++;
     }
   }
@@ -121,7 +121,7 @@ export function addMetaInfoFromArg(
   descr.minArgRequired = minArg;
   descr.maxArgPossible = repeatingArg ? Infinity : countArg;
   descr.nbrArgRepeating = repeatingArg;
-  descr.nbrArgOptional = optionalArg;
+  descr.nbrOptionalNonRepeatingArgs = optionalArg;
   descr.hidden = addDescr.hidden || false;
   descr.name = name;
 
@@ -153,9 +153,9 @@ const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
  * and rows representing the correspondence with the argument index.
  *
  * The tables are built based on the following conventions:
- * - `m`: Mandatory argument
- * - `o`: Optional argument
- * - `r`: Repeating argument
+ * - `m`: Mandatory argument (count as one argument)
+ * - `o`: Optional argument (count as zero or one argument)
+ * - `r`: Repeating argument (count as one or more arguments)
  *
  *
  * Configuration 1: (m, o) like the CEILING function
@@ -168,39 +168,39 @@ const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
  *
  * Configuration 2: (m, m, m, r, r) like the SUMIFS function
  *
- * |   | 3 | 5 | 7    | 3 + 2n     |
- * |---|---|---|------|------------|
- * | m | 0 | 0 | 0    | 0          |
- * | m | 1 | 1 | 1    | 1          |
- * | m | 2 | 2 | 2    | 2          |
- * | r |   | 3 | 3, 5 | 3 + 2n     |
- * | r |   | 4 | 4, 6 | 3 + 2n + 1 |
+ * |   | 5 | 7    | 3 + 2n     |
+ * |---|---|------|------------|
+ * | m | 0 | 0    | 0          |
+ * | m | 1 | 1    | 1          |
+ * | m | 2 | 2    | 2          |
+ * | r | 3 | 3, 5 | 3 + 2n     |
+ * | r | 4 | 4, 6 | 3 + 2n + 1 |
  *
  *
  * Configuration 3: (m, m, m, r, r, o) like the SWITCH function
  *
- * |   | 3 | 4 | 5 | 6 | 7    | 8    | 3 + 2n     | 3 + 2n + 1     |
- * |---|---|---|---|---|------|------|------------|----------------|
- * | m | 0 | 0 | 0 | 0 | 0    | 0    | 0          | 0              |
- * | m | 1 | 1 | 1 | 1 | 1    | 1    | 1          | 1              |
- * | m | 2 | 2 | 2 | 2 | 2    | 2    | 2          | 2              |
- * | r |   |   | 3 | 3 | 3, 5 | 3, 5 | 3 + 2n     | 3 + 2n         |
- * | r |   |   | 4 | 4 | 4, 6 | 4, 6 | 3 + 2n + 1 | 3 + 2n + 1     |
- * | o |   | 3 |   | 5 |      | 7    |            | 3 + 2N + 2     |
+ * |   | 5 | 6 | 7    | 8    | 3 + 2n     | 3 + 2n + 1     |
+ * |---|---|---|------|------|------------|----------------|
+ * | m | 0 | 0 | 0    | 0    | 0          | 0              |
+ * | m | 1 | 1 | 1    | 1    | 1          | 1              |
+ * | m | 2 | 2 | 2    | 2    | 2          | 2              |
+ * | r | 3 | 3 | 3, 5 | 3, 5 | 3 + 2n     | 3 + 2n         |
+ * | r | 4 | 4 | 4, 6 | 4, 6 | 3 + 2n + 1 | 3 + 2n + 1     |
+ * | o |   | 5 |      | 7    |            | 3 + 2N + 2     |
  *
  *
  * Configuration 4: (m, o, m, o, r, r, r, m) a complex case to understand subtleties
  *
- * |   | 3 | 4 | 5 | 6 | 7 | 8 | 9    | 10   | 11   | ... |
- * |---|---|---|---|---|---|---|------|------|------|-----|
- * | m | 0 | 0 | 0 | 0 | 0 | 0 | 0    | 0    | 0    | ... |
- * | o |   | 1 | 1 |   | 1 | 1 |      | 1    | 1    | ... |
- * | m | 1 | 2 | 2 | 1 | 2 | 2 | 1    | 2    | 2    | ... |
- * | o |   |   | 3 |   |   | 3 |      |      | 3    | ... |
- * | r |   |   |   | 2 | 3 | 4 | 2, 5 | 3, 6 | 4, 7 | ... |
- * | r |   |   |   | 3 | 4 | 5 | 3, 6 | 4, 7 | 5, 8 | ... |
- * | r |   |   |   | 4 | 5 | 6 | 4, 7 | 5, 8 | 6, 9 | ... |
- * | m | 2 | 3 | 4 | 5 | 6 | 7 | 8    | 9    | 10   | ... |
+ * |   | 6 | 7 | 8 | 9    | 10   | 11   | ... |
+ * |---|---|---|---|------|------|------|-----|
+ * | m | 0 | 0 | 0 | 0    | 0    | 0    | ... |
+ * | o |   | 1 | 1 |      | 1    | 1    | ... |
+ * | m | 1 | 2 | 2 | 1    | 2    | 2    | ... |
+ * | o |   |   | 3 |      |      | 3    | ... |
+ * | r | 2 | 3 | 4 | 2, 5 | 3, 6 | 4, 7 | ... |
+ * | r | 3 | 4 | 5 | 3, 6 | 4, 7 | 5, 8 | ... |
+ * | r | 4 | 5 | 6 | 4, 7 | 5, 8 | 6, 9 | ... |
+ * | m | 5 | 6 | 7 | 8    | 9    | 10   | ... |
  *
  */
 export function argTargeting(
@@ -229,13 +229,15 @@ export function _argTargeting(
   nbrArgSupplied: number
 ): ArgToFocus {
   const valueIndexToArgPosition: Record<number, number> = {};
-  const groupsOfRepeatingValues = functionDescription.nbrArgRepeating
+  const groupsOfOptionalRepeatingValues = functionDescription.nbrArgRepeating
     ? Math.floor(
         (nbrArgSupplied - functionDescription.minArgRequired) / functionDescription.nbrArgRepeating
       )
     : 0;
-  const nbrValueRepeating = functionDescription.nbrArgRepeating * groupsOfRepeatingValues;
-  const nbrValueOptional = nbrArgSupplied - functionDescription.minArgRequired - nbrValueRepeating;
+  const nbrValueOptionalRepeating =
+    functionDescription.nbrArgRepeating * groupsOfOptionalRepeatingValues;
+  const nbrValueOptional =
+    nbrArgSupplied - functionDescription.minArgRequired - nbrValueOptionalRepeating;
 
   let countValueSupplied = 0;
   let countValueOptional = 0;
@@ -243,7 +245,7 @@ export function _argTargeting(
   for (let i = 0; i < functionDescription.args.length; i++) {
     const arg = functionDescription.args[i];
 
-    if (arg.optional || arg.default) {
+    if ((arg.optional || arg.default) && !arg.repeating) {
       if (countValueOptional < nbrValueOptional) {
         valueIndexToArgPosition[countValueSupplied] = i;
         countValueSupplied++;
@@ -253,10 +255,11 @@ export function _argTargeting(
     }
 
     if (arg.repeating) {
+      const groupOfMandatoryRepeatingValues = arg.optional ? 0 : 1;
       // As we know all repeating arguments are consecutive,
       // --> we will treat all repeating arguments in one go
       // --> the index i will be incremented by the number of repeating values at the end of the loop
-      for (let j = 0; j < groupsOfRepeatingValues; j++) {
+      for (let j = 0; j < groupsOfOptionalRepeatingValues + groupOfMandatoryRepeatingValues; j++) {
         for (let k = 0; k < functionDescription.nbrArgRepeating; k++) {
           valueIndexToArgPosition[countValueSupplied] = i + k;
           countValueSupplied++;
@@ -283,7 +286,7 @@ export function _argTargeting(
 const META_TYPES: ArgType[] = ["META", "RANGE<META>"];
 
 export function validateArguments(descr: FunctionDescription) {
-  if (descr.nbrArgRepeating && descr.nbrArgOptional >= descr.nbrArgRepeating) {
+  if (descr.nbrArgRepeating && descr.nbrOptionalNonRepeatingArgs >= descr.nbrArgRepeating) {
     throw new Error(`Function ${descr.name} has more optional arguments than repeatable ones.`);
   }
 

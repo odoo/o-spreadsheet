@@ -64,10 +64,7 @@ export const CLEAN = {
 // -----------------------------------------------------------------------------
 export const CONCATENATE = {
   description: _t("Appends strings to one another."),
-  args: [
-    arg("string1 (string, range<string>)", _t("The initial string.")),
-    arg("string2 (string, range<string>, repeating)", _t("More strings to append in sequence.")),
-  ],
+  args: [arg("string (string, range<string>, repeating)", _t("String to append in sequence."))],
   compute: function (...datas: Arg[]): string {
     return reduceAny(datas, (acc, a) => acc + toString(a), "");
   },
@@ -154,12 +151,8 @@ export const JOIN = {
       _t("The character or string to place between each concatenated value.")
     ),
     arg(
-      "value_or_array1 (string, range<string>)",
-      _t("The value or values to be appended using delimiter.")
-    ),
-    arg(
-      "value_or_array2 (string, range<string>, repeating)",
-      _t("More values to be appended using delimiter.")
+      "value_or_array (string, range<string>, repeating)",
+      _t("Value to be appended using delimiter.")
     ),
   ],
   compute: function (delimiter: Maybe<FunctionResultObject>, ...valuesOrArrays: Arg[]): string {
@@ -579,7 +572,7 @@ export const TEXTJOIN = {
     arg(
       "delimiter (string)",
       _t(
-        " A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated."
+        "A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated."
       )
     ),
     arg(
@@ -592,11 +585,7 @@ export const TEXTJOIN = {
         { value: false, label: _t("Include empty cells (default)") },
       ]
     ),
-    arg(
-      "text1 (string, range<string>)",
-      _t("Any text item. This could be a string, or an array of strings in a range.")
-    ),
-    arg("text2 (string, range<string>, repeating)", _t("Additional text item(s).")),
+    arg("texts (string, range<string>, repeating)", _t("Text item to join.")),
   ],
   compute: function (
     delimiter: Maybe<FunctionResultObject>,
