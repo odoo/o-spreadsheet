@@ -203,7 +203,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(2);
     expect(descr.maxArgPossible).toBe(2);
     expect(descr.nbrArgRepeating).toBe(0);
-    expect(descr.nbrArgOptional).toBe(0);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(0);
 
     const getArgToFocus = argTargeting(descr, 2);
     expect(getArgToFocus(0)).toBe(0);
@@ -226,7 +226,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(2);
     expect(descr.nbrArgRepeating).toBe(0);
-    expect(descr.nbrArgOptional).toBe(1);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(1);
 
     const getArgToFocusOnOneArg = argTargeting(descr, 1);
     expect(getArgToFocusOnOneArg(0)).toBe(0);
@@ -252,7 +252,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(1);
-    expect(descr.nbrArgOptional).toBe(0);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(0);
 
     const getArgToFocusOnOneArg = argTargeting(descr, 1);
     expect(getArgToFocusOnOneArg(0)).toBe(0);
@@ -281,7 +281,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(2);
-    expect(descr.nbrArgOptional).toBe(0);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(0);
 
     const getArgToFocus = argTargeting(descr, 42);
     expect(getArgToFocus(0)).toBe(0);
@@ -310,7 +310,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(2);
-    expect(descr.nbrArgOptional).toBe(1);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(1);
 
     const getArgToFocus_1 = argTargeting(descr, 1);
     expect(getArgToFocus_1(0)).toBe(0);
@@ -355,7 +355,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(3);
-    expect(descr.nbrArgOptional).toBe(2);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(2);
 
     const getArgToFocus_1 = argTargeting(descr, 1);
     expect(getArgToFocus_1(0)).toBe(0);
@@ -397,7 +397,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(2);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(2);
-    expect(descr.nbrArgOptional).toBe(0);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(0);
 
     const getArgToFocus_2 = argTargeting(descr, 2);
     expect(getArgToFocus_2(0)).toBe(0);
@@ -437,7 +437,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(2);
     expect(descr.maxArgPossible).toBe(4);
     expect(descr.nbrArgRepeating).toBe(0);
-    expect(descr.nbrArgOptional).toBe(2);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(2);
 
     const getArgToFocus_2 = argTargeting(descr, 2);
     expect(getArgToFocus_2(0)).toBe(0);
@@ -480,7 +480,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.minArgRequired).toBe(3);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(4);
-    expect(descr.nbrArgOptional).toBe(3);
+    expect(descr.nbrArgOptionalThatIsNotRepeating).toBe(3);
 
     const getArgToFocus_3 = argTargeting(descr, 3);
     expect(getArgToFocus_3(0)).toBe(1);
