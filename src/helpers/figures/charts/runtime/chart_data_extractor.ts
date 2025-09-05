@@ -15,6 +15,7 @@ import {
   Format,
   GenericDefinition,
   Getters,
+  Granularity,
   Locale,
   Range,
 } from "../../../../types";
@@ -32,6 +33,7 @@ import {
   SunburstChartDefinition,
   TrendConfiguration,
 } from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
@@ -39,9 +41,10 @@ import {
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
-import { isDateTimeFormat } from "../../../format/format";
+import { DAYS, isDateTimeFormat, MONTHS } from "../../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
+import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
 import { shouldRemoveFirstLabel } from "../chart_common";
@@ -87,6 +90,124 @@ export function getBarChartData(
   return {
     dataSetsValues,
     trendDataSetsValues,
+    axisFormats,
+    labels,
+    locale: getters.getLocale(),
+    topPadding: getTopPaddingForDashboard(definition, getters),
+  };
+}
+
+function getDateTimeLabel(value: number, stamp: Granularity): string {
+  switch (stamp) {
+    case "day_of_week": {
+      return DAYS[value - 1].toString();
+    }
+    case "hour_number": {
+      return getHoursLabel(value);
+    }
+    case "month_number": {
+      return MONTHS[value - 1].toString();
+    }
+    case "iso_week_number": {
+      return `W${value < 10 ? "0" : ""}${value}`;
+    }
+    case "quarter_number": {
+      return `Q${value}`;
+    }
+    default: {
+      return value.toString();
+    }
+  }
+}
+
+function getHoursLabel(hour: number): string {
+  return hour < 12 ? `${hour} AM` : `${hour - 12} PM`;
+}
+
+function computeValuesAndLabels(
+  timeValues: CellValue[],
+  values: CellValue[],
+  horizontalGroupBy: Granularity,
+  verticalGroupBy: Granularity,
+  locale: Locale
+) {
+  const grouping = {};
+  let xLabels: number[] = [];
+  let yLabels: number[] = [];
+  const previousYLabels: number[] = [];
+  for (let i = 0; i < timeValues?.length; i++) {
+    const xValue = createDate(
+      { granularity: horizontalGroupBy, type: "date", displayName: "date" },
+      timeValues[i],
+      locale
+    );
+    const xLabel = toNumber(xValue, locale);
+    if (!(xLabel in grouping)) {
+      xLabels.push(xLabel);
+      grouping[xLabel] = {};
+    }
+    const yValue = createDate(
+      { granularity: verticalGroupBy, type: "date", displayName: "date" },
+      timeValues[i],
+      locale
+    );
+    const yLabel = toNumber(yValue, locale);
+    if (!previousYLabels.includes(yLabel)) {
+      yLabels.push(yLabel);
+      previousYLabels.push(yLabel);
+    }
+    if (!(yLabel in grouping[xLabel])) {
+      grouping[xLabel][yLabel] = 0;
+    }
+    grouping[xLabel][yLabel] += values[i];
+  }
+
+  xLabels = xLabels.sort((a, b) => a - b);
+  yLabels = yLabels.sort((a, b) => a - b);
+
+  const dataSetsValues = yLabels.map((yL) => ({
+    data: xLabels.map((xL) => grouping?.[xL]?.[yL]),
+    label: getDateTimeLabel(yL, verticalGroupBy),
+    hidden: false,
+  }));
+
+  return {
+    dataSetsValues,
+    labels: xLabels.map((xL) => getDateTimeLabel(xL, horizontalGroupBy)),
+  };
+}
+
+export function getCalendarChartData(
+  definition: GenericDefinition<CalendarChartDefinition>,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  let labels = labelValues.values;
+  let dataSetsValues = getChartDatasetValues(getters, dataSets);
+  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+    labels.shift();
+  }
+
+  const locale = getters.getLocale() || DEFAULT_LOCALE;
+
+  ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues, locale));
+
+  ({ labels, dataSetsValues } = computeValuesAndLabels(
+    labels,
+    dataSetsValues[0].data,
+    definition.horizontalGroupBy ?? "day_of_week",
+    definition.verticalGroupBy ?? "hour_number",
+    locale
+  ));
+
+  const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
+  const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
+  const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
+
+  return {
+    dataSetsValues,
     axisFormats,
     labels,
     locale: getters.getLocale(),
@@ -691,6 +812,36 @@ function filterInvalidDataPoints(
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
     return label || values.some((value) => typeof value === "number");
+  });
+  return {
+    labels: dataPointsIndexes.map((i) => labels[i] || ""),
+    dataSetsValues: datasets.map((dataset) => ({
+      ...dataset,
+      data: dataPointsIndexes.map((i) =>
+        typeof dataset.data[i] === "number" ? dataset.data[i] : null
+      ),
+    })),
+  };
+}
+
+/**
+ * Filter the data points that:
+ * - have neither a label nor a value
+ * - have no label and a non-numeric value
+ */
+function filterInvalidCalendarDataPoints(
+  labels: string[],
+  datasets: DatasetValues[],
+  locale: Locale
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const numberOfDataPoints = Math.max(
+    labels.length,
+    ...datasets.map((dataset) => dataset.data?.length || 0)
+  );
+  const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
+    const label = labels[dataPointIndex];
+    const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
+    return label && isNumber(label, locale) && typeof values[0] === "number";
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
