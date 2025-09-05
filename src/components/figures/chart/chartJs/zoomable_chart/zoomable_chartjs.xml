@@ -4,7 +4,10 @@
       <div t-att-style="containerStyle">
         <canvas class="o-figure-canvas w-100 h-100" t-ref="graphContainer"/>
       </div>
-      <div t-if="sliceable" class="o-master-chart-container m-0">
+      <div
+        t-if="sliceable"
+        class="o-master-chart-container m-0"
+        t-att-style="masterChartContainerStyle">
         <canvas
           class="o-figure-canvas o-master-chart-canvas w-100 h-100"
           t-ref="masterChartCanvas"
