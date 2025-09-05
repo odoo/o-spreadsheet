@@ -123,7 +123,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelector(".o-popover")).toBeNull();
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
-        id: "Calculated measure 1",
+        id: "Calculated measure 1:sum",
         fieldName: "Calculated measure 1",
         aggregator: "sum",
         computedBy: {
@@ -135,7 +135,7 @@ describe("Spreadsheet pivot side panel", () => {
     await editStandaloneComposer(".pivot-dimension .o-composer", "=1+1");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
-        id: "Calculated measure 1",
+        id: "Calculated measure 1:sum",
         fieldName: "Calculated measure 1",
         aggregator: "sum",
         computedBy: {
@@ -159,7 +159,7 @@ describe("Spreadsheet pivot side panel", () => {
     await editStandaloneComposer(".pivot-dimension .o-composer", "1+1");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
-        id: "Calculated measure 1",
+        id: "Calculated measure 1:sum",
         fieldName: "Calculated measure 1",
         aggregator: "sum",
         computedBy: {
@@ -176,6 +176,27 @@ describe("Spreadsheet pivot side panel", () => {
     await click(fixture, ".add-calculated-measure");
     await editStandaloneComposer(".pivot-dimension .o-composer", "=abcdefg()");
     expect(fixture.querySelector(".o-standalone-composer")).toHaveClass("o-invalid");
+  });
+
+  test("can have a computed measure without aggregate", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "A3", "20");
+    addPivot(model, "A1:A3", {}, "3");
+    const sheetId = model.getters.getActiveSheetId();
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    await click(fixture, ".add-calculated-measure");
+    await setInputValueAndTrigger(".pivot-measure select", "");
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      {
+        id: "Calculated measure 1",
+        fieldName: "Calculated measure 1",
+        aggregator: "",
+        computedBy: { formula: "=0", sheetId },
+      },
+    ]);
   });
 
   test("can select a cell in the grid in several sheets", async () => {
