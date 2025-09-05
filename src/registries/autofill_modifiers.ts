@@ -31,7 +31,18 @@ autofillModifiersRegistry
       const content = `${rule.prefix}${value}`;
       return {
         content,
-        tooltip: { props: { content } },
+      };
+    },
+    tooltip: (
+      getters: Getters,
+      content: string,
+      rule: AlphanumericIncrementModifier,
+      originCell: Cell
+    ) => {
+      return {
+        props: {
+          content: content,
+        },
       };
     },
   })
@@ -39,12 +50,14 @@ autofillModifiersRegistry
     apply: (getters: Getters, rule: IncrementModifier, originCell: Cell) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
-      const locale = getters.getLocale();
-      const tooltipValue = formatValue(rule.current, { format: originCell.format, locale });
       return {
         content,
-        tooltip: content ? { props: { content: tooltipValue } } : undefined,
       };
+    },
+    tooltip: (getters: Getters, content: string, rule: IncrementModifier, originCell: Cell) => {
+      const locale = getters.getLocale();
+      const tooltipValue = formatValue(rule.current, { format: originCell.format, locale });
+      return { props: { content: tooltipValue } };
     },
   })
   .add("DATE_INCREMENT_MODIFIER", {
@@ -56,29 +69,27 @@ autofillModifiersRegistry
 
       const value = jsDateToNumber(date);
       rule.current = value;
-      const locale = getters.getLocale();
-      const tooltipValue = formatValue(value, { format: originCell.format, locale });
       return {
         content: value.toString(),
-        tooltip: value ? { props: { content: tooltipValue } } : undefined,
       };
+    },
+    tooltip: (getters: Getters, content: string, rule: DateIncrementModifier, originCell: Cell) => {
+      const locale = getters.getLocale();
+      const tooltipValue = formatValue(rule.current, { format: originCell.format, locale });
+      return { props: { content: tooltipValue } };
     },
   })
   .add("COPY_MODIFIER", {
     apply: (getters: Getters, rule: CopyModifier, originCell: Cell) => {
       const content = originCell.content || "";
+      return { content };
+    },
+    tooltip: (getters: Getters, content: string, rule: CopyModifier, originCell: Cell) => {
       const localeFormat = { locale: getters.getLocale(), format: originCell.format };
       return {
-        content,
-        tooltip: content
-          ? {
-              props: {
-                content: originCell
-                  ? evaluateLiteral(originCell as LiteralCell, localeFormat).formattedValue
-                  : "",
-              },
-            }
-          : undefined,
+        props: {
+          content: evaluateLiteral(originCell as LiteralCell, localeFormat).formattedValue,
+        },
       };
     },
   })
@@ -111,9 +122,9 @@ autofillModifiersRegistry
       }
       const sheetId = getters.getCellPosition(originCell.id).sheetId;
       const content = getters.getTranslatedCellFormula(sheetId, x, y, cell.compiledFormula.tokens);
-      return {
-        content,
-        tooltip: content ? { props: { content } } : undefined,
-      };
+      return { content };
+    },
+    tooltip: (getters: Getters, content: string, rule: FormulaModifier, originCell: Cell) => {
+      return { props: { content } };
     },
   });

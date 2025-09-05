@@ -77,9 +77,12 @@ class AutofillGenerator {
     if (!originCell) {
       return { content: "", origin };
     }
-    const { content, tooltip } = autofillModifiersRegistry
+    const { content } = autofillModifiersRegistry
       .get(rule.type)
       .apply(this.getters, rule, originCell, this.direction);
+    const tooltip = autofillModifiersRegistry
+      .get(rule.type)
+      .tooltip?.(this.getters, content, rule, originCell, this.direction);
     return {
       content,
       tooltip,

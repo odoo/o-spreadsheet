@@ -75,5 +75,12 @@ export interface AutofillModifierImplementation {
     rule: AutofillModifier,
     originCell: Cell,
     direction: DIRECTION
-  ) => { tooltip?: AutofillResult["tooltip"]; content: string };
+  ) => { content: string };
+  tooltip: (
+    getters: Getters,
+    content: string,
+    rule: AutofillModifier,
+    originCell: Cell,
+    direction: DIRECTION
+  ) => Tooltip;
 }
