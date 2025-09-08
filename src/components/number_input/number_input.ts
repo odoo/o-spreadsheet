@@ -1,30 +1,9 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
-import { ACTION_COLOR, GRAY_300, TEXT_BODY } from "../../constants";
 import { GenericInput } from "../generic_input/generic_input";
-import { css } from "../helpers";
-
-css/* scss */ `
-  .o-spreadsheet {
-    .os-input {
-      border-width: 0 0 1px 0;
-      border-color: transparent;
-      outline: none;
-      text-overflow: ellipsis;
-      color: ${TEXT_BODY};
-    }
-    .os-input:hover,
-    .os-input.o-input-border {
-      border-color: ${GRAY_300};
-    }
-    .os-input:focus {
-      border-color: ${ACTION_COLOR};
-    }
-  }
-`;
 
 interface Props {
-  value: string | number;
+  value: string;
   onChange: (value: string) => void;
   class?: string;
   id?: string;
@@ -33,11 +12,11 @@ interface Props {
   alwaysShowBorder?: boolean;
 }
 
-export class TextInput extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-TextInput";
+export class NumberInput extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-NumberInput";
   static components = { GenericInput };
   static props = {
-    value: String,
+    value: Number,
     onChange: Function,
     class: {
       type: String,
@@ -56,6 +35,8 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       optional: true,
     },
     alwaysShowBorder: { type: Boolean, optional: true },
+    min: { type: Number, optional: true },
+    max: { type: Number, optional: true },
   };
 
   get inputClass(): string {

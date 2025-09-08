@@ -39,7 +39,7 @@ interface Props {
 export class GenericInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GenericInput";
   static props = {
-    value: String,
+    value: [Number, String],
     onChange: Function,
     class: {
       type: String,
@@ -108,12 +108,14 @@ export class GenericInput extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  save() {
+  save(keepFocus = false) {
     const currentValue = (this.inputRef.el?.value || "").trim();
     if (currentValue !== this.props.value) {
       this.props.onChange(currentValue);
     }
-    this.inputRef.el?.blur();
+    if (!keepFocus) {
+      this.inputRef.el?.blur();
+    }
   }
 
   onMouseDown(ev: MouseEvent) {

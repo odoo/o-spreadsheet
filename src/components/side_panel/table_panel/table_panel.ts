@@ -106,6 +106,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onChangeNumberOfHeaders(ev: Event) {
+    console.log("coucou");
     const input = ev.target as HTMLInputElement;
     const numberOfHeaders = parseInt(input.value);
     const result = this.updateNumberOfHeaders(numberOfHeaders);

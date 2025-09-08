@@ -1,0 +1,14 @@
+<templates>
+  <t t-name="o-spreadsheet-NumberInput">
+    <GenericInput
+      id="props.id"
+      placeholder="props.placeholder"
+      autofocus="props.autofocus"
+      class="inputClass"
+      value="props.value"
+      alwaysShowBorder="props.alwaysShowBorder"
+      attributes="{type: 'number', min: props.min, max: props.max}"
+      onChange="props.onChange"
+    />
+  </t>
+</templates>
