@@ -1,8 +1,10 @@
 import {
   getAddHeaderStartIndex,
+  isDefined,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
   overlap,
+  positionToZone,
   range,
 } from "../../helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
@@ -39,6 +41,7 @@ import {
   UpdateTableCommand,
   Zone,
 } from "../../types";
+import { AutoFillCellsCommand } from "../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 
 /*
@@ -108,6 +111,8 @@ otRegistry.addTransformation(
   ["ADD_PIVOT", "UPDATE_PIVOT"],
   pivotZoneTransformation
 );
+otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["AUTOFILL_CELLS"], autofillTransformation);
+otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["AUTOFILL_CELLS"], autofillTransformation);
 
 function pivotZoneTransformation(
   toTransform: AddPivotCommand | UpdatePivotCommand,
@@ -349,4 +354,42 @@ function groupHeadersTransformation(
   }
 
   return { ...toTransform, start: Math.min(...results), end: Math.max(...results) };
+}
+
+function autofillTransformation(
+  toTransform: AutoFillCellsCommand,
+  executed: RemoveColumnsRowsCommand
+): AutoFillCellsCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const newTargetZone = transformZone(toTransform.targetZone, executed);
+  if (!newTargetZone) return undefined;
+
+  console.log(executed);
+  const newRules = toTransform.rules
+    .map((rule) => {
+      const newRule = { ...rule };
+      const transformedOriginZone = transformZone(positionToZone(rule.origin), executed);
+      if (!transformedOriginZone) {
+        // partially destructive -> it doesn't work I think
+        // return DO_NOTHING;
+        return undefined;
+      }
+      newRule.origin = {
+        sheetId: rule.origin.sheetId,
+        col: transformedOriginZone.left,
+        row: transformedOriginZone.top,
+      };
+      return newRule;
+    })
+    .filter(isDefined);
+
+  if (newRules.length === 0) return undefined;
+
+  return {
+    ...toTransform,
+    targetZone: newTargetZone,
+    rules: newRules,
+  };
 }

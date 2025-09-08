@@ -1,18 +1,9 @@
-import {
-  clip,
-  isInside,
-  positionToZone,
-  recomputeZones,
-  toCartesian,
-  toXC,
-  toZone,
-} from "../../helpers/index";
+import { createAutofillGenerator, iterateAutofillPositions } from "../../helpers/autofill";
+import { clip, isInside } from "../../helpers/index";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
 import {
   AutofillModifier,
-  AutofillResult,
-  Border,
   Cell,
   CellPosition,
   CellValueType,
@@ -20,15 +11,12 @@ import {
   CommandResult,
   DIRECTION,
   GeneratorCell,
-  Getters,
   GridRenderingContext,
   HeaderIndex,
   LocalCommand,
   Tooltip,
-  UID,
   Zone,
 } from "../../types/index";
-import { PositionMap } from "../ui_core_views/cell_evaluation/position_map";
 
 import { UIPlugin } from "../ui_plugin";
 
@@ -51,45 +39,6 @@ import { UIPlugin } from "../ui_plugin";
  * and we apply the modifier (AutofillModifier) associated to the content of the
  * cell.
  */
-
-/**
- * This class is used to generate the next values to autofill.
- * It's done from a selection (the source) and describe how the next values
- * should be computed.
- */
-class AutofillGenerator {
-  private readonly cells: GeneratorCell[];
-  private readonly getters: Getters;
-  private index: number = 0;
-  private readonly direction: DIRECTION;
-
-  constructor(cells: GeneratorCell[], getters: Getters, direction: DIRECTION) {
-    this.cells = cells;
-    this.getters = getters;
-    this.direction = direction;
-  }
-
-  /**
-   * Get the next value to autofill
-   */
-  next(): AutofillResult {
-    const { origin, rule, originCell } = this.cells[this.index++ % this.cells.length];
-    if (!originCell) {
-      return { content: "", origin };
-    }
-    const { content } = autofillModifiersRegistry
-      .get(rule.type)
-      .apply(this.getters, rule, originCell, this.direction);
-    const tooltip = autofillModifiersRegistry
-      .get(rule.type)
-      .tooltip?.(this.getters, content, rule, originCell, this.direction);
-    return {
-      content,
-      tooltip,
-      origin,
-    };
-  }
-}
 
 /**
  * Autofill Plugin
@@ -166,76 +115,43 @@ export class AutofillPlugin extends UIPlugin {
       return;
     }
     const source = this.getters.getSelectedZone();
-    const target = this.autofillZone;
-    const autofillCellsData = new PositionMap<AutofillResult>();
 
     const sheetId = this.getters.getActiveSheetId();
+    const generatorCells: GeneratorCell[] = [];
     switch (this.direction) {
       case DIRECTION.DOWN:
-        for (let col = source.left; col <= source.right; col++) {
-          const xcs: string[] = [];
-          for (let row = source.top; row <= source.bottom; row++) {
-            xcs.push(toXC(col, row));
-          }
-          const generator = this.createGenerator(xcs);
-          for (let row = target.top; row <= target.bottom; row++) {
-            autofillCellsData.set({ sheetId, col, row }, this.generateNextCell(generator));
-          }
-        }
-        break;
       case DIRECTION.UP:
         for (let col = source.left; col <= source.right; col++) {
-          const xcs: string[] = [];
-          for (let row = source.bottom; row >= source.top; row--) {
-            xcs.push(toXC(col, row));
-          }
-          const generator = this.createGenerator(xcs);
-          for (let row = target.bottom; row >= target.top; row--) {
-            autofillCellsData.set({ sheetId, col, row }, this.generateNextCell(generator));
-          }
+          const positionsIterator = iterateAutofillPositions(
+            sheetId,
+            { ...source, left: col, right: col },
+            this.direction
+          );
+          generatorCells.push(...this.getGeneratorCells([...positionsIterator]));
         }
         break;
       case DIRECTION.LEFT:
-        for (let row = source.top; row <= source.bottom; row++) {
-          const xcs: string[] = [];
-          for (let col = source.right; col >= source.left; col--) {
-            xcs.push(toXC(col, row));
-          }
-          const generator = this.createGenerator(xcs);
-          for (let col = target.right; col >= target.left; col--) {
-            autofillCellsData.set({ sheetId, col, row }, this.generateNextCell(generator));
-          }
-        }
-        break;
       case DIRECTION.RIGHT:
         for (let row = source.top; row <= source.bottom; row++) {
-          const xcs: string[] = [];
-          for (let col = source.left; col <= source.right; col++) {
-            xcs.push(toXC(col, row));
-          }
-          const generator = this.createGenerator(xcs);
-          for (let col = target.left; col <= target.right; col++) {
-            autofillCellsData.set({ sheetId, col, row }, this.generateNextCell(generator));
-          }
+          const positionsIterator = iterateAutofillPositions(
+            sheetId,
+            { ...source, top: row, bottom: row },
+            this.direction
+          );
+          generatorCells.push(...this.getGeneratorCells([...positionsIterator]));
         }
         break;
     }
+    this.tooltip = this.getTooltip(generatorCells);
 
     if (apply) {
-      const bordersZones: Record<string, Zone[]> = {};
-      const cfNewRanges: Record<UID, string[]> = {};
-      const dvNewZones: Record<UID, Zone[]> = {};
-      for (const [target, autofillResult] of autofillCellsData.entries()) {
-        const { origin } = autofillResult;
-        this.collectBordersData(target, origin, bordersZones);
-        this.autofillMerge(target, origin);
-        this.autofillCell(target, autofillResult);
-        this.collectConditionalFormatsData(target, origin, cfNewRanges);
-        this.collectDataValidationsData(target, origin, dvNewZones);
-      }
-      this.autofillBorders(sheetId, bordersZones);
-      this.autofillConditionalFormats(sheetId, cfNewRanges);
-      this.autofillDataValidations(sheetId, dvNewZones);
+      // TODO cut generators that won't be used by the target zone
+      this.dispatch("AUTOFILL_CELLS", {
+        sheetId,
+        targetZone: this.autofillZone,
+        rules: generatorCells,
+        direction: this.direction,
+      });
       this.autofillZone = undefined;
       this.selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
@@ -245,117 +161,35 @@ export class AutofillPlugin extends UIPlugin {
     }
   }
 
-  private collectBordersData(
-    target: CellPosition,
-    origin: CellPosition,
-    bordersPositions: Record<string, Zone[]>
-  ) {
-    const border = this.getters.getCellBorder(origin);
-    const key = JSON.stringify(border);
-    if (!(key in bordersPositions)) {
-      bordersPositions[key] = [];
-    }
-    bordersPositions[key].push(positionToZone(target));
-  }
-
-  private collectConditionalFormatsData(
-    target: CellPosition,
-    origin: CellPosition,
-    cfNewRanges: Record<UID, string[]>
-  ) {
-    const cfsAtOrigin = this.getters.getRulesByCell(origin.sheetId, origin.col, origin.row);
-    const xc = toXC(target.col, target.row);
-    for (const cf of cfsAtOrigin) {
-      if (!(cf.id in cfNewRanges)) {
-        cfNewRanges[cf.id] = [];
-      }
-      cfNewRanges[cf.id].push(xc);
-    }
-  }
-
-  private collectDataValidationsData(
-    target: CellPosition,
-    origin: CellPosition,
-    dvNewZones: Record<UID, Zone[]>
-  ) {
-    const dvsAtOrigin = this.getters.getValidationRuleForCell(origin);
-    if (!dvsAtOrigin) {
+  private getTooltip(generatorCells: GeneratorCell[]) {
+    if (!this.autofillZone || !this.direction || generatorCells.length === 0) {
       return;
     }
-    if (!(dvsAtOrigin.id in dvNewZones)) {
-      dvNewZones[dvsAtOrigin.id] = [];
+    const generator = createAutofillGenerator(
+      this.getters,
+      this.getters.getActiveSheetId(),
+      this.autofillZone,
+      this.direction,
+      generatorCells
+    );
+    let lastContent = "";
+    let lastRule: AutofillModifier | undefined;
+    let lastOrigin: CellPosition | undefined;
+    for (const { content, rule, origin } of generator) {
+      lastContent = content;
+      lastRule = rule;
+      lastOrigin = origin;
     }
-    dvNewZones[dvsAtOrigin.id].push(positionToZone(target));
-  }
-
-  private autofillCell(target: CellPosition, autofillResult: AutofillResult) {
-    const cell = this.getters.getCell(autofillResult.origin);
-    this.dispatch("UPDATE_CELL", {
-      sheetId: target.sheetId,
-      col: target.col,
-      row: target.row,
-      content: autofillResult.content || "",
-      style: cell?.style || null,
-      format: cell?.format || "",
-    });
-    // Still useful in odoo ATM to autofill field sync
-    this.dispatch("AUTOFILL_CELL", {
-      originCol: autofillResult.origin.col,
-      originRow: autofillResult.origin.row,
-      col: target.col,
-      row: target.row,
-    });
-  }
-
-  private autofillBorders(sheetId: UID, bordersPositions: Record<string, Zone[]>) {
-    for (const stringifiedBorder in bordersPositions) {
-      const border =
-        stringifiedBorder === "undefined" ? undefined : (JSON.parse(stringifiedBorder) as Border);
-      this.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        border,
-        target: recomputeZones(bordersPositions[stringifiedBorder]),
-      });
+    if (!lastRule || !lastOrigin) {
+      return;
     }
-  }
-
-  private autofillConditionalFormats(sheetId: UID, cfNewRanges: Record<UID, string[]>) {
-    for (const cfId in cfNewRanges) {
-      const changes = cfNewRanges[cfId];
-      const cf = this.getters.getConditionalFormats(sheetId).find((cf) => cf.id === cfId);
-      if (!cf) {
-        continue;
-      }
-      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, changes.map(toZone), []);
-      if (newCfRanges) {
-        this.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: cf.id,
-            rule: cf.rule,
-            stopIfTrue: cf.stopIfTrue,
-          },
-          ranges: newCfRanges,
-          sheetId,
-        });
-      }
+    const originCell = this.getters.getCell(lastOrigin);
+    if (!originCell) {
+      return;
     }
-  }
-
-  private autofillDataValidations(sheetId: UID, dvNewZones: Record<UID, Zone[]>) {
-    for (const dvId in dvNewZones) {
-      const changes = dvNewZones[dvId];
-      const dvOrigin = this.getters.getDataValidationRule(sheetId, dvId);
-      if (!dvOrigin) {
-        continue;
-      }
-      const dvRangesXcs = dvOrigin.ranges.map((range) => range.zone);
-      const newDvRanges = recomputeZones(dvRangesXcs.concat(changes), []);
-      this.dispatch("ADD_DATA_VALIDATION_RULE", {
-        rule: dvOrigin,
-        ranges: newDvRanges.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
-        sheetId,
-      });
-    }
+    return autofillModifiersRegistry
+      .get(lastRule.type)
+      .tooltip(this.getters, lastContent, lastRule, originCell, this.direction);
   }
 
   /**
@@ -440,29 +274,18 @@ export class AutofillPlugin extends UIPlugin {
     return row - 1;
   }
 
-  private generateNextCell(generator: AutofillGenerator): AutofillResult {
-    const autofillResult = generator.next();
-    this.tooltip = autofillResult.tooltip;
-    return autofillResult;
-  }
-
   /**
    * Get the rule associated to the current cell
    */
   private getRule(cell: Cell, cells: (Cell | undefined)[]): AutofillModifier | undefined {
     const rules = autofillRulesRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
     const rule = rules.find((rule) => rule.condition(cell, cells));
-    return rule && this.direction && rule.generateRule(cell, cells, this.direction);
+    return rule && this.direction && rule.generateRule(this.getters, cell, cells, this.direction);
   }
 
-  /**
-   * Create the generator to be able to autofill the next cells.
-   */
-  private createGenerator(source: string[]): AutofillGenerator {
+  private getGeneratorCells(originPositions: CellPosition[]): GeneratorCell[] {
     const nextCells: GeneratorCell[] = [];
 
-    const sheetId = this.getters.getActiveSheetId();
-    const originPositions = source.map((xc) => ({ ...toCartesian(xc), sheetId }));
     const cells = originPositions.map((position) => this.getters.getCell(position));
     for (let i = 0; i < originPositions.length; i++) {
       let rule: AutofillModifier = { type: "COPY_MODIFIER" };
@@ -473,12 +296,12 @@ export class AutofillPlugin extends UIPlugin {
         rule = newRule || rule;
       }
       nextCells.push({
-        originCell: cell,
+        originContent: cell?.content ?? "",
         origin: position,
         rule,
       });
     }
-    return new AutofillGenerator(nextCells, this.getters, this.direction!);
+    return nextCells;
   }
 
   private saveZone(top: HeaderIndex, bottom: HeaderIndex, left: HeaderIndex, right: HeaderIndex) {
@@ -510,33 +333,6 @@ export class AutofillPlugin extends UIPlugin {
     return Math.abs(position[first].number) >= Math.abs(position[second].number)
       ? position[first].value
       : position[second].value;
-  }
-
-  private autofillMerge(target: CellPosition, origin: CellPosition) {
-    if (this.getters.isInMerge(target) && !this.getters.isInMerge(origin)) {
-      const zone = this.getters.getMerge(target);
-      if (zone) {
-        this.dispatch("REMOVE_MERGE", {
-          sheetId: origin.sheetId,
-          target: [zone],
-        });
-      }
-    }
-    const { col: originCol, row: originRow } = origin;
-    const originMerge = this.getters.getMerge(origin);
-    if (originMerge?.left === originCol && originMerge?.top === originRow) {
-      this.dispatch("ADD_MERGE", {
-        sheetId: target.sheetId,
-        target: [
-          {
-            top: target.row,
-            bottom: target.row + originMerge.bottom - originMerge.top,
-            left: target.col,
-            right: target.col + originMerge.right - originMerge.left,
-          },
-        ],
-      });
-    }
   }
 
   // ---------------------------------------------------------------------------
