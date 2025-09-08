@@ -17,7 +17,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
       <div
-        class="o-menu-item-name text-truncate align-items-center d-flex"
+        class="o-menu-item-name text-truncate"
       >
         Sum: 24
       </div>
@@ -38,7 +38,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
       <div
-        class="o-menu-item-name text-truncate align-items-center d-flex"
+        class="o-menu-item-name text-truncate"
       >
         Avg: 24
       </div>
@@ -59,7 +59,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
       <div
-        class="o-menu-item-name text-truncate align-items-center d-flex"
+        class="o-menu-item-name text-truncate"
       >
         Min: 24
       </div>
@@ -80,7 +80,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
       <div
-        class="o-menu-item-name text-truncate align-items-center d-flex"
+        class="o-menu-item-name text-truncate"
       >
         Max: 24
       </div>
@@ -101,7 +101,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
       <div
-        class="o-menu-item-name text-truncate align-items-center d-flex"
+        class="o-menu-item-name text-truncate"
       >
         Count: 1
       </div>
@@ -122,7 +122,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     >
       
       <div
-        class="o-menu-item-name text-truncate align-items-center d-flex"
+        class="o-menu-item-name text-truncate"
       >
         Count Numbers: 1
       </div>
