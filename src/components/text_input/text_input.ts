@@ -1,10 +1,8 @@
-import { Component, onMounted, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
 import { ACTION_COLOR, GRAY_300, TEXT_BODY } from "../../constants";
-import { isDefined } from "../../helpers";
-import { Ref } from "../../types";
+import { GenericInput } from "../generic_input/generic_input";
 import { css } from "../helpers";
-import { useAutofocus } from "../helpers/autofocus_hook";
 
 css/* scss */ `
   .o-spreadsheet {
@@ -37,6 +35,7 @@ interface Props {
 
 export class TextInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TextInput";
+  static components = { GenericInput };
   static props = {
     value: String,
     onChange: Function,
@@ -58,80 +57,8 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
     },
     alwaysShowBorder: { type: Boolean, optional: true },
   };
-  private inputRef: Ref<HTMLInputElement> = useRef("input");
-
-  setup() {
-    useExternalListener(
-      window,
-      "click",
-      (ev) => {
-        if (ev.target !== this.inputRef.el && this.inputRef.el?.value !== this.props.value) {
-          this.save();
-        }
-      },
-      { capture: true }
-    );
-    if (this.props.autofocus) {
-      useAutofocus({ refName: "input" });
-    }
-
-    onWillUpdateProps((newProps) => {
-      if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
-        this.inputRef.el.value = newProps.value;
-      }
-    });
-    onMounted(() => {
-      if (this.inputRef.el) this.inputRef.el.value = this.props.value;
-    });
-  }
-
-  onKeyDown(ev: KeyboardEvent) {
-    switch (ev.key) {
-      case "Enter":
-        this.save();
-        ev.preventDefault();
-        ev.stopPropagation();
-        break;
-      case "Escape":
-        if (this.inputRef.el) {
-          this.inputRef.el.value = this.props.value;
-          this.inputRef.el.blur();
-        }
-        ev.preventDefault();
-        ev.stopPropagation();
-        break;
-    }
-  }
-
-  save() {
-    const currentValue = (this.inputRef.el?.value || "").trim();
-    if (currentValue !== this.props.value) {
-      this.props.onChange(currentValue);
-    }
-    this.inputRef.el?.blur();
-  }
-
-  onMouseDown(ev: MouseEvent) {
-    // Stop the event if the input is not focused, we handle everything in onMouseUp
-    if (ev.target !== document.activeElement) {
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-  }
-
-  onMouseUp(ev: MouseEvent) {
-    const target = ev.target as HTMLInputElement;
-    if (target !== document.activeElement) {
-      target.focus();
-      target.select();
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-  }
 
   get inputClass(): string {
-    return [this.props.class, this.props.alwaysShowBorder ? "o-input-border" : undefined]
-      .filter(isDefined)
-      .join(" ");
+    return [this.props.class, "os-input w-100"].join(" ");
   }
 }
