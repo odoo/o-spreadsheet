@@ -654,7 +654,7 @@ exports[`TopBar component can set cell format 1`] = `
             </div>
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Automatic
             </div>
@@ -679,7 +679,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Plain text
             </div>
@@ -708,7 +708,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Number
             </div>
@@ -738,7 +738,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Percent
             </div>
@@ -772,7 +772,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Currency
             </div>
@@ -802,7 +802,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Accounting
             </div>
@@ -832,7 +832,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Currency rounded
             </div>
@@ -862,7 +862,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Custom currency
             </div>
@@ -891,7 +891,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Date
             </div>
@@ -921,7 +921,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Time
             </div>
@@ -951,7 +951,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Date time
             </div>
@@ -981,7 +981,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               Duration
             </div>
@@ -1015,7 +1015,7 @@ exports[`TopBar component can set cell format 1`] = `
             />
             
             <div
-              class="o-menu-item-name text-truncate align-items-center d-flex"
+              class="o-menu-item-name text-truncate"
             >
               More date formats
             </div>
