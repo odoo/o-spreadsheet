@@ -659,7 +659,7 @@ export class GridRenderer extends SpreadsheetStore {
     const chipStyle = this.getters.getDataValidationChipStyle(position);
     const border = this.getters.getCellComputedBorder(position, precomputeZone);
 
-    let style = this.getters.getCellComputedStyle(position);
+    let style = this.getters.getCellComputedStyle(position, precomputeZone);
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };
