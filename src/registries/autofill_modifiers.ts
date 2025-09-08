@@ -1,5 +1,6 @@
+import { Token } from "../formulas";
 import { toJsDate } from "../functions/helpers";
-import { jsDateToNumber } from "../helpers";
+import { isFormula, jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format/format";
 import {
@@ -11,6 +12,7 @@ import {
   Getters,
   IncrementModifier,
   LiteralCell,
+  UID,
 } from "../types/index";
 import { AlphanumericIncrementModifier, DateIncrementModifier } from "./../types/autofill";
 import { Registry } from "./registry";
@@ -24,7 +26,7 @@ export const autofillModifiersRegistry = new Registry<AutofillModifierImplementa
 
 autofillModifiersRegistry
   .add("ALPHANUMERIC_INCREMENT_MODIFIER", {
-    apply: (getters: Getters, rule: AlphanumericIncrementModifier, originCell: Cell) => {
+    apply: (getters: Getters, rule: AlphanumericIncrementModifier) => {
       rule.current += rule.increment;
       let value = Math.abs(rule.current).toString();
       value = "0".repeat(Math.max(rule.numberPostfixLength - value.length, 0)) + value;
@@ -47,7 +49,7 @@ autofillModifiersRegistry
     },
   })
   .add("INCREMENT_MODIFIER", {
-    apply: (getters: Getters, rule: IncrementModifier, originCell: Cell) => {
+    apply: (getters: Getters, rule: IncrementModifier) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
       return {
@@ -61,7 +63,7 @@ autofillModifiersRegistry
     },
   })
   .add("DATE_INCREMENT_MODIFIER", {
-    apply: (getters: Getters, rule: DateIncrementModifier, originCell: Cell) => {
+    apply: (getters: Getters, rule: DateIncrementModifier) => {
       const date = toJsDate(rule.current, getters.getLocale());
       date.setFullYear(date.getFullYear() + rule.increment.years || 0);
       date.setMonth(date.getMonth() + rule.increment.months || 0);
@@ -80,9 +82,14 @@ autofillModifiersRegistry
     },
   })
   .add("COPY_MODIFIER", {
-    apply: (getters: Getters, rule: CopyModifier, originCell: Cell) => {
-      const content = originCell.content || "";
-      return { content };
+    apply: (
+      getters: Getters,
+      rule: CopyModifier,
+      direction: DIRECTION,
+      sheetId: UID,
+      originContent: string
+    ) => {
+      return { content: originContent };
     },
     tooltip: (getters: Getters, content: string, rule: CopyModifier, originCell: Cell) => {
       const localeFormat = { locale: getters.getLocale(), format: originCell.format };
@@ -94,7 +101,14 @@ autofillModifiersRegistry
     },
   })
   .add("FORMULA_MODIFIER", {
-    apply: (getters: Getters, rule: FormulaModifier, originCell: Cell, direction: DIRECTION) => {
+    apply: (
+      getters: Getters,
+      rule: FormulaModifier,
+      direction: DIRECTION,
+      sheetId: UID,
+      originContent: string,
+      originTokens: Token[]
+    ) => {
       rule.current += rule.increment;
       let x = 0;
       let y = 0;
@@ -116,12 +130,10 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      const cell = originCell;
-      if (!cell || !cell.isFormula) {
+      if (!isFormula(originContent)) {
         return { content: "" };
       }
-      const sheetId = getters.getCellPosition(originCell.id).sheetId;
-      const content = getters.getTranslatedCellFormula(sheetId, x, y, cell.compiledFormula.tokens);
+      const content = getters.getTranslatedCellFormula(sheetId, x, y, originTokens);
       return { content };
     },
     tooltip: (getters: Getters, content: string, rule: FormulaModifier, originCell: Cell) => {

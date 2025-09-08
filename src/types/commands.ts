@@ -3,6 +3,7 @@ import {
   DataValidationRule,
   Figure,
   Format,
+  GeneratorCell,
   Locale,
   Style,
   Zone,
@@ -13,6 +14,7 @@ import {
   CellPosition,
   Color,
   Dimension,
+  DIRECTION,
   HeaderIndex,
   Pixel,
   PixelPosition,
@@ -307,6 +309,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** MISC */
   "UPDATE_LOCALE",
+  "AUTOFILL_CELLS",
 
   /** PIVOT */
   "ADD_PIVOT",
@@ -876,6 +879,14 @@ export interface AutoFillCellCommand {
   row: HeaderIndex;
 }
 
+export interface AutoFillCellsCommand {
+  type: "AUTOFILL_CELLS";
+  sheetId: UID;
+  targetZone: Zone;
+  rules: GeneratorCell[];
+  direction: DIRECTION;
+}
+
 export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
@@ -1126,6 +1137,7 @@ export type CoreCommand =
   | ClearCellCommand
   | ClearCellsCommand
   | DeleteContentCommand
+  | AutoFillCellsCommand
 
   /** GRID SHAPE */
   | AddColumnsRowsCommand

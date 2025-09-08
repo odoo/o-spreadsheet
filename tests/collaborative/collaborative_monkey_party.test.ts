@@ -28,7 +28,7 @@ import { setupCollaborativeEnv } from "./collaborative_helpers";
  * It is intended to be run locally from time to time by increasing `PARTY_COUNT`.
  */
 
-const PARTY_COUNT = parseInt(process.env.SPREADSHEET_MONKEY_COUNT || "1");
+const PARTY_COUNT: number = 100;
 if (isNaN(PARTY_COUNT)) {
   throw new Error(
     "Invalid SPREADSHEET_MONKEY_COUNT. Make sure to use `npm run monkey --monkey_count=10`"
