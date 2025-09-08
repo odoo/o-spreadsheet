@@ -29,7 +29,12 @@ interface TableRuntime {
 }
 
 export class TableComputedStylePlugin extends UIPlugin {
-  static getters = ["getCellTableStyle", "getCellTableBorder", "getCellTableBorderZone"] as const;
+  static getters = [
+    "getCellTableStyle",
+    "getCellTableBorder",
+    "getCellTableBorderZone",
+    "getCellTableStyleZone",
+  ] as const;
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
@@ -73,6 +78,24 @@ export class TableComputedStylePlugin extends UIPlugin {
     }
 
     return this.tableStyles[position.sheetId][table.id]().styles[position.col]?.[position.row];
+  }
+
+  getCellTableStyleZone(sheetId: UID, zone: Zone): PositionMap<Style> {
+    const map = new PositionMap<Style>();
+    for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
+      const tableStyles = this.tableStyles[sheetId][table.id]().styles;
+      for (const colIdx of Object.keys(tableStyles)) {
+        const colStyle = tableStyles[colIdx];
+        const col = parseInt(colIdx);
+        for (const rowIdx of Object.keys(colStyle)) {
+          const cellStyle = colStyle[rowIdx];
+          if (cellStyle) {
+            map.set({ sheetId, col, row: parseInt(rowIdx) }, cellStyle);
+          }
+        }
+      }
+    }
+    return map;
   }
 
   getCellTableBorder(position: CellPosition): Border | undefined {
