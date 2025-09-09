@@ -51,7 +51,9 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<Clipboar
       return;
     }
     const zones = target.zones;
-    if (!options.isCutOperation) {
+    if (content.styles.length === 0) {
+      this.dispatch("SET_FORMATTING", { sheetId, target: zones, style: undefined });
+    } else if (!options.isCutOperation) {
       for (const zone of zones) {
         for (const pasteZone of splitZoneForPaste(
           zone,

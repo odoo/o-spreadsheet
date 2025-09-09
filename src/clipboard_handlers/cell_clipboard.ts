@@ -1,5 +1,5 @@
 import { deepEquals, formatValue, isZoneInside } from "../helpers";
-import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { columnRowIndexesToZones, getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import {
@@ -40,11 +40,17 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<Clipboard
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells = new Map2D<ClipboardCell>(columnsIndexes.length, rowsIndexes.length);
     const isCopyingOneCell = rowsIndexes.length === 1 && columnsIndexes.length === 1;
-    for (const [r, row] of rowsIndexes.entries()) {
-      for (const [c, col] of columnsIndexes.entries()) {
-        const position = { col, row, sheetId };
-        let cell = this.getters.getCell(position);
+    for (const [zone, c, r] of columnRowIndexesToZones(data.columnsIndexes, data.rowsIndexes)) {
+      const positions =
+        mode === "shiftCells"
+          ? this.getters
+              .getCellsFromZones(sheetId, [zone])
+              .map((cell) => this.getters.getCellPosition(cell.id))
+          : this.getters.getEvaluatedCellsPositionInZone(sheetId, zone);
+
+      for (const position of positions) {
         const evaluatedCell = this.getters.getEvaluatedCell(position);
+        let cell = this.getters.getCell(position);
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         if (mode !== "shiftCells" && pivotId && spreader) {
@@ -82,7 +88,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<Clipboard
           }
         }
         if (cell?.content !== "" || cell.format) {
-          clippedCells.set(c, r, {
+          clippedCells.set(c + position.col - zone.left, r + position.row - zone.top, {
             content: cell?.content ?? "",
             format: cell?.format,
             tokens: cell?.isFormula

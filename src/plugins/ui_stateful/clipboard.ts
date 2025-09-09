@@ -564,21 +564,26 @@ export class ClipboardPlugin extends UIPlugin {
     } else if (cells.length === 1 && cells[0].length === 1) {
       const position = cells[0][0]?.position;
       innerHTML = position ? `${this.getters.getCellText(position)}` : "";
-    } else if (!cells[0][0]) {
-      return "";
     } else {
       let htmlTable = `<table border="1" style="border-collapse:collapse">`;
       for (const row of cells) {
         htmlTable += "<tr>";
+        let skipped = 0;
         for (const cell of row) {
           if (!cell) {
+            skipped++;
             continue;
+          }
+          if (skipped) {
+            htmlTable += `<td/>`.repeat(skipped);
+            skipped = 0;
           }
           const cssStyle = cssPropertiesToCss(
             cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
           );
+          const styleStr = cssStyle ? ` style="${cssStyle}"` : "";
           const cellText = this.getters.getCellText(cell.position);
-          htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
+          htmlTable += `<td${styleStr}>` + xmlEscape(cellText) + "</td>";
         }
         htmlTable += "</tr>";
       }
