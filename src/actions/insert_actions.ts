@@ -1,6 +1,5 @@
 import { functionRegistry } from "../functions";
 import { isDefined } from "../helpers";
-import { localizeDataValidationRule } from "../helpers/locale";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
@@ -323,12 +322,7 @@ export const insertDropdown: ActionSpec = {
     if (!rule) {
       return;
     }
-    env.openSidePanel("DataValidationEditor", {
-      rule: localizeDataValidationRule(rule, env.model.getters.getLocale()),
-      onExit: () => {
-        env.replaceSidePanel("DataValidation", "DataValidationEditor");
-      },
-    });
+    env.openSidePanel("DataValidationEditor", { id: ruleID });
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
