@@ -1,6 +1,5 @@
 import { functionRegistry } from "../functions";
 import { isDefined } from "../helpers";
-import { localizeDataValidationRule } from "../helpers/locale";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
@@ -303,32 +302,8 @@ export const insertCheckbox: ActionSpec = {
 export const insertDropdown: ActionSpec = {
   name: _t("Dropdown list"),
   execute: (env) => {
-    const zones = env.model.getters.getSelectedZones();
-    const sheetId = env.model.getters.getActiveSheetId();
-    const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-    const ruleID = env.model.uuidGenerator.smallUuid();
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
-      ranges,
-      sheetId,
-      rule: {
-        id: ruleID,
-        criterion: {
-          type: "isValueInList",
-          values: [],
-          displayStyle: "chip",
-        },
-      },
-    });
-    const rule = env.model.getters.getDataValidationRule(sheetId, ruleID);
-    if (!rule) {
-      return;
-    }
-    env.openSidePanel("DataValidationEditor", {
-      rule: localizeDataValidationRule(rule, env.model.getters.getLocale()),
-      onExit: () => {
-        env.replaceSidePanel("DataValidation", "DataValidationEditor");
-      },
-    });
+    const id = env.model.uuidGenerator.smallUuid();
+    env.openSidePanel("DataValidationEditor", { id });
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
