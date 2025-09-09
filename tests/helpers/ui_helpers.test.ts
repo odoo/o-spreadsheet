@@ -446,13 +446,27 @@ describe("UI Helpers", () => {
     });
   });
 
-  test("Cannot sort on zone with array formulas", () => {
+  test("Cannot sort on zone with array formulas that spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
     const env = makeTestEnv({ model, raiseError });
 
     interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "asc");
     expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
+  });
+
+  test("Can sort on zone with array formulas that do not spread", () => {
+    const raiseError = jest.fn();
+    model = createModelFromGrid({ A1: "9", A2: "8", B1: "1", C1: "=MMULT(A1:A2, A1:B1)" });
+    const env = makeTestEnv({ model, raiseError });
+
+    interactiveSortSelection(env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
+    expect(raiseError).toHaveBeenCalledTimes(1);
+    expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
+
+    setCellContent(model, "C1", "=MMULT( A1:B1, A1:A2)");
+    interactiveSortSelection(env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
+    expect(raiseError).toHaveBeenCalledTimes(1);
   });
 
   describe("Sort Merges", () => {
