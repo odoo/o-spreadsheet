@@ -1,5 +1,4 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { localizeDataValidationRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -323,12 +322,7 @@ export const insertDropdown: ActionSpec = {
     if (!rule) {
       return;
     }
-    env.openSidePanel("DataValidationEditor", {
-      rule: localizeDataValidationRule(rule, env.model.getters.getLocale()),
-      onExit: () => {
-        env.replaceSidePanel("DataValidation", "DataValidationEditor");
-      },
-    });
+    env.openSidePanel("DataValidationEditor", { id: ruleID });
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
