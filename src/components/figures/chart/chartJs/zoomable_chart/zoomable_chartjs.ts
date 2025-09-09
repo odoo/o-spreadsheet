@@ -310,6 +310,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   onPointerDownInMasterChart(ev: PointerEvent) {
+    const { min: yMin, max: yMax } = this.masterChart?.scales?.y ?? {};
+    this.chart!.config.options!.scales!.y!.min = yMin;
+    this.chart!.config.options!.scales!.y!.max = yMax;
     this.removeEventListeners();
     const position = ev.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
@@ -385,6 +388,8 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
     const onPointerUpInMasterChart = (ev: PointerEvent) => {
       this.removeEventListeners();
+      this.chart!.config.options!.scales!.y!.min = undefined;
+      this.chart!.config.options!.scales!.y!.max = undefined;
       const position = ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
       if (Math.abs(position - startingEventPosition) > 5) {
         let { min: xMin, max: xMax } = computeNewAxisLimits(position);
