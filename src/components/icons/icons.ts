@@ -138,6 +138,15 @@ export function getCaretDownSvg(color: Style): ImageSVG {
   };
 }
 
+export function getCaretUpSvg(color: Style): ImageSVG {
+  return {
+    name: "CARET_UP",
+    width: 512,
+    height: 512,
+    paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: "M120 325 h270 l-135 -130" }],
+  };
+}
+
 export function getHoveredCaretDownSvg(color: Style): ImageSVG {
   return {
     name: "CARET_DOWN",
