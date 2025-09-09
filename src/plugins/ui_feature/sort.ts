@@ -1,4 +1,11 @@
-import { isInside, overlap, positions, range, zoneToDimension } from "../../helpers/index";
+import {
+  deepEquals,
+  isInside,
+  overlap,
+  positions,
+  range,
+  zoneToDimension,
+} from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import {
   CellPosition,
@@ -79,9 +86,10 @@ export class SortPlugin extends UIPlugin {
   }
 
   private checkArrayFormulaInSortZone({ sheetId, zone }: SortCommand): CommandResult {
-    const arrayFormulaInZone = positions(zone).some(({ col, row }) =>
-      this.getters.getArrayFormulaSpreadingOn({ sheetId, col, row })
-    );
+    const arrayFormulaInZone = positions(zone).some(({ col, row }) => {
+      const originPosition = this.getters.getArrayFormulaSpreadingOn({ sheetId, col, row });
+      return originPosition && !deepEquals(originPosition, { sheetId, col, row });
+    });
     return arrayFormulaInZone ? CommandResult.SortZoneWithArrayFormulas : CommandResult.Success;
   }
 
