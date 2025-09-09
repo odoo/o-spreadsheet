@@ -32,7 +32,7 @@ export const SUPPORTED_HORIZONTAL_ALIGNMENTS: XLSXHorizontalAlignment[] = [
 ];
 export const SUPPORTED_VERTICAL_ALIGNMENTS: XLSXVerticalAlignment[] = ["top", "center", "bottom"];
 export const SUPPORTED_FONTS = ["Arial"];
-export const SUPPORTED_FILL_PATTERNS = ["solid"];
+export const SUPPORTED_FILL_PATTERNS = ["solid", "none"];
 export const SUPPORTED_CF_TYPES = [
   "expression",
   "cellIs",
@@ -238,7 +238,7 @@ export const SUBTOTAL_FUNCTION_CONVERSION_MAP: Record<number, string> = {
 
 /** Mapping between Excel format indexes (see XLSX_FORMAT_MAP) and some supported formats  */
 export const XLSX_FORMATS_CONVERSION_MAP: Record<number, string | undefined> = {
-  0: "",
+  0: "General",
   1: "0",
   2: "0.00",
   3: "#,#00",
