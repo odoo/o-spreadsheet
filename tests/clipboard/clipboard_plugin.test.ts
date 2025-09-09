@@ -578,29 +578,40 @@ describe("clipboard", () => {
       const clipboardData = JSON.stringify(cbPlugin["getSheetData"](), mapReplacer);
       const expectedHtmlContent = `<div data-osheet-clipboard='${xmlEscape(
         clipboardData
-      )}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
+      )}'><table border="1" style="border-collapse:collapse"><tr><td>1</td><td>2</td></tr><tr><td>3</td></tr></table></div>`;
       expect(htmlContent).toBe(expectedHtmlContent);
     });
 
     test("Copied group of cells are represented as a valid HTML table in the clipboard", async () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "3");
-      copy(model, "A1:B2");
+      setCellContent(model, "C1", "3");
+      setCellContent(model, "A2", "4");
+      setCellContent(model, "B2", "5");
+      setCellContent(model, "A3", "6");
+      setCellContent(model, "C3", "7");
+
+      copy(model, "A1:C3");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const parsedHTML = parseXML(new XMLString(htmlContent), "text/html");
 
       expect(parsedHTML.body.firstElementChild?.tagName).toBe("DIV");
       const tableRows = parsedHTML.querySelectorAll("tr");
-      expect(tableRows).toHaveLength(2);
-      expect(tableRows[0].querySelectorAll("td")).toHaveLength(2);
+      expect(tableRows).toHaveLength(3);
+      expect(tableRows[0].querySelectorAll("td")).toHaveLength(3);
       expect(tableRows[0].querySelectorAll("td")[0].innerHTML).toEqual("1");
       expect(tableRows[0].querySelectorAll("td")[1].innerHTML).toEqual("2");
+      expect(tableRows[0].querySelectorAll("td")[2].innerHTML).toEqual("3");
 
       expect(tableRows[1].querySelectorAll("td")).toHaveLength(2);
-      expect(tableRows[1].querySelectorAll("td")[0].innerHTML).toEqual("3");
-      expect(tableRows[1].querySelectorAll("td")[1].innerHTML).toEqual("");
+      expect(tableRows[1].querySelectorAll("td")[0].innerHTML).toEqual("4");
+      expect(tableRows[1].querySelectorAll("td")[1].innerHTML).toEqual("5");
+
+      expect(tableRows[2].querySelectorAll("td")).toHaveLength(3);
+      expect(tableRows[2].querySelectorAll("td")[0].innerHTML).toEqual("6");
+      expect(tableRows[2].querySelectorAll("td")[1].innerHTML).toEqual("");
+      expect(tableRows[2].querySelectorAll("td")[2].innerHTML).toEqual("7");
     });
 
     test("Copied HTML table style", async () => {

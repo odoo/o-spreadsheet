@@ -1,6 +1,14 @@
 import { isExportableToExcel } from "../../../formulas/index";
 import { matrixMap } from "../../../functions/helpers";
-import { cellPositions, getItemId, positions, toXC } from "../../../helpers/index";
+import {
+  cellPositions,
+  getItemId,
+  getZoneArea,
+  isBound,
+  isInside,
+  positions,
+  toXC,
+} from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -292,8 +300,15 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return cellPositions(sheetId, zone).map(this.getters.getEvaluatedCell);
   }
 
-  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): [CellPosition, EvaluatedCell][] {
-    return cellPositions(sheetId, zone).map((pos) => [pos, this.getters.getEvaluatedCell(pos)]);
+  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): CellPosition[] {
+    if (isBound(zone) && getZoneArea(zone) < 1000) {
+      return cellPositions(sheetId, zone).filter(
+        (pos) => this.getters.getEvaluatedCell(pos).value !== null
+      );
+    }
+    return this.evaluator
+      .getEvaluatedPositionsInSheet(sheetId)
+      .filter((pos) => isInside(pos.col, pos.row, zone));
   }
 
   /**
