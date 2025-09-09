@@ -1,17 +1,11 @@
 import { localizeDataValidationRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
-import { DataValidationRule, UID } from "../../../types";
-import { DataValidationEditor } from "./dv_editor/dv_editor";
+import { Component } from "@odoo/owl";
+import { DataValidationRule } from "../../../types";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
 interface Props {
   onCloseSidePanel: () => void;
-}
-
-interface State {
-  mode: "list" | "edit";
-  activeRule: DataValidationRule | undefined;
 }
 
 export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -19,27 +13,12 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     onCloseSidePanel: Function,
   };
-  static components = { DataValidationPreview, DataValidationEditor };
-
-  state = useState<State>({ mode: "list", activeRule: undefined });
-
-  onPreviewClick(id: UID) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const rule = this.env.model.getters.getDataValidationRule(sheetId, id);
-    if (rule) {
-      this.state.mode = "edit";
-      this.state.activeRule = rule;
-    }
-  }
+  static components = { DataValidationPreview };
 
   addDataValidationRule() {
-    this.state.mode = "edit";
-    this.state.activeRule = undefined;
-  }
-
-  onExitEditMode() {
-    this.state.mode = "list";
-    this.state.activeRule = undefined;
+    this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
+      ruleId: this.env.model.uuidGenerator.smallUuid(),
+    });
   }
 
   localizeDVRule(rule?: DataValidationRule): DataValidationRule | undefined {

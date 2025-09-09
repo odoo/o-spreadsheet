@@ -85,6 +85,13 @@ sidePanelRegistry.add("DataValidation", {
 sidePanelRegistry.add("DataValidationEditor", {
   title: _t("Data validation"),
   Body: DataValidationEditor,
+  computeState: (getters: Getters, props: { ruleId: UID }) => {
+    return {
+      isOpen: true,
+      props,
+      key: `DataValidationEditor_${props.ruleId}`,
+    };
+  },
 });
 
 sidePanelRegistry.add("MoreFormats", {

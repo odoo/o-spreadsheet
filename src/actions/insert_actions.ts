@@ -1,5 +1,4 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { localizeDataValidationRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -306,12 +305,12 @@ export const insertDropdown: ActionSpec = {
     const zones = env.model.getters.getSelectedZones();
     const sheetId = env.model.getters.getActiveSheetId();
     const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-    const ruleID = env.model.uuidGenerator.smallUuid();
+    const ruleId = env.model.uuidGenerator.smallUuid();
     env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
-        id: ruleID,
+        id: ruleId,
         criterion: {
           type: "isValueInList",
           values: [],
@@ -319,16 +318,11 @@ export const insertDropdown: ActionSpec = {
         },
       },
     });
-    const rule = env.model.getters.getDataValidationRule(sheetId, ruleID);
+    const rule = env.model.getters.getDataValidationRule(sheetId, ruleId);
     if (!rule) {
       return;
     }
-    env.openSidePanel("DataValidationEditor", {
-      rule: localizeDataValidationRule(rule, env.model.getters.getLocale()),
-      onExit: () => {
-        env.replaceSidePanel("DataValidation", "DataValidationEditor");
-      },
-    });
+    env.openSidePanel("DataValidationEditor", { ruleId });
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",

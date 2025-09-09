@@ -1,5 +1,8 @@
 import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import {
+  canonicalizeContent,
+  localizeDataValidationRule,
+} from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
@@ -15,7 +18,6 @@ import {
   CancelledReason,
   DataValidationCriterion,
   DataValidationCriterionType,
-  DataValidationRule,
   DataValidationRuleData,
   UID,
 } from "../../../../types";
@@ -25,9 +27,8 @@ import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
 
 interface Props {
-  rule: DataValidationRule | undefined;
-  onExit: () => void;
-  onCloseSidePanel?: () => void;
+  ruleId: UID;
+  onCloseSidePanel: () => void;
 }
 
 interface State {
@@ -39,11 +40,7 @@ interface State {
 export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, SelectMenu, Section, ValidationMessages };
-  static props = {
-    rule: { type: Object, optional: true },
-    onExit: Function,
-    onCloseSidePanel: { type: Function, optional: true },
-  };
+  static props = { ruleId: String, onCloseSidePanel: Function };
 
   state = useState<State>({
     rule: this.defaultDataValidationRule,
@@ -54,14 +51,18 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
   setup() {
     this.editingSheetId = this.env.model.getters.getActiveSheetId();
-    if (this.props.rule) {
+    const rule = this.env.model.getters.getDataValidationRule(
+      this.editingSheetId,
+      this.props.ruleId
+    );
+    if (rule) {
+      const locale = this.env.model.getters.getLocale();
       this.state.rule = {
-        ...this.props.rule,
-        ranges: this.props.rule.ranges.map((range) =>
+        ...localizeDataValidationRule(rule, locale),
+        ranges: rule.ranges.map((range) =>
           this.env.model.getters.getRangeString(range, this.editingSheetId)
         ),
       };
-      this.state.rule.criterion.type = this.props.rule.criterion.type;
     }
   }
 
@@ -83,15 +84,17 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     this.state.rule.isBlocking = isBlocking === "true";
   }
 
+  onCancel() {
+    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
+  }
+
   onSave() {
-    if (this.state.rule) {
-      const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
-      if (!result.isSuccessful) {
-        this.state.errors = result.reasons;
-      } else {
-        this.props.onExit();
-      }
+    const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+    if (!result.isSuccessful) {
+      this.state.errors = result.reasons;
+      return;
     }
+    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
@@ -134,7 +137,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       .getSelectedZones()
       .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
     return {
-      id: this.env.model.uuidGenerator.smallUuid(),
+      id: this.props.ruleId,
       criterion: { type: "containsText", values: [""] },
       ranges,
     };
