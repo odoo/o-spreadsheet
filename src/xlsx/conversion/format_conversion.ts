@@ -16,13 +16,13 @@ export function convertXlsxFormat(
   formats: XLSXNumFormat[],
   warningManager: XLSXImportWarningManager
 ): string | undefined {
-  if (numFmtId === 0) {
-    return undefined;
-  }
   // Format is either defined in the imported data, or the formatId is defined in openXML §18.8.30
   let format =
     XLSX_FORMATS_CONVERSION_MAP[numFmtId] || formats.find((f) => f.id === numFmtId)?.format;
 
+  if (format === "General") {
+    return undefined;
+  }
   if (format) {
     try {
       let convertedFormat = format.replace(/\[(.*)-[A-Z0-9]{3}\]/g, "[$1]"); // remove currency and locale/date system/number system info (ECMA §18.8.31)
