@@ -31,14 +31,12 @@ css/* scss */ `
   }
 `;
 interface Props {
-  onClick: () => void;
   rule: DataValidationRule;
 }
 
 export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPreview";
   static props = {
-    onClick: Function,
     rule: Object,
   };
 
@@ -46,6 +44,10 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
 
   setup() {
     useHighlightsOnHover(this.ref, this);
+  }
+
+  onPreviewClick() {
+    this.env.replaceSidePanel("DataValidationEditor", "DataValidation", { id: this.props.rule.id });
   }
 
   deleteDataValidation() {

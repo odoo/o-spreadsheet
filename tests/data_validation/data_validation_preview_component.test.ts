@@ -26,7 +26,7 @@ describe("Data validation preview", () => {
   let parent: Component;
   let env: SpreadsheetChildEnv;
 
-  async function mountDataValidationPreview(ruleData: DataValidationRuleData, onClick = () => {}) {
+  async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
     model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const rule = {
@@ -35,7 +35,7 @@ describe("Data validation preview", () => {
       ranges: ruleData.ranges.map((range) => model.getters.getRangeFromSheetXC(sheetId, range)),
     };
     ({ fixture, model, parent, env } = await mountComponent(DataValidationPreview, {
-      props: { rule, onClick },
+      props: { rule },
     }));
   }
 
@@ -53,13 +53,6 @@ describe("Data validation preview", () => {
 
     const displayedRange = fixture.querySelector(".o-dv-preview-ranges") as HTMLElement;
     expect(displayedRange.textContent).toBe("A1, A2");
-  });
-
-  test("onClick callback is triggered", async () => {
-    const onClick = jest.fn();
-    await mountDataValidationPreview(testDataValidationRule, onClick);
-    click(fixture, ".o-dv-preview");
-    expect(onClick).toHaveBeenCalled();
   });
 
   test("Can delete rule from preview", async () => {

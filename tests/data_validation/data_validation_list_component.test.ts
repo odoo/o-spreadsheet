@@ -1,3 +1,4 @@
+import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
@@ -34,10 +35,11 @@ import {
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-import { mountDataValidationPanel } from "./data_validation_generics_side_panel_component.test";
 
+const id = "dv1";
 let model: Model;
 let fixture: HTMLElement;
+let parent: Component;
 let sheetId: UID;
 let env: SpreadsheetChildEnv;
 
@@ -49,16 +51,17 @@ beforeEach(async () => {
 describe("Edit criterion in side panel", () => {
   describe("Value in list", () => {
     beforeEach(async () => {
-      addDataValidation(model, "A1", "id", {
+      addDataValidation(model, "A1", id, {
         type: "isValueInList",
         values: ["ok", "hello", "okay"],
         displayStyle: "arrow",
       });
-      ({ fixture } = await mountDataValidationPanel(model));
-      await click(fixture, ".o-dv-preview");
+      ({ fixture, parent } = await mountSpreadsheet({ model }));
+      parent.env.openSidePanel("DataValidationEditor", { id });
+      await nextTick();
     });
 
-    test("Side panel is correctly pre-filled for isValueInList criterion", () => {
+    test("Side panel is correctly pre-filled for composer criterion", async () => {
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(inputs).toHaveLength(3);
       expect(inputs[0].value).toBe("ok");
@@ -69,13 +72,14 @@ describe("Edit criterion in side panel", () => {
       expect(displayStyleInput?.value).toBe("arrow");
     });
 
-    test("Side panel is correctly pre-filled for composer criterion", async () => {
-      addDataValidation(model, "A1", "id", {
+    test("Side panel is correctly pre-filled for containsText criterion", async () => {
+      addDataValidation(model, "A1", "dv2", {
         type: "containsText",
         values: ["hola"],
       });
-      ({ fixture } = await mountDataValidationPanel(model));
-      await click(fixture, ".o-dv-preview");
+      parent.env.openSidePanel("DataValidationEditor", { id: "dv2" });
+      await nextTick();
+
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-input .o-composer");
       expect(inputs).toHaveLength(1);
       expect(inputs[0].innerText).toBe("hola");
@@ -169,20 +173,17 @@ describe("Edit criterion in side panel", () => {
 
   describe("Value in range", () => {
     beforeEach(async () => {
-      addDataValidation(model, "A1", "id", {
+      addDataValidation(model, "A1", id, {
         type: "isValueInRange",
         values: ["B1:B5"],
         displayStyle: "arrow",
       });
-      ({ fixture } = await mountDataValidationPanel(model));
-      await click(fixture, ".o-dv-preview");
-      // TODO: nextTick needed because the SelectionInput component is bugged without it (changing the input tries to
-      // update the range at id 0 but, the first range has id 1 in the SelectionInput plugin). Probably worth investigating
-      // in another task
+      ({ fixture, parent } = await mountSpreadsheet({ model }));
+      parent.env.openSidePanel("DataValidationEditor", { id });
       await nextTick();
     });
 
-    test("Side panel is correctly pre-filled", () => {
+    test("Side panel is correctly pre-filled", async () => {
       const rangeInput = fixture.querySelector<HTMLInputElement>(
         ".o-dv-settings .o-selection-input input"
       )!;

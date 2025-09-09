@@ -12,9 +12,9 @@ import {
   CancelledReason,
   DataValidationCriterion,
   DataValidationCriterionType,
-  DataValidationRule,
   DataValidationRuleData,
   SpreadsheetChildEnv,
+  UID,
   availableDataValidationOperators,
 } from "../../../../types";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -24,8 +24,7 @@ import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
 
 interface Props {
-  rule: DataValidationRule | undefined;
-  onExit: () => void;
+  id: UID;
   onCloseSidePanel?: () => void;
 }
 
@@ -38,28 +37,25 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, SelectMenu, Section, ValidationMessages };
   static props = {
-    rule: { type: Object, optional: true },
-    onExit: Function,
+    id: { type: String },
     onCloseSidePanel: { type: Function, optional: true },
   };
 
   state = useState<State>({ rule: this.defaultDataValidationRule, errors: [] });
 
   setup() {
-    if (this.props.rule) {
-      const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const rule = this.env.model.getters.getDataValidationRule(sheetId, this.props.id);
+    if (rule) {
       this.state.rule = {
-        ...this.props.rule,
-        ranges: this.props.rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, sheetId)
-        ),
+        ...rule,
+        ranges: rule.ranges.map((range) => this.env.model.getters.getRangeString(range, sheetId)),
       };
-      this.state.rule.criterion.type = this.props.rule.criterion.type;
     }
   }
 
   onCriterionTypeChanged(type: DataValidationCriterionType) {
-    this.state.rule.criterion.type = type;
+    this.state.rule.criterion = { type, values: [] } as DataValidationCriterion;
   }
 
   onRangesChanged(ranges: string[]) {
@@ -75,14 +71,18 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     this.state.rule.isBlocking = isBlocking === "true";
   }
 
+  onCancel() {
+    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.state.rule.id}`);
+  }
+
   onSave() {
     if (this.state.rule) {
       const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
       if (!result.isSuccessful) {
         this.state.errors = result.reasons;
-      } else {
-        this.props.onExit();
+        return;
       }
+      this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.state.rule.id}`);
     }
   }
 
@@ -127,8 +127,8 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       .getSelectedZones()
       .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
     return {
-      id: this.env.model.uuidGenerator.smallUuid(),
-      criterion: { type: "containsText", values: [""] },
+      id: this.props.id,
+      criterion: { type: "isValueInList", values: [], displayStyle: "chip" },
       ranges,
     };
   }
