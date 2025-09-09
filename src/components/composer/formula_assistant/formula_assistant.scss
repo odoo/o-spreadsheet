@@ -11,12 +11,9 @@
     font-size: 85%;
   }
   .o-formula-assistant-focus {
-    div:first-child,
-    span {
-      color: $os-composer-assistant-color;
-      text-shadow: 0px 0px 1px $os-composer-assistant-color;
-    }
-    div:last-child {
+    color: $os-composer-assistant-color;
+    text-shadow: 0px 0px 1px $os-composer-assistant-color;
+    & + div {
       color: black;
     }
   }

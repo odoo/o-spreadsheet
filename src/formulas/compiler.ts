@@ -133,7 +133,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
-        const argDefinition = functionDefinition.args[argToFocus(i) ?? -1];
+        const argDefinition = functionDefinition.args[argToFocus(i).index ?? -1];
         const currentArg = args[i];
         const argTypes = argDefinition.type || [];
 
