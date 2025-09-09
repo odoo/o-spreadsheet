@@ -3,6 +3,7 @@ import {
   CHECKBOX_UNCHECKED,
   CHECKBOX_UNCHECKED_HOVERED,
   getCaretDownSvg,
+  getCaretUpSvg,
   getChipSvg,
   getDataFilterIcon,
   getHoveredCaretDownSvg,
@@ -232,3 +233,28 @@ function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
     pivot: { ...definition, collapsedDomains: newDomains },
   });
 }
+
+iconsOnCellRegistry.add("pivot_dashboard_sorting", (getters, position) => {
+  if (!getters.isDashboard()) {
+    return undefined;
+  }
+  const pivotCell = getters.getPivotCellFromPosition(position);
+  if (pivotCell.type !== "MEASURE_HEADER") {
+    return undefined;
+  }
+  const sortDirection = getters.getPivotCellSortDirection(position);
+  if (sortDirection !== "asc" && sortDirection !== "desc") {
+    return undefined;
+  }
+  const cellStyle = getters.getCellComputedStyle(position);
+  return {
+    type: `pivot_dashboard_sorting_${sortDirection}`,
+    priority: 5,
+    horizontalAlign: "right",
+    size: GRID_ICON_EDGE_LENGTH,
+    margin: GRID_ICON_MARGIN,
+    svg: sortDirection === "asc" ? getCaretUpSvg(cellStyle) : getCaretDownSvg(cellStyle),
+    position,
+    onClick: undefined, // click is managed by ClickableCellSortIcon
+  };
+});

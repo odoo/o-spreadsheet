@@ -467,6 +467,8 @@ export const stores = {
   GridRenderer,
 };
 
+export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
+
 export type { StoreConstructor, StoreParams } from "./store_engine";
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
