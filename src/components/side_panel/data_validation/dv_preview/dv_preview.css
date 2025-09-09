@@ -4,10 +4,6 @@
       height: 70px;
       cursor: pointer;
 
-      .o-dv-container {
-        min-width: 0; /* otherwise flex won't shrink correctly */
-      }
-
       .o-dv-preview-description {
         font-size: 13px;
       }
@@ -16,7 +12,7 @@
         background-color: var(--os-background-gray-color-hover);
       }
 
-      &:not(:hover) .o-dv-preview-delete {
+      &:not(:hover) .o-dv-delete-button {
         display: none !important;
       }
     }
