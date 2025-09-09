@@ -5,10 +5,6 @@
       cursor: pointer;
       border-bottom: 1px solid var(--os-figure-border-color);
 
-      .o-dv-container {
-        min-width: 0; /* otherwise flex won't shrink correctly */
-      }
-
       .o-dv-preview-description {
         font-size: 13px;
       }
@@ -17,7 +13,7 @@
         background-color: rgba(0, 0, 0, 0.08);
       }
 
-      &:not(:hover) .o-dv-preview-delete {
+      &:not(:hover) .o-dv-delete-button {
         display: none !important;
       }
     }
