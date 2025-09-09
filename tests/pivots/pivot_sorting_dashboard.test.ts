@@ -4,6 +4,7 @@ import { TEXT_BODY_MUTED } from "../../src/constants";
 import { toCartesian } from "../../src/helpers";
 import { createTable, setStyle } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";
+import { getCellIcons } from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   mountSpreadsheet,
@@ -38,9 +39,11 @@ describe("Dashboard Pivot Sorting", () => {
     ]);
     expect(".o-dashboard-clickable-cell").toHaveCount(1);
     expect(".o-dashboard-clickable-cell .fa-sort").toHaveCount(1);
+    expect(getCellIcons(model, "B5")).toHaveLength(0);
 
     await click(fixture, ".o-dashboard-clickable-cell");
-    expect(".o-dashboard-clickable-cell .fa-sort-asc").toHaveCount(1);
+    expect(getCellIcons(model, "B5")).toMatchObject([{ type: "pivot_dashboard_sorting_asc" }]);
+    expect(".o-dashboard-clickable-cell .o-icon").toHaveCount(0);
     expect(model.getters.getPivotCoreDefinition(pivotId).sortedColumn).toEqual({
       measure: "Price:sum",
       order: "asc",
@@ -48,7 +51,8 @@ describe("Dashboard Pivot Sorting", () => {
     });
 
     await click(fixture, ".o-dashboard-clickable-cell");
-    expect(".o-dashboard-clickable-cell .fa-sort-desc").toHaveCount(1);
+    expect(getCellIcons(model, "B5")).toMatchObject([{ type: "pivot_dashboard_sorting_desc" }]);
+    expect(".o-dashboard-clickable-cell .o-icon").toHaveCount(0);
     expect(model.getters.getPivotCoreDefinition(pivotId).sortedColumn).toEqual({
       measure: "Price:sum",
       order: "desc",
@@ -57,7 +61,38 @@ describe("Dashboard Pivot Sorting", () => {
 
     await click(fixture, ".o-dashboard-clickable-cell");
     expect(".o-dashboard-clickable-cell .fa-sort").toHaveCount(1);
+    expect(getCellIcons(model, "B5")).toHaveLength(0);
     expect(model.getters.getPivotCoreDefinition(pivotId).sortedColumn).toBe(undefined);
+  });
+
+  test("icon is vertically aligned with text", async () => {
+    const grid = {
+      A1: "Customer",
+      B1: "Price",
+      A2: "Alice",
+      B2: "10",
+      A4: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+    await mountSpreadsheet({ model });
+    const cases = [
+      { align: "top", expectedClass: "justify-content-start" },
+      { align: "middle", expectedClass: "justify-content-center" },
+      { align: "bottom", expectedClass: "justify-content-end" },
+      { align: undefined, expectedClass: "justify-content-end" },
+    ] as const;
+    for (const { align, expectedClass } of cases) {
+      model.updateMode("normal");
+      setStyle(model, "B5", { verticalAlign: align });
+      await nextTick();
+      model.updateMode("dashboard");
+      await nextTick();
+      expect(".o-dashboard-clickable-cell div").toHaveClass(expectedClass);
+    }
   });
 
   test("colors on empty grid", async () => {

@@ -31,18 +31,20 @@ export class ClickableCellSortIcon extends Component<Props, SpreadsheetChildEnv>
     });
   }
 
-  get icon() {
-    switch (this.props.sortDirection) {
-      case "asc":
-        return "fa-sort-asc";
-      case "desc":
-        return "fa-sort-desc";
+  get verticalJustifyClass() {
+    const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
+    switch (cellStyle.verticalAlign) {
+      case "top":
+        return "justify-content-start";
+      case "middle":
+        return "justify-content-center";
+      case "bottom":
       default:
-        return "fa-sort";
+        return "justify-content-end";
     }
   }
 
-  getBackgroundColor(cellStyle: Style): Color {
+  private getBackgroundColor(cellStyle: Style): Color {
     const overlayColor = this.hoveredTableStore.overlayColors.get(this.props.position);
     if (overlayColor) {
       return blendColors(cellStyle.fillColor || "#FFFFFF", overlayColor);
