@@ -12,38 +12,23 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
     >
       <div>
         <span>
-          FUNC1
+          FUNC1 ( 
         </span>
-         ( 
-        
         <span
           class="o-formula-assistant-focus"
         >
-          <span>
-            
-            <span>
-              f1Arg1
-            </span>
-            
-            
-          </span>
+          f1ArgA
         </span>
         <span>
           , 
         </span>
         <span>
-          <span>
-            
-            <span>
-              f1Arg2
-            </span>
-            
-            
-          </span>
+          f1ArgB
+        </span>
+        <span>
+           )
         </span>
         
-        
-         ) 
       </div>
       <div
         class="collapsor px-2 d-flex align-items-center rounded collapsed"
@@ -83,11 +68,16 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         </div>
       </div>
       <div
-        class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray o-formula-assistant-focus"
+        class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray"
       >
-        <div>
+        <div
+          class="o-formula-assistant-focus"
+        >
+          
           <span>
-            f1Arg1
+            <span>
+              f1ArgA
+            </span>
           </span>
           
           
@@ -96,15 +86,18 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         <div
           class="o-formula-assistant-arg-description"
         >
-          f1 Arg1 def
+          f1 ArgA def
         </div>
       </div>
       <div
         class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray"
       >
         <div>
+          
           <span>
-            f1Arg2
+            <span>
+              f1ArgB
+            </span>
           </span>
           
           
@@ -113,7 +106,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         <div
           class="o-formula-assistant-arg-description"
         >
-          f1 Arg2 def
+          f1 ArgB def
         </div>
       </div>
       
