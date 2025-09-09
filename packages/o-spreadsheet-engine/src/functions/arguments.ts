@@ -128,7 +128,10 @@ export function addMetaInfoFromArg(
   return descr;
 }
 
-type ArgToFocus = (argPosition: number) => number | undefined;
+type ArgToFocus = (argPosition: number) => {
+  index: number | undefined;
+  repeatingGroupIndex?: number;
+};
 const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
 
 /**
@@ -228,7 +231,10 @@ export function _argTargeting(
   functionDescription: FunctionDescription,
   nbrArgSupplied: number
 ): ArgToFocus {
-  const valueIndexToArgPosition: Record<number, number> = {};
+  const valueIndexToArgPosition: Record<
+    number,
+    { index: number | undefined; repeatingGroupIndex?: number }
+  > = {};
   const groupsOfOptionalRepeatingValues = functionDescription.nbrArgRepeating
     ? Math.floor(
         (nbrArgSupplied - functionDescription.minArgRequired) / functionDescription.nbrArgRepeating
@@ -247,7 +253,7 @@ export function _argTargeting(
 
     if ((arg.optional || arg.default) && !arg.repeating) {
       if (countValueOptional < nbrValueOptional) {
-        valueIndexToArgPosition[countValueSupplied] = i;
+        valueIndexToArgPosition[countValueSupplied] = { index: i };
         countValueSupplied++;
       }
       countValueOptional++;
@@ -261,7 +267,7 @@ export function _argTargeting(
       // --> the index i will be incremented by the number of repeating values at the end of the loop
       for (let j = 0; j < groupsOfOptionalRepeatingValues + groupOfMandatoryRepeatingValues; j++) {
         for (let k = 0; k < functionDescription.nbrArgRepeating; k++) {
-          valueIndexToArgPosition[countValueSupplied] = i + k;
+          valueIndexToArgPosition[countValueSupplied] = { index: i + k, repeatingGroupIndex: j };
           countValueSupplied++;
         }
       }
@@ -270,7 +276,7 @@ export function _argTargeting(
     }
 
     // End case: it's a required argument
-    valueIndexToArgPosition[countValueSupplied] = i;
+    valueIndexToArgPosition[countValueSupplied] = { index: i };
     countValueSupplied++;
   }
 
