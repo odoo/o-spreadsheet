@@ -5,6 +5,7 @@ import { Collapse } from "../../side_panel/components/collapse/collapse";
 interface Props {
   functionDescription: FunctionDescription;
   argsToFocus: number[];
+  repeatingArgGroupIndex: number | undefined;
 }
 
 export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChildEnv> {
@@ -12,6 +13,7 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
   static props = {
     functionDescription: Object,
     argsToFocus: Array,
+    repeatingArgGroupIndex: { type: Number, optional: true },
   };
   static components = { Collapse };
 
