@@ -226,7 +226,7 @@ export function getRadarChartScales(
       },
       pointLabels: {
         color: chartFontColor(definition.background),
-        callback: truncateLabel,
+        callback: (label: string) => truncateLabel(label),
       },
       suggestedMin: minValue < 0 ? minValue - 1 : 0,
     },
