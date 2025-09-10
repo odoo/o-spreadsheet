@@ -29,7 +29,7 @@ import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { unregisterChartJsExtensions } from "../figures/chart/chartJs/chart_js_extension";
-import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
+import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -73,7 +73,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SidePanels,
     SpreadsheetDashboard,
     HeaderGroupContainer,
-    FullScreenChart,
+    FullScreenFigure,
   };
 
   sidePanel!: Store<SidePanelStore>;
