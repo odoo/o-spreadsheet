@@ -117,7 +117,7 @@ import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sor
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
-import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
+import { FullScreenFigure } from "./components/full_screen_figure/full_screen_figure";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
@@ -434,7 +434,7 @@ export const components = {
   RadioSelection,
   GeoChartRegionSelectSection,
   ChartDashboardMenu,
-  FullScreenChart,
+  FullScreenFigure,
 };
 
 export const hooks = {
