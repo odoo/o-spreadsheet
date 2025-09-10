@@ -7,7 +7,7 @@
       t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
-        <FullScreenChart/>
+        <FullScreenFigure/>
       </t>
       <t t-else="">
         <div class="o-spreadsheet-topbar-wrapper o-two-columns">

@@ -5,7 +5,7 @@ import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
-import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
+import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
@@ -25,12 +25,12 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static components = { MenuPopover };
   static props = { chartId: String };
 
-  private fullScreenFigureStore!: Store<FullScreenChartStore>;
+  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
   setup() {
     super.setup();
-    this.fullScreenFigureStore = useStore(FullScreenChartStore);
+    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
   }
 
   getMenuItems(): MenuItem[] {
@@ -61,7 +61,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
       label: isFullScreen ? _t("Exit Full Screen") : _t("Full Screen"),
       class: `text-muted fa ${isFullScreen ? "fa-compress" : "fa-expand"}`,
       onClick: () => {
-        this.fullScreenFigureStore.toggleFullScreenChart(figureId);
+        this.fullScreenFigureStore.toggleFullScreenFigure(figureId);
       },
     };
   }

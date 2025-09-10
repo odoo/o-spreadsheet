@@ -8,7 +8,7 @@ import {
 } from "../../../../../helpers/figures/charts/chart_common";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
-import { FullScreenChartStore } from "../../../../full_screen_chart/full_screen_chart_store";
+import { FullScreenFigureStore } from "../../../../full_screen_figure/full_screen_figure_store";
 import { css } from "../../../../helpers";
 import { chartJsExtensionRegistry } from "../chart_js_extension";
 import { ChartJsComponent } from "../chartjs";
@@ -32,7 +32,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 
   private store!: Store<ZoomableChartStore>;
-  private fullScreenChartStore!: Store<FullScreenChartStore>;
+  private fullScreenChartStore!: Store<FullScreenFigureStore>;
 
   private masterChartCanvas = useRef("masterChartCanvas");
   private masterChart?: Chart;
@@ -45,7 +45,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   setup() {
     this.store = useStore(ZoomableChartStore);
-    this.fullScreenChartStore = useStore(FullScreenChartStore);
+    this.fullScreenChartStore = useStore(FullScreenFigureStore);
     super.setup();
   }
 
