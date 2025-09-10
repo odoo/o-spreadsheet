@@ -10,6 +10,7 @@ import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
   chartId: UID;
+  hasFullScreenButton: boolean;
 }
 
 interface MenuItem {
@@ -23,7 +24,8 @@ interface MenuItem {
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
   static components = { MenuPopover };
-  static props = { chartId: String };
+  static props = { chartId: String, hasFullScreenButton: { type: Boolean, optional: true } };
+  static defaultProps = { hasFullScreenButton: true };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
@@ -50,6 +52,9 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get fullScreenMenuItem(): MenuItem | undefined {
+    if (!this.props.hasFullScreenButton) {
+      return undefined;
+    }
     const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
     if (definition.type === "scorecard") {
