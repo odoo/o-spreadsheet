@@ -1,12 +1,12 @@
 import { SpreadsheetStore } from "../../stores";
 import { FigureUI, UID } from "../../types";
 
-export class FullScreenChartStore extends SpreadsheetStore {
-  mutators = ["toggleFullScreenChart"] as const;
+export class FullScreenFigureStore extends SpreadsheetStore {
+  mutators = ["toggleFullScreenFigure"] as const;
 
   fullScreenFigure: FigureUI | undefined = undefined;
 
-  toggleFullScreenChart(figureId: string) {
+  toggleFullScreenFigure(figureId: string) {
     if (this.fullScreenFigure?.id === figureId) {
       this.fullScreenFigure = undefined;
     } else {

@@ -1,5 +1,5 @@
 .o-spreadsheet {
-  .o-fullscreen-chart-overlay {
+  .o-fullscreen-figure-overlay {
     z-index: var(--os-components-importance-fullscreen-chart);
     background-color: rgba(0, 0, 0, 0.4);
     padding: 60px;
