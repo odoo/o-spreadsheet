@@ -127,7 +127,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart?.destroy();
   }
 
-  protected get shouldAnimate(): boolean {
+  private get shouldAnimate(): boolean {
     return this.env.model.getters.isDashboard();
   }
 

@@ -132,10 +132,6 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     return { xMin, xMax };
   }
 
-  protected get shouldAnimate() {
-    return this.env.model.getters.isDashboard() && !this.sliceable;
-  }
-
   protected createChart(chartRuntime: ChartJSRuntime) {
     const chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     this.isBarChart = chartData.type === "bar";
@@ -161,6 +157,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       this.getMasterChartConfiguration(chartRuntime["masterChartConfig"] as ChartConfiguration<any>)
     );
     this.resetAxesLimits();
+    if (this.chart?.options) {
+      this.chart.options.animation = false;
+    }
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
@@ -199,6 +198,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       }
     }
     this.resetAxesLimits();
+    if (this.chart?.options) {
+      this.chart.options.animation = false;
+    }
   }
 
   private resetAxesLimits() {
@@ -305,7 +307,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   onPointerDownInMasterChart(ev: PointerEvent) {
     this.removeEventListeners();
     const position = ev.offsetX;
-    if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
+    if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
     }
     const { left, right, top, bottom } = this.masterChart.chartArea;
