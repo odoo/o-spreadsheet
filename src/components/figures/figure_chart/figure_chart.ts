@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { ChartType, CSSProperties, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
+import { ChartType, CSSProperties, FigureUI, Rect, SpreadsheetChildEnv, UID } from "../../../types";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
+  openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -19,6 +20,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
     isFullScreen: { type: Boolean, optional: true },
+    openContextMenu: { type: Function, optional: true },
   };
   static components = { ChartDashboardMenu };
 
