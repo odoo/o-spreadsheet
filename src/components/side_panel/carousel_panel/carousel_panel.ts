@@ -126,6 +126,16 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  duplicateCarouselChart(item: CarouselItem) {
+    if (item.type !== "chart") return;
+    this.env.model.dispatch("DUPLICATE_CAROUSEL_CHART", {
+      sheetId: this.carouselSheetId,
+      carouselId: this.props.figureId,
+      chartId: item.chartId,
+      duplicatedChartId: this.env.model.uuidGenerator.smallUuid(),
+    });
+  }
+
   onDragHandleMouseDown(item: CarouselItem, event: MouseEvent) {
     if (event.button !== 0) return;
     const previewRects = Array.from(this.previewListRef.el!.children).map((previewEl) =>
@@ -221,6 +231,11 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
         name: _t("Pop out chart"),
         execute: () => this.popOutCarouselItem(item),
         icon: "o-spreadsheet-Icon.EXTERNAL",
+      });
+      actions.push({
+        name: _t("Duplicate chart"),
+        execute: () => this.duplicateCarouselChart(item),
+        icon: "o-spreadsheet-Icon.COPY",
       });
     }
     actions.push({
