@@ -6,13 +6,7 @@ import {
 } from "../../../../constants";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
-import {
-  Color,
-  DispatchResult,
-  GenericDefinition,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types";
+import { Color, SpreadsheetChildEnv } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
@@ -26,22 +20,13 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
-interface Props {
-  chartId: UID;
-  definition: WaterfallChartDefinition;
-  canUpdateChart: (
-    chartId: UID,
-    definition: GenericDefinition<WaterfallChartDefinition>
-  ) => DispatchResult;
-  updateChart: (
-    chartId: UID,
-    definition: GenericDefinition<WaterfallChartDefinition>
-  ) => DispatchResult;
-}
-
-export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class WaterfallChartDesignPanel extends Component<
+  ChartSidePanelProps<WaterfallChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -55,12 +40,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     ChartLegend,
     ChartHumanizeNumbers,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: { type: Function, optional: true },
-  };
+  static props = ChartSidePanelPropsObject;
 
   axisChoices = CHART_AXIS_CHOICES;
 

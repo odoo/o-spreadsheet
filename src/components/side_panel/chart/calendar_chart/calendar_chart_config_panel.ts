@@ -1,16 +1,12 @@
 import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
-import { DispatchResult, Granularity, UID } from "../../../../types";
+import { Granularity } from "../../../../types";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
+import { ChartSidePanelProps } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: CalendarChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<CalendarChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<CalendarChartDefinition>) => DispatchResult;
-}
-
-export class CalendarChartConfigPanel extends GenericChartConfigPanel<Props> {
+export class CalendarChartConfigPanel extends GenericChartConfigPanel<
+  ChartSidePanelProps<CalendarChartDefinition>
+> {
   static template = "o-spreadsheet-CalendarChartConfigPanel";
 
   groupByChoices = [
