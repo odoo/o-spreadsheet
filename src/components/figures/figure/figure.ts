@@ -254,7 +254,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.openContextMenu(getRefBoundingRect(this.menuButtonRef));
   }
 
-  private openContextMenu(anchorRect: Rect) {
+  openContextMenu(anchorRect: Rect) {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry

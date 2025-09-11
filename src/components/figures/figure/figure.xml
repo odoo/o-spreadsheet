@@ -23,6 +23,7 @@
           onFigureDeleted="props.onFigureDeleted"
           figureUI="props.figureUI"
           editFigureStyle.bind="editWrapperStyle"
+          openContextMenu.bind="openContextMenu"
         />
         <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
           <div

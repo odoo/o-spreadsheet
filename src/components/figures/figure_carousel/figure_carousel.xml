@@ -51,6 +51,11 @@
           }"
           t-on-click="toggleFullScreen"
         />
+        <div
+          t-if="!env.isDashboard()"
+          class="o-carousel-menu-button o-carousel-button fa fa-ellipsis-v rounded ms-1"
+          t-on-click="openContextMenu"
+        />
       </div>
       <div
         t-if="!selectedItem"

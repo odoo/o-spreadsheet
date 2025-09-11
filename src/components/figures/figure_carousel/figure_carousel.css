@@ -46,6 +46,10 @@
         margin: 1px;
       }
 
+      &.o-carousel-menu-button {
+        padding: 3px 5px;
+      }
+
       &.active,
       &:hover {
         background-color: var(--os-button-hover-bg);
