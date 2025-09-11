@@ -9,6 +9,7 @@ import {
   createCarousel,
   createChart,
   paste,
+  selectCarouselItem,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
@@ -162,6 +163,25 @@ describe("Carousel figure component", () => {
     expect(".o-figure .o-carousel-title").toHaveText("Title1");
     expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe("20px");
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
+  });
+
+  test("Carousel header has the correct background color", async () => {
+    createCarousel(model, { items: [], title: { text: "Title" } }, "carouselId");
+    await mountSpreadsheet({ model });
+
+    // Empty carousel
+    expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
+
+    // Carousel with data view
+    updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
+    await nextTick();
+    expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
+
+    // Carousel with chart
+    const chartId = addNewChartToCarousel(model, "carouselId", { background: "#123456" });
+    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    await nextTick();
+    expect(".o-carousel-header").toHaveStyle({ "background-color": "#123456" });
   });
 
   test("display chart menu", async () => {
