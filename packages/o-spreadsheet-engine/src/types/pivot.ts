@@ -16,9 +16,7 @@ export type Aggregator =
 
 export type Granularity =
   | "day"
-  | "week"
   | "month"
-  | "quarter"
   | "year"
   | "second_number"
   | "minute_number"
