@@ -5,6 +5,7 @@ import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
+import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -492,10 +493,12 @@ topbarMenuRegistry
         onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
         icon: "o-spreadsheet-Icon.PIVOT",
         separator: index === env.model.getters.getPivotIds().length - 1,
-        secondaryIcon: (env) =>
-          env.model.getters.isPivotUnused(pivotId)
+        secondaryIcon: (env) => {
+          const { type } = env.model.getters.getPivotCoreDefinition(pivotId);
+          return pivotRegistry.get(type)?.isPivotUnused(env, pivotId)
             ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
-            : undefined,
+            : undefined;
+        },
       };
     });
   })

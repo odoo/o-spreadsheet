@@ -1,6 +1,6 @@
 import { ModelConfig } from "../../model";
 import { Registry } from "../../registries/registry";
-import { CoreGetters, Getters } from "../../types";
+import { CoreGetters, Getters, SpreadsheetChildEnv, UID } from "../../types";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
@@ -34,6 +34,7 @@ export interface PivotRegistryItem {
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
   canHaveCustomGroup: (field: PivotField) => boolean;
+  isPivotUnused: (env: SpreadsheetChildEnv, pivotId: UID) => boolean;
 }
 
 export const pivotRegistry = new Registry<PivotRegistryItem>();
@@ -58,4 +59,6 @@ pivotRegistry.add("SPREADSHEET", {
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
   isGroupable: () => true,
   canHaveCustomGroup: (field: PivotField) => field.type === "char" && !field.isCustomField,
+  isPivotUnused: (env: SpreadsheetChildEnv, pivotId: UID) =>
+    env.model.getters.isPivotUnused(pivotId),
 });
