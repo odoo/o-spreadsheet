@@ -275,13 +275,13 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
       if (
         figure.tag === "chart" &&
         data.version &&
-        compareVersions(String(data.version), "18.5.2") < 0
+        compareVersions(String(data.version), "18.5.11") < 0
       ) {
         map[figure.id] = (figure as any).data;
       }
     });
     for (const chartId in sheet.charts || {}) {
-      if (data.version && compareVersions(String(data.version), "18.5.2") >= 0) {
+      if (data.version && compareVersions(String(data.version), "18.5.11") >= 0) {
         map[chartId] = sheet.charts[chartId].chart;
       }
     }

@@ -549,15 +549,12 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("18.5.2", {
+  .add("18.5.11", {
     migrate(data: any): WorkbookData {
       for (const sheet of data.sheets || []) {
-        if (!sheet.charts) {
-          sheet.charts = {};
-        }
-        if (!sheet.images) {
-          sheet.images = {};
-        }
+        sheet.charts = {};
+        sheet.images = {};
+        sheet.carousels = {};
 
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart") {
@@ -568,6 +565,18 @@ migrationStepRegistry
             const image = figure.data;
             delete figure.data;
             sheet.images[figure.id] = { figureId: figure.id, image };
+          } else if (figure.tag === "carousel") {
+            const carousel = figure.data;
+            delete figure.data;
+            // TODO figure.data.chartDefintion.fieldMatching ????
+            sheet.carousels[figure.id] = {
+              figureId: figure.id,
+              carousel: { items: carousel.items, title: carousel.title },
+            };
+            for (const chartId in carousel.chartDefinitions || {}) {
+              const chart = carousel.chartDefinitions[chartId];
+              sheet.charts[chartId] = { figureId: figure.id, chart };
+            }
           }
         }
       }

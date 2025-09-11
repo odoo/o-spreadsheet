@@ -775,7 +775,7 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
   expect(model.exportData().sheets[0].charts["someuuid"]).toBeDefined();
 });
 
-test("migrate version 18.5.2: figure data is split between image and chart", () => {
+test("migrate version 18.5.11: figure data is split between image and chart", () => {
   const data = {
     version: "18.4.2",
     sheets: [

@@ -477,7 +477,7 @@ describe("Collaborative local history", () => {
       },
     ];
 
-    test("spreadsheet data before 18.5.2", () => {
+    test("spreadsheet data before 18.5.11", () => {
       const data = {
         revisionId: "initial_revision",
         version: "18.4.2",
@@ -513,10 +513,10 @@ describe("Collaborative local history", () => {
       expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
     });
 
-    test("spreadsheet data after 18.5.2", () => {
+    test("spreadsheet data after 18.5.11", () => {
       const data = {
         revisionId: "initial_revision",
-        version: "18.5.2",
+        version: "18.5.11",
         sheets: [
           {
             id: "sheet1",
