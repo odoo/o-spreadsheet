@@ -20,6 +20,12 @@
             />
           </t>
         </div>
+        <div
+          t-if="!env.isDashboard()"
+          class="o-carousel-menu-button fa fa-ellipsis-v rounded"
+          t-att-class="{ 'active': state.isMenuActive }"
+          t-on-click="openContextMenu"
+        />
       </div>
       <div
         t-if="!selectedItem"

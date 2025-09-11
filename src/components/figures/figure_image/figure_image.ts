@@ -1,10 +1,11 @@
 import { Component } from "@odoo/owl";
-import { CSSProperties, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
+import { CSSProperties, FigureUI, Rect, SpreadsheetChildEnv, UID } from "../../../types";
 
 interface Props {
   figureUI: FigureUI;
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
+  openContextMenu: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -13,6 +14,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
+    openContextMenu: Function,
   };
   static components = {};
 
