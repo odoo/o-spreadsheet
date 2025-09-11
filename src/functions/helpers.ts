@@ -74,15 +74,28 @@ export function tryToNumber(
   }
 }
 
+function cellTypeToTranslatedString(cellValue: CellValue): string {
+  switch (typeof cellValue) {
+    case "number":
+      return _t("a number");
+    case "string":
+      return _t("a string");
+    case "boolean":
+      return _t("a boolean");
+    case "object":
+      return _t("an empty value");
+  }
+}
+
 export function tryCastAsNumberMatrix(data: Matrix<any>, argName: string): Matrix<number> {
   data.forEach((row) => {
     row.forEach((cell) => {
       if (typeof cell !== "number") {
         throw new Error(
           _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
-            typeof cell,
-            argName
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got %s.",
+            argName,
+            cellTypeToTranslatedString(cell)
           )
         );
       }
