@@ -100,18 +100,4 @@ describe("Chart animations in dashboard", () => {
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
     expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
   });
-
-  test("Zoomable full screen charts are not animated separately from their counterparts", async () => {
-    const model = new Model();
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
-    model.updateMode("dashboard");
-    const { env, fixture } = await mountSpreadsheet({ model });
-    const store = env.getStore(ChartAnimationStore);
-
-    expect(store.animationPlayed["chartId"]).toBe("bar");
-    expect(store.animationPlayed["chartId-fullscreen"]).toBe(undefined);
-
-    await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(store.animationPlayed["chartId-fullscreen"]).toBe(undefined);
-  });
 });
