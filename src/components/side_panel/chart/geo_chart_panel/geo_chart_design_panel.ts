@@ -1,18 +1,14 @@
 import { ChartColorScale, LegendPosition } from "../../../../types/chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
-import { Color, DispatchResult, UID } from "../../../../types/index";
+import { Color } from "../../../../types/index";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
+import { ChartSidePanelProps } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: GeoChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
-}
-
-export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
+export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<
+  ChartSidePanelProps<GeoChartDefinition>
+> {
   static template = "o-spreadsheet-GeoChartDesignPanel";
   static components = {
     ...ChartWithAxisDesignPanel.components,

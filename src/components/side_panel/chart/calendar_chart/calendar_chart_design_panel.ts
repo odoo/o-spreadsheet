@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { LegendPosition } from "../../../../types/chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
-import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { Color, SpreadsheetChildEnv } from "../../../../types/index";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -13,15 +13,12 @@ import {
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: CalendarChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<CalendarChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<CalendarChartDefinition>) => DispatchResult;
-}
-
-export class CalendarChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class CalendarChartDesignPanel extends Component<
+  ChartSidePanelProps<CalendarChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-CalendarChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -32,12 +29,7 @@ export class CalendarChartDesignPanel extends Component<Props, SpreadsheetChildE
     ColorScalePicker,
     RoundColorPicker,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    canUpdateChart: Function,
-    updateChart: Function,
-  };
+  static props = ChartSidePanelPropsObject;
 
   get axesList(): AxisDefinition[] {
     return [
