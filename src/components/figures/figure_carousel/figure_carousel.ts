@@ -1,24 +1,27 @@
-import { Component, useEffect } from "@odoo/owl";
+import { Component, useEffect, useState } from "@odoo/owl";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { Store, useStore } from "../../../store_engine";
 import {
+  CSSProperties,
   Carousel,
   CarouselItem,
-  CSSProperties,
   FigureUI,
+  Rect,
   SpreadsheetChildEnv,
 } from "../../../types";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
-import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
+import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 interface Props {
   figureUI: FigureUI;
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
+  openContextMenu: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
 export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -27,10 +30,12 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
+    openContextMenu: Function,
   };
   static components = { ChartDashboardMenu };
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
+  private state = useState({ isMenuActive: false });
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
@@ -108,5 +113,16 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   get titleStyle(): string {
     const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
+  }
+
+  openContextMenu(event: MouseEvent) {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+      this.state.isMenuActive = true;
+      this.props.openContextMenu(
+        getBoundingRectAsPOJO(target),
+        () => (this.state.isMenuActive = false)
+      );
+    }
   }
 }

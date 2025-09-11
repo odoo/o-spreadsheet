@@ -40,5 +40,17 @@
         font-weight: 600;
       }
     }
+
+    .o-carousel-menu-button {
+      cursor: pointer;
+      padding: 2px 4px;
+      color: $os-button-primary-bg;
+
+      &.active,
+      &:hover {
+        background-color: $os-button-hover-bg;
+        color: $os-button-active-text-color;
+      }
+    }
   }
 }

@@ -54,6 +54,7 @@ export interface MenuState {
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;
+  onClose?: () => void;
 }
 
 export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
