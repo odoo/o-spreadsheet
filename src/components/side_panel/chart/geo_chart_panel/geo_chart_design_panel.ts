@@ -1,19 +1,14 @@
-import { Color, UID } from "@odoo/o-spreadsheet-engine";
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { ChartColorScale, LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { DispatchResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
+import { ChartSidePanelProps } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: GeoChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
-}
-
-export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
+export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<
+  ChartSidePanelProps<GeoChartDefinition>
+> {
   static template = "o-spreadsheet-GeoChartDesignPanel";
   static components = {
     ...ChartWithAxisDesignPanel.components,

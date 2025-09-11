@@ -1,26 +1,18 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { ChartWithDataSetDefinition, DispatchResult, UID } from "../../../../../types";
+import { ChartWithDataSetDefinition } from "../../../../../types";
 import { Section } from "../../../components/section/section";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-}
-
-export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
+export class ChartLegend extends Component<
+  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-ChartLegend";
   static components = {
     Section,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
-  };
+  static props = ChartSidePanelPropsObject;
 
   updateLegendPosition(ev) {
     this.props.updateChart(this.props.chartId, {

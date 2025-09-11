@@ -1,13 +1,10 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { ChartWithDataSetDefinition, DispatchResult, UID } from "../../../../../types";
+import { ChartWithDataSetDefinition } from "../../../../../types";
 import { Checkbox } from "../../../components/checkbox/checkbox";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+interface Props extends ChartSidePanelProps<ChartWithDataSetDefinition> {
   defaultValue?: boolean;
 }
 
@@ -17,10 +14,7 @@ export class ChartShowValues extends Component<Props, SpreadsheetChildEnv> {
     Checkbox,
   };
   static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
+    ...ChartSidePanelPropsObject,
     defaultValue: { type: Boolean, optional: true },
   };
 }
