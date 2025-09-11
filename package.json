@@ -58,7 +58,7 @@
     "@prettier/plugin-xml": "^2.2.0",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "@swc/jest": "^0.2.36",
+    "@swc/jest": "0.2.36",
     "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
     "@types/rbush": "^3.0.3",
