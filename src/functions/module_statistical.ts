@@ -832,9 +832,9 @@ export const GROWTH: AddFunctionDescription = {
     assertNonEmptyMatrix(knownDataY, "known_data_y");
     return expM(
       predictLinearValues(
-        logM(tryCastAsNumberMatrix(knownDataY, "the first argument (known_data_y)")),
-        tryCastAsNumberMatrix(knownDataX, "the second argument (known_data_x)"),
-        tryCastAsNumberMatrix(newDataX, "the third argument (new_data_y)"),
+        logM(tryCastAsNumberMatrix(knownDataY, "known_data_y")),
+        tryCastAsNumberMatrix(knownDataX, "known_data_x"),
+        tryCastAsNumberMatrix(newDataX, "new_data_y"),
         toBoolean(b)
       )
     );
@@ -944,8 +944,8 @@ export const LINEST: AddFunctionDescription = {
   ): (number | string)[][] {
     assertNonEmptyMatrix(dataY, "data_y");
     return fullLinearRegression(
-      tryCastAsNumberMatrix(dataX, "the first argument (data_y)"),
-      tryCastAsNumberMatrix(dataY, "the second argument (data_x)"),
+      tryCastAsNumberMatrix(dataX, "data_x"),
+      tryCastAsNumberMatrix(dataY, "data_y"),
       toBoolean(calculateB),
       toBoolean(verbose)
     );
@@ -987,8 +987,8 @@ export const LOGEST: AddFunctionDescription = {
   ): (number | string)[][] {
     assertNonEmptyMatrix(dataY, "data_y");
     const coeffs = fullLinearRegression(
-      tryCastAsNumberMatrix(dataX, "the second argument (data_x)"),
-      logM(tryCastAsNumberMatrix(dataY, "the first argument (data_y)")),
+      tryCastAsNumberMatrix(dataX, "data_x"),
+      logM(tryCastAsNumberMatrix(dataY, "data_y")),
       toBoolean(calculateB),
       toBoolean(verbose)
     );
@@ -1883,9 +1883,9 @@ export const TREND: AddFunctionDescription = {
   ): Matrix<number> {
     assertNonEmptyMatrix(knownDataY, "known_data_y");
     return predictLinearValues(
-      tryCastAsNumberMatrix(knownDataY, "the first argument (known_data_y)"),
-      tryCastAsNumberMatrix(knownDataX, "the second argument (known_data_x)"),
-      tryCastAsNumberMatrix(newDataX, "the third argument (new_data_y)"),
+      tryCastAsNumberMatrix(knownDataY, "known_data_y"),
+      tryCastAsNumberMatrix(knownDataX, "known_data_x"),
+      tryCastAsNumberMatrix(newDataX, "new_data_y"),
       toBoolean(b)
     );
   },

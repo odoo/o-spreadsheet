@@ -3551,6 +3551,13 @@ describe("LINEST formula", () => {
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBe("#ERROR");
   });
+
+  test("Error message with empty values is correct", () => {
+    const model = createModelFromGrid({ A1: "=LINEST(C1:C2)" });
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      "Function LINEST expects number values for data_y, but got an empty value."
+    );
+  });
 });
 
 describe("LOGEST formula", () => {

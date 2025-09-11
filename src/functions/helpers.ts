@@ -78,13 +78,24 @@ export function tryCastAsNumberMatrix(data: Matrix<any>, argName: string): Matri
   data.forEach((row) => {
     row.forEach((cell) => {
       if (typeof cell !== "number") {
-        throw new Error(
-          _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
-            typeof cell,
+        let message = "";
+        if (typeof cell === "object") {
+          message = _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got an empty value.",
             argName
-          )
-        );
+          );
+        } else if (typeof cell === "string") {
+          message = _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got a string.",
+            argName
+          );
+        } else if (typeof cell === "boolean") {
+          message = _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got a boolean.",
+            argName
+          );
+        }
+        throw new Error(message);
       }
     });
   });
