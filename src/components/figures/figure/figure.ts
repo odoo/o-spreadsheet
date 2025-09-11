@@ -336,12 +336,16 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.openContextMenu(getRefBoundingRect(this.menuButtonRef));
   }
 
-  private openContextMenu(anchorRect: Rect) {
+  openContextMenu(anchorRect: Rect, onClose = () => {}) {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
       .menuBuilder(this.props.figureUI.id, this.props.onFigureDeleted, this.env);
+    this.menuState.onClose = () => {
+      this.menuState.isOpen = false;
+      onClose();
+    };
   }
 
   editWrapperStyle(properties: CSSProperties) {
