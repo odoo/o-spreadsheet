@@ -1,24 +1,16 @@
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
 import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
-import {
-  ChartWithDataSetDefinition,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../../types";
+import { ChartWithDataSetDefinition, SpreadsheetChildEnv } from "../../../../../types";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-}
-
-export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
+export class SeriesDesignEditor extends Component<
+  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-SeriesDesignEditor";
   static components = {
     SidePanelCollapsible,
@@ -26,10 +18,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     RoundColorPicker,
   };
   static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
+    ...ChartSidePanelPropsObject,
     slots: { type: Object, optional: true },
   };
 

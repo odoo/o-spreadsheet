@@ -21,29 +21,25 @@ import {
   CustomizedDataSet,
   DispatchResult,
   SpreadsheetChildEnv,
-  UID,
   Zone,
 } from "../../../../../types";
 import { ChartTerms } from "../../../../translations_terms";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { ChartDataSeries } from "../data_series/data_series";
 import { ChartErrorSection } from "../error_section/error_section";
 import { ChartLabelRange } from "../label_range/label_range";
-
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-}
 
 interface ChartPanelState {
   datasetDispatchResult?: DispatchResult;
   labelsDispatchResult?: DispatchResult;
 }
 
-export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
+export class GenericChartConfigPanel extends Component<
+  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
     ChartDataSeries,
@@ -52,12 +48,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     Checkbox,
     ChartErrorSection,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
-  };
+  static props = ChartSidePanelPropsObject;
 
   protected state: ChartPanelState = useState({
     datasetDispatchResult: undefined,
