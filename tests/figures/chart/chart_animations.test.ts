@@ -2,10 +2,25 @@ import { Chart } from "chart.js";
 import { Model, readonlyAllowedCommands } from "../../../src";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
-import { click } from "../../test_helpers/dom_helper";
+import { click, clickAndDrag } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
-mockChart();
+extendMockGetBoundingClientRect({
+  "o-master-chart-canvas": () => ({ top: 0, left: 0, width: 100, height: 50 }),
+});
+
+mockChart({
+  scales: {
+    x: {
+      type: "categorical",
+      min: 0,
+      max: 3,
+      getPixelForValue: (value: number) => value * 100,
+      getValueForPixel: (pixel: number) => pixel / 100,
+    },
+  },
+});
 
 let mockedChart: any;
 beforeEach(() => {
@@ -101,17 +116,29 @@ describe("Chart animations in dashboard", () => {
     expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
   });
 
-  test("Zoomable full screen charts are not animated separately from their counterparts", async () => {
+  test("Zoomable chart isn't animated when moving the slicer in full screen", async () => {
     const model = new Model();
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    createChart(
+      model,
+      { type: "bar", dataSets: [{ dataRange: "A1:A6" }], zoomable: true },
+      "chartId"
+    );
     model.updateMode("dashboard");
+    await mountSpreadsheet({ model });
     const { env, fixture } = await mountSpreadsheet({ model });
-    const store = env.getStore(ChartAnimationStore);
-
-    expect(store.animationPlayed["chartId"]).toBe("bar");
-    expect(store.animationPlayed["chartId-fullscreen"]).toBe(undefined);
+    const store = env.getStore(ChartAnimationStore) as ChartAnimationStore;
+    const enableAnimationSpy = jest.spyOn(store, "enableAnimationForChart");
 
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(store.animationPlayed["chartId-fullscreen"]).toBe(undefined);
+    expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
+    expect(mockedChart.config.options.animation).toBe(false);
+
+    const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
+    const { left, top, width, height } = element.getBoundingClientRect();
+    const startX = left + width;
+    const startY = top + height / 2;
+    const offsetX = -width / 2;
+    await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+    expect(mockedChart.config.options.animation).toBe(false);
   });
 });
