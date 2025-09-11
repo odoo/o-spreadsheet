@@ -7,7 +7,7 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { Color, DispatchResult, TitleDesign, UID } from "../../../../types/index";
+import { Color, TitleDesign } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -15,17 +15,14 @@ import { Section } from "../../components/section/section";
 import { ChartTitle } from "../building_blocks/chart_title/chart_title";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
-interface Props {
-  chartId: UID;
-  definition: ScorecardChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
-}
-
-export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class ScorecardChartDesignPanel extends Component<
+  ChartSidePanelProps<ScorecardChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -36,12 +33,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     ChartTitle,
     ChartHumanizeNumbers,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: { type: Function, optional: true },
-  };
+  static props = ChartSidePanelPropsObject;
 
   get colorsSectionTitle(): string {
     return this.props.definition.baselineMode === "progress"

@@ -7,22 +7,18 @@ import {
   ChartJSRuntime,
   ChartWithDataSetDefinition,
   Color,
-  DispatchResult,
   TrendConfiguration,
-  UID,
 } from "../../../../../types";
 import { NumberInput } from "../../../../number_input/number_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+interface Props extends ChartSidePanelProps<ChartWithDataSetDefinition> {
+  slots?: object;
 }
 
 export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -36,10 +32,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     NumberInput,
   };
   static props = {
-    chartId: String,
-    definition: Object,
-    canUpdateChart: Function,
-    updateChart: Function,
+    ...ChartSidePanelPropsObject,
     slots: { type: Object, optional: true },
   };
 
