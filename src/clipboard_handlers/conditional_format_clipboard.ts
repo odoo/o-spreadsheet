@@ -1,4 +1,5 @@
 import { UuidGenerator, deepEquals, positionToZone } from "../helpers";
+import { columnRowIndexesToZones } from "../helpers/clipboard/clipboard_helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -38,12 +39,17 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       rowsIndexes.length
     );
 
-    for (const [r, row] of rowsIndexes.entries()) {
-      for (const [c, col] of columnsIndexes.entries()) {
-        const rules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
-        if (rules.length) {
-          cfRules.set(c, r, { rules, position: { col, row, sheetId } });
-        }
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      for (const [col, row, rules] of this.getters
+        .getConditionalFormatRulesInZone(sheetId, zone)
+        .entries()) {
+        cfRules.set(col - zone.left + colsBefore, row - zone.top + rowsBefore, {
+          rules,
+          position: { sheetId, col, row },
+        });
       }
     }
     return { cellContent: cfRules };
