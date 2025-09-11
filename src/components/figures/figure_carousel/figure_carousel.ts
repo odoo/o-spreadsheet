@@ -4,6 +4,7 @@ import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { Store, useStore } from "../../../store_engine";
+import { _t } from "../../../translation";
 import {
   Carousel,
   CarouselItem,
@@ -11,6 +12,7 @@ import {
   FigureUI,
   SpreadsheetChildEnv,
 } from "../../../types";
+import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
@@ -19,6 +21,7 @@ interface Props {
   figureUI: FigureUI;
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
+  isFullScreen?: boolean;
 }
 
 export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -27,13 +30,16 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
+    isFullScreen: { type: Boolean, optional: true },
   };
   static components = { ChartDashboardMenu };
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
+  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
+    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
 
     useEffect(() => {
       if (this.selectedCarouselItem?.type === "carouselDataView") {
@@ -86,7 +92,8 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       item,
     });
     if (item.type === "chart") {
-      this.animationStore?.enableAnimationForChart(item.chartId);
+      const animationChartId = item.chartId + (this.props.isFullScreen ? "-fullscreen" : "");
+      this.animationStore?.enableAnimationForChart(animationChartId);
     }
   }
 
@@ -108,5 +115,21 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   get titleStyle(): string {
     const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
+  }
+
+  toggleFullScreen() {
+    if (this.selectedCarouselItem?.type === "chart") {
+      this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
+    }
+  }
+
+  get fullScreenButtonTitle(): string {
+    return this.props.isFullScreen ? _t("Exit Full Screen") : _t("Full Screen");
+  }
+
+  get visibleCarouselItems(): CarouselItem[] {
+    return this.carousel.items.filter((item) =>
+      item.type === "carouselDataView" && this.props.isFullScreen ? false : true
+    );
   }
 }

@@ -1,27 +1,26 @@
 import { Component, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
-import { chartComponentRegistry } from "../../registries/chart_types";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types";
-import { ChartDashboardMenu } from "../figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
+import { ChartFigure } from "../figures/figure_chart/figure_chart";
 import { useSpreadsheetRect } from "../helpers/position_hook";
-import { FullScreenChartStore } from "./full_screen_chart_store";
+import { FullScreenFigureStore } from "./full_screen_figure_store";
 
-export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-FullScreenChart";
+export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-FullScreenFigure";
   static props = {};
-  static components = { ChartDashboardMenu };
+  static components = { ChartFigure };
 
-  private fullScreenChartStore!: Store<FullScreenChartStore>;
-  private ref = useRef("fullScreenChart");
+  private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private ref = useRef("fullScreenFigure");
 
   spreadsheetRect = useSpreadsheetRect();
 
   figureRegistry = figureRegistry;
 
   setup() {
-    this.fullScreenChartStore = useStore(FullScreenChartStore);
+    this.fullScreenFigureStore = useStore(FullScreenFigureStore);
 
     const animationStore = useStore(ChartAnimationStore);
     let lastFigureId: string | undefined = undefined;
@@ -39,7 +38,7 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get figureUI() {
-    return this.fullScreenChartStore.fullScreenFigure;
+    return this.fullScreenFigureStore.fullScreenFigure;
   }
 
   get chartId() {
@@ -49,7 +48,7 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
 
   exitFullScreen() {
     if (this.figureUI) {
-      this.fullScreenChartStore.toggleFullScreenChart(this.figureUI.id);
+      this.fullScreenFigureStore.toggleFullScreenFigure(this.figureUI.id);
     }
   }
 
@@ -59,13 +58,8 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
     }
   }
 
-  get chartComponent(): (new (...args: any) => Component) | undefined {
-    if (!this.chartId) return undefined;
-    const type = this.env.model.getters.getChartType(this.chartId);
-    const component = chartComponentRegistry.get(type);
-    if (!component) {
-      throw new Error(`Component is not defined for type ${type}`);
-    }
-    return component;
+  get figureComponent(): (new (...args: any) => Component) | undefined {
+    if (!this.figureUI) return undefined;
+    return figureRegistry.get(this.figureUI.tag).Component;
   }
 }
