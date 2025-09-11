@@ -12,6 +12,7 @@ import {
   CarouselItem,
   FigureUI,
   MenuMouseEvent,
+  Rect,
   SpreadsheetChildEnv,
 } from "../../../types";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
@@ -26,6 +27,7 @@ interface Props {
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
+  openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
 export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -35,6 +37,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
     isFullScreen: { type: Boolean, optional: true },
+    openContextMenu: { type: Function, optional: true },
   };
   static components = { ChartDashboardMenu, MenuPopover };
 
@@ -194,5 +197,12 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.carousel.items.filter((item) =>
       item.type === "carouselDataView" && this.props.isFullScreen ? false : true
     );
+  }
+
+  openContextMenu(event: MouseEvent) {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+      this.props.openContextMenu?.(getBoundingRectAsPOJO(target));
+    }
   }
 }
