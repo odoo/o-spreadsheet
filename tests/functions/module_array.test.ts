@@ -829,7 +829,7 @@ describe("MDETERM function", () => {
     setCellContent(model, "D1", "=MDETERM(A1:C3)");
     expect(getEvaluatedCell(model, "D1").value).toBe("#ERROR");
     expect((getEvaluatedCell(model, "D1") as ErrorCell).message).toBe(
-      "Function MDETERM expects number values for square_matrix, but got a object."
+      "Function MDETERM expects number values for square_matrix, but got an empty value."
     );
   });
 });
@@ -871,7 +871,7 @@ describe("MINVERSE function", () => {
     setCellContent(model, "D1", "=MINVERSE(A1:C3)");
     expect(getEvaluatedCell(model, "D1").value).toBe("#ERROR");
     expect((getEvaluatedCell(model, "D1") as ErrorCell).message).toBe(
-      "Function MINVERSE expects number values for square_matrix, but got a object."
+      "Function MINVERSE expects number values for square_matrix, but got an empty value."
     );
   });
 
