@@ -9,17 +9,7 @@ import {
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
-import {
-  ALERT_INFO_BORDER,
-  BACKGROUND_HEADER_COLOR,
-  BUTTON_ACTIVE_BG,
-  BUTTON_ACTIVE_TEXT_COLOR,
-  DEFAULT_FONT_SIZE,
-  DESKTOP_TOPBAR_TOOLBAR_HEIGHT,
-  DISABLED_TEXT_COLOR,
-  MOBILE_TOPBAR_TOOLBAR_HEIGHT,
-  SEPARATOR_COLOR,
-} from "../../constants";
+import { DEFAULT_FONT_SIZE } from "../../constants";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -28,7 +18,6 @@ import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
-import { css } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
@@ -50,91 +39,6 @@ interface Props {
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
-css/* scss */ `
-  .o-topbar-divider {
-    border-right: 1px solid ${SEPARATOR_COLOR};
-    width: 0;
-    margin: 0 6px;
-    height: 30px;
-  }
-
-  .o-toolbar-button {
-    height: 30px;
-  }
-
-  .o-spreadsheet-topbar {
-    line-height: 1.2;
-    font-size: 14px;
-    font-weight: 500;
-    background-color: #fff;
-
-    .o-topbar-top {
-      border-bottom: 1px solid ${SEPARATOR_COLOR};
-      padding: 2px 10px;
-
-      /* Menus */
-      .o-topbar-topleft {
-        .o-topbar-menu {
-          padding: 4px 6px;
-          margin: 0 2px;
-
-          &.active {
-            background-color: ${BUTTON_ACTIVE_BG};
-            color: ${BUTTON_ACTIVE_TEXT_COLOR};
-          }
-        }
-      }
-    }
-
-    .irregularity-map {
-      border-top: 1px solid ${SEPARATOR_COLOR};
-      height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
-
-      .alert-info {
-        border-left: 3px solid ${ALERT_INFO_BORDER};
-      }
-    }
-
-    .o-topbar-composer {
-      flex-grow: 1;
-    }
-
-    /* Toolbar */
-    .o-topbar-toolbar {
-      height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
-
-      .o-readonly-toolbar {
-        background-color: ${BACKGROUND_HEADER_COLOR};
-        padding-left: 18px;
-        padding-right: 18px;
-      }
-
-      /* Toolbar */
-      .o-toolbar-tools {
-        cursor: default;
-      }
-    }
-  }
-
-  .o-spreadsheet-mobile {
-    .o-topbar-toolbar {
-      height: ${MOBILE_TOPBAR_TOOLBAR_HEIGHT}px;
-    }
-    .o-topbar-divider {
-      border-width: 2px;
-      border-radius: 4px;
-    }
-
-    .o-toolbar-button {
-      height: 35px;
-      width: 31px;
-      .o-toolbar-button.o-mobile-disabled * {
-      color: ${DISABLED_TEXT_COLOR};
-      cursor: not-allowed;
-    }
-  }
-`;
-
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
   static props = {

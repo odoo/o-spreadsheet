@@ -1,10 +1,10 @@
 import { Component, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import { FROZEN_PANE_HEADER_BORDER_COLOR, GROUP_LAYER_WIDTH } from "../../constants";
+import { GROUP_LAYER_WIDTH } from "../../constants";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../../types";
 import { CSSProperties, Dimension, HeaderGroup, Pixel } from "../../types/misc";
-import { css, cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "./../../constants";
 import { ColGroup, RowGroup } from "./header_group";
@@ -13,28 +13,6 @@ interface Props {
   dimension: Dimension;
   layers: HeaderGroup[][];
 }
-
-css/* scss */ `
-  .o-header-group-frozen-pane-border {
-    &.o-group-rows {
-      margin-top: -1px;
-      border-bottom: 3px solid ${FROZEN_PANE_HEADER_BORDER_COLOR};
-    }
-    &.o-group-columns {
-      margin-left: -1px;
-      border-right: 3px solid ${FROZEN_PANE_HEADER_BORDER_COLOR};
-    }
-  }
-
-  .o-header-group-main-pane {
-    &.o-group-rows {
-      margin-top: -2px; /* Counteract o-header-group-frozen-pane-border offset */
-    }
-    &.o-group-columns {
-      margin-left: -2px;
-    }
-  }
-`;
 
 export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroupContainer";

@@ -1,0 +1,26 @@
+.o-table-style-list-item {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  &.selected {
+    border: 1px solid $os-action-color;
+    background: $os-badge-selected-color;
+  }
+
+  &:hover {
+    background: #ddd;
+    .o-table-style-edit-button {
+      display: block !important;
+      right: 0;
+      top: 0;
+      background: #fff;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      padding: 1px 1px 1px 2px;
+      .o-icon {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+}

@@ -1,35 +1,9 @@
 import { Component, useRef } from "@odoo/owl";
-import { FIGURE_BORDER_COLOR, HIGHLIGHT_COLOR } from "../../../../constants";
+import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { DataValidationRule, Highlight, SpreadsheetChildEnv } from "../../../../types";
-import { css } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 
-css/* scss */ `
-  .o-sidePanel {
-    .o-dv-preview {
-      height: 70px;
-      cursor: pointer;
-      border-bottom: 1px solid ${FIGURE_BORDER_COLOR};
-
-      .o-dv-container {
-        min-width: 0; /* otherwise flex won't shrink correctly */
-      }
-
-      .o-dv-preview-description {
-        font-size: 13px;
-      }
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-
-      &:not(:hover) .o-dv-preview-delete {
-        display: none !important;
-      }
-    }
-  }
-`;
 interface Props {
   onClick: () => void;
   rule: DataValidationRule;

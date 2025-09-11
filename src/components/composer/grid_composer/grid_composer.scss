@@ -1,0 +1,20 @@
+div.o-grid-composer {
+  z-index: $os-componentsimportance-gridcomposer;
+  position: absolute;
+  border: $os-composer-border-width solid $os-selection-border-color;
+  font-family: $os-default-font;
+
+  display: flex;
+  align-items: center;
+}
+
+div.o-cell-reference {
+  position: absolute;
+  z-index: $os-componentsimportance-gridcomposer;
+  background: $os-selection-border-color;
+  color: white;
+  font-size: 12px;
+  line-height: 14px;
+  padding: 6px 7px;
+  border-radius: 4px;
+}

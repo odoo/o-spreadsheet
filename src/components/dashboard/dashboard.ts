@@ -11,7 +11,7 @@ import {
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
@@ -22,13 +22,6 @@ import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}
-
-css/* scss */ `
-  .o-dashboard-clickable-cell {
-    position: absolute;
-    cursor: pointer;
-  }
-`;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";

@@ -1,0 +1,8 @@
+.o-round-color-picker-button {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  border: 1px solid $os-gray-300;
+  background-position: 1px 1px;
+  background-image: url("data:image/svg+xml,${encodeURIComponent(TRANSPARENT_BACKGROUND_SVG)}");
+}

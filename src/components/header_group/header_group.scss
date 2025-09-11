@@ -1,0 +1,19 @@
+.o-header-group {
+  .o-header-group-header {
+    z-index: $os-componentsimportance-headergroupingbutton;
+    .o-group-fold-button {
+      cursor: pointer;
+      width: 15px;
+      height: 15px;
+      border: 1px solid $os-header-grouping-border-color;
+      .o-icon {
+        width: 7px;
+        height: 7px;
+      }
+
+      &:hover {
+        border-color: #777;
+      }
+    }
+  }
+}

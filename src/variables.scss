@@ -12,3 +12,154 @@ $os-button-active-text-color: $os-gray-900;
 $background-gray-color: #f5f5f5;
 $os-composer-assistant-color: #9b359b;
 $os-figure-border-color: #c9ccd2;
+
+/* autofill.ts */
+$os-autofill-edge-length: AUTOFILL_EDGE_LENGTH px;
+
+/* border_editor.ts */
+$os-button-hover-bg: BUTTON_HOVER_BG;
+
+/* bottom_bar.ts */
+$os-background-gray-color: BACKGROUND_GRAY_COLOR;
+$os-header-width: HEADER_WIDTH px;
+
+/* bottom_bar_sheet.ts */
+$os-desktop-bottombar-height: DESKTOP_BOTTOMBAR_HEIGHT px;
+$os-action-color: ACTION_COLOR;
+$os-mobile-bottombar-height: MOBILE_BOTTOMBAR_HEIGHT px;
+
+/* collaborative_client_tag.ts */
+$os-default-font-size: DEFAULT_FONT_SIZE;
+
+/* color_picker.ts */
+$os-picker-padding: PICKER_PADDING px;
+$os-container-width: CONTAINER_WIDTH px;
+$os-item-border-width: ITEM_BORDER_WIDTH px;
+$os-line-vertical-padding: LINE_VERTICAL_PADDING px;
+$os-items-per-line: ITEMS_PER_LINE;
+$os-item-gap: ITEM_GAP px;
+$os-item-edge-length---2---item-border-width: ITEM_EDGE_LENGTH + 2 * ITEM_BORDER_WIDTH px;
+$os-menu-separator-border-width: MENU_SEPARATOR_BORDER_WIDTH px;
+$os-separator-color: SEPARATOR_COLOR;
+$os-menu-separator-padding: MENU_SEPARATOR_PADDING px;
+$os-picker-padding---2: PICKER_PADDING + 2 px;
+$os-magnifier-edge---2: MAGNIFIER_EDGE / 2 px;
+$os-inner-gradient-width---2---item-border-width: INNER_GRADIENT_WIDTH + 2 * ITEM_BORDER_WIDTH px;
+$os-inner-gradient-height---2---item-border-width: INNER_GRADIENT_HEIGHT + 2 * ITEM_BORDER_WIDTH px;
+
+/* composer.ts */
+$os-selectionindicatorclass: selectionIndicatorClass;
+$os-selectionindicatorcolor: selectionIndicatorColor;
+$os-highlightparenthesisclass: highlightParenthesisClass;
+$os-highlightclass: highlightClass;
+$os-close-icon-radius---2: CLOSE_ICON_RADIUS * 2 px;
+$os-primary-button-bg: PRIMARY_BUTTON_BG;
+
+/* grid_composer.ts */
+$os-componentsimportance-gridcomposer: ComponentsImportance.GridComposer;
+$os-composer-border-width: COMPOSER_BORDER_WIDTH px;
+$os-selection-border-color: SELECTION_BORDER_COLOR;
+
+/* speech_bubble.ts */
+$os-componentsimportance-popover: ComponentsImportance.Popover;
+$os-bubble-arrow-size: BUBBLE_ARROW_SIZE px;
+
+/* top_bar_composer.ts */
+$os-desktop-topbar-toolbar-height: DESKTOP_TOPBAR_TOOLBAR_HEIGHT px;
+
+/* error_tooltip.ts */
+$os-error-tooltip-width: ERROR_TOOLTIP_WIDTH px;
+
+/* chartjs.ts */
+$os-componentsimportance-figuretooltip: ComponentsImportance.FigureTooltip;
+
+/* zoomable_chartjs.ts */
+$os-master-chart-height: MASTER_CHART_HEIGHT px;
+
+/* header_group.ts */
+$os-componentsimportance-headergroupingbutton: ComponentsImportance.HeaderGroupingButton;
+$os-header-grouping-border-color: HEADER_GROUPING_BORDER_COLOR;
+
+/* header_group_container.ts */
+$os-frozen-pane-header-border-color: FROZEN_PANE_HEADER_BORDER_COLOR;
+
+/* headers_overlay.ts */
+$os-scrollbar-width: SCROLLBAR_WIDTH px;
+$os-header-height: HEADER_HEIGHT px;
+$os-header-width---scrollbar-width: HEADER_WIDTH + SCROLLBAR_WIDTH px;
+$os-icons-color: ICONS_COLOR;
+$os-componentsimportance-grid---1: ComponentsImportance.Grid + 1;
+
+/* icon_picker.ts */
+$os-componentsimportance-iconpicker: ComponentsImportance.IconPicker;
+$os-badge-selected-color: BADGE_SELECTED_COLOR;
+
+/* icons.ts */
+$os-icon-edge-length: ICON_EDGE_LENGTH px;
+
+/* link_display.ts */
+$os-link-tooltip-height: LINK_TOOLTIP_HEIGHT px;
+$os-link-tooltip-width: LINK_TOOLTIP_WIDTH px;
+$os-link-color: LINK_COLOR;
+
+/* link_editor.ts */
+$os-padding: PADDING px;
+$os-link-editor-width: LINK_EDITOR_WIDTH px;
+
+/* menu.ts */
+$os-desktop-menu-item-height: DESKTOP_MENU_ITEM_HEIGHT px;
+$os-menu-item-padding-vertical: MENU_ITEM_PADDING_VERTICAL px;
+$os-menu-item-padding-horizontal: MENU_ITEM_PADDING_HORIZONTAL px;
+$os-desktop-menu-item-height---2---menu-item-padding-vertical: DESKTOP_MENU_ITEM_HEIGHT - 2 *
+  MENU_ITEM_PADDING_VERTICAL px;
+$os-disabled-text-color: DISABLED_TEXT_COLOR;
+$os-mobile-menu-item-height: MOBILE_MENU_ITEM_HEIGHT px;
+
+/* menu_popover.ts */
+$os-menu-vertical-padding: MENU_VERTICAL_PADDING px;
+
+/* scrollbar.ts */
+$os-componentsimportance-scrollbar: ComponentsImportance.ScrollBar;
+
+/* selection_input.ts */
+$os-alert-danger-bg: ALERT_DANGER_BG;
+
+/* main_chart_panel.ts */
+$os-text-heading: TEXT_HEADING;
+
+/* checkbox.ts */
+$os-checkbox-width: CHECKBOX_WIDTH px;
+
+/* cf_editor.ts */
+$os-cf-icon-edge-length: CF_ICON_EDGE_LENGTH px;
+
+/* spreadsheet.ts */
+$os-text-body-muted: TEXT_BODY_MUTED;
+$os-button-hover-text-color: BUTTON_HOVER_TEXT_COLOR;
+$os-header-grouping-background-color: HEADER_GROUPING_BACKGROUND_COLOR;
+$os-grid-border-color: GRID_BORDER_COLOR;
+
+/* spreadsheet.ts */
+$os-button-bg: BUTTON_BG;
+$os-primary-button-hover-bg: PRIMARY_BUTTON_HOVER_BG;
+$os-primary-button-active-bg: PRIMARY_BUTTON_ACTIVE_BG;
+$os-alert-danger-border: ALERT_DANGER_BORDER;
+$os-action-color-hover: ACTION_COLOR_HOVER;
+$os-componentsimportance-scrollbar---1: ComponentsImportance.ScrollBar + 1;
+
+/* table_resizer.ts */
+$os-size---2: SIZE * 2 px;
+$os-color: COLOR;
+
+/* top_bar.ts */
+$os-alert-info-border: ALERT_INFO_BORDER;
+$os-background-header-color: BACKGROUND_HEADER_COLOR;
+$os-mobile-topbar-toolbar-height: MOBILE_TOPBAR_TOOLBAR_HEIGHT px;
+
+/* validation_messages.ts */
+$os-alert-warning-border: ALERT_WARNING_BORDER;
+$os-alert-warning-text-color: ALERT_WARNING_TEXT_COLOR;
+$os-alert-warning-bg: ALERT_WARNING_BG;
+$os-alert-danger-text-color: ALERT_DANGER_TEXT_COLOR;
+$os-alert-info-text-color: ALERT_INFO_TEXT_COLOR;
+$os-alert-info-bg: ALERT_INFO_BG;

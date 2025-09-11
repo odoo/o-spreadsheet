@@ -1,0 +1,8 @@
+.o-client-tag {
+  position: absolute;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  font-size: $os-default-font-size;
+  color: white;
+  pointer-events: none;
+}

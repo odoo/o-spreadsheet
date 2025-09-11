@@ -1,16 +1,7 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
-import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
 import { TextStyler } from "../text_styler/text_styler";
-
-css/* scss */ `
-  .o-chart-title-designer {
-    > span {
-      height: 30px;
-    }
-  }
-`;
 
 interface Props {
   title?: string;

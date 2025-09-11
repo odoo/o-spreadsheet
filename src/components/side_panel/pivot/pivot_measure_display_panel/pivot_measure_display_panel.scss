@@ -1,0 +1,13 @@
+.o-sidePanel {
+  .o-pivot-measure-display-field,
+  .o-pivot-measure-display-value {
+    border: solid 1px $os-gray-300;
+    border-radius: 3px;
+  }
+
+  .o-pivot-measure-display-description {
+    white-space: pre-wrap;
+    color: dimgray;
+    border-left: 2px solid $os-gray-300;
+  }
+}

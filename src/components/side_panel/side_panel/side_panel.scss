@@ -1,0 +1,113 @@
+.o-sidePanel {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: white;
+  border: solid $os-gray-300;
+  border-width: 1px 0 0 1px;
+  user-select: none;
+  color: $os-text-body;
+
+  &.collapsed {
+    padding: 8px;
+    cursor: pointer;
+
+    .o-sidePanelTitle {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+  }
+
+  .o-sidePanelTitle {
+    line-height: 20px;
+    font-size: 16px;
+  }
+
+  .o-sidePanelHeader {
+    padding: 8px;
+    border-bottom: 1px solid $os-gray-300;
+  }
+
+  .o-sidePanelAction {
+    padding: 5px 10px;
+    cursor: pointer;
+
+    &.active {
+      background-color: $os-button-active-bg;
+    }
+
+    &:hover {
+      background-color: $os-button-hover-bg;
+    }
+  }
+  .o-sidePanelBody-container {
+    /* This overwrites the min-height: auto; of flex. Without this, a flex div cannot be smaller than its children */
+    min-height: 0;
+  }
+  .o-sidePanelBody {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+
+    .o-section {
+      padding: 16px;
+
+      .o-section-title {
+        font-weight: 500;
+        margin-bottom: 5px;
+      }
+
+      .o-section-subtitle {
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 14px;
+        margin: 8px 0 4px 0;
+      }
+
+      .o-subsection-left {
+        display: inline-block;
+        width: 47%;
+        margin-right: 3%;
+      }
+
+      .o-subsection-right {
+        display: inline-block;
+        width: 47%;
+        margin-left: 3%;
+      }
+    }
+
+    .o-sidePanel-composer {
+      color: $os-text-body;
+    }
+  }
+
+  .o-sidePanelButtons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .o-invalid {
+    border-width: 2px;
+    border-color: red;
+  }
+
+  .o-sidePanel-handle-container {
+    width: 8px;
+    position: fixed;
+    top: 50%;
+    z-index: 1;
+  }
+  .o-sidePanel-handle {
+    cursor: col-resize;
+    color: #a9a9a9;
+    .o-icon {
+      height: 25px;
+      margin-left: -5px;
+    }
+  }
+}
+
+.o-fw-bold {
+  font-weight: 500;
+}
