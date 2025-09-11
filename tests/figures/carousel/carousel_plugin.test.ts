@@ -99,6 +99,25 @@ describe("Carousel figure", () => {
       });
       expect(result).toBeSuccessfullyDispatched();
     });
+
+    test("Cannot duplicate wrong carousel item", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      const chartId = addNewChartToCarousel(model, "carouselId");
+
+      let result = model.dispatch("DUPLICATE_CAROUSEL_CHART", {
+        carouselId: "wrongCarouselId",
+        sheetId,
+        chartId,
+      });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+
+      result = model.dispatch("DUPLICATE_CAROUSEL_CHART", {
+        carouselId: "carouselId",
+        sheetId,
+        chartId: "invalidChartId",
+      });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+    });
   });
 
   test("Can create a carousel figure", () => {
