@@ -16,9 +16,6 @@ import {
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 extendMockGetBoundingClientRect({
-  "o-popover": () => ({ height: 0, width: 0 }),
-  "o-figure-menu-item": () => ({ top: 500, left: 500 }),
-  "o-figure-zoom-icons": () => ({ top: 500, left: 400 }),
   "o-master-chart-canvas": () => ({ top: 0, left: 0, width: 100, height: 50 }),
 });
 
