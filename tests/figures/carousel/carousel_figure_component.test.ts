@@ -257,6 +257,21 @@ describe("Carousel figure component", () => {
     });
   });
 
+  test("Can open carousel context menu with both right click and the menu icon", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    const { fixture } = await mountSpreadsheet({ model });
+
+    triggerMouseEvent(".o-figure", "contextmenu");
+    await nextTick();
+    expect(".o-popover .o-menu").toHaveCount(1);
+
+    await click(fixture, ".o-grid"); // close the menu
+    expect(".o-popover .o-menu").toHaveCount(0);
+
+    await click(fixture, ".o-figure .o-carousel-menu-button");
+    expect(".o-popover .o-menu").toHaveCount(1);
+  });
+
   describe("Carousel menu items", () => {
     let env: SpreadsheetChildEnv;
     let openSidePanel: jest.Mock;
