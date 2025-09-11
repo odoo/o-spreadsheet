@@ -110,7 +110,7 @@ describe("Interactive Freeze columns/rows", () => {
     const raiseError = jest.fn();
     const env = makeTestEnv({ model, raiseError });
     interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
-    expect(raiseError).toBeCalled();
+    expect(raiseError).toHaveBeenCalled();
   });
 });
 

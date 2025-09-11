@@ -1648,7 +1648,7 @@ describe("Copy/paste in composer", () => {
     await nextTick();
     expect(composerStore.editionMode).not.toBe("inactive");
     expect(fixture.querySelectorAll("div.o-composer")).toHaveLength(1);
-    expect(pasteFn).not.toBeCalled();
+    expect(pasteFn).not.toHaveBeenCalled();
     fixture.removeEventListener("paste", parentPasteFn);
   });
 

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Provided Currencies if currencies are provided in spreadsheet --> display this currencies 1`] = `
 <select

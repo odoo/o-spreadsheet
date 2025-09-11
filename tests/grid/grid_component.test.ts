@@ -275,14 +275,14 @@ describe("Grid component", () => {
     triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150, identifier: 1 });
     // move down; we are at the top: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120, identifier: 2 });
-    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toHaveBeenCalledTimes(1);
     jest.advanceTimersByTime(10);
     // move up:; we are not at the top: ev prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 3 });
-    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toHaveBeenCalledTimes(1);
     // move up again but we are at the stop: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 4 });
-    expect(mockCallback).toBeCalledTimes(2);
+    expect(mockCallback).toHaveBeenCalledTimes(2);
   });
 
   test("Double clicking only opens composer when actually targetting grid overlay", async () => {

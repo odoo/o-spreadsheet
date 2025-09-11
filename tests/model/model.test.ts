@@ -218,7 +218,7 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin1);
     addTestPlugin(corePluginRegistry, MyCorePlugin2);
 
-    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => new Model()).toThrow(`Getter "getSomething" is already defined.`);
   });
 
   test("Cannot add an already existing getters", () => {
@@ -236,7 +236,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin1);
     addTestPlugin(featurePluginRegistry, MyUIPlugin2);
 
-    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => new Model()).toThrow(`Getter "getSomething" is already defined.`);
   });
 
   test("Replayed commands are not send to UI plugins", () => {

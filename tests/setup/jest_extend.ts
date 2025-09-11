@@ -62,7 +62,7 @@ expect.extend({
       ])
     ) {
       return {
-        pass: this.isNot,
+        pass: this.isNot || false,
         message: () =>
           `Diff: ${this.utils.printDiffOrStringify(
             expected,
@@ -75,13 +75,13 @@ expect.extend({
     }
     return { pass: !this.isNot, message: () => "" };
   },
-  toHaveSynchronizedValue(users: Model[], callback: (model: Model) => any, expected: any) {
+  toHaveSynchronizedValue(this, users: Model[], callback: (model: Model) => any, expected: any) {
     for (const user of users) {
       const result = callback(user);
       if (!this.equals(result, expected, [this.utils.iterableEquality])) {
         const userId = user.getters.getCurrentClient().name;
         return {
-          pass: this.isNot,
+          pass: this.isNot || false,
           message: () =>
             `${userId} does not have the expected value: \nReceived: ${this.utils.printReceived(
               result
@@ -91,7 +91,7 @@ expect.extend({
     }
     return { pass: !this.isNot, message: () => "" };
   },
-  toHaveSynchronizedEvaluation(users: Model[]) {
+  toHaveSynchronizedEvaluation(this, users: Model[]) {
     for (let i = 0; i < users.length - 1; i++) {
       const a = users[i];
       const b = users[i + 1];
@@ -105,7 +105,7 @@ expect.extend({
           const prettyValuesUserA = getPrettyEvaluatedCells(a, sheetId, sheetZone);
           const prettyValuesUserB = getPrettyEvaluatedCells(b, sheetId, sheetZone);
           return {
-            pass: this.isNot,
+            pass: this.isNot|| false,
             message: () =>
               `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
                 prettyValuesUserA,
@@ -120,7 +120,7 @@ expect.extend({
     }
     return { pass: !this.isNot, message: () => "" };
   },
-  toHaveSynchronizedExportedData(users: Model[]) {
+  toHaveSynchronizedExportedData(this, users: Model[]) {
     for (let i = 0; i < users.length - 1; i++) {
       const a = users[i];
       const b = users[i + 1];
@@ -130,7 +130,7 @@ expect.extend({
         const clientA = a.getters.getCurrentClient().id;
         const clientB = b.getters.getCurrentClient().id;
         return {
-          pass: this.isNot,
+          pass: this.isNot|| false,
           message: () =>
             `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
               exportA,

@@ -73,7 +73,7 @@ describe("Table style editor panel", () => {
     const onStylePicked = jest.fn();
     await mountPanel({ onStylePicked });
     await click(fixture, ".o-sidePanel .o-confirm");
-    expect(onStylePicked).toBeCalledWith(getTableStyleIdFromName("Custom Table Style"));
+    expect(onStylePicked).toHaveBeenCalledWith(getTableStyleIdFromName("Custom Table Style"));
   });
 
   test("Can delete table style from the panel", async () => {
