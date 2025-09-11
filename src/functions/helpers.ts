@@ -105,13 +105,24 @@ export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
   return toMatrix(data).map((row) => {
     return row.map((cell) => {
       if (typeof cell.value !== "number") {
-        throw new EvaluationError(
-          _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
-            argName,
-            typeof cell.value
-          )
-        );
+        let message = "";
+        if (typeof cell === "object") {
+          message = _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got an empty value.",
+            argName
+          );
+        } else if (typeof cell === "string") {
+          message = _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got a string.",
+            argName
+          );
+        } else if (typeof cell === "boolean") {
+          message = _t(
+            "Function [[FUNCTION_NAME]] expects number values for %s, but got a boolean.",
+            argName
+          );
+        }
+        throw new EvaluationError(message);
       }
       return cell.value;
     });
