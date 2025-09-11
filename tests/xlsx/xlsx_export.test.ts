@@ -1263,7 +1263,7 @@ describe("Test XLSX export", () => {
         "2"
       );
       const exported = getExportedExcelData(model);
-      expect(exported.sheets[0].charts[0].data).toEqual(exported.sheets[0].charts[1].data);
+      expect(exported.sheets[0].charts["1"].chart).toEqual(exported.sheets[0].charts["2"].chart);
     });
 
     test("multiple charts in the same sheet", async () => {
@@ -1340,8 +1340,8 @@ describe("Test XLSX export", () => {
         const model = new Model();
         createChart(model, { aggregated: true, type }, "1");
         const exportedData = getExportedExcelData(model);
-        expect(exportedData.sheets[0].charts.length).toBe(1);
-        expect(exportedData.sheets[0].images.length).toBe(0);
+        expect(Object.keys(exportedData.sheets[0].charts).length).toBe(1);
+        expect(Object.keys(exportedData.sheets[0].images).length).toBe(0);
       }
     );
 
@@ -1350,8 +1350,9 @@ describe("Test XLSX export", () => {
         sheets: chartData.sheets,
       });
       createScorecardChart(model, TEST_CHART_DATA.scorecard);
-      expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
-      expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
+      const exportedData = getExportedExcelData(model);
+      expect(Object.keys(exportedData.sheets[0].charts).length).toBe(0);
+      expect(Object.keys(exportedData.sheets[0].images).length).toBe(1);
     });
 
     test("Gauge Chart is exported as an image", () => {
@@ -1359,8 +1360,9 @@ describe("Test XLSX export", () => {
         sheets: chartData.sheets,
       });
       createGaugeChart(model, TEST_CHART_DATA.gauge);
-      expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
-      expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
+      const exportedData = getExportedExcelData(model);
+      expect(Object.keys(exportedData.sheets[0].charts).length).toBe(0);
+      expect(Object.keys(exportedData.sheets[0].images).length).toBe(1);
     });
 
     test("stacked bar chart", async () => {
@@ -1904,11 +1906,15 @@ describe("Test XLSX export", () => {
     createSheet(model, { name: longSheetNameWithSpaces });
     createSheet(model, { name: longSheetName });
     setCellContent(model, "A1", `='${longSheetNameWithSpaces}'!A1`);
-    createChart(model, {
-      type: "bar",
-      dataSets: [{ dataRange: `${longSheetName}!A1:A4` }],
-      labelRange: `${longSheetName}!A1:A4`,
-    });
+    createChart(
+      model,
+      {
+        type: "bar",
+        dataSets: [{ dataRange: `${longSheetName}!A1:A4` }],
+        labelRange: `${longSheetName}!A1:A4`,
+      },
+      "chartId"
+    );
 
     const fixedSheetName = "a".repeat(31);
     const fixedSheetNameWithSpaces = "Hey " + "a".repeat(27);
@@ -1916,8 +1922,10 @@ describe("Test XLSX export", () => {
     expect(exportedData.sheets[1].name).toBe(fixedSheetName);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
-    expect(exportedData.sheets[0].charts[0].data.labelRange).toBe(`${fixedSheetName}!A2:A4`);
-    expect(exportedData.sheets[0].charts[0].data.dataSets[0]).toEqual({
+    expect(exportedData.sheets[0].charts["chartId"].chart.labelRange).toBe(
+      `${fixedSheetName}!A2:A4`
+    );
+    expect(exportedData.sheets[0].charts["chartId"].chart.dataSets[0]).toEqual({
       label: {
         reference: `${fixedSheetName}!A1`,
       },

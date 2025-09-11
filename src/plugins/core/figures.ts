@@ -364,8 +364,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
       for (const figure of this.getFigures(sheet.id)) {
-        const data = undefined;
-        sheet.figures.push({ ...figure, data });
+        sheet.figures.push({ ...figure });
       }
     }
   }
