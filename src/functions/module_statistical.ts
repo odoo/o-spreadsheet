@@ -573,9 +573,9 @@ export const GROWTH: AddFunctionDescription = {
     assertNonEmptyMatrix(knownDataY, "known_data_y");
     return expM(
       predictLinearValues(
-        logM(toNumberMatrix(knownDataY, "the first argument (known_data_y)")),
-        toNumberMatrix(knownDataX, "the second argument (known_data_x)"),
-        toNumberMatrix(newDataX, "the third argument (new_data_y)"),
+        logM(toNumberMatrix(knownDataY, "known_data_y")),
+        toNumberMatrix(knownDataX, "known_data_x"),
+        toNumberMatrix(newDataX, "new_data_y"),
         toBoolean(b)
       )
     );
@@ -687,8 +687,8 @@ export const LINEST: AddFunctionDescription = {
   ): (number | string)[][] {
     assertNonEmptyMatrix(dataY, "data_y");
     return fullLinearRegression(
-      toNumberMatrix(dataX, "the first argument (data_y)"),
-      toNumberMatrix(dataY, "the second argument (data_x)"),
+      toNumberMatrix(dataX, "data_x"),
+      toNumberMatrix(dataY, "data_y"),
       toBoolean(calculateB),
       toBoolean(verbose)
     );
@@ -731,8 +731,8 @@ export const LOGEST: AddFunctionDescription = {
   ): (number | string)[][] {
     assertNonEmptyMatrix(dataY, "data_y");
     const coeffs = fullLinearRegression(
-      toNumberMatrix(dataX, "the second argument (data_x)"),
-      logM(toNumberMatrix(dataY, "the first argument (data_y)")),
+      toNumberMatrix(dataX, "data_x"),
+      logM(toNumberMatrix(dataY, "data_y")),
       toBoolean(calculateB),
       toBoolean(verbose)
     );
@@ -1596,9 +1596,9 @@ export const TREND: AddFunctionDescription = {
   ): Matrix<number> {
     assertNonEmptyMatrix(knownDataY, "known_data_y");
     return predictLinearValues(
-      toNumberMatrix(knownDataY, "the first argument (known_data_y)"),
-      toNumberMatrix(knownDataX, "the second argument (known_data_x)"),
-      toNumberMatrix(newDataX, "the third argument (new_data_y)"),
+      toNumberMatrix(knownDataY, "known_data_y"),
+      toNumberMatrix(knownDataX, "known_data_x"),
+      toNumberMatrix(newDataX, "new_data_y"),
       toBoolean(b)
     );
   },
