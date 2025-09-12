@@ -243,13 +243,19 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Returns true if two rows have at least one merge in common
    */
   doesRowsHaveCommonMerges(sheetId: string, rowA: HeaderIndex, rowB: HeaderIndex) {
-    const sheet = this.getters.getSheet(sheetId);
-    for (let col = 0; col <= this.getters.getNumberCols(sheetId); col++) {
-      if (this.isInSameMerge(sheet.id, col, rowA, col, rowB)) {
-        return true;
-      }
-    }
-    return false;
+    return (
+      new Set(
+        this.getters
+          .getMergesInZone(sheetId, this.getters.getRowsZone(sheetId, rowA, rowA))
+          .map((merge) => merge.id)
+      ).intersection(
+        new Set(
+          this.getters
+            .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, rowB, rowB))
+            .map((merge) => merge.id)
+        )
+      ).size !== 0
+    );
   }
 
   /**
