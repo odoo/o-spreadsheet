@@ -27,10 +27,8 @@ import {
   clickAndDrag,
   clickCell,
   clickGridIcon,
-  getElComputedStyle,
   hoverCell,
   keyDown,
-  rightClickCell,
   simulateClick,
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
@@ -198,53 +196,6 @@ describe("Simple Spreadsheet Component", () => {
     await keyDown({ key: "F", metaKey: true, bubbles: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
     mockUserAgent.mockReset();
-  });
-
-  test("Z-indexes of the various spreadsheet components", async () => {
-    jest.useFakeTimers();
-    ({ model, fixture } = await mountSpreadsheet());
-    const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
-    mockChart();
-    const gridZIndex = getZIndex(".o-grid");
-    const vScrollbarZIndex = getZIndex(".o-scrollbar.vertical");
-    const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
-    const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
-
-    setCellContent(model, "A1", "=SUM()");
-    await nextTick();
-    await hoverCell(model, "A1", 400);
-    const gridPopoverZIndex = getZIndex(".o-popover");
-
-    await rightClickCell(model, "A1");
-    const popoverZIndex = getZIndex(".o-popover");
-
-    await typeInComposerGrid("=A1:B2");
-    const gridComposerZIndex = getZIndex("div.o-grid-composer");
-    const highlighZIndex = getZIndex(".o-highlight");
-
-    const inactiveTopBarComposerZIndex = getZIndex(".o-topbar-composer .o-composer-container");
-    expect(inactiveTopBarComposerZIndex).toBe(0);
-
-    await simulateClick(".o-topbar-composer .o-composer");
-    const topBarComposerZIndex = getZIndex(".o-topbar-composer");
-
-    createChart(model, { type: "bar" }, "thisIsAnId", undefined, { figureId: "figureId" });
-    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
-    await nextTick();
-    const figureZIndex = getZIndex(".o-figure-wrapper");
-    const figureAnchorZIndex = getZIndex(".o-fig-anchor");
-
-    expect(gridZIndex).toBeLessThan(highlighZIndex);
-    expect(highlighZIndex).toBeLessThan(figureZIndex);
-    expect(figureZIndex).toBeLessThan(vScrollbarZIndex);
-    expect(vScrollbarZIndex).toEqual(hScrollbarZIndex);
-    expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
-    expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(topBarComposerZIndex);
-    expect(topBarComposerZIndex).toBeLessThan(popoverZIndex);
-    expect(popoverZIndex).toBeLessThan(figureAnchorZIndex);
-    jest.useRealTimers();
   });
 
   test("Insert a function properly sets the edition", async () => {

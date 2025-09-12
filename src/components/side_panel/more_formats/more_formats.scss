@@ -1,0 +1,15 @@
+.o-spreadsheet {
+  .o-more-formats-panel {
+    .format-preview {
+      height: 49px;
+      background-color: white;
+      cursor: pointer;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+    }
+    .check-icon {
+      width: 24px;
+    }
+  }
+}

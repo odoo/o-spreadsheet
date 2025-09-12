@@ -1,48 +1,11 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
-import { DEFAULT_STYLE, GRAY_300 } from "../../../../../constants";
+import { DEFAULT_STYLE } from "../../../../../constants";
 import { _t } from "../../../../../translation";
 import { Align, ChartStyle, Color, SpreadsheetChildEnv, VerticalAlign } from "../../../../../types";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
-import { css } from "../../../../helpers";
-
-css/* scss */ `
-  .o-chart-title-designer {
-    .o-hoverable-button {
-      height: 30px;
-    }
-    .o-dropdown-content .o-hoverable-button {
-      height: fit-content;
-    }
-
-    .o-divider {
-      border-right: 1px solid ${GRAY_300};
-      margin: 0px 4px;
-      height: 14px;
-    }
-
-    .o-menu-item-button.active {
-      background-color: #e6f4ea;
-      color: #188038;
-    }
-
-    .o-dropdown-content {
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 2px;
-      z-index: 100;
-      box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-
-      .o-dropdown-line {
-        > span {
-          padding: 4px;
-        }
-      }
-    }
-  }
-`;
 
 interface Props {
   class?: string;

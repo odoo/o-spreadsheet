@@ -9,19 +9,10 @@ import {
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
 import { FullScreenChartStore } from "../../../../full_screen_chart/full_screen_chart_store";
-import { css } from "../../../../helpers";
 import { chartJsExtensionRegistry } from "../chart_js_extension";
 import { ChartJsComponent } from "../chartjs";
 import { ZoomableChartStore } from "./zoomable_chart_store";
 import { zoomWindowPlugin } from "./zoomable_chartjs_plugins";
-
-css/* scss */ `
-  .o-spreadsheet {
-    .o-master-chart-container {
-      height: ${MASTER_CHART_HEIGHT}px;
-    }
-  }
-`;
 
 chartJsExtensionRegistry.add("zoomWindowPlugin", {
   register: (Chart) => Chart.register(zoomWindowPlugin),

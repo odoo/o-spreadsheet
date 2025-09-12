@@ -1,11 +1,9 @@
 import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { ACTION_COLOR, BADGE_SELECTED_COLOR } from "../../../constants";
 import { deepEquals } from "../../../helpers";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig, TableStyle } from "../../../types/table";
-import { css } from "../../helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
@@ -17,35 +15,6 @@ interface Props {
   selected?: boolean;
   onClick?: () => void;
 }
-
-css/* scss */ `
-  .o-table-style-list-item {
-    border: 1px solid transparent;
-    border-radius: 4px;
-    &.selected {
-      border: 1px solid ${ACTION_COLOR};
-      background: ${BADGE_SELECTED_COLOR};
-    }
-
-    &:hover {
-      background: #ddd;
-      .o-table-style-edit-button {
-        display: block !important;
-        right: 0;
-        top: 0;
-        background: #fff;
-        cursor: pointer;
-        border: 1px solid #ddd;
-        padding: 1px 1px 1px 2px;
-        .o-icon {
-          font-size: 12px;
-          width: 12px;
-          height: 12px;
-        }
-      }
-    }
-  }
-`;
 
 export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePreview";

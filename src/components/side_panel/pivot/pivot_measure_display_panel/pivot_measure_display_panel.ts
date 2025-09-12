@@ -1,8 +1,6 @@
 import { Component } from "@odoo/owl";
 import { PivotCoreMeasure, SpreadsheetChildEnv, UID } from "../../../..";
-import { GRAY_300 } from "../../../../constants";
 import { Store, useLocalStore } from "../../../../store_engine";
-import { css } from "../../../helpers";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
@@ -14,22 +12,6 @@ interface Props {
   pivotId: UID;
   measure: PivotCoreMeasure;
 }
-
-css/* scss */ `
-  .o-sidePanel {
-    .o-pivot-measure-display-field,
-    .o-pivot-measure-display-value {
-      border: solid 1px ${GRAY_300};
-      border-radius: 3px;
-    }
-
-    .o-pivot-measure-display-description {
-      white-space: pre-wrap;
-      color: dimgray;
-      border-left: 2px solid ${GRAY_300};
-    }
-  }
-`;
 
 export class PivotMeasureDisplayPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotMeasureDisplayPanel";

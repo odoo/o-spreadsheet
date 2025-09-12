@@ -12,7 +12,6 @@ import {
   UID,
 } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -20,46 +19,6 @@ import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
-
-css/* scss */ `
-  .o-gauge-color-set {
-    table {
-      table-layout: fixed;
-      margin-top: 2%;
-      display: table;
-      text-align: left;
-      font-size: 12px;
-      line-height: 18px;
-      width: 100%;
-      font-size: 12px;
-    }
-
-    td {
-      height: 30px;
-      padding: 6px 0;
-    }
-    th.o-gauge-color-set-colorPicker {
-      width: 8%;
-    }
-    th.o-gauge-color-set-text {
-      width: 25%;
-    }
-    th.o-gauge-color-set-operator {
-      width: 10%;
-    }
-    th.o-gauge-color-set-value {
-      width: 22%;
-    }
-    th.o-gauge-color-set-type {
-      width: 30%;
-    }
-    input,
-    select {
-      width: 100%;
-      height: 100%;
-    }
-  }
-`;
 
 interface PanelState {
   sectionRuleCancelledReasons?: CommandResult[];

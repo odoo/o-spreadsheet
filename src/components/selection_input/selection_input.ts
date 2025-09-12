@@ -1,43 +1,11 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
-import { ALERT_DANGER_BG } from "../../constants";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
-
-css/* scss */ `
-  .o-selection {
-    .o-selection-input {
-      padding: 2px 0px;
-
-      input.o-invalid {
-        background-color: ${ALERT_DANGER_BG};
-      }
-      .input-icon {
-        right: 7px;
-        top: 4px;
-      }
-      .o-drag-handle {
-        cursor: move;
-      }
-    }
-    .o-disabled-ranges {
-      color: #888 !important;
-    }
-    .o-button {
-      flex-grow: 0;
-    }
-
-    /* Make the character a bit bigger
-    compared to its neighbor INPUT box  */
-    .o-remove-selection {
-      font-size: calc(100% + 4px);
-    }
-  }
-`;
 
 interface Props {
   ranges: string[];

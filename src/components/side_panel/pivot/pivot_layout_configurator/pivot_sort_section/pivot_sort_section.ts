@@ -1,6 +1,5 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../..";
-import { GRAY_100, GRAY_300, PRIMARY_BUTTON_BG } from "../../../../../constants";
 import { formatValue } from "../../../../../helpers";
 import {
   getFieldDisplayName,
@@ -9,27 +8,12 @@ import {
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { _t } from "../../../../../translation";
 import { PivotDomain, UID } from "../../../../../types";
-import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
 
 interface Props {
   definition: PivotRuntimeDefinition;
   pivotId: UID;
 }
-
-css/* scss */ `
-  .o-pivot-sort {
-    .o-sort-card {
-      width: fit-content;
-      background-color: ${GRAY_100};
-      border: 1px solid ${GRAY_300};
-
-      .o-sort-value {
-        color: ${PRIMARY_BUTTON_BG};
-      }
-    }
-  }
-`;
 
 export class PivotSortSection extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotSortSection";

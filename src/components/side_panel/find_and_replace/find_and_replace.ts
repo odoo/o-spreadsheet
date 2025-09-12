@@ -10,46 +10,12 @@ import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { DebouncedFunction, SpreadsheetChildEnv } from "../../../types/index";
-import { css } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { FindAndReplaceStore } from "./find_and_replace_store";
-
-css/* scss */ `
-  .o-find-and-replace {
-    outline: none;
-    height: 100%;
-    .o-input-search-container {
-      display: flex;
-      .o-input-with-count {
-        flex-grow: 1;
-        width: auto;
-      }
-      .o-input-without-count {
-        width: 100%;
-      }
-      .o-input-count {
-        width: fit-content;
-        padding: 4px 0 4px 4px;
-        white-space: nowrap;
-      }
-    }
-
-    .o-result-buttons {
-      .o-button {
-        height: 19px;
-        width: 19px;
-        .o-icon {
-          height: 14px;
-          width: 14px;
-        }
-      }
-    }
-  }
-`;
 
 interface Props {
   onCloseSidePanel: () => void;

@@ -4,11 +4,11 @@ $item-height: 40px;
   height: 250px;
 
   .o-ribbon-title {
-    background-color: lighten($background-gray-color, 5%);
+    background-color: lighten($os-background-gray-color, 5%);
     border-bottom: 2px solid #e0e2e4;
   }
   .o-previous-button {
-    background-color: $background-gray-color;
+    background-color: $os-background-gray-color;
   }
   .o-ribbon-menu-wrapper {
     max-height: 100%;

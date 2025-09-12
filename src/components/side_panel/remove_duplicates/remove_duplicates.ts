@@ -2,17 +2,10 @@ import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { numberToLetters, zoneToDimension } from "../../../helpers";
 import { _t } from "../../../translation";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../../types/index";
-import { css } from "../../helpers";
 import { RemoveDuplicateTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-
-css/* scss */ `
-  .o-checkbox-selection {
-    max-height: 300px;
-  }
-`;
 
 interface Props {
   onCloseSidePanel: () => void;
