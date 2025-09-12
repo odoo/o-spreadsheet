@@ -488,19 +488,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * gets the currently used style and format of a cell based on it's coordinates
    */
-  private getFormat(
-    sheetId: UID,
-    col: HeaderIndex,
-    row: HeaderIndex
-  ): { style?: Style; format?: Format } {
+  private getFormat(sheetId: UID, col: HeaderIndex, row: HeaderIndex): { format?: Format } {
     const format: { style?: Style; format?: string } = {};
     const position = this.getters.getMainCellPosition({ sheetId, col, row });
     const cell = this.getters.getCell(position);
-    const style = this.getters.getCellStyle(position);
     if (cell) {
-      if (style) {
-        format["style"] = style;
-      }
       if (cell.format) {
         format["format"] = cell.format;
       }
