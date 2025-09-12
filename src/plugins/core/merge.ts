@@ -214,32 +214,34 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Returns true if two columns have at least one merge in common
    */
   doesColumnsHaveCommonMerges(sheetId: string, colA: HeaderIndex, colB: HeaderIndex) {
-    return (
-      new Set(
-        this.getters
-          .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, colA, colA))
-          .map((merge) => merge.id)
-      ).intersection(
-        new Set(
-          this.getters
-            .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, colB, colB))
-            .map((merge) => merge.id)
-        )
-      ).size !== 0
+    const colAMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, colA, colA))
+        .map((merge) => merge.id)
     );
+    const colBMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, colB, colB))
+        .map((merge) => merge.id)
+    );
+    return colAMerges.keys().some(colBMerges.has.bind(colBMerges));
   }
 
   /**
    * Returns true if two rows have at least one merge in common
    */
   doesRowsHaveCommonMerges(sheetId: string, rowA: HeaderIndex, rowB: HeaderIndex) {
-    const sheet = this.getters.getSheet(sheetId);
-    for (let col = 0; col <= this.getters.getNumberCols(sheetId); col++) {
-      if (this.isInSameMerge(sheet.id, col, rowA, col, rowB)) {
-        return true;
-      }
-    }
-    return false;
+    const rowAMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getRowsZone(sheetId, rowA, rowA))
+        .map((merge) => merge.id)
+    );
+    const rowBMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getRowsZone(sheetId, rowB, rowB))
+        .map((merge) => merge.id)
+    );
+    return rowAMerges.keys().some(rowBMerges.has.bind(rowBMerges));
   }
 
   /**
