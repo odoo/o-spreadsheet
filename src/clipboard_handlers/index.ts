@@ -11,11 +11,12 @@ import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { ReferenceClipboardHandler } from "./references_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
+import { StyleClipboardHandler } from "./style_clipboard";
 import { TableClipboardHandler } from "./tables_clipboard";
 
 export const clipboardHandlersRegistries = {
   figureHandlers: new Registry<typeof AbstractFigureClipboardHandler<any>>(),
-  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any, any>>(),
+  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any>>(),
 };
 
 clipboardHandlersRegistries.figureHandlers
@@ -28,6 +29,7 @@ clipboardHandlersRegistries.cellHandlers
   .add("cell", CellClipboardHandler)
   .add("sheet", SheetClipboardHandler)
   .add("merge", MergeClipboardHandler)
+  .add("style", StyleClipboardHandler)
   .add("table", TableClipboardHandler)
   .add("conditionalFormat", ConditionalFormatClipboardHandler)
   .add("references", ReferenceClipboardHandler)

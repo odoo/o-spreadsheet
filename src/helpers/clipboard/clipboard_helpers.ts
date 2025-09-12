@@ -6,6 +6,7 @@ import {
   ClipboardMIMEType,
   ClipboardOptions,
   ClipboardPasteTarget,
+  Map2D,
   MinimalClipboardData,
   OSClipboardContent,
   ParsedOSClipboardContent,
@@ -13,7 +14,8 @@ import {
   Zone,
 } from "../../types";
 import { AllowedImageMimeTypes } from "../../types/image";
-import { mergeOverlappingZones, positions, union } from "../zones";
+import { RangeSet } from "../cells/range_set";
+import { mergeOverlappingZones, reorderZone, union } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
   const lefts = new Set(zones.map((z) => z.left));
@@ -27,12 +29,16 @@ export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): Clipboar
   // In order to don't paste several times the same cells in intersected zones
   // --> we merge zones that have common cells
   const clippedZones = areZonesCompatible
-    ? mergeOverlappingZones(zones)
-    : [zones[zones.length - 1]];
+    ? mergeOverlappingZones(zones).map(reorderZone)
+    : [zones[zones.length - 1]].map(reorderZone);
 
-  const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
-  const columnsIndexes = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
-  const rowsIndexes = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
+  const columnsIndexes = new RangeSet();
+  const rowsIndexes = new RangeSet();
+
+  clippedZones.forEach((zone) => {
+    columnsIndexes.add(zone.left, zone.right);
+    rowsIndexes.add(zone.top, zone.bottom);
+  });
   return { sheetId, zones, clippedZones, columnsIndexes, rowsIndexes };
 }
 
@@ -64,12 +70,7 @@ export function splitZoneForPaste(
 /**
  * Compute the complete zones where to paste the current clipboard
  */
-export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
-  if (!content.length || !content[0].length) {
-    return target;
-  }
-  const width = content[0].length,
-    height = content.length;
+export function getPasteZones<T>(target: Zone[], width: number, height: number): Zone[] {
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
 }
 
@@ -110,7 +111,7 @@ function getOSheetDataFromHTML(htmlDocument: Document) {
   const oSheetClipboardData = htmlDocument
     .querySelector("div")
     ?.getAttribute("data-osheet-clipboard");
-  return oSheetClipboardData && JSON.parse(oSheetClipboardData);
+  return oSheetClipboardData && JSON.parse(oSheetClipboardData, mapReviver);
 }
 
 /**
@@ -196,3 +197,51 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export function* columnRowIndexesToZones(
+  columnsIndexes: RangeSet,
+  rowsIndexes: RangeSet
+): Generator<[Zone, number, number]> {
+  let colsBefore = 0;
+  for (const [colMin, colMax] of columnsIndexes.consecutives()) {
+    let rowsBefore = 0;
+    for (const [rowMin, rowMax] of rowsIndexes.consecutives()) {
+      const zone = {
+        left: colMin,
+        right: colMax,
+        top: rowMin,
+        bottom: rowMax,
+      };
+      yield [zone, colsBefore, rowsBefore];
+      rowsBefore += rowMax - rowMin + 1;
+    }
+    colsBefore += colMax - colMin + 1;
+  }
+}
+
+export function mapReplacer(key, value) {
+  if (value instanceof Map2D) {
+    return {
+      dataType: "Map2D",
+      ...value,
+    };
+  } else if (value instanceof Map) {
+    return {
+      dataType: "Map",
+      value: Array.from(value.entries()), // or with spread: value: [...value]
+    };
+  } else {
+    return value;
+  }
+}
+
+export function mapReviver(key, value) {
+  if (typeof value === "object" && value !== null) {
+    if (value.dataType === "Map2D") {
+      return new Map2D(value.width, value.height, value.map);
+    } else if (value.dataType === "Map") {
+      return new Map(value.value);
+    }
+  }
+  return value;
+}

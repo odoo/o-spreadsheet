@@ -1,4 +1,3 @@
-import { range } from "../../helpers";
 import { CellPosition, Dimension, ExcelWorkbookData, HeaderIndex, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
@@ -11,12 +10,17 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
     "isRowHidden",
     "isColHidden",
     "isHeaderHidden",
+    "getHiddenRows",
   ] as const;
 
   isRowHidden(sheetId: UID, index: number): boolean {
     return (
       this.getters.isRowHiddenByUser(sheetId, index) || this.getters.isRowFiltered(sheetId, index)
     );
+  }
+
+  getHiddenRows(sheetId: UID): HeaderIndex[] {
+    return [...this.getters.getFilteredRows(sheetId), ...this.getters.getUserHiddenRows(sheetId)];
   }
 
   isColHidden(sheetId: UID, index: number): boolean {
@@ -77,10 +81,10 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
     dimension: Dimension,
     { last, first }: { first: HeaderIndex; last: HeaderIndex }
   ): HeaderIndex {
-    const lastVisibleIndex = range(last, first, -1).find(
-      (index) => !this.isHeaderHidden(sheetId, dimension, index)
-    );
-    return lastVisibleIndex || first;
+    for (let index = last; index > first; index--) {
+      if (!this.isHeaderHidden(sheetId, dimension, index)) return index;
+    }
+    return first;
   }
 
   findFirstVisibleColRowIndex(sheetId: UID, dimension: Dimension) {

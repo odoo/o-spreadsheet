@@ -9,7 +9,15 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
-import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
+import {
+  CellPosition,
+  Dimension,
+  HeaderIndex,
+  Immutable,
+  Pixel,
+  UID,
+  Zone,
+} from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {
@@ -22,7 +30,12 @@ interface CellWithSize {
 }
 
 export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implements HeaderSizeState {
-  static getters = ["getRowSize", "getHeaderSize", "getMaxAnchorOffset"] as const;
+  static getters = [
+    "getRowSize",
+    "getHeaderSize",
+    "getMaxAnchorOffset",
+    "getCustomRowSizes",
+  ] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
 
@@ -100,6 +113,12 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
           }
         }
         break;
+      case "SET_FORMATTING":
+        for (const zone of cmd.target) {
+          // use rangeSet
+          this.updateRowSizeForZoneChange(cmd.sheetId, zone);
+        }
+        break;
       case "UPDATE_CELL":
         this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
         break;
@@ -120,6 +139,17 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         this.tallestCellInRow[sheetId][row]?.size ??
         DEFAULT_CELL_HEIGHT
     );
+  }
+
+  getCustomRowSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
+    const customRowMap = deepCopy(this.getters.getUserCustomRowSizes(sheetId));
+    const activeZone = this.getters.getSheetEvaluatedZone(sheetId);
+    for (let row = activeZone.top; row <= activeZone.bottom; row++) {
+      if (customRowMap.get(row)) continue;
+      const size = this.tallestCellInRow[sheetId][row]?.size;
+      if (size) customRowMap.set(row, size);
+    }
+    return customRowMap;
   }
 
   getMaxAnchorOffset(sheetId: UID, height: Pixel, width: Pixel): AnchorOffset {
@@ -146,6 +176,14 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     return dimension === "ROW"
       ? this.getRowSize(sheetId, index)
       : this.getters.getColSize(sheetId, index);
+  }
+
+  private updateRowSizeForZoneChange(sheetId: UID, zone: Zone) {
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      // TODO imp ?
+      const newTallestCell = this.getRowTallestCell(sheetId, row);
+      this.history.update("tallestCellInRow", sheetId, row, newTallestCell);
+    }
   }
 
   private updateRowSizeForCellChange(sheetId: UID, row: HeaderIndex, col: HeaderIndex) {
@@ -188,9 +226,9 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     }
 
     const cell = this.getters.getCell(position);
-
+    const style = this.getters.getCellStyle(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, colSize);
+    return getDefaultCellHeight(this.ctx, cell, style, colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {
@@ -207,14 +245,10 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
       return undefined;
     }
 
-    const cellIds = this.getters.getRowCells(sheetId, row);
+    const cells = this.getters.getRowCells(sheetId, row);
     let maxHeight = 0;
     let tallestCell: CellWithSize | undefined = undefined;
-    for (let i = 0; i < cellIds.length; i++) {
-      const cell = this.getters.getCellById(cellIds[i]);
-      if (!cell) {
-        continue;
-      }
+    for (const cell of cells) {
       const position = this.getters.getCellPosition(cell.id);
       const cellHeight = this.getCellHeight(position);
 

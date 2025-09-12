@@ -1,3 +1,4 @@
+import { StylePlugin } from "../plugins/core";
 import { BordersPlugin } from "../plugins/core/borders";
 import { CarouselPlugin } from "../plugins/core/carousel";
 import { CellPlugin } from "../plugins/core/cell";
@@ -110,6 +111,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof CellPlugin> &
   PluginGetters<typeof MergePlugin> &
   PluginGetters<typeof BordersPlugin> &
+  PluginGetters<typeof StylePlugin> &
   PluginGetters<typeof ChartPlugin> &
   PluginGetters<typeof ImagePlugin> &
   PluginGetters<typeof CarouselPlugin> &

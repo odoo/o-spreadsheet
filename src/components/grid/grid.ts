@@ -372,8 +372,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const activeCols = this.env.model.getters.getActiveCols();
       const activeRows = this.env.model.getters.getActiveRows();
       const isSingleSelection = this.env.model.getters.getSelectedZones().length === 1;
-      const areFullCols = activeCols.size > 0 && isSingleSelection;
-      const areFullRows = activeRows.size > 0 && isSingleSelection;
+      const areFullCols = !activeCols.isEmpty && isSingleSelection;
+      const areFullRows = !activeRows.isEmpty && isSingleSelection;
       if (areFullCols && !areFullRows) {
         INSERT_COLUMNS_BEFORE_ACTION(this.env);
       } else if (areFullRows && !areFullCols) {
@@ -729,8 +729,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    const selectingRows = this.env.model.getters.getActiveRows().size > 0;
-    const selectingCols = this.env.model.getters.getActiveCols().size > 0;
+    const selectingRows = !this.env.model.getters.getActiveRows().isEmpty;
+    const selectingCols = !this.env.model.getters.getActiveCols().isEmpty;
 
     if (selectingCols && selectingRows) {
       this.processHeaderGroupingEventOnWholeSheet(direction);

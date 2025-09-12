@@ -18,6 +18,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellStyle,
   getCellText,
   getMerges,
   getStyle,
@@ -141,10 +142,9 @@ describe("Autofill", () => {
     });
     model.dispatch("SET_BORDER", { sheetId, col, row, border });
     autofill("A1", "A2");
-    const cell = getCell(model, "A2")!;
-    expect(cell.style).toEqual(style);
+    expect(getCellStyle(model, "A2")).toEqual(style);
     expect(getBorder(model, "A2")).toEqual(border);
-    expect(cell.format).toBe("m/d/yyyy");
+    expect(getCell(model, "A2")!.format).toBe("m/d/yyyy");
   });
 
   test("Autofill a date displays a date in the composer", () => {
@@ -497,6 +497,22 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A1")).toBe("test");
     });
 
+    test("Autofill mixed-mixed values UPB", () => {
+      setCellContent(model, "B10", "test");
+      setCellContent(model, "B11", "test1");
+      setCellContent(model, "B12", "4");
+      autofill("B10:B12", "B1");
+      expect(getCellContent(model, "B9")).toBe("3");
+      expect(getCellContent(model, "B8")).toBe("test0");
+      expect(getCellContent(model, "B7")).toBe("test");
+      expect(getCellContent(model, "B6")).toBe("2");
+      expect(getCellContent(model, "B5")).toBe("test1");
+      expect(getCellContent(model, "B4")).toBe("test");
+      expect(getCellContent(model, "B3")).toBe("1");
+      expect(getCellContent(model, "B2")).toBe("test2");
+      expect(getCellContent(model, "B1")).toBe("test");
+    });
+
     test("Autofill mixed-mixed values LEFT", () => {
       setCellContent(model, "J1", "test");
       setCellContent(model, "K1", "test1");
@@ -690,7 +706,7 @@ describe("Autofill", () => {
       model.dispatch("SET_BORDER", { sheetId, col, row, border });
       autofill("A1", "A2");
       const cell = getCell(model, "A2")!;
-      expect(cell.style).toBeUndefined();
+      expect(getCellStyle(model, "A2")).toBeUndefined();
       expect(getBorder(model, "A2")).toBeNull();
       expect(cell.format).toBeUndefined();
       expect(cell["content"]).toBe("1");

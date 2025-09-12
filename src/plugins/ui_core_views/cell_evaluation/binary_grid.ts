@@ -1,6 +1,15 @@
+import { MAX_COL } from "../../../helpers";
 import { CellPosition } from "../../../types";
 
 type Bit = 0 | 1;
+
+const BLOCK_SIZE = 32;
+const BLOCK_HEIGHT = 8;
+const BLOCK_WIDTH = Math.floor(BLOCK_SIZE / BLOCK_HEIGHT);
+const BLOCK_COLUMN_OFFSET = Math.ceil(Math.log2(BLOCK_WIDTH));
+
+const HORIZONTAL_BLOCK_NUMBER = Math.ceil(MAX_COL / BLOCK_WIDTH);
+const HORIZONTAL_BLOCK_COLUMN_OFFSET = Math.ceil(Math.log2(HORIZONTAL_BLOCK_NUMBER));
 
 /**
  * Implements a fixed-sized grid or 2D matrix of bits.
@@ -14,22 +23,15 @@ type Bit = 0 | 1;
  * - bucket: Index of an item in the Uint32Array, a 32-bit integer.
  * - bitPosition: The position of a bit within the bucket 32-bit integer.
  */
-export class BinaryGrid extends Uint32Array {
-  private columnOffset = 0;
-  cols = 0;
-  rows = 0;
-
+export class SparseBinaryGrid {
+  private default: Bit = 0;
+  private grid: Map<number, number> = new Map();
   /**
    * Creates a binary grid of specified dimensions.
    */
-  static create(rows: number, columns: number): BinaryGrid {
-    const columnOffset = log2Ceil(columns);
-    const length = (rows << columnOffset) >> 5;
-    const grid = new this(length + 1);
-    grid.columnOffset = columnOffset;
-    grid.cols = columns;
-    grid.rows = rows;
-    return grid;
+  constructor(prefillRows: number = 1, prefillColumns: number = 1) {
+    // TODO
+    return this;
   }
 
   /**
@@ -37,7 +39,8 @@ export class BinaryGrid extends Uint32Array {
    */
   getValue(position: CellPosition): Bit {
     const [bucket, bitPosition] = this.getCoordinates(position);
-    return ((this[bucket] >> bitPosition) & 1) as Bit;
+    if (this.grid[bucket] === undefined) return this.default;
+    return ((this.grid[bucket] >> bitPosition) & 1) as Bit;
   }
 
   /**
@@ -45,9 +48,10 @@ export class BinaryGrid extends Uint32Array {
    */
   setValue(position: CellPosition, value: Bit) {
     const [bucket, bitPosition] = this.getCoordinates(position);
-    const currentValue = (this[bucket] >> bitPosition) & 1;
-    const hasBeenInserted = currentValue === 0 && value === 1;
-    this[bucket] = (this[bucket] & ~(1 << bitPosition)) | (value << bitPosition);
+    if (this.grid[bucket] === undefined) this.grid[bucket] = this.default ? -1 : 0;
+    const currentValue = (this.grid[bucket] >> bitPosition) & 1;
+    const hasBeenInserted = !currentValue && value;
+    this.grid[bucket] = (this.grid[bucket] & ~(1 << bitPosition)) | (value << bitPosition);
     return hasBeenInserted;
     // Let's breakdown of the above line:
     // with an example with a 4-bit integer (instead of 32-bit).
@@ -66,33 +70,25 @@ export class BinaryGrid extends Uint32Array {
   }
 
   isEmpty() {
-    return !this.some((bucket) => bucket !== 0);
+    return !this.default && !Object.values(this.grid).some((v) => v !== 0);
   }
 
   fillAllPositions() {
-    const thirtyTwoOnes = -1 >>> 0; // same as 2 ** 32 - 1, a 32-bit number with all bits set to 1
-    this.fill(thirtyTwoOnes);
+    this.clear();
+    this.default = 1;
   }
 
   clear() {
-    this.fill(0);
+    this.grid = new Map();
+    this.default = 0;
   }
 
   private getCoordinates(position: CellPosition): [bucket: number, position: number] {
     const { row, col } = position;
-    const index = (row << this.columnOffset) + col;
-    const bucket = index >> 5;
-    return [bucket, index - (bucket << 5)];
+    const bucket =
+      (Math.floor(row / BLOCK_HEIGHT) << HORIZONTAL_BLOCK_COLUMN_OFFSET) +
+      Math.floor(col / BLOCK_WIDTH);
+    const index = (row % BLOCK_HEIGHT << BLOCK_COLUMN_OFFSET) + (col % BLOCK_WIDTH);
+    return [bucket, index];
   }
-}
-
-function log2Ceil(value: number) {
-  // A faster version of Math.ceil(Math.log2(value)).
-  if (value === 0) {
-    return -Infinity;
-  } else if (value < 0) {
-    return NaN;
-  }
-  // --value handles the case where value is a power of 2
-  return 32 - Math.clz32(--value);
 }

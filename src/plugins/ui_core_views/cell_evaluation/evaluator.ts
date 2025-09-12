@@ -6,6 +6,7 @@ import {
   excludeTopLeft,
   lazy,
   positionToZone,
+  positionsUnion,
   toXC,
   union,
 } from "../../../helpers";
@@ -37,7 +38,7 @@ import {
 } from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
-import { PositionSet, SheetSizes } from "./position_set";
+import { PositionSet } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
@@ -52,10 +53,11 @@ export class Evaluator {
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
+  private evaluatedZone: Record<UID, Zone> = {};
   private formulaDependencies = lazy(
     new FormulaDependencyGraph(this.createEmptyPositionSet.bind(this))
   );
-  private blockedArrayFormulas = new PositionSet({});
+  private blockedArrayFormulas = new PositionSet([]);
   private spreadingRelations = new SpreadingRelation();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
@@ -69,6 +71,12 @@ export class Evaluator {
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
+  }
+
+  getEvaluatedZone(sheetId: UID): Zone | undefined {
+    if (this.evaluatedZone[sheetId]) return this.evaluatedZone[sheetId];
+    this.evaluatedZone[sheetId] = positionsUnion(...this.evaluatedCells.keysForSheet(sheetId));
+    return this.evaluatedZone[sheetId];
   }
 
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
@@ -144,14 +152,7 @@ export class Evaluator {
   }
 
   private createEmptyPositionSet() {
-    const sheetSizes: SheetSizes = {};
-    for (const sheetId of this.getters.getSheetIds()) {
-      sheetSizes[sheetId] = {
-        rows: this.getters.getNumberRows(sheetId),
-        cols: this.getters.getNumberCols(sheetId),
-      };
-    }
-    return new PositionSet(sheetSizes);
+    return new PositionSet(this.getters.getSheetIds());
   }
 
   evaluateCells(positions: CellPosition[]) {
@@ -196,7 +197,7 @@ export class Evaluator {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
-      const dependencies = [...this.getAllCells()].flatMap((position) =>
+      const dependencies = [...this.getActiveCells()].flatMap((position) =>
         this.getDirectDependencies(position)
           .filter((range) => !range.invalidSheetName && !range.invalidXc)
           .map((range) => ({
@@ -214,7 +215,7 @@ export class Evaluator {
   evaluateAllCells() {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
-    this.evaluate(this.getAllCells());
+    this.evaluate(this.getActiveCells());
     console.debug("evaluate all cells", performance.now() - start, "ms");
   }
 
@@ -256,9 +257,13 @@ export class Evaluator {
     }
   }
 
-  private getAllCells(): PositionSet {
+  private getActiveCells(): PositionSet {
     const positions = this.createEmptyPositionSet();
-    positions.fillAllPositions();
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const cell of Object.values(this.getters.getCells(sheetId))) {
+        positions.add(this.getters.getCellPosition(cell.id));
+      }
+    }
     return positions;
   }
 
@@ -281,7 +286,7 @@ export class Evaluator {
     return arrayFormulaPositions;
   }
 
-  private nextPositionsToUpdate = new PositionSet({});
+  private nextPositionsToUpdate = new PositionSet([]);
   private cellsBeingComputed = new Set<UID>();
   private symbolsBeingComputed = new Set<string>();
 
@@ -295,6 +300,7 @@ export class Evaluator {
       const positions = this.nextPositionsToUpdate.clear();
       for (let i = 0; i < positions.length; ++i) {
         this.evaluatedCells.delete(positions[i]);
+        delete this.evaluatedZone[positions[i].sheetId];
       }
       for (let i = 0; i < positions.length; ++i) {
         const position = positions[i];

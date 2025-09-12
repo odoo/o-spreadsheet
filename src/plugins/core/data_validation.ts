@@ -3,9 +3,11 @@ import {
   deepCopy,
   duplicateRangeInDuplicatedSheet,
   getCellPositionsInRanges,
+  intersection,
+  isDefined,
   isInside,
+  positionToZone,
   recomputeZones,
-  toXC,
 } from "../../helpers";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
@@ -17,10 +19,12 @@ import {
   CoreCommand,
   DataValidationRule,
   ExcelWorkbookData,
+  Map2D,
   Range,
   Style,
   UID,
   WorkbookData,
+  Zone,
 } from "../../types";
 import { CorePlugin } from "../core_plugin";
 
@@ -37,6 +41,7 @@ export class DataValidationPlugin
     "getDataValidationRule",
     "getDataValidationRules",
     "getValidationRuleForCell",
+    "getDataValidationRulesInZone",
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
@@ -162,26 +167,16 @@ export class DataValidationPlugin
       case "DELETE_CONTENT": {
         const zones = recomputeZones(cmd.target);
         const sheetId = cmd.sheetId;
-        for (const zone of zones) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
-              if (!dataValidation) {
-                continue;
-              }
-              if (
-                dataValidation.criterion.type === "isBoolean" ||
-                (dataValidation.criterion.type === "isValueInList" &&
-                  !this.getters.getCell({ sheetId, col, row })?.content)
-              ) {
-                const rules = this.rules[sheetId];
-                const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
-                const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
-                this.history.update("rules", sheetId, adaptedRules);
-              }
-            }
-          }
-        }
+        const ranges = zones.map((zone) => this.getters.getRangeFromZone(sheetId, zone));
+        let rules = this.rules[sheetId];
+        rules = this.removeRangesFromRules(
+          sheetId,
+          ranges,
+          rules,
+          rules.filter((rule) => rule.criterion.type !== "isBoolean").map((rule) => rule.id)
+        );
+        rules = this.removeEmptyCellForValueInList(sheetId, rules, zones);
+        this.history.update("rules", sheetId, rules);
       }
     }
   }
@@ -208,6 +203,24 @@ export class DataValidationPlugin
     return undefined;
   }
 
+  getDataValidationRulesInZone(sheetId: UID, zone: Zone): Map2D<DataValidationRule> {
+    const map = new Map2D<DataValidationRule>(zone.right, zone.bottom);
+
+    for (const dv of this.rules[sheetId]) {
+      for (const dvZone of dv.ranges.map((range) => range.zone)) {
+        const inter = intersection(zone, dvZone);
+        if (!inter) continue;
+        for (let col = inter.left; col <= inter.right; col++) {
+          for (let row = inter.top; row <= inter.bottom; row++) {
+            map.set(col, row, dv);
+          }
+        }
+      }
+    }
+
+    return map;
+  }
+
   cellHasListDataValidationIcon(cellPosition: CellPosition): boolean {
     const rule = this.getValidationRuleForCell(cellPosition);
     if (!rule) return false;
@@ -227,7 +240,7 @@ export class DataValidationPlugin
       newRule.criterion.values = Array.from(new Set(newRule.criterion.values));
     }
 
-    const adaptedRules = this.removeRangesFromRules(sheetId, newRule.ranges, rules, newRule.id);
+    const adaptedRules = this.removeRangesFromRules(sheetId, newRule.ranges, rules, [newRule.id]);
     const ruleIndex = adaptedRules.findIndex((rule) => rule.id === newRule.id);
 
     if (ruleIndex !== -1) {
@@ -238,15 +251,46 @@ export class DataValidationPlugin
     }
   }
 
+  removeEmptyCellForValueInList(
+    sheetId: UID,
+    rules: DataValidationRule[],
+    zones: Zone[]
+  ): DataValidationRule[] {
+    for (let i = 0; i < rules.length; i++) {
+      if (rules[i].criterion.type === "isValueInList") {
+        const overlap = rules[i].ranges
+          .map((range) => zones.map((zone) => intersection(range.zone, zone)).filter(isDefined))
+          .flat();
+        const positions: CellPosition[] = [];
+        for (const zone of recomputeZones(overlap)) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              const position = { sheetId, col, row };
+              const cell = this.getters.getCell(position);
+              if (!cell?.content) {
+                positions.push(position);
+              }
+            }
+          }
+        }
+        rules[i].ranges = recomputeZones(
+          rules[i].ranges.map((range) => range.zone),
+          positions.map((pos) => positionToZone(pos))
+        ).map((zone) => this.getters.getRangeFromZone(sheetId, zone));
+      }
+    }
+    return rules.filter((rule) => rule.ranges.length > 0);
+  }
+
   private removeRangesFromRules(
     sheetId: UID,
     ranges: Range[],
     rules: DataValidationRule[],
-    editingRuleId?: UID
+    exceptRuleIds: UID[] = []
   ) {
     rules = deepCopy(rules);
     for (const rule of rules) {
-      if (rule.id === editingRuleId) {
+      if (exceptRuleIds.includes(rule.id)) {
         continue; // Skip the rule being edited to preserve its place in the list
       }
       rule.ranges = this.getters.recomputeRanges(rule.ranges, ranges);
@@ -262,13 +306,13 @@ export class DataValidationPlugin
 
   private setCenterStyleToBooleanCells(rule: DataValidationRule) {
     for (const position of getCellPositionsInRanges(rule.ranges)) {
-      const cell = this.getters.getCell(position);
-      const style: Style = {
-        ...cell?.style,
-        align: cell?.style?.align ?? "center",
-        verticalAlign: cell?.style?.verticalAlign ?? "middle",
+      const style = this.getters.getCellStyle(position);
+      const newStyle: Style = {
+        ...style,
+        align: style?.align ?? "center",
+        verticalAlign: style?.verticalAlign ?? "middle",
       };
-      this.dispatch("UPDATE_CELL", { ...position, style });
+      this.dispatch("UPDATE_CELL", { ...position, style: newStyle });
     }
   }
 

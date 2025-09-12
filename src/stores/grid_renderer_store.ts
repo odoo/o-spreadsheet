@@ -26,13 +26,13 @@ import {
   deepCopy,
   deepEquals,
   drawDecoratedText,
-  getZonesCols,
-  getZonesRows,
   isZoneInside,
   numberToLetters,
   overlap,
   positionToZone,
   union,
+  zonesHasCol,
+  zonesHasRow,
   zoneToXc,
 } from "../helpers/index";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
@@ -447,8 +447,6 @@ export class GridRenderer extends SpreadsheetStore {
     const top = visibleRows[0];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
-    const selectedCols = getZonesCols(selection);
-    const selectedRows = getZonesRows(selection);
     const sheetId = this.getters.getActiveSheetId();
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -466,7 +464,7 @@ export class GridRenderer extends SpreadsheetStore {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
       const { x, width } = this.getters.getVisibleRect(colZone);
       const isColActive = activeCols.has(col);
-      const isColSelected = selectedCols.has(col);
+      const isColSelected = zonesHasCol(selection, col);
       if (isColActive) {
         ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isColSelected) {
@@ -483,7 +481,7 @@ export class GridRenderer extends SpreadsheetStore {
       const { y, height } = this.getters.getVisibleRect(rowZone);
 
       const isRowActive = activeRows.has(row);
-      const isRowSelected = selectedRows.has(row);
+      const isRowSelected = zonesHasRow(selection, row);
       if (isRowActive) {
         ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isRowSelected) {
@@ -640,7 +638,7 @@ export class GridRenderer extends SpreadsheetStore {
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const { align } = this.getters.getCellStyle(position) || {};
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
@@ -659,7 +657,7 @@ export class GridRenderer extends SpreadsheetStore {
     const chipStyle = this.getters.getDataValidationChipStyle(position);
     const border = this.getters.getCellComputedBorder(position, precomputeZone);
 
-    let style = this.getters.getCellComputedStyle(position);
+    let style = this.getters.getCellComputedStyle(position, precomputeZone);
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };

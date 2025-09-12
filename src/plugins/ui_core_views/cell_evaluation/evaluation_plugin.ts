@@ -1,6 +1,14 @@
 import { isExportableToExcel } from "../../../formulas/index";
 import { matrixMap } from "../../../functions/helpers";
-import { getItemId, positions, toXC } from "../../../helpers/index";
+import {
+  cellPositions,
+  getItemId,
+  getZoneArea,
+  isBound,
+  isInside,
+  positions,
+  toXC,
+} from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -153,7 +161,9 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
+    "getEvaluatedCellsPositionInZone",
     "getEvaluatedCellsPositions",
+    "getSheetEvaluatedZone",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
@@ -287,9 +297,18 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
-    return positions(zone).map(({ col, row }) =>
-      this.getters.getEvaluatedCell({ sheetId, col, row })
-    );
+    return cellPositions(sheetId, zone).map(this.getters.getEvaluatedCell);
+  }
+
+  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): CellPosition[] {
+    if (isBound(zone) && getZoneArea(zone) < 1000) {
+      return cellPositions(sheetId, zone).filter(
+        (pos) => this.getters.getEvaluatedCell(pos).value !== null
+      );
+    }
+    return this.evaluator
+      .getEvaluatedPositionsInSheet(sheetId)
+      .filter((pos) => isInside(pos.col, pos.row, zone));
   }
 
   /**
@@ -301,6 +320,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     return this.evaluator.getArrayFormulaSpreadingOn(position);
+  }
+
+  getSheetEvaluatedZone(sheetId: UID): Zone {
+    return this.evaluator.getEvaluatedZone(sheetId) || { top: 0, left: 0, bottom: 0, right: 0 };
   }
 
   /**
