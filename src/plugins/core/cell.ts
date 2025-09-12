@@ -38,7 +38,6 @@ import {
   Range,
   RangeCompiledFormula,
   RangePart,
-  Style,
   UID,
   UpdateCellCommand,
   UpdateCellData,
@@ -450,12 +449,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Copy the format of one column to other columns.
    */
   private copyColumnFormat(sheetId: UID, refColumn: HeaderIndex, targetCols: HeaderIndex[]) {
-    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
-      const format = this.getFormat(sheetId, refColumn, row);
-      if (format.format) {
-        for (const col of targetCols) {
-          this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
-        }
+    for (const cell of this.getters.getColCells(sheetId, refColumn)) {
+      if (!cell.format) continue;
+      const { row } = this.getters.getCellPosition(cell.id);
+      for (const col of targetCols) {
+        this.dispatch("UPDATE_CELL", { sheetId, col, row, format: cell.format });
       }
     }
   }
@@ -464,29 +462,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Copy the format of one row to other rows.
    */
   private copyRowFormat(sheetId: UID, refRow: HeaderIndex, targetRows: HeaderIndex[]) {
-    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
-      const format = this.getFormat(sheetId, col, refRow);
-      if (format.format) {
-        for (const row of targetRows) {
-          this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
-        }
+    for (const cell of this.getters.getRowCells(sheetId, refRow)) {
+      if (!cell.format) continue;
+      const { col } = this.getters.getCellPosition(cell.id);
+      for (const row of targetRows) {
+        this.dispatch("UPDATE_CELL", { sheetId, col, row, format: cell.format });
       }
     }
-  }
-
-  /**
-   * gets the currently used style and format of a cell based on it's coordinates
-   */
-  private getFormat(sheetId: UID, col: HeaderIndex, row: HeaderIndex): { format?: Format } {
-    const format: { style?: Style; format?: string } = {};
-    const position = this.getters.getMainCellPosition({ sheetId, col, row });
-    const cell = this.getters.getCell(position);
-    if (cell) {
-      if (cell.format) {
-        format["format"] = cell.format;
-      }
-    }
-    return format;
   }
 
   private getNextUid() {

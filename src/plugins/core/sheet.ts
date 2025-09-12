@@ -69,6 +69,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getCellsFromZones",
     "getCellPosition",
     "getColsZone",
+    "getColCells",
     "getRowCells",
     "getRowsZone",
     "getNumberCols",
