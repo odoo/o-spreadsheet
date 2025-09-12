@@ -6,6 +6,7 @@ import { Ref } from "../../types";
 import { css } from "../helpers";
 import { useAutofocus } from "../helpers/autofocus_hook";
 
+// is only for text inputs pretty much
 css/* scss */ `
   .o-spreadsheet {
     .os-input {

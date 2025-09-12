@@ -1,7 +1,15 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillUpdateProps,
+  useComponent,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
 import { clip } from "../../helpers/index";
-import { SpreadsheetChildEnv } from "../../types/index";
+import { Ref, SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
@@ -39,6 +47,19 @@ css/* scss */ `
   }
 `;
 
+function usePersistentInputValue<P extends {}>(input: string, propsKey: keyof P) {
+  const comp = useComponent();
+  const inputRef = useRef(input) as Ref<HTMLInputElement>;
+  onWillUpdateProps((newProps) => {
+    if (document.activeElement !== inputRef.el && inputRef.el) {
+      inputRef.el.value = newProps[propsKey].toString();
+    }
+  });
+  onMounted(() => {
+    if (inputRef.el) inputRef.el.value = comp.props[propsKey].toString();
+  });
+}
+
 export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FontSizeEditor";
   static props = {
@@ -64,6 +85,11 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    usePersistentInputValue<Props>(
+      "inputFontSize",
+      "currentFontSize"
+      // this.props.currentFontSize.toString()
+    );
   }
 
   get popoverProps(): PopoverProps {

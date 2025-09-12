@@ -1,8 +1,8 @@
 <templates>
-  <div t-name="o-spreadsheet-GenericInput" class="w-100">
+  <t t-name="o-spreadsheet-GenericInput">
     <input
       t-ref="input"
-      class="os-input w-100"
+      class="o-input os-input"
       t-att="props.attributes"
       t-att-class="inputClass"
       t-att-id="props.id"
@@ -13,5 +13,5 @@
       t-on-pointerup="onMouseUp"
       t-on-keydown="onKeyDown"
     />
-  </div>
+  </t>
 </templates>

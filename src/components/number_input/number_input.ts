@@ -39,7 +39,7 @@ export class NumberInput extends Component<Props, SpreadsheetChildEnv> {
     max: { type: Number, optional: true },
   };
 
-  get inputClass(): string {
-    return [this.props.class, "os-input w-100"].join(" ");
+  get inputClass(): string | undefined {
+    return this.props.class;
   }
 }
