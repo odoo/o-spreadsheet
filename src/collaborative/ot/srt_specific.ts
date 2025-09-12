@@ -6,6 +6,7 @@ import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
   AddPivotCommand,
+  AutoFillCellsCommand,
   CreateChartCommand,
   UpdateCellCommand,
   UpdateChartCommand,
@@ -116,4 +117,20 @@ function updateChartRangesTransformation<Cmd extends UpdateChartCommand | Create
     ...cmd,
     definition: transformDefinition(cmd.sheetId, cmd.definition, applyChange),
   };
+}
+
+specificRangeTransformRegistry.add("AUTOFILL_CELLS", adaptAutofillOriginalContent);
+
+function adaptAutofillOriginalContent(
+  cmd: AutoFillCellsCommand,
+  applyChange: RangeAdapter
+): AutoFillCellsCommand {
+  cmd = {
+    ...cmd,
+    rules: cmd.rules.map((rule) => ({
+      ...rule,
+      originContent: adaptFormulaStringRanges(cmd.sheetId, rule.originContent, applyChange),
+    })),
+  };
+  return cmd;
 }

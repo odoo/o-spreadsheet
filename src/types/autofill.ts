@@ -8,9 +8,10 @@
  *  - Formula: update the formula, with the same behavior than paste
  */
 
-import { Getters } from ".";
+import { CoreGetters, Getters } from ".";
+import { Token } from "../formulas";
 import { Cell } from "./cells";
-import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
+import { CellPosition, DIRECTION, UID } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
@@ -58,36 +59,31 @@ export interface Tooltip {
   component?: any;
 }
 
-export interface AutofillCellData extends UpdateCellData {
-  border?: Border;
-}
-
-export interface AutofillData {
-  cell?: Cell;
-  col: number;
-  row: number;
-  sheetId: UID;
-  border?: Border;
-}
-
 export interface AutofillResult {
-  cellData: AutofillCellData;
+  content: string;
   tooltip?: Tooltip;
-  origin: {
-    col: number;
-    row: number;
-  };
+  origin: CellPosition;
 }
 export interface GeneratorCell {
-  data: AutofillData;
+  origin: CellPosition;
+  originContent: string;
   rule: AutofillModifier;
 }
 
 export interface AutofillModifierImplementation {
   apply: (
+    getters: CoreGetters,
     rule: AutofillModifier,
-    data: AutofillData,
+    direction: DIRECTION,
+    sheetId: UID,
+    originContent: string,
+    originTokens: Token[],
+  ) => { content: string };
+  tooltip: (
     getters: Getters,
+    content: string,
+    rule: AutofillModifier,
+    originCell: Cell,
     direction: DIRECTION
-  ) => Omit<AutofillResult, "origin">;
+  ) => Tooltip;
 }
