@@ -30,6 +30,12 @@ export async function simulateClick(
       (document.activeElement as HTMLElement | null)?.dispatchEvent(
         new FocusEvent("blur", { relatedTarget: getFocusableParent(target) })
       );
+      /** Dispatching a crafted FocusEvent does not actually blur the target.
+       * JSDom pretty much requires us to rely on Element.blur() to ensure the element is properly blurred.
+       */
+      if (document.activeElement === oldActiveEl && oldActiveEl instanceof HTMLElement) {
+        // (oldActiveEl as HTMLElement).blur();
+      }
     }
     /** Dispatching a crafted FocusEvent does not actually focus the target.
      * JSDom pretty much requires us to rely on Element.focus()

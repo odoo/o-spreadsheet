@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-GenericInput">
+    <input
+      t-ref="input"
+      class="o-input os-input"
+      t-att="props.attributes"
+      t-att-class="inputClass"
+      t-att-id="props.id"
+      t-att-placeholder="props.placeholder"
+      t-on-change="() => this.save(true)"
+      t-on-blur="save"
+      t-on-pointerdown="onMouseDown"
+      t-on-pointerup="onMouseUp"
+      t-on-keydown="onKeyDown"
+    />
+  </t>
+</templates>
