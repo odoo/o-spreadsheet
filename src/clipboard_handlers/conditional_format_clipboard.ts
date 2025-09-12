@@ -43,7 +43,9 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       data.columnsIndexes,
       data.rowsIndexes
     )) {
-      for (const [col, row, rules] of this.getters.getRulesInZone(sheetId, zone).entries()) {
+      for (const [col, row, rules] of this.getters
+        .getConditionalFormatRulesInZone(sheetId, zone)
+        .entries()) {
         cfRules.set(col - zone.left + colsBefore, row - zone.top + rowsBefore, {
           rules,
           position: { sheetId, col, row },

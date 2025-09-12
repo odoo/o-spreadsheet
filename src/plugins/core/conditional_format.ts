@@ -61,7 +61,7 @@ export class ConditionalFormatPlugin
     "getRulesSelection",
     "getRulesByCell",
     "getAdaptedCfRanges",
-    "getRulesInZone",
+    "getConditionalFormatRulesInZone",
   ] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
@@ -319,7 +319,7 @@ export class ConditionalFormatPlugin
     return ruleIds;
   }
 
-  getRulesInZone(sheetId: UID, zone: Zone): Map2D<ConditionalFormat[]> {
+  getConditionalFormatRulesInZone(sheetId: UID, zone: Zone): Map2D<ConditionalFormat[]> {
     const map = new Map2D<ConditionalFormat[]>(zone.right, zone.bottom);
 
     for (const cf of this.cfRules[sheetId]) {
