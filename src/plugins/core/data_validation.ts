@@ -19,6 +19,7 @@ import {
   CoreCommand,
   DataValidationRule,
   ExcelWorkbookData,
+  Map2D,
   Range,
   Style,
   UID,
@@ -40,6 +41,7 @@ export class DataValidationPlugin
     "getDataValidationRule",
     "getDataValidationRules",
     "getValidationRuleForCell",
+    "getDataValidationRulesInZone",
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
@@ -199,6 +201,24 @@ export class DataValidationPlugin
       }
     }
     return undefined;
+  }
+
+  getDataValidationRulesInZone(sheetId: UID, zone: Zone): Map2D<DataValidationRule> {
+    const map = new Map2D<DataValidationRule>(zone.right, zone.bottom);
+
+    for (const dv of this.rules[sheetId]) {
+      for (const dvZone of dv.ranges.map((range) => range.zone)) {
+        const inter = intersection(zone, dvZone);
+        if (!inter) continue;
+        for (let col = inter.left; col <= inter.right; col++) {
+          for (let row = inter.top; row <= inter.bottom; row++) {
+            map.set(col, row, dv);
+          }
+        }
+      }
+    }
+
+    return map;
   }
 
   cellHasListDataValidationIcon(cellPosition: CellPosition): boolean {

@@ -5,6 +5,7 @@ import {
   positionToZone,
   recomputeZones,
 } from "../helpers";
+import { columnRowIndexesToZones } from "../helpers/clipboard/clipboard_helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -42,11 +43,17 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       rowsIndexes.length
     );
 
-    for (const [r, row] of rowsIndexes.entries()) {
-      for (const [c, col] of columnsIndexes.entries()) {
-        const position = { sheetId, col, row };
-        const rule = this.getters.getValidationRuleForCell(position);
-        if (rule) dvRules.set(c, r, { rule, position });
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      for (const [col, row, rule] of this.getters
+        .getDataValidationRulesInZone(sheetId, zone)
+        .entries()) {
+        dvRules.set(col - zone.left + colsBefore, row - zone.top + rowsBefore, {
+          rule,
+          position: { sheetId, col, row },
+        });
       }
     }
     return { cellContent: dvRules };
