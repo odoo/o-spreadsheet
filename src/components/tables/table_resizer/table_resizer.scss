@@ -1,0 +1,7 @@
+.o-table-resizer {
+  width: $os-size---2;
+  height: $os-size---2;
+  border-bottom: $os-size solid $os-color;
+  border-right: $os-size solid $os-color;
+  cursor: nwse-resize;
+}

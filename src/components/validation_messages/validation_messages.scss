@@ -1,0 +1,30 @@
+.o-validation {
+  border-radius: 4px;
+  border-width: 0 0 0 3px;
+  border-style: solid;
+  gap: 3px;
+
+  .o-icon {
+    margin-right: 5px;
+    height: 1.2em;
+    width: 1.2em;
+  }
+}
+
+.o-validation-warning {
+  border-color: $os-alert-warning-border;
+  color: $os-alert-warning-text-color;
+  background-color: $os-alert-warning-bg;
+}
+
+.o-validation-error {
+  border-color: $os-alert-danger-border;
+  color: $os-alert-danger-text-color;
+  background-color: $os-alert-danger-bg;
+}
+
+.o-validation-info {
+  border-color: $os-alert-info-border;
+  color: $os-alert-info-text-color;
+  background-color: $os-alert-info-bg;
+}

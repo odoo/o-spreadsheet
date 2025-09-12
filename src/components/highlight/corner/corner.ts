@@ -1,36 +1,9 @@
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { Color, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../../types";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { cssPropertiesToCss } from "../../helpers/css";
 
 const MOBILE_HANDLER_WIDTH = 40;
-
-css/* scss */ `
-  .o-corner {
-    position: absolute;
-  }
-
-  .o-corner-button {
-    border: 1px solid white;
-    height: ${AUTOFILL_EDGE_LENGTH}px;
-    width: ${AUTOFILL_EDGE_LENGTH}px;
-  }
-  .o-corner-nw,
-  .o-corner-se {
-    &:hover {
-      cursor: nwse-resize;
-    }
-  }
-  .o-corner-ne,
-  .o-corner-sw {
-    &:hover {
-      cursor: nesw-resize;
-    }
-  }
-  .o-resizing {
-    cursor: grabbing;
-  }
-`;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 

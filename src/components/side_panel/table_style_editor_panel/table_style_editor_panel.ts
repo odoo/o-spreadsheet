@@ -8,24 +8,10 @@ import {
   TableStyle,
   TableStyleTemplateName,
 } from "../../../types";
-import { css, cssPropertiesToCss } from "../../helpers";
+import { cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";
-
-css/* scss */ `
-  .o-table-style-editor-panel {
-    .o-table-style-list-item {
-      margin: 2px 7px;
-      padding: 6px 9px;
-
-      .o-table-style-edit-template-preview {
-        width: 71px;
-        height: 51px;
-      }
-    }
-  }
-`;
 
 const DEFAULT_TABLE_STYLE_COLOR = "#3C78D8";
 

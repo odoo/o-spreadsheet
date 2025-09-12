@@ -1,21 +1,11 @@
 import { Component, useState } from "@odoo/owl";
 import { HeaderIndex, Highlight, SpreadsheetChildEnv, Table, Zone } from "../../../types";
-import { css, cssPropertiesToCss } from "../../helpers";
+import { cssPropertiesToCss } from "../../helpers";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
 
 const SIZE = 3;
 const COLOR = "#777";
-
-css/* scss */ `
-  .o-table-resizer {
-    width: ${SIZE * 2}px;
-    height: ${SIZE * 2}px;
-    border-bottom: ${SIZE}px solid ${COLOR};
-    border-right: ${SIZE}px solid ${COLOR};
-    cursor: nwse-resize;
-  }
-`;
 
 interface Props {
   table: Table;

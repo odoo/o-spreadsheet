@@ -10,7 +10,7 @@ import { Action } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import {
   getOpenedMenus,
   getRefBoundingRect,
@@ -24,13 +24,6 @@ import { Popover, PopoverProps } from "../popover/popover";
 //------------------------------------------------------------------------------
 // Context MenuPopover Component
 //------------------------------------------------------------------------------
-
-css/* scss */ `
-  .o-menu-wrapper {
-    padding: ${MENU_VERTICAL_PADDING}px 0px;
-    background-color: white;
-  }
-`;
 
 const TIMEOUT_DELAY = 250;
 

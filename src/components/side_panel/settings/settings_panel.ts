@@ -1,9 +1,7 @@
 import { Component, onWillStart } from "@odoo/owl";
-import { GRAY_100, GRAY_300 } from "../../../constants";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";
@@ -11,13 +9,6 @@ import { Section } from "../components/section/section";
 interface Props {
   onCloseSidePanel: () => void;
 }
-
-css/* scss */ `
-  .o-locale-preview {
-    border: 1px solid ${GRAY_300};
-    background-color: ${GRAY_100};
-  }
-`;
 
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";

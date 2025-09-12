@@ -1,40 +1,14 @@
 import { Component } from "@odoo/owl";
-import { ACTION_COLOR, GRAY_300 } from "../../../constants";
 import { Token } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { Color, ComposerFocusType, SpreadsheetChildEnv, UID } from "../../../types/index";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { StandaloneComposerStore } from "./standalone_composer_store";
-
-css/* scss */ `
-  .o-spreadsheet {
-    .o-standalone-composer {
-      min-height: 24px;
-
-      border-bottom: 1px solid;
-      border-color: ${GRAY_300};
-
-      &.active {
-        border-color: ${ACTION_COLOR};
-      }
-
-      &.o-invalid {
-        border-bottom: 2px solid red;
-      }
-
-      /* As the standalone composer is potentially very small (eg. in a side panel), we remove the scrollbar display */
-      scrollbar-width: none; /* Firefox */
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-  }
-`;
 
 interface Props {
   onConfirm: (content: string) => void;

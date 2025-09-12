@@ -1,0 +1,18 @@
+.o-radio {
+  input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 1px solid $os-gray-300;
+    outline: none;
+    border-radius: 8px;
+
+    &:checked {
+      background: url("data:image/svg+xml,${encodeURIComponent(CIRCLE_SVG)}");
+      background-color: $os-action-color;
+      border-color: $os-action-color;
+    }
+  }
+}

@@ -1,5 +1,4 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { ComponentsImportance, DEFAULT_FONT, SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
   fontSizeInPixels,
@@ -17,36 +16,13 @@ import {
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
-
-css/* scss */ `
-  div.o-grid-composer {
-    z-index: ${ComponentsImportance.GridComposer};
-    position: absolute;
-    border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
-    font-family: ${DEFAULT_FONT};
-
-    display: flex;
-    align-items: center;
-  }
-
-  div.o-cell-reference {
-    position: absolute;
-    z-index: ${ComponentsImportance.GridComposer};
-    background: ${SELECTION_BORDER_COLOR};
-    color: white;
-    font-size: 12px;
-    line-height: 14px;
-    padding: 6px 7px;
-    border-radius: 4px;
-  }
-`;
 
 interface Props {
   gridDims: DOMDimension;

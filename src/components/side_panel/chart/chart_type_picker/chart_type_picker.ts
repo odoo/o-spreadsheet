@@ -1,51 +1,15 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { ACTION_COLOR, BADGE_SELECTED_COLOR } from "../../../../constants";
 import {
   ChartSubtypeProperties,
   chartCategories,
   chartSubtypeRegistry,
 } from "../../../../registries/chart_types";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
-import { css, cssPropertiesToCss } from "../../../helpers/css";
+import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../popover";
 import { Section } from "../../components/section/section";
 import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
-
-css/* scss */ `
-  .o-section .o-input.o-type-selector {
-    height: 30px;
-    padding-left: 35px;
-    padding-top: 5px;
-  }
-  .o-type-selector-preview {
-    left: 5px;
-    top: 3px;
-    .o-chart-preview {
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  .o-popover .o-chart-select-popover {
-    background: #fff;
-    .o-chart-type-item {
-      cursor: pointer;
-      padding: 3px 6px;
-      margin: 1px 2px;
-      &.selected,
-      &:hover {
-        border: 1px solid ${ACTION_COLOR};
-        background: ${BADGE_SELECTED_COLOR};
-        padding: 2px 5px;
-      }
-      .o-chart-preview {
-        width: 48px;
-        height: 48px;
-      }
-    }
-  }
-`;
 
 interface Props {
   chartId: UID;

@@ -1,0 +1,26 @@
+.o-autofill {
+  position: absolute;
+  height: $os-autofill-edge-length;
+  width: $os-autofill-edge-length;
+  border: 1px solid white;
+  background-color: #1a73e8;
+}
+
+.o-autofill-handler {
+  position: absolute;
+  height: $os-autofill-edge-length;
+  width: $os-autofill-edge-length;
+  &:hover {
+    cursor: crosshair;
+  }
+}
+
+.o-autofill-nextvalue {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid black;
+  padding: 5px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+}

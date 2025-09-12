@@ -2,25 +2,9 @@ import { Component } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
 import { CellPosition, CellValueType, SpreadsheetChildEnv } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
-import { css } from "../helpers/css";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 const ERROR_TOOLTIP_WIDTH = 180;
-
-css/* scss */ `
-  .o-error-tooltip {
-    font-size: 13px;
-    background-color: white;
-    border-left: 3px solid red;
-    padding: 10px;
-    width: ${ERROR_TOOLTIP_WIDTH}px;
-    overflow-wrap: break-word;
-
-    .o-error-tooltip-message {
-      overflow: hidden;
-    }
-  }
-`;
 
 interface ErrorToolTipProps {
   cellPosition: CellPosition;

@@ -1,0 +1,16 @@
+.o-scrollbar {
+  position: absolute;
+  overflow: auto;
+  z-index: $os-componentsimportance-scrollbar;
+  background-color: $os-background-gray-color;
+
+  &.corner {
+    box-sizing: content-box;
+    right: 0px;
+    bottom: 0px;
+    height: $os-scrollbar-width;
+    width: $os-scrollbar-width;
+    border-top: 1px solid #e2e3e3;
+    border-left: 1px solid #e2e3e3;
+  }
+}

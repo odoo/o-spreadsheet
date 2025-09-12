@@ -1,0 +1,18 @@
+.o-font-size-editor {
+  width: max-content !important;
+  height: calc(100% - 4px);
+  input.o-font-size {
+    outline: none;
+    height: 20px;
+    width: 31px;
+    text-align: center;
+  }
+}
+.o-text-options > div {
+  cursor: pointer;
+  line-height: 26px;
+  padding: 3px 12px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+}
