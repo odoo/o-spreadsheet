@@ -640,7 +640,7 @@ export class GridRenderer extends SpreadsheetStore {
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const { align } = this.getters.getCellStyle(position) || {};
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
@@ -659,7 +659,7 @@ export class GridRenderer extends SpreadsheetStore {
     const chipStyle = this.getters.getDataValidationChipStyle(position);
     const border = this.getters.getCellComputedBorder(position, precomputeZone);
 
-    let style = this.getters.getCellComputedStyle(position);
+    let style = this.getters.getCellComputedStyle(position, precomputeZone);
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };
