@@ -1,4 +1,11 @@
-import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
+import {
+  cellPositions,
+  intersection,
+  isZoneInside,
+  removeFalsyAttributes,
+  zoneToDimension,
+} from "../helpers";
+import { columnRowIndexesToZones } from "../helpers/clipboard/clipboard_helpers";
 import {
   Border,
   CellPosition,
@@ -47,52 +54,54 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<Clipboar
   ): ClipboardContent {
     const sheetId = data.sheetId;
 
-    const { rowsIndexes, columnsIndexes, zones } = data;
+    const { rowsIndexes, columnsIndexes } = data;
 
     const copiedTablesIds = new Set<UID>();
     const tableCells: Map2D<TableCell> = new Map2D(columnsIndexes.length, rowsIndexes.length);
-    for (const [r, row] of rowsIndexes.entries()) {
-      for (const [c, col] of columnsIndexes.entries()) {
-        const position = { col, row, sheetId };
-        const table = this.getters.getTable(position);
-        if (!table) {
-          continue;
-        }
-        const coreTable = this.getters.getCoreTable(position);
-        const tableZone = coreTable?.range.zone;
-        let copiedTable: CopiedTable | undefined = undefined;
-        // Copy whole table
-        if (
-          !copiedTablesIds.has(table.id) &&
-          coreTable &&
-          tableZone &&
-          zones.some((z) => isZoneInside(tableZone, z))
-        ) {
-          copiedTablesIds.add(table.id);
-          let { numberOfRows } = zoneToDimension(tableZone);
-          for (let rowIndex = tableZone.top; rowIndex <= tableZone.bottom; rowIndex++) {
-            if (!isCutOperation && !rowsIndexes.has(rowIndex)) {
-              numberOfRows--;
+    if (mode === "shiftCells") return { cellContent: tableCells, sheetId };
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      const tables = this.getters.getTablesOverlappingZones(sheetId, [zone]);
+      for (const table of tables) {
+        const inter = intersection(zone, table.range.zone);
+        if (!inter) continue;
+        for (const position of cellPositions(sheetId, inter)) {
+          const coreTable = this.getters.getCoreTable(position);
+          const tableZone = coreTable?.range.zone;
+          // We use data.zones because we want to copy the table even if some row/col are filtered
+          const wholeTable = tableZone && data.zones.some((z) => isZoneInside(tableZone, z));
+          let copiedTable: CopiedTable | undefined = undefined;
+          if (!copiedTablesIds.has(table.id) && coreTable && tableZone && wholeTable) {
+            copiedTablesIds.add(table.id);
+            let { numberOfRows } = zoneToDimension(tableZone);
+            for (let rowIndex = tableZone.top; rowIndex <= tableZone.bottom; rowIndex++) {
+              if (!isCutOperation && !rowsIndexes.has(rowIndex)) {
+                numberOfRows--;
+              }
             }
+            const range = coreTable.range;
+            const newRange = this.getters.extendRange(
+              coreTable.range,
+              "ROW",
+              range.zone.top + numberOfRows - 1 - range.zone.bottom
+            );
+            copiedTable = {
+              range: this.getters.getRangeData(newRange),
+              config: coreTable.config,
+              type: coreTable.type,
+            };
           }
-          const range = coreTable.range;
-          const newRange = this.getters.extendRange(
-            coreTable.range,
-            "ROW",
-            range.zone.top + numberOfRows - 1 - range.zone.bottom
+          tableCells.set(
+            position.col - zone.left + colsBefore,
+            position.row - zone.top + rowsBefore,
+            {
+              table: copiedTable,
+              style: this.getTableStyleToCopy(position),
+              isWholeTableCopied: copiedTablesIds.has(table.id),
+            }
           );
-          copiedTable = {
-            range: this.getters.getRangeData(newRange),
-            config: coreTable.config,
-            type: coreTable.type,
-          };
-        }
-        if (mode !== "shiftCells") {
-          tableCells.set(c, r, {
-            table: copiedTable,
-            style: this.getTableStyleToCopy(position),
-            isWholeTableCopied: copiedTablesIds.has(table.id),
-          });
         }
       }
     }
