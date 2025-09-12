@@ -67,6 +67,7 @@
             t-if="functionDescriptionState.showDescription"
             functionDescription="functionDescriptionState.functionDescription"
             argsToFocus="functionDescriptionState.argsToFocus"
+            repeatingArgGroupIndex="functionDescriptionState.repeatingArgGroupIndex"
           />
           <div
             t-if="functionDescriptionState.showDescription and autoCompleteProposals.length"

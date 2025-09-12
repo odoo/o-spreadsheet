@@ -137,7 +137,7 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"], repeating: true },
         ],
       });
-      expect(compiledBaseFunction("=REPEATABLE(1)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLE(1)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=REPEATABLE(1,2)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)").isBadExpression).toBe(false);
     });
@@ -154,10 +154,54 @@ describe("compile functions", () => {
           { name: "arg3", description: "", type: ["ANY"], repeating: true },
         ],
       });
+      expect(compiledBaseFunction("=REPEATABLES(1)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=REPEATABLES(1, 2)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=REPEATABLES(1, 2, 3)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)").isBadExpression).toBe(false);
+    });
+
+    test("with optional repeatable argument", () => {
+      addToRegistry(functionRegistry, "REPEATABLE_AND_OPTIONAL", {
+        description: "function with repeatable argument",
+        compute: (arg) => {
+          return true;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"], repeating: true, optional: true },
+        ],
+      });
+      expect(compiledBaseFunction("=REPEATABLE_AND_OPTIONAL(1)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLE_AND_OPTIONAL(1,2)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLE_AND_OPTIONAL(1,2,3,4,5,6)").isBadExpression).toBe(
+        false
+      );
+    });
+
+    test("with more than one optional repeatable argument", () => {
+      addToRegistry(functionRegistry, "REPEATABLES_AND_OPTIONALS", {
+        description: "any function",
+        compute: (arg) => {
+          return true;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"], repeating: true, optional: true },
+          { name: "arg3", description: "", type: ["ANY"], repeating: true, optional: true },
+        ],
+      });
+      expect(compiledBaseFunction("=REPEATABLES_AND_OPTIONALS(1)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLES_AND_OPTIONALS(1, 2)").isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=REPEATABLES_AND_OPTIONALS(1, 2, 3)").isBadExpression).toBe(
+        false
+      );
+      expect(compiledBaseFunction("=REPEATABLES_AND_OPTIONALS(1, 2, 3, 4)").isBadExpression).toBe(
+        true
+      );
+      expect(
+        compiledBaseFunction("=REPEATABLES_AND_OPTIONALS(1, 2, 3, 4, 5)").isBadExpression
+      ).toBe(false);
     });
   });
 

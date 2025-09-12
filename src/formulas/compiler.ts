@@ -133,7 +133,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
-        const argDefinition = functionDefinition.args[argToFocus(i) ?? -1];
+        const argDefinition = functionDefinition.args[argToFocus(i).index ?? -1];
         const currentArg = args[i];
         const argTypes = argDefinition.type || [];
 
@@ -339,7 +339,10 @@ function assertEnoughArgs(ast: ASTFuncall) {
     const nbrValueRepeating =
       nbrArgRepeating * Math.floor((nbrArgSupplied - minArgRequired) / nbrArgRepeating);
     const nbrValueRemaining =
-      nbrArgSupplied - minArgRequired - nbrValueRepeating - functionDefinition.nbrArgOptional;
+      nbrArgSupplied -
+      minArgRequired -
+      nbrValueRepeating -
+      functionDefinition.nbrArgOptionalThatIsNotRepeating;
 
     if (nbrValueRemaining > 0) {
       throw new BadExpressionError(
@@ -348,7 +351,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
           {
             functionName,
             nbrArgRepeating,
-            nbrArgOptional: functionDefinition.nbrArgOptional,
+            nbrArgOptional: functionDefinition.nbrArgOptionalThatIsNotRepeating,
             nbrValueRemaining,
           }
         )
