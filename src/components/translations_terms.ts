@@ -1,7 +1,6 @@
 import { formatValue } from "../helpers";
 import { _t } from "../translation";
-import { GeoChartColorScale } from "../types/chart/geo_chart";
-import { CommandResult, Locale } from "../types/index";
+import { ChartColorScale, CommandResult, Locale } from "../types/index";
 
 export const CfTerms = {
   Errors: {
@@ -37,9 +36,7 @@ export const CfTerms = {
 
 export const ChartTerms: {
   [key: string]: any;
-  GeoChart: {
-    ColorScales: Record<Extract<GeoChartColorScale, string>, string>;
-  };
+  ColorScales: Record<Extract<ChartColorScale, string>, string>;
 } = {
   Series: _t("Series"),
   BackgroundColor: _t("Background color"),
@@ -71,18 +68,17 @@ export const ChartTerms: {
       "The upper inflection point value must be a number"
     ),
   },
-  GeoChart: {
-    ColorScales: {
-      blues: _t("Blues"),
-      cividis: _t("Cividis"),
-      greens: _t("Greens"),
-      greys: _t("Greys"),
-      oranges: _t("Oranges"),
-      purples: _t("Purples"),
-      rainbow: _t("Rainbow"),
-      reds: _t("Reds"),
-      viridis: _t("Viridis"),
-    },
+  ColorScales: {
+    blues: _t("Blues"),
+    cividis: _t("Cividis"),
+    custom: _t("Custom"),
+    greens: _t("Greens"),
+    greys: _t("Greys"),
+    oranges: _t("Oranges"),
+    purples: _t("Purples"),
+    rainbow: _t("Rainbow"),
+    reds: _t("Reds"),
+    viridis: _t("Viridis"),
   },
 };
 
