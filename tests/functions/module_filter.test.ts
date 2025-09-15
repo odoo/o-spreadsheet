@@ -271,6 +271,20 @@ describe("UNIQUE function", () => {
 });
 
 describe("SORT function", () => {
+  test("SORT error messages", () => {
+    const grid = {
+      A1: "=SORT()",
+      A2: "=SORT(B1:B5, ,FALSE)",
+      A3: "=SORT(B1:B5, C1:C5, )",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellError(model, "A1")).toBe(
+      "Invalid number of arguments for the SORT function. Expected 1 minimum, but got 0 instead."
+    );
+    expect(getCellError(model, "A2")).toBe("Value for parameter sort_column is missing in SORT.");
+    expect(getCellError(model, "A3")).toBe("Value for parameter is_ascending is missing in SORT.");
+  });
+
   test("Sorting a single column of numbers", () => {
     //prettier-ignore
     const grid = {
@@ -815,6 +829,20 @@ describe("SORT function", () => {
 });
 
 describe("SORTN function", () => {
+  test("SORTN error messages", () => {
+    const grid = {
+      A1: "=SORTN()",
+      A2: "=SORTN(B1:B5, 5, 0, ,FALSE)",
+      A3: "=SORTN(B1:B5, 5, 0, C1:C5, )",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellError(model, "A1")).toBe(
+      "Invalid number of arguments for the SORTN function. Expected 2 minimum, but got 0 instead."
+    );
+    expect(getCellError(model, "A2")).toBe("Value for parameter sort_column is missing in SORTN.");
+    expect(getCellError(model, "A3")).toBe("Value for parameter is_ascending is missing in SORTN.");
+  });
+
   test("Sorting a single column of numbers", () => {
     //prettier-ignore
     const grid = {
