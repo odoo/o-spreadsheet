@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GenericInput Can render a generic input 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <input
+      class="w-100"
+    />
+  </div>
+</div>
+`;
