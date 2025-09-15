@@ -10,6 +10,7 @@ import {
   DataValidationRule,
   DataValidationRuleData,
   SpreadsheetChildEnv,
+  UID,
 } from "../../../../types";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { Section } from "../../components/section/section";
@@ -39,14 +40,15 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   };
 
   state = useState<State>({ rule: this.defaultDataValidationRule });
+  private editingSheetId!: UID;
 
   setup() {
+    this.editingSheetId = this.env.model.getters.getActiveSheetId();
     if (this.props.rule) {
-      const sheetId = this.env.model.getters.getActiveSheetId();
       this.state.rule = {
         ...this.props.rule,
         ranges: this.props.rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, sheetId)
+          this.env.model.getters.getRangeString(range, this.editingSheetId)
         ),
       };
       this.state.rule.criterion.type = this.props.rule.criterion.type;
@@ -90,7 +92,6 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     const criterion = rule.criterion;
     const criterionEvaluator = dataValidationEvaluatorRegistry.get(criterion.type);
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
     const values = criterion.values
       .slice(0, criterionEvaluator.numberOfValues(criterion))
       .map((value) => value?.trim())
@@ -98,9 +99,9 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       .map((value) => canonicalizeContent(value, locale));
     rule.criterion = { ...criterion, values };
     return {
-      sheetId,
+      sheetId: this.editingSheetId,
       ranges: this.state.rule.ranges.map((xc) =>
-        this.env.model.getters.getRangeDataFromXc(sheetId, xc)
+        this.env.model.getters.getRangeDataFromXc(this.editingSheetId, xc)
       ),
       rule,
     };
