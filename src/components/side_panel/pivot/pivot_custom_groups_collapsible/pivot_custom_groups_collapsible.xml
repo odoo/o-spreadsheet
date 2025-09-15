@@ -17,6 +17,7 @@
               <TextInput
                 value="group.name"
                 onChange="(newName) => this.onRenameGroup(group_index, newName)"
+                selectContentOnFocus="true"
               />
               <i
                 class="o-button-icon ps-3 fa fa-trash"

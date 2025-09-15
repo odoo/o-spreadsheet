@@ -13,6 +13,7 @@
             value="props.dimension.displayName"
             onChange.bind="updateName"
             class="'o-fw-bold'"
+            selectContentOnFocus="true"
           />
           <span t-else="1" class="o-fw-bold" t-esc="props.dimension.displayName"/>
         </div>

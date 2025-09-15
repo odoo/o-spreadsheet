@@ -16,7 +16,7 @@ import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { toHex, toZone } from "../../../src/helpers";
-import { ScorecardChart } from "../../../src/helpers/figures/charts";
+import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
 import {
   CHART_TYPES,
@@ -321,13 +321,22 @@ describe("charts", () => {
           },
         });
         break;
-      case "scorecard":
+      case "scorecard": {
         setInputValueAndTrigger(dataSeriesValues, "B2:B4");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
         const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
         expect(definition.keyValue).toEqual("B2:B4");
         break;
+      }
+      case "gauge": {
+        setInputValueAndTrigger(dataSeriesValues, "B9");
+        await nextTick();
+        await simulateClick(".o-data-series .o-selection-ok");
+        const definition = model.getters.getChartDefinition(chartId) as GaugeChart;
+        expect(definition.dataRange).toEqual("B9");
+        break;
+      }
     }
     await simulateClick(".o-panel .inactive");
     setInputValueAndTrigger(".o-chart-title input", "hello");
@@ -338,6 +347,16 @@ describe("charts", () => {
       definition: {
         ...model.getters.getChartDefinition(chartId),
         title: { text: "hello" },
+      },
+    });
+    setInputValueAndTrigger(".o-chart-title input", "Hi there");
+    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+      figureId: expect.any(String),
+      chartId,
+      sheetId,
+      definition: {
+        ...model.getters.getChartDefinition(chartId),
+        title: { text: "Hi there" },
       },
     });
   });
@@ -756,39 +775,6 @@ describe("charts", () => {
     await mountChartSidePanel(chartId);
     await openChartDesignSidePanel(model, env, fixture, chartId);
     expect(1).toBe(1);
-  });
-
-  test("changing property and selecting another chart does not change first chart", async () => {
-    createChart(
-      model,
-      {
-        dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
-        type: "line",
-        title: { text: "old_title_1" },
-      },
-      "1"
-    );
-    createChart(
-      model,
-      {
-        dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
-        type: "line",
-        title: { text: "old_title_2" },
-      },
-      "2"
-    );
-    await mountSpreadsheet();
-    await openChartDesignSidePanel(model, env, fixture, "1");
-
-    await simulateClick(".o-chart-title input");
-    setInputValueAndTrigger(".o-chart-title input", "first_title", "onlyInput");
-
-    const figures = fixture.querySelectorAll(".o-figure");
-    await simulateClick(figures[1] as HTMLElement);
-    expect(model.getters.getChartDefinition("1").title.text).toBe("old_title_1");
-    expect(model.getters.getChartDefinition("2").title.text).toBe("old_title_2");
   });
 
   test("selecting a chart then selecting another chart and editing property change the second chart", async () => {
