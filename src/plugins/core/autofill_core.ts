@@ -43,8 +43,6 @@ export class AutofillCorePlugin extends CorePlugin {
     sheetId: string,
     target: Zone
   ) {
-    // console.log(target);
-    // console.log(generatorCells);
     const generator = createAutofillGenerator(
       this.getters,
       sheetId,

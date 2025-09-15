@@ -54,6 +54,9 @@ export function* createAutofillGenerator(
   void,
   unknown
 > {
+  if (generatorCells.length === 0) {
+    return;
+  }
   const headerKey: "col" | "row" =
     direction === DIRECTION.UP || direction === DIRECTION.DOWN ? "col" : "row";
 
@@ -105,9 +108,10 @@ export function* createAutofillGenerator(
   for (const position of iterateAutofillPositions(sheetId, target, direction)) {
     const generator = generators[position[headerKey]];
     const { content, origin, rule } = generator.next();
-    if (rule.type !== "NO_OP_MODIFIER") {
-      yield { content, origin, position, rule };
-    }
+    // if (rule.type !== "NO_OP_MODIFIER") {
+    //   // mouais...
+    // }
+    yield { content, origin, position, rule };
   }
   return;
 }

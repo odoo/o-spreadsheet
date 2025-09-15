@@ -145,13 +145,42 @@ export class AutofillPlugin extends UIPlugin {
     this.tooltip = this.getTooltip(generatorCells);
 
     if (apply) {
+      const noOp = { type: "NO_OP_MODIFIER" } as const;
       // TODO cut generators that won't be used by the target zone
+      const coreG = generatorCells.map((g) => {
+        if (autofillModifiersRegistry.get(g.rule.type).core) {
+          return g;
+        }
+        return { ...g, rule: noOp };
+      });
+      const nonCoreG = generatorCells.map((g) => {
+        if (!autofillModifiersRegistry.get(g.rule.type).core) {
+          return g;
+        }
+        return { ...g, rule: noOp };
+      });
+
       this.dispatch("AUTOFILL_CELLS", {
         sheetId,
         targetZone: this.autofillZone,
-        rules: generatorCells,
+        rules: coreG,
         direction: this.direction,
       });
+      const generator = createAutofillGenerator(
+        this.getters,
+        sheetId,
+        this.autofillZone,
+        this.direction,
+        nonCoreG
+      );
+      for (const { position, content, rule } of generator) {
+        if (rule.type !== "NO_OP_MODIFIER") {
+          this.dispatch("UPDATE_CELL", {
+            ...position,
+            content,
+          });
+        }
+      }
       this.autofillZone = undefined;
       this.selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
