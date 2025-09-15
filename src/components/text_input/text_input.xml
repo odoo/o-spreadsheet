@@ -1,18 +1,13 @@
 <templates>
-  <div t-name="o-spreadsheet-TextInput" class="w-100">
-    <input
-      t-ref="input"
-      class="os-input w-100"
-      type="text"
-      t-att-class="inputClass"
-      t-att-id="props.id"
-      t-att-placeholder="props.placeholder"
-      t-att-value="props.value"
-      t-on-change="save"
-      t-on-blur="save"
-      t-on-pointerdown="onMouseDown"
-      t-on-pointerup="onMouseUp"
-      t-on-keydown="onKeyDown"
+  <t t-name="o-spreadsheet-TextInput">
+    <GenericInput
+      id="props.id"
+      placeholder="props.placeholder"
+      autofocus="props.autofocus"
+      class="inputClass"
+      value="props.value"
+      attributes="{type: 'text'}"
+      onChange="props.onChange"
     />
-  </div>
+  </t>
 </templates>
