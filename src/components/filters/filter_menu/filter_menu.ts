@@ -1,5 +1,4 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { BUTTON_ACTIVE_BG } from "../../../constants";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort";
 import {
@@ -14,65 +13,9 @@ import {
   filterTextCriterionOperators,
 } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { css } from "../../helpers/css";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
-
-css/* scss */ `
-  .o-filter-menu {
-    width: 245px;
-    padding: 8px 0;
-    user-select: none;
-
-    .o-filter-menu-content {
-      padding: 0 16px;
-    }
-
-    .o-sort-item {
-      padding-left: 34px;
-    }
-
-    .o_side_panel_collapsible_title {
-      font-size: inherit;
-      padding: 0 0 4px 0 !important;
-      font-weight: 400 !important;
-
-      .collapsor .o-icon {
-        opacity: 0.8;
-      }
-
-      .collapsor-arrow {
-        transform-origin: 6px 8px;
-
-        .o-icon {
-          width: 12px;
-          height: 16px;
-        }
-      }
-    }
-
-    .o-filter-menu-item {
-      display: flex;
-      cursor: pointer;
-      user-select: none;
-      line-height: 1;
-
-      &.selected,
-      &:hover {
-        background-color: ${BUTTON_ACTIVE_BG};
-      }
-    }
-
-    .o-filter-menu-buttons {
-      margin-top: 9px;
-
-      .o-button {
-        height: 26px;
-      }
-    }
-  }
-`;
 
 interface Props {
   filterPosition: Position;

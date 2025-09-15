@@ -138,7 +138,10 @@
     "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup/jest.setup.ts"
-    ]
+    ],
+    "moduleNameMapper": {
+      "css_variable_sync$": "<rootDir>/tests/__mocks__/css_variable_sync.ts"
+    }
   },
   "lint-staged": {
     "*": [

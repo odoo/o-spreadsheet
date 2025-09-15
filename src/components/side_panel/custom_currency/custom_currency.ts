@@ -8,30 +8,9 @@ import {
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { _t } from "../../../translation";
 import { Currency, Format, SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers/css";
 import { CustomCurrencyTerms } from "../../translations_terms";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-
-css/* scss */ `
-  .o-custom-currency {
-    .o-format-proposals {
-      color: black;
-    }
-
-    .o-format-examples {
-      background: #f9fafb;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #d8dadd;
-      color: #374151;
-    }
-
-    table {
-      table-layout: fixed;
-    }
-  }
-`;
 
 interface CurrencyProposal {
   format: Format;

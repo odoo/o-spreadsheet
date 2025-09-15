@@ -1,8 +1,6 @@
 import { Component, useState } from "@odoo/owl";
-import { GRAY_300 } from "../../../constants";
 import { SpreadsheetChildEnv } from "../../../types";
 import { Table } from "../../../types/table";
-import { css } from "../../helpers";
 import { PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 import {
@@ -17,32 +15,6 @@ interface TableStylePickerProps {
 interface TableStylePickerState {
   popoverProps: PopoverProps | undefined;
 }
-
-css/* scss */ `
-  .o-table-style-picker {
-    border: 1px solid ${GRAY_300};
-    border-radius: 3px;
-
-    .o-table-style-picker-arrow {
-      border-left: 1px solid ${GRAY_300};
-
-      &:hover {
-        background: #f5f5f5;
-        cursor: pointer;
-      }
-    }
-
-    .o-table-style-list-item {
-      padding: 5px 6px;
-      margin: 5px 2px;
-
-      .o-table-style-picker-preview {
-        width: 51px;
-        height: 36px;
-      }
-    }
-  }
-`;
 
 export class TableStylePicker extends Component<TableStylePickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePicker";

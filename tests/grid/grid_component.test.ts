@@ -6,7 +6,6 @@ import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
-  BACKGROUND_GRAY_COLOR,
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -19,7 +18,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
+import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
@@ -1781,15 +1780,6 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       top: 3,
       bottom: 45,
     });
-  });
-
-  test("Scroll bars have background color", () => {
-    // Without background color, elements could be displayed above the scrollbars placeholders
-    const getColor = (selector: string) => toHex(getElComputedStyle(selector, "background"));
-
-    expect(getColor(".o-scrollbar.corner")).toBeSameColorAs(BACKGROUND_GRAY_COLOR);
-    expect(getColor(".o-scrollbar.horizontal")).toBeSameColorAs(BACKGROUND_GRAY_COLOR);
-    expect(getColor(".o-scrollbar.vertical")).toBeSameColorAs(BACKGROUND_GRAY_COLOR);
   });
 });
 

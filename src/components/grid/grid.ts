@@ -15,12 +15,7 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import {
-  AUTOFILL_EDGE_LENGTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-} from "../../constants";
+import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
@@ -66,6 +61,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
+import { getCSSVariable } from "../helpers/css_variable_sync";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
@@ -114,6 +110,8 @@ interface Props {
   exposeFocus: (focus: () => void) => void;
   getGridSize: () => DOMDimension;
 }
+
+const AUTOFILL_EDGE_LENGTH = getCSSVariable("--os-autofill-edge-length", parseInt);
 
 // -----------------------------------------------------------------------------
 // JS

@@ -1,0 +1,113 @@
+.o-spreadsheet {
+  .o-col-resizer {
+    position: absolute;
+    top: 0;
+    left: $os-header-width;
+    right: $os-scrollbar-width;
+    height: $os-header-height;
+    width: calc(100% - #{$os-header-width + $os-scrollbar-width}px);
+    &.o-dragging {
+      cursor: grabbing;
+    }
+    &.o-grab {
+      cursor: grab;
+    }
+    .dragging-col-line {
+      top: $os-header-height;
+      position: absolute;
+      width: 2px;
+      height: 10000px;
+      background-color: black;
+    }
+    .dragging-col-shadow {
+      top: $os-header-height;
+      position: absolute;
+      height: 10000px;
+      background-color: black;
+      opacity: 0.1;
+    }
+    .o-handle {
+      position: absolute;
+      height: $os-header-height;
+      width: 4px;
+      cursor: e-resize;
+      background-color: $os-selection-border-color;
+    }
+    .dragging-resizer {
+      top: $os-header-height;
+      position: absolute;
+      margin-left: 2px;
+      width: 1px;
+      height: 10000px;
+      background-color: $os-selection-border-color;
+    }
+    .o-unhide {
+      color: $os-icons-color;
+    }
+    .o-unhide:hover {
+      z-index: calc($os-components-importance-grid + 1);
+      background-color: lightgrey;
+    }
+  }
+
+  .o-row-resizer {
+    position: absolute;
+    top: $os-header-height;
+    left: 0;
+    bottom: $os-scrollbar-width;
+    width: $os-header-width;
+    &.o-dragging {
+      cursor: grabbing;
+    }
+    &.o-grab {
+      cursor: grab;
+    }
+    .dragging-row-line {
+      left: $os-header-width;
+      position: absolute;
+      width: 10000px;
+      height: 2px;
+      background-color: black;
+    }
+    .dragging-row-shadow {
+      left: $os-header-width;
+      position: absolute;
+      width: 10000px;
+      background-color: black;
+      opacity: 0.1;
+    }
+    .o-handle {
+      position: absolute;
+      height: 4px;
+      width: $os-header-width;
+      cursor: n-resize;
+      background-color: $os-selection-border-color;
+    }
+    .dragging-resizer {
+      left: $os-header-width;
+      position: absolute;
+      margin-top: 2px;
+      width: 10000px;
+      height: 1px;
+      background-color: $os-selection-border-color;
+    }
+    .o-unhide {
+      color: $os-icons-color;
+    }
+    .o-unhide:hover {
+      z-index: calc($os-components-importance-grid + 1);
+      background-color: lightgrey;
+    }
+  }
+
+  .o-overlay {
+    .all {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: $os-header-width;
+      height: $os-header-height;
+    }
+  }
+}

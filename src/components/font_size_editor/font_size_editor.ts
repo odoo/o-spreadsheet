@@ -2,7 +2,6 @@ import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
 import { clip } from "../../helpers/index";
 import { SpreadsheetChildEnv } from "../../types/index";
-import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 
@@ -17,27 +16,6 @@ interface Props {
   onToggle?: () => void;
   onFocusInput?: () => void;
 }
-
-css/* scss */ `
-  .o-font-size-editor {
-    width: max-content !important;
-    height: calc(100% - 4px);
-    input.o-font-size {
-      outline: none;
-      height: 20px;
-      width: 31px;
-      text-align: center;
-    }
-  }
-  .o-text-options > div {
-    cursor: pointer;
-    line-height: 26px;
-    padding: 3px 12px;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-  }
-`;
 
 export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FontSizeEditor";
