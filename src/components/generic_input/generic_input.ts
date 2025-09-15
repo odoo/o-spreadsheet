@@ -4,7 +4,7 @@ import { useAutofocus } from "../helpers/autofocus_hook";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
 export interface GenericInputProps {
-  value: string;
+  value: string | number;
   onChange: (value: string) => void;
   class?: string;
   id?: string;
@@ -14,7 +14,7 @@ export interface GenericInputProps {
 
 export class GenericInput<T extends GenericInputProps> extends Component<T, SpreadsheetChildEnv> {
   static props = {
-    value: String,
+    value: [Number, String],
     onChange: Function,
     class: { type: String, optional: true },
     id: { type: String, optional: true },
@@ -52,7 +52,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
         break;
       case "Escape":
         if (this.inputRef.el) {
-          this.inputRef.el.value = this.props.value;
+          this.inputRef.el.value = this.props.value.toString();
           this.inputRef.el.blur();
         }
         ev.preventDefault();
@@ -61,12 +61,14 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     }
   }
 
-  save() {
+  save(keepFocus = false) {
     const currentValue = (this.inputRef.el?.value || "").trim();
-    if (currentValue !== this.props.value) {
+    if (currentValue !== this.props.value.toString()) {
       this.props.onChange(currentValue);
     }
-    this.inputRef.el?.blur();
+    if (!keepFocus) {
+      this.inputRef.el?.blur();
+    }
   }
 
   onMouseDown(ev: MouseEvent) {
