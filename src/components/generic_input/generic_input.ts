@@ -4,7 +4,7 @@ import { Ref } from "../../types";
 import { useAutofocus } from "../helpers/autofocus_hook";
 
 interface Props {
-  value: string;
+  value: string | number;
   onChange: (value: string) => void;
   class?: string;
   id?: string;
@@ -52,7 +52,7 @@ export class GenericInput extends Component<Props, SpreadsheetChildEnv> {
         break;
       case "Escape":
         if (this.inputRef.el) {
-          this.inputRef.el.value = this.props.value;
+          this.inputRef.el.value = this.props.value.toString();
           this.inputRef.el.blur();
         }
         ev.preventDefault();
@@ -61,12 +61,14 @@ export class GenericInput extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  save() {
+  save(keepFocus = false) {
     const currentValue = (this.inputRef.el?.value || "").trim();
     if (currentValue !== this.props.value) {
       this.props.onChange(currentValue);
     }
-    this.inputRef.el?.blur();
+    if (!keepFocus) {
+      this.inputRef.el?.blur();
+    }
   }
 
   onMouseDown(ev: MouseEvent) {
