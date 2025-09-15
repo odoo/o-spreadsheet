@@ -59,6 +59,19 @@ export class PositionMap<T> {
     return keys;
   }
 
+  values(): T[] {
+    const map = this.map;
+    const values: T[] = [];
+    for (const sheetId in map) {
+      for (const col in map[sheetId]) {
+        for (const row in map[sheetId][col]) {
+          values.push(map[sheetId][col][row]);
+        }
+      }
+    }
+    return values;
+  }
+
   keysForSheet(sheetId: UID): CellPosition[] {
     const map = this.map[sheetId];
     if (!map) {

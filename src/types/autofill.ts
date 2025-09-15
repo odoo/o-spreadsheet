@@ -47,12 +47,17 @@ export interface FormulaModifier {
   current: number;
 }
 
+export interface NoOpModifier {
+  type: "NO_OP_MODIFIER";
+}
+
 export type AutofillModifier =
   | IncrementModifier
   | AlphanumericIncrementModifier
   | CopyModifier
   | FormulaModifier
-  | DateIncrementModifier;
+  | DateIncrementModifier
+  | NoOpModifier;
 
 export interface Tooltip {
   props: any;
@@ -77,7 +82,7 @@ export interface AutofillModifierImplementation {
     direction: DIRECTION,
     sheetId: UID,
     originContent: string,
-    originTokens: Token[],
+    originTokens: Token[]
   ) => { content: string };
   tooltip: (
     getters: Getters,
