@@ -483,10 +483,7 @@ const specialWhiteSpaceSpecialCharacters = [
   String.fromCharCode(parseInt("3000", 16)),
   String.fromCharCode(parseInt("feff", 16)),
 ];
-export const specialWhiteSpaceRegexp = new RegExp(
-  specialWhiteSpaceSpecialCharacters.join("|"),
-  "g"
-);
+
 const newLineRegexp = /(\r\n|\r)/g;
 
 export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
