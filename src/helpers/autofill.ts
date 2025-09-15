@@ -2,6 +2,7 @@ import { AutofillModifier, CoreGetters, GeneratorCell, Getters } from "..";
 import { rangeTokenize } from "../formulas";
 import { autofillModifiersRegistry } from "../registries/autofill_modifiers";
 import { CellPosition, DIRECTION, UID, Zone } from "../types/misc";
+import { PositionMap } from "./cells/position_map";
 import { deepCopy } from "./misc";
 
 export function* iterateAutofillPositions(
@@ -57,6 +58,13 @@ export function* createAutofillGenerator(
     direction === DIRECTION.UP || direction === DIRECTION.DOWN ? "col" : "row";
 
   generatorCells = deepCopy(generatorCells); // rules are mutated while being applied one after the other
+  generatorCells = addMissingGenerators(sheetId, generatorCells);
+
+  if (direction === DIRECTION.DOWN || direction === DIRECTION.RIGHT) {
+    generatorCells?.sort((a, b) => a.origin.row - b.origin.row);
+  } else {
+    generatorCells?.sort((a, b) => b.origin.row - a.origin.row);
+  }
   const generatorCellsByHeaders = Object.groupBy(generatorCells, (g) => g.origin[headerKey]);
 
   // Pre-create AutofillGenerators for all cols/rows
@@ -88,9 +96,38 @@ export function* createAutofillGenerator(
   for (const position of iterateAutofillPositions(sheetId, target, direction)) {
     const generator = generators[position[headerKey]];
     const { content, origin, rule } = generator.next();
-    yield { content, origin, position, rule };
+    if (rule.type !== "NO_OP_MODIFIER") {
+      yield { content, origin, position, rule };
+    }
   }
   return;
+}
+
+function addMissingGenerators(sheetId: UID, generatorCells: GeneratorCell[]) {
+  const cols = generatorCells.map((g) => g.origin.col);
+  const rows = generatorCells.map((g) => g.origin.row);
+  const minCol = Math.min(...cols);
+  const maxCol = Math.max(...cols);
+  const minRow = Math.min(...rows);
+  const maxRow = Math.max(...rows);
+
+  const byPositions = new PositionMap<GeneratorCell>();
+  for (const g of generatorCells) {
+    byPositions.set(g.origin, g);
+  }
+  for (let col = minCol; col <= maxCol; col++) {
+    for (let row = minRow; row <= maxRow; row++) {
+      const pos = { sheetId, col, row };
+      if (!byPositions.has(pos)) {
+        byPositions.set(pos, {
+          origin: pos,
+          originContent: "",
+          rule: { type: "NO_OP_MODIFIER" },
+        });
+      }
+    }
+  }
+  return Array.from(byPositions.values());
 }
 
 /**
