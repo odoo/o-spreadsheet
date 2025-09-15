@@ -6,25 +6,20 @@ import {
   ChartJSRuntime,
   ChartWithDataSetDefinition,
   Color,
-  DispatchResult,
   SpreadsheetChildEnv,
   TrendConfiguration,
-  UID,
 } from "../../../../../types";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-}
-
-export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
+export class SeriesWithAxisDesignEditor extends Component<
+  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-SeriesWithAxisDesignEditor";
   static components = {
     SeriesDesignEditor,
@@ -34,10 +29,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     RoundColorPicker,
   };
   static props = {
-    chartId: String,
-    definition: Object,
-    canUpdateChart: Function,
-    updateChart: Function,
+    ...ChartSidePanelPropsObject,
     slots: { type: Object, optional: true },
   };
 

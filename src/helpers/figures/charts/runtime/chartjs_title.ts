@@ -25,7 +25,12 @@ export function getChartTitle(
     padding: {
       // Disable title top/left/right padding to use the chart padding instead.
       // The legend already has a top padding, so bottom padding is useless for the title there.
-      bottom: definition.legendPosition === "top" ? 0 : CHART_PADDING,
+      bottom:
+        "legendPosition" in definition
+          ? definition.legendPosition === "top"
+            ? 0
+            : CHART_PADDING
+          : 0,
     },
   };
 }

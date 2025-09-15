@@ -5,7 +5,11 @@ import { toNormalizedPivotValue } from "../pivot_helpers";
 
 const NULL_SYMBOL = Symbol("NULL");
 
-export function createDate(dimension: PivotDimension, value: CellValue, locale: Locale): CellValue {
+export function createDate(
+  dimension: Pick<PivotDimension, "type" | "displayName" | "granularity">,
+  value: CellValue,
+  locale: Locale
+): CellValue {
   const granularity = dimension.granularity || "month";
   if (!(granularity in MAP_VALUE_DIMENSION_DATE)) {
     throw new Error(`Unknown date granularity: ${granularity}`);
