@@ -123,16 +123,17 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     );
 
     for (const zone of recomputedZones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
-            continue; // Skip hidden cells
-          }
+      for (const position of this.getters.getEvaluatedCellsPositionInZone(sheetId, zone)) {
+        if (
+          getters.isRowHidden(sheetId, position.row) ||
+          getters.isColHidden(sheetId, position.col)
+        ) {
+          continue; // Skip hidden cells
+        }
 
-          const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
-          if (evaluatedCell.type !== CellValueType.empty) {
-            cells.push(evaluatedCell);
-          }
+        const evaluatedCell = getters.getEvaluatedCell(position);
+        if (evaluatedCell.type !== CellValueType.empty) {
+          cells.push(evaluatedCell);
         }
       }
     }
