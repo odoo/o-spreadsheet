@@ -133,7 +133,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                     </div>
                     
                     <input
-                      class="os-pivot-title os-input w-100"
+                      class="os-pivot-title w-100 os-input"
                       type="text"
                     />
                     
@@ -529,7 +529,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                     </div>
                     
                     <input
-                      class="os-pivot-title os-input w-100"
+                      class="os-pivot-title w-100 os-input"
                       type="text"
                     />
                     

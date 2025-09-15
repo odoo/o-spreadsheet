@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TextInput Can render a text input 1`] = `
+exports[`NumberInput Can render a number input 1`] = `
 <div>
   <div
     class="container"
   >
     <input
-      class="w-100 os-input"
-      type="text"
+      class="o-input"
+      type="number"
     />
   </div>
 </div>

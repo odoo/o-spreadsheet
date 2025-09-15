@@ -1,0 +1,19 @@
+<templates>
+  <t t-name="o-spreadsheet-NumberInput">
+    <input
+      type="number"
+      t-ref="{{refName}}"
+      t-att-class="inputClass"
+      t-att-value="props.value"
+      t-att-id="props.id"
+      t-att-placeholder="props.placeholder"
+      t-on-change="() => this.save(true)"
+      t-on-blur="save"
+      t-on-pointerdown="onMouseDown"
+      t-on-pointerup="onMouseUp"
+      t-on-keydown="onKeyDown"
+      t-att-min="props.min"
+      t-att-max="props.max"
+    />
+  </t>
+</templates>
