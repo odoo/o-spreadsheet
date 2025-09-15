@@ -7,6 +7,7 @@ import {
   AutofillModifierImplementation,
   Cell,
   CopyModifier,
+  CoreGetters,
   DIRECTION,
   FormulaModifier,
   Getters,
@@ -26,7 +27,8 @@ export const autofillModifiersRegistry = new Registry<AutofillModifierImplementa
 
 autofillModifiersRegistry
   .add("ALPHANUMERIC_INCREMENT_MODIFIER", {
-    apply: (getters: Getters, rule: AlphanumericIncrementModifier) => {
+    core: true,
+    apply: (getters: CoreGetters, rule: AlphanumericIncrementModifier) => {
       rule.current += rule.increment;
       let value = Math.abs(rule.current).toString();
       value = "0".repeat(Math.max(rule.numberPostfixLength - value.length, 0)) + value;
@@ -49,7 +51,8 @@ autofillModifiersRegistry
     },
   })
   .add("INCREMENT_MODIFIER", {
-    apply: (getters: Getters, rule: IncrementModifier) => {
+    core: true,
+    apply: (getters: CoreGetters, rule: IncrementModifier) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
       return {
@@ -63,7 +66,8 @@ autofillModifiersRegistry
     },
   })
   .add("DATE_INCREMENT_MODIFIER", {
-    apply: (getters: Getters, rule: DateIncrementModifier) => {
+    core: true,
+    apply: (getters: CoreGetters, rule: DateIncrementModifier) => {
       const date = toJsDate(rule.current, getters.getLocale());
       date.setFullYear(date.getFullYear() + rule.increment.years || 0);
       date.setMonth(date.getMonth() + rule.increment.months || 0);
@@ -82,8 +86,9 @@ autofillModifiersRegistry
     },
   })
   .add("COPY_MODIFIER", {
+    core: true,
     apply: (
-      getters: Getters,
+      getters: CoreGetters,
       rule: CopyModifier,
       direction: DIRECTION,
       sheetId: UID,
@@ -101,8 +106,9 @@ autofillModifiersRegistry
     },
   })
   .add("FORMULA_MODIFIER", {
+    core: false,
     apply: (
-      getters: Getters,
+      getters: CoreGetters,
       rule: FormulaModifier,
       direction: DIRECTION,
       sheetId: UID,
@@ -138,5 +144,20 @@ autofillModifiersRegistry
     },
     tooltip: (getters: Getters, content: string, rule: FormulaModifier, originCell: Cell) => {
       return { props: { content } };
+    },
+  })
+  .add("NO_OP_MODIFIER", {
+    core: true,
+    apply: (
+      getters: CoreGetters,
+      rule: FormulaModifier,
+      direction: DIRECTION,
+      sheetId: UID,
+      originContent: string
+    ) => {
+      return { content: originContent };
+    },
+    tooltip: () => {
+      return { props: { content: "" } };
     },
   });

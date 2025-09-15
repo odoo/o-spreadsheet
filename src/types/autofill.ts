@@ -76,6 +76,7 @@ export interface GeneratorCell {
 }
 
 export interface AutofillModifierImplementation {
+  core: boolean;
   apply: (
     getters: CoreGetters,
     rule: AutofillModifier,
