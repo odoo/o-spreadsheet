@@ -49,7 +49,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     "getCellStyle",
     "getCellStyleInZone",
     "getZoneStyles",
-    "getStyleCustomColor",
+    "getStyleColors",
   ] as const;
 
   readonly styles: Record<UID, ZoneStyle[] | undefined> = {};
@@ -209,8 +209,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     options: { force: boolean } = { force: false }
   ) {
     const styles: ZoneStyle[] = [];
-    let editingZone: Zone[] = [zone];
-    editingZone.push(...this.getters.getMergedZoneWithTopLeftInZone(sheetId, zone));
+    let editingZone: Zone[] = [this.getters.expandZone(sheetId, zone)];
     for (const existingStyle of this.styles[sheetId] ?? []) {
       const inter = intersection(existingStyle.zone, zone);
       if (!inter) {
@@ -288,7 +287,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     return styles;
   }
 
-  getStyleCustomColor(sheetId: UID): Color[] {
+  getStyleColors(sheetId: UID): Color[] {
     const colors: Set<Color> = new Set();
     for (const style of this.styles[sheetId] ?? []) {
       if (style.style.textColor) {

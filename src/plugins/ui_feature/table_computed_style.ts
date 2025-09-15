@@ -110,10 +110,14 @@ export class TableComputedStylePlugin extends UIPlugin {
     const map = new PositionMap<Border>();
     for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
       const tableBorders = this.tableStyles[sheetId][table.id]().borders;
-      for (const [colIdx, colStyle] of Object.entries(tableBorders)) {
+      for (const colIdx of Object.keys(tableBorders)) {
+        const colStyle = tableBorders[colIdx];
         const col = parseInt(colIdx);
-        for (const [rowIdx, cellStyle] of Object.entries(colStyle)) {
-          if (cellStyle) map.set({ sheetId, col, row: parseInt(rowIdx) }, cellStyle);
+        for (const rowIdx of Object.keys(colStyle)) {
+          const cellBorder = colStyle[rowIdx];
+          if (cellBorder) {
+            map.set({ sheetId, col, row: parseInt(rowIdx) }, cellBorder);
+          }
         }
       }
     }

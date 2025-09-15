@@ -648,7 +648,7 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport, precomputeZone: Zone): Box {
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -856,7 +856,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, zone));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -864,7 +864,7 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport, zone);
+        const box = this.createZoneBox(sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellComputedBorder(
           {
             sheetId,
