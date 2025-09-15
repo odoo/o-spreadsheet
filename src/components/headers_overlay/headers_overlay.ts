@@ -9,6 +9,7 @@ import {
   SCROLLBAR_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
+import { RangeSet } from "../../helpers/cells/range_set";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -111,7 +112,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   abstract _getType(): ContextMenuType;
 
-  abstract _getActiveElements(): Set<HeaderIndex>;
+  abstract _getActiveElements(): RangeSet;
 
   abstract _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex;
 
@@ -503,12 +504,8 @@ export class ColResizer extends AbstractResizer {
     return "COL";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
-    const cols = new Set<HeaderIndex>();
-    for (const col of this.env.model.getters.getActiveCols()) {
-      cols.add(col);
-    }
-    return cols;
+  _getActiveElements(): RangeSet {
+    return this.env.model.getters.getActiveCols();
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
@@ -737,12 +734,8 @@ export class RowResizer extends AbstractResizer {
     return "ROW";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
-    const rows = new Set<HeaderIndex>();
-    for (const row of this.env.model.getters.getActiveRows()) {
-      rows.add(row);
-    }
-    return rows;
+  _getActiveElements(): RangeSet {
+    return this.env.model.getters.getActiveRows();
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
