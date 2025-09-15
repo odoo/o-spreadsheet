@@ -1,12 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet.ChartTitle">
     <Section class="'o-chart-title'" title="props.name">
-      <input
-        type="text"
-        class="o-input"
-        t-att-value="props.title"
-        t-on-change="updateTitle"
-        t-att-placeholder="props.placeholder"
+      <TextInput
+        value="props.title"
+        onChange.bind="updateTitle"
+        placeholder="props.placeholder"
+        alwaysShowBorder="true"
       />
       <TextStyler
         style="props.style"
