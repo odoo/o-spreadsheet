@@ -2,7 +2,12 @@ import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
-import { addDataValidation, updateLocale } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  addDataValidation,
+  createSheet,
+  updateLocale,
+} from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { getDataValidationRules, mountComponent, nextTick } from "../test_helpers/helpers";
@@ -200,6 +205,29 @@ describe("data validation sidePanel component", () => {
     await simulateClick(fixture.querySelector(".o-dv-save")!);
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([{ id: "id1" }, { id: "id2" }]);
+  });
+
+  test("DV stays on original sheet when range is selected from another sheet and saved", async () => {
+    createSheet(model, { sheetId: "sh2" });
+
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await changeCriterionType("isValueInRange");
+
+    const rangeInput = fixture.querySelectorAll<HTMLInputElement>(".o-selection-input input")[1];
+    activateSheet(model, "sh2");
+    await setInputValueAndTrigger(rangeInput, "A1:A5");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toEqual([
+      {
+        id: expect.any(String),
+        criterion: { type: "isValueInRange", displayStyle: "arrow", values: ["A1:A5"] },
+        ranges: ["A1:A5"],
+      },
+    ]);
+    expect(getDataValidationRules(model, "sh2")).toHaveLength(0);
   });
 
   describe("Locale", () => {
