@@ -5,9 +5,7 @@ exports[`GenericInput Can render a generic input 1`] = `
   <div
     class="container"
   >
-    <input
-      class="w-100"
-    />
+    <input />
   </div>
 </div>
 `;
