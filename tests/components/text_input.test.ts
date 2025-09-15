@@ -70,7 +70,7 @@ describe("TextInput", () => {
   });
 
   test("selects input content upon mouseup", async () => {
-    await mountTextInput({ value: "hello", onChange: () => {} });
+    await mountTextInput({ value: "hello", onChange: () => {}, selectContentOnFocus: true });
     triggerMouseEvent("input", "pointerup");
     expect(fixture.querySelector("input")!.selectionStart).toEqual(0);
     expect(fixture.querySelector("input")!.selectionEnd).toEqual(5);

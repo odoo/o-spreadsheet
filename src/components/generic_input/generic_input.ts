@@ -10,6 +10,7 @@ export interface GenericInputProps {
   id?: string;
   placeholder?: string;
   autofocus?: boolean;
+  selectContentOnFocus?: boolean;
 }
 
 export class GenericInput<T extends GenericInputProps> extends Component<T, SpreadsheetChildEnv> {
@@ -21,6 +22,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     placeholder: { type: String, optional: true },
     autofocus: { type: Boolean, optional: true },
     alwaysShowBorder: { type: Boolean, optional: true },
+    selectContentOnFocus: { type: Boolean, optional: true },
   };
 
   protected refName = "input";
@@ -83,7 +85,9 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     const target = ev.target as HTMLInputElement;
     if (target !== document.activeElement) {
       target.focus();
-      target.select();
+      if (this.props.selectContentOnFocus) {
+        target.select();
+      }
       ev.preventDefault();
       ev.stopPropagation();
     }

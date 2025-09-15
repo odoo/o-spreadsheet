@@ -7,7 +7,12 @@
           <CogWheelMenu items="cogWheelMenuItems"/>
         </div>
       </t>
-      <TextInput class="'os-pivot-title'" value="name" onChange.bind="onNameChanged"/>
+      <TextInput
+        class="'os-pivot-title'"
+        value="name"
+        onChange.bind="onNameChanged"
+        selectContentOnFocus="true"
+      />
     </Section>
   </t>
 </templates>
