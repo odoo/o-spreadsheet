@@ -24,13 +24,11 @@ function sortMatrix(
   locale: Locale,
   ...criteria: Arg[]
 ): Matrix<FunctionResultObject> {
-  for (const [i, value] of criteria.entries()) {
+  for (let i = 0; i < criteria.length; i++) {
+    const param = i % 2 === 0 ? "sort_column" : "is_ascending";
     assert(
-      value !== undefined,
-      _t(
-        "Value for parameter %d is missing, while the function [[FUNCTION_NAME]] expect a number or a range.",
-        i + 1
-      )
+      criteria[i] !== undefined,
+      _t("Value for parameter %s is missing in [[FUNCTION_NAME]].", param)
     );
   }
   const sortingOrders: SortDirection[] = [];
