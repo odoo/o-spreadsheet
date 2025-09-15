@@ -5,14 +5,10 @@ exports[`TextInput Can render a text input 1`] = `
   <div
     class="container"
   >
-    <div
-      class="w-100"
-    >
-      <input
-        class="os-input w-100"
-        type="text"
-      />
-    </div>
+    <input
+      class="os-input w-100"
+      type="text"
+    />
   </div>
 </div>
 `;
