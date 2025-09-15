@@ -60,10 +60,19 @@ export function* createAutofillGenerator(
   generatorCells = deepCopy(generatorCells); // rules are mutated while being applied one after the other
   generatorCells = addMissingGenerators(sheetId, generatorCells);
 
-  if (direction === DIRECTION.DOWN || direction === DIRECTION.RIGHT) {
-    generatorCells?.sort((a, b) => a.origin.row - b.origin.row);
-  } else {
-    generatorCells?.sort((a, b) => b.origin.row - a.origin.row);
+  switch (direction) {
+    case DIRECTION.DOWN:
+      generatorCells.sort((a, b) => a.origin.row - b.origin.row);
+      break;
+    case DIRECTION.UP:
+      generatorCells.sort((a, b) => b.origin.row - a.origin.row);
+      break;
+    case DIRECTION.RIGHT:
+      generatorCells.sort((a, b) => a.origin.col - b.origin.col);
+      break;
+    case DIRECTION.LEFT:
+      generatorCells.sort((a, b) => b.origin.col - a.origin.col);
+      break;
   }
   const generatorCellsByHeaders = Object.groupBy(generatorCells, (g) => g.origin[headerKey]);
 
