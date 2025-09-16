@@ -333,8 +333,6 @@ describe("Selection Input", () => {
     const { env, model, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
-    await simulateClick(".o-cf-add");
-    await nextTick();
     const input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
     clickCell(model, "B4");
@@ -466,8 +464,6 @@ describe("Selection Input", () => {
     await selectColumnByClicking(model, "B");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
-    await simulateClick(".o-cf-add");
-    await nextTick();
     let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     expect(input.value).toBe("B:B");
 
@@ -551,8 +547,6 @@ describe("Selection Input", () => {
   test("pressing and releasing control has no effect on future clicks", async () => {
     const { env, model, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(env);
-    await nextTick();
-    await simulateClick(".o-cf-add");
     await nextTick();
     let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
