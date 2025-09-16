@@ -1,191 +1,185 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`UI of conditional formats Conditional format list simple snapshot 1`] = `
+exports[`UI of conditional formats Conditional formatting list panel simple snapshot 1`] = `
 <div
   class="o-spreadsheet"
 >
   <div
-    class="o-cf h-100"
+    class="o-cf-preview-list h-100 overflow-auto"
   >
     <div
-      class="o-cf-preview-list h-100 overflow-auto"
+      class="o-cf-preview-container d-flex position-relative"
+      style=""
     >
       <div
-        class="o-cf-preview-container d-flex position-relative"
-        style=""
+        class="o-cf-preview w-100 d-flex align-items-center border-bottom"
+        data-id="1"
       >
         <div
-          class="o-cf-preview w-100 d-flex align-items-center border-bottom"
-          data-id="1"
+          class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon"
+        >
+          <svg
+            class="o-icon"
+            fill="currentColor"
+            viewBox="0 0 4 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="2"
+              cy="3.5"
+              r="1"
+            />
+            <circle
+              cx="2"
+              cy="6.5"
+              r="1"
+            />
+            <circle
+              cx="2"
+              cy="9.5"
+              r="1"
+            />
+            <circle
+              cx="2"
+              cy="12.5"
+              r="1"
+            />
+          </svg>
+        </div>
+        
+        <div
+          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border"
+          style="background:#FF0000; "
+        >
+           123 
+        </div>
+        
+        <div
+          class="o-cf-preview-description me-3 overflow-auto"
         >
           <div
-            class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon"
+            class="o-cf-preview-ruletype"
           >
-            <svg
+            <div
+              class="o-cf-preview-description-rule o-fw-bold text-truncate"
+            >
+              Value is equal to 2
+            </div>
+          </div>
+          <div
+            class="o-cf-preview-range text-truncate"
+          >
+            A1:A2
+          </div>
+        </div>
+        <div
+          class="o-cf-delete ms-auto"
+        >
+          <div
+            class="o-cf-delete-button o-button-icon"
+            title="Remove rule"
+          >
+            <div
               class="o-icon"
-              fill="currentColor"
-              viewBox="0 0 4 16"
-              xmlns="http://www.w3.org/2000/svg"
             >
-              <circle
-                cx="2"
-                cy="3.5"
-                r="1"
+              <i
+                class="fa fa-trash"
               />
-              <circle
-                cx="2"
-                cy="6.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="9.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="12.5"
-                r="1"
-              />
-            </svg>
-          </div>
-          
-          <div
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border"
-            style="background:#FF0000; "
-          >
-             123 
-          </div>
-          
-          <div
-            class="o-cf-preview-description me-3 overflow-auto"
-          >
-            <div
-              class="o-cf-preview-ruletype"
-            >
-              <div
-                class="o-cf-preview-description-rule o-fw-bold text-truncate"
-              >
-                Value is equal to 2
-              </div>
-            </div>
-            <div
-              class="o-cf-preview-range text-truncate"
-            >
-              A1:A2
-            </div>
-          </div>
-          <div
-            class="o-cf-delete ms-auto"
-          >
-            <div
-              class="o-cf-delete-button o-button-icon"
-              title="Remove rule"
-            >
-              <div
-                class="o-icon"
-              >
-                <i
-                  class="fa fa-trash"
-                />
-              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      class="o-cf-preview-container d-flex position-relative"
+      style=""
+    >
       <div
-        class="o-cf-preview-container d-flex position-relative"
-        style=""
+        class="o-cf-preview w-100 d-flex align-items-center border-bottom"
+        data-id="2"
       >
         <div
-          class="o-cf-preview w-100 d-flex align-items-center border-bottom"
-          data-id="2"
+          class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon"
+        >
+          <svg
+            class="o-icon"
+            fill="currentColor"
+            viewBox="0 0 4 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="2"
+              cy="3.5"
+              r="1"
+            />
+            <circle
+              cx="2"
+              cy="6.5"
+              r="1"
+            />
+            <circle
+              cx="2"
+              cy="9.5"
+              r="1"
+            />
+            <circle
+              cx="2"
+              cy="12.5"
+              r="1"
+            />
+          </svg>
+        </div>
+        
+        <div
+          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border"
+          style="background-image: linear-gradient(to right, #FF00FF, #123456)"
+        >
+           123 
+        </div>
+        
+        <div
+          class="o-cf-preview-description me-3 overflow-auto"
         >
           <div
-            class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon"
+            class="o-cf-preview-ruletype"
           >
-            <svg
+            <div
+              class="o-cf-preview-description-rule o-fw-bold text-truncate"
+            >
+              Color scale
+            </div>
+          </div>
+          <div
+            class="o-cf-preview-range text-truncate"
+          >
+            B1:B5
+          </div>
+        </div>
+        <div
+          class="o-cf-delete ms-auto"
+        >
+          <div
+            class="o-cf-delete-button o-button-icon"
+            title="Remove rule"
+          >
+            <div
               class="o-icon"
-              fill="currentColor"
-              viewBox="0 0 4 16"
-              xmlns="http://www.w3.org/2000/svg"
             >
-              <circle
-                cx="2"
-                cy="3.5"
-                r="1"
+              <i
+                class="fa fa-trash"
               />
-              <circle
-                cx="2"
-                cy="6.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="9.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="12.5"
-                r="1"
-              />
-            </svg>
-          </div>
-          
-          <div
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border"
-            style="background-image: linear-gradient(to right, #FF00FF, #123456)"
-          >
-             123 
-          </div>
-          
-          <div
-            class="o-cf-preview-description me-3 overflow-auto"
-          >
-            <div
-              class="o-cf-preview-ruletype"
-            >
-              <div
-                class="o-cf-preview-description-rule o-fw-bold text-truncate"
-              >
-                Color scale
-              </div>
-            </div>
-            <div
-              class="o-cf-preview-range text-truncate"
-            >
-              B1:B5
-            </div>
-          </div>
-          <div
-            class="o-cf-delete ms-auto"
-          >
-            <div
-              class="o-cf-delete-button o-button-icon"
-              title="Remove rule"
-            >
-              <div
-                class="o-icon"
-              >
-                <i
-                  class="fa fa-trash"
-                />
-              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      
-      <div
-        class="o-button-link p-4 o-cf-add float-end"
-      >
-         + Add another rule 
       </div>
     </div>
     
     
+    <div
+      class="o-button-link p-4 o-cf-add float-end"
+    >
+       + Add another rule 
+    </div>
   </div>
 </div>
 `;

@@ -549,7 +549,17 @@ export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(
 // Side panel
 //------------------------------------------------------------------------------
 export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
-  env.openSidePanel("ConditionalFormatting", { selection: env.model.getters.getSelectedZones() });
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zones = env.model.getters.getSelectedZones();
+  const rules = env.model.getters.getConditionalFormats(sheetId);
+  const ruleIds = env.model.getters.getRulesSelection(sheetId, zones);
+  if (ruleIds.length === 1) {
+    return env.openSidePanel("ConditionalFormattingEditor", {
+      cf: rules.find((r) => r.id === ruleIds[0]),
+      isNewCf: false,
+    });
+  }
+  return env.openSidePanel("ConditionalFormatting");
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
