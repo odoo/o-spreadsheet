@@ -165,6 +165,7 @@ import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoo
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { GaugeChartComponent } from "./components/figures/chart/gauge/gauge_chart_component";
 import { FullScreenFigure } from "./components/full_screen_figure/full_screen_figure";
+import { NumberInput } from "./components/number_input/number_input";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
@@ -464,6 +465,7 @@ export const components = {
   GeoChartRegionSelectSection,
   ChartDashboardMenu,
   FullScreenFigure,
+  NumberInput,
 };
 
 export const hooks = {
