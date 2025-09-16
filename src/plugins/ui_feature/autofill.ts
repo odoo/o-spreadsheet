@@ -1,5 +1,5 @@
 import { createAutofillGenerator, iterateAutofillPositions } from "../../helpers/autofill";
-import { clip, isInside } from "../../helpers/index";
+import { clip, getZoneArea, isInside } from "../../helpers/index";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
 import {
@@ -146,7 +146,11 @@ export class AutofillPlugin extends UIPlugin {
 
     if (apply) {
       const noOp = { type: "NO_OP_MODIFIER" } as const;
-      // TODO cut generators that won't be used by the target zone
+
+      // choose what would result in the smaller revision size
+      // The size is either linear to the number of target cells (fullUi)
+      // or linear to the number of target cells (coreG)
+      const fullUi = getZoneArea(this.autofillZone) < getZoneArea(source);
       const coreG = generatorCells.map((g) => {
         if (autofillModifiersRegistry.get(g.rule.type).core) {
           return g;
@@ -154,7 +158,7 @@ export class AutofillPlugin extends UIPlugin {
         return { ...g, rule: noOp };
       });
       const nonCoreG = generatorCells.map((g) => {
-        if (!autofillModifiersRegistry.get(g.rule.type).core) {
+        if (fullUi || !autofillModifiersRegistry.get(g.rule.type).core) {
           return g;
         }
         return { ...g, rule: noOp };
@@ -163,7 +167,7 @@ export class AutofillPlugin extends UIPlugin {
       this.dispatch("AUTOFILL_CELLS", {
         sheetId,
         targetZone: this.autofillZone,
-        rules: coreG,
+        rules: fullUi ? [] : coreG,
         direction: this.direction,
       });
       const generator = createAutofillGenerator(
