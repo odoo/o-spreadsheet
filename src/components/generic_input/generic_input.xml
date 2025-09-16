@@ -6,7 +6,6 @@
       t-att="props.attributes"
       t-att-id="props.id"
       t-att-placeholder="props.placeholder"
-      t-att-value="props.value"
       t-on-change="() => this.save(true)"
       t-on-blur="save"
       t-on-pointerdown="onMouseDown"

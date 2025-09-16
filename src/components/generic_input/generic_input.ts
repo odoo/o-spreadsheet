@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
 import { Ref } from "../../types";
 import { useAutofocus } from "../helpers/autofocus_hook";
@@ -41,6 +41,14 @@ export class GenericInput extends Component<Props, SpreadsheetChildEnv> {
     if (this.props.autofocus) {
       useAutofocus({ refName: "input" });
     }
+    onWillUpdateProps((newProps) => {
+      if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
+        this.inputRef.el.value = newProps.value;
+      }
+    });
+    onMounted(() => {
+      if (this.inputRef.el) this.inputRef.el.value = this.props.value.toString();
+    });
   }
 
   onKeyDown(ev: KeyboardEvent) {
