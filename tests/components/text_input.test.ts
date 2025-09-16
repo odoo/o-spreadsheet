@@ -7,10 +7,10 @@ import {
   setInputValueAndTrigger,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { mountComponent } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
-
+let parent: Component;
 type Props = TextInput["props"];
 
 class TextInputContainer extends Component<Props, SpreadsheetChildEnv> {
@@ -24,7 +24,7 @@ class TextInputContainer extends Component<Props, SpreadsheetChildEnv> {
 }
 
 async function mountTextInput(props: Props) {
-  ({ fixture } = await mountComponent(TextInputContainer, { props }));
+  ({ fixture, parent } = await mountComponent(TextInputContainer, { props }));
 }
 
 describe("TextInput", () => {
@@ -103,5 +103,18 @@ describe("TextInput", () => {
   test("Can autofocus the input", async () => {
     await mountTextInput({ value: "hello", onChange: () => {}, autofocus: true });
     expect(fixture.querySelector("input")).toEqual(document.activeElement);
+  });
+
+  test("Input is preserved while in edition", async () => {
+    const onChange = jest.fn();
+    await mountTextInput({ value: "hello", onChange });
+    const input = fixture.querySelector("input")! as HTMLInputElement;
+    expect(input.value).toEqual("hello");
+    // focus the input and change its value
+    input.focus();
+    input.value = "world";
+    parent.render(true);
+    await nextTick();
+    expect(input.value).toEqual("world");
   });
 });
