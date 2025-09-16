@@ -1,5 +1,11 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex, range, removeIndexesFromArray } from "../../helpers";
+import {
+  deepCopy,
+  getAddHeaderStartIndex,
+  insertItemsAtIndex,
+  range,
+  removeIndexesFromArray,
+} from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -39,7 +45,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         let sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
         const baseSize = sizes[cmd.base];
-        sizes.splice(addIndex, 0, ...Array(cmd.quantity).fill(baseSize));
+        sizes = insertItemsAtIndex(sizes, Array(cmd.quantity).fill(baseSize), addIndex);
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }

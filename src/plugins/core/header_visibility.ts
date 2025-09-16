@@ -2,6 +2,7 @@ import {
   deepCopy,
   getAddHeaderStartIndex,
   includesAll,
+  insertItemsAtIndex,
   largeMax,
   largeMin,
   range,
@@ -85,9 +86,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        hiddenHeaders.splice(addIndex, 0, ...Array(cmd.quantity).fill(false));
+        const hiddenHeaders = insertItemsAtIndex(
+          [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]],
+          Array(cmd.quantity).fill(false),
+          addIndex
+        );
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
         break;
       }
