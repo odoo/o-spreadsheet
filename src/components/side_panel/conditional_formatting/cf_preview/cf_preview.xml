@@ -1,12 +1,12 @@
 <templates>
-  <t t-name="o-spreadsheet-ConditionalFormatPreview">
+  <t t-name="o-spreadsheet-ConditionalFormattingPreview">
     <t t-set="cf" t-value="props.conditionalFormat"/>
     <div
       class="o-cf-preview w-100"
       t-ref="cfPreview"
       t-att-class="props.class"
       t-att-data-id="cf.id"
-      t-on-click="props.onPreviewClick"
+      t-on-click="this.editConditionalFormat"
       t-on-pointerdown="(ev) => this.onMouseDown(ev)">
       <div class="position-relative h-100 w-100 d-flex align-items-center">
         <div
@@ -38,7 +38,7 @@
         <div class="o-cf-delete">
           <div
             class="o-cf-delete-button o-button-icon"
-            t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"
+            t-on-click.stop="() => this.deleteConditionalFormat()"
             title="Remove rule">
             <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
           </div>

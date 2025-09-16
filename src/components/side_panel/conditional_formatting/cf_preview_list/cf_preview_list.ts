@@ -4,22 +4,18 @@ import { ConditionalFormat, SpreadsheetChildEnv, UID } from "../../../../types";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { ICONS } from "../../../icons/icons";
-import { ConditionalFormatPreview } from "../cf_preview/cf_preview";
+import { ConditionalFormattingPreview } from "../cf_preview/cf_preview";
 
 interface Props {
   conditionalFormats: ConditionalFormat[];
-  onPreviewClick: (cf: ConditionalFormat) => void;
-  onAddConditionalFormat: () => void;
 }
 
-export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-ConditionalFormatPreviewList";
+export class ConditionalFormattingPreviewList extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-ConditionalFormattingPreviewList";
   static props = {
     conditionalFormats: Array,
-    onPreviewClick: Function,
-    onAddConditionalFormat: Function,
   };
-  static components = { ConditionalFormatPreview };
+  static components = { ConditionalFormattingPreview };
 
   icons = ICONS;
 

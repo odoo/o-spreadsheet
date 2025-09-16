@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`UI of conditional formats Conditional format list simple snapshot 1`] = `
+exports[`Conditional formatting list panel simple snapshot 1`] = `
 <div
   class="o-spreadsheet"
 >
@@ -8,7 +8,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
     class="o-cf h-100"
   >
     <div
-      class="o-cf-preview-list h-100 overflow-auto"
+      class="o-cf-preview-list overflow-auto"
     >
       <div
         class="o-cf-preview-container d-flex position-relative"
@@ -185,15 +185,13 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
         </div>
       </div>
       
-      
-      <div
-        class="o-button-link p-4 o-cf-add float-end"
-      >
-         + Add another rule 
-      </div>
     </div>
     
-    
+    <div
+      class="o-button-link p-4 o-cf-add float-end"
+    >
+       + Add another rule 
+    </div>
   </div>
 </div>
 `;

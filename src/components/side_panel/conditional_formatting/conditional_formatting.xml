@@ -1,21 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingPanel">
     <div class="o-cf h-100">
-      <t t-if="state.mode === 'list'">
-        <ConditionalFormatPreviewList
-          conditionalFormats="conditionalFormats"
-          onPreviewClick.bind="editConditionalFormat"
-          onAddConditionalFormat.bind="addConditionalFormat"
-        />
-      </t>
-      <t t-if="state.mode === 'edit'">
-        <ConditionalFormattingEditor
-          editedCf="editedCF"
-          onExit.bind="switchToList"
-          onCancel.bind="cancelEdition"
-          isNewCf="originalEditedCf === undefined"
-        />
-      </t>
+      <ConditionalFormattingPreviewList conditionalFormats="conditionalFormats"/>
+      <div
+        class="o-button-link p-4 o-cf-add float-end"
+        t-on-click.prevent.stop="this.addConditionalFormat">
+        + Add another rule
+      </div>
     </div>
   </t>
 </templates>

@@ -4,17 +4,17 @@
       <div class="o-section-subtitle">Color</div>
       <RoundColorPicker
         currentColor="colorNumberToHex(rule.color)"
-        onColorPicked.bind="updateDataBarColor"
+        onColorPicked.bind="(color) => store.updateDataBarColor(color)"
         disableNoColor="true"
       />
       <div class="o-section-subtitle">Range of values</div>
       <SelectionInput
-        ranges="getRangeValues()"
+        ranges="store.rangeValues"
         class="'o-range'"
         isInvalid="false"
         hasSingleRange="true"
-        onSelectionChanged.bind="onDataBarRangeUpdate"
-        onSelectionConfirmed.bind="onDataBarRangeChange"
+        onSelectionChanged.bind="(ranges) => store.onDataBarRangeUpdate(ranges)"
+        onSelectionConfirmed.bind="() => store.onDataBarRangeChange()"
         required="false"
       />
     </div>

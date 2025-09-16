@@ -808,11 +808,9 @@ describe("TopBar - CF", () => {
     const { fixture } = await mountSpreadsheet();
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeTruthy();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
-    ).toBeTruthy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
     ).toBeFalsy();
   });
 
@@ -842,9 +840,7 @@ describe("TopBar - CF", () => {
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeFalsy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeTruthy();
   });
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
@@ -912,25 +908,26 @@ describe("TopBar - CF", () => {
       sheetId,
       ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: { ...cfRule1, id: "2" },
+      sheetId,
+      ranges: toRangesData(sheetId, "F1"),
+    });
     setSelection(model, ["A1:A11"]);
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeFalsy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeTruthy();
 
-    setSelection(model, ["F6"]);
+    setSelection(model, ["A1:F1"]);
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
-    ).toBeFalsy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeFalsy();
   });
 });
 

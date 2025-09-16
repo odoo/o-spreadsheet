@@ -1,5 +1,6 @@
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { ConditionalFormattingEditor } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
 import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
@@ -19,7 +20,7 @@ import {
 } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
-import { Getters, SpreadsheetChildEnv, UID } from "../types";
+import { ConditionalFormat, Getters, SpreadsheetChildEnv, UID } from "../types";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -42,6 +43,18 @@ export const sidePanelRegistry = new Registry<SidePanelContent>();
 sidePanelRegistry.add("ConditionalFormatting", {
   title: _t("Conditional formatting"),
   Body: ConditionalFormattingPanel,
+});
+
+sidePanelRegistry.add("ConditionalFormattingEditor", {
+  title: _t("Conditional formatting"),
+  Body: ConditionalFormattingEditor,
+  computeState: (getters: Getters, props: { cf: ConditionalFormat }) => {
+    return {
+      isOpen: true,
+      props,
+      key: `ConditionalFormattingEditor_${props.cf.id}`,
+    };
+  },
 });
 
 sidePanelRegistry.add("ChartPanel", {
