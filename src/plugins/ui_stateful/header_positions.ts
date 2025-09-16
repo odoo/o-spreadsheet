@@ -23,6 +23,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         }
         break;
       case "UPDATE_CELL":
+      case "SET_FORMATTING":
+      case "CLEAR_FORMATTING":
         this.headerPositions = {};
         this.isDirty = true;
         break;
