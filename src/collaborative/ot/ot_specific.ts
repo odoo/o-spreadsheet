@@ -372,7 +372,6 @@ function autofillTransformation(
       const newRule = { ...rule };
       const transformedOriginZone = transformZone(positionToZone(rule.origin), executed);
       if (!transformedOriginZone) {
-        // partially destructive -> it doesn't work I think
         // return DO_NOTHING;
         return undefined;
       }

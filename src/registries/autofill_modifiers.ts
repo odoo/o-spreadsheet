@@ -106,7 +106,7 @@ autofillModifiersRegistry
     },
   })
   .add("FORMULA_MODIFIER", {
-    core: false,
+    core: true,
     apply: (
       getters: CoreGetters,
       rule: FormulaModifier,
