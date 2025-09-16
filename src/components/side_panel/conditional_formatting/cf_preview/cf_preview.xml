@@ -1,16 +1,15 @@
 <templates>
-  <t t-name="o-spreadsheet-ConditionalFormatPreview">
+  <t t-name="o-spreadsheet-ConditionalFormattingPreview">
     <t t-set="cf" t-value="props.conditionalFormat"/>
     <div
-      class="o-cf-preview w-100"
+      class="o-cf-preview w-100 d-flex justify-content-between"
       t-ref="cfPreview"
       t-att-class="props.class"
       t-att-data-id="cf.id"
-      t-on-click="props.onPreviewClick"
-      t-on-pointerdown="(ev) => this.onMouseDown(ev)">
-      <div class="position-relative h-100 w-100 d-flex align-items-center">
-        <div
-          class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon">
+      t-on-click="editConditionalFormat"
+      t-on-pointerdown="(ev) => props.onMouseDown(ev)">
+      <div class="position-relative d-flex align-items-center">
+        <div class="o-cf-drag-handle position-absolute o-button-icon">
           <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
         </div>
         <t t-if="cf.rule.type==='IconSetRule'">
@@ -22,27 +21,23 @@
         </t>
         <t t-else="">
           <div
-            t-att-style="getPreviewImageStyle(cf.rule)"
+            t-att-style="previewImageStyle"
             class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2">
             123
           </div>
         </t>
         <div class="o-cf-preview-description">
-          <div class="o-cf-preview-ruletype">
-            <div class="o-cf-preview-description-rule o-fw-bold text-truncate">
-              <t t-esc="getDescription(cf)"/>
-            </div>
+          <div class="o-cf-preview-description-rule o-fw-bold text-truncate">
+            <t t-esc="description"/>
           </div>
           <div class="o-cf-preview-range text-truncate" t-esc="cf.ranges"/>
         </div>
-        <div class="o-cf-delete">
-          <div
-            class="o-cf-delete-button o-button-icon"
-            t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"
-            title="Remove rule">
-            <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
-          </div>
-        </div>
+      </div>
+      <div
+        class="o-cf-delete-button d-flex align-items-center o-button-icon px-3"
+        t-on-click.stop="deleteConditionalFormat"
+        title="Remove rule">
+        <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
       </div>
     </div>
   </t>
