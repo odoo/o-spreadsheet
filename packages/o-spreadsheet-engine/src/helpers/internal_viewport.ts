@@ -1,4 +1,10 @@
-import { FOOTER_HEIGHT } from "../constants";
+import {
+  FOOTER_HEIGHT,
+  SCROLLBAR_MIN_ADDITIONAL_HEIGHT,
+  SCROLLBAR_MIN_ADDITIONAL_WIDTH,
+  SCROLLBAR_MIN_HEIGHT,
+  SCROLLBAR_MIN_WIDTH,
+} from "../constants";
 import { Getters } from "../types/getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
@@ -7,8 +13,10 @@ import { intersection, isInside } from "./zones";
 export class InternalViewport {
   top: HeaderIndex;
   bottom: HeaderIndex;
+  maxVisitedRow: HeaderIndex;
   left: HeaderIndex;
   right: HeaderIndex;
+  maxVisitedCol: HeaderIndex;
   offsetX: Pixel;
   offsetY: Pixel;
   canScrollVertically: boolean;
@@ -33,8 +41,10 @@ export class InternalViewport {
     this.viewportHeight = sizeInGrid.width && sizeInGrid.height;
     this.top = boundaries.top;
     this.bottom = boundaries.bottom;
+    this.maxVisitedRow = 0;
     this.left = boundaries.left;
     this.right = boundaries.right;
+    this.maxVisitedCol = 0;
     this.offsetX = offsets.x;
     this.offsetY = offsets.y;
     this.canScrollVertically = options.canScrollVertically;
@@ -356,5 +366,58 @@ export class InternalViewport {
           this.getters.getColRowOffset("ROW", this.boundaries.top, Math.max(0, this.top))
       ),
     };
+  }
+
+  /** Scroll bar sizes */
+  get horizontalScrollBarSize(): number {
+    const { right: minCol } = this.getters.getSheetEvaluatedZone(this.sheetId);
+    const currentCol = this.right;
+    if (currentCol > this.maxVisitedCol) this.maxVisitedCol = currentCol;
+    const maxCol = Math.max(
+      minCol + SCROLLBAR_MIN_ADDITIONAL_WIDTH,
+      currentCol + SCROLLBAR_MIN_ADDITIONAL_WIDTH,
+      SCROLLBAR_MIN_WIDTH,
+      this.maxVisitedCol
+    );
+
+    const lastCol = this.getters.findLastVisibleColRowIndex(this.sheetId, "COL", {
+      first: this.boundaries.left,
+      last: maxCol,
+    });
+
+    const { end: lastColEnd } = this.getters.getColDimensions(this.sheetId, lastCol);
+
+    let width = lastColEnd - this.offsetCorrectionX;
+    if (this.canScrollHorizontally) {
+      width = Math.max(width, this.viewportWidth); // if the viewport grid size is smaller than its client width, return client width
+    }
+
+    return width;
+  }
+
+  get verticalScrollBarSize(): number {
+    const { bottom: minRow } = this.getters.getSheetEvaluatedZone(this.sheetId);
+    const currentRow = this.bottom;
+    if (currentRow > this.maxVisitedRow) this.maxVisitedRow = currentRow;
+    const maxRow = Math.max(
+      minRow + SCROLLBAR_MIN_ADDITIONAL_HEIGHT,
+      currentRow + SCROLLBAR_MIN_ADDITIONAL_HEIGHT,
+      SCROLLBAR_MIN_HEIGHT,
+      this.maxVisitedRow
+    );
+
+    const lastRow = this.getters.findLastVisibleColRowIndex(this.sheetId, "ROW", {
+      first: this.boundaries.top,
+      last: maxRow,
+    });
+
+    const { end: lastRowEnd } = this.getters.getRowDimensions(this.sheetId, lastRow);
+
+    let height = lastRowEnd - this.offsetCorrectionY;
+    if (this.canScrollVertically) {
+      height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client width, return client width
+    }
+
+    return height;
   }
 }

@@ -30,7 +30,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get width() {
-    return this.env.model.getters.getMainViewportRect().width;
+    return this.env.model.getters.getScrollbarSize("horizontal");
   }
 
   get isDisplayed() {
