@@ -522,9 +522,7 @@ export function removeIndexesFromArray<T>(array: readonly T[], indexes: number[]
 }
 
 export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: number): T[] {
-  const newArray = [...array];
-  newArray.splice(index, 0, ...items);
-  return newArray;
+  return array.slice(0, index).concat(items).concat(array.slice(index));
 }
 
 export function trimContent(content: string): string {
