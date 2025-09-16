@@ -6,14 +6,16 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
 import {
+  cellPositions,
   computeTextLinesHeight,
   computeTextWidth,
   formatValue,
   getCellContentHeight,
   groupConsecutive,
+  intersection,
+  isDefined,
   isEqual,
   largeMax,
-  positions,
   range,
   splitTextToWidth,
 } from "../../helpers/index";
@@ -235,8 +237,16 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
-    const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
-    const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
+    const colZone = this.getters.getColsZone(sheetId, index, index);
+    const evaluatedPos = this.getters.getEvaluatedCellsPositionInZone(sheetId, colZone);
+    // Autoresize include table filter icon
+    const tables = this.getters.getTablesOverlappingZones(sheetId, [colZone]);
+    const tablePosition = tables
+      .map((table) => intersection(table.range.zone, colZone))
+      .filter(isDefined)
+      .flatMap((zone) => cellPositions(sheetId, zone));
+
+    const sizes = evaluatedPos.concat(tablePosition).map((position) => this.getCellWidth(position));
     return Math.max(0, largeMax(sizes));
   }
 
