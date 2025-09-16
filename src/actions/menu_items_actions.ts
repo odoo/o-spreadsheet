@@ -26,10 +26,11 @@ import {
   largeMax,
   largeMin,
   numberToLetters,
+  zoneToXc,
 } from "../helpers/index";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
-import { Dimension, Format, Style } from "../types/index";
+import { ConditionalFormat, Dimension, Format, Style } from "../types/index";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------
@@ -549,7 +550,39 @@ export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(
 // Side panel
 //------------------------------------------------------------------------------
 export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
-  env.openSidePanel("ConditionalFormatting", { selection: env.model.getters.getSelectedZones() });
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zones = env.model.getters.getSelectedZones();
+  const rules = env.model.getters.getConditionalFormats(sheetId);
+  const ruleIds = Array.from(env.model.getters.getRulesSelection(sheetId, zones));
+  if (ruleIds.length === 0) {
+    const cf: Omit<ConditionalFormat, "ranges"> = {
+      id: env.model.uuidGenerator.smallUuid(),
+      rule: {
+        type: "CellIsRule",
+        operator: "isNotEmpty",
+        style: { fillColor: "#b6d7a8" },
+        values: [],
+      },
+    };
+    env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf,
+      ranges: zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone)),
+      sheetId,
+    });
+    return env.openSidePanel("ConditionalFormattingEditor", {
+      cf: {
+        ...cf,
+        ranges: zones.map((zone) => zoneToXc(env.model.getters.getUnboundedZone(sheetId, zone))),
+      },
+      isNewCf: true,
+    });
+  } else if (ruleIds.length === 1) {
+    return env.openSidePanel("ConditionalFormattingEditor", {
+      cf: rules.find((r) => r.id === ruleIds[0]),
+      isNewCf: false,
+    });
+  }
+  return env.openSidePanel("ConditionalFormatting");
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
