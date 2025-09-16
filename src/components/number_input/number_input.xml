@@ -4,7 +4,6 @@
       type="number"
       t-ref="{{refName}}"
       t-att-class="inputClass"
-      t-att-value="props.value"
       t-att-id="props.id"
       t-att-placeholder="props.placeholder"
       t-on-change="() => this.save(true)"
