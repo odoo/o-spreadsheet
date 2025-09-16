@@ -9,6 +9,7 @@ interface Props {
   figureUI: FigureUI;
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
+  isFullScreen?: boolean;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -17,6 +18,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
+    isFullScreen: { type: Boolean, optional: true },
   };
   static components = { ChartDashboardMenu };
 
