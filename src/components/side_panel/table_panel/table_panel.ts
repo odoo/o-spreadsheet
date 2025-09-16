@@ -5,6 +5,7 @@ import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } fr
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { getTableTopLeft } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { NumberInput } from "../../number_input/number_input";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
@@ -26,7 +27,14 @@ interface State {
 
 export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TablePanel";
-  static components = { TableStylePicker, SelectionInput, ValidationMessages, Checkbox, Section };
+  static components = {
+    TableStylePicker,
+    SelectionInput,
+    ValidationMessages,
+    Checkbox,
+    Section,
+    NumberInput,
+  };
   static props = { onCloseSidePanel: Function, table: Object };
 
   state!: State;
@@ -83,14 +91,9 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onChangeNumberOfHeaders(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    const numberOfHeaders = parseInt(input.value);
-    const result = this.updateNumberOfHeaders(numberOfHeaders);
-
-    if (!result.isSuccessful) {
-      input.value = this.props.table.config.numberOfHeaders.toString();
-    }
+  onChangeNumberOfHeaders(value: string) {
+    const numberOfHeaders = parseInt(value);
+    this.updateNumberOfHeaders(numberOfHeaders);
   }
 
   private updateNumberOfHeaders(numberOfHeaders: number) {
