@@ -258,6 +258,13 @@ describe("Columns", () => {
         CommandResult.InvalidSheetId
       );
     });
+
+    test("can add a huge number of columns", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const initialCols = model.getters.getNumberCols(sheetId);
+      addColumns(model, "after", "A", 1000000);
+      expect(model.getters.getNumberCols(sheetId)).toBe(1000000 + initialCols);
+    });
   });
 
   describe("Correctly update merges", () => {
@@ -988,6 +995,13 @@ describe("Rows", () => {
         width: 192, // col size + 1 DEFAULT_CELL_WIDTH for spacing
         height: 170, // sum of row sizes + 1 DEFAULT_CELL_HEIGHT  and 5px for spacing + 46px for adding rows footer
       });
+    });
+
+    test("can add a huge number of rows", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const initialRows = model.getters.getNumberRows(sheetId);
+      addRows(model, "after", 0, 1000000);
+      expect(model.getters.getNumberRows(sheetId)).toBe(1000000 + initialRows);
     });
   });
 
