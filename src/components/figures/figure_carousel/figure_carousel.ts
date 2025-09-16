@@ -6,11 +6,12 @@ import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { Store, useStore } from "../../../store_engine";
 import {
+  CSSProperties,
   Carousel,
   CarouselItem,
-  CSSProperties,
   FigureUI,
   MenuMouseEvent,
+  Rect,
   SpreadsheetChildEnv,
 } from "../../../types";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
@@ -23,6 +24,7 @@ interface Props {
   figureUI: FigureUI;
   onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
+  openContextMenu: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
 export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -31,6 +33,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
+    openContextMenu: Function,
   };
   static components = { ChartDashboardMenu, MenuPopover };
 
@@ -41,6 +44,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   private hiddenItems: CarouselItem[] = [];
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
+  private state = useState({ isMenuActive: false });
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
@@ -171,5 +175,16 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = rect;
     this.menuState.menuItems = createActions(menuItems);
+  }
+
+  openContextMenu(event: MouseEvent) {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+      this.state.isMenuActive = true;
+      this.props.openContextMenu(
+        getBoundingRectAsPOJO(target),
+        () => (this.state.isMenuActive = false)
+      );
+    }
   }
 }
