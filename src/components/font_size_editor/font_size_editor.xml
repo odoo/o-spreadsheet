@@ -15,7 +15,6 @@
           t-on-wheel.prevent.stop=""
           t-on-click.stop="props.onFocusInput"
           t-on-focus.stop="onInputFocused"
-          t-att-value="props.currentFontSize"
           t-on-change="setSizeFromInput"
           t-ref="inputFontSize"
         />
