@@ -1,6 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-FigureComponent">
-    <div class="o-figure-wrapper" t-att-style="wrapperStyle" t-ref="figureWrapper">
+    <div
+      class="o-figure-wrapper"
+      t-att-class="{'o-figure-selected': isSelected}"
+      t-att-style="wrapperStyle"
+      t-ref="figureWrapper">
       <div
         class="o-figure w-100 h-100"
         t-att-class="props.class"

@@ -1,5 +1,4 @@
 import { Component } from "@odoo/owl";
-import { ComponentsImportance } from "../../constants";
 import { Store } from "../../store_engine/store";
 import { useStore } from "../../store_engine/store_hooks";
 import { Rect, SpreadsheetChildEnv } from "../../types";
@@ -21,7 +20,6 @@ export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { Popover };
   protected cellPopovers!: Store<CellPopoverStore>;
-  zIndex = ComponentsImportance.GridPopover;
 
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);

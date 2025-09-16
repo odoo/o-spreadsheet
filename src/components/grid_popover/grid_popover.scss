@@ -1,0 +1,7 @@
+.o-spreadsheet {
+  .o-popover {
+    &.o-popover-grid-index {
+      z-index: $os-components-importance-grid-popover;
+    }
+  }
+}

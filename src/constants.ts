@@ -234,22 +234,6 @@ export const FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 export const FORMULA_REF_IDENTIFIER = "|";
 export const LOADING = "Loading...";
 
-// Components
-export enum ComponentsImportance {
-  Grid = 0,
-  Highlight = 5,
-  HeaderGroupingButton = 6,
-  Figure = 10,
-  ScrollBar = 15,
-  GridPopover = 19,
-  GridComposer = 20,
-  IconPicker = 25,
-  TopBarComposer = 30,
-  Popover = 35,
-  FigureAnchor = 1000,
-  FigureSnapLine = 1001,
-  FigureTooltip = 1002,
-}
 let DEFAULT_SHEETVIEW_SIZE = 0;
 
 export function getDefaultSheetViewSize() {

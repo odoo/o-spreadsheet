@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`link display component simple snapshot 1`] = `
-"<div class="o-popover rounded" style="z-index: 19; display: block; max-height: 962px; max-width: 985px; top: 49px; left: 48px;"><div class="o-popover-content"><div class="o-link-tool d-flex align-items-center"><!-- t-key to prevent owl from re-using the previous img element when the link changes.
+"<div class="o-popover rounded o-popover-grid-index" style="display: block; max-height: 962px; max-width: 985px; top: 49px; left: 48px;"><div class="o-popover-content"><div class="o-link-tool d-flex align-items-center"><!-- t-key to prevent owl from re-using the previous img element when the link changes.
     The wrong/previous image would be displayed while the new one loads --><img src="https://www.google.com/s2/favicons?sz=16&amp;domain=https://url.com"><a class="o-link" target="_blank" href="https://url.com" title="https://url.com">https://url.com</a><span class="o-link-icon o-unlink" title="Remove link"><div class="o-icon"><i class="fa fa-chain-broken"></i></div></span><span class="o-link-icon o-edit-link" title="Edit link"><div class="o-icon"><i class="fa fa-pencil-square-o"></i></div></span></div></div></div>"
 `;

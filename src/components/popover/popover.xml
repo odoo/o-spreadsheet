@@ -6,7 +6,6 @@
         t-att-class="props.class"
         t-ref="popover"
         t-on-wheel="props.onMouseWheel"
-        t-att-style="popoverStyle"
         t-on-click.stop="">
         <div class="o-popover-content" t-ref="popoverContent">
           <t t-slot="default"/>

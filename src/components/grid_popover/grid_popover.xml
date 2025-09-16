@@ -8,7 +8,7 @@
       anchorRect="cellPopover.anchorRect"
       containerRect="env.getPopoverContainerRect()"
       onMouseWheel="props.onMouseWheel"
-      zIndex="zIndex">
+      class="'o-popover-grid-index'">
       <t
         t-component="cellPopover.Component"
         t-props="{...cellPopover.props, onClosed : () => props.onClosePopover()}"

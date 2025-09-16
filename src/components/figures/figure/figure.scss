@@ -18,6 +18,11 @@
     position: absolute;
     box-sizing: content-box;
     pointer-events: auto;
+    z-index: $os-components-importance-figure;
+
+    &.o-figure-selected {
+      z-index: $os-components-importance-figure-selected;
+    }
 
     .o-fig-anchor {
       z-index: $os-components-importance-figure-anchor;
