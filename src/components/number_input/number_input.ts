@@ -1,6 +1,5 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
-import { isDefined } from "../../helpers";
 import { GenericInput } from "../generic_input/generic_input";
 
 interface Props {
@@ -10,13 +9,13 @@ interface Props {
   id?: string;
   placeholder?: string;
   autofocus?: boolean;
-  alwaysShowBorder?: boolean;
 }
-export class TextInput extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-TextInput";
+
+export class NumberInput extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-NumberInput";
   static components = { GenericInput };
   static props = {
-    value: String,
+    value: Number,
     onChange: Function,
     class: {
       type: String,
@@ -34,16 +33,11 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       type: Boolean,
       optional: true,
     },
-    alwaysShowBorder: { type: Boolean, optional: true },
+    min: { type: Number, optional: true },
+    max: { type: Number, optional: true },
   };
 
   get inputClass(): string {
-    return [
-      this.props.class,
-      "w-100 os-input",
-      this.props.alwaysShowBorder ? "o-input-border" : undefined,
-    ]
-      .filter(isDefined)
-      .join(" ");
+    return [this.props.class, "o-input"].join(" ");
   }
 }

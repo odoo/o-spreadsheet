@@ -11,12 +11,12 @@
                 value="tableConfig.numberOfHeaders > 0"
                 onChange.bind="this.updateHasHeaders"
               />
-              <input
+              <NumberInput
                 t-if="tableConfig.numberOfHeaders > 0"
-                t-att-value="tableConfig.numberOfHeaders"
-                type="number"
-                class="o-table-n-of-headers ms-2 o-input"
-                t-on-change="onChangeNumberOfHeaders"
+                value="tableConfig.numberOfHeaders"
+                class="'o-table-n-of-headers ms-2 o-input'"
+                min="0"
+                onChange.bind="onChangeNumberOfHeaders"
               />
             </div>
             <Checkbox
