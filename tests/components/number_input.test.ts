@@ -7,9 +7,10 @@ import {
   setInputValueAndTrigger,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { mountComponent } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
+let parent: Component;
 type Props = NumberInput["props"];
 
 class NumberInputContainer extends Component<Props, SpreadsheetChildEnv> {
@@ -23,7 +24,7 @@ class NumberInputContainer extends Component<Props, SpreadsheetChildEnv> {
 }
 
 async function mountNumberInput(props: Props) {
-  ({ fixture } = await mountComponent(NumberInputContainer, { props }));
+  ({ fixture, parent } = await mountComponent(NumberInputContainer, { props }));
 }
 
 describe("NumberInput", () => {
@@ -103,5 +104,18 @@ describe("NumberInput", () => {
   test("Can autofocus the input", async () => {
     await mountNumberInput({ value: 5, onChange: () => {}, autofocus: true });
     expect(fixture.querySelector("input")).toEqual(document.activeElement);
+  });
+
+  test("Input is preserved while in edition", async () => {
+    const onChange = jest.fn();
+    await mountNumberInput({ value: 45, onChange });
+    const input = fixture.querySelector("input")! as HTMLInputElement;
+    expect(input.value).toEqual("45");
+    // focus the input and change its value
+    input.focus();
+    input.value = "12";
+    parent.render(true);
+    await nextTick();
+    expect(input.value).toEqual("12");
   });
 });
