@@ -1,10 +1,5 @@
 import { Component } from "@odoo/owl";
-import {
-  ComponentsImportance,
-  DESKTOP_TOPBAR_TOOLBAR_HEIGHT,
-  SELECTION_BORDER_COLOR,
-  SEPARATOR_COLOR,
-} from "../../../constants";
+import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
 import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -61,19 +56,6 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
     };
     style.height = this.focus === "inactive" ? `${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";
     return cssPropertiesToCss(style);
-  }
-
-  get containerStyle(): string {
-    if (this.focus === "inactive") {
-      return cssPropertiesToCss({
-        "border-color": SEPARATOR_COLOR,
-        "border-right": "none",
-      });
-    }
-    return cssPropertiesToCss({
-      "border-color": SELECTION_BORDER_COLOR,
-      "z-index": String(ComponentsImportance.TopBarComposer),
-    });
   }
 
   onFocus(selection: ComposerSelection) {

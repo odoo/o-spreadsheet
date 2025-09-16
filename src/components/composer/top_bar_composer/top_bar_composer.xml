@@ -5,9 +5,10 @@
         class="o-topbar-composer position-relative bg-white user-select-text d-flex"
         t-att-class="{
           'o-topbar-composer-readonly': env.model.getters.isReadonly(),
+          'o-topbar-composer-active': focus !== 'inactive',
+          'o-topbar-composer-inactive': focus === 'inactive',
         }"
-        t-on-click.stop=""
-        t-att-style="containerStyle">
+        t-on-click.stop="">
         <Composer
           focus="focus"
           inputStyle="composerStyle"

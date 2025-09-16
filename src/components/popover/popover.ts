@@ -1,9 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
-import { ComponentsImportance } from "../../constants";
 import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 import { CSSProperties } from "./../../types/misc";
 
@@ -30,9 +28,6 @@ export interface PopoverProps {
   onPopoverMoved?: () => void;
   onPopoverHidden?: () => void;
 
-  /** Setting popover to allow dynamic zIndex */
-  zIndex?: Number;
-
   class?: string;
 }
 
@@ -58,7 +53,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onMouseWheel: () => {},
     onPopoverMoved: () => {},
     onPopoverHidden: () => {},
-    zIndex: ComponentsImportance.Popover,
   };
 
   private popoverRef = useRef("popover");
@@ -83,12 +77,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     // useEffect occurs after the DOM is created and the element width/height are computed, but before
     // the element in rendered, so we can still set its position
     useEffect(this.computePopoverPosition.bind(this));
-  }
-
-  get popoverStyle(): string {
-    return cssPropertiesToCss({
-      "z-index": `${this.props.zIndex}`,
-    });
   }
 
   private computePopoverPosition() {

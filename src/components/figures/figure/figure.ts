@@ -1,9 +1,5 @@
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import {
-  ComponentsImportance,
-  FIGURE_BORDER_COLOR,
-  SELECTION_BORDER_COLOR,
-} from "../../../constants";
+import { FIGURE_BORDER_COLOR, SELECTION_BORDER_COLOR } from "../../../constants";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
@@ -96,7 +92,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       top: `${y}px`,
       width: `${width}px`,
       height: `${height}px`,
-      "z-index": String(ComponentsImportance.Figure + (this.isSelected ? 1 : 0)),
     });
   }
 

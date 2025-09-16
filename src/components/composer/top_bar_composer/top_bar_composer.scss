@@ -10,6 +10,16 @@
     border: 1px solid;
     font-family: $os-default-font;
 
+    &.o-topbar-composer-inactive {
+      border-color: $os-separator-color;
+      border-right: none;
+    }
+
+    &.o-topbar-composer-active {
+      border-color: $os-selection-border-color;
+      z-index: $os-components-importance-top-bar-composer;
+    }
+
     /* In readonly we always show the fx icon if the composer is empty, not matter the focus */
     .o-composer:empty:not(:focus):not(.active)::before,
     &.o-topbar-composer-readonly .o-composer:empty::before {
