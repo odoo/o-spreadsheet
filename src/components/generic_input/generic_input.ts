@@ -1,7 +1,7 @@
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component, onMounted, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
 import { Ref } from "../../types";
 import { useAutofocus } from "../helpers/autofocus_hook";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
 export interface GenericInputProps {
   value: string | number;
@@ -43,6 +43,14 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     if (this.props.autofocus) {
       useAutofocus({ refName: this.refName });
     }
+    onWillUpdateProps((nextProps) => {
+      if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
+        this.inputRef.el.value = nextProps.value;
+      }
+    });
+    onMounted(() => {
+      if (this.inputRef.el) this.inputRef.el.value = this.props.value.toString();
+    });
   }
 
   onKeyDown(ev: KeyboardEvent) {
