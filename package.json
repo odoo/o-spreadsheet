@@ -59,7 +59,8 @@
     "@prettier/plugin-xml": "^2.2.0",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "@swc/jest": "^0.2.36",
+    "@swc/jest": "0.2.36",
+    "@swc/core": "1.6.7",
     "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
     "@types/rbush": "^3.0.3",
@@ -91,6 +92,18 @@
     "seedrandom": "^3.0.5",
     "typescript": "^5.4.3",
     "xml-formatter": "^2.4.0"
+  },
+  "optionalDependencies": {
+    "@swc/core-darwin-arm64": "1.6.7",
+    "@swc/core-darwin-x64": "1.6.7",
+    "@swc/core-linux-arm-gnueabihf": "1.6.7",
+    "@swc/core-linux-arm64-gnu": "1.6.7",
+    "@swc/core-linux-arm64-musl": "1.6.7",
+    "@swc/core-linux-x64-gnu": "1.6.7",
+    "@swc/core-linux-x64-musl": "1.6.7",
+    "@swc/core-win32-arm64-msvc": "1.6.7",
+    "@swc/core-win32-ia32-msvc": "1.6.7",
+    "@swc/core-win32-x64-msvc": "1.6.7"
   },
   "prettier": {
     "printWidth": 100,
