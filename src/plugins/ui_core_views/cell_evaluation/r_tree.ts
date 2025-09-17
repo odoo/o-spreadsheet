@@ -1,7 +1,7 @@
 import RBush from "rbush";
 
 import { recomputeZones } from "../../../helpers";
-import { deepEqualsArray } from "../../../helpers/misc";
+import { deepEquals, deepEqualsArray } from "../../../helpers/misc";
 import { UID, Zone } from "../../../types";
 
 /**
@@ -109,7 +109,19 @@ export class SpreadsheetRTree<T> {
     if (!this.rTrees[sheetId]) {
       this.rTrees[sheetId] = new ZoneRBush();
     }
-    this.rTrees[sheetId].insert({ ...item, data: [item.data] });
+    const { zone } = item.boundingBox;
+    const data = this.rTrees[sheetId].search({
+      minX: zone.left,
+      minY: zone.top,
+      maxX: zone.right,
+      maxY: zone.bottom,
+    });
+    const exactBoundingBox = data.find((d) => deepEquals(d.boundingBox, item.boundingBox));
+    if (exactBoundingBox) {
+      exactBoundingBox.data.push(item.data);
+    } else {
+      this.rTrees[sheetId].insert({ ...item, data: [item.data] });
+    }
   }
 
   search({ zone, sheetId }: RTreeBoundingBox): T[] {

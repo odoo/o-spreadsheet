@@ -178,7 +178,7 @@ export function modifyProfiles<T extends Zone | UnboundedZone>( // export for te
   }
 }
 
-function findIndexAndCreateProfile(
+export function findIndexAndCreateProfile(
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>,
   value: number | undefined,
@@ -394,3 +394,74 @@ function binarySuccessorSearch(arr: number[], val: number, start = 0, matchEqual
   }
   return result;
 }
+
+export class ZoneSet {
+  private profilesStartingPosition: number[] = [0];
+  private profiles = new Map<number, number[]>([[0, []]]);
+
+  add(zone: Zone) {
+    modifyProfiles(this.profilesStartingPosition, this.profiles, [zone]);
+  }
+
+  has(zone: Zone): boolean {
+    const leftValue = zone.left;
+    const rightValue = zone.right === undefined ? undefined : zone.right + 1;
+    const topValue = zone.top;
+    const bottomValue = zone.bottom === undefined ? undefined : zone.bottom + 1;
+    const leftIndex = binaryPredecessorSearch(this.profilesStartingPosition, leftValue, 0);
+    const rightIndex =
+      rightValue === undefined
+        ? this.profilesStartingPosition.length - 1
+        : binaryPredecessorSearch(this.profilesStartingPosition, rightValue, leftIndex) - 1;
+    if (leftIndex === -1 || rightIndex === -1 || leftIndex > rightIndex) {
+      return false;
+    }
+
+    // +1 is dangerous
+    if (this.profilesStartingPosition[rightIndex + 1] < (rightValue ?? Infinity)) {
+      return false;
+    }
+    // if (rightValue !== undefined && this.profilesStartingPosition[leftIndex] > leftValue) {
+    //   return false;
+    // }
+    for (let i = leftIndex; i <= rightIndex; i++) {
+      const profile = this.profiles.get(this.profilesStartingPosition[i])!;
+      const topPredIndex = binaryPredecessorSearch(profile, topValue, 0, true);
+      const bottomSuccIndex = binarySuccessorSearch(profile, bottomValue!, 0, true);
+      if (topPredIndex === -1 || topPredIndex % 2 !== 0) {
+        // if (topPredIndex === -1 || bottomSuccIndex === profile.length) {
+        return false;
+      }
+      if (topValue < profile[topPredIndex] || bottomValue! > profile[bottomSuccIndex]) {
+        return false;
+      }
+      console.log(profile, topPredIndex, bottomSuccIndex);
+    }
+    return true;
+  }
+}
+
+/**
+
+Based on research and previous work on data structures for spatial data,
+Build a new data structure in javascript as collection Zones.
+A zone is defined by its top, left, bottom and right coordinates.
+This data structure is a collection that contains no duplicate zones (like a set)
+The data structures allows to quickly add a new zone and check if a zone is present.
+It should also allow to quickly find if a zone is part of a bigger zone in the collection.
+Operations of adding and lookups should be in O(log(n)) or better. It should minimize memory usage
+and avoid memory allocation as much as possible (for lookup specifically).
+
+*/
+// interface ZoneSet {
+//   /**
+//    * add a zone to the collection. If the zone is already present, do nothing.
+//    */
+//   add(zone: Zone): void;
+
+//   /**
+//    * check if a zone is present in the collection of if the zone
+//    * is contained within a zone present in the collection.
+//    */
+//   has(zone: Zone): boolean;
+// }
