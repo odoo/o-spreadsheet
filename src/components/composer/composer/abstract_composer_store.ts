@@ -103,7 +103,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     });
   }
   protected abstract confirmEdition(content: string): void;
-  protected abstract getComposerContent(position: CellPosition): string;
+  protected abstract getComposerContent(
+    position: CellPosition,
+    selection?: ComposerSelection
+  ): { content: string; adjustedSelection?: ComposerSelection };
 
   abstract stopEdition(direction?: Direction): void;
 
@@ -150,13 +153,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   startEdition(text?: string, selection?: ComposerSelection) {
-    if (selection) {
-      const content = text || this.getComposerContent(this.getters.getActivePosition());
-      const validSelection = this.isSelectionValid(content.length, selection.start, selection.end);
-      if (!validSelection) {
-        return;
-      }
-    }
     const { col, row } = this.getters.getActivePosition();
     this.model.dispatch("SELECT_FIGURE", { figureId: null });
     this.model.dispatch("SCROLL_TO_CELL", { col, row });
@@ -220,7 +216,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   get currentContent(): string {
     if (this.editionMode === "inactive") {
-      return this.getComposerContent(this.getters.getActivePosition());
+      return this.getComposerContent(this.getters.getActivePosition()).content;
     }
     return this._currentContent;
   }
@@ -447,8 +443,12 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.sheetId = sheetId;
     this.row = row;
     this.editionMode = "editing";
-    this.initialContent = this.getComposerContent({ sheetId, col, row });
-    this.setContent(str || this.initialContent, selection);
+    const { content, adjustedSelection } = this.getComposerContent(
+      { sheetId, col, row },
+      selection
+    );
+    this.initialContent = content;
+    this.setContent(str || this.initialContent, adjustedSelection ?? selection);
     this.colorIndexByRange = {};
     const zone = positionToZone({ col: this.col, row: this.row });
     this.captureSelection(zone, col, row);
