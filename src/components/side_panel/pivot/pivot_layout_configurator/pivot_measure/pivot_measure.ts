@@ -1,7 +1,12 @@
 import { Component } from "@odoo/owl";
+<<<<<<< ddd275d642bab942fcf31758e48eeb64a3784fbe
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { Token } from "../../../../../formulas";
 import { unquote } from "../../../../../helpers";
+||||||| 81a876010b52aafbaa99347954c6f5448d0536a3
+=======
+import { compile } from "../../../../../formulas";
+>>>>>>> a5e0bfbf8b11b1a55469e24160a4caf7f87d3e4b
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { Color, PivotMeasure } from "../../../../../types";
@@ -103,6 +108,6 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   get isCalculatedMeasureInvalid(): boolean {
-    return this.env.model.getters.getMeasureCompiledFormula(this.props.measure).isBadExpression;
+    return compile(this.props.measure.computedBy?.formula ?? "").isBadExpression;
   }
 }
