@@ -85,9 +85,10 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       },
       focus: this.focus,
       composerStore: this.composerStore,
-      onComposerContentFocused: () =>
+      onComposerContentFocused: (selection) =>
         this.composerFocusStore.focusComposer(this.composerInterface, {
           focusMode: "contentFocus",
+          selection,
         }),
       isDefaultFocus: false,
       inputStyle: cssPropertiesToCss({
