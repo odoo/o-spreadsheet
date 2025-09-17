@@ -29,7 +29,7 @@ import {
   RemoveColumnsRowsCommand,
   isMatrix,
 } from "../../../types";
-import { AbstractComposerStore } from "./abstract_composer_store";
+import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
 
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
@@ -201,39 +201,66 @@ export class CellComposerStore extends AbstractComposerStore {
     this.setContent("");
   }
 
-  protected getComposerContent(position: CellPosition): string {
+  protected getComposerContent(
+    position: CellPosition,
+    selection?: ComposerSelection
+  ): { text: string; adjustedSelection?: ComposerSelection } {
     const locale = this.getters.getLocale();
     const cell = this.getters.getCell(position);
     if (cell?.isFormula) {
       const prettifiedContent = this.getPrettifiedFormula(cell);
-      return localizeFormula(prettifiedContent, locale);
+      // when a formula is prettified (multi lines, indented), adapt the cursor position
+      // to take into account line breaks and tabs
+      function adjustCursorIndex(targetIndex: number): number {
+        let adjustedIndex = 0;
+        let originalIndex = 0;
+        while (originalIndex < targetIndex) {
+          adjustedIndex++;
+          const char = prettifiedContent[adjustedIndex];
+          if (char !== "\n" && char !== "\t") {
+            originalIndex++;
+          }
+        }
+        return adjustedIndex;
+      }
+      let adjustedSelection = selection;
+      if (selection) {
+        adjustedSelection = {
+          start: adjustCursorIndex(selection.start),
+          end: adjustCursorIndex(selection.end),
+        };
+      }
+      return {
+        text: localizeFormula(prettifiedContent, locale),
+        adjustedSelection,
+      };
     }
     const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
     if (spreader) {
-      return "";
+      return { text: "" };
     }
     const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
     switch (type) {
       case CellValueType.empty:
-        return "";
+        return { text: "" };
       case CellValueType.text:
       case CellValueType.error:
-        return value;
+        return { text: value };
       case CellValueType.boolean:
-        return formattedValue;
+        return { text: formattedValue };
       case CellValueType.number:
         if (format && isDateTimeFormat(format)) {
           if (parseDateTime(formattedValue, locale) !== null) {
             // formatted string can be parsed again
-            return formattedValue;
+            return { text: formattedValue };
           }
           // display a simplified and parsable string otherwise
           const timeFormat = Number.isInteger(value)
             ? locale.dateFormat
             : getDateTimeFormat(locale);
-          return formatValue(value, { locale, format: timeFormat });
+          return { text: formatValue(value, { locale, format: timeFormat }) };
         }
-        return this.numberComposerContent(value, format, locale);
+        return { text: this.numberComposerContent(value, format, locale) };
     }
   }
 
