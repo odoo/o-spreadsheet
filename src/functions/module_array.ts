@@ -62,12 +62,8 @@ export const CHOOSECOLS = {
   args: [
     arg("array (any, range<any>)", _t("The array that contains the columns to be returned.")),
     arg(
-      "col_num (number, range<number>)",
-      _t("The first column index of the columns to be returned.")
-    ),
-    arg(
-      "col_num2 (number, range<number>, repeating)",
-      _t("The columns indexes of the columns to be returned.")
+      "col_num (number, range<number>, repeating)",
+      _t("The column index of the column to be returned.")
     ),
   ],
   compute: function (array: Arg, ...columns: Arg[]) {
@@ -107,10 +103,9 @@ export const CHOOSEROWS = {
   description: _t("Creates a new array from the selected rows in the existing range."),
   args: [
     arg("array (any, range<any>)", _t("The array that contains the rows to be returned.")),
-    arg("row_num (number, range<number>)", _t("The first row index of the rows to be returned.")),
     arg(
-      "row_num2 (number, range<number>, repeating)",
-      _t("The rows indexes of the rows to be returned.")
+      "row_num (number, range<number>, repeating)",
+      _t("The row index of the row to be returned.")
     ),
   ],
   compute: function (array: Arg, ...rows: Arg[]) {
@@ -198,10 +193,7 @@ export const EXPAND = {
 // -----------------------------------------------------------------------------
 export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
-  args: [
-    arg("range (any, range<any>)", _t("The first range to flatten.")),
-    arg("range2 (any, range<any>, repeating)", _t("Additional ranges to flatten.")),
-  ],
+  args: [arg("range (any, range<any>, repeating)", _t("The range to flatten."))],
   compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
@@ -273,10 +265,7 @@ export const FREQUENCY = {
 // -----------------------------------------------------------------------------
 export const HSTACK = {
   description: _t("Appends ranges horizontally and in sequence to return a larger array."),
-  args: [
-    arg("range1 (any, range<any>)", _t("The first range to be appended.")),
-    arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
-  ],
+  args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
   compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     const nbRows = Math.max(...ranges.map((r) => r?.[0]?.length ?? 0));
 
@@ -402,15 +391,9 @@ export const SUMPRODUCT = {
   ),
   args: [
     arg(
-      "range1 (number, range<number>)",
+      "range (number, range<number>, repeating)",
       _t(
-        "The first range whose entries will be multiplied with corresponding entries in the other ranges."
-      )
-    ),
-    arg(
-      "range2 (number, range<number>, repeating)",
-      _t(
-        "The other range whose entries will be multiplied with corresponding entries in the other ranges."
+        "The range whose entries will be multiplied with corresponding entries in the other range."
       )
     ),
   ],
@@ -667,10 +650,7 @@ export const TRANSPOSE = {
 // -----------------------------------------------------------------------------
 export const VSTACK = {
   description: _t("Appends ranges vertically and in sequence to return a larger array."),
-  args: [
-    arg("range1 (any, range<any>)", _t("The first range to be appended.")),
-    arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
-  ],
+  args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
   compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     const nbColumns = Math.max(...ranges.map((range) => toMatrix(range).length));
     const nbRows = ranges.reduce((acc, range) => acc + toMatrix(range)[0].length, 0);

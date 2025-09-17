@@ -5,21 +5,12 @@
       <div class="o-formula-assistant" t-if="context.functionDescription.name">
         <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
           <div>
-            <span t-esc="context.functionDescription.name"/>
-            (
-            <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
-              <span t-if="arg_index > '0'" t-esc="formulaArgSeparator"/>
+            <t t-foreach="formulaHeaderContent" t-as="part" t-key="part_index">
               <span
-                t-att-class="{ 'o-formula-assistant-focus': context.argsToFocus.includes(arg_index) }">
-                <span>
-                  <span t-if="arg.optional || arg.repeating || arg.default">[</span>
-                  <span t-esc="arg.name"/>
-                  <span t-if="arg.repeating">, ...</span>
-                  <span t-if="arg.optional || arg.repeating || arg.default">]</span>
-                </span>
-              </span>
+                t-esc="part.content"
+                t-att-class="part.focused ? 'o-formula-assistant-focus' : ''"
+              />
             </t>
-            )
           </div>
           <div
             class="collapsor px-2 d-flex align-items-center rounded"
@@ -37,22 +28,29 @@
             <div t-esc="context.functionDescription.description"/>
           </div>
 
+          <t
+            t-set="firstRepeatableGroupOptional"
+            t-value="context.functionDescription.args.some(arg => arg.repeating and arg.optional)"
+          />
+
           <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
             <div
               class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column"
-              t-att-class="{
-                  'o-formula-assistant-gray': context.argsToFocus.length > 0,
-                  'o-formula-assistant-focus': context.argsToFocus.includes(arg_index),
-                }">
-              <div>
-                <span t-esc="arg.name"/>
+              t-att-class="{'o-formula-assistant-gray': context.argsToFocus.length > 0}">
+              <div
+                t-att-class="{'o-formula-assistant-focus': context.argsToFocus.includes(arg_index)}">
+                <span t-if="arg.repeating">
+                  <span t-esc="arg.name + (context.repeatingArgGroupIndex + 1)"/>
+                </span>
+                <span t-if="!arg.repeating">
+                  <span t-esc="arg.name"/>
+                </span>
                 <span
-                  t-if="arg.optional || arg.repeating || arg.default ">&#xA0;- [optional]&#xA0;</span>
+                  t-if="arg.optional || arg.default || (arg.repeating and (firstRepeatableGroupOptional or context.repeatingArgGroupIndex > 0))">&#xA0;- [optional]&#xA0;</span>
                 <span t-if="arg.default">
                   <span>default:&#xA0;</span>
                   <t t-esc="arg.defaultValue"/>
                 </span>
-                <span t-if="arg.repeating">repeatable</span>
               </div>
               <div class="o-formula-assistant-arg-description" t-esc="arg.description"/>
             </div>
