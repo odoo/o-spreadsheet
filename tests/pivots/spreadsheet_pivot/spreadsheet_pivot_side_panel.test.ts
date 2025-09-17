@@ -421,6 +421,20 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
   });
 
+  test("can add a calculated measure with defer update", async () => {
+    await click(fixture.querySelector(".pivot-defer-update input")!);
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    await click(fixture, ".add-calculated-measure");
+
+    await editStandaloneComposer(".pivot-dimension .o-composer", "=1+");
+    await click(fixture.querySelector(".sp_apply_update")!);
+    expect(".o-standalone-composer.o-invalid").toHaveCount(1);
+
+    await editStandaloneComposer(".pivot-dimension .o-composer", "=1+1");
+    await click(fixture.querySelector(".sp_apply_update")!);
+    expect(model.getters.getPivotCoreDefinition("1").measures[0].computedBy?.formula).toBe("=1+1");
+  });
+
   test("filter unsupported measures", async () => {
     setCellContent(model, "A1", "integer");
     setCellContent(model, "A2", "10");
