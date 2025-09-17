@@ -28,6 +28,7 @@ import {
   click,
   doubleClick,
   getElComputedStyle,
+  getTextNodes,
   simulateClick,
   triggerMouseEvent,
 } from "./test_helpers/dom_helper";
@@ -35,6 +36,7 @@ import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_h
 import {
   addToRegistry,
   getFigureIds,
+  getInputSelection,
   getNode,
   mountComponent,
   mountSpreadsheet,
@@ -979,6 +981,34 @@ test("The composer helper should be closed on toggle topbar context menu", async
   await simulateClick(".o-topbar-topleft .o-topbar-menu");
   expect(composerStore.editionMode).toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
+});
+
+test("prettified formula should have the cursor", async () => {
+  const { model } = await mountSpreadsheet();
+
+  // I'll set the cursor in between the fours
+  const firstPart = "=SUM(11111111, 22222222, 33333333, 4444";
+  const secondPart = "4444, 55555555, 66666666, 77777777, 88888888)";
+  setCellContent(model, "A1", firstPart + secondPart);
+  await nextTick();
+  const composerEl: HTMLElement = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
+  composerEl.focus();
+  triggerMouseEvent(composerEl, "pointerdown");
+  const selection = document.getSelection()!;
+  const range = document.createRange();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  const textNode = getTextNodes(composerEl)[0];
+  range.setStart(textNode, firstPart.length);
+  range.setEnd(textNode, firstPart.length);
+
+  await nextTick();
+  triggerMouseEvent(composerEl, "pointerup");
+  await nextTick();
+  triggerMouseEvent(composerEl, "click");
+  await nextTick();
+  expect(getInputSelection().anchorNodeText).toBe("44444444");
+  expect(getInputSelection().anchorOffset).toBe(4);
 });
 
 test("The menu items are orderer by their sequence", async () => {
