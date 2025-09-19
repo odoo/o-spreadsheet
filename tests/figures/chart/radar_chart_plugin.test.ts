@@ -148,6 +148,17 @@ describe("radar chart", () => {
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.suggestedMin).toBe(-8);
   });
+
+  test("Radar chart point labels are truncated properly", () => {
+    const model = new Model();
+    createRadarChart(model, { dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    const callback = (runtime.chartJsConfig.options?.scales?.r as any)?.pointLabels
+      ?.callback as Function;
+
+    expect(callback("short", 0)).toBe("short");
+    expect(callback("very very long label of radar", 1)).toBe("very very long label…");
+  });
 });
 
 test("Humanization is taken into account for the axis ticks of a radar chart", async () => {
