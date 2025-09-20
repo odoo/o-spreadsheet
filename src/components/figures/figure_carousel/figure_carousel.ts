@@ -103,11 +103,11 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
   get headerStyle(): string {
     const cssProperties: CSSProperties = {};
-    if (this.selectedCarouselItem?.type === "carouselDataView") {
-      cssProperties["background-color"] = "#ffffff";
-    } else if (this.selectedCarouselItem?.type === "chart") {
+    if (this.selectedCarouselItem?.type === "chart") {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
       cssProperties["background-color"] = chart.background;
+    } else {
+      cssProperties["background-color"] = "#ffffff";
     }
     return cssPropertiesToCss(cssProperties);
   }
