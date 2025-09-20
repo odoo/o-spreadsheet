@@ -16,7 +16,7 @@
           t-att-style="titleStyle"
         />
         <div class="o-carousel-tabs d-flex flex-fill justify-content-end" t-ref="carouselTabs">
-          <t t-foreach="carousel.items" t-as="item" t-key="item_index">
+          <t t-foreach="visibleCarouselItems" t-as="item" t-key="item_index">
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
               t-att-class="{ 'selected': isItemSelected(item) }"
@@ -26,7 +26,7 @@
           </t>
         </div>
         <div
-          class="o-carousel-tabs-dropdown flex-shrink-0 rounded"
+          class="o-carousel-tabs-dropdown o-carousel-button flex-shrink-0 rounded p-1"
           t-att-class="{'active': menuState.isOpen}"
           t-ref="carouselTabsDropdown"
           t-on-click="toggleMenu">
@@ -40,6 +40,17 @@
             popoverPositioning="'bottom-left'"
           />
         </div>
+        <div
+          t-if="env.isDashboard()"
+          t-att-title="fullScreenButtonTitle"
+          class="o-carousel-full-screen-button fa o-carousel-button rounded p-1 ms-1"
+          t-att-class="{
+            'fa-compress': props.isFullScreen,
+            'fa-expand': !props.isFullScreen,
+            'invisible': selectedCarouselItem?.type !== 'chart',
+          }"
+          t-on-click="toggleFullScreen"
+        />
       </div>
       <div
         t-if="!selectedItem"
@@ -53,12 +64,14 @@
           <t
             t-component="chartComponent"
             chartId="selectedItem.chartId"
+            isFullScreen="props.isFullScreen"
             t-key="selectedItem.chartId"
           />
         </div>
         <ChartDashboardMenu
           t-if="env.isDashboard()"
           chartId="selectedItem.chartId"
+          hasFullScreenButton="false"
           t-key="selectedItem.chartId"
         />
       </div>

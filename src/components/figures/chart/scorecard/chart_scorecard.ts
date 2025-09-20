@@ -6,12 +6,14 @@ import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 
 interface Props {
   chartId: UID;
+  isFullScreen?: Boolean;
 }
 
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
   static props = {
     chartId: String,
+    isFullScreen: { type: Boolean, optional: true },
   };
   private canvas = useRef("chartContainer");
 

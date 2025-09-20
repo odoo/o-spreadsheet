@@ -25,9 +25,9 @@ describe("chart menu for dashboard", () => {
     model.updateMode("dashboard");
     await nextTick();
 
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(0);
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(1);
+    expect(".o-fullscreen-figure").toHaveCount(1);
   });
 
   test("Expand icon changes to collapse in full screen", async () => {
@@ -36,10 +36,10 @@ describe("chart menu for dashboard", () => {
     await nextTick();
 
     expect(".o-figure .fa-expand").toHaveCount(1);
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(0);
 
     await click(fixture, ".o-figure .fa-expand");
-    expect(".o-fullscreen-chart").toHaveCount(1);
+    expect(".o-fullscreen-figure").toHaveCount(1);
     expect(".o-figure .fa-compress").toHaveCount(2); // One in the original chart, one in the full screen overlay
   });
 
@@ -48,7 +48,7 @@ describe("chart menu for dashboard", () => {
     model.updateMode("dashboard");
     await nextTick();
 
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(0);
     expect(".o-figure [data-id='fullScreenChart']").toHaveCount(0);
   });
 
@@ -59,27 +59,27 @@ describe("chart menu for dashboard", () => {
 
     // Click fullscreen menu item
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(1);
-    await click(fixture, ".o-fullscreen-chart [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(1);
+    await click(fixture, ".o-fullscreen-figure [data-id='fullScreenChart']");
+    expect(".o-fullscreen-figure").toHaveCount(0);
 
     // Click outside of the chart in the full screen overlay
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(1);
-    await click(fixture, ".o-fullscreen-chart-overlay > div:first-child");
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(1);
+    await click(fixture, ".o-fullscreen-figure-overlay > div:first-child");
+    expect(".o-fullscreen-figure").toHaveCount(0);
 
     // Click the exit button in the full screen overlay
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(1);
-    await click(fixture, ".o-fullscreen-chart-overlay button.o-exit");
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(1);
+    await click(fixture, ".o-fullscreen-figure-overlay button.o-exit");
+    expect(".o-fullscreen-figure").toHaveCount(0);
 
     // Press escape key
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(1);
+    expect(".o-fullscreen-figure").toHaveCount(1);
     await keyDown({ key: "Escape" });
-    expect(".o-fullscreen-chart").toHaveCount(0);
+    expect(".o-fullscreen-figure").toHaveCount(0);
   });
 
   test("Keeps fullscreen open when pointerdown is inside and pointerup is outside", async () => {
@@ -88,10 +88,10 @@ describe("chart menu for dashboard", () => {
     await nextTick();
 
     await click(fixture, ".o-figure [data-id='fullScreenChart']");
-    expect(".o-fullscreen-chart").toHaveCount(1);
+    expect(".o-fullscreen-figure").toHaveCount(1);
 
-    const chart = fixture.querySelector(".o-fullscreen-chart")!;
-    const overlay = fixture.querySelector(".o-fullscreen-chart-overlay")!;
+    const chart = fixture.querySelector(".o-fullscreen-figure")!;
+    const overlay = fixture.querySelector(".o-fullscreen-figure-overlay")!;
     expect(chart).not.toBeNull();
     expect(overlay).not.toBeNull();
 
@@ -101,6 +101,6 @@ describe("chart menu for dashboard", () => {
     triggerMouseEvent(overlay, "click");
     await nextTick();
 
-    expect(".o-fullscreen-chart").toHaveCount(1);
+    expect(".o-fullscreen-figure").toHaveCount(1);
   });
 });
