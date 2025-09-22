@@ -4,11 +4,10 @@
       color: black;
     }
     .o-format-examples {
-      background: #f9fafb;
+      background: var(--os-gray-100);
       padding: 8px;
       border-radius: 4px;
-      border: 1px solid #d8dadd;
-      color: #374151;
+      border: 1px solid var(--os-gray-300);
     }
     table {
       table-layout: fixed;

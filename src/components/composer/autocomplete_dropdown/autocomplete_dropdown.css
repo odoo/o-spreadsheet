@@ -6,7 +6,7 @@
     max-width: 400px;
     z-index: 1;
     .o-autocomplete-value-focus {
-      background-color: #f2f2f2;
+      background-color: var(--os-composer-assistant-background);
     }
     & > div {
       padding: 1px 5px 5px 5px;

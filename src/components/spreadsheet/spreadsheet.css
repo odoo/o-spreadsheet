@@ -7,7 +7,7 @@
 
   &.o-spreadsheet-mobile .o-spreadsheet-topbar-wrapper,
   .o-spreadsheet-bottombar-wrapper {
-    box-shadow: 0 0 3px 1px lightgray;
+    box-shadow: 0 0 3px 1px var(--os-gray-400);
   }
   .o-spreadsheet-bottombar-wrapper {
     overscroll-behavior: none;
@@ -154,8 +154,8 @@
 
     > canvas {
       box-sizing: content-box;
-      border-bottom: 1px solid #e2e3e3;
-      border-right: 1px solid #e2e3e3;
+      border-bottom: 1px solid var(--os-grid-border-color);
+      border-right: 1px solid var(--os-grid-border-color);
     }
 
     .o-grid-overlay {

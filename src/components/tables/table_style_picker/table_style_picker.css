@@ -7,7 +7,7 @@
       border-left: 1px solid var(--os-gray-300);
 
       &:hover {
-        background: #f5f5f5;
+        background: var(--os-button-hover-bg);
         cursor: pointer;
       }
     }

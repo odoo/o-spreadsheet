@@ -43,18 +43,22 @@
         <div t-if="!env.isDashboard()" class="position-absolute top-0 start-0 pe-none w-100 h-100">
           <div
             class="o-figure-border pe-auto w-100 h-0 position-absolute pb-2"
+            t-att-class="{'o-selected': isSelected}"
             t-att-style="getBorderStyle('top')"
           />
           <div
             class="o-figure-border pe-auto h-100 position-absolute start-0 ps-2"
+            t-att-class="{'o-selected': isSelected}"
             t-att-style="getBorderStyle('left')"
           />
           <div
             class="o-figure-border pe-auto w-100 position-absolute bottom-0 pt-2"
+            t-att-class="{'o-selected': isSelected}"
             t-att-style="getBorderStyle('bottom')"
           />
           <div
             class="o-figure-border pe-auto h-100 position-absolute end-0 pe-2"
+            t-att-class="{'o-selected': isSelected}"
             t-att-style="getBorderStyle('right')"
           />
         </div>

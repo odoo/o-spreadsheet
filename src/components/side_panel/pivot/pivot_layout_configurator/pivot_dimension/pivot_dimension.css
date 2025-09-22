@@ -17,11 +17,10 @@
     }
 
     &.pivot-dimension-invalid {
-      background-color: #ffdddd;
-      border-color: red !important;
-      select,
+      background-color: var(--os-alert-danger-bg);
+      border-color: var(--os-alert-danger-border) !important;
       input {
-        background-color: #ffdddd;
+        background-color: transparent;
       }
     }
   }

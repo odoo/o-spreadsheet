@@ -1,7 +1,7 @@
 .o-spreadsheet {
   .o-spreadsheet-bottom-bar {
     font-size: 15px;
-    border-top: 1px solid lightgrey;
+    border-top: 1px solid var(--os-gray-400);
     background-color: var(--os-background-gray-color);
     padding-left: var(--os-header-width);
 
@@ -15,11 +15,11 @@
     .o-all-sheets {
       max-width: 70%;
       .o-bottom-bar-fade-out {
-        background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
+        background-image: linear-gradient(-90deg, var(--os-gray-400), transparent 1%);
       }
       .o-bottom-bar-fade-in {
         z-index: 1;
-        background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
+        background-image: linear-gradient(90deg, var(--os-gray-400), transparent 1%);
       }
       .o-sheet-list {
         overflow-y: hidden;

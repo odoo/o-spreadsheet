@@ -3,10 +3,8 @@ import { Model, Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  FIGURE_BORDER_COLOR,
   FIGURE_BORDER_WIDTH,
   MENU_WIDTH,
-  SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 
@@ -690,35 +688,30 @@ describe("figures", () => {
     test("Border for figure", async () => {
       createFigure(model);
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `1px solid ${FIGURE_BORDER_COLOR}`
-      );
+      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`1px`);
+      expect(".o-figure-border").not.toHaveClass("o-selected");
     });
 
     test("Border for selected figure", async () => {
       createFigure(model, { id: "figureId" });
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `2px solid ${SELECTION_BORDER_COLOR}`
-      );
+      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`2px`);
+      expect(".o-figure-border").toHaveClass("o-selected");
     });
 
     test("Border for image figure", async () => {
       createImage(model, { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `0px solid ${FIGURE_BORDER_COLOR}`
-      );
+      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`0px`);
     });
 
     test("Border for selected image figure", async () => {
       createImage(model, { figureId: "figureId" });
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `2px solid ${SELECTION_BORDER_COLOR}`
-      );
+      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`2px`);
+      expect(".o-figure-border").toHaveClass("o-selected");
     });
 
     test("No border in dashboard mode", async () => {
