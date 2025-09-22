@@ -10,15 +10,13 @@
     }
 
     .o-chart-dashboard-item {
-      filter: grayscale(1);
-
       &.active,
       &:hover,
       &:target {
-        filter: grayscale(0);
         color: var(--os-gray-900) !important;
-        background: var(--os-button-active-bg);
+        background: rgba(0, 0, 0, 0.1);
       }
+
       .o-chart-preview {
         stroke-width: 2px;
         transform: scale(1.1);
