@@ -23,7 +23,7 @@ export const MIN_SHEET_VIEW_WIDTH = 150;
 
 export class SidePanelStore extends SpreadsheetStore {
   mutators = ["open", "toggle", "close", "changePanelSize", "resetPanelSize"] as const;
-  initialPanelProps: SidePanelProps = {};
+  currentPanelProps: SidePanelProps = {};
   componentTag: string = "";
   panelSize = DEFAULT_SIDE_PANEL_SIZE;
 
@@ -31,11 +31,11 @@ export class SidePanelStore extends SpreadsheetStore {
     if (!this.componentTag) {
       return false;
     }
-    return this.computeState(this.componentTag, this.initialPanelProps).isOpen;
+    return this.computeState(this.componentTag, this.currentPanelProps).isOpen;
   }
 
   get panelProps(): SidePanelProps {
-    const state = this.computeState(this.componentTag, this.initialPanelProps);
+    const state = this.computeState(this.componentTag, this.currentPanelProps);
     if (state.isOpen) {
       return state.props ?? {};
     }
@@ -43,7 +43,7 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   get panelKey(): string | undefined {
-    const state = this.computeState(this.componentTag, this.initialPanelProps);
+    const state = this.computeState(this.componentTag, this.currentPanelProps);
     if (state.isOpen) {
       return state.key;
     }
@@ -56,10 +56,10 @@ export class SidePanelStore extends SpreadsheetStore {
       return;
     }
     if (this.isOpen && componentTag !== this.componentTag) {
-      this.initialPanelProps?.onCloseSidePanel?.();
+      this.currentPanelProps?.onCloseSidePanel?.();
     }
     this.componentTag = componentTag;
-    this.initialPanelProps = state.props ?? {};
+    this.currentPanelProps = state.props ?? {};
   }
 
   toggle(componentTag: string, panelProps: SidePanelProps) {
@@ -71,8 +71,8 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   close() {
-    this.initialPanelProps.onCloseSidePanel?.();
-    this.initialPanelProps = {};
+    this.currentPanelProps.onCloseSidePanel?.();
+    this.currentPanelProps = {};
     this.componentTag = "";
   }
 
@@ -98,7 +98,11 @@ export class SidePanelStore extends SpreadsheetStore {
         props: panelProps,
       };
     } else {
-      return customComputeState(this.getters, panelProps);
+      const state = customComputeState(this.getters, panelProps);
+      if (state.isOpen) {
+        this.currentPanelProps = state.props ?? this.currentPanelProps;
+      }
+      return state;
     }
   }
 }
