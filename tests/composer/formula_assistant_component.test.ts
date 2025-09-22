@@ -22,6 +22,10 @@ let fixture: HTMLElement;
 let parent: ComposerWrapper;
 let composerStore: Store<CellComposerStore>;
 
+const queryFormulaArgName =
+  ".o-formula-assistant-arg .o-formula-assistant-focus span:first-child span:first-child";
+const queryFormulaArgsName = ".o-formula-assistant-arg .o-formula-assistant-focus span";
+
 async function moveCursorToLeftInSelection(offset: number, expectedToken: string) {
   for (const _ in Array.from({ length: offset })) {
     await keyDown({ key: "ArrowLeft" });
@@ -66,59 +70,67 @@ describe("formula assistant", () => {
     );
     addToRegistry(functionRegistry, "FUNC1", {
       description: "func1 def",
-      args: [arg("f1Arg1 (any)", "f1 Arg1 def"), arg("f1Arg2 (any)", _t("f1 Arg2 def"))],
+      args: [arg("f1ArgA (any)", "f1 ArgA def"), arg("f1ArgB (any)", _t("f1 ArgB def"))],
       compute: () => 1,
     });
     setTranslationMethod((str, ...values) => str);
     addToRegistry(functionRegistry, "FUNC2", {
       description: "func2 def",
-      args: [arg("f2Arg1 (any)", "f2 Arg1 def"), arg("f2Arg2 (any, default=TRUE)", "f2 Arg2 def")],
+      args: [arg("f2ArgA (any)", "f2 ArgA def"), arg("f2ArgB (any, default=TRUE)", "f2 ArgB def")],
       compute: () => 1,
     });
     addToRegistry(functionRegistry, "FUNC3", {
       description: "func3 def",
-      args: [arg("f3Arg1 (any)", "f3 Arg1 def"), arg("f3Arg2 (any, repeating)", "f3 Arg2 def")],
+      args: [arg("f3ArgA (any)", "f3 ArgA def"), arg("f3ArgB (any, repeating)", "f3 ArgB def")],
+      compute: () => 1,
+    });
+    addToRegistry(functionRegistry, "FUNC3BIS", {
+      description: "func3bis def",
+      args: [
+        arg("f3bisArgA (any)", "f3bis ArgA def"),
+        arg("f3bisArgB (any, repeating, optional)", "f3bis ArgB def"),
+      ],
       compute: () => 1,
     });
     addToRegistry(functionRegistry, "UPTOWNFUNC", {
       description: "a Bruno Mars song ?",
       args: [
-        arg("f4Arg1 (any)", "f4 Arg1 def"),
-        arg("f4Arg2 (any, repeating)", "f4 Arg2 def"),
-        arg("f4Arg3 (any, repeating)", "f4 Arg3 def"),
+        arg("f4ArgA (any)", "f4 ArgA def"),
+        arg("f4ArgB (any, repeating)", "f4 ArgB def"),
+        arg("f4ArgC (any, repeating)", "f4 ArgC def"),
       ],
       compute: () => 1,
     });
     addToRegistry(functionRegistry, "FUNC5", {
       description: "a function with one optional argument defined after two repeating argument",
       args: [
-        arg("f5Arg1 (any)", "f5 Arg1 def"),
-        arg("f5Arg2 (any, repeating)", "f5 Arg2 def"),
-        arg("f5Arg3 (any, repeating)", "f5 Arg3 def"),
-        arg("f5Arg4 (any, optional)", "f5 Arg4 def"),
+        arg("f5ArgA (any)", "f5 ArgA def"),
+        arg("f5ArgB (any, repeating)", "f5 ArgB def"),
+        arg("f5ArgC (any, repeating)", "f5 ArgC def"),
+        arg("f5ArgD (any, optional)", "f5 ArgD def"),
       ],
       compute: () => 1,
     });
     addToRegistry(functionRegistry, "FUNC6", {
       description: "a function with one optional argument defined after three repeating arguments",
       args: [
-        arg("f6Arg1 (any)", "f6 Arg1 def"),
-        arg("f6Arg2 (any, repeating)", "f6 Arg2 def"),
-        arg("f6Arg3 (any, repeating)", "f6 Arg3 def"),
-        arg("f6Arg4 (any, repeating)", "f6 Arg4 def"),
-        arg("f6Arg5 (any, optional)", "f6 Arg5 def"),
+        arg("f6ArgA (any)", "f6 ArgA def"),
+        arg("f6ArgB (any, repeating)", "f6 ArgB def"),
+        arg("f6ArgC (any, repeating)", "f6 ArgC def"),
+        arg("f6ArgD (any, repeating)", "f6 ArgD def"),
+        arg("f6ArgE (any, optional)", "f6 ArgE def"),
       ],
       compute: () => 1,
     });
     addToRegistry(functionRegistry, "FUNC7", {
       description: "a function with two optional arguments defined after three repeating arguments",
       args: [
-        arg("f7Arg1 (any)", "f7 Arg1 def"),
-        arg("f7Arg2 (any, repeating)", "f7 Arg2 def"),
-        arg("f7Arg3 (any, repeating)", "f7 Arg3 def"),
-        arg("f7Arg4 (any, repeating)", "f7 Arg4 def"),
-        arg("f7Arg5 (any, optional)", "f7 Arg5 def"),
-        arg("f7Arg6 (any, optional)", "f7 Arg6 def"),
+        arg("f7ArgA (any)", "f7 ArgA def"),
+        arg("f7ArgB (any, repeating)", "f7 ArgB def"),
+        arg("f7ArgC (any, repeating)", "f7 ArgC def"),
+        arg("f7ArgD (any, repeating)", "f7 ArgD def"),
+        arg("f7ArgE (any, optional)", "f7 ArgE def"),
+        arg("f7ArgF (any, optional)", "f7 ArgF def"),
       ],
       compute: () => 1,
     });
@@ -216,8 +228,8 @@ describe("formula assistant", () => {
       await typeInComposer("=FUNC1(FUNC2(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
-      expect(fixture.querySelectorAll(".o-formula-assistant-head span")[0].textContent).toBe(
-        "FUNC2"
+      expect(fixture.querySelectorAll(".o-formula-assistant-head div span")[0].textContent).toBe(
+        "FUNC2 ( "
       );
     });
 
@@ -225,8 +237,8 @@ describe("formula assistant", () => {
       await typeInComposer("=FUNC1(FUNC2()");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
-      expect(fixture.querySelectorAll(".o-formula-assistant-head span")[0].textContent).toBe(
-        "FUNC1"
+      expect(fixture.querySelectorAll(".o-formula-assistant-head div span")[0].textContent).toBe(
+        "FUNC1 ( "
       );
     });
 
@@ -283,28 +295,28 @@ describe("formula assistant", () => {
       test("function without argument", async () => {
         await typeInComposer("=FUNC0(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
-          "FUNC0 (  ) "
+          "FUNC0 (  )"
         );
       });
 
       test("normal function", async () => {
         await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
-          "FUNC1 ( f1Arg1, f1Arg2 ) "
+          "FUNC1 ( f1ArgA, f1ArgB )"
         );
       });
 
       test("function with default argument", async () => {
         await typeInComposer("=FUNC2(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
-          "FUNC2 ( f2Arg1, [f2Arg2] ) "
+          "FUNC2 ( f2ArgA, [f2ArgB] )"
         );
       });
 
       test("function with repeatable argument", async () => {
         await typeInComposer("=FUNC3(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
-          "FUNC3 ( f3Arg1, [f3Arg2, ...] ) "
+          "FUNC3 ( f3ArgA, f3ArgB1, [f3ArgB2], ...  )"
         );
       });
 
@@ -312,7 +324,7 @@ describe("formula assistant", () => {
         updateLocale(parent.env.model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";" });
         await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
-          "FUNC1 ( f1Arg1; f1Arg2 ) "
+          "FUNC1 ( f1ArgA; f1ArgB )"
         );
       });
     });
@@ -327,10 +339,10 @@ describe("formula assistant", () => {
         await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
-          "f1Arg2"
+          "f1ArgB"
         );
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[3].textContent).toBe(
-          "f1 Arg2 def"
+          "f1 ArgB def"
         );
       });
 
@@ -339,7 +351,7 @@ describe("formula assistant", () => {
         // This is what actually happens because translations are
         // loaded after the function definition
         setTranslationMethod((str, ...values) => {
-          if (str === "f1 Arg2 def") {
+          if (str === "f1 ArgB def") {
             return "translated description";
           }
           return str;
@@ -355,10 +367,10 @@ describe("formula assistant", () => {
         await typeInComposer("=FUNC2(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
-          "f2Arg2 - [optional] default: TRUE"
+          "f2ArgB - [optional] default: TRUE"
         );
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[3].textContent).toBe(
-          "f2 Arg2 def"
+          "f2 ArgB def"
         );
       });
 
@@ -366,10 +378,18 @@ describe("formula assistant", () => {
         await typeInComposer("=FUNC3(");
         expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
-          "f3Arg2 - [optional] repeatable"
+          "f3ArgB1"
         );
         expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[3].textContent).toBe(
-          "f3 Arg2 def"
+          "f3 ArgB def"
+        );
+      });
+
+      test("function with repeatable argument optional", async () => {
+        await typeInComposer("=FUNC3BIS(");
+        expect(fixture.querySelectorAll(".o-formula-assistant-arg")).toHaveLength(2);
+        expect(fixture.querySelectorAll(".o-formula-assistant-arg div")[2].textContent).toBe(
+          "f3bisArgB1 - [optional] "
         );
       });
     });
@@ -378,101 +398,66 @@ describe("formula assistant", () => {
   describe("focus argument", () => {
     test("=FUNC1( focus index on 1st arg", async () => {
       await typeInComposer("=FUNC1(");
-      expect(
-        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-          .textContent
-      ).toBe("f1Arg1");
+      expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f1ArgA");
     });
 
     test("=FUNC1(42 focus index on 1st arg", async () => {
       await typeInComposer("=FUNC1(42");
-      expect(
-        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-          .textContent
-      ).toBe("f1Arg1");
+      expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f1ArgA");
     });
 
     test("=FUNC1(42 then add ',' focus index on 2nd arg", async () => {
       await typeInComposer("=FUNC1(42");
       await typeInComposer(",", false);
-      expect(
-        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-          .textContent
-      ).toBe("f1Arg2");
+      expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f1ArgB");
     });
 
     test("=FUNC1(42, focus index on 2nd arg", async () => {
       await typeInComposer("=FUNC1(42,");
-      expect(
-        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-          .textContent
-      ).toBe("f1Arg2");
+      expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f1ArgB");
     });
 
     test("functions with more arguments than allowed do not have focus", async () => {
       await typeInComposer("=FUNC1(42, 24, 22");
-      expect(
-        fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")
-      ).toHaveLength(0);
+      expect(fixture.querySelectorAll(queryFormulaArgsName)).toHaveLength(0);
     });
 
     describe("functions with repeatable argument always have a focus", () => {
       test("=FUNC3(84, focus on 2nd argument", async () => {
         await typeInComposer("=FUNC3(84,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f3Arg2");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f3ArgB1");
       });
 
       test("=FUNC3(84, 42, focus on 2nd argument", async () => {
         await typeInComposer("=FUNC3(84, 42,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f3Arg2");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f3ArgB2");
       });
     });
 
     describe("functions with more than one repeatable argument have an alternate focus", () => {
       test("=UPTOWNFUNC(1, 2, focus on 3th argument", async () => {
         await typeInComposer("=UPTOWNFUNC(1, 2,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f4Arg3");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f4ArgC1");
       });
 
       test("=UPTOWNFUNC(1, 2, 3, focus on 2nd argument", async () => {
         await typeInComposer("=UPTOWNFUNC(1, 2, 3,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f4Arg2");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f4ArgB2");
       });
 
       test("=UPTOWNFUNC(1, 2, 3, 4,  focus on 3th argument", async () => {
         await typeInComposer("=UPTOWNFUNC(1, 2, 3, 4,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f4Arg3");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f4ArgC2");
       });
 
       test("=UPTOWNFUNC(1, 2, 3, 4, 5, focus on 4th argument", async () => {
         await typeInComposer("=UPTOWNFUNC(1, 2, 3, 4, 5,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f4Arg2");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f4ArgB3");
       });
 
       test("Formula Helper updates when navigating with keyboard arrows", async () => {
         await typeInComposer("=UPTOWNFUNC(1, 2, 3");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f4Arg3");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f4ArgC1");
         expect(getInputSelection()).toEqual({
           anchorNodeText: "3",
           anchorOffset: 1,
@@ -486,185 +471,144 @@ describe("formula assistant", () => {
           focusNodeText: "2",
           focusOffset: 1,
         });
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f4Arg2");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f4ArgB1");
       });
     });
 
     describe("functions with optional argument defined after a repeating argument", () => {
       test("=FUNC5(1, 2, focus on 3th argument", async () => {
         await typeInComposer("=FUNC5(1, 2,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f5Arg3");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f5ArgC1");
       });
 
       test("=FUNC5(1, 2, 3,  focus on 2nd and 4th arguments", async () => {
         await typeInComposer("=FUNC5(1, 2, 3,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(2);
-        expect(focusArgs[0].textContent).toBe("f5Arg2");
-        expect(focusArgs[1].textContent).toBe("f5Arg4");
+        expect(focusArgs[0].textContent).toBe("f5ArgB2");
+        expect(focusArgs[1].textContent).toBe("f5ArgD");
       });
 
       test("=FUNC5(1, 2, 3, 4,  focus on 3th argument", async () => {
         await typeInComposer("=FUNC5(1, 2, 3, 4,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f5Arg3");
+        expect(focusArgs[0].textContent).toBe("f5ArgC2");
       });
 
       test("=FUNC5(1, 2, 3, 4, 5 and comme back on the 4th argument --> focus on the 2nd argument only", async () => {
         await typeInComposer("=FUNC5(1, 2, 3, 4, 5");
         await moveCursorToLeftInSelection(3, "4");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f5Arg2");
+        expect(focusArgs[0].textContent).toBe("f5ArgB2");
       });
     });
 
     describe("functions with one optional argument defined after two repeating arguments", () => {
       test("=FUNC5(1, 2, focus on 3th argument", async () => {
         await typeInComposer("=FUNC5(1, 2,");
-        expect(
-          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
-            .textContent
-        ).toBe("f5Arg3");
+        expect(fixture.querySelectorAll(queryFormulaArgsName)[0].textContent).toBe("f5ArgC1");
       });
 
       test("=FUNC5(1, 2, 3,  focus on 2nd and 4th arguments", async () => {
         await typeInComposer("=FUNC5(1, 2, 3,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(2);
-        expect(focusArgs[0].textContent).toBe("f5Arg2");
-        expect(focusArgs[1].textContent).toBe("f5Arg4");
+        expect(focusArgs[0].textContent).toBe("f5ArgB2");
+        expect(focusArgs[1].textContent).toBe("f5ArgD");
       });
 
       test("=FUNC5(1, 2, 3, 4,  focus on 3th argument", async () => {
         await typeInComposer("=FUNC5(1, 2, 3, 4,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f5Arg3");
+        expect(focusArgs[0].textContent).toBe("f5ArgC2");
       });
 
       test("=FUNC5(1, 2, 3, 4, 5 and comme back on the 4th argument --> focus on the 2nd argument only", async () => {
         await typeInComposer("=FUNC5(1, 2, 3, 4, 5");
         await moveCursorToLeftInSelection(3, "4");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f5Arg2");
+        expect(focusArgs[0].textContent).toBe("f5ArgB2");
       });
     });
 
     describe("functions with one optional argument defined after three repeating arguments", () => {
       test("=FUNC6(1, 2, 3, 4, focus on 2nd and 5th argument", async () => {
         await typeInComposer("=FUNC6(1, 2, 3, 4,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(2);
-        expect(focusArgs[0].textContent).toBe("f6Arg2");
-        expect(focusArgs[1].textContent).toBe("f6Arg5");
+        expect(focusArgs[0].textContent).toBe("f6ArgB2");
+        expect(focusArgs[1].textContent).toBe("f6ArgE");
       });
 
       test("=FUNC6(1, 2, 3, 4, 5, focus on 3th arguments", async () => {
         await typeInComposer("=FUNC6(1, 2, 3, 4, 5,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f6Arg3");
+        expect(focusArgs[0].textContent).toBe("f6ArgC2");
       });
 
       test("=FUNC6(1, 2, 3, 4, 5, 6, focus on 4th arguments", async () => {
         await typeInComposer("=FUNC6(1, 2, 3, 4, 5, 6,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f6Arg4");
+        expect(focusArgs[0].textContent).toBe("f6ArgD2");
       });
 
       test("=FUNC6(1, 2, 3, 4, 5, 6, and comme back on previous argument --> focus only one argument", async () => {
         await typeInComposer("=FUNC6(1, 2, 3, 4, 5, 6, 7");
 
         await moveCursorToLeftInSelection(3, "6");
-        let focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        let focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f6Arg3");
+        expect(focusArgs[0].textContent).toBe("f6ArgC2");
 
         await moveCursorToLeftInSelection(6, "5");
-        focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f6Arg2");
+        expect(focusArgs[0].textContent).toBe("f6ArgB2");
       });
     });
 
     describe("functions with two optional arguments defined after three repeating arguments", () => {
       test("=FUNC7(1, 2, 3, 4, focus on 2nd and 5th argument", async () => {
         await typeInComposer("=FUNC7(1, 2, 3, 4,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(2);
-        expect(focusArgs[0].textContent).toBe("f7Arg2");
-        expect(focusArgs[1].textContent).toBe("f7Arg5");
+        expect(focusArgs[0].textContent).toBe("f7ArgB2");
+        expect(focusArgs[1].textContent).toBe("f7ArgE");
       });
 
       test("=FUNC7(1, 2, 3, 4, 5, focus on 3th and 6th arguments", async () => {
         await typeInComposer("=FUNC7(1, 2, 3, 4, 5,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(2);
-        expect(focusArgs[0].textContent).toBe("f7Arg3");
-        expect(focusArgs[1].textContent).toBe("f7Arg6");
+        expect(focusArgs[0].textContent).toBe("f7ArgC2");
+        expect(focusArgs[1].textContent).toBe("f7ArgF");
       });
 
       test("=FUNC7(1, 2, 3, 4, 5, 6, focus on 4th arguments", async () => {
         await typeInComposer("=FUNC7(1, 2, 3, 4, 5, 6,");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f7Arg4");
+        expect(focusArgs[0].textContent).toBe("f7ArgD2");
       });
 
       test("=FUNC7(1, 2, 3, 4, 5, 6, 7 and comme back on previous argument  --> focus only one argument", async () => {
         await typeInComposer("=FUNC7(1, 2, 3, 4, 5, 6, 7");
 
         await moveCursorToLeftInSelection(3, "6");
-        let focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        let focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f7Arg3");
+        expect(focusArgs[0].textContent).toBe("f7ArgC2");
 
         await moveCursorToLeftInSelection(6, "5");
-        focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f7Arg2");
+        expect(focusArgs[0].textContent).toBe("f7ArgB2");
       });
     });
 
@@ -672,32 +616,26 @@ describe("formula assistant", () => {
       test("type =FUNC6(1, 2, 3, 4, ) and move one the 5th position --> focus the 5th argument only", async () => {
         await typeInComposer("=FUNC6(1, 2, 3, 4, )");
         await moveCursorToLeftInSelection(1, " ");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f6Arg5");
+        expect(focusArgs[0].textContent).toBe("f6ArgE");
       });
 
       test("type =FUNC7(1, 2, 3, 4, ) and move on the 5th position --> focus the 5th argument only", async () => {
         await typeInComposer("=FUNC7(1, 2, 3, 4, )");
         await keyDown({ key: "ArrowLeft" });
         await moveCursorToLeftInSelection(1, " ");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f7Arg5");
+        expect(focusArgs[0].textContent).toBe("f7ArgE");
       });
 
       test("type =FUNC7(1, 2, 3, 4, 5, ) and move on the 6th position --> focus the 6th argument only", async () => {
         await typeInComposer("=FUNC7(1, 2, 3, 4, 5, )");
         await moveCursorToLeftInSelection(1, " ");
-        const focusArgs = fixture.querySelectorAll(
-          ".o-formula-assistant-arg.o-formula-assistant-focus div span:first-child"
-        );
+        const focusArgs = fixture.querySelectorAll(queryFormulaArgName);
         expect(focusArgs.length).toBe(1);
-        expect(focusArgs[0].textContent).toBe("f7Arg6");
+        expect(focusArgs[0].textContent).toBe("f7ArgF");
       });
     });
   });

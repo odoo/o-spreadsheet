@@ -420,12 +420,8 @@ export const COUNTBLANK = {
   description: _t("Number of empty values."),
   args: [
     arg(
-      "value1 (any, range)",
-      _t("The first value or range in which to count the number of blanks.")
-    ),
-    arg(
-      "value2 (any, range, repeating)",
-      _t("Additional values or ranges in which to count the number of blanks.")
+      "value (any, range, repeating)",
+      _t("Value or range in which to count the number of blanks.")
     ),
   ],
   compute: function (...args: Arg[]): number {
@@ -478,15 +474,8 @@ export const COUNTIF = {
 export const COUNTIFS = {
   description: _t("Count values depending on multiple criteria."),
   args: [
-    arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
-    arg("criterion1 (string)", _t("The pattern or test to apply to criteria_range1.")),
-    arg(
-      "criteria_range2 (any, range, repeating)",
-      _t(
-        "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
-      )
-    ),
-    arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
+    arg("criteria_range (any, range, repeating)", _t("Range over which to evaluate criteria.")),
+    arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
   compute: function (...args: Arg[]): number {
     let count = 0;
@@ -508,13 +497,7 @@ export const COUNTIFS = {
 
 export const COUNTUNIQUE = {
   description: _t("Counts number of unique values in a range."),
-  args: [
-    arg("value1 (any, range)", _t("The first value or range to consider for uniqueness.")),
-    arg(
-      "value2 (any, range, repeating)",
-      _t("Additional values or ranges to consider for uniqueness.")
-    ),
-  ],
+  args: [arg("value (any, range, repeating)", _t("Value or range to consider for uniqueness."))],
   compute: function (...args: Arg[]): number {
     return countUnique(args);
   },
@@ -531,20 +514,8 @@ export const COUNTUNIQUEIFS = {
       "range (range)",
       _t("The range of cells from which the number of unique values will be counted.")
     ),
-    arg("criteria_range1 (range)", _t("The range of cells over which to evaluate criterion1.")),
-    arg(
-      "criterion1 (string)",
-      _t(
-        "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
-      )
-    ),
-    arg(
-      "criteria_range2 (any, range, repeating)",
-      _t(
-        "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
-      )
-    ),
-    arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
+    arg("criteria_range (any, range, repeating)", _t("Range over which to evaluate criteria.")),
+    arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
   compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     const uniqueValues = new Set();
@@ -996,12 +967,8 @@ export const PRODUCT = {
   description: _t("Result of multiplying a series of numbers together."),
   args: [
     arg(
-      "factor1 (number, range<number>)",
-      _t("The first number or range to calculate for the product.")
-    ),
-    arg(
-      "factor2 (number, range<number>, repeating)",
-      _t("More numbers or ranges to calculate for the product.")
+      "factor (number, range<number>, repeating)",
+      _t("Number or range to calculate for the product.")
     ),
   ],
   compute: function (...factors: Arg[]) {
@@ -1403,10 +1370,9 @@ export const SUBTOTAL = {
       ...subtotalFunctionOptionsIncludeHiddenRows,
       ...subtotalFunctionOptionsExcludeHiddenRows,
     ]),
-    arg("ref1 (meta, range<meta>)", _t("The range or reference for which you want the subtotal.")),
     arg(
-      "ref2 (meta, range<meta>, repeating)",
-      _t("Additional ranges or references for which you want the subtotal.")
+      "ref (meta, range<meta>, repeating)",
+      _t("Range or reference for which you want the subtotal.")
     ),
   ],
   compute: function (
@@ -1460,13 +1426,7 @@ export const SUBTOTAL = {
 // -----------------------------------------------------------------------------
 export const SUM = {
   description: _t("Sum of a series of numbers and/or cells."),
-  args: [
-    arg("value1 (number, range<number>)", _t("The first number or range to add together.")),
-    arg(
-      "value2 (number, range<number>, repeating)",
-      _t("Additional numbers or ranges to add to value1.")
-    ),
-  ],
+  args: [arg("value (number, range<number>, repeating)", _t("Number or range to add together."))],
   compute: function (...values: Arg[]): FunctionResultNumber {
     const v1 = values[0];
     return {
@@ -1522,10 +1482,8 @@ export const SUMIFS = {
   description: _t("Sums a range depending on multiple criteria."),
   args: [
     arg("sum_range (range)", _t("The range to sum.")),
-    arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
-    arg("criterion1 (string)", _t("The pattern or test to apply to criteria_range1.")),
-    arg("criteria_range2 (any, range, repeating)", _t("Additional ranges to check.")),
-    arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
+    arg("criteria_range (any, range, repeating)", _t("Range to check.")),
+    arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
   compute: function (sumRange: Matrix<FunctionResultObject>, ...criters: Arg[]): number {
     let sum = 0;
