@@ -26,7 +26,7 @@ export const COLLAPSED_SIDE_PANEL_SIZE = 45;
 export const MIN_SHEET_VIEW_WIDTH = 150;
 
 interface PanelInfo {
-  initialPanelProps: SidePanelComponentProps;
+  currentPanelProps: SidePanelComponentProps;
   componentTag: string;
   size: number;
   isCollapsed?: boolean;
@@ -87,6 +87,7 @@ export class SidePanelStore extends SpreadsheetStore {
   private getPanelProps(panelInfo: PanelInfo): SidePanelComponentProps {
     const state = this.computeState(panelInfo);
     if (state.isOpen) {
+      panelInfo.currentPanelProps = state.props ?? panelInfo.currentPanelProps;
       return state.props ?? {};
     }
     return {};
@@ -100,12 +101,12 @@ export class SidePanelStore extends SpreadsheetStore {
     return undefined;
   }
 
-  open(componentTag: string, initialPanelProps: SidePanelComponentProps = {}) {
+  open(componentTag: string, currentPanelProps: SidePanelComponentProps = {}) {
     if (this.screenWidthStore.isSmall) {
       return;
     }
 
-    const newPanelInfo = { initialPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
+    const newPanelInfo = { currentPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
     const state = this.computeState(newPanelInfo);
     if (!state.isOpen) {
       return;
@@ -138,9 +139,9 @@ export class SidePanelStore extends SpreadsheetStore {
   replace(
     componentTag: string,
     currentPanelKey: string,
-    initialPanelProps: SidePanelComponentProps = {}
+    currentPanelProps: SidePanelComponentProps = {}
   ) {
-    const newPanelInfo = { initialPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
+    const newPanelInfo = { currentPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
     const state = this.computeState(newPanelInfo);
     if (!state.isOpen) {
       return;
@@ -178,10 +179,10 @@ export class SidePanelStore extends SpreadsheetStore {
     const currentPanel = this[panel];
 
     if (currentPanel && newPanel.componentTag !== currentPanel.componentTag) {
-      currentPanel.initialPanelProps?.onCloseSidePanel?.();
+      currentPanel.currentPanelProps?.onCloseSidePanel?.();
     }
     this[panel] = {
-      initialPanelProps: state.props ?? {},
+      currentPanelProps: state.props ?? {},
       componentTag: newPanel.componentTag,
       size: currentPanel?.size || DEFAULT_SIDE_PANEL_SIZE,
       isCollapsed: currentPanel?.isCollapsed || false,
@@ -204,17 +205,17 @@ export class SidePanelStore extends SpreadsheetStore {
   close() {
     if (this.mainPanel?.isPinned) {
       if (this.secondaryPanel) {
-        this.secondaryPanel.initialPanelProps.onCloseSidePanel?.();
+        this.secondaryPanel.currentPanelProps.onCloseSidePanel?.();
         this.secondaryPanel = undefined;
       }
       return;
     }
-    this.mainPanel?.initialPanelProps.onCloseSidePanel?.();
+    this.mainPanel?.currentPanelProps.onCloseSidePanel?.();
     this.mainPanel = undefined;
   }
 
   closeMainPanel() {
-    this.mainPanel?.initialPanelProps.onCloseSidePanel?.();
+    this.mainPanel?.currentPanelProps.onCloseSidePanel?.();
     this.mainPanel = this.secondaryPanel || undefined;
     this.secondaryPanel = undefined;
   }
@@ -252,7 +253,7 @@ export class SidePanelStore extends SpreadsheetStore {
     }
     this.mainPanel.isPinned = !this.mainPanel.isPinned;
     if (!this.mainPanel.isPinned && this.secondaryPanel) {
-      this.secondaryPanel?.initialPanelProps.onCloseSidePanel?.();
+      this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
       this.mainPanel = this.secondaryPanel;
       this.secondaryPanel = undefined;
     }
@@ -272,7 +273,10 @@ export class SidePanelStore extends SpreadsheetStore {
     }
   }
 
-  private computeState({ componentTag, initialPanelProps }: PanelInfo): SidePanelState {
+  private computeState({
+    componentTag,
+    currentPanelProps: initialPanelProps,
+  }: PanelInfo): SidePanelState {
     const customComputeState = sidePanelRegistry.get(componentTag).computeState;
     const state: SidePanelState = customComputeState
       ? customComputeState(this.getters, initialPanelProps)
@@ -283,7 +287,7 @@ export class SidePanelStore extends SpreadsheetStore {
   changeSpreadsheetWidth(width: number) {
     this.availableWidth = width - MIN_SHEET_VIEW_WIDTH;
     if (this.secondaryPanel && width - this.totalPanelSize < MIN_SHEET_VIEW_WIDTH) {
-      this.secondaryPanel?.initialPanelProps.onCloseSidePanel?.();
+      this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
       this.secondaryPanel = undefined;
     }
     if (this.mainPanel && width - this.totalPanelSize < MIN_SHEET_VIEW_WIDTH) {

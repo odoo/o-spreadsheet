@@ -20,6 +20,7 @@ import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { toHex, toZone } from "../../../src/helpers";
 import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
@@ -1488,6 +1489,29 @@ describe("charts", () => {
       { dataRange: "B2:B4", backgroundColor: "#FF0000", label: "MyLabel", yAxisId: "y1" },
       { dataRange: "C2:C4", yAxisId: "y1" },
     ]);
+  });
+
+  test("Deleting the second chart after selecting it closes the side panel", async () => {
+    createTestChart("basicChart", chartId);
+    createTestChart("basicChart", "secondChartId");
+    await mountSpreadsheet();
+    await openChartConfigSidePanel(model, env, chartId);
+    const store = env.getStore(SidePanelStore);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const figures = model.getters.getFigures(sheetId);
+    expect(store.mainPanelProps?.chartId).toBe(chartId);
+    expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
+
+    model.dispatch("SELECT_FIGURE", { figureId: figures[1].id });
+    await nextTick();
+    expect(store.mainPanelProps?.chartId).toBe("secondChartId");
+    expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
+
+    model.dispatch("DELETE_FIGURE", { sheetId, figureId: figures[1].id });
+    await nextTick();
+    expect(store.isMainPanelOpen).toBeFalsy();
+    expect(fixture.querySelector(".o-sidePanel")).toBeNull();
   });
 
   describe("Scorecard specific tests", () => {
