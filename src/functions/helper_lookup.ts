@@ -63,7 +63,9 @@ export function addPivotDependencies(
   for (const measure of forMeasures) {
     if (measure.computedBy) {
       const formula = evalContext.getters.getMeasureCompiledFormula(measure);
-      dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
+      dependencies.push(
+        ...formula.dependencies.filter((range) => !range.invalidXc && !range.invalidSheetName)
+      );
     }
   }
   const originPosition = evalContext.__originCellPosition;
