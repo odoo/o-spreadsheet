@@ -1,9 +1,11 @@
 import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
+import { adaptFormulaStringRanges } from "../../helpers/formulas";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   CellPosition,
   CommandResult,
@@ -145,7 +147,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, adaptSheetName: AdaptSheetName) {
     for (const pivotId in this.pivots) {
       const definition = deepCopy(this.pivots[pivotId]?.definition);
       if (!definition) {
@@ -158,9 +160,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         this.history.update("pivots", pivotId, "definition", newDefinition);
       }
     }
-    for (const sheetId in this.compiledMeasureFormulas) {
-      for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
-        const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
+    for (const formulaSheetId in this.compiledMeasureFormulas) {
+      for (const formulaString in this.compiledMeasureFormulas[formulaSheetId]) {
+        const compiledFormula = this.compiledMeasureFormulas[formulaSheetId][formulaString];
         const newDependencies: Range[] = [];
         for (const range of compiledFormula.dependencies) {
           const change = applyChange(range);
@@ -170,13 +172,18 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
             newDependencies.push(change.range);
           }
         }
-        const newFormulaString = this.getters.getFormulaString(
-          sheetId,
-          compiledFormula.tokens,
-          newDependencies
+        const newFormulaString = adaptFormulaStringRanges(
+          formulaSheetId,
+          formulaString,
+          {
+            sheetId,
+            sheetName: adaptSheetName,
+            applyChange,
+          },
+          { preserveInvalid: false }
         );
         if (newFormulaString !== formulaString) {
-          this.replaceMeasureFormula(sheetId, formulaString, newFormulaString);
+          this.replaceMeasureFormula(formulaSheetId, formulaString, newFormulaString);
         }
       }
     }
