@@ -37,7 +37,7 @@ sidePanelRegistry.add("ChartPanel", {
     if (!getters.isChartDefined(figureId)) {
       return { isOpen: false };
     }
-    return { isOpen: true, props: { figureId } };
+    return { isOpen: true, props: { figureId }, updatedProps: { figureId } };
   },
 });
 
