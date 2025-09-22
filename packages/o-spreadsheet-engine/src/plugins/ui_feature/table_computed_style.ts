@@ -72,6 +72,7 @@ export class TableComputedStylePlugin extends UIPlugin {
       for (const colIdx of Object.keys(tableStyles)) {
         const colStyle = tableStyles[colIdx];
         const col = parseInt(colIdx);
+        if (col < zone.left || col > zone.right) continue;
         for (const rowIdx of Object.keys(colStyle)) {
           const cellStyle = colStyle[rowIdx];
           if (cellStyle) {
@@ -98,6 +99,7 @@ export class TableComputedStylePlugin extends UIPlugin {
       for (const colIdx of Object.keys(tableBorders)) {
         const colStyle = tableBorders[colIdx];
         const col = parseInt(colIdx);
+        if (col < zone.left || col > zone.right) continue;
         for (const rowIdx of Object.keys(colStyle)) {
           const cellBorder = colStyle[rowIdx];
           if (cellBorder) {
