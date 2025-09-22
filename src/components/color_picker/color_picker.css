@@ -37,13 +37,13 @@
       height: calc(var(--os-item-edge-length) + (2 * var(--os-item-border-width)));
       margin: 0px;
       border-radius: 50px;
-      border: var(--os-item-border-width) solid #666666;
+      border: var(--os-item-border-width) solid var(--os-gray-600);
       padding: 0px;
       font-size: 16px;
       background: white;
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
-        outline: 1px solid gray;
+        outline: 1px solid var(--os-gray-500);
         cursor: pointer;
       }
     }
@@ -51,7 +51,7 @@
       padding: var(--os-picker-padding);
       display: flex;
       .o-cancel {
-        border: var(--os-item-border-width) solid #c0c0c0;
+        border: var(--os-item-border-width) solid var(--os-gray-300);
         width: 100%;
         padding: 5px;
         font-size: 14px;
@@ -63,7 +63,7 @@
       }
     }
     .o-add-button {
-      border: var(--os-item-border-width) solid #c0c0c0;
+      border: var(--os-item-border-width) solid var(--os-gray-300);
       padding: 4px;
       background: white;
       border-radius: 4px;
@@ -82,7 +82,7 @@
       position: relative;
       .o-gradient {
         margin-bottom: calc(var(--os-magnifier-edge) / 2);
-        border: var(--os-item-border-width) solid #c0c0c0;
+        border: var(--os-item-border-width) solid var(--os-gray-300);
         width: calc(var(--os-inner-gradient-width) + (2 * var(--os-item-border-width)));
         height: calc(var(--os-inner-gradient-height) + (2 * var(--os-item-border-width)));
         position: relative;
@@ -93,7 +93,7 @@
         width: var(--os-magnifier-edge);
         border-radius: 50%;
         border: 2px solid #fff;
-        box-shadow: 0px 0px 3px #c0c0c0;
+        box-shadow: 0px 0px 3px var(--os-gray-300);
         position: absolute;
         z-index: 2;
       }
@@ -104,7 +104,7 @@
         background: linear-gradient(to top, #000 0%, transparent 100%);
       }
       .o-hue-picker {
-        border: var(--os-item-border-width) solid #c0c0c0;
+        border: var(--os-item-border-width) solid var(--os-gray-300);
         width: 100%;
         height: 12px;
         border-radius: 4px;
@@ -135,7 +135,7 @@
           border-radius: 4px;
           padding: 4px 23px 4px 10px;
           height: 24px;
-          border: 1px solid #c0c0c0;
+          border: 1px solid var(--os-gray-300);
           margin-right: 2px;
         }
         .o-wrong-color {
@@ -154,7 +154,7 @@
         justify-content: end;
       }
       .o-color-preview {
-        border: 1px solid #c0c0c0;
+        border: 1px solid var(--os-gray-300);
         border-radius: 4px;
         width: 50%;
       }

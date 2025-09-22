@@ -1,20 +1,19 @@
 .o-spreadsheet .o-spreadsheet-small-bottom-bar {
   background-color: var(--os-background-gray-color);
-  border-bottom: #f2f2f2;
 
   .o-selection-button {
     border-radius: 2px;
-    background-color: #e7e9ed;
+    background-color: var(--os-gray-200);
     .o-icon {
       width: 24px;
       height: 24px;
-      color: #6aa84f;
+      color: var(--os-green-arrow-color);
     }
   }
 
   .o-small-composer {
     background-color: white;
-    border: lightgrey solid 1px;
+    border: var(--os-gray-400) solid 1px;
     line-height: 26px;
     display: flex;
     z-index: var(--os-components-importance-top-bar-composer);
@@ -22,8 +21,8 @@
 
   .bottom-bar-menu {
     background-color: var(--os-background-gray-color);
-    border-top: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
+    border-top: 1px solid var(--os-gray-400);
+    border-bottom: 1px solid var(--os-gray-400);
   }
 
   .o-spreadsheet-bottom-bar {

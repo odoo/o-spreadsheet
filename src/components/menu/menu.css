@@ -19,11 +19,6 @@
           background-color: var(--os-button-active-bg);
           color: var(--os-button-active-text-color);
         }
-        .o-menu-item-icon {
-          .o-icon {
-            color: var(--os-icons-color);
-          }
-        }
       }
       &.disabled {
         color: var(--os-disabled-text-color);

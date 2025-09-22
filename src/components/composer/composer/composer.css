@@ -24,27 +24,20 @@
 
           &.selector-flag:after {
             content: "␣";
-            color: #a9a9a9;
+            color: var(--os-composer-selector-flag-color);
           }
 
           &.highlight-parenthesis-flag:not(.highlight-flag) {
             border-radius: 5px;
-            background-color: lightgray;
+            background-color: var(--os-gray-400);
             padding: 1.5px 0px 1.5px 0px;
           }
 
           &.highlight-flag {
-            background-color: #e6edf3;
+            background-color: var(--os-composer-highlight-flag-color);
           }
         }
       }
-    }
-    .o-composer[placeholder]:empty:not(:focus):not(.active)::before {
-      content: attr(placeholder);
-      color: #bdbdbd;
-      position: relative;
-      top: 0%;
-      pointer-events: none;
     }
 
     .fa-stack {
@@ -59,7 +52,7 @@
       top: -1px;
 
       .fa-question-circle {
-        color: var(--os-button-primary-bg);
+        color: var(--os-primary-button-bg);
       }
     }
 

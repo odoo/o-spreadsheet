@@ -6,16 +6,20 @@
         cursor: pointer;
         width: 15px;
         height: 15px;
-        border: 1px solid var(--os-header-grouping-border-color);
+        border: 1px solid var(--os-gray-500);
         .o-icon {
           width: 7px;
           height: 7px;
         }
 
         &:hover {
-          border-color: #777;
+          border-color: var(--os-gray-600);
         }
       }
+    }
+
+    .o-group-border {
+      border-color: var(--os-background-gray-color);
     }
   }
 }

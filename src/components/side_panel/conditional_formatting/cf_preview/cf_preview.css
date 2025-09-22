@@ -62,10 +62,10 @@
     }
 
     .o-icon.arrow-down {
-      color: #e06666;
+      color: var(--os-red-arrow-color);
     }
     .o-icon.arrow-up {
-      color: #6aa84f;
+      color: var(--os-green-arrow-color);
     }
   }
 }

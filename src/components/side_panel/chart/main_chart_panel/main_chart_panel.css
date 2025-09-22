@@ -16,7 +16,7 @@
         }
 
         &:not(.inactive) {
-          color: var(--os-text-heading);
+          color: var(--os-button-active-text-color);
           border-bottom: 1px solid #fff;
         }
 

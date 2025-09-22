@@ -9,7 +9,7 @@
     }
 
     &.o-selected {
-      border-color: var(--os-button-primary-bg);
+      border-color: var(--os-primary-button-bg);
     }
 
     .o-drag-handle {

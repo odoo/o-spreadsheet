@@ -13,11 +13,6 @@
       height: 14px;
     }
 
-    .o-menu-item-button.active {
-      background-color: #e6f4ea;
-      color: #188038;
-    }
-
     .o-dropdown-content {
       overflow-y: auto;
       overflow-x: hidden;

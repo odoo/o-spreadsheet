@@ -40,7 +40,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:calc(50% - 1px); left:24px; width:calc(100% - 24px); height:30%; border-top:1px solid #999; border-right:1px solid #999; "
+          style="top:calc(50% - 1px); left:24px; width:calc(100% - 24px); height:30%; border-top:1px solid; border-right:1px solid; "
         />
         
       </div>
@@ -72,7 +72,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:calc(50% - 1px); left:48px; width:calc(100% - 48px); height:30%; border-top:1px solid #999; border-right:1px solid #999; "
+          style="top:calc(50% - 1px); left:48px; width:calc(100% - 48px); height:30%; border-top:1px solid; border-right:1px solid; "
         />
         
       </div>
@@ -124,7 +124,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:13px; left:calc(50% - 1px); width:30%; height:calc(100% - 13px); border-left:1px solid #999; border-bottom:1px solid #999; "
+          style="top:13px; left:calc(50% - 1px); width:30%; height:calc(100% - 13px); border-left:1px solid; border-bottom:1px solid; "
         />
         
       </div>
@@ -156,7 +156,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:11.5px; left:calc(50% - 1px); width:30%; height:calc(100% - 11.5px); border-left:1px solid #999; border-bottom:1px solid #999; "
+          style="top:11.5px; left:calc(50% - 1px); width:30%; height:calc(100% - 11.5px); border-left:1px solid; border-bottom:1px solid; "
         />
         
       </div>

@@ -15,7 +15,7 @@
       }
     }
     .o-disabled-ranges {
-      color: #888 !important;
+      color: var(--os-disabled-text-color) !important;
     }
     .o-button {
       flex-grow: 0;
