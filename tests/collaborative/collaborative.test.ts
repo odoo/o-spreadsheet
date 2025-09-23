@@ -743,40 +743,6 @@ describe("Multi users synchronisation", () => {
       "=B7"
     );
   });
-  test("youp youp", () => {
-    addRows(bob, "after", 0, 1);
-    setCellContent(alice, "A1", "=B1");
-    setCellContent(alice, "A2", "=B2");
-    setCellContent(alice, "A3", "=B3");
-    network.concurrent(() => {
-      undo(bob);
-      autofill(alice, "A1:A3", "A6");
-    });
-    printDebugModel(alice);
-    printDebugModel(bob);
-    redo(bob);
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A1")?.content,
-      "=B1"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2")?.content,
-      "=B2"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A3")?.content,
-      "=B4"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A4")?.content,
-      "=B5"
-    );
-    // not sure about this.
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A5")?.content,
-      "=B7"
-    );
-  });
 
   test.each(["readonly", "dashboard"] as const)(
     "Spreadsheet in readonly never sends commands",
