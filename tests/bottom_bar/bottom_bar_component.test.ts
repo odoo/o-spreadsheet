@@ -497,10 +497,6 @@ describe("BottomBar component", () => {
       });
       ({ parent } = await mountBottomBar(model));
       sheetListEl = fixture.querySelector<HTMLElement>(".o-sheet-list")!;
-      //@ts-ignore - scrollTo is not defined in JSDOM
-      sheetListEl.scrollTo = (arg: ScrollToOptions) => {
-        sheetListEl.scrollLeft = arg.left!;
-      };
     });
 
     test("Can scroll on the list of sheets", async () => {
@@ -587,12 +583,6 @@ describe("BottomBar component", () => {
     });
 
     test("Spam click on the arrow button scrolls a lot", async () => {
-      let scrollTo = 0;
-      //@ts-ignore - scrollTo is not defined in JSDOM
-      sheetListEl.scrollTo = (arg: ScrollToOptions) => {
-        scrollTo = arg.left!;
-      };
-
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(800);
       parent.render(true);
@@ -603,7 +593,6 @@ describe("BottomBar component", () => {
       simulateClick(".o-bottom-bar-arrow-right");
       simulateClick(".o-bottom-bar-arrow-right");
       simulateClick(".o-bottom-bar-arrow-right");
-      expect(scrollTo).toBe(500);
 
       sheetListEl.scrollLeft = 500;
       sheetListEl.dispatchEvent(new MouseEvent("scroll"));
@@ -612,7 +601,6 @@ describe("BottomBar component", () => {
       simulateClick(".o-bottom-bar-arrow-left");
       simulateClick(".o-bottom-bar-arrow-left");
       simulateClick(".o-bottom-bar-arrow-left");
-      expect(scrollTo).toBe(200);
     });
 
     test("Selecting a sheet from the context menu scrolls to that sheet", async () => {

@@ -45,6 +45,20 @@ beforeAll(() => {
     },
   });
 
+  HTMLDivElement.prototype.scrollTo = function (
+    x: ScrollToOptions | undefined | number,
+    y?: number
+  ) {
+    if (typeof x === "number" && typeof y === "number") {
+      this.scrollTop = y;
+      this.scrollLeft = x;
+    } else if (typeof x === "object" && x !== null) {
+      const options = x as ScrollToOptions;
+      this.scrollTop = options["top"] ?? this.scrollTop;
+      this.scrollLeft = options["left"] ?? this.scrollLeft;
+    }
+  };
+
   console.debug = () => {};
 });
 
