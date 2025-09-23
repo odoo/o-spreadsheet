@@ -410,6 +410,20 @@ export class SpreadsheetPivotTable {
   get numberOfCells() {
     return this.rows.length * this.getNumberOfDataColumns();
   }
+
+  getColumnDomainsAtDepth(depth: number) {
+    if (depth < 0 || depth >= this.columns.length - 1) {
+      return [];
+    }
+    return this.columns[depth].map((col) => this.getDomain(col)).filter((d) => d.length);
+  }
+
+  getRowDomainsAtDepth(depth: number) {
+    if (depth < 0 || depth > this.maxIndent) {
+      return [];
+    }
+    return this.rows.filter((row) => row.indent === depth + 1).map((row) => this.getDomain(row));
+  }
 }
 
 export const EMPTY_PIVOT_CELL = { type: "EMPTY" } as const;
