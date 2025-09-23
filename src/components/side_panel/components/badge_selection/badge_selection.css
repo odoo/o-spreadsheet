@@ -1,0 +1,21 @@
+.o-spreadsheet {
+  .o-badge-selection {
+    gap: 1px;
+    button.o-button {
+      border-radius: 0;
+      &.selected {
+        color: var(--os-gray-900);
+        border-color: var(--os-action-color);
+        background: var(--os-badge-selected-color);
+        font-weight: 600;
+      }
+
+      &:first-child {
+        border-radius: 4px 0 0 4px;
+      }
+      &:last-child {
+        border-radius: 0 4px 4px 0;
+      }
+    }
+  }
+}

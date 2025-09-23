@@ -1,0 +1,32 @@
+.o-spreadsheet {
+  .o-validation {
+    border-radius: 4px;
+    border-width: 0 0 0 3px;
+    border-style: solid;
+    gap: 3px;
+
+    .o-icon {
+      margin-right: 5px;
+      height: 1.2em;
+      width: 1.2em;
+    }
+  }
+
+  .o-validation-warning {
+    border-color: var(--os-alert-warning-border);
+    color: var(--os-alert-warning-text-color);
+    background-color: var(--os-alert-warning-bg);
+  }
+
+  .o-validation-error {
+    border-color: var(--os-alert-danger-border);
+    color: var(--os-alert-danger-text-color);
+    background-color: var(--os-alert-danger-bg);
+  }
+
+  .o-validation-info {
+    border-color: var(--os-alert-info-border);
+    color: var(--os-alert-info-text-color);
+    background-color: var(--os-alert-info-bg);
+  }
+}

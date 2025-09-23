@@ -1,0 +1,32 @@
+.o-spreadsheet {
+  label.o-checkbox {
+    input {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      border-radius: 0;
+      width: 14px;
+      height: 14px;
+      vertical-align: top;
+      outline: none;
+      border: 1px solid var(--os-gray-300);
+      cursor: pointer;
+
+      &:hover {
+        border-color: var(--os-action-color);
+      }
+
+      &:checked {
+        background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20fill%3D%27none%27%20stroke%3D%27%23FFF%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-width%3D%273%27%20d%3D%27m6%2010%203%203%206-6%27/%3E%3C/svg%3E");
+        background-color: var(--os-action-color);
+        border-color: var(--os-action-color);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(113, 75, 103, 0.25);
+        border-color: var(--os-action-color);
+      }
+    }
+  }
+}

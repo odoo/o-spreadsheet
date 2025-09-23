@@ -1,0 +1,13 @@
+.o-spreadsheet {
+  .o-pivot-sort {
+    .o-sort-card {
+      width: fit-content;
+      background-color: var(--os-gray-100);
+      border: 1px solid var(--os-gray-300);
+
+      .o-sort-value {
+        color: var(--os-primary-button-bg);
+      }
+    }
+  }
+}

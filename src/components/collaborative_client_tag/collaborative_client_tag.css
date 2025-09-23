@@ -1,0 +1,10 @@
+.o-spreadsheet {
+  .o-client-tag {
+    position: absolute;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    color: white;
+    pointer-events: none;
+    font-size: var(--os-default-font-size);
+  }
+}

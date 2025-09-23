@@ -1,0 +1,28 @@
+.o-spreadsheet {
+  .pivot-dimension {
+    background-color: white;
+    border: 1px solid var(--os-gray-300);
+    border-radius: 4px;
+
+    select.o-input {
+      height: inherit;
+    }
+
+    select > option {
+      background-color: white;
+    }
+
+    .pivot-dim-operator-label {
+      min-width: 120px;
+    }
+
+    &.pivot-dimension-invalid {
+      background-color: #ffdddd;
+      border-color: red !important;
+      select,
+      input {
+        background-color: #ffdddd;
+      }
+    }
+  }
+}
