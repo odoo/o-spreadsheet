@@ -1,5 +1,6 @@
 import RBush from "rbush";
 
+import { deepEquals } from "../../../helpers";
 import { UID, Zone } from "../../../types";
 
 /**
@@ -132,12 +133,12 @@ export class SpreadsheetRTree<T> {
 
   rtreeItemComparer(left: RTreeItem<T>, right: RTreeItem<T>) {
     return (
-      left.data === right.data &&
       left.boundingBox.sheetId === right.boundingBox.sheetId &&
       left.boundingBox?.zone.left === right.boundingBox.zone.left &&
       left.boundingBox?.zone.top === right.boundingBox.zone.top &&
       left.boundingBox?.zone.right === right.boundingBox.zone.right &&
-      left.boundingBox?.zone.bottom === right.boundingBox.zone.bottom
+      left.boundingBox?.zone.bottom === right.boundingBox.zone.bottom &&
+      deepEquals(left.data, right.data)
     );
   }
 }
