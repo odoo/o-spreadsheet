@@ -1,7 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { Model } from "../../src/model";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import {
   clickCell,
