@@ -10,7 +10,7 @@
         </div>
         <span class="d-flex align-items-center" t-esc="state.title"/>
       </div>
-      <div class="o-ribbon-menu-wrapper overflow-auto">
+      <div class="o-ribbon-menu-wrapper overflow-auto" t-ref="container">
         <Menu t-props="menuProps"/>
       </div>
     </div>

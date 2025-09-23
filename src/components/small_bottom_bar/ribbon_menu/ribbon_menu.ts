@@ -28,6 +28,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
 
   rootItems = topbarMenuRegistry.getMenuItems();
   private menuRef = useRef("menu");
+  private containerRef = useRef("container");
 
   state: State = useState({
     menuItems: this.rootItems,
@@ -51,6 +52,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
       this.state.parentState = { ...this.state };
       this.state.menuItems = children;
       this.state.title = menu.name(this.env);
+      this.containerRef.el?.scrollTo({ top: 0 });
     } else {
       this.state.menuItems = this.rootItems;
       this.state.title = undefined;
@@ -82,6 +84,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
     this.state.menuItems = this.state.parentState.menuItems;
     this.state.title = this.state.parentState.title;
     this.state.parentState = this.state.parentState.parentState;
+    this.containerRef.el?.scrollTo({ top: 0 });
   }
 
   get backTitle() {
