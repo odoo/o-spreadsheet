@@ -609,6 +609,21 @@ describe("Context MenuPopover internal tests", () => {
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
   });
 
+  test("Parent menu is not visible if all its children are invisible", async () => {
+    const menuItems = createActions([
+      makeTestMenuItem("root", {
+        children: [
+          makeTestMenuItem("menu_1", {
+            children: [makeTestMenuItem("invisible_submenu_1", { isVisible: () => false })],
+          }),
+        ],
+      }),
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    await mouseOverMenuElement(".o-menu div[data-name='root']");
+    expect(".o-menu div[data-name='menu_1']").toHaveCount(0);
+  });
+
   test("Enabled menus are updated at each render", async () => {
     let enabled = true;
     const menuItems: Action[] = createActions([
@@ -685,6 +700,7 @@ describe("Context MenuPopover internal tests", () => {
         name: "menuItem",
         onStartHover,
         onStopHover,
+        execute: () => {},
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
@@ -702,6 +718,7 @@ describe("Context MenuPopover internal tests", () => {
         id: "menuItem",
         name: "menuItem",
         onStopHover,
+        execute: () => {},
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
@@ -917,6 +934,7 @@ describe("Context menu separator", () => {
       name,
       isVisible: () => !options?.hidden,
       separator: options?.separator,
+      execute: () => {},
     };
   }
 

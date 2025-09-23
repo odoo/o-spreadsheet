@@ -4,8 +4,8 @@ import { click } from "./test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "./test_helpers/helpers";
 
 const testMenuItems: Action[] = createActions([
-  { name: "item1", id: "item1" },
-  { name: "item2", id: "item2" },
+  { name: "item1", id: "item1", execute: () => {} },
+  { name: "item2", id: "item2", execute: () => {} },
 ]);
 
 describe("data validation sidePanel component", () => {
