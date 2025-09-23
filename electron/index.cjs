@@ -30,7 +30,7 @@ async function createWindow() {
 
 app.whenReady().then(() => {
   ipcMain.handle("dialog:openFile", handleFileOpen);
-  createWindow();
+  return createWindow();
 });
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -51,6 +51,6 @@ app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    return createWindow();
   }
 });
