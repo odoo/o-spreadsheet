@@ -128,6 +128,14 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
   });
 
+  test("Spreading relations are properly cleared upon cell content change", () => {
+    setCellContent(model, "A1", "=MUNIT(1)");
+    const positionA1 = model.getters.getActivePosition();
+    expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).toBeDefined();
+    setCellContent(model, "A1", "42");
+    expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).not.toBeDefined();
+  });
+
   describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
       addToRegistry(functionRegistry, "MATRIX.2.2", {
