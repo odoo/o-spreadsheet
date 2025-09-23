@@ -108,9 +108,6 @@ export function* createAutofillGenerator(
   for (const position of iterateAutofillPositions(sheetId, target, direction)) {
     const generator = generators[position[headerKey]];
     const { content, origin, rule } = generator.next();
-    // if (rule.type !== "NO_OP_MODIFIER") {
-    //   // mouais...
-    // }
     yield { content, origin, position, rule };
   }
   return;
@@ -150,7 +147,7 @@ function addMissingGenerators(sheetId: UID, generatorCells: GeneratorCell[]) {
  */
 class AutofillGenerator {
   private readonly cells: GeneratorCell[];
-  private readonly getters: CoreGetters; // Use correct type if available
+  private readonly getters: CoreGetters;
   private index: number = 0;
   private readonly direction: DIRECTION;
   private readonly sheetId: string;

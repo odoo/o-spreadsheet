@@ -366,13 +366,11 @@ function autofillTransformation(
   const newTargetZone = transformZone(toTransform.targetZone, executed);
   if (!newTargetZone) return undefined;
 
-  console.log(executed);
   const newRules = toTransform.rules
     .map((rule) => {
       const newRule = { ...rule };
       const transformedOriginZone = transformZone(positionToZone(rule.origin), executed);
       if (!transformedOriginZone) {
-        // return DO_NOTHING;
         return undefined;
       }
       newRule.origin = {

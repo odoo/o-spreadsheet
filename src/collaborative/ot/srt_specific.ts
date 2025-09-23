@@ -119,9 +119,9 @@ function updateChartRangesTransformation<Cmd extends UpdateChartCommand | Create
   };
 }
 
-specificRangeTransformRegistry.add("AUTOFILL_CELLS", adaptAutofillOriginalContent);
+specificRangeTransformRegistry.add("AUTOFILL_CELLS", adaptAutofillOriginContent);
 
-function adaptAutofillOriginalContent(
+function adaptAutofillOriginContent(
   cmd: AutoFillCellsCommand,
   applyChange: RangeAdapter
 ): AutoFillCellsCommand {
