@@ -12,6 +12,25 @@ $item-height: 40px;
   }
   .o-ribbon-menu-wrapper {
     max-height: 100%;
+
+    &.scroll-top::before {
+      width: 100%;
+      height: 100%;
+      content: "";
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      position: fixed;
+      pointer-events: none;
+    }
+    &.scroll-bottom::after {
+      width: 100%;
+      height: 100%;
+      content: "";
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+      top: 100%;
+    }
   }
   .o-menu-item {
     height: $item-height;
