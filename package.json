@@ -20,7 +20,7 @@
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
     "bundle:xml": "node tools/bundle_xml/main.cjs",
-    "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
+    "bundle:dev": "npm-run-all build:js build:engine bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist && node tools/bundle_css/main.cjs --out dist",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
@@ -35,8 +35,9 @@
     "watch:css": "node tools/bundle_css/watch_css_files.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
-    "lint": "eslint --fix"
+    "build": "npm-run-all build:js build:engine bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
+    "lint": "eslint --fix",
+    "build:engine": "tsc --project src/engine/tsconfig.json"
   },
   "browserslist": [
     "last 1 Chrome versions"

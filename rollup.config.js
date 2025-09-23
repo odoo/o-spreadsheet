@@ -6,72 +6,100 @@ import { bundle } from "./tools/bundle.cjs";
 
 const outro = bundle.outro();
 
-/**
- * Get the rollup config based on the arguments
- * @param {"esm" | "cjs" | "iife"} format format of the bundle
- * @param {string} generatedFileName generated file name
- * @param {boolean} minified should it be minified
- */
-function getConfigForFormat(format, minified = false) {
-  return {
-    file: minified ? `dist/o-spreadsheet.${format}.min.js` : `dist/o-spreadsheet.${format}.js`,
-    format,
-    name: "o_spreadsheet",
-    extend: true,
-    globals: { "@odoo/owl": "owl" },
-    outro,
-    banner: bundle.jsBanner(),
-    plugins: minified ? [terser()] : [],
-  };
+function getConfigForFormat({ input, name, external, baseName }) {
+  return [
+    // ESM
+    {
+      input,
+      external,
+      output: {
+        name,
+        extend: true,
+        outro,
+        banner: bundle.jsBanner(),
+        globals: { "@odoo/owl": "owl" },
+        file: `dist/${baseName}.esm.js`,
+        format: "esm",
+      },
+      plugins: [nodeResolve(), typescript({ useTsconfigDeclarationDir: true })],
+    },
+    // CJS
+    {
+      input,
+      external,
+      output: {
+        name,
+        extend: true,
+        outro,
+        banner: bundle.jsBanner(),
+        globals: { "@odoo/owl": "owl" },
+        file: `dist/${baseName}.cjs.js`,
+        format: "cjs",
+      },
+      plugins: [nodeResolve(), typescript({ useTsconfigDeclarationDir: true })],
+    },
+    // IIFE
+    {
+      input,
+      external,
+      output: {
+        name,
+        extend: true,
+        outro,
+        banner: bundle.jsBanner(),
+        globals: { "@odoo/owl": "owl" },
+        file: `dist/${baseName}.iife.js`,
+        format: "iife",
+      },
+      plugins: [nodeResolve(), typescript({ useTsconfigDeclarationDir: true })],
+    },
+    // IIFE minified
+    {
+      input,
+      external,
+      output: {
+        name,
+        extend: true,
+        outro,
+        banner: bundle.jsBanner(),
+        globals: { "@odoo/owl": "owl" },
+        file: `dist/${baseName}.iife.min.js`,
+        format: "iife",
+      },
+      plugins: [nodeResolve(), typescript({ useTsconfigDeclarationDir: true }), terser()],
+    },
+  ];
 }
 
-export default (commandLineArgs) => {
-  let output = [];
-  let input = "";
-  let plugins = [nodeResolve()];
-  let config = {};
+export default () => {
+  // UI bundle (depends on OWL)
+  const uiConfigs = getConfigForFormat({
+    input: "src/index.ts",
+    name: "o_spreadsheet_ui",
+    external: ["@odoo/owl"],
+    baseName: "o-spreadsheet-ui",
+  });
 
-  if (commandLineArgs.format) {
-    // Only build one version to improve speed
-    config = {
-      input: "build/js/index.js",
-      external: ["@odoo/owl"],
-      output: [
-        {
-          name: "o_spreadsheet",
-          extend: true,
-          outro,
-          banner: bundle.jsBanner(),
-          globals: { "@odoo/owl": "owl" },
-          file: `build/o_spreadsheet.${commandLineArgs.format}.js`,
-          format: commandLineArgs.format,
-        },
-      ],
-      plugins,
-    };
-  } else {
-    input = "src/index.ts";
-    output = [
-      getConfigForFormat("esm"),
-      getConfigForFormat("cjs"),
-      getConfigForFormat("iife"),
-      getConfigForFormat("iife", true),
-    ];
-    plugins.push(typescript({ useTsconfigDeclarationDir: true }));
-    config = [
-      {
-        input,
-        external: ["@odoo/owl"],
-        output,
-        plugins,
-      },
-      {
-        input: "dist/types/index.d.ts",
-        output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
-        plugins: [dts(), nodeResolve()],
-      },
-    ];
-  }
+  // Engine bundle (no OWL dependency)
+  const engineConfigs = getConfigForFormat({
+    input: "src/engine/SpreadsheetEngine.ts",
+    name: "o_spreadsheet_engine",
+    external: [],
+    baseName: "o-spreadsheet-engine",
+  });
 
-  return config;
+  // DTS for UI
+  const dtsUi = {
+    input: "dist/types/index.d.ts",
+    output: { file: "dist/o-spreadsheet-ui.d.ts", format: "es" },
+    plugins: [dts(), nodeResolve()],
+  };
+  // DTS for Engine
+  const dtsEngine = {
+    input: "dist/types/engine/SpreadsheetEngine.d.ts",
+    output: { file: "dist/o-spreadsheet-engine.d.ts", format: "es" },
+    plugins: [dts(), nodeResolve()],
+  };
+
+  return [...uiConfigs, ...engineConfigs, dtsUi, dtsEngine];
 };

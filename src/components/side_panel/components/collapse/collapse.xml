@@ -1,7 +1,0 @@
-<templates>
-  <t t-name="o-spreadsheet-Collapse">
-    <div t-ref="content" class="os-collapse">
-      <t t-slot="default"/>
-    </div>
-  </t>
-</templates>

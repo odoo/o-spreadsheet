@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../build/engine",
+    "rootDir": ".",
+    "module": "CommonJS",
+    "target": "ES2020",
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": false,
+    "lib": ["ES2020"],
+    "types": ["node"]
+  },
+  "include": ["./SpreadsheetEngine.ts", "./demo_node.ts"]
+}
