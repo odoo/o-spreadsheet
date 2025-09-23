@@ -1158,3 +1158,112 @@ describe("Pivot (un)grouping menu items", () => {
     });
   });
 });
+
+describe("Pivot (un)collapse menu items", () => {
+  let model: Model;
+  let pivotId: string;
+  let env: SpreadsheetChildEnv;
+
+  beforeEach(() => {
+    model = createModelWithPivot("A1:I22");
+
+    env = makeTestEnv({ model });
+    pivotId = model.getters.getPivotIds()[0];
+    updatePivot(model, pivotId, {
+      rows: [],
+      columns: [],
+      measures: [{ id: "measureId", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+
+    setCellContent(model, "A25", "=PIVOT(1)");
+  });
+
+  test("Expand/collapse menu item visibility", () => {
+    const path = ["collapse_pivot", "toggle_collapse_pivot_cell"];
+    const menuItem = getNode(path, env, cellMenuRegistry);
+    updatePivot(model, pivotId, {
+      rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
+    });
+
+    setSelection(model, ["A1"]); // No pivot header selected
+    expect(menuItem.isVisible!(env)).toBe(false);
+
+    setSelection(model, ["A25"]); // Pivot title
+    expect(menuItem.isVisible!(env)).toBe(false);
+
+    setSelection(model, ["A27"]); // "Kevin" Salesperson header
+    expect(menuItem.isVisible!(env)).toBe(true);
+
+    setSelection(model, ["A28"]); // "New" Stage header
+    expect(menuItem.isVisible!(env)).toBe(false);
+  });
+
+  test("Can expand/collapse pivot header", () => {
+    const path = ["collapse_pivot", "toggle_collapse_pivot_cell"];
+    const menuItem = getNode(path, env, cellMenuRegistry);
+    updatePivot(model, pivotId, {
+      rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
+    });
+
+    setSelection(model, ["A27"]); // "Kevin" Salesperson header
+    expect(menuItem.name(env)).toBe("Collapse");
+    menuItem.execute!(env);
+    expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.ROW).toEqual([
+      [{ field: "Salesperson", value: "Kevin", type: "char" }],
+    ]);
+
+    expect(menuItem.name(env)).toBe("Expand");
+    menuItem.execute!(env);
+    expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.ROW).toHaveLength(0);
+  });
+
+  test("Expand all/Collapse all menu items visibility", () => {
+    const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
+    const expandAllPath = ["collapse_pivot", "expand_all_pivot"];
+    const collapseAllMenuItem = getNode(collapseAllPath, env, cellMenuRegistry);
+    const expandAllMenuItem = getNode(expandAllPath, env, cellMenuRegistry);
+    updatePivot(model, pivotId, {
+      rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
+    });
+
+    setSelection(model, ["A1"]); // No pivot header selected
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+
+    setSelection(model, ["A25"]); // Pivot title
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+
+    setSelection(model, ["A28"]); // "New" Stage header
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+
+    setSelection(model, ["A27"]); // "Kevin" Salesperson header
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(true);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+
+    collapseAllMenuItem.execute!(env);
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(true);
+  });
+
+  test("Can collapse all/expand all pivot groups", () => {
+    const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
+    const expandAllPath = ["collapse_pivot", "expand_all_pivot"];
+    const collapseAllMenuItem = getNode(collapseAllPath, env, cellMenuRegistry);
+    const expandAllMenuItem = getNode(expandAllPath, env, cellMenuRegistry);
+    updatePivot(model, pivotId, {
+      columns: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
+    });
+
+    setSelection(model, ["B25"]); // "Kevin" Salesperson header
+    collapseAllMenuItem.execute!(env);
+    expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.COL).toEqual([
+      [{ field: "Salesperson", value: "Kevin", type: "char" }],
+      [{ field: "Salesperson", value: "Eden", type: "char" }],
+    ]);
+
+    expandAllMenuItem.execute!(env);
+    expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.COL).toHaveLength(0);
+  });
+});
