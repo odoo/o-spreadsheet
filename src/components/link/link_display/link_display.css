@@ -1,0 +1,47 @@
+.o-spreadsheet {
+  .o-link-tool {
+    font-size: 13px;
+    background-color: white;
+    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    height: var(--os-link-tooltip-height);
+    width: var(--os-link-tooltip-width);
+
+    img {
+      margin-right: 3px;
+      width: 16px;
+      height: 16px;
+    }
+
+    a.o-link {
+      color: var(--os-link-color);
+      text-decoration: none;
+      flex-grow: 2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    a.o-link:hover {
+      text-decoration: none;
+      color: #001d1f;
+      cursor: pointer;
+    }
+  }
+  .o-link-icon {
+    float: right;
+    padding-left: 5px;
+    .o-icon {
+      height: 16px;
+    }
+  }
+  .o-link-icon .o-icon {
+    height: 13px;
+  }
+  .o-link-icon:hover {
+    cursor: pointer;
+    color: #000;
+  }
+}

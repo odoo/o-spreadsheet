@@ -1,0 +1,28 @@
+.o-spreadsheet {
+  .o-autofill {
+    position: absolute;
+    border: 1px solid white;
+    background-color: #1a73e8;
+    height: var(--os-autofill-edge-length);
+    width: var(--os-autofill-edge-length);
+  }
+
+  .o-autofill-handler {
+    position: absolute;
+    height: var(--os-autofill-edge-length);
+    width: var(--os-autofill-edge-length);
+    &:hover {
+      cursor: crosshair;
+    }
+  }
+
+  .o-autofill-nextvalue {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid black;
+    padding: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+}

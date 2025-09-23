@@ -36,5 +36,5 @@ if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
     fi
 
     # Css wrap check
-    node .husky/scss_check.js
+    node .husky/css_check.js
 fi

@@ -1,0 +1,65 @@
+.o-spreadsheet {
+  .o-carousel-content {
+    height: 0; /* To make flex-fill work */
+  }
+
+  .o-carousel-empty {
+    background-color: #ffffff;
+
+    .o-icon {
+      width: 50%;
+      height: 50%;
+      color: var(--os-gray-400);
+    }
+  }
+
+  .o-carousel-header {
+    z-index: 1;
+
+    overflow: hidden;
+    padding-left: 4px; /* Align with MIN_CELL_TEXT_MARGIN */
+
+    border: 1px solid transparent;
+
+    &.o-carousel-header-floating {
+      border: 1px solid var(--os-figure-border-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .o-carousel-title {
+      max-width: 60%;
+    }
+
+    .o-carousel-tabs {
+      width: 0; /* To make flex-fill work */
+    }
+
+    .o-carousel-tabs-dropdown {
+      cursor: pointer;
+      padding: 2px;
+      font-size: 16px;
+      line-height: 16px;
+
+      &.active,
+      &:hover {
+        background-color: var(--os-button-hover-bg);
+        color: var(--os-button-hover-text-color);
+      }
+    }
+
+    .o-carousel-tab {
+      cursor: pointer;
+      max-width: 150px;
+      font-size: 14px;
+
+      &:hover {
+        color: var(--os-button-primary-bg);
+      }
+
+      &.selected {
+        color: var(--os-button-primary-bg);
+        font-weight: 600;
+      }
+    }
+  }
+}
