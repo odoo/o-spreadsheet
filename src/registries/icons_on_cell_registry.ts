@@ -20,6 +20,7 @@ import {
   PIVOT_INDENT,
 } from "../constants";
 import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
+import { togglePivotCollapse } from "../helpers/pivot/pivot_helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
 import { ImageSVG } from "../types/image";
 import { Registry } from "./registry";
@@ -205,34 +206,6 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
   }
   return undefined;
 });
-
-function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
-  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  const pivotId = env.model.getters.getPivotIdFromPosition(position);
-  if (!pivotId || pivotCell.type !== "HEADER") {
-    return;
-  }
-  const definition = env.model.getters.getPivotCoreDefinition(pivotId);
-
-  const collapsedDomains = definition.collapsedDomains?.[pivotCell.dimension]
-    ? [...definition.collapsedDomains[pivotCell.dimension]]
-    : [];
-  const index = collapsedDomains.findIndex((domain) => deepEquals(domain, pivotCell.domain));
-  if (index !== -1) {
-    collapsedDomains.splice(index, 1);
-  } else {
-    collapsedDomains.push(pivotCell.domain);
-  }
-
-  const newDomains = definition.collapsedDomains
-    ? { ...definition.collapsedDomains }
-    : { COL: [], ROW: [] };
-  newDomains[pivotCell.dimension] = collapsedDomains;
-  env.model.dispatch("UPDATE_PIVOT", {
-    pivotId,
-    pivot: { ...definition, collapsedDomains: newDomains },
-  });
-}
 
 iconsOnCellRegistry.add("pivot_dashboard_sorting", (getters, position) => {
   if (!getters.isDashboard()) {

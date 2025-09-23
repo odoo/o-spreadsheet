@@ -12,6 +12,7 @@ import {
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import {
+  CellPosition,
   CellValue,
   DEFAULT_LOCALE,
   FunctionResultObject,
@@ -19,6 +20,7 @@ import {
   Matrix,
   Maybe,
   Pivot,
+  SpreadsheetChildEnv,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
@@ -33,7 +35,7 @@ import {
   PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
-import { getUniqueText, isDefined } from "../misc";
+import { deepEquals, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -421,4 +423,32 @@ export function getCustomFieldWithParentField(
       groups: [],
     }
   );
+}
+
+export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
+  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+  if (!pivotId || pivotCell.type !== "HEADER") {
+    return;
+  }
+  const definition = env.model.getters.getPivotCoreDefinition(pivotId);
+
+  const collapsedDomains = definition.collapsedDomains?.[pivotCell.dimension]
+    ? [...definition.collapsedDomains[pivotCell.dimension]]
+    : [];
+  const index = collapsedDomains.findIndex((domain) => deepEquals(domain, pivotCell.domain));
+  if (index !== -1) {
+    collapsedDomains.splice(index, 1);
+  } else {
+    collapsedDomains.push(pivotCell.domain);
+  }
+
+  const newDomains = definition.collapsedDomains
+    ? { ...definition.collapsedDomains }
+    : { COL: [], ROW: [] };
+  newDomains[pivotCell.dimension] = collapsedDomains;
+  env.model.dispatch("UPDATE_PIVOT", {
+    pivotId,
+    pivot: { ...definition, collapsedDomains: newDomains },
+  });
 }
