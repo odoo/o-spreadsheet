@@ -4,9 +4,10 @@
   "description": "A spreadsheet component",
   "type": "module",
   "scripts": {
-    "bundle:xml": "node tools/bundle_xml/main.cjs",
-    "bundle:css": "node tools/bundle_css/main.cjs",
-    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist"
+    "build": "npm-run-all build:js",
+    "build:js": "tsc --module es6 --incremental --project tsconfig.build.json",
+    "bundle:esm": "rollup -c -m -- --format esm",
+    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",

@@ -2,7 +2,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
-import { bundle } from "./tools/bundle.cjs";
+import { bundle } from "../../tools/bundle.cjs";
 
 const outro = bundle.outro();
 
@@ -14,11 +14,11 @@ const outro = bundle.outro();
  */
 function getConfigForFormat(format, minified = false) {
   return {
-    file: minified ? `dist/o-spreadsheet.${format}.min.js` : `dist/o-spreadsheet.${format}.js`,
+    file: minified ? `dist/o-spreadsheet-ui.${format}.min.js` : `dist/o-spreadsheet-ui.${format}.js`,
     format,
-    name: "o_spreadsheet",
+    name: "o_spreadsheet_ui",
     extend: true,
-    globals: { "@odoo/owl": "owl" },
+    globals: { "@odoo/owl": "owl", "@odoo/o-spreadsheet-engine": "o_spreadsheet_engine" },
     outro,
     banner: bundle.jsBanner(),
     plugins: minified ? [terser()] : [],
@@ -35,15 +35,15 @@ export default (commandLineArgs) => {
     // Only build one version to improve speed
     config = {
       input: "build/js/index.js",
-      external: ["@odoo/owl"],
+      external: ["@odoo/owl", "@odoo/o-spreadsheet-engine"],
       output: [
         {
-          name: "o_spreadsheet",
+          name: "o_spreadsheet_iui",
           extend: true,
           outro,
           banner: bundle.jsBanner(),
-          globals: { "@odoo/owl": "owl" },
-          file: `build/o_spreadsheet.${commandLineArgs.format}.js`,
+          globals: { "@odoo/owl": "owl", "@odoo/o-spreadsheet-engine": "o_spreadsheet_engine" },
+          file: `build/o-spreadsheet-ui.${commandLineArgs.format}.js`,
           format: commandLineArgs.format,
         },
       ],
@@ -61,13 +61,13 @@ export default (commandLineArgs) => {
     config = [
       {
         input,
-        external: ["@odoo/owl"],
+        external: ["@odoo/owl", "@odoo/o-spreadsheet-engine"],
         output,
         plugins,
       },
       {
         input: "dist/types/index.d.ts",
-        output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
+        output: [{ file: "dist/o-spreadsheet-ui.d.ts", format: "es" }],
         plugins: [dts(), nodeResolve()],
       },
     ];
