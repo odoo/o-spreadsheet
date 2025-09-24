@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "19.1.0-alpha.3",
   "type": "module",
   "workspaces": [
     "packages/o-spreadsheet-engine",
@@ -26,9 +27,6 @@
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "lint": "eslint --fix",
-
-
-
     "build": "npm run build --workspaces --if-present",
     "dist": "npm run dist --workspaces --if-present && npm run copy:dist",
     "test": "npm run test --workspaces --if-present",
