@@ -122,6 +122,23 @@ cellMenuRegistry
     icon: "o-spreadsheet-Icon.MINUS_IN_BOX",
     ...ACTIONS_PIVOT.ungroupPivotHeadersAction,
   })
+  .add("collapse_pivot", {
+    sequence: 156,
+    name: _t("Expand/Collapse"),
+    icon: "o-spreadsheet-Icon.COLLAPSE_PIVOT",
+  })
+  .addChild("toggle_collapse_pivot_cell", ["collapse_pivot"], {
+    sequence: 10,
+    ...ACTIONS_PIVOT.collapsePivotGroupAction,
+  })
+  .addChild("collapse_all_pivot", ["collapse_pivot"], {
+    sequence: 20,
+    ...ACTIONS_PIVOT.collapseAllPivotGroupAction,
+  })
+  .addChild("expand_all_pivot", ["collapse_pivot"], {
+    sequence: 30,
+    ...ACTIONS_PIVOT.expandAllPivotGroupAction,
+  })
   .add("pivot_sorting", {
     name: _t("Sort pivot"),
     sequence: 155,

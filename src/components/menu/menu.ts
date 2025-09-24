@@ -58,7 +58,10 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
     for (let i = 0; i < this.props.menuItems.length; i++) {
       const menuItem = this.props.menuItems[i];
-      if (menuItem.isVisible(this.env)) {
+      if (
+        menuItem.isVisible(this.env) &&
+        (!this.isRoot(menuItem) || this.hasVisibleChildren(menuItem))
+      ) {
         menuItemsAndSeparators.push(menuItem);
       }
       if (
@@ -107,6 +110,10 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
 
   isRoot(menu: Action) {
     return !menu.execute;
+  }
+
+  private hasVisibleChildren(menu: Action) {
+    return menu.children(this.env).some((child) => child.isVisible(this.env));
   }
 
   isEnabled(menu: Action) {

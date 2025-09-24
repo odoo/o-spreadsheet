@@ -11,6 +11,7 @@ describe("Menu component", () => {
         id: "test_menu",
         name: "Test Menu",
         isEnabled: () => false,
+        execute: () => {},
       },
     ]);
 

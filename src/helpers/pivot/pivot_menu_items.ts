@@ -5,16 +5,18 @@ import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
+  PivotDomain,
   PivotField,
   PivotFields,
   PivotHeaderCell,
   SortDirection,
   SpreadsheetChildEnv,
+  UID,
 } from "../..";
 import { ActionSpec } from "../../actions/action";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types";
-import { deepCopy } from "../misc";
+import { deepCopy, deepEquals } from "../misc";
 import { cellPositions } from "../zones";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
 import {
@@ -22,6 +24,7 @@ import {
   getCustomFieldWithParentField,
   getUniquePivotGroupName,
   removePivotGroupsContainingValues,
+  togglePivotCollapse,
 } from "./pivot_helpers";
 import { pivotRegistry } from "./pivot_registry";
 
@@ -208,6 +211,145 @@ export const ungroupPivotHeadersAction: ActionSpec = {
     return areFieldValuesInGroups(definition, values, field, pivot.getFields());
   },
 };
+
+export const collapsePivotGroupAction: ActionSpec = {
+  name: (env) => {
+    const position = env.model.getters.getActivePosition();
+    const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
+    if (pivotCellState.isPivotGroup) {
+      return pivotCellState.isCollapsed ? _t("Expand") : _t("Collapse");
+    }
+    return "";
+  },
+  execute(env) {
+    const position = env.model.getters.getActivePosition();
+    togglePivotCollapse(position, env);
+  },
+  isVisible: (env) => {
+    const position = env.model.getters.getActivePosition();
+    const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
+    return pivotCellState.isPivotGroup;
+  },
+};
+
+export const collapseAllPivotGroupAction: ActionSpec = {
+  name: _t("Collapse all"),
+  execute(env) {
+    const position = env.model.getters.getActivePosition();
+    const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
+    if (!pivotCellState.isPivotGroup) {
+      return;
+    }
+    const { pivotCell, pivotId, siblingDomains } = pivotCellState;
+
+    const definition = deepCopy(env.model.getters.getPivotCoreDefinition(pivotId));
+    definition.collapsedDomains = definition.collapsedDomains || { COL: [], ROW: [] };
+    const newCollapsed = [
+      ...(definition.collapsedDomains[pivotCell.dimension] || []),
+      ...siblingDomains,
+    ];
+
+    const filteredCollapsed = newCollapsed.filter(
+      (domain, index) => index === newCollapsed.findIndex((d) => deepEquals(d, domain))
+    );
+
+    definition.collapsedDomains[pivotCell.dimension] = filteredCollapsed;
+    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+  },
+  isVisible: (env) => {
+    const position = env.model.getters.getActivePosition();
+    const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
+    if (!pivotCellState.isPivotGroup) {
+      return false;
+    }
+
+    const { pivotCell, pivotId, siblingDomains } = pivotCellState;
+    const definition = env.model.getters.getPivotCoreDefinition(pivotId);
+
+    return !siblingDomains.every((domain) =>
+      (definition.collapsedDomains?.[pivotCell.dimension] || []).some((d) => deepEquals(d, domain))
+    );
+  },
+};
+
+export const expandAllPivotGroupAction: ActionSpec = {
+  name: _t("Expand all"),
+  execute(env) {
+    const position = env.model.getters.getActivePosition();
+    const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
+    if (!pivotCellState.isPivotGroup) {
+      return;
+    }
+    const { pivotCell, pivotId, siblingDomains } = pivotCellState;
+
+    const definition = deepCopy(env.model.getters.getPivotCoreDefinition(pivotId));
+    definition.collapsedDomains = definition.collapsedDomains || { COL: [], ROW: [] };
+
+    const domains = definition.collapsedDomains[pivotCell.dimension] || [];
+    const filteredDomains = domains.filter(
+      (domain) => !siblingDomains.find((d) => deepEquals(d, domain))
+    );
+
+    definition.collapsedDomains[pivotCell.dimension] = filteredDomains;
+    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+  },
+  isVisible: (env) => {
+    const position = env.model.getters.getActivePosition();
+    const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
+    if (!pivotCellState.isPivotGroup) {
+      return false;
+    }
+
+    const { pivotCell, pivotId, siblingDomains } = pivotCellState;
+    const definition = env.model.getters.getPivotCoreDefinition(pivotId);
+    const collapsedDomains = definition.collapsedDomains?.[pivotCell.dimension] || [];
+    return collapsedDomains.some((domain) => siblingDomains.some((d) => deepEquals(d, domain)));
+  },
+};
+
+function getPivotCellCollapseState(
+  getters: Getters,
+  position: CellPosition
+):
+  | { isPivotGroup: false }
+  | {
+      isPivotGroup: true;
+      isCollapsed: boolean;
+      pivotCell: PivotHeaderCell;
+      pivotId: UID;
+      siblingDomains: PivotDomain[];
+    } {
+  if (!getters.isSpillPivotFormula(position)) {
+    return { isPivotGroup: false };
+  }
+  const pivotCell = getters.getPivotCellFromPosition(position);
+  const pivotId = getters.getPivotIdFromPosition(position);
+
+  if (pivotCell.type !== "HEADER" || !pivotId || !pivotCell.domain.length) {
+    return { isPivotGroup: false };
+  }
+  const definition = getters.getPivotCoreDefinition(pivotId);
+  const isDashboard = getters.isDashboard();
+
+  const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
+  const hasIcon = !isDashboard && pivotCell.domain.length !== fields.length;
+  if (!hasIcon) {
+    return { isPivotGroup: false };
+  }
+
+  const domains = definition.collapsedDomains?.[pivotCell.dimension] ?? [];
+  const isCollapsed = domains.some((domain) => deepEquals(domain, pivotCell.domain));
+
+  const pivot = getters.getPivot(pivotId);
+  const table = pivot.getExpandedTableStructure();
+  const depth = pivotCell.domain.length - 1;
+  const siblingDomains =
+    pivotCell.dimension === "ROW"
+      ? table.getRowDomainsAtDepth(depth)
+      : table.getColumnDomainsAtDepth(depth);
+
+  return { isPivotGroup: true, isCollapsed, pivotCell, pivotId, siblingDomains };
+}
 
 export function canSortPivot(getters: Getters, position: CellPosition): boolean {
   const pivotId = getters.getPivotIdFromPosition(position);
