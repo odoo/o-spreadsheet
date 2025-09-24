@@ -1,4 +1,4 @@
-const { bundle } = require("../bundle.cjs");
+const { bundle } = require("../../../../tools/bundle.cjs");
 const xmlBundle = require("./bundle_xml_templates.cjs");
 const parseArgs = require("minimist");
 

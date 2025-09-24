@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { writeToFile } = require("../utils/files.cjs");
-const { bundle } = require("../bundle.cjs");
+const { bundle } = require("../../../../tools/bundle.cjs");
 
 const variablePath = "src/variables.css";
 

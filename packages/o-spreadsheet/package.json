@@ -7,14 +7,16 @@
     "build": "npm-run-all build:js",
     "build:js": "tsc --module es6 --incremental --project tsconfig.build.json",
     "bundle:esm": "rollup -c -m -- --format esm",
-    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c"
+    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c && npm run copy:xml && npm run copy:css",
+    "copy:xml": "cpy ../o-spreadsheet-ui/dist/o_spreadsheet.xml dist/",
+    "copy:css": "cpy ../o-spreadsheet-ui/dist/o_spreadsheet.css dist/"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "@swc/jest": "0.2.36",
     "@swc/core": "1.6.7",
+    "@swc/jest": "0.2.36",
     "@types/jest": "^27.0.1",
     "@types/node": "^20.17.24",
     "@types/rbush": "^3.0.3",
@@ -25,6 +27,7 @@
     "chartjs-adapter-luxon": "^1.3.1",
     "chartjs-chart-geo": "^4.3.2",
     "cors": "^2.8.5",
+    "cpy-cli": "^6.0.0",
     "express": "^4.17.1",
     "express-form-data": "^2.0.19",
     "express-ws": "^4.0.0",
@@ -53,7 +56,7 @@
     "xml-formatter": "^2.4.0"
   },
   "dependencies": {
-    "@odoo/o-spreadsheet-ui": "*",
-    "@odoo/o-spreadsheet-engine": "*"
+    "@odoo/o-spreadsheet-engine": "*",
+    "@odoo/o-spreadsheet-ui": "*"
   }
 }
