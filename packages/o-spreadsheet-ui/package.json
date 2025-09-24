@@ -16,7 +16,8 @@
     "build": "npm-run-all build:js",
     "build:js": "tsc --module es6 --incremental --project tsconfig.build.json",
     "bundle:esm": "rollup -c -m -- --format esm",
-    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c"
+    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest"
   },
   "dependencies": {
     "@odoo/owl": "2.5.1",
@@ -24,5 +25,33 @@
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1",
     "@odoo/o-spreadsheet-engine": "*"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    },
+    "verbose": false,
+    "testEnvironment": "jsdom",
+    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "workerIdleMemoryLimit": "800MB",
+    "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
+    "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup/jest.setup.ts"
+    ]
   }
 }
