@@ -19,7 +19,7 @@ import {
   UnboundedZone,
   ZoneDimension,
 } from "../types/misc";
-import { Range, RangePart, RangeStringOptions } from "../types/range";
+import { BoundedRange, Range, RangePart, RangeStringOptions } from "../types/range";
 import { numberToLetters } from "./coordinates";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
@@ -226,6 +226,11 @@ function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
   }
 
   return parts;
+}
+
+export function positionToBoundedRange(position: CellPosition): BoundedRange {
+  const zone = { left: position.col, top: position.row, right: position.col, bottom: position.row };
+  return { sheetId: position.sheetId, zone };
 }
 
 /**

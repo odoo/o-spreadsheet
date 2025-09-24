@@ -502,20 +502,6 @@ export function excludeTopLeft(zone: Zone): Zone[] {
   return [leftColumnZone, rightPartZone];
 }
 
-export function aggregatePositionsToZones(positions: Iterable<CellPosition>): {
-  [sheetId: string]: Zone[];
-} {
-  const result: { [sheetId: string]: Zone[] } = {};
-  for (const position of positions) {
-    result[position.sheetId] ??= [];
-    result[position.sheetId].push(positionToZone(position));
-  }
-  for (const sheetId in result) {
-    result[sheetId] = recomputeZones(result[sheetId]);
-  }
-  return result;
-}
-
 /**
  * Array of all positions in the zone.
  */

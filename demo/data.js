@@ -3936,15 +3936,16 @@ function computeStringCells(cols, rows) {
 
 function computeSplitVlookup(rows) {
   /*
-* in A1 write =SPLIT("1 2", " ")
-in C1, writ e=B2
-write a VLOOKUP that search in column C --> slow
-* */
+   * in A1 write =SPLIT("1 2", " ")
+   * in C1, write=B2
+   * write a VLOOKUP that search in column C --> slow
+   */
   const cells = {};
-  for (let row = 0; row < rows; row++) {
+  for (let row = 1; row < rows; row++) {
     cells["A" + row] = { content: `=SPLIT("1 2", " ")` };
     cells["C" + row] = { content: `=B${row}` };
-    cells["D" + row] = { content: `=vlookup("2",a1:c${rows},3)` };
+    cells["D" + row] = { content: `=VLOOKUP("2",C1:C${rows},1)` };
+    cells["F" + row] = { content: `=D${row}` };
   }
   return cells;
 }

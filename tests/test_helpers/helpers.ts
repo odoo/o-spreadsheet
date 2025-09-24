@@ -32,6 +32,7 @@ import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,
+  createRangeFromXc,
   range,
   toCartesian,
   toUnboundedZone,
@@ -660,6 +661,17 @@ export function toRangeData(sheetId: UID, xc: string): RangeData {
 
 export function toRangesData(sheetId: UID, str: string): RangeData[] {
   return str.split(",").map((xc) => toRangeData(sheetId, xc));
+}
+
+export function toBoundedRange(sheetId: UID, xc: string) {
+  const fullRange = createRangeFromXc({ xc, sheetId }, () => ({
+    numberOfRows: Number.MAX_SAFE_INTEGER,
+    numberOfCols: Number.MAX_SAFE_INTEGER,
+  }));
+  return {
+    sheetId: fullRange.sheetId,
+    zone: fullRange.zone,
+  };
 }
 
 export function createEqualCF(
