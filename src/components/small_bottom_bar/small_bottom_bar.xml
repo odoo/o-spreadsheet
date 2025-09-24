@@ -5,9 +5,14 @@
         <RibbonMenu onClose="() => this.menuState.isOpen=false"/>
       </t>
       <t t-else="">
-        <div class="o-small-composer px-2 py-2">
+        <div class="o-small-composer px-2 py-2 position-relative">
           <div class="w-100" t-ref="bottombarComposer">
             <Composer t-props="composerProps"/>
+            <span
+              t-if="showFxIcon"
+              class="position-absolute top-50 translate-middle-y ps-2 pe-none">
+              <t t-call="o-spreadsheet-Icon.FX_SVG"/>
+            </span>
           </div>
           <span
             class="align-items-center d-flex justify-content-center o-selection-button"
