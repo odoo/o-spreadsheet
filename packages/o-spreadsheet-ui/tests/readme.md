@@ -31,4 +31,4 @@ tests/
 
 ## Owl Templates
 
-In an effort to run the tests faster, we pre-compile the owl templates before running the tests. This is done by running the `compileOwlTemplates` script in the `package.json` file. This script compiles all the owl templates in the `src` folder into the `tools/owl_templates/_compiled/owl_compiled_templates.cjs` file.
+In an effort to run the tests faster, we pre-compile the owl templates before running the tests. This is done by running the `compileOwlTemplates` script in the `package.json` file. This script compiles all the owl templates in the `src` folder into the `packages/o-spreadsheet-ui/tools/owl_templates/_compiled/owl_compiled_templates.cjs` file.
