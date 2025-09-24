@@ -1,5 +1,6 @@
 import { Registry } from "../registries/registry";
 import {
+  AutofillCorePlugin,
   BordersPlugin,
   CellPlugin,
   ChartPlugin,
@@ -84,6 +85,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("image", ImagePlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
+  .add("autofill_core", AutofillCorePlugin)
   .add("tableStyle", TableStylePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands

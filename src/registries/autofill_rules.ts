@@ -7,7 +7,14 @@ import {
   isDateTimeFormat,
 } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
-import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE, DIRECTION } from "../types/index";
+import {
+  AutofillModifier,
+  Cell,
+  CellValueType,
+  DEFAULT_LOCALE,
+  DIRECTION,
+  Getters,
+} from "../types/index";
 import { EvaluatedCell, LiteralCell } from "./../types/cells";
 import { Registry } from "./registry";
 
@@ -20,7 +27,12 @@ import { Registry } from "./registry";
  */
 export interface AutofillRule {
   condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => AutofillModifier;
+  generateRule: (
+    getters: Getters,
+    cell: Cell,
+    cells: (Cell | undefined)[],
+    direction: DIRECTION
+  ) => AutofillModifier;
   sequence: number;
 }
 
@@ -189,7 +201,7 @@ autofillRulesRegistry
       !cell.isFormula &&
       evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
       alphaNumericValueRegExp.test(cell.content),
-    generateRule: (cell: Cell, cells: Cell[], direction: DIRECTION) => {
+    generateRule: (getters: Getters, cell: Cell, cells: Cell[], direction: DIRECTION) => {
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
       const prefix = cell.content.match(stringPrefixRegExp)![0];
       const group = getGroup(
@@ -237,7 +249,7 @@ autofillRulesRegistry
   })
   .add("update_formula", {
     condition: (cell: Cell) => cell.isFormula,
-    generateRule: (_, cells: (Cell | undefined)[]) => {
+    generateRule: (getters: Getters, cell: Cell, cells: (Cell | undefined)[]) => {
       return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
     },
     sequence: 30,
@@ -251,7 +263,7 @@ autofillRulesRegistry
         isDateTimeFormat(cell.format)
       );
     },
-    generateRule: (cell: LiteralCell, cells: (Cell | undefined)[]) => {
+    generateRule: (getters: Getters, cell: LiteralCell, cells: (Cell | undefined)[]) => {
       const group = getGroup(
         cell,
         cells,
@@ -287,7 +299,12 @@ autofillRulesRegistry
     condition: (cell: Cell) =>
       !cell.isFormula &&
       evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number,
-    generateRule: (cell: LiteralCell, cells: (Cell | undefined)[], direction: DIRECTION) => {
+    generateRule: (
+      getters: Getters,
+      cell: LiteralCell,
+      cells: (Cell | undefined)[],
+      direction: DIRECTION
+    ) => {
       const group = getGroup(
         cell,
         cells,
