@@ -38,7 +38,6 @@ import {
   ungroupHeaders,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
-import { printDebugModel } from "../test_helpers/debug_helpers";
 import {
   getBorder,
   getCell,
@@ -686,8 +685,6 @@ describe("Multi users synchronisation", () => {
       deleteRows(bob, [1]);
       autofill(alice, "A1:A3", "A6");
     });
-    printDebugModel(alice);
-    printDebugModel(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")?.content,
       "=B1"
@@ -711,36 +708,32 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("fdfdddfsdsftly removed", () => {
-    deleteRows(bob, [1]);
-    undo(bob);
-    setCellContent(alice, "A1", "=B1");
-    setCellContent(alice, "A2", "=B2");
-    setCellContent(alice, "A3", "=B3");
-    autofill(alice, "A1:A3", "A6");
-    printDebugModel(alice);
-    printDebugModel(bob);
-    redo(bob);
+  test("autofill style when source is partly removed", () => {
+    setStyle(alice, "A1", { bold: true });
+    setStyle(alice, "A2", { italic: true });
+    setStyle(alice, "A3", { underline: true });
+    network.concurrent(() => {
+      deleteRows(bob, [1]);
+      autofill(alice, "A1:A3", "A6");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, {
+      bold: true,
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A2")?.style, {
+      underline: true,
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A3")?.style, {
+      bold: true,
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A4")?.style, {
+      underline: true,
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A5")?.style, {
+      bold: true,
+    });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A1")?.content,
-      "=B1"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2")?.content,
-      "=B2"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A3")?.content,
-      "=B4"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A4")?.content,
-      "=B5"
-    );
-    // not sure about this.
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A5")?.content,
-      "=B7"
+      (user) => getCell(user, "A6")?.style,
+      undefined
     );
   });
 

@@ -41,7 +41,7 @@ import {
   UpdateTableCommand,
   Zone,
 } from "../../types";
-import { AutoFillCellsContentCommand } from "../../types/commands";
+import { AutoFillCellsCommand, AutoFillCellsContentCommand } from "../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 
 /*
@@ -115,13 +115,15 @@ otRegistry.addTransformation(
 otRegistry.addTransformation(
   "REMOVE_COLUMNS_ROWS",
   ["AUTOFILL_CELLS_CONTENT"],
-  autofillTransformation
+  autofillContentTransformation
 );
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
   ["AUTOFILL_CELLS_CONTENT"],
-  autofillTransformation
+  autofillContentTransformation
 );
+otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["AUTOFILL_CELLS"], autofillTransformation);
+otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["AUTOFILL_CELLS"], autofillTransformation);
 
 function pivotZoneTransformation(
   toTransform: AddPivotCommand | UpdatePivotCommand,
@@ -365,7 +367,7 @@ function groupHeadersTransformation(
   return { ...toTransform, start: Math.min(...results), end: Math.max(...results) };
 }
 
-function autofillTransformation(
+function autofillContentTransformation(
   toTransform: AutoFillCellsContentCommand,
   executed: RemoveColumnsRowsCommand
 ): AutoFillCellsContentCommand | undefined {
@@ -397,5 +399,27 @@ function autofillTransformation(
     ...toTransform,
     targetZone: newTargetZone,
     rules: newRules,
+  };
+}
+
+function autofillTransformation(
+  toTransform: AutoFillCellsCommand,
+  executed: RemoveColumnsRowsCommand | AddColumnsRowsCommand
+) {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const newSourceZone = transformZone(toTransform.sourceZone, executed);
+  if (!newSourceZone) {
+    return undefined;
+  }
+  const newTargetZone = transformZone(toTransform.targetZone, executed);
+  if (!newTargetZone) {
+    return undefined;
+  }
+  return {
+    ...toTransform,
+    sourceZone: newSourceZone,
+    targetZone: newTargetZone,
   };
 }
