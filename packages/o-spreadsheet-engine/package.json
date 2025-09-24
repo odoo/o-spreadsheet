@@ -1,0 +1,74 @@
+{
+  "name": "@odoo/o-spreadsheet-engine",
+  "version": "19.1.0-alpha.3",
+  "type": "module",
+  "scripts": {
+    "build": "npm-run-all build:js bundle:iife",
+    "build:watch": "npm-run-all --parallel build:js:watch bundle:iife:watch",
+    "build:js": "tsc --module es6 --incremental",
+    "build:js:watch": "npm run build:js -- --watch",
+    "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:iife": "rollup -c -m -- --format iife",
+    "bundle:iife:watch": "npm run bundle:iife -- --watch",
+    "dist": "tsc --module es6 --declaration --declarationDir ../../dist/types/packages/o-spreadsheet-engine/ && rollup -c",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "rbush": "^3.0.1"
+  },
+  "devDependencies": {
+    "@prettier/plugin-xml": "^2.2.0",
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@swc/core": "1.6.7",
+    "@swc/jest": "0.2.36",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^20.17.24",
+    "@types/rbush": "^3.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "babel-eslint": "^10.1.0",
+    "fs": "^0.0.1-security",
+    "glob": "^11.0.1",
+    "husky": "^7.0.4",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "mockdate": "^3.0.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "rollup": "^3.28.0",
+    "rollup-plugin-dts": "^5.3.1",
+    "rollup-plugin-typescript2": "^0.35.0",
+    "seedrandom": "^3.0.5",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.30.1",
+    "xml-formatter": "^2.4.0"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    },
+    "verbose": false,
+    "testEnvironment": "jsdom",
+    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "workerIdleMemoryLimit": "800MB"
+  }
+}
