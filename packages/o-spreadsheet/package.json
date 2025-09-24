@@ -4,12 +4,15 @@
   "description": "A spreadsheet component",
   "type": "module",
   "scripts": {
-    "build": "npm-run-all build:js",
+    "build": "npm-run-all build:js bundle:iife && npm run copy:xml:build && npm run copy:css:build",
     "build:js": "tsc --module es6 --incremental --project tsconfig.build.json",
     "bundle:esm": "rollup -c -m -- --format esm",
-    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c && npm run copy:xml && npm run copy:css",
-    "copy:xml": "cpy ../o-spreadsheet-ui/dist/o_spreadsheet.xml dist/",
-    "copy:css": "cpy ../o-spreadsheet-ui/dist/o_spreadsheet.css dist/"
+    "bundle:iife": "rollup -c -m -- --format iife",
+    "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c && npm run copy:xml:dist && npm run copy:css:dist",
+    "copy:xml:dist": "cpy ../o-spreadsheet-ui/dist/o_spreadsheet.xml dist/",
+    "copy:css:dist": "cpy ../o-spreadsheet-ui/dist/o_spreadsheet.css dist/",
+    "copy:xml:build": "cpy ../o-spreadsheet-ui/build/o_spreadsheet.xml build/",
+    "copy:css:build": "cpy ../o-spreadsheet-ui/build/o_spreadsheet.css build/"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",

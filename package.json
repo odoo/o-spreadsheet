@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "serve-static": "live-server --open=demo --watch=packages/o-spreadsheet/build/o_spreadsheet.iife.js,packages/o-spreadsheet/build/o_spreadsheet.xml,packages/o-spreadsheet/build/o_spreadsheet.css,demo",
-    "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
+    "dev": "npm-run-all --print-label build --parallel server serve-static",
     "server": "node tools/server/main.cjs",
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
@@ -26,6 +26,9 @@
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "lint": "eslint --fix",
+
+
+
     "build": "npm run build --workspaces --if-present",
     "dist": "npm run dist --workspaces --if-present && npm run copy:dist",
     "test": "npm run test --workspaces --if-present",
