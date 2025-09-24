@@ -14,7 +14,7 @@
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
     "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
-    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
+    "monkey": "npm run monkey --workspace=@odoo/o-spreadsheet-ui",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check && eslint",
