@@ -17,7 +17,7 @@ export class AutofillCorePlugin extends CorePlugin {
 
   allowDispatch(command: CoreCommand): CommandResult | CommandResult[] {
     switch (command.type) {
-      case "AUTOFILL_CELLS": {
+      case "AUTOFILL_CELLS_CONTENT": {
         if (command.rules.length === 0) {
           return CommandResult.NotEnoughElements;
         }
@@ -30,14 +30,17 @@ export class AutofillCorePlugin extends CorePlugin {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "AUTOFILL_CELLS": {
-        this.autofill(cmd.direction, deepCopy(cmd.rules), cmd.sheetId, cmd.targetZone);
+      case "AUTOFILL_CELLS_CONTENT": {
+        this.autofillContent(cmd.direction, deepCopy(cmd.rules), cmd.sheetId, cmd.targetZone);
         break;
+      }
+      case "AUTOFILL_CELLS": {
+        this.autofill(cmd.sheetId, cmd.sourceZone, cmd.targetZone);
       }
     }
   }
 
-  private autofill(
+  private autofillContent(
     direction: DIRECTION,
     generatorCells: GeneratorCell[],
     sheetId: string,
@@ -51,10 +54,6 @@ export class AutofillCorePlugin extends CorePlugin {
       generatorCells
     );
 
-    const bordersZones: Record<string, Zone[]> = {};
-    const cfNewRanges: Record<UID, string[]> = {};
-    const dvNewZones: Record<UID, Zone[]> = {};
-
     for (const { position, content, origin } of generator) {
       const cell = this.getters.getCell(origin);
       this.dispatch("UPDATE_CELL", {
@@ -63,6 +62,32 @@ export class AutofillCorePlugin extends CorePlugin {
         style: cell?.style || null,
         format: cell?.format || "",
       });
+    }
+  }
+
+  private autofill(sheetId: UID, source: Zone, targetZone: Zone) {
+    const noOp = { type: "NO_OP_MODIFIER" } as const;
+    const generatorCells = [
+      { origin: { sheetId, col: source.left, row: source.top }, originContent: "", rule: noOp },
+      {
+        origin: { sheetId, col: source.right, row: source.bottom },
+        originContent: "",
+        rule: noOp,
+      },
+    ];
+    const isVertical = source.left === targetZone.left && source.right === targetZone.right;
+    const generator = createAutofillGenerator(
+      this.getters,
+      sheetId,
+      targetZone,
+      isVertical ? DIRECTION.DOWN : DIRECTION.RIGHT,
+      generatorCells
+    );
+    const bordersZones: Record<string, Zone[]> = {};
+    const cfNewRanges: Record<UID, string[]> = {};
+    const dvNewZones: Record<UID, Zone[]> = {};
+
+    for (const { position, origin } of generator) {
       this.collectBordersData(position, origin, bordersZones);
       this.collectConditionalFormatsData(position, origin, cfNewRanges);
       this.collectDataValidationsData(position, origin, dvNewZones);

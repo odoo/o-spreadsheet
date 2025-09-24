@@ -309,6 +309,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** MISC */
   "UPDATE_LOCALE",
+
+  /** AUTOFILL */
+  "AUTOFILL_CELLS_CONTENT",
   "AUTOFILL_CELLS",
 
   /** PIVOT */
@@ -879,12 +882,19 @@ export interface AutoFillCellCommand {
   row: HeaderIndex;
 }
 
-export interface AutoFillCellsCommand {
-  type: "AUTOFILL_CELLS";
+export interface AutoFillCellsContentCommand {
+  type: "AUTOFILL_CELLS_CONTENT";
   sheetId: UID;
   targetZone: Zone;
   rules: GeneratorCell[];
   direction: DIRECTION;
+}
+
+export interface AutoFillCellsCommand {
+  type: "AUTOFILL_CELLS";
+  sheetId: UID;
+  sourceZone: Zone;
+  targetZone: Zone;
 }
 
 export interface PasteFromOSClipboardCommand {
@@ -1137,6 +1147,7 @@ export type CoreCommand =
   | ClearCellCommand
   | ClearCellsCommand
   | DeleteContentCommand
+  | AutoFillCellsContentCommand
   | AutoFillCellsCommand
 
   /** GRID SHAPE */

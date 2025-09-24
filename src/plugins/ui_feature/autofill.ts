@@ -161,14 +161,7 @@ export class AutofillPlugin extends UIPlugin {
         // this a 'hack' to auto-fill core things (style, CFs, etc.)
         // the core plugins autofills everything between the first and the last
         // cell of the source selection
-        coreG = [
-          { origin: { sheetId, col: source.left, row: source.top }, originContent: "", rule: noOp },
-          {
-            origin: { sheetId, col: source.right, row: source.bottom },
-            originContent: "",
-            rule: noOp,
-          },
-        ];
+        coreG = [];
       }
       const nonCoreG = generatorCells.map((g) => {
         if (fullUi || !autofillModifiersRegistry.get(g.rule.type).core) {
@@ -177,11 +170,16 @@ export class AutofillPlugin extends UIPlugin {
         return { ...g, rule: noOp };
       });
 
-      this.dispatch("AUTOFILL_CELLS", {
+      this.dispatch("AUTOFILL_CELLS_CONTENT", {
         sheetId,
         targetZone: this.autofillZone,
         rules: coreG,
         direction: this.direction,
+      });
+      this.dispatch("AUTOFILL_CELLS", {
+        sheetId,
+        sourceZone: source,
+        targetZone: this.autofillZone,
       });
       const generator = createAutofillGenerator(
         this.getters,

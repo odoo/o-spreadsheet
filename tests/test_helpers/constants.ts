@@ -519,8 +519,8 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "Sheet1",
     chartId: "chartId",
   },
-  AUTOFILL_CELLS: {
-    type: "AUTOFILL_CELLS",
+  AUTOFILL_CELLS_CONTENT: {
+    type: "AUTOFILL_CELLS_CONTENT",
     direction: DIRECTION.DOWN,
     sheetId: "Sheet1",
     targetZone: toZone("A2:A10"),
@@ -531,6 +531,12 @@ export const TEST_COMMANDS: CommandMapping = {
         rule: { type: "COPY_MODIFIER" },
       },
     ],
+  },
+  AUTOFILL_CELLS: {
+    type: "AUTOFILL_CELLS",
+    sheetId: "Sheet1",
+    sourceZone: toZone("A1"),
+    targetZone: toZone("A2:A10"),
   },
 };
 

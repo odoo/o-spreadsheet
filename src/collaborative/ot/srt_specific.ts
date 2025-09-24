@@ -6,7 +6,7 @@ import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
   AddPivotCommand,
-  AutoFillCellsCommand,
+  AutoFillCellsContentCommand,
   CreateChartCommand,
   UpdateCellCommand,
   UpdateChartCommand,
@@ -119,12 +119,12 @@ function updateChartRangesTransformation<Cmd extends UpdateChartCommand | Create
   };
 }
 
-specificRangeTransformRegistry.add("AUTOFILL_CELLS", adaptAutofillOriginContent);
+specificRangeTransformRegistry.add("AUTOFILL_CELLS_CONTENT", adaptAutofillOriginContent);
 
 function adaptAutofillOriginContent(
-  cmd: AutoFillCellsCommand,
+  cmd: AutoFillCellsContentCommand,
   applyChange: RangeAdapter
-): AutoFillCellsCommand {
+): AutoFillCellsContentCommand {
   cmd = {
     ...cmd,
     rules: cmd.rules.map((rule) => ({
