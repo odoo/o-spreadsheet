@@ -15,6 +15,7 @@ import {
   HeaderIndex,
   LocalCommand,
   Tooltip,
+  UID,
   Zone,
 } from "../../types/index";
 
@@ -145,63 +146,53 @@ export class AutofillPlugin extends UIPlugin {
     this.tooltip = this.getTooltip(generatorCells);
 
     if (apply) {
-      const noOp = { type: "NO_OP_MODIFIER" } as const;
+      // choose what would result in the smallest revision size
+      // The size is either linear to the number of target cells (runAllInUI)
+      // or linear to the number of target cells (coreRules)
+      const runAllInUI = getZoneArea(this.autofillZone) < getZoneArea(source);
 
-      // choose what would result in the smaller revision size
-      // The size is either linear to the number of target cells (fullUi)
-      // or linear to the number of target cells (coreG)
-      const fullUi = getZoneArea(this.autofillZone) < getZoneArea(source);
-      let coreG = generatorCells.map((g) => {
-        if (autofillModifiersRegistry.get(g.rule.type).core) {
-          return g;
-        }
-        return { ...g, rule: noOp };
-      });
-      if (fullUi) {
-        // this a 'hack' to auto-fill core things (style, CFs, etc.)
-        // the core plugins autofills everything between the first and the last
-        // cell of the source selection
-        coreG = [];
-      }
-      const nonCoreG = generatorCells.map((g) => {
-        if (fullUi || !autofillModifiersRegistry.get(g.rule.type).core) {
-          return g;
-        }
-        return { ...g, rule: noOp };
-      });
+      const coreRules = runAllInUI
+        ? []
+        : generatorCells.filter(({ rule }) => autofillModifiersRegistry.get(rule.type).core);
+      const UIRules = runAllInUI
+        ? generatorCells
+        : generatorCells.filter((g) => !autofillModifiersRegistry.get(g.rule.type).core);
 
-      this.dispatch("AUTOFILL_CELLS_CONTENT", {
-        sheetId,
-        targetZone: this.autofillZone,
-        rules: coreG,
-        direction: this.direction,
-      });
       this.dispatch("AUTOFILL_CELLS", {
         sheetId,
         sourceZone: source,
         targetZone: this.autofillZone,
       });
-      const generator = createAutofillGenerator(
-        this.getters,
+      this.dispatch("AUTOFILL_CELLS_CONTENT", {
         sheetId,
-        this.autofillZone,
-        this.direction,
-        nonCoreG
-      );
-      for (const { position, content, rule } of generator) {
-        if (rule.type !== "NO_OP_MODIFIER") {
-          this.dispatch("UPDATE_CELL", {
-            ...position,
-            content,
-          });
-        }
-      }
+        targetZone: this.autofillZone,
+        rules: coreRules,
+        direction: this.direction,
+      });
+      this.autoFillContentFromUI(sheetId, this.autofillZone, this.direction, UIRules);
       this.autofillZone = undefined;
       this.selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
       this.direction = undefined;
       this.steps = 0;
       this.tooltip = undefined;
+    }
+  }
+
+  private autoFillContentFromUI(
+    sheetId: UID,
+    target: Zone,
+    direction: DIRECTION,
+    UIRules: GeneratorCell[]
+  ) {
+    const generator = createAutofillGenerator(this.getters, sheetId, target, direction, UIRules);
+    for (const { position, content, rule } of generator) {
+      if (rule.type !== "NO_OP_MODIFIER") {
+        this.dispatch("UPDATE_CELL", {
+          ...position,
+          content,
+        });
+      }
     }
   }
 
