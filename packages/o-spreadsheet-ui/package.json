@@ -19,6 +19,10 @@
     "dist": "tsc --module es6 --declaration --project tsconfig.build.json --declarationDir dist/types && rollup -c"
   },
   "dependencies": {
+    "@odoo/owl": "2.5.1",
+    "bootstrap": "^5.3.3",
+    "font-awesome": "^4.7.0",
+    "rbush": "^3.0.1",
     "@odoo/o-spreadsheet-engine": "*"
   }
 }

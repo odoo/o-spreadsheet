@@ -1,5 +1,3 @@
-export function SpreadsheetModel() {
-  return {
-    type: "SpreadsheetModel",
-  };
-}
+function hello() {}
+
+hello();
