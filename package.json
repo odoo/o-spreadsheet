@@ -1,16 +1,10 @@
 {
-  "name": "@odoo/o-spreadsheet",
-  "version": "19.1.0-alpha.3",
-  "description": "A spreadsheet component",
+  "private": true,
   "type": "module",
-  "main": "dist/o-spreadsheet.cjs.js",
-  "browser": "dist/o-spreadsheet.iife.js",
-  "module": "dist/o-spreadsheet.esm.js",
-  "types": "dist/o-spreadsheet.d.ts",
-  "files": [
-    "dist/*.js",
-    "dist/*.d.ts",
-    "dist/*.xml"
+  "workspaces": [
+    "packages/o-spreadsheet",
+    "packages/o-spreadsheet-ui",
+    "packages/o-spreadsheet-engine"
   ],
   "scripts": {
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
@@ -38,25 +32,6 @@
     "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
     "lint": "eslint --fix"
   },
-  "browserslist": [
-    "last 1 Chrome versions"
-  ],
-  "keywords": [
-    "owl",
-    "spreadsheet",
-    "o-spreadsheet",
-    "odoo"
-  ],
-  "author": "Odoo",
-  "license": "LGPL-3.0-or-later",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/odoo/o-spreadsheet.git"
-  },
-  "bugs": {
-    "url": "https://github.com/odoo/o-spreadsheet/issues"
-  },
-  "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
     "@rollup/plugin-node-resolve": "^15.2.0",
@@ -111,54 +86,5 @@
     "@swc/core-win32-arm64-msvc": "1.6.7",
     "@swc/core-win32-ia32-msvc": "1.6.7",
     "@swc/core-win32-x64-msvc": "1.6.7"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "xmlWhitespaceSensitivity": "ignore",
-    "bracketSameLine": true,
-    "xmlSelfClosingSpace": false
-  },
-  "dependencies": {
-    "@odoo/owl": "2.5.1",
-    "bootstrap": "^5.3.3",
-    "font-awesome": "^4.7.0",
-    "rbush": "^3.0.1"
-  },
-  "jest": {
-    "roots": [
-      "<rootDir>/src",
-      "<rootDir>/tests"
-    ],
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    },
-    "verbose": false,
-    "testEnvironment": "jsdom",
-    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "workerIdleMemoryLimit": "800MB",
-    "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
-    "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setup/jest.setup.ts"
-    ]
-  },
-  "lint-staged": {
-    "*": [
-      "prettier --write",
-      "eslint --fix"
-    ]
-  },
-  "publishConfig": {
-    "tag": "alpha"
   }
 }

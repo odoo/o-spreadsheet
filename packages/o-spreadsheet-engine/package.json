@@ -1,0 +1,30 @@
+{
+  "name": "@odoo/o-spreadsheet-engine",
+  "version": "19.1.0-alpha.3",
+  "type": "module",
+  "scripts": {
+    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
+    "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
+    "server": "node tools/server/main.cjs",
+    "build:js": "tsc --module es6 --incremental",
+    "bundle:iife": "rollup -c -m -- --format iife",
+    "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:xml": "node tools/bundle_xml/main.cjs",
+    "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
+    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist && node tools/bundle_css/main.cjs --out dist",
+    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
+    "test:watch": "jest --watch",
+    "prettier": "prettier . --write",
+    "check-formatting": "prettier . --check && eslint",
+    "watch": "npm-run-all -p watch:*",
+    "watch:bundle": "npm run bundle:iife -- --watch",
+    "watch:ts": "npm run build:js -- --watch",
+    "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "watch:css": "node tools/bundle_css/watch_css_files.cjs",
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
+    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
+    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
+    "lint": "eslint --fix"
+  }
+}
