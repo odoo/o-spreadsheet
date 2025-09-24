@@ -14,7 +14,9 @@ const outro = bundle.outro();
  */
 function getConfigForFormat(format, minified = false) {
   return {
-    file: minified ? `dist/o-spreadsheet-ui.${format}.min.js` : `dist/o-spreadsheet-ui.${format}.js`,
+    file: minified
+      ? `dist/o-spreadsheet-ui.${format}.min.js`
+      : `dist/o-spreadsheet-ui.${format}.js`,
     format,
     name: "o_spreadsheet_ui",
     extend: true,

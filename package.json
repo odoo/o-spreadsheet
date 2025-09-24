@@ -90,5 +90,17 @@
     "@swc/core-win32-arm64-msvc": "1.6.7",
     "@swc/core-win32-ia32-msvc": "1.6.7",
     "@swc/core-win32-x64-msvc": "1.6.7"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "xmlWhitespaceSensitivity": "ignore",
+    "bracketSameLine": true,
+    "xmlSelfClosingSpace": false
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
