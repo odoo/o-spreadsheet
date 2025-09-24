@@ -6,3 +6,15 @@ if [ "$HUSKY_POST_CHECKOUT" != 0 ]; then
         npm install >/dev/null 2>&1
     fi
 fi
+
+if [ ! -d "build/js/src" ]; then
+    if [ -d "build" ]; then
+        if [ "$OSTYPE" = "msys" ]; then
+            # Windows (Git Bash/MSYS)
+            cmd.exe /C "rmdir /s /q build"
+        else
+            # POSIX
+            rm -rf build
+        fi
+    fi
+fi
