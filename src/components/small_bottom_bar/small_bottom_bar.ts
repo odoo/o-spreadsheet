@@ -72,6 +72,10 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       : "inactive";
   }
 
+  get showFxIcon(): boolean {
+    return this.focus === "inactive" && !this.composerStore.currentContent;
+  }
+
   get rect(): Rect {
     return this.composerRef.el
       ? getBoundingRectAsPOJO(this.composerRef.el)
