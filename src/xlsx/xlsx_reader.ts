@@ -1,5 +1,6 @@
 import { DEFAULT_REVISION_ID } from "../constants";
 import { removeFalsyAttributes } from "../helpers";
+import { mergeBorders } from "../helpers/borders";
 import { _t } from "../translation";
 import {
   ImportedFiles,
@@ -162,6 +163,7 @@ export class XlsxReader {
     } as WorkbookData;
 
     convertTables(convertedData, data);
+    mergeBorders(convertedData);
 
     // Remove falsy attributes in styles. Not mandatory, but make objects more readable when debugging
     Object.keys(data.styles).map((key) => {

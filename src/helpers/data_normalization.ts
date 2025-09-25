@@ -14,8 +14,14 @@ const globalIdCounter = new WeakMap<ItemsDic<any>, number>();
  */
 export function getItemId<T>(item: T, itemsDic: ItemsDic<T>) {
   if (!globalReverseLookup.has(itemsDic)) {
-    globalReverseLookup.set(itemsDic, new Map());
-    globalIdCounter.set(itemsDic, 0);
+    const x = Math.max(...Object.keys(itemsDic).map((k) => Number(k)), 0);
+    globalIdCounter.set(itemsDic, x);
+    const reverseLookup: ReverseLookup = new Map();
+    for (const [id, item] of Object.entries(itemsDic)) {
+      const canonical = getCanonicalRepresentation(item);
+      reverseLookup.set(canonical, Number(id));
+    }
+    globalReverseLookup.set(itemsDic, reverseLookup);
   }
   const reverseLookup = globalReverseLookup.get(itemsDic)!;
   const canonical = getCanonicalRepresentation(item);
