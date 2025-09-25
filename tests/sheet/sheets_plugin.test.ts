@@ -23,6 +23,7 @@ import {
   hideColumns,
   hideRows,
   hideSheet,
+  lockSheet,
   merge,
   moveSheet,
   redo,
@@ -33,6 +34,7 @@ import {
   showSheet,
   unMerge,
   undo,
+  unlockSheet,
 } from "../test_helpers/commands_helpers";
 import {
   getCell,
@@ -1235,6 +1237,18 @@ describe("sheets", () => {
 
       const newModel = new Model(exported);
       expect(newModel.getters.getSheet(sheetId).color).toBe("#FF0000");
+    });
+  });
+
+  describe("Sheet protection", () => {
+    test("Can lock/unlock a sheet", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+
+      lockSheet(model, sheetId);
+      expect(model.getters.getSheet(sheetId).isLocked).toBe(true);
+      unlockSheet(model, sheetId);
+      expect(model.getters.getSheet(sheetId).isLocked).toBe(false);
     });
   });
 });

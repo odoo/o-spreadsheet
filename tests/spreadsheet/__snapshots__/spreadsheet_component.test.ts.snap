@@ -999,6 +999,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 tabindex="-1"
                 title="Sheet1"
               >
+                
                 <span
                   class="o-sheet-name"
                   contenteditable="false"
@@ -2014,6 +2015,7 @@ exports[`components take the small screen into account 1`] = `
                     tabindex="-1"
                     title="Sheet1"
                   >
+                    
                     <span
                       class="o-sheet-name"
                       contenteditable="false"
