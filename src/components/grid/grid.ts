@@ -15,12 +15,7 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import {
-  AUTOFILL_EDGE_LENGTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-} from "../../constants";
+import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
@@ -72,6 +67,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
+import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
@@ -207,11 +203,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get gridOverlayDimensions() {
+    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     return cssPropertiesToCss({
       top: `${HEADER_HEIGHT}px`,
       left: `${HEADER_WIDTH}px`,
-      height: `calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px)`,
-      width: `calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px)`,
+      height: `calc(100% - ${HEADER_HEIGHT + scrollbarWidth}px)`,
+      width: `calc(100% - ${HEADER_WIDTH + scrollbarWidth}px)`,
     });
   }
 
@@ -507,9 +504,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     col: HeaderIndex,
     row: HeaderIndex,
     modifiers: GridClickModifiers,
-    ev: PointerEvent
+    zoomedMouseEvent: ZoomedMouseEvent<PointerEvent>
   ) {
-    ev.preventDefault();
+    zoomedMouseEvent.ev.preventDefault();
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
@@ -544,7 +541,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
     };
-    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(zoomedMouseEvent, onMouseMove, onMouseUp);
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {

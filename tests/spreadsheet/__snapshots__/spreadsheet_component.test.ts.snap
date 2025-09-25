@@ -3,7 +3,7 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; --os-scrollbar-width:15px; "
 >
   
   <div
@@ -157,6 +157,28 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 
                 
               </span>
+              <div>
+                <span
+                  class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                  title="Zoom"
+                >
+                  <span
+                    style=""
+                  >
+                    <div
+                      class="o-icon"
+                    >
+                      <i
+                        class="fa fa-search-plus"
+                      />
+                    </div>
+                  </span>
+                  
+                  
+                </span>
+                
+                
+              </div>
               
               
               <div
@@ -725,7 +747,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   </div>
   <div
     class="o-grid-container o-two-columns"
-    style="grid-template-columns:0px auto; grid-template-rows:0px auto; "
+    style="grid-template-columns:0px auto; grid-template-rows:0px auto; zoom:1; "
   >
     <div
       class="o-top-left"
@@ -744,7 +766,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-group-grid overflow-hidden"
     >
       <div
-        class="o-grid w-100 h-100"
+        class="o-grid w-100 h-100 o-zoomable"
         composerfocusableelement="true"
         tabindex="-1"
       >
@@ -761,7 +783,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           
         </div>
         <div
-          class="o-grid-overlay overflow-hidden"
+          class="o-grid-overlay overflow-hidden o-zoomable"
           style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
         >
           
@@ -793,7 +815,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-overlay"
         >
           <div
-            class="o-col-resizer d-flex"
+            class="o-col-resizer d-flex o-zoomable"
           >
             
             
@@ -802,7 +824,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
           
           <div
-            class="o-row-resizer"
+            class="o-row-resizer o-zoomable"
           >
             
             
@@ -843,7 +865,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <canvas
           height="985"
-          style="width:1033px;height:985px;"
+          style="width:1033px;height:985px;zoom:1"
           width="1033"
         />
         
@@ -1040,7 +1062,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; --os-scrollbar-width:15px; "
 >
   
   <div
@@ -1143,6 +1165,28 @@ exports[`components take the small screen into account 1`] = `
                 
                 
               </span>
+              <div>
+                <span
+                  class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                  title="Zoom"
+                >
+                  <span
+                    style=""
+                  >
+                    <div
+                      class="o-icon"
+                    >
+                      <i
+                        class="fa fa-search-plus"
+                      />
+                    </div>
+                  </span>
+                  
+                  
+                </span>
+                
+                
+              </div>
               
               
               <div
@@ -1668,7 +1712,7 @@ exports[`components take the small screen into account 1`] = `
   </div>
   <div
     class="o-grid-container o-two-columns"
-    style="grid-template-columns:0px auto; grid-template-rows:0px auto; "
+    style="grid-template-columns:0px auto; grid-template-rows:0px auto; zoom:1; "
   >
     <div
       class="o-top-left"
@@ -1687,7 +1731,7 @@ exports[`components take the small screen into account 1`] = `
       class="o-group-grid overflow-hidden"
     >
       <div
-        class="o-grid w-100 h-100"
+        class="o-grid w-100 h-100 o-zoomable"
         composerfocusableelement="true"
         tabindex="-1"
       >
@@ -1704,7 +1748,7 @@ exports[`components take the small screen into account 1`] = `
           
         </div>
         <div
-          class="o-grid-overlay overflow-hidden"
+          class="o-grid-overlay overflow-hidden o-zoomable"
           style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
         >
           
@@ -1736,7 +1780,7 @@ exports[`components take the small screen into account 1`] = `
           class="o-overlay"
         >
           <div
-            class="o-col-resizer d-flex"
+            class="o-col-resizer d-flex o-zoomable"
           >
             
             
@@ -1745,7 +1789,7 @@ exports[`components take the small screen into account 1`] = `
           </div>
           
           <div
-            class="o-row-resizer"
+            class="o-row-resizer o-zoomable"
           >
             
             
@@ -1786,7 +1830,7 @@ exports[`components take the small screen into account 1`] = `
         
         <canvas
           height="985"
-          style="width:1033px;height:985px;"
+          style="width:1033px;height:985px;zoom:1"
           width="1033"
         />
         

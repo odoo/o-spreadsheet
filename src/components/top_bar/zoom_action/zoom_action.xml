@@ -1,0 +1,13 @@
+<templates>
+  <div t-name="o-spreadsheet-TopBarZoom" t-ref="buttonRef" t-on-click.stop="">
+    <ActionButton action="action" onClick.bind="toggleMenu" class="props.class"/>
+    <MenuPopover
+      t-if="isActive"
+      anchorRect="state.anchorRect"
+      menuItems="state.menuItems"
+      onClose="() => {}"
+      popoverPositioning="'bottom-left'"
+      width="90"
+    />
+  </div>
+</templates>

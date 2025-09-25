@@ -22,7 +22,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
       
     </div>
     <div
-      class="o-grid-overlay overflow-hidden"
+      class="o-grid-overlay overflow-hidden o-zoomable"
       style="height:100%; width:100%; cursor:default; "
     >
       
@@ -33,7 +33,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     
     <canvas
       height="985"
-      style="width:985px;height:985px;"
+      style="width:985px;height:985px;zoom:1"
       width="985"
     />
     
