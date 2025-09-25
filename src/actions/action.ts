@@ -97,7 +97,7 @@ let nextItemId = 1;
 
 export function createAction(item: ActionSpec): Action {
   const name = item.name;
-  const children = item.children;
+  const children = item.children || [];
   const description = item.description;
   const icon = item.icon;
   const secondaryIcon = item.secondaryIcon;
@@ -117,14 +117,15 @@ export function createAction(item: ActionSpec): Action {
           return undefined;
         }
       : undefined,
-    children: children
-      ? (env) => {
-          return children
-            .map((child) => (typeof child === "function" ? child(env) : child))
-            .flat()
-            .map(createAction);
-        }
-      : () => [],
+    children:
+      children.length > 0
+        ? (env) => {
+            return children
+              .map((child) => (typeof child === "function" ? child(env) : child))
+              .flat()
+              .map(createAction);
+          }
+        : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
     separator: item.separator || false,
     icon: typeof icon === "function" ? icon : () => icon || "",

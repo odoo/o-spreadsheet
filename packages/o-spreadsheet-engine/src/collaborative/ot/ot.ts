@@ -142,7 +142,8 @@ function transformSheetId(
   }
 
   const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
-  if (toTransform.sheetId === deleteSheet) {
+  const lockSheet = executed.type === "LOCK_SHEET" && executed.sheetId;
+  if (toTransform.sheetId === deleteSheet || toTransform.sheetId === lockSheet) {
     return "IGNORE_COMMAND";
   } else if (
     toTransform.type === "CREATE_SHEET" ||

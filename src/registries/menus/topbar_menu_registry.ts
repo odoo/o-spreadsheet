@@ -172,6 +172,7 @@ topbarMenuRegistry
     separator: true,
     icon: "o-spreadsheet-Icon.PLUS_IN_BOX",
     isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+    isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   })
   .addChild("group_columns", ["view", "group_headers"], {
     ...ACTION_VIEW.groupColumns,
@@ -468,7 +469,7 @@ topbarMenuRegistry
     execute: (env) => {
       env.openSidePanel("DataValidation");
     },
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
     separator: true,

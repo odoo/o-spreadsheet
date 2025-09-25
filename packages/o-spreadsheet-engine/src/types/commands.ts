@@ -59,9 +59,7 @@ export interface SheetDependentCommand {
   sheetId: UID;
 }
 
-export function isSheetDependent(
-  cmd: CoreCommand
-): cmd is Extract<CoreCommand, SheetDependentCommand> {
+export function isSheetDependent(cmd: Command): cmd is Extract<CoreCommand, SheetDependentCommand> {
   return "sheetId" in cmd;
 }
 
@@ -221,6 +219,36 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_PIVOT",
 ]);
 
+export const lockedSheetAllowedCommands = new Set<Command["type"]>([
+  "LOCK_SHEET",
+  "UNLOCK_SHEET",
+  "UPDATE_LOCALE",
+  "MOVE_SHEET",
+  "DUPLICATE_SHEET",
+  "CREATE_SHEET",
+  "COPY",
+  "START",
+  "SCROLL_TO_CELL",
+  "ACTIVATE_SHEET",
+  "RESIZE_SHEETVIEW",
+  "SET_VIEWPORT_OFFSET",
+  "SET_FORMULA_VISIBILITY",
+  "SELECT_FIGURE", // not  sure
+  "EVALUATE_CHARTS",
+  "EVALUATE_CELLS",
+  "UNDO",
+  "REDO",
+  "REQUEST_UNDO",
+  "REQUEST_REDO",
+  "REPLACE_SEARCH",
+  "HIDE_SHEET",
+  "SHOW_SHEET",
+  "UPDATE_PIVOT",
+  "INSERT_NEW_PIVOT",
+  "ADD_PIVOT",
+  "REMOVE_PIVOT",
+]);
+
 export const coreTypes = new Set<CoreCommandTypes>([
   /** CELLS */
   "UPDATE_CELL",
@@ -255,6 +283,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "COLOR_SHEET",
   "HIDE_SHEET",
   "SHOW_SHEET",
+  "LOCK_SHEET",
+  "UNLOCK_SHEET",
 
   /** RANGES MANIPULATION */
   "MOVE_RANGES",
@@ -834,6 +864,14 @@ export interface RemoveDataValidationCommand extends SheetDependentCommand {
   id: string;
 }
 
+export interface LockSheetCommand extends SheetDependentCommand {
+  type: "LOCK_SHEET";
+}
+
+export interface UnlockSheetCommand extends SheetDependentCommand {
+  type: "UNLOCK_SHEET";
+}
+
 //#endregion
 
 //#region Local Commands
@@ -1164,6 +1202,8 @@ export type CoreCommand =
   | ColorSheetCommand
   | HideSheetCommand
   | ShowSheetCommand
+  | LockSheetCommand
+  | UnlockSheetCommand
 
   /** RANGES MANIPULATION */
   | MoveRangeCommand
@@ -1462,6 +1502,7 @@ export const enum CommandResult {
   InvalidPivotCustomField = "InvalidPivotCustomField",
   MissingFigureArguments = "MissingFigureArguments",
   InvalidCarouselItem = "InvalidCarouselItem",
+  SheetLocked = "SheetLocked",
 }
 
 export interface CommandHandler<T> {
