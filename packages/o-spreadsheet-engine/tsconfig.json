@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "build/js",
+    "outDir": "build/js/o-spreadsheet-engine/src",
     "preserveWatchOutput": true
   },
   "include": ["src"]

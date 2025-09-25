@@ -36,7 +36,7 @@ export default (commandLineArgs) => {
   if (commandLineArgs.format) {
     // Only build one version to improve speed
     config = {
-      input: "build/js/index.js",
+      input: "build/js/o-spreadsheet-ui/src/index.js",
       external: ["@odoo/owl", "@odoo/o-spreadsheet-engine"],
       output: [
         {

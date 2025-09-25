@@ -25,8 +25,6 @@ function getConfigForFormat(format, minified = false) {
     extend: true,
     globals: {
       "@odoo/owl": "owl",
-      "@odoo/o-spreadsheet-engine": "o_spreadsheet_engine",
-      "@odoo/o-spreadsheet-ui": "o_spreadsheet_ui",
     },
     outro,
     banner: bundle.jsBanner(),
@@ -37,8 +35,8 @@ function getConfigForFormat(format, minified = false) {
 export default (commandLineArgs) => {
   let output = [];
   let input = "";
-  const uiPath = path.resolve(__dirname, "../o-spreadsheet-ui/build/js/index.js");
-  const enginePath = path.resolve(__dirname, "../o-spreadsheet-engine/build/js/index.js");
+  const uiPath = path.resolve(__dirname, "../o-spreadsheet-ui/build/js/o-spreadsheet-ui/src/index.js");
+  const enginePath = path.resolve(__dirname, "../o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js");
   let plugins = [
     alias({
       entries: [
@@ -53,7 +51,7 @@ export default (commandLineArgs) => {
   if (commandLineArgs.format) {
     // Only build one version to improve speed
     config = {
-      input: "build/js/index.js",
+      input: "build/js/o-spreadsheet/src/index.js",
       external: ["@odoo/owl"],
       output: [
         {
@@ -63,8 +61,6 @@ export default (commandLineArgs) => {
           banner: bundle.jsBanner(),
           globals: {
             "@odoo/owl": "owl",
-            "@odoo/o-spreadsheet-engine": "o_spreadsheet_engine",
-            "@odoo/o-spreadsheet-ui": "o_spreadsheet_ui",
           },
           file: `build/o_spreadsheet.${commandLineArgs.format}.js`,
           format: commandLineArgs.format,

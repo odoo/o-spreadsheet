@@ -5,9 +5,13 @@
   "main": "build/js/index.js",
   "types": "build/types/index.d.ts",
   "scripts": {
-    "build": "npm-run-all build:js bundle:esm",
+    "build": "npm-run-all build:js bundle:iife",
     "build:js": "tsc --module es6 --incremental",
     "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:iife": "rollup -c -m -- --format iife",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c"
+  },
+  "dependencies": {
+    "rbush": "^3.0.1"
   }
 }

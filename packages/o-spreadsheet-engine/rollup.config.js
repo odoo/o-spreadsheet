@@ -35,7 +35,7 @@ export default (commandLineArgs) => {
   if (commandLineArgs.format) {
     // Only build one version to improve speed
     config = {
-      input: "build/js/index.js",
+      input: "build/js/o-spreadsheet-engine/src/index.js",
       external: [],
       output: [
         {
