@@ -600,6 +600,13 @@ export interface AddFigureChartToCarouselCommand extends SheetDependentCommand {
   chartFigureId: UID;
 }
 
+export interface DuplicateCarouselChartCommand extends SheetDependentCommand {
+  type: "DUPLICATE_CAROUSEL_CHART";
+  carouselId: UID;
+  chartId: UID;
+  duplicatedChartId: UID;
+}
+
 export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   type: "UPDATE_CAROUSEL_ACTIVE_ITEM";
   figureId: UID;
@@ -1279,6 +1286,7 @@ export type LocalCommand =
   | ToggleCheckboxCommand
   | AddNewChartToCarouselCommand
   | AddFigureChartToCarouselCommand
+  | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
   | PopOutChartFromCarouselCommand;
 

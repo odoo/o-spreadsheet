@@ -1,5 +1,12 @@
-import { AbstractChart, Carousel, CarouselItem, Command, UID } from "../..";
-import { deepEquals, UuidGenerator } from "../../helpers";
+import {
+  AbstractChart,
+  Carousel,
+  CarouselItem,
+  Command,
+  DuplicateCarouselChartCommand,
+  UID,
+} from "../..";
+import { deepEquals, insertItemsAtIndex, UuidGenerator } from "../../helpers";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
 import { CommandResult, LocalCommand } from "../../types";
 import { UIPlugin } from "../ui_plugin";
@@ -21,6 +28,17 @@ export class CarouselUIPlugin extends UIPlugin {
         if (
           !this.getters.doesCarouselExist(cmd.carouselFigureId) ||
           this.getters.getFigure(cmd.sheetId, cmd.chartFigureId)?.tag !== "chart"
+        ) {
+          return CommandResult.InvalidFigureId;
+        }
+        return CommandResult.Success;
+      case "DUPLICATE_CAROUSEL_CHART":
+        if (
+          !this.getters.doesCarouselExist(cmd.carouselId) ||
+          !this.getters
+            .getCarousel(cmd.carouselId)
+            .items.some((item) => item.type === "chart" && item.chartId === cmd.chartId) ||
+          this.getters.getChart(cmd.duplicatedChartId)
         ) {
           return CommandResult.InvalidFigureId;
         }
@@ -51,6 +69,9 @@ export class CarouselUIPlugin extends UIPlugin {
         break;
       case "ADD_FIGURE_CHART_TO_CAROUSEL":
         this.addFigureChartToCarousel(cmd.carouselFigureId, cmd.chartFigureId, cmd.sheetId);
+        break;
+      case "DUPLICATE_CAROUSEL_CHART":
+        this.duplicateCarouselChart(cmd);
         break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
         this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
@@ -207,6 +228,45 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
+  }
+
+  private duplicateCarouselChart({
+    carouselId,
+    chartId,
+    sheetId,
+    duplicatedChartId,
+  }: DuplicateCarouselChartCommand) {
+    const chart = this.getters.getChart(chartId);
+    if (!chart) {
+      return;
+    }
+    const carousel = this.getters.getCarousel(carouselId);
+
+    const duplicatedItemIndex = carousel.items.findIndex(
+      (item) => item.type === "chart" && item.chartId === chartId
+    );
+    if (duplicatedItemIndex === -1) {
+      return;
+    }
+
+    this.dispatch("CREATE_CHART", {
+      chartId: duplicatedChartId,
+      figureId: carouselId,
+      sheetId,
+      definition: chart.getDefinition(),
+    });
+
+    const carouselItems = insertItemsAtIndex(
+      carousel.items,
+      [{ type: "chart", chartId: duplicatedChartId }],
+      duplicatedItemIndex + 1
+    );
+
+    this.dispatch("UPDATE_CAROUSEL", {
+      sheetId,
+      figureId: carouselId,
+      definition: { ...carousel, items: carouselItems },
+    });
   }
 
   private getCarouselItemId(item: CarouselItem): UID {
