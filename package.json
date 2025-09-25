@@ -29,8 +29,8 @@
     "bundle:xml:watch": "node tools/bundle_xml/watch_xml_templates.cjs",
     "bundle:css": "node tools/bundle_css/main.cjs",
     "bundle:css:watch": "node tools/bundle_css/watch_css_files.cjs",
-    "serve-static": "live-server --open=demo --watch=packages/o-spreadsheet/build/o-spreadsheet.iife.js,packages/o-spreadsheet/build/o_spreadsheet.xml,packages/o-spreadsheet/build/o_spreadsheet.css,demo",
-    "dev": "npm-run-all --print-label build --parallel build:watch:engine build:watch:spreadsheet server serve-static",
+    "serve-static": "live-server --open=demo --watch=build/o-spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,demo",
+    "dev": "npm-run-all --print-label build --parallel build:watch:engine build:watch server serve-static",
     "server": "node tools/server/main.cjs",
     "monkey": "npm run monkey --workspace=@odoo/o-spreadsheet",
     "prettier": "prettier . --write",
@@ -40,7 +40,8 @@
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "lint": "eslint --fix",
     "dist": "npm run dist --workspaces --if-present && npm run copy:dist",
-    "test": "npm run test --workspaces --if-present",
+    "pretest": "npm run test --workspaces --if-present",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "clean:dist": "rimraf dist",
     "copy:dist": "npm run clean:dist && cpy 'packages/o-spreadsheet/dist/**' dist/ --overwrite"
   },
@@ -132,7 +133,7 @@
       ]
     },
     "moduleNameMapper": {
-      "^@odoo/o-spreadsheet-engine$": "<rootDir>/../o-spreadsheet-engine/src"
+      "^@odoo/o-spreadsheet-engine$": "<rootDir>/packages/o-spreadsheet-engine/src"
     },
     "verbose": false,
     "testEnvironment": "jsdom",
