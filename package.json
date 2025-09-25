@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
+    "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
     "@swc/core": "1.6.7",

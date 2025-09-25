@@ -3,7 +3,7 @@
   "version": "19.1.0-alpha.3",
   "type": "module",
   "main": "build/js/index.js",
-  "types": "dist/types/index.d.ts",
+  "types": "build/types/index.d.ts",
   "scripts": {
     "build": "npm-run-all build:js bundle:esm",
     "build:js": "tsc --module es6 --incremental",

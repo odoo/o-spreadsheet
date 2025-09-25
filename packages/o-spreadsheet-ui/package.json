@@ -3,18 +3,19 @@
   "version": "19.1.0-alpha.3",
   "description": "Odoo Spreadsheet UI Library",
   "type": "module",
-  "main": "dist/o-spreadsheet-ui.cjs.js",
+  "main": "build/o-spreadsheet-ui.iife.js",
   "browser": "dist/o-spreadsheet-ui.iife.js",
   "module": "dist/o-spreadsheet-ui.esm.js",
-  "types": "dist/o-spreadsheet-ui.d.ts",
+  "types": "dist/spreadsheet-ui.d.ts",
   "files": [
     "dist/*.js",
     "dist/*.d.ts",
     "dist/*.xml"
   ],
   "scripts": {
-    "build": "npm-run-all build:js \"bundle:xml -- --outDir build\" \"bundle:css -- --out build\"",
+    "build": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" \"bundle:css -- --out build\"",
     "build:js": "tsc --module es6 --incremental --project tsconfig.build.json",
+    "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
     "bundle:xml": "node tools/bundle_xml/main.cjs",
     "bundle:css": "node tools/bundle_css/main.cjs",
