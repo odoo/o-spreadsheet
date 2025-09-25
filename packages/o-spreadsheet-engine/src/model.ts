@@ -37,7 +37,6 @@ import {
   CoreCommand,
   DispatchResult,
   isCoreCommand,
-  LocalCommand,
 } from "./types/commands";
 import { CoreGetters } from "./types/core_getters";
 import { Getters } from "./types/getters";
@@ -331,7 +330,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         initialRevisionId: revisionId,
         recordChanges: this.state.recordChanges.bind(this.state),
         dispatch: (command: CoreCommand) => {
-          const result = this.checkDispatchAllowed(command);
+          const result = this.checkDispatchAllowedRemoteCommand(command);
           if (!result.isSuccessful) {
             // core views plugins need to be invalidated
             this.dispatchToHandlers(this.coreHandlers, {
@@ -452,19 +451,26 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const results = isCoreCommand(command)
       ? this.checkDispatchAllowedCoreCommand(command)
       : this.checkDispatchAllowedLocalCommand(command);
+    return this.processCommandResults(results);
+  }
+
+  private processCommandResults(results: (CommandResult | CommandResult[])[]): DispatchResult {
     if (results.some((r) => r !== CommandResult.Success)) {
       return new DispatchResult(results.flat());
     }
     return DispatchResult.Success;
   }
 
-  private checkDispatchAllowedCoreCommand(command: CoreCommand) {
-    const results = this.corePlugins.map((handler) => handler.allowDispatch(command));
-    results.push(this.range.allowDispatch(command));
-    return results;
+  private checkDispatchAllowedRemoteCommand(command: CoreCommand): DispatchResult {
+    const results = this.coreHandlers.map((handler) => handler.allowDispatch(command));
+    return this.processCommandResults(results);
   }
 
-  private checkDispatchAllowedLocalCommand(command: LocalCommand) {
+  private checkDispatchAllowedCoreCommand(command: CoreCommand) {
+    return this.handlers.map((handler) => handler.allowDispatch(command));
+  }
+
+  private checkDispatchAllowedLocalCommand(command: Command) {
     return this.uiHandlers.map((handler) => handler.allowDispatch(command));
   }
 
