@@ -7,8 +7,6 @@ import typescript from "rollup-plugin-typescript2";
 import { fileURLToPath } from "url";
 import { bundle } from "../../tools/bundle.cjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const outro = bundle.outro();
 
 /**
@@ -23,28 +21,27 @@ function getConfigForFormat(format, minified = false) {
     format,
     name: "o_spreadsheet",
     extend: true,
-    globals: {
-      "@odoo/owl": "owl",
-    },
+    globals: { "@odoo/owl": "owl" },
     outro,
     banner: bundle.jsBanner(),
     plugins: minified ? [terser()] : [],
   };
 }
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 export default (commandLineArgs) => {
   let output = [];
   let input = "";
-  const uiPath = path.resolve(__dirname, "../o-spreadsheet-ui/build/js/o-spreadsheet-ui/src/index.js");
-  const enginePath = path.resolve(__dirname, "../o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js");
   let plugins = [
     alias({
       entries: [
-        { find: "@odoo/o-spreadsheet-ui", replacement: uiPath },
-        { find: "@odoo/o-spreadsheet-engine", replacement: enginePath },
+        {
+          find: "@odoo/o-spreadsheet-engine",
+          replacement: path.resolve(__dirname, "../o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"),
+        },
       ],
     }),
-    nodeResolve({ preserveSymlinks: false }),
+    nodeResolve(),
   ];
   let config = {};
 
@@ -59,10 +56,8 @@ export default (commandLineArgs) => {
           extend: true,
           outro,
           banner: bundle.jsBanner(),
-          globals: {
-            "@odoo/owl": "owl",
-          },
-          file: `build/o_spreadsheet.${commandLineArgs.format}.js`,
+          globals: { "@odoo/owl": "owl" },
+          file: `build/o-spreadsheet.${commandLineArgs.format}.js`,
           format: commandLineArgs.format,
         },
       ],
@@ -85,9 +80,23 @@ export default (commandLineArgs) => {
         plugins,
       },
       {
-        input: "dist/types/index.d.ts",
+        input: "dist/types/o-spreadsheet/src/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
-        plugins: [dts(), nodeResolve()],
+        plugins: [
+          dts(),
+          nodeResolve(),
+          alias({
+            entries: [
+              {
+                find: "@odoo/o-spreadsheet-engine",
+                replacement: path.resolve(
+                  __dirname,
+                  "../o-spreadsheet-engine/dist/types/index.d.ts"
+                ),
+              },
+            ],
+          }),
+        ],
       },
     ];
   }

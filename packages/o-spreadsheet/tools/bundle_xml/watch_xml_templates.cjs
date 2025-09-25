@@ -10,3 +10,5 @@ watcher.on("ready", () => console.log("Watching .xml files..."));
 watcher.on("error", (err) => console.error(`Error watching .xml files ${err}`));
 
 process.on("SIGINT", () => watcher.close());
+
+bundle.writeOwlTemplateBundleToFile("build");
