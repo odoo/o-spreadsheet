@@ -210,6 +210,35 @@ class Demo extends Component {
       icon: "o-spreadsheet-Icon.IMPORT_XLSX",
     });
 
+    topbarMenuRegistry.addChild("osheetImport", ["file"], {
+      name: "Import OSHEET",
+      sequence: 30,
+      execute: async (env) => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("style", "display: none");
+        document.body.appendChild(input);
+        input.addEventListener("change", async () => {
+          if (input.files.length <= 0) {
+            return false;
+          }
+          const file = await input.files[0].text();
+          const data = JSON.parse(file);
+          this.leaveCollaborativeSession();
+          await fetch("http://localhost:9090/clear");
+          await this.initiateConnection(data);
+          stores.resetStores();
+          this.state.key = this.state.key + 1;
+
+          // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
+          // It's kinda annoying (or not possible?) to fire an event on close, so the hidden input will just stay there
+          input.remove();
+        });
+        input.click();
+      },
+      icon: "o-spreadsheet-Icon.IMPORT_XLSX",
+    });
+
     const stores = useStoreProvider();
 
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
