@@ -96,7 +96,7 @@ describe("Chart title", () => {
   test("Can change font size", async () => {
     const updateStyle = jest.fn();
     await mountChartTitle({ updateStyle });
-    const fontSizeEditor = fixture.querySelector(".o-font-size-editor")!;
+    const fontSizeEditor = fixture.querySelector(".o-number-editor")!;
     expect(fontSizeEditor).not.toBeNull();
     expect(updateStyle).toHaveBeenCalledTimes(0);
     const input = fontSizeEditor.querySelector("input")!;

@@ -1,7 +1,7 @@
-import { getDefaultSheetViewSize } from "../../constants";
+import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../../constants";
+import { clip, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/edge_scrolling";
 import { InternalViewport } from "../../helpers/internal_viewport";
-import { clip, isDefined, range } from "../../helpers/misc";
 import { findCellInNewZone, positionToZone } from "../../helpers/zones";
 import {
   Command,
@@ -98,6 +98,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getVisibleFigures",
     "getVisibleRect",
     "getVisibleRectWithoutHeaders",
+    "getVisibleRectWithZoom",
     "getVisibleCellPositions",
     "getColRowOffsetInViewport",
     "getMainViewportCoordinates",
@@ -113,6 +114,8 @@ export class SheetViewPlugin extends UIPlugin {
     "getFigureUI",
     "getPositionAnchorOffset",
     "getGridOffset",
+    "getViewportZoomLevel",
+    "getScrollBarWidth",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -127,6 +130,7 @@ export class SheetViewPlugin extends UIPlugin {
   private sheetViewHeight: Pixel = getDefaultSheetViewSize();
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
+  private zoomLevel: number = 1;
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;
@@ -204,6 +208,9 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "SET_VIEWPORT_OFFSET":
         this.setSheetViewOffset(cmd.offsetX, cmd.offsetY);
+        break;
+      case "SET_ZOOM":
+        this.zoomLevel = cmd.zoom || 1;
         break;
       case "SHIFT_VIEWPORT_DOWN":
         const sheetId = this.getters.getActiveSheetId();
@@ -438,7 +445,7 @@ export class SheetViewPlugin extends UIPlugin {
     for (const i of relevantIndexes) {
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
-    return offset;
+    return offset * this.zoomLevel;
   }
 
   /**
@@ -446,6 +453,10 @@ export class SheetViewPlugin extends UIPlugin {
    */
   isVisibleInViewport({ sheetId, col, row }: CellPosition): boolean {
     return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
+  }
+
+  getScrollBarWidth(): Pixel {
+    return SCROLLBAR_WIDTH / this.zoomLevel;
   }
 
   // => returns the new offset
@@ -526,6 +537,19 @@ export class SheetViewPlugin extends UIPlugin {
   getVisibleRect(zone: Zone): Rect {
     const rect = this.getVisibleRectWithoutHeaders(zone);
     return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+  }
+
+  /**
+   * Computes the coordinates and size to draw the zone on the canvas after it has been zoomed
+   */
+  getVisibleRectWithZoom(zone: Zone): Rect {
+    const zoom = this.getViewportZoomLevel();
+    const rect = this.getVisibleRectWithoutHeaders(zone);
+    rect.width = rect.width * zoom;
+    rect.height = rect.height * zoom;
+    rect.x = rect.x * zoom + this.gridOffsetX * zoom;
+    rect.y = rect.y * zoom + this.gridOffsetY * zoom;
+    return rect;
   }
 
   /**
@@ -614,6 +638,10 @@ export class SheetViewPlugin extends UIPlugin {
         },
       };
     });
+  }
+
+  getViewportZoomLevel(): number {
+    return this.zoomLevel;
   }
 
   // ---------------------------------------------------------------------------

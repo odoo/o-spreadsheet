@@ -1,3 +1,4 @@
+import { ZOOM_VALUES } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
@@ -202,6 +203,11 @@ topbarMenuRegistry
   .addChild("view_formulas", ["view", "show"], {
     ...ACTION_VIEW.viewFormulas,
     sequence: 10,
+  })
+  .addChild("zoom", ["view"], {
+    name: _t("Zoom"),
+    sequence: 1,
+    icon: "o-spreadsheet-Icon.ZOOM",
   })
   .addChild("view_irregularity_map", ["view"], {
     ...ACTION_VIEW.irregularityMap,
@@ -501,3 +507,8 @@ topbarMenuRegistry
   })
   .addChild("reinsert_dynamic_pivot", ["data"], ACTION_DATA.reinsertDynamicPivotMenu)
   .addChild("reinsert_static_pivot", ["data"], ACTION_DATA.reinsertStaticPivotMenu);
+
+// Zoom
+ZOOM_VALUES.forEach((zoom) => {
+  topbarMenuRegistry.addChild(`zoom${zoom}`, ["view", "zoom"], ACTION_VIEW.zoomAction(zoom));
+});

@@ -1,9 +1,5 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import {
-  GROUP_LAYER_WIDTH,
-  MAXIMAL_FREEZABLE_RATIO,
-  SCROLLBAR_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
+import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -92,6 +88,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   getStyle(): string {
     const properties: CSSProperties = {};
+    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     if (this.env.isDashboard()) {
       properties["grid-template-rows"] = `auto`;
     } else {
@@ -101,7 +98,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`
       : "auto";
     properties["grid-template-columns"] = `auto ${columnWidth}`;
-
+    properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
     return cssPropertiesToCss(properties);
   }
 
@@ -263,9 +260,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   get gridContainerStyle(): string {
     const gridColSize = GROUP_LAYER_WIDTH * this.rowLayers.length;
     const gridRowSize = GROUP_LAYER_WIDTH * this.colLayers.length;
+    const zoom = this.env.model.getters.getViewportZoomLevel();
     return cssPropertiesToCss({
       "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
       "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
+      zoom: `${zoom}`,
     });
   }
 
@@ -280,6 +279,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   getGridSize() {
+    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     const topBarHeight =
       this.spreadsheetRef.el
         ?.querySelector(".o-spreadsheet-topbar-wrapper")
@@ -298,8 +299,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       topBarHeight -
       bottomBarHeight;
     return {
-      width: Math.max(gridWidth - SCROLLBAR_WIDTH, 0),
-      height: Math.max(gridHeight - SCROLLBAR_WIDTH, 0),
+      width: Math.max(gridWidth / zoom - scrollbarWidth, 0),
+      height: Math.max(gridHeight / zoom - scrollbarWidth, 0),
     };
   }
 }

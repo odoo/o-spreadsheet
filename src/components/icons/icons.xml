@@ -747,6 +747,11 @@
       <i class="fa fa-search"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.ZOOM">
+    <div class="o-icon">
+      <i class="fa fa-search-plus"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.CHECK">
     <svg class="o-icon" viewBox="0 0 24 24">
       <path

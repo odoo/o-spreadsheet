@@ -5,6 +5,7 @@ import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   PADDING_AUTORESIZE_HORIZONTAL,
+  ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -98,8 +99,9 @@ async function dblClickColumn(letter: string) {
  * @param index Number of the row to click on (Starts at 0)
  * @param extra shiftKey, ctrlKey
  */
-async function selectRow(index: number, extra: any = {}) {
-  const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
+async function selectRow(index: number, extra: any = {}, zoom: number = 1) {
+  const y =
+    model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.start * zoom + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer", "pointerdown", 10, y, extra);
@@ -158,7 +160,8 @@ describe("Resizer component", () => {
     ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
-  test("can click on a header to select a column", async () => {
+  test.each(ZOOM_VALUES)("can click on a header to select a column", async (zoom) => {
+    model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
@@ -189,8 +192,9 @@ describe("Resizer component", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
   });
 
-  test("can click on a row-header to select a row", async () => {
-    await selectRow(2);
+  test.each(ZOOM_VALUES)("can click on a row-header to select a row", async (zoom) => {
+    model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+    await selectRow(2, {}, zoom / 100);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(getSelectionAnchorCellXc(model)).toBe("A3");
   });

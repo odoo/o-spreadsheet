@@ -8,6 +8,7 @@ import { Chart, ChartConfiguration } from "chart.js/auto";
 import { clip } from "../../../../../helpers";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
+import { withZoom } from "../../../../helpers/zoom";
 import { chartJsExtensionRegistry } from "../chart_js_extension";
 import { ChartJsComponent } from "../chartjs";
 import { ZoomableChartStore } from "./zoomable_chart_store";
@@ -297,23 +298,28 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onPointerDownInMasterChart(ev: PointerEvent) {
     this.removeEventListeners();
-    const position = ev.offsetX;
+    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas.el?.getBoundingClientRect());
+    const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
     }
     const { left, right, top, bottom } = this.masterChart.chartArea;
     const xMax = this.upperBound ?? right;
     const xMin = this.lowerBound ?? left;
-    if (position < left - 5 || position > right + 5 || ev.offsetY < top || ev.offsetY > bottom) {
+    if (
+      position < left - 5 ||
+      position > right + 5 ||
+      zoomedEvent.offsetY < top ||
+      zoomedEvent.offsetY > bottom
+    ) {
       return;
     }
     ev.preventDefault();
     ev.stopPropagation();
     let startingPositionOnChart: number, windowSize: number, startX: number | undefined;
-    const startingEventPosition =
-      ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
+    const startingEventPosition = position;
     if ((xMin !== left || xMax !== right) && position > xMin + 5 && position < xMax - 5) {
-      startingPositionOnChart = ev.offsetX - xMin;
+      startingPositionOnChart = zoomedEvent.offsetX - xMin;
       this.mode = "moveInMaster";
       const currentLimits = this.store.currentAxesLimits[this.chartId]?.x;
       windowSize =
@@ -359,7 +365,12 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     };
 
     const onDragFromMasterChart = (ev: PointerEvent) => {
-      const position = ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
+      const zoomedEvent = withZoom(
+        this.env,
+        ev,
+        this.masterChartCanvas.el?.getBoundingClientRect()
+      );
+      const position = zoomedEvent.offsetX;
       if (Math.abs(position - startingEventPosition) < 5) {
         return;
       }
@@ -371,7 +382,12 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
     const onPointerUpInMasterChart = (ev: PointerEvent) => {
       this.removeEventListeners();
-      const position = ev.clientX - (this.masterChartCanvas.el?.getBoundingClientRect().left ?? 0);
+      const zoomedEvent = withZoom(
+        this.env,
+        ev,
+        this.masterChartCanvas.el?.getBoundingClientRect()
+      );
+      const position = zoomedEvent.offsetX;
       if (Math.abs(position - startingEventPosition) > 5) {
         let { min: xMin, max: xMax } = computeNewAxisLimits(position);
         if (xMin !== undefined && xMax !== undefined) {
@@ -399,7 +415,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   onPointerMoveInMasterChart(ev: PointerEvent) {
-    const { offsetX: x, offsetY: y } = ev;
+    const { offsetX: x, offsetY: y } = withZoom(
+      this.env,
+      ev,
+      (ev.target as HTMLElement)?.getBoundingClientRect()
+    );
     if (this.mode === undefined) {
       const target = ev.target!;
       if (!this.masterChart?.chartArea) {
@@ -431,7 +451,8 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onDoubleClickInMasterChart(ev: PointerEvent) {
     this.mode = undefined;
-    const position = ev.offsetX;
+    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas.el?.getBoundingClientRect());
+    const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
       return;
     }
@@ -441,7 +462,12 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (upperBound < lowerBound) {
       [upperBound, lowerBound] = [lowerBound, upperBound];
     }
-    if (position < left - 5 || position > right + 5 || ev.offsetY < top || ev.offsetY > bottom) {
+    if (
+      position < left - 5 ||
+      position > right + 5 ||
+      zoomedEvent.offsetY < top ||
+      zoomedEvent.offsetY > bottom
+    ) {
       return;
     }
     ev.preventDefault();

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Grid">
     <div
-      class="o-grid w-100 h-100"
+      class="o-grid w-100 h-100 o-zoomable"
       tabindex="-1"
       composerFocusableElement="true"
       t-on-click="focusDefaultElement"

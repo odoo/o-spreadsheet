@@ -288,8 +288,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     }
 
     const sheetId = this.env.model.getters.getActiveSheetId();
+    const zoom = this.env.model.getters.getViewportZoomLevel();
 
-    const initialMousePosition = { x: ev.clientX, y: ev.clientY };
+    const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
 
     const initialFigure = this.toBottomRightViewport(figureUI);
@@ -308,7 +309,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     let hasStartedDnd = false;
     const onMouseMove = (ev: MouseEvent) => {
       const getters = this.env.model.getters;
-      const currentMousePosition = { x: ev.clientX, y: ev.clientY };
+      const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
       const offsetX = Math.abs(currentMousePosition.x - initialMousePosition.x);
       const offsetY = Math.abs(currentMousePosition.y - initialMousePosition.y);
@@ -386,12 +387,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
    */
   startResize(figureUI: FigureUI, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
     ev.stopPropagation();
-    const initialMousePosition = { x: ev.clientX, y: ev.clientY };
     const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
 
     const keepRatio = figureRegistry.get(figureUI.tag).keepRatio || false;
     const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
+    const zoom = this.env.model.getters.getViewportZoomLevel();
     const sheetId = this.env.model.getters.getActiveSheetId();
+
+    const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
     const maxDimensions = {
       maxX: this.env.model.getters.getColDimensions(
@@ -405,7 +408,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     };
 
     const onMouseMove = (ev: MouseEvent) => {
-      const currentMousePosition = { x: ev.clientX, y: ev.clientY };
+      const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
       const draggedFigure = dragFigureForResize(
         figureUI,
         dirX,

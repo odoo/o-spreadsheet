@@ -2,12 +2,13 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
+  ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { toHex, toZone } from "../../src/helpers";
-import { Color, Range } from "../../src/types";
+import { Color, Pixel, Range } from "../../src/types";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -760,152 +761,160 @@ describe("Border component", () => {
   });
 });
 
-describe("Edge-Scrolling on mouseMove of hightlights", () => {
-  beforeEach(async () => {
-    jest.useFakeTimers();
-    ({ model, fixture } = await mountSpreadsheet());
-    // ensure that highlights exist
-    await startGridComposition();
-    await typeInComposerGrid("=A1");
-  });
-
-  test("Can edge-scroll border horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
-    const y = DEFAULT_CELL_HEIGHT;
-
-    triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
-    triggerMouseEvent(".o-border-n", "pointermove", 1.5 * width, y);
-    const advanceTimer = edgeScrollDelay(0.5 * width, 5);
-
-    jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-border-n", "pointerup", 1.5 * width, y);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 6,
-      right: 16,
-      top: 0,
-      bottom: 42,
+describe.each(ZOOM_VALUES)(
+  "Edge-Scrolling on mouseMove of hightlights with zoom %s%",
+  (zoomValue) => {
+    let zoom: number;
+    let width: Pixel;
+    let height: Pixel;
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      ({ model, fixture } = await mountSpreadsheet());
+      zoom = zoomValue / 100;
+      model.dispatch("SET_ZOOM", { zoom });
+      ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
+      // In test sheetviewDim is not changed based on the Zoom
+      width = width * zoom;
+      height = height * zoom;
+      // ensure that highlights exist
+      await startGridComposition();
+      await typeInComposerGrid("=A1");
     });
 
-    // force a nextTick to update the props of Highlight as it is not using an internal state
-    await nextTick();
+    test("Can edge-scroll border horizontally", async () => {
+      const y = DEFAULT_CELL_HEIGHT;
 
-    triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
-    triggerMouseEvent(".o-border-n", "pointermove", -0.5 * width, y);
-    const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
+      triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
+      triggerMouseEvent(".o-border-n", "pointermove", 1.5 * width, y);
+      const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-border-n", "pointerup", -0.5 * width, y);
+      jest.advanceTimersByTime(advanceTimer);
+      triggerMouseEvent(".o-border-n", "pointerup", 1.5 * width, y);
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 6,
+        right: 16,
+        top: 0,
+        bottom: 42,
+      });
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 3,
-      right: 13,
-      top: 0,
-      bottom: 42,
-    });
-  });
+      // force a nextTick to update the props of Highlight as it is not using an internal state
+      await nextTick();
 
-  test("Can edge-scroll border vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
-    const x = DEFAULT_CELL_WIDTH / 2;
-    triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
-    triggerMouseEvent(".o-border-n", "pointermove", x, 1.5 * height);
-    const advanceTimer = edgeScrollDelay(0.5 * height, 5);
+      triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
+      triggerMouseEvent(".o-border-n", "pointermove", -0.5 * width, y);
+      const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
-    jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-border-n", "pointerup", x, 1.5 * height);
+      jest.advanceTimersByTime(advanceTimer2);
+      triggerMouseEvent(".o-border-n", "pointerup", -0.5 * width, y);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 0,
-      right: 10,
-      top: 6,
-      bottom: 48,
-    });
-
-    // force a nextTick to update the props of Highlight as it is not using an internal state
-    await nextTick();
-
-    triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
-    triggerMouseEvent(".o-border-n", "pointermove", x, -0.5 * height);
-    const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
-
-    jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-border-n", "pointerup", x, -0.5 * height);
-
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 0,
-      right: 10,
-      top: 3,
-      bottom: 45,
-    });
-  });
-
-  test("Can edge-scroll corner horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
-    const y = DEFAULT_CELL_HEIGHT;
-
-    triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
-    triggerMouseEvent(".o-corner-nw", "pointermove", 1.5 * width, y);
-    const advanceTimer = edgeScrollDelay(0.5 * width, 5);
-
-    jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-corner-nw", "pointerup", 1.5 * width, y);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 6,
-      right: 16,
-      top: 0,
-      bottom: 42,
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 3,
+        right: 13,
+        top: 0,
+        bottom: 42,
+      });
     });
 
-    // force a nextTick to update the props of Highlight as it is not using an internal state
-    await nextTick();
+    test("Can edge-scroll border vertically", async () => {
+      const x = DEFAULT_CELL_WIDTH / 2;
+      triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
+      triggerMouseEvent(".o-border-n", "pointermove", x, 1.5 * height);
+      const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
-    triggerMouseEvent(".o-corner-nw", "pointermove", -0.5 * width, y);
-    const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
+      jest.advanceTimersByTime(advanceTimer);
+      triggerMouseEvent(".o-border-n", "pointerup", x, 1.5 * height);
 
-    jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-corner-nw", "pointerup", -0.5 * width, y);
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 0,
+        right: 10,
+        top: 6,
+        bottom: 48,
+      });
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 3,
-      right: 13,
-      top: 0,
-      bottom: 42,
+      // force a nextTick to update the props of Highlight as it is not using an internal state
+      await nextTick();
+
+      triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
+      triggerMouseEvent(".o-border-n", "pointermove", x, -0.5 * height);
+      const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
+
+      jest.advanceTimersByTime(advanceTimer2);
+      triggerMouseEvent(".o-border-n", "pointerup", x, -0.5 * height);
+
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 0,
+        right: 10,
+        top: 3,
+        bottom: 45,
+      });
     });
-  });
 
-  test("Can edge-scroll corner vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
-    const x = DEFAULT_CELL_WIDTH / 2;
-    triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
-    triggerMouseEvent(".o-corner-nw", "pointermove", x, 1.5 * height);
-    const advanceTimer = edgeScrollDelay(0.5 * height, 5);
+    test("Can edge-scroll corner horizontally", async () => {
+      const y = DEFAULT_CELL_HEIGHT;
 
-    jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-corner-nw", "pointerup", x, 1.5 * height);
+      triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
+      triggerMouseEvent(".o-corner-nw", "pointermove", 1.5 * width, y);
+      const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 0,
-      right: 10,
-      top: 6,
-      bottom: 48,
+      jest.advanceTimersByTime(advanceTimer);
+      triggerMouseEvent(".o-corner-nw", "pointerup", 1.5 * width, y);
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 6,
+        right: 16,
+        top: 0,
+        bottom: 42,
+      });
+
+      // force a nextTick to update the props of Highlight as it is not using an internal state
+      await nextTick();
+
+      triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
+      triggerMouseEvent(".o-corner-nw", "pointermove", -0.5 * width, y);
+      const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
+
+      jest.advanceTimersByTime(advanceTimer2);
+      triggerMouseEvent(".o-corner-nw", "pointerup", -0.5 * width, y);
+
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 3,
+        right: 13,
+        top: 0,
+        bottom: 42,
+      });
     });
 
-    // force a nextTick to update the props of Highlight as it is not using an internal state
-    await nextTick();
+    test("Can edge-scroll corner vertically", async () => {
+      const x = DEFAULT_CELL_WIDTH / 2;
+      triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
+      triggerMouseEvent(".o-corner-nw", "pointermove", x, 1.5 * height);
+      const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
-    triggerMouseEvent(".o-corner-nw", "pointermove", x, -0.5 * height);
-    const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
+      jest.advanceTimersByTime(advanceTimer);
+      triggerMouseEvent(".o-corner-nw", "pointerup", x, 1.5 * height);
 
-    jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-corner-nw", "pointerup", x, -0.5 * height);
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 0,
+        right: 10,
+        top: 6,
+        bottom: 48,
+      });
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      left: 0,
-      right: 10,
-      top: 3,
-      bottom: 45,
+      // force a nextTick to update the props of Highlight as it is not using an internal state
+      await nextTick();
+
+      triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
+      triggerMouseEvent(".o-corner-nw", "pointermove", x, -0.5 * height);
+      const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
+
+      jest.advanceTimersByTime(advanceTimer2);
+      triggerMouseEvent(".o-corner-nw", "pointerup", x, -0.5 * height);
+
+      expect(model.getters.getActiveMainViewport()).toMatchObject({
+        left: 0,
+        right: 10,
+        top: 3,
+        bottom: 45,
+      });
     });
-  });
-});
+  }
+);

@@ -218,6 +218,18 @@ export const irregularityMap: ActionSpec = {
   icon: "o-spreadsheet-Icon.IRREGULARITY_MAP",
 };
 
+export function zoomAction(zoom: number): ActionSpec {
+  return {
+    name: _t("%(zoom_percentage)s%", { zoom_percentage: zoom }),
+    execute: (env) => {
+      env.model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+    },
+    isActive: (env: SpreadsheetChildEnv) => env.model.getters.getViewportZoomLevel() === zoom / 100,
+    isReadonlyAllowed: true,
+    sequence: zoom,
+  };
+}
+
 export const viewFormulas: ActionSpec = {
   name: _t("Formulas"),
   isActive: (env: SpreadsheetChildEnv) => env.model.getters.shouldShowFormulas(),

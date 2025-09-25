@@ -1,5 +1,5 @@
 .o-spreadsheet {
-  .o-font-size-editor {
+  .o-number-editor {
     width: max-content !important;
     height: calc(100% - 4px);
     input.o-font-size {
