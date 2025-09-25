@@ -142,9 +142,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       },
       focus: this.focus,
       isDefaultFocus: true,
-      onComposerContentFocused: () =>
+      onComposerContentFocused: (selection) =>
         this.composerFocusStore.focusComposer(this.composerInterface, {
           focusMode: "contentFocus",
+          selection,
         }),
       onComposerCellFocused: (content: string) =>
         this.composerFocusStore.focusComposer(this.composerInterface, {
