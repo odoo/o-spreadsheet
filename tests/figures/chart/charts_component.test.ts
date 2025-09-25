@@ -490,7 +490,7 @@ describe("charts", () => {
       italic: true,
     });
 
-    const fontSize = fixture.querySelector(".o-font-size-editor input") as HTMLInputElement;
+    const fontSize = fixture.querySelector(".o-number-editor input") as HTMLInputElement;
     await setInputValueAndTrigger(fontSize, "20", "onlyChange");
     expect(model.getters.getChartDefinition(chartId).title).toEqual({
       text: "title",
@@ -513,7 +513,7 @@ describe("charts", () => {
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    const fontSize = fixture.querySelectorAll(".o-font-size-editor input")[1] as HTMLInputElement;
+    const fontSize = fixture.querySelectorAll(".o-number-editor input")[1] as HTMLInputElement;
     await setInputValueAndTrigger(fontSize, "20", "onlyChange");
 
     await click(fixture, ".o-badge-selection button[data-id=y]");

@@ -113,7 +113,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           class="o-dropdown"
         >
           <div
-            class="o-font-size-editor d-flex align-items-center o-hoverable-button"
+            class="o-number-editor d-flex align-items-center o-hoverable-button"
             title="Font Size"
           >
             <input
@@ -122,6 +122,7 @@ exports[`Chart title Can render a chart title component 1`] = `
               min="1"
               type="number"
             />
+            
             <span>
               <div
                 class="o-icon fa-small"

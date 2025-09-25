@@ -24,6 +24,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useInterval } from "../helpers/time_hooks";
+import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { HoveredTableStore } from "../tables/hovered_table_store";
@@ -50,11 +51,13 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     return { col, row };
   }
 
-  function getOffsetRelativeToOverlay(ev: MouseEvent): DOMCoordinates {
+  function getOffsetRelativeToOverlay(
+    zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
+  ): DOMCoordinates {
     const gridRect = getBoundingRectAsPOJO(gridRef.el!);
     return {
-      x: ev.clientX - gridRect.x,
-      y: ev.clientY - gridRect.y,
+      x: zoomedMouseEvent.clientX - gridRect.x,
+      y: zoomedMouseEvent.clientY - gridRect.y,
     };
   }
 
@@ -73,9 +76,9 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
       setPosition(col, row);
     }
   }
-  function updateMousePosition(e: MouseEvent) {
-    if (isChildEvent(gridRef.el, e)) {
-      ({ x, y } = getOffsetRelativeToOverlay(e));
+  function updateMousePosition(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
+    if (isChildEvent(gridRef.el, zoomedMouseEvent.ev)) {
+      ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
       lastMoved = Date.now();
       hoveredTable.hover(getPosition());
     }
@@ -89,11 +92,12 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   }
 
   function onMouseLeave(e: MouseEvent) {
-    const { x, y } = getOffsetRelativeToOverlay(e);
+    const zoomedMouseEvent = withZoom(env, e);
+    const { x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent);
     const gridRect = getBoundingRectAsPOJO(gridRef.el!);
 
     if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
-      return updateMousePosition(e);
+      return updateMousePosition(zoomedMouseEvent);
     } else {
       return pause();
     }
@@ -102,7 +106,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   useRefListener(
     gridRef,
     "pointermove",
-    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(ev)
+    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(withZoom(env, ev))
   );
   useRefListener(gridRef, "mouseleave", onMouseLeave);
   useRefListener(gridRef, "mouseenter", resume);
@@ -110,7 +114,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   useRefListener(
     gridRef,
     "pointerdown",
-    (ev: MouseEvent) => env.isMobile() && updateMousePosition(ev)
+    (ev: MouseEvent) => env.isMobile() && updateMousePosition(withZoom(env, ev))
   );
 
   useExternalListener(window, "click", handleGlobalClick);
@@ -138,7 +142,7 @@ interface Props {
     col: HeaderIndex,
     row: HeaderIndex,
     modifiers: GridClickModifiers,
-    ev: PointerEvent | MouseEvent
+    zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: Rect) => void;
@@ -223,7 +227,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.isMobile()) {
       return;
     }
-    const icon = this.getInteractiveIconAtEvent(ev);
+    const icon = this.getInteractiveIconAtEvent(withZoom(this.env, ev));
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
     if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
       this.hoveredIconStore.setHoveredIcon(hoveredIcon);
@@ -235,7 +239,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(ev);
+    this.onCellClicked(withZoom(this.env, ev));
   }
 
   onClick(ev: MouseEvent) {
@@ -243,13 +247,13 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(ev);
+    this.onCellClicked(withZoom(this.env, ev));
   }
 
-  onCellClicked(ev: PointerEvent | MouseEvent) {
+  onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
     const openedPopover = this.cellPopovers.persistentCellPopover;
-    const [col, row] = this.getCartesianCoordinates(ev);
-    const clickedIcon = this.getInteractiveIconAtEvent(ev);
+    const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
+    const clickedIcon = this.getInteractiveIconAtEvent(zoomedMouseEvent);
     if (clickedIcon) {
       this.env.model.selection.getBackToDefault();
     }
@@ -257,10 +261,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       col,
       row,
       {
-        expandZone: ev.shiftKey,
-        addZone: isCtrlKey(ev),
+        expandZone: zoomedMouseEvent.ev.shiftKey,
+        addZone: isCtrlKey(zoomedMouseEvent.ev),
       },
-      ev
+      zoomedMouseEvent
     );
 
     if (clickedIcon?.onClick) {
@@ -268,7 +272,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
 
     if (
-      ev.target === this.gridOverlay.el &&
+      zoomedMouseEvent.ev.target === this.gridOverlay.el &&
       this.cellPopovers.isOpen &&
       deepEquals(openedPopover, this.cellPopovers.persistentCellPopover)
     ) {
@@ -279,35 +283,35 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
-    if (this.getInteractiveIconAtEvent(ev)) {
+    const zoomedMouseEvent = withZoom(this.env, ev);
+    if (this.getInteractiveIconAtEvent(zoomedMouseEvent)) {
       return;
     }
 
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
     this.props.onCellDoubleClicked(col, row);
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(withZoom(this.env, ev));
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }
 
-  private getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
-    const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
-    const x = ev.clientX - gridOverLayRect.x;
-    const y = ev.clientY - gridOverLayRect.y;
-    const colIndex = this.env.model.getters.getColIndex(x);
-    const rowIndex = this.env.model.getters.getRowIndex(y);
+  private getCartesianCoordinates(
+    zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
+  ): [HeaderIndex, HeaderIndex] {
+    const colIndex = this.env.model.getters.getColIndex(zoomedMouseEvent.offsetX);
+    const rowIndex = this.env.model.getters.getRowIndex(zoomedMouseEvent.offsetY);
     return [colIndex, rowIndex];
   }
 
-  private getInteractiveIconAtEvent(ev: MouseEvent) {
+  private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
     const gridOffset = this.env.model.getters.getGridOffset();
-    const x = ev.clientX - gridOverLayRect.x + gridOffset.x;
-    const y = ev.clientY - gridOverLayRect.y + gridOffset.y;
+    const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
+    const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     let position = { col, row, sheetId };

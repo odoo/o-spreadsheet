@@ -1,38 +1,15 @@
 <templates>
   <t t-name="o-spreadsheet-FontSizeEditor">
-    <div class="o-dropdown" t-ref="FontSizeEditor">
-      <div
-        class=" o-font-size-editor d-flex align-items-center"
-        t-att-class="props.class"
-        title="Font Size"
-        t-on-click="this.toggleFontList">
-        <input
-          type="number"
-          min="1"
-          max="400"
-          class="o-font-size o-number-input bg-transparent border-0"
-          t-on-keydown="onInputKeydown"
-          t-on-wheel.prevent.stop=""
-          t-on-click.stop="props.onFocusInput"
-          t-on-focus.stop="onInputFocused"
-          t-on-change="setSizeFromInput"
-          t-ref="inputFontSize"
-        />
-        <span>
-          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
-        </span>
-      </div>
-      <Popover t-if="dropdown.isOpen" t-props="popoverProps">
-        <div class="o-text-options bg-white" t-on-click.stop="" t-ref="fontSizeList">
-          <t t-foreach="fontSizes" t-as="fontSize" t-key="fontSize">
-            <div
-              t-esc="fontSize"
-              t-att-data-size="fontSize"
-              t-on-click="() => this.setSizeFromList(fontSize)"
-            />
-          </t>
-        </div>
-      </Popover>
-    </div>
+    <NumberEditor
+      currentValue="props.currentFontSize"
+      onValueChange="props.onFontSizeChanged"
+      class="props.class"
+      onToggle="props.onToggle"
+      onFocusInput="props.onFocusInput"
+      min="1"
+      max="400"
+      valueList="fontSizes"
+      title.translate="Font Size"
+    />
   </t>
 </templates>

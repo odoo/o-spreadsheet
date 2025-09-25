@@ -153,6 +153,34 @@ exports[`TopBar component can set cell format 1`] = `
                 
                 
               </span>
+              <div>
+                <div
+                  class="o-dropdown"
+                >
+                  <div
+                    class="o-number-editor d-flex align-items-center o-menu-item-button o-hoverable-button o-toolbar-button"
+                    title="Zoom"
+                  >
+                    <input
+                      class="o-font-size o-number-input bg-transparent border-0"
+                      max="300"
+                      min="25"
+                      type="number"
+                    />
+                    %
+                    <span>
+                      <div
+                        class="o-icon fa-small"
+                      >
+                        <i
+                          class="fa fa-caret-down"
+                        />
+                      </div>
+                    </span>
+                  </div>
+                  
+                </div>
+              </div>
               
               
               <div
@@ -259,7 +287,7 @@ exports[`TopBar component can set cell format 1`] = `
                 class="o-dropdown"
               >
                 <div
-                  class="o-font-size-editor d-flex align-items-center o-hoverable-button o-toolbar-button"
+                  class="o-number-editor d-flex align-items-center o-hoverable-button o-toolbar-button"
                   title="Font Size"
                 >
                   <input
@@ -268,6 +296,7 @@ exports[`TopBar component can set cell format 1`] = `
                     min="1"
                     type="number"
                   />
+                  
                   <span>
                     <div
                       class="o-icon fa-small"
@@ -1289,6 +1318,34 @@ exports[`TopBar component simple rendering 1`] = `
             
             
           </span>
+          <div>
+            <div
+              class="o-dropdown"
+            >
+              <div
+                class="o-number-editor d-flex align-items-center o-menu-item-button o-hoverable-button o-toolbar-button"
+                title="Zoom"
+              >
+                <input
+                  class="o-font-size o-number-input bg-transparent border-0"
+                  max="300"
+                  min="25"
+                  type="number"
+                />
+                %
+                <span>
+                  <div
+                    class="o-icon fa-small"
+                  >
+                    <i
+                      class="fa fa-caret-down"
+                    />
+                  </div>
+                </span>
+              </div>
+              
+            </div>
+          </div>
           
           
           <div
@@ -1394,7 +1451,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-dropdown"
           >
             <div
-              class="o-font-size-editor d-flex align-items-center o-hoverable-button o-toolbar-button"
+              class="o-number-editor d-flex align-items-center o-hoverable-button o-toolbar-button"
               title="Font Size"
             >
               <input
@@ -1403,6 +1460,7 @@ exports[`TopBar component simple rendering 1`] = `
                 min="1"
                 type="number"
               />
+              
               <span>
                 <div
                   class="o-icon fa-small"

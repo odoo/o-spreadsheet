@@ -1,4 +1,3 @@
-import { SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
@@ -43,11 +42,12 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
 
   get position() {
     const { y } = this.env.model.getters.getMainViewportRect();
+    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
-      width: `${SCROLLBAR_WIDTH}px`,
-      bottom: isBrowserFirefox() ? `${SCROLLBAR_WIDTH}px` : "0",
+      width: `${scrollbarWidth}px`,
+      bottom: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
     };
   }
 

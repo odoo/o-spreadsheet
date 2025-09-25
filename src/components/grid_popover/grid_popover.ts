@@ -4,6 +4,7 @@ import { Component } from "@odoo/owl";
 import { useStore } from "../../store_engine/store_hooks";
 import { Rect } from "../../types";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
+import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 
@@ -31,7 +32,8 @@ export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
     if (!popover.isOpen) {
       return { isOpen: false };
     }
-    const anchorRect = popover.anchorRect;
+    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const anchorRect = getZoomedRect(zoom, popover.anchorRect);
     return {
       ...popover,
       // transform from the "canvas coordinate system" to the "body coordinate system"

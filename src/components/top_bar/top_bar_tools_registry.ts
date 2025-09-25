@@ -11,6 +11,7 @@ import { TopBarColorEditor } from "./color_editor/color_editor";
 import { DropdownAction } from "./dropdown_action/dropdown_action";
 import { TopBarFontSizeEditor } from "./font_size_editor/font_size_editor";
 import { NumberFormatsTool } from "./number_formats_tool/number_formats_tool";
+import { ToolBarZoom } from "./zoom_editor/zoom_editor";
 
 export const topBarToolBarRegistry = new ToolBarRegistry();
 
@@ -46,6 +47,13 @@ topBarToolBarRegistry
       class: "o-hoverable-button o-toolbar-button",
     },
     sequence: 4,
+  })
+  .addChild("edit", {
+    component: ToolBarZoom,
+    props: {
+      class: "o-menu-item-button o-hoverable-button o-toolbar-button",
+    },
+    sequence: 5,
   })
 
   .add("numberFormat")
