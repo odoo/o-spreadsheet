@@ -1,7 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-ChartFigure">
     <div class="o-chart-container w-100 h-100" t-on-dblclick="onDoubleClick">
-      <t t-component="chartComponent" chartId="chartId" t-key="chartId"/>
+      <t
+        t-component="chartComponent"
+        chartId="chartId"
+        t-key="chartId"
+        isFullScreen="props.isFullScreen"
+      />
     </div>
     <div t-if="env.isDashboard()" class="position-absolute top-0 end-0">
       <ChartDashboardMenu chartId="chartId"/>
