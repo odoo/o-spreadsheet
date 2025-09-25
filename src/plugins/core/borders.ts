@@ -472,12 +472,55 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   // Import/Export
   // ---------------------------------------------------------------------------
 
+  private isVerticallyMeargeable(border: ZoneBorderData, zone: Zone): boolean {
+    return zone.top === zone.bottom
+      ? (!border.bottom && !!border.top) || deepEquals(border.top, border.bottom)
+      : deepEquals(border.top, border.bottom, border.horizontal);
+  }
+
+  private getVerticallyMergedBorder(border: ZoneBorderData): ZoneBorderData {
+    return removeFalsyAttributes({
+      left: border.left,
+      right: border.right,
+      vertical: border.vertical,
+      top: border.top,
+      bottom: border.bottom,
+      horizontal: border.top,
+    });
+  }
+
   import(data: WorkbookData) {
     if (Object.keys(data.borders || {}).length) {
       for (const sheet of data.sheets) {
+        const borderType: Record<UID, Record<string, Zone[]>> = {};
         for (const zoneXc in sheet.borders) {
           const borderId = sheet.borders[zoneXc];
-          this.addBorder(sheet.id, toZone(zoneXc), data.borders[borderId]);
+          if (!borderId) {
+            continue;
+          }
+          const zone = toZone(zoneXc);
+          if (!this.isVerticallyMeargeable(data.borders[borderId], zone)) {
+            this.addBorder(sheet.id, zone, data.borders[borderId]);
+            continue;
+          }
+          if (!(borderId in borderType)) {
+            borderType[borderId] = {};
+          }
+          const lr = `${zone.left}:${zone.right}`;
+          if (!(lr in borderType[borderId])) {
+            borderType[borderId][lr] = [];
+          }
+          borderType[borderId][lr].push(zone);
+        }
+        for (const borderId in borderType) {
+          for (const lr in borderType[borderId]) {
+            const zones = borderType[borderId][lr];
+            const border =
+              zones.length > 1
+                ? this.getVerticallyMergedBorder(data.borders[borderId])
+                : data.borders[borderId];
+            this.addBorders(sheet.id, recomputeZones(borderType[borderId][lr]), border);
+          }
         }
       }
     }
