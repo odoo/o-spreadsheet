@@ -93,7 +93,7 @@ function createTestChart(
       createChart(
         model,
         { ...TEST_CHART_DATA.basicChart, type },
-        chartId,
+        newChartId,
         undefined,
         partialFigure
       );
@@ -175,7 +175,7 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {
-    createTestChart(chartType, undefined, {
+    createTestChart(chartType, "chartId", {
       size: { height: 335, width: 536 },
       figureId: "figureId",
     });
@@ -184,22 +184,23 @@ describe("charts", () => {
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
     expect(sheet.figures).toMatchObject([
       {
-        data: {
-          chartId,
-          ...TEST_CHART_DATA[chartType],
-        },
         id: "figureId",
         height: 335,
         tag: "chart",
         width: 536,
         col: 0,
         row: 0,
-        offset: {
-          x: 0,
-          y: 0,
-        },
+        offset: { x: 0, y: 0 },
       },
     ]);
+    expect(sheet.charts).toMatchObject({
+      chartId: {
+        figureId: "figureId",
+        chart: {
+          ...TEST_CHART_DATA[chartType],
+        },
+      },
+    });
   });
 
   test.each(TEST_CHART_TYPES)("charts have a menu button", async (chartType) => {
@@ -2272,6 +2273,7 @@ describe("charts with multiple sheets", () => {
   beforeEach(async () => {
     mockChartData = mockChart();
     const data = {
+      version: "18.4.1",
       sheets: [
         {
           name: "Sheet1",

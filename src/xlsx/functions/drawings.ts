@@ -1,12 +1,10 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
-import { HeaderIndex, SheetData } from "../../types";
-import { ExcelChartDefinition } from "../../types/chart/chart";
+import { Figure, HeaderIndex, SheetData } from "../../types";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
-import { Image } from "./../../types/image";
-import { FigureData, HeaderData } from "./../../types/workbook_data";
+import { HeaderData } from "./../../types/workbook_data";
 
 type FigurePosition = {
   to: {
@@ -26,7 +24,7 @@ type FigurePosition = {
 export function createDrawing(
   drawingRelIds: string[],
   sheet: SheetData,
-  figures: FigureData<ExcelChartDefinition | Image>[],
+  figures: Figure[],
   construct: XLSXStructure
 ): XMLDocument {
   const namespaces: XMLAttributes = [
@@ -39,18 +37,30 @@ export function createDrawing(
   for (const [figureIndex, figure] of Object.entries(figures)) {
     switch (figure?.tag) {
       case "chart":
+        const chartId = Object.keys(sheet.charts).find(
+          (chartId) => sheet.charts[chartId].figureId === figure.id
+        );
+        if (!chartId) {
+          throw new Error(`Chart with figureId ${figure.id} not found in sheet ${sheet.name}`);
+        }
         figuresNodes.push(
           createChartDrawing(
-            figure as FigureData<ExcelChartDefinition>,
+            figure,
+            convertChartId(chartId, construct),
             sheet,
-            drawingRelIds[figureIndex],
-            construct
+            drawingRelIds[figureIndex]
           )
         );
         break;
       case "image":
+        const imageId = Object.keys(sheet.images).find(
+          (imageId) => sheet.images[imageId].figureId === figure.id
+        );
+        if (!imageId) {
+          throw new Error(`Image with figureId ${figure.id} not found in sheet ${sheet.name}`);
+        }
         figuresNodes.push(
-          createImageDrawing(figure as FigureData<Image>, sheet, drawingRelIds[figureIndex])
+          createImageDrawing(figure, convertImageId(imageId), sheet, drawingRelIds[figureIndex])
         );
         break;
     }
@@ -67,10 +77,7 @@ export function createDrawing(
 /**
  *  Returns the coordinates of topLeft (from) and BottomRight (to) of the chart in English Metric Units (EMU)
  */
-function convertFigureData(
-  figure: FigureData<ExcelChartDefinition | Image>,
-  sheet: SheetData
-): FigurePosition {
+function convertFigureData(figure: Figure, sheet: SheetData): FigurePosition {
   const { col, row, offset, width, height } = figure;
   const { x: offsetCol, y: offsetRow } = offset;
 
@@ -124,14 +131,13 @@ function figureCoordinates(
 }
 
 function createChartDrawing(
-  figure: FigureData<ExcelChartDefinition>,
+  figure: Figure,
+  chartId: number,
   sheet: SheetData,
-  chartRelId: string,
-  construct: XLSXStructure
+  chartRelId: string
 ): XMLString {
   // position
   const { from, to } = convertFigureData(figure, sheet);
-  const chartId = convertChartId(figure.id, construct);
   const cNvPrAttrs: XMLAttributes = [
     ["id", chartId],
     ["name", `Chart ${chartId}`],
@@ -172,13 +178,13 @@ function createChartDrawing(
 }
 
 function createImageDrawing(
-  figure: FigureData<Image>,
+  figure: Figure,
+  imageId: number,
   sheet: SheetData,
   imageRelId: string
 ): XMLString {
   // position
   const { from, to } = convertFigureData(figure, sheet);
-  const imageId = convertImageId(figure.id);
   const cNvPrAttrs: XMLAttributes = [
     ["id", imageId],
     ["name", `Image ${imageId}`],

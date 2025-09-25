@@ -372,7 +372,7 @@ migrationStepRegistry
   })
   .add("18.0.4", {
     // "Add operator in gauge inflection points",
-    migrate(data: WorkbookData): any {
+    migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
           if (figure.tag !== "chart" || figure.data.type !== "gauge") {
@@ -503,7 +503,7 @@ migrationStepRegistry
     },
   })
   .add("18.4.2", {
-    migrate(data: WorkbookData): any {
+    migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
           if (figure.tag !== "chart" || figure.data.type !== "scorecard") {
@@ -538,11 +538,45 @@ migrationStepRegistry
     },
   })
   .add("18.5.1", {
-    migrate(data: WorkbookData): any {
+    migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart") {
             figure.data.chartId = figure.id;
+          }
+        }
+      }
+      return data;
+    },
+  })
+  .add("18.5.11", {
+    migrate(data: any): WorkbookData {
+      for (const sheet of data.sheets || []) {
+        sheet.charts = {};
+        sheet.images = {};
+        sheet.carousels = {};
+
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart") {
+            const chart = figure.data;
+            delete figure.data;
+            sheet.charts[figure.id] = { figureId: figure.id, chart };
+          } else if (figure.tag === "image") {
+            const image = figure.data;
+            delete figure.data;
+            sheet.images[figure.id] = { figureId: figure.id, image };
+          } else if (figure.tag === "carousel") {
+            const carousel = figure.data;
+            delete figure.data;
+            // TODO figure.data.chartDefintion.fieldMatching ????
+            sheet.carousels[figure.id] = {
+              figureId: figure.id,
+              carousel: { items: carousel.items, title: carousel.title },
+            };
+            for (const chartId in carousel.chartDefinitions || {}) {
+              const chart = carousel.chartDefinitions[chartId];
+              sheet.charts[chartId] = { figureId: figure.id, chart };
+            }
           }
         }
       }

@@ -132,8 +132,9 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     // Figures and Charts
     let drawingNode = escapeXml``;
     const drawingRelIds: string[] = [];
-    for (const chart of sheet.charts) {
-      const xlsxChartId = convertChartId(chart.id, construct);
+    for (const chartId in sheet.charts) {
+      const { chart } = sheet.charts[chartId];
+      const xlsxChartId = convertChartId(chartId, construct);
       const chartRelId = addRelsToFile(
         construct.relsFiles,
         `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
@@ -152,13 +153,14 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       );
     }
 
-    for (const image of sheet.images) {
-      const mimeType = image.data.mimetype;
+    for (const imageId in sheet.images) {
+      const { image } = sheet.images[imageId];
+      const mimeType = image.mimetype;
       if (mimeType === undefined) continue;
       const extension = IMAGE_MIMETYPE_TO_EXTENSION_MAPPING[mimeType];
       // only support exporting images with mimetypes specified in the mapping
       if (extension === undefined) continue;
-      const xlsxImageId = convertImageId(image.id);
+      const xlsxImageId = convertImageId(imageId);
       const imageFileName = `image${xlsxImageId}.${extension}`;
 
       const imageRelId = addRelsToFile(
@@ -172,11 +174,11 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       drawingRelIds.push(imageRelId);
       files.push({
         path: `xl/media/${imageFileName}`,
-        imageSrc: image.data.path,
+        imageSrc: image.path,
       });
     }
 
-    const drawings = [...sheet.charts, ...sheet.images];
+    const drawings = sheet.figures;
     if (drawings.length) {
       const drawingRelId = addRelsToFile(
         construct.relsFiles,
