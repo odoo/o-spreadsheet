@@ -19,9 +19,18 @@
           background-color: var(--os-button-active-bg);
           color: var(--os-button-active-text-color);
         }
+        .o-menu-item-icon {
+          .o-icon {
+            color: var(--os-icons-color);
+          }
+        }
+        .o-menu-item-description {
+          color: grey;
+        }
       }
       &.disabled {
         color: var(--os-disabled-text-color);
+        cursor: not-allowed;
       }
       .o-menu-item-name {
         min-width: 40%;
@@ -29,12 +38,6 @@
       .o-menu-item-icon {
         display: inline-block;
         margin: 0px 8px 0px 0px;
-      }
-      .o-menu-item-description {
-        color: grey;
-      }
-      &.disabled {
-        cursor: not-allowed;
       }
     }
   }
