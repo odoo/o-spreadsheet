@@ -23,6 +23,7 @@ export const deleteSheet: ActionSpec = {
   isVisible: (env) => {
     return env.model.getters.getVisibleSheetIds().length > 1;
   },
+
   execute: (env) =>
     env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
       env.model.dispatch("DELETE_SHEET", {
@@ -47,6 +48,7 @@ export const duplicateSheet: ActionSpec = {
     });
     env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
   },
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.COPY",
 };
 
@@ -80,6 +82,7 @@ export const sheetMoveRight: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       delta: 1,
     }),
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.MOVE_SHEET_RIGHT",
 };
 
@@ -94,6 +97,7 @@ export const sheetMoveLeft: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       delta: -1,
     }),
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.MOVE_SHEET_LEFT",
 };
 
@@ -102,5 +106,33 @@ export const hideSheet: ActionSpec = {
   isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
   execute: (env) =>
     env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.HIDE_SHEET",
+};
+
+export const lockSheet: ActionSpec = {
+  name: _t("Lock sheet"),
+  isVisible: (env) => {
+    return !env.model.getters.isCurrentSheetLocked();
+  },
+  execute: (env) => {
+    env.model.dispatch("LOCK_SHEET", {
+      sheetId: env.model.getters.getActiveSheetId(),
+    });
+  },
+  icon: "o-spreadsheet-Icon.LOCK",
+};
+
+export const unlockSheet: ActionSpec = {
+  name: _t("Unlock sheet"),
+  isVisible: (env) => {
+    return env.model.getters.isCurrentSheetLocked();
+  },
+  execute: (env) => {
+    env.model.dispatch("UNLOCK_SHEET", {
+      sheetId: env.model.getters.getActiveSheetId(),
+    });
+  },
+  isEnabledOnLockedSheet: true,
+  icon: "o-spreadsheet-Icon.UNLOCK",
 };

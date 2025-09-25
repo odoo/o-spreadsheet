@@ -14,6 +14,7 @@ import {
   deleteRows,
   deleteTable,
   hideRows,
+  lockSheet,
   redo,
   setCellContent,
   setSelection,
@@ -890,7 +891,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "Match(es) cannot be replaced as they are part of a formula.",
+      text: "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
     });
   });
 
@@ -910,7 +911,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "2 match(es) replaced. 2 match(es) cannot be replaced as they are part of a formula.",
+      text: "2 match(es) replaced. 2 match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
     });
   });
 
@@ -927,7 +928,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula.",
+      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
     });
   });
 
@@ -945,7 +946,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula.",
+      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
     });
 
     replaceAll("2025");
@@ -953,7 +954,24 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "Match(es) cannot be replaced as they are part of a formula.",
+      text: "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+    });
+  });
+
+  test("warns when trying to replace a match in locked sheet", () => {
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+
+    const notificationStore = container.get(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+
+    lockSheet(model);
+    updateSearch(model, "2024");
+    replaceSearch("2025");
+
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
     });
   });
 });

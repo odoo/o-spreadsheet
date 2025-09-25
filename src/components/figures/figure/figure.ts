@@ -156,7 +156,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onKeyDown(ev: KeyboardEvent) {
     const keyDownShortcut = keyboardEventToShortcutString(ev);
-
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
@@ -271,5 +270,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         this.figureWrapperRef.el.style.setProperty(property, properties[property] || null);
       }
     }
+  }
+
+  get isFigureResizable(): boolean {
+    return (
+      this.isSelected &&
+      !this.env.isMobile() &&
+      !this.env.isDashboard() &&
+      !this.env.model.getters.isCurrentSheetLocked()
+    );
   }
 }

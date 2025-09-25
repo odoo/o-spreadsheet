@@ -3,7 +3,7 @@
     <FontSizeEditor
       currentFontSize="currentFontSize"
       onFontSizeChanged.bind="this.setFontSize"
-      class="props.class"
+      class="class"
       onToggle.bind="this.onToggle"
       onFocusInput.bind="this.onFocusInput"
     />

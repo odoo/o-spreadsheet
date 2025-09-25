@@ -7,7 +7,7 @@ import {
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useSubEnv, xml } from "@odoo/owl";
-import { Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
+import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
@@ -18,7 +18,9 @@ import {
   addDataValidation,
   addRows,
   createChart,
+  deleteSheet,
   freezeRows,
+  lockSheet,
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
@@ -506,4 +508,18 @@ test("Spreadsheet color scheme can be set to dark", async () => {
   const model = new Model();
   await mountSpreadsheet({ model, colorScheme: "dark" });
   expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
+});
+
+test("Commands rejected on locked sheet trigger a notification", async () => {
+  const model = new Model();
+  const notifyFn = jest.fn();
+  ({ parent, fixture } = await mountSpreadsheet({ model, notifyUser: notifyFn }));
+  lockSheet(model);
+  const result = deleteSheet(model, model.getters.getActiveSheetId());
+  expect(result.reasons).toContain(CommandResult.SheetLocked);
+  expect(notifyFn).toHaveBeenCalledWith({
+    text: "This sheet is locked and cannot be modified. Please unlock it first.",
+    type: "info",
+    sticky: false,
+  });
 });

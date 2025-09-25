@@ -279,7 +279,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    if (this.env.isMobile()) {
+    if (this.env.isMobile() || this.env.model.getters.isCurrentSheetLocked()) {
       return;
     }
 

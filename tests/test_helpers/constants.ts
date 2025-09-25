@@ -483,14 +483,10 @@ export const TEST_COMMANDS: CommandMapping = {
     row: 0,
     table: new SpreadsheetPivotTable([[]], [], [], {}).export(),
   },
-  REMOVE_PIVOT: {
-    type: "REMOVE_PIVOT",
-    pivotId: "1",
-  },
   UPDATE_PIVOT: {
     type: "UPDATE_PIVOT",
     pivotId: "1",
-    pivot: PIVOT,
+    pivot: { ...PIVOT, name: "Pivot2" },
   },
   DUPLICATE_PIVOT: {
     type: "DUPLICATE_PIVOT",
@@ -502,6 +498,10 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "RENAME_PIVOT",
     pivotId: "1",
     name: "newName",
+  },
+  REMOVE_PIVOT: {
+    type: "REMOVE_PIVOT",
+    pivotId: "1",
   },
   CREATE_CAROUSEL: {
     type: "CREATE_CAROUSEL",
@@ -527,6 +527,14 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "DELETE_CHART",
     sheetId: "Sheet1",
     chartId: "chartId",
+  },
+  LOCK_SHEET: {
+    type: "LOCK_SHEET",
+    sheetId: "Sheet1",
+  },
+  UNLOCK_SHEET: {
+    type: "UNLOCK_SHEET",
+    sheetId: "Sheet1",
   },
 };
 

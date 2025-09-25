@@ -123,7 +123,11 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
       return children.some((child) => this.isEnabled(child));
     } else {
       if (menu.isEnabled(this.env)) {
-        return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+        const canExecuteOnLockedSheet =
+          menu.isEnabledOnLockedSheet || !this.env.model.getters.isCurrentSheetLocked();
+        return this.env.model.getters.isReadonly()
+          ? menu.isReadonlyAllowed
+          : canExecuteOnLockedSheet;
       }
       return false;
     }

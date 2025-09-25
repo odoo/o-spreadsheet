@@ -18,11 +18,13 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  duplicateSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
   hideRows,
   hideSheet,
+  lockSheet,
   merge,
   moveSheet,
   redo,
@@ -33,6 +35,7 @@ import {
   showSheet,
   unMerge,
   undo,
+  unlockSheet,
 } from "../test_helpers/commands_helpers";
 import {
   TEST_COMMANDS_RANGE_DEPENDENT,
@@ -1259,6 +1262,30 @@ describe("sheets", () => {
 
       const newModel = new Model(exported);
       expect(newModel.getters.getSheet(sheetId).color).toBe("#FF0000");
+    });
+  });
+
+  describe("Sheet protection", () => {
+    test("Can lock/unlock a sheet", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+
+      lockSheet(model, sheetId);
+      expect(model.getters.getSheet(sheetId).isLocked).toBe(true);
+      unlockSheet(model, sheetId);
+      expect(model.getters.getSheet(sheetId).isLocked).toBe(false);
+    });
+
+    test("Duplicating a locked sheet creates an unlocked copy", () => {
+      const model = new Model();
+      createSheet(model, { name: "Another sheet", position: 0 });
+      const sheetId = model.getters.getActiveSheetId();
+      lockSheet(model);
+      const result = duplicateSheet(model, sheetId, "Duplicated");
+      expect(result).toBeSuccessfullyDispatched();
+      const newSheet = model.getters.getSheet("Duplicated");
+      expect(newSheet).toBeDefined();
+      expect(newSheet?.isLocked).toBe(false);
     });
   });
 });

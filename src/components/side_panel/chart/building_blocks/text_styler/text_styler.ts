@@ -126,6 +126,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
       name: _t("Bold"),
       execute: () => this.toggleBold(),
       isActive: () => this.bold || false,
+      isEnabledOnLockedSheet: true,
       icon: "o-spreadsheet-Icon.BOLD",
     };
   }
@@ -135,6 +136,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
       name: _t("Italic"),
       execute: () => this.toggleItalic(),
       isActive: () => this.italic || false,
+      isEnabledOnLockedSheet: true,
       icon: "o-spreadsheet-Icon.ITALIC",
     };
   }
@@ -146,7 +148,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     } else if (this.align === "right") {
       icon = "o-spreadsheet-Icon.ALIGN_RIGHT";
     }
-    return { name: _t("Horizontal alignment"), icon };
+    return { name: _t("Horizontal alignment"), icon, isEnabledOnLockedSheet: true };
   }
 
   get horizontalAlignActions(): ActionSpec[] {
@@ -155,18 +157,21 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
         name: _t("Left"),
         execute: () => this.updateAlignment("left"),
         isActive: () => this.align === "left",
+        isEnabledOnLockedSheet: true,
         icon: "o-spreadsheet-Icon.ALIGN_LEFT",
       },
       {
         name: _t("Center"),
         execute: () => this.updateAlignment("center"),
         isActive: () => this.align === "center",
+        isEnabledOnLockedSheet: true,
         icon: "o-spreadsheet-Icon.ALIGN_CENTER",
       },
       {
         name: _t("Right"),
         execute: () => this.updateAlignment("right"),
         isActive: () => this.align === "right",
+        isEnabledOnLockedSheet: true,
         icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
       },
     ];
@@ -179,7 +184,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     } else if (this.verticalAlign === "bottom") {
       icon = "o-spreadsheet-Icon.ALIGN_BOTTOM";
     }
-    return { name: _t("Vertical alignment"), icon };
+    return { name: _t("Vertical alignment"), icon, isEnabledOnLockedSheet: true };
   }
 
   get verticalAlignActions(): ActionSpec[] {
@@ -188,18 +193,21 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
         name: _t("Top"),
         execute: () => this.updateVerticalAlignment("top"),
         isActive: () => this.verticalAlign === "top",
+        isEnabledOnLockedSheet: true,
         icon: "o-spreadsheet-Icon.ALIGN_TOP",
       },
       {
         name: _t("Middle"),
         execute: () => this.updateVerticalAlignment("middle"),
         isActive: () => this.verticalAlign === "middle",
+        isEnabledOnLockedSheet: true,
         icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
       },
       {
         name: _t("Bottom"),
         execute: () => this.updateVerticalAlignment("bottom"),
         isActive: () => this.verticalAlign === "bottom",
+        isEnabledOnLockedSheet: true,
         icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
       },
     ];

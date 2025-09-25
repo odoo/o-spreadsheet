@@ -34,6 +34,7 @@ topbarMenuRegistry.addChild("reload", ["file"], {
     document.location.reload();
   },
   icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
+  isEnabledOnLockedSheet: true,
 });
 
 topbarMenuRegistry.addChild("xlsx", ["file"], {
@@ -55,6 +56,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
     });
   },
   icon: "o-spreadsheet-Icon.EXPORT_XLSX",
+  isEnabledOnLockedSheet: true,
 });
 
 let start;
@@ -80,6 +82,7 @@ class Demo extends Component {
         this.state.key = this.state.key + 1;
       },
       icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("readonly", ["file"], {
@@ -88,6 +91,7 @@ class Demo extends Component {
       isVisible: () => this.model.config.mode !== "readonly",
       execute: () => this.model.updateMode("readonly"),
       icon: "o-spreadsheet-Icon.OPEN_READ_ONLY",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("dashboard", ["file"], {
@@ -97,6 +101,7 @@ class Demo extends Component {
       isVisible: () => this.model.config.mode !== "dashboard",
       execute: () => this.model.updateMode("dashboard"),
       icon: "o-spreadsheet-Icon.OPEN_DASHBOARD",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("dark_mode", ["file"], {
@@ -105,7 +110,9 @@ class Demo extends Component {
       isReadonlyAllowed: true,
       execute: () =>
         (this.state.colorScheme = this.state.colorScheme === "dark" ? "light" : "dark"),
+
       icon: "o-spreadsheet-Icon.DARK_MODE",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("read_write", ["file"], {
@@ -115,6 +122,7 @@ class Demo extends Component {
       isVisible: () => this.model.config.mode !== "normal",
       execute: () => this.model.updateMode("normal"),
       icon: "o-spreadsheet-Icon.OPEN_READ_WRITE",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("display_header", ["view"], {
@@ -122,6 +130,7 @@ class Demo extends Component {
       isReadonlyAllowed: true,
       execute: () => (this.state.displayHeader = !this.state.displayHeader),
       icon: "o-spreadsheet-Icon.DISPLAY_HEADER",
+      isEnabledOnLockedSheet: true,
       sequence: 1000,
       separator: true,
     });
@@ -142,6 +151,7 @@ class Demo extends Component {
           sticky: true,
           type: "warning",
         }),
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("fake_notify_no_sticky", ["notify"], {
@@ -154,12 +164,14 @@ class Demo extends Component {
           sticky: false,
           type: "warning",
         }),
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("throw error", ["notify"], {
       name: "Uncaught error",
       sequence: 11,
       execute: () => a / 0,
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("xlsxImport", ["file"], {
@@ -210,6 +222,7 @@ class Demo extends Component {
         input.click();
       },
       icon: "o-spreadsheet-Icon.IMPORT_XLSX",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("osheetExport", ["file"], {
@@ -228,6 +241,7 @@ class Demo extends Component {
         );
       },
       icon: "o-spreadsheet-Icon.EXPORT_XLSX",
+      isEnabledOnLockedSheet: true,
     });
 
     topbarMenuRegistry.addChild("osheetImport", ["file"], {
@@ -257,6 +271,7 @@ class Demo extends Component {
         input.click();
       },
       icon: "o-spreadsheet-Icon.IMPORT_XLSX",
+      isEnabledOnLockedSheet: true,
     });
 
     const stores = useStoreProvider();

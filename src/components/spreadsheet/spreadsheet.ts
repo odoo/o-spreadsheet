@@ -22,7 +22,13 @@ import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
-import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../../types";
+import {
+  CommandResult,
+  CSSProperties,
+  HeaderGroup,
+  InformationNotification,
+  Pixel,
+} from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -208,6 +214,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private bindModelEvents() {
     this.model.on("update", this, () => this.render(true));
+    this.model.on("command-rejected", this, ({ result }) => {
+      if (result.isCancelledBecause(CommandResult.SheetLocked)) {
+        this.notificationStore.notifyUser({
+          type: "info",
+          text: _t("This sheet is locked and cannot be modified. Please unlock it first."),
+          sticky: false,
+        });
+      }
+    });
+
     this.model.on("notify-ui", this, (notification: InformationNotification) =>
       this.notificationStore.notifyUser(notification)
     );
@@ -216,6 +232,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private unbindModelEvents() {
     this.model.off("update", this);
+    this.model.off("command-rejected", this);
     this.model.off("notify-ui", this);
     this.model.off("raise-error-ui", this);
   }

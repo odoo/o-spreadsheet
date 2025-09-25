@@ -650,7 +650,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
               >
                 <span
-                  class="o-menu-item-button o-hoverable-button"
+                  class="o-menu-item-button opacity-100"
                   title="Insert table"
                 >
                   <span
@@ -1066,6 +1066,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 tabindex="-1"
                 title="Sheet1"
               >
+                
                 <span
                   class="o-sheet-name"
                   contenteditable="false"
@@ -1703,7 +1704,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
               >
                 <span
-                  class="o-menu-item-button o-hoverable-button"
+                  class="o-menu-item-button opacity-100"
                   title="Insert table"
                 >
                   <span
@@ -2148,6 +2149,7 @@ exports[`components take the small screen into account 1`] = `
                     tabindex="-1"
                     title="Sheet1"
                   >
+                    
                     <span
                       class="o-sheet-name"
                       contenteditable="false"

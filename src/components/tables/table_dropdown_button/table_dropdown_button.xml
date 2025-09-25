@@ -1,11 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-TableDropdownButton">
-    <div class="o-table-widget d-flex align-item-center" t-att-class="props.class">
+    <div class="o-table-widget d-flex align-item-center" t-att-class="class">
       <ActionButton
         action="action"
         hasTriangleDownIcon="true"
         t-on-click="onClick"
-        class="'o-hoverable-button'"
+        class="'opacity-100'"
       />
     </div>
     <TableStylesPopover

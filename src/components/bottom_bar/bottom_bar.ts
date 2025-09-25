@@ -105,6 +105,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
         isEnabled: (env) => (env.model.getters.isReadonly() ? sheet.isVisible : true),
         icon: sheet.color ? "o-spreadsheet-Icon.SMALL_DOT_RIGHT_ALIGN" : undefined,
         iconColor: sheet.color,
+        isEnabledOnLockedSheet: true,
       });
       i++;
     }

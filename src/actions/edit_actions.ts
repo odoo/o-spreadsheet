@@ -12,6 +12,7 @@ export const undo: ActionSpec = {
   shortcut: "Ctrl+Z",
   execute: (env) => env.model.dispatch("REQUEST_UNDO"),
   isEnabled: (env) => env.model.getters.canUndo(),
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.UNDO",
 };
 
@@ -20,6 +21,7 @@ export const redo: ActionSpec = {
   shortcut: "Ctrl+Y",
   execute: (env) => env.model.dispatch("REQUEST_REDO"),
   isEnabled: (env) => env.model.getters.canRedo(),
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.REDO",
 };
 
@@ -31,6 +33,7 @@ export const copy: ActionSpec = {
     env.model.dispatch("COPY");
     await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
   },
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CLIPBOARD",
 };
 
@@ -74,6 +77,7 @@ export const findAndReplace: ActionSpec = {
   name: _t("Find and replace"),
   shortcut: "Ctrl+H",
   isReadonlyAllowed: true,
+  isEnabledOnLockedSheet: true,
   execute: (env) => {
     env.openSidePanel("FindAndReplace", {});
   },
