@@ -58,6 +58,7 @@ export function convertSheets(
       tables: [],
       headerGroups: { COL: colHeaderGroups, ROW: rowHeaderGroups },
       color: convertColor(sheet.sheetProperties?.tabColor),
+      isLocked: sheet.isLocked,
     };
   });
 }
