@@ -95,7 +95,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    if (this.shouldAnimate) {
+    if (this.env.model.getters.isDashboard()) {
       this.animationStore = useStore(ChartAnimationStore);
     }
     onMounted(() => {
@@ -127,13 +127,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart?.destroy();
   }
 
-  protected get shouldAnimate(): boolean {
-    return this.env.model.getters.isDashboard();
-  }
-
   protected createChart(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    if (this.shouldAnimate && this.animationStore) {
+    if (this.env.model.getters.isDashboard() && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
@@ -148,7 +144,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    if (this.shouldAnimate) {
+    if (this.env.model.getters.isDashboard()) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
