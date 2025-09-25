@@ -8,9 +8,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "build:watch": "npm run build:watch --workspaces --if-present",
+    "build:watch:engine": "npm run build:watch --workspace=@odoo/o-spreadsheet-engine",
+    "build:watch:spreadsheet": "npm run build:watch --workspace=@odoo/o-spreadsheet",
     "serve-static": "live-server --open=demo --watch=packages/o-spreadsheet/build/o-spreadsheet.iife.js,packages/o-spreadsheet/build/o_spreadsheet.xml,packages/o-spreadsheet/build/o_spreadsheet.css,demo",
-    "dev": "npm-run-all --print-label build --parallel build:watch server serve-static",
+    "dev": "npm-run-all --print-label build --parallel build:watch:engine build:watch:spreadsheet server serve-static",
     "server": "node tools/server/main.cjs",
     "monkey": "npm run monkey --workspace=@odoo/o-spreadsheet",
     "prettier": "prettier . --write",
@@ -21,7 +22,6 @@
     "lint": "eslint --fix",
     "dist": "npm run dist --workspaces --if-present && npm run copy:dist",
     "test": "npm run test --workspaces --if-present",
-    "bundle:xml": "npm run bundle:xml --workspaces --if-present",
     "clean:dist": "rimraf dist",
     "copy:dist": "npm run clean:dist && cpy 'packages/o-spreadsheet/dist/**' dist/ --overwrite"
   },

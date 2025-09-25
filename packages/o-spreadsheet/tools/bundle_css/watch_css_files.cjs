@@ -14,5 +14,3 @@ watcher.on("ready", () => console.log("Watching .css files..."));
 watcher.on("error", (err) => console.error(`Error watching .css files ${err}`));
 
 process.on("SIGINT", () => watcher.close());
-
-createCSSBundle("build");

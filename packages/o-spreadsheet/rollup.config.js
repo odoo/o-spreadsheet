@@ -25,6 +25,9 @@ function getConfigForFormat(format, minified = false) {
     outro,
     banner: bundle.jsBanner(),
     plugins: minified ? [terser()] : [],
+    watch: {
+      include: ["src/**", "../o-spreadsheet-engine/src/**"],
+    },
   };
 }
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -37,7 +40,10 @@ export default (commandLineArgs) => {
       entries: [
         {
           find: "@odoo/o-spreadsheet-engine",
-          replacement: path.resolve(__dirname, "../o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"),
+          replacement: path.resolve(
+            __dirname,
+            "../o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"
+          ),
         },
       ],
     }),
