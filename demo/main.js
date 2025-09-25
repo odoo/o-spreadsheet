@@ -211,6 +211,52 @@ class Demo extends Component {
       icon: "o-spreadsheet-Icon.IMPORT_XLSX",
     });
 
+    topbarMenuRegistry.addChild("osheetExport", ["file"], {
+      name: "Download as OSHEET",
+      sequence: 28,
+      execute: async (env) => {
+        const date = new Date();
+        const name = `${date.getFullYear()}${date.getMonth()}${date.getDate()}${date.getHours()}${date.getMinutes()}.osheet.json`;
+
+        const data = await env.model.exportData();
+        saveAs(
+          new Blob([JSON.stringify(data)], {
+            type: "application/json",
+          }),
+          name
+        );
+      },
+      icon: "o-spreadsheet-Icon.EXPORT_XLSX",
+    });
+
+    topbarMenuRegistry.addChild("osheetImport", ["file"], {
+      name: "Import OSHEET",
+      sequence: 30,
+      execute: async (env) => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("style", "display: none");
+        document.body.appendChild(input);
+        input.addEventListener("change", async () => {
+          if (input.files.length <= 0) {
+            return false;
+          }
+          const file = await input.files[0].text();
+          const data = JSON.parse(file);
+          this.leaveCollaborativeSession();
+          await fetch("http://localhost:9090/clear");
+          await this.initiateConnection(data);
+          stores.resetStores();
+          this.state.key = this.state.key + 1;
+
+          input.oncancel = input.remove;
+          input.remove();
+        });
+        input.click();
+      },
+      icon: "o-spreadsheet-Icon.IMPORT_XLSX",
+    });
+
     const stores = useStoreProvider();
 
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
