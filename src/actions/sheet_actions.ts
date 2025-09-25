@@ -23,6 +23,7 @@ export const deleteSheet: ActionSpec = {
   isVisible: (env) => {
     return env.model.getters.getVisibleSheetIds().length > 1;
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   execute: (env) =>
     env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
       env.model.dispatch("DELETE_SHEET", {
@@ -55,6 +56,7 @@ export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSp
     name: _t("Rename"),
     execute: args.renameSheetCallback,
     icon: "o-spreadsheet-Icon.RENAME_SHEET",
+    isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   };
 };
 
@@ -65,6 +67,7 @@ export const changeSheetColor = (args: {
     name: _t("Change color"),
     execute: args.openSheetColorPickerCallback,
     icon: "o-spreadsheet-Icon.PAINT_FORMAT",
+    isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   };
 };
 
@@ -103,4 +106,30 @@ export const hideSheet: ActionSpec = {
   execute: (env) =>
     env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
   icon: "o-spreadsheet-Icon.HIDE_SHEET",
+};
+
+export const lockSheet: ActionSpec = {
+  name: _t("Lock sheet"),
+  isVisible: (env) => {
+    return !env.model.getters.isCurrentSheetLocked();
+  },
+  execute: (env) => {
+    env.model.dispatch("LOCK_SHEET", {
+      sheetId: env.model.getters.getActiveSheetId(),
+    });
+  },
+  icon: "o-spreadsheet-Icon.LOCK",
+};
+
+export const unlockSheet: ActionSpec = {
+  name: _t("Unlock sheet"),
+  isVisible: (env) => {
+    return env.model.getters.isCurrentSheetLocked();
+  },
+  execute: (env) => {
+    env.model.dispatch("UNLOCK_SHEET", {
+      sheetId: env.model.getters.getActiveSheetId(),
+    });
+  },
+  icon: "o-spreadsheet-Icon.UNLOCK",
 };

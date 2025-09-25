@@ -4,7 +4,9 @@ import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
+  CommandResult,
   CSSProperties,
+  DispatchResult,
   FigureUI,
   Pixel,
   Rect,
@@ -161,7 +163,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onKeyDown(ev: KeyboardEvent) {
     const keyDownShortcut = keyboardEventToShortcutString(ev);
-
+    const sheetId = this.env.model.getters.getFigureSheetId(this.props.figureUI.id);
+    if (sheetId && this.env.model.getters.isSheetLocked(sheetId)) {
+      this.env.model.trigger("command-rejected", {
+        result: new DispatchResult(CommandResult.SheetLocked),
+      });
+    }
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
