@@ -161,7 +161,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private hasChartDataChanged() {
     return !deepEquals(
       this.currentRuntime.chartJsConfig.data,
-      this.chartRuntime.chartJsConfig.data
+      this.chartRuntime.chartJsConfig.data,
+      "ignoreFunctions"
     );
   }
 

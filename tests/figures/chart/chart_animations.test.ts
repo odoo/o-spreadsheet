@@ -60,6 +60,24 @@ describe("Chart animations in dashboard", () => {
     readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 
+  test("Treemap animation are not replayed when data does not change but runtime is re-created", async () => {
+    readonlyAllowedCommands.add("UPDATE_CELL");
+
+    const model = new Model();
+    createChart(model, { type: "treemap", dataSets: [{ dataRange: "A1:A6" }] });
+    setCellContent(model, "A2", "1");
+    model.updateMode("dashboard");
+    await mountSpreadsheet({ model });
+
+    expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
+
+    setCellContent(model, "B1", "6");
+    await nextTick();
+    expect(mockedChart.config.options.animation).toBe(false);
+
+    readonlyAllowedCommands.delete("UPDATE_CELL");
+  });
+
   test("Charts are animated when chart type changes", async () => {
     const model = new Model();
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
