@@ -109,6 +109,8 @@ export class SheetViewPlugin extends UIPlugin {
     "getFigureUI",
     "getPositionAnchorOffset",
     "getGridOffset",
+    "getViewportZoomLevel",
+    "getVisibleRectWithZoom",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -123,6 +125,7 @@ export class SheetViewPlugin extends UIPlugin {
   private sheetViewHeight: Pixel = getDefaultSheetViewSize();
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
+  private zoomLevel: number = 1;
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;
@@ -200,6 +203,9 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "SET_VIEWPORT_OFFSET":
         this.setSheetViewOffset(cmd.offsetX, cmd.offsetY);
+        break;
+      case "SET_ZOOM":
+        this.zoomLevel = cmd.zoom || 1;
         break;
       case "SHIFT_VIEWPORT_DOWN":
         const sheetId = this.getters.getActiveSheetId();
@@ -428,7 +434,7 @@ export class SheetViewPlugin extends UIPlugin {
     for (const i of relevantIndexes) {
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
-    return offset;
+    return offset * this.zoomLevel;
   }
 
   /**
@@ -519,6 +525,19 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   /**
+   * Computes the coordinates and size to draw the zone on the canvas after it has been zoomed
+   */
+  getVisibleRectWithZoom(zone: Zone): Rect {
+    const zoom = this.getViewportZoomLevel();
+    const rect = this.getVisibleRectWithoutHeaders(zone);
+    rect.width = rect.width * zoom;
+    rect.height = rect.height * zoom;
+    rect.x = rect.x * zoom + this.gridOffsetX * zoom;
+    rect.y = rect.y * zoom + this.gridOffsetY * zoom;
+    return rect;
+  }
+
+  /**
    * Computes the coordinates and size to draw the zone without taking the grid offset into account
    */
   getVisibleRectWithoutHeaders(zone: Zone): Rect {
@@ -604,6 +623,10 @@ export class SheetViewPlugin extends UIPlugin {
         },
       };
     });
+  }
+
+  getViewportZoomLevel(): number {
+    return this.zoomLevel;
   }
 
   // ---------------------------------------------------------------------------

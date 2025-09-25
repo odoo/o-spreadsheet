@@ -72,6 +72,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
+import { OMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
@@ -507,9 +508,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     col: HeaderIndex,
     row: HeaderIndex,
     modifiers: GridClickModifiers,
-    ev: PointerEvent
+    oMouseEvent: OMouseEvent<PointerEvent>
   ) {
-    ev.preventDefault();
+    oMouseEvent.ev.preventDefault();
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
@@ -544,7 +545,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
     };
-    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(oMouseEvent, onMouseMove, onMouseUp);
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {

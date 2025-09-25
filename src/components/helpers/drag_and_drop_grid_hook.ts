@@ -4,6 +4,7 @@ import { SpreadsheetChildEnv } from "../../types/env";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
+import { applyZoomLevel, OMouseEvent } from "./zoom";
 
 export type DnDDirection = "all" | "vertical" | "horizontal";
 
@@ -18,7 +19,7 @@ export type DnDDirection = "all" | "vertical" | "horizontal";
  */
 export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let timeOutId: any = null;
-  let currentEv: PointerEvent;
+  let currentEv: OMouseEvent<PointerEvent>;
   let previousEvClientPosition: { clientX: number; clientY: number };
   let startingX: number;
   let startingY: number;
@@ -38,7 +39,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let pointerUpCallback: () => void;
 
   const pointerMoveHandler = (ev: PointerEvent) => {
-    currentEv = ev;
+    currentEv = applyZoomLevel(env, ev);
     if (timeOutId) {
       return;
     }
@@ -117,12 +118,12 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
       rowIndex = adjustIndexWithinBounds(rowIndex, y, getters.getNumberRows(sheetId) - 1);
     }
 
-    pointerMoveCallback?.(colIndex, rowIndex, currentEv);
+    pointerMoveCallback?.(colIndex, rowIndex, ev);
     if (canEdgeScroll) {
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
-        pointerMoveHandler(currentEv);
+        pointerMoveHandler(ev);
       }, Math.round(timeoutDelay));
     }
     previousEvClientPosition = { clientX: currentEv.clientX, clientY: currentEv.clientY };
