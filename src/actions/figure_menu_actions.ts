@@ -193,6 +193,7 @@ function getCopyMenuItem(
       }
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
+    isEnabledOnLockedSheet: true,
   };
 }
 
@@ -251,6 +252,7 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
       env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
     },
     isReadonlyAllowed: true,
+    isEnabledOnLockedSheet: true,
   };
 }
 
@@ -275,6 +277,7 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
       downloadFile(url, "chart");
     },
     isReadonlyAllowed: true,
+    isEnabledOnLockedSheet: true,
   };
 }
 

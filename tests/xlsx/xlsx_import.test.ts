@@ -1038,6 +1038,18 @@ describe("Import xlsx data", () => {
       expect(getWorkbookSheet("Formulas", convertedData)!.color).toEqual("#70AD47");
       expect(getWorkbookSheet("jestSheet", convertedData)!.color).toEqual("#FF0000");
     });
+
+    describe("Protected sheet", () => {
+      test("can import a fully protected sheet as locked", () => {
+        const testSheet = getWorkbookSheet("jestLocked", convertedData)!;
+        expect(testSheet.isLocked).toEqual(true);
+      });
+
+      test("can import a partial protected sheet as locked", () => {
+        const testSheet = getWorkbookSheet("jestPartiallyLocked", convertedData)!;
+        expect(testSheet.isLocked).toEqual(true);
+      });
+    });
   });
 
   test("Import header groups", () => {

@@ -30,6 +30,11 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
 
   get containerStyle(): string {
     const tableZone = this.props.table.range.zone;
+    const sheetId = this.props.table.range.sheetId;
+
+    if (this.env.model.getters.isReadonly() || this.env.model.getters.isSheetLocked(sheetId)) {
+      return cssPropertiesToCss({ display: "none" });
+    }
     const bottomRight = { ...tableZone, left: tableZone.right, top: tableZone.bottom };
     const rect = this.env.model.getters.getVisibleRect(bottomRight);
     if (rect.height === 0 || rect.width === 0) {

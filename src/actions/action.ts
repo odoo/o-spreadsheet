@@ -48,6 +48,11 @@ export interface ActionSpec {
    */
   isReadonlyAllowed?: boolean;
   /**
+   * is the action allowed when the active sheet is locked
+   */
+  isEnabledOnLockedSheet?: boolean;
+  /**
+   *
    * Execute the action. The action can return a result.
    * The result will be carried by a `menu-clicked` event to the menu parent component.
    */
@@ -80,6 +85,7 @@ export interface Action {
   iconColor?: Color;
   secondaryIcon: (env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
+  isEnabledOnLockedSheet: boolean;
   execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
   children: (env: SpreadsheetChildEnv) => Action[];
   separator: boolean;
@@ -130,6 +136,7 @@ export function createAction(item: ActionSpec): Action {
         }
       : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
+    isEnabledOnLockedSheet: item.isEnabledOnLockedSheet || false,
     separator: item.separator || false,
     icon: typeof icon === "function" ? icon : () => icon || "",
     iconColor: item.iconColor,

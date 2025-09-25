@@ -41,6 +41,7 @@ import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "./ui_feature/header_visibility_ui";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
+import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
@@ -109,7 +110,8 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin)
-  .add("carousel_ui", CarouselUIPlugin);
+  .add("carousel_ui", CarouselUIPlugin)
+  .add("lock_sheet", LockSheetPlugin);
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()

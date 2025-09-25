@@ -12,11 +12,13 @@ import {
   DeleteContentCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
+  LockSheetCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   ResizeColumnsRowsCommand,
   SetBorderCommand,
   SetZoneBordersCommand,
+  UnlockSheetCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
   UpdateChartCommand,
@@ -255,6 +257,22 @@ describe("Inverses commands", () => {
     expect(inverseCommand(deleteSheet)).toEqual([
       { type: "CREATE_SHEET", position: 1, sheetId: "42", name: "Sheet42" },
     ]);
+  });
+
+  test("Lock sheet", () => {
+    const lockSheet: LockSheetCommand = {
+      type: "LOCK_SHEET",
+      sheetId: "42",
+    };
+    expect(inverseCommand(lockSheet)).toEqual([{ type: "UNLOCK_SHEET", sheetId: "42" }]);
+  });
+
+  test("Lock sheet", () => {
+    const unlockSheet: UnlockSheetCommand = {
+      type: "UNLOCK_SHEET",
+      sheetId: "42",
+    };
+    expect(inverseCommand(unlockSheet)).toEqual([{ type: "LOCK_SHEET", sheetId: "42" }]);
   });
 
   describe("Identity", () => {

@@ -11,6 +11,7 @@ export const insertRow: ActionSpec = {
     return number === 1 ? _t("Insert row") : _t("Insert %s rows", number.toString());
   },
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+
   icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
@@ -21,6 +22,7 @@ export const rowInsertRowBefore: ActionSpec = {
   },
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+
   icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
 };
 
@@ -55,6 +57,7 @@ export const rowInsertRowsAfter: ActionSpec = {
     return number === 1 ? _t("Insert row below") : _t("Insert %s rows below", number.toString());
   },
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+
   icon: "o-spreadsheet-Icon.INSERT_ROW_AFTER",
 };
 
@@ -75,6 +78,7 @@ export const insertCol: ActionSpec = {
     return number === 1 ? _t("Insert column") : _t("Insert %s columns", number.toString());
   },
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+
   icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
@@ -87,6 +91,7 @@ export const colInsertColsBefore: ActionSpec = {
   },
   execute: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+
   icon: "o-spreadsheet-Icon.INSERT_COL_BEFORE",
 };
 
@@ -123,6 +128,7 @@ export const colInsertColsAfter: ActionSpec = {
   },
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+
   icon: "o-spreadsheet-Icon.INSERT_COL_AFTER",
 };
 
@@ -144,6 +150,7 @@ export const insertCell: ActionSpec = {
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveCols().size === 0 &&
     env.model.getters.getActiveRows().size === 0,
+
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
@@ -189,6 +196,7 @@ export const insertPivot: ActionSpec = {
   name: _t("Pivot table"),
   execute: ACTIONS.CREATE_PIVOT,
   isEnabled: (env) => !env.isSmall,
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.PIVOT",
 };
 
@@ -298,6 +306,7 @@ export const insertCheckbox: ActionSpec = {
       },
     });
   },
+
   icon: "o-spreadsheet-Icon.INSERT_CHECKBOX",
 };
 

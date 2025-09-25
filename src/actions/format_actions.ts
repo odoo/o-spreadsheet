@@ -382,6 +382,7 @@ export const formatCF: ActionSpec = {
   name: _t("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
   isEnabled: (env) => !env.isSmall,
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 
@@ -393,6 +394,7 @@ export const clearFormat: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),
+
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
 };
 

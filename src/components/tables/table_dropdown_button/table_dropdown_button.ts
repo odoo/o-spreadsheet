@@ -117,4 +117,10 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
     }
     return undefined;
   }
+
+  get class() {
+    return `${this.props.class ? this.props.class : ""} ${
+      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
+    }`;
+  }
 }

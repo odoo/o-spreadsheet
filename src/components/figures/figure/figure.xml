@@ -15,7 +15,7 @@
         t-att-style="props.style"
         t-att-data-id="props.figureUI.id"
         tabindex="0"
-        t-on-keydown="(ev) => this.onKeyDown(ev)"
+        t-on-keydown.stop="(ev) => this.onKeyDown(ev)"
         t-on-keyup.stop="">
         <t
           t-component="figureRegistry.get(props.figureUI.tag).Component"
@@ -63,7 +63,7 @@
           />
         </div>
       </div>
-      <t t-if="isSelected and !env.isMobile()">
+      <t t-if="isFigureResizable">
         <div
           class="o-fig-anchor o-top pe-auto"
           t-att-style="this.getResizerPosition('top')"

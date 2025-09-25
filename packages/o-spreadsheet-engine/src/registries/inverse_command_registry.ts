@@ -12,12 +12,14 @@ import {
   DeleteSheetCommand,
   DuplicateSheetCommand,
   HideColumnsRowsCommand,
+  LockSheetCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   RemovePivotCommand,
   RemoveTableStyleCommand,
   RenameSheetCommand,
   UnhideColumnsRowsCommand,
+  UnlockSheetCommand,
   coreTypes,
 } from "../types/commands";
 import { Registry } from "./registry";
@@ -39,7 +41,9 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
   .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows)
   .add("CREATE_TABLE_STYLE", inverseCreateTableStyle)
   .add("ADD_PIVOT", inverseAddPivot)
-  .add("RENAME_SHEET", inverseRenameSheet);
+  .add("RENAME_SHEET", inverseRenameSheet)
+  .add("LOCK_SHEET", inverseLockSheet)
+  .add("UNLOCK_SHEET", inverseUnlockSheet);
 
 for (const cmd of coreTypes.values()) {
   if (!inverseCommandRegistry.contains(cmd)) {
@@ -160,6 +164,24 @@ function inverseRenameSheet(cmd: RenameSheetCommand): RenameSheetCommand[] {
       sheetId: cmd.sheetId,
       oldName: cmd.newName,
       newName: cmd.oldName,
+    },
+  ];
+}
+
+function inverseLockSheet(cmd: LockSheetCommand): UnlockSheetCommand[] {
+  return [
+    {
+      type: "UNLOCK_SHEET",
+      sheetId: cmd.sheetId,
+    },
+  ];
+}
+
+function inverseUnlockSheet(cmd: UnlockSheetCommand): LockSheetCommand[] {
+  return [
+    {
+      type: "LOCK_SHEET",
+      sheetId: cmd.sheetId,
     },
   ];
 }

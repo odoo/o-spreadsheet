@@ -19,6 +19,7 @@ import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
+import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
@@ -74,4 +75,5 @@ export type Getters = {
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin> &
-  PluginGetters<typeof CarouselUIPlugin>;
+  PluginGetters<typeof CarouselUIPlugin> &
+  PluginGetters<typeof LockSheetPlugin>;

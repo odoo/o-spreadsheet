@@ -1789,6 +1789,13 @@ describe("Test XLSX export", () => {
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 
+  test("Sheet that has been locked", async () => {
+    const model = new Model({
+      sheets: [{ id: "sheet0" }, { id: "sheet1", isLocked: true }],
+    });
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
+
   describe("Export data filters", () => {
     test("Table headers formula are replaced with their evaluated formatted value", async () => {
       const model = new Model();

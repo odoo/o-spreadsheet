@@ -62,8 +62,10 @@ sidePanelRegistry.add("ChartPanel", {
   Body: ChartPanel,
   computeState: (getters: Getters, initialProps: { chartId: UID }) => {
     const figureId = getters.getSelectedFigureId();
+    const sheetId = figureId && getters.getFigureSheetId(figureId);
+    const isSheetLocked = sheetId ? getters.isSheetLocked(sheetId) : false;
     const chartId = figureId ? getters.getChartIdFromFigureId(figureId) : initialProps.chartId;
-    if (!chartId || !getters.isChartDefined(chartId)) {
+    if (!chartId || !getters.isChartDefined(chartId) || isSheetLocked) {
       return { isOpen: false };
     }
     return { isOpen: true, props: { chartId } };
@@ -178,7 +180,9 @@ sidePanelRegistry.add("CarouselPanel", {
   Body: CarouselPanel,
   computeState: (getters: Getters, initialProps: { figureId: UID }) => {
     const figureId = initialProps.figureId || getters.getSelectedFigureId();
-    if (!figureId || !getters.doesCarouselExist(figureId)) {
+    const sheetId = figureId && getters.getFigureSheetId(figureId);
+    const isSheetLocked = sheetId ? getters.isSheetLocked(sheetId) : false;
+    if (!figureId || !getters.doesCarouselExist(figureId) || isSheetLocked) {
       return { isOpen: false };
     }
 

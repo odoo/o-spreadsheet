@@ -67,6 +67,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           tables: this.extractTables(sheetElement),
           pivotTables: this.extractPivotTables(),
           isVisible: sheetWorkbookInfo.state === "visible",
+          isLocked: this.extractProtection(sheetElement),
         };
       }
     )[0];
@@ -389,5 +390,14 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
       }
     }
     return sfs;
+  }
+
+  private extractProtection(worksheet: Element): boolean {
+    const sheetProtectionElement = this.querySelector(worksheet, "sheetProtection");
+    if (!sheetProtectionElement) {
+      return false;
+    }
+
+    return this.extractAttr(sheetProtectionElement, "sheet", { default: false }).asBool()!;
   }
 }

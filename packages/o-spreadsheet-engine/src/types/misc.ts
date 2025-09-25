@@ -144,6 +144,7 @@ export interface Sheet {
   isVisible: boolean;
   panes: PaneDivision;
   color?: Color;
+  isLocked?: boolean;
 }
 
 export interface CellPosition {
