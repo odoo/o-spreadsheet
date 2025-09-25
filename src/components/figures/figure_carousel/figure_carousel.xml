@@ -26,7 +26,7 @@
           </t>
         </div>
         <div
-          class="o-carousel-tabs-dropdown flex-shrink-0 rounded"
+          class="o-carousel-tabs-dropdown o-carousel-button flex-shrink-0 rounded p-1"
           t-att-class="{'active': menuState.isOpen}"
           t-ref="carouselTabsDropdown"
           t-on-click="toggleMenu">
@@ -40,6 +40,12 @@
             popoverPositioning="'bottom-left'"
           />
         </div>
+        <div
+          t-if="!env.isDashboard()"
+          class="o-carousel-menu-button o-carousel-button fa fa-ellipsis-v rounded ms-1"
+          t-att-class="{ 'active': state.isMenuActive }"
+          t-on-click="openContextMenu"
+        />
       </div>
       <div
         t-if="!selectedItem"
