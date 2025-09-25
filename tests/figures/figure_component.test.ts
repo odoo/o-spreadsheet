@@ -3,6 +3,7 @@ import {
   DEFAULT_CELL_WIDTH,
   FIGURE_BORDER_WIDTH,
   MENU_WIDTH,
+  ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
@@ -175,14 +176,6 @@ describe("figures", () => {
     ]);
   });
 
-  test("focus a figure", async () => {
-    createFigure(model);
-    await nextTick();
-    expect(fixture.querySelector(".o-figure")).not.toBeNull();
-    await simulateClick(".o-figure");
-    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-  });
-
   test.skip("deleting a figure focuses the grid hidden input", async () => {
     createFigure(model);
     await nextTick();
@@ -308,31 +301,6 @@ describe("figures", () => {
     await simulateClick(".o-figure");
     keyDown({ key: "z", ctrlKey: true });
     expect(getCellText(model, "A1")).toBe("");
-  });
-
-  test.each([
-    ["top", { mouseOffsetX: 0, mouseOffsetY: -50 }, { width: 100, height: 150 }],
-    ["topRight", { mouseOffsetX: 50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
-    ["right", { mouseOffsetX: 50, mouseOffsetY: 0 }, { width: 150, height: 100 }],
-    ["bottomRight", { mouseOffsetX: 50, mouseOffsetY: 50 }, { width: 150, height: 150 }],
-    ["bottom", { mouseOffsetX: 0, mouseOffsetY: 50 }, { width: 100, height: 150 }],
-    ["bottomLeft", { mouseOffsetX: -50, mouseOffsetY: 50 }, { width: 150, height: 150 }],
-    ["left", { mouseOffsetX: -50, mouseOffsetY: 0 }, { width: 150, height: 100 }],
-    ["topLeft", { mouseOffsetX: -50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
-  ])("Can resize a figure through its anchors", async (anchor: string, mouseMove, expectedSize) => {
-    const figureId = "someuuid";
-    createFigure(model, {
-      id: figureId,
-      col: 0,
-      row: 0,
-      offset: { x: 200, y: 200 },
-      width: 100,
-      height: 100,
-    });
-    model.dispatch("SELECT_FIGURE", { figureId });
-    await nextTick();
-    await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
-    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
   });
 
   test.each([
@@ -464,27 +432,6 @@ describe("figures", () => {
   );
 
   describe("Move a figure with drag & drop ", () => {
-    test("Can move a figure with drag & drop", async () => {
-      createFigure(model, {
-        id: "someuuid",
-        col: 2,
-        row: 3,
-        offset: { x: 20, y: 10 },
-      });
-      await nextTick();
-      await clickAndDrag(
-        ".o-figure",
-        { x: DEFAULT_CELL_WIDTH * 2 + 20, y: DEFAULT_CELL_HEIGHT * 3 + 10 },
-        undefined,
-        true
-      );
-      expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
-        col: 4,
-        row: 6,
-        offset: { x: 40, y: 20 },
-      });
-    });
-
     describe("Figure drag & drop with frozen pane", () => {
       const cellWidth = DEFAULT_CELL_WIDTH;
       const cellHeight = DEFAULT_CELL_HEIGHT;
@@ -1882,6 +1829,112 @@ describe("figures", () => {
           },
         });
       });
+    });
+  });
+});
+
+describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zoom) => {
+  beforeEach(async () => {
+    notifyUser = jest.fn();
+    mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
+    mockFigureMenuItemRect = { top: 500, left: 500 };
+    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
+    sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_ZOOM", { zoom: zoom });
+  });
+
+  test("focus a figure", async () => {
+    createFigure(model);
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    await simulateClick(".o-figure");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+  });
+
+  test("select a figure, it should have the  resize handles", async () => {
+    createFigure(model);
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    await nextTick();
+    const anchors = fixture.querySelectorAll(".o-fig-anchor");
+    expect(anchors).toHaveLength(8);
+  });
+
+  test.each([
+    [
+      "top",
+      { mouseOffsetX: 0, mouseOffsetY: -50 },
+      { width: 100, height: Math.round(100 + 50 / zoom) },
+    ],
+    [
+      "topRight",
+      { mouseOffsetX: 50, mouseOffsetY: -50 },
+      { width: Math.round(100 + 50 / zoom), height: Math.round(100 + 50 / zoom) },
+    ],
+    [
+      "right",
+      { mouseOffsetX: 50, mouseOffsetY: 0 },
+      { width: Math.round(100 + 50 / zoom), height: 100 },
+    ],
+    [
+      "bottomRight",
+      { mouseOffsetX: 50, mouseOffsetY: 50 },
+      { width: Math.round(100 + 50 / zoom), height: Math.round(100 + 50 / zoom) },
+    ],
+    [
+      "bottom",
+      { mouseOffsetX: 0, mouseOffsetY: 50 },
+      { width: 100, height: Math.round(100 + 50 / zoom) },
+    ],
+    [
+      "bottomLeft",
+      { mouseOffsetX: -50, mouseOffsetY: 50 },
+      { width: Math.round(100 + 50 / zoom), height: Math.round(100 + 50 / zoom) },
+    ],
+    [
+      "left",
+      { mouseOffsetX: -50, mouseOffsetY: 0 },
+      { width: Math.round(100 + 50 / zoom), height: 100 },
+    ],
+    [
+      "topLeft",
+      { mouseOffsetX: -50, mouseOffsetY: -50 },
+      { width: Math.round(100 + 50 / zoom), height: Math.round(100 + 50 / zoom) },
+    ],
+  ])("Can resize a figure through its anchors", async (anchor: string, mouseMove, expectedSize) => {
+    const figureId = "someuuid";
+    createFigure(model, {
+      id: figureId,
+      col: 0,
+      row: 0,
+      offset: { x: 200, y: 200 },
+      width: 100,
+      height: 100,
+    });
+    model.dispatch("SELECT_FIGURE", { figureId });
+    await nextTick();
+    await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
+  });
+
+  test("Can move a figure with drag & drop", async () => {
+    createFigure(model, {
+      id: "someuuid",
+      col: 2,
+      row: 3,
+      offset: { x: 20, y: 10 },
+    });
+    await nextTick();
+    await clickAndDrag(
+      ".o-figure",
+      { x: (DEFAULT_CELL_WIDTH * 2 + 20) * zoom, y: (DEFAULT_CELL_HEIGHT * 3 + 10) * zoom },
+      undefined,
+      true
+    );
+
+    expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
+      col: 4,
+      row: 6,
+      offset: { x: expect.toBeBetween(39, 41), y: expect.toBeBetween(19, 21) },
     });
   });
 });

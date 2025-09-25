@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { FONT_SIZES } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
@@ -15,6 +16,7 @@ interface Props {
   onFontSizeChanged: (fontSize: number) => void;
   onToggle?: () => void;
   onFocusInput?: () => void;
+  valueIcon?: String;
 }
 
 export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -25,6 +27,7 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
     onToggle: { type: Function, optional: true },
     onFocusInput: { type: Function, optional: true },
     class: String,
+    valueIcon: { type: String, optional: true },
   };
 
   static defaultProps = {
@@ -32,7 +35,10 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   };
 
   static components = { Popover };
-  fontSizes = FONT_SIZES;
+  fontSizes: any[] = FONT_SIZES;
+  min = 1;
+  max = 400;
+  title = _t("Font Size");
 
   dropdown: State = useState({ isOpen: false });
 
@@ -74,7 +80,7 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private setSize(fontSizeStr: string) {
-    const fontSize = clip(Math.floor(parseFloat(fontSizeStr)), 1, 400);
+    const fontSize = clip(Math.floor(parseFloat(fontSizeStr)), this.min, this.max);
     this.props.onFontSizeChanged(fontSize);
     this.closeFontList();
   }
@@ -85,6 +91,10 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 
   setSizeFromList(fontSizeStr: string) {
     this.setSize(fontSizeStr);
+  }
+
+  get currentValue(): string {
+    return `${this.props.currentFontSize}`;
   }
 
   onInputFocused(ev: InputEvent) {

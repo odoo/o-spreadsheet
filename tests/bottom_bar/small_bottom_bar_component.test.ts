@@ -67,7 +67,7 @@ describe("Small Bottom Bar", () => {
 
       await click(fixture, ".o-ribbon-menu .o-menu-item[title='View']");
       expect(fixture.querySelector(".o-ribbon-menu .o-ribbon-title")?.textContent).toBe("View");
-      expect(fixture.querySelectorAll(".o-ribbon-menu .o-menu-item")).toHaveLength(4);
+      expect(fixture.querySelectorAll(".o-ribbon-menu .o-menu-item")).toHaveLength(5);
 
       await click(fixture, ".o-ribbon-menu .o-menu-item[title='Freeze']");
       expect(fixture.querySelector(".o-ribbon-menu .o-ribbon-title")?.textContent).toBe("Freeze");
@@ -75,7 +75,7 @@ describe("Small Bottom Bar", () => {
 
       await click(fixture, ".o-ribbon-menu .o-previous-button");
       expect(fixture.querySelector(".o-ribbon-menu .o-ribbon-title")?.textContent).toBe("View");
-      expect(fixture.querySelectorAll(".o-ribbon-menu .o-menu-item")).toHaveLength(4);
+      expect(fixture.querySelectorAll(".o-ribbon-menu .o-menu-item")).toHaveLength(5);
 
       await click(fixture, ".o-ribbon-menu .o-previous-button");
       expect(fixture.querySelector(".o-ribbon-menu .o-ribbon-title")?.textContent).toBe("Menu Bar");

@@ -16,18 +16,21 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     const canvas = canvasRef.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
+    const zoom = Math.max(model.getters.getViewportZoomLevel(), 1);
     const thinLineWidth = 0.4 * dpr;
     const renderingContext = {
       ctx,
       dpr,
       thinLineWidth,
     };
-    const { width, height } = canvasSize();
+    let { width, height } = canvasSize();
+    width = zoom * width;
+    height = zoom * height;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    canvas.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1 / zoom}`);
     if (width === 0 || height === 0) {
       return;
     }
@@ -38,7 +41,7 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     // you need to shift the coordinates by 0.5 perpendicular to the line's direction.
     // http://diveintohtml5.info/canvas.html#pixel-madness
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
-    ctx.scale(dpr, dpr);
+    ctx.scale(dpr * zoom, dpr * zoom);
 
     rendererStore.draw(renderingContext);
   }
