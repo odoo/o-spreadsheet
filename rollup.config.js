@@ -5,7 +5,7 @@ import path from "path";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
 import { fileURLToPath } from "url";
-import { bundle } from "../../tools/bundle.cjs";
+import { bundle } from "./tools/bundle.cjs";
 
 const outro = bundle.outro();
 
@@ -26,7 +26,7 @@ function getConfigForFormat(format, minified = false) {
     banner: bundle.jsBanner(),
     plugins: minified ? [terser()] : [],
     watch: {
-      include: ["src/**", "../o-spreadsheet-engine/src/**"],
+      include: ["src/**", "./packages/o-spreadsheet-engine/src/**"],
     },
   };
 }
@@ -42,7 +42,7 @@ export default (commandLineArgs) => {
           find: "@odoo/o-spreadsheet-engine",
           replacement: path.resolve(
             __dirname,
-            "../o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"
+            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"
           ),
         },
       ],
@@ -54,7 +54,7 @@ export default (commandLineArgs) => {
   if (commandLineArgs.format) {
     // Only build one version to improve speed
     config = {
-      input: "build/js/o-spreadsheet/src/index.js",
+      input: "build/js/index.js",
       external: ["@odoo/owl"],
       output: [
         {
@@ -97,7 +97,7 @@ export default (commandLineArgs) => {
                 find: "@odoo/o-spreadsheet-engine",
                 replacement: path.resolve(
                   __dirname,
-                  "../o-spreadsheet-engine/dist/types/index.d.ts"
+                  "./packages/o-spreadsheet-engine/dist/types/index.d.ts"
                 ),
               },
             ],

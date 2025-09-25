@@ -1,15 +1,34 @@
 {
-  "private": true,
+  "name": "@odoo/o-spreadsheet",
   "version": "19.1.0-alpha.3",
+  "description": "Odoo Spreadsheet Library",
   "type": "module",
+  "main": "dist/o-spreadsheet.iife.js",
+  "browser": "dist/o-spreadsheet.iife.js",
+  "module": "dist/o-spreadsheet.esm.js",
+  "types": "dist/o-spreadsheet.d.ts",
+  "files": [
+    "dist/*.js",
+    "dist/*.d.ts",
+    "dist/*.xml"
+  ],
   "workspaces": [
-    "packages/o-spreadsheet-engine",
-    "packages/o-spreadsheet"
+    "packages/o-spreadsheet-engine"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "prebuild": "npm run build --workspaces --if-present",
+    "build": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" \"bundle:css -- --out build\"",
+    "build:watch": "npm-run-all  --parallel build:watch:engine build:js:watch bundle:iife:watch bundle:xml:watch bundle:css:watch",
     "build:watch:engine": "npm run build:watch --workspace=@odoo/o-spreadsheet-engine",
-    "build:watch:spreadsheet": "npm run build:watch --workspace=@odoo/o-spreadsheet",
+    "build:js": "tsc --module es6 --incremental",
+    "build:js:watch": "npm run build:js -- --watch",
+    "bundle:iife": "rollup -c -m -- --format iife",
+    "bundle:iife:watch": "npm run bundle:iife -- --watch",
+    "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:xml": "node tools/bundle_xml/main.cjs",
+    "bundle:xml:watch": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "bundle:css": "node tools/bundle_css/main.cjs",
+    "bundle:css:watch": "node tools/bundle_css/watch_css_files.cjs",
     "serve-static": "live-server --open=demo --watch=packages/o-spreadsheet/build/o-spreadsheet.iife.js,packages/o-spreadsheet/build/o_spreadsheet.xml,packages/o-spreadsheet/build/o_spreadsheet.css,demo",
     "dev": "npm-run-all --print-label build --parallel build:watch:engine build:watch:spreadsheet server serve-static",
     "server": "node tools/server/main.cjs",
@@ -24,6 +43,13 @@
     "test": "npm run test --workspaces --if-present",
     "clean:dist": "rimraf dist",
     "copy:dist": "npm run clean:dist && cpy 'packages/o-spreadsheet/dist/**' dist/ --overwrite"
+  },
+  "dependencies": {
+    "@odoo/owl": "2.5.1",
+    "bootstrap": "^5.3.3",
+    "font-awesome": "^4.7.0",
+    "rbush": "^3.0.1",
+    "@odoo/o-spreadsheet-engine": "*"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
@@ -93,6 +119,37 @@
     "*": [
       "prettier --write",
       "eslint --fix"
+    ]
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    },
+    "moduleNameMapper": {
+      "^@odoo/o-spreadsheet-engine$": "<rootDir>/../o-spreadsheet-engine/src"
+    },
+    "verbose": false,
+    "testEnvironment": "jsdom",
+    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "workerIdleMemoryLimit": "800MB",
+    "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
+    "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup/jest.setup.ts"
     ]
   }
 }
