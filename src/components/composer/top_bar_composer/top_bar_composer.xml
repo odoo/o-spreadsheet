@@ -15,6 +15,9 @@
           composerStore="composerStore"
           placeholder="composerStore.placeholder"
         />
+        <span t-if="showFxIcon" class="position-absolute top-50 translate-middle-y ps-2 pe-none">
+          <t t-call="o-spreadsheet-Icon.FX_SVG"/>
+        </span>
       </div>
     </div>
   </t>
