@@ -26,7 +26,7 @@ export function getChartMenuActions(
         env.openSidePanel("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
@@ -220,6 +220,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
+    isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   };
 }
 
@@ -288,5 +289,6 @@ function getDeleteMenuItem(
       onFigureDeleted();
     },
     icon: "o-spreadsheet-Icon.TRASH",
+    isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   };
 }

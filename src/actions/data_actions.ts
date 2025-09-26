@@ -8,6 +8,7 @@ export const sortRange: ActionSpec = {
   name: _t("Sort range"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   icon: "o-spreadsheet-Icon.SORT_RANGE",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const sortAscending: ActionSpec = {
@@ -23,6 +24,7 @@ export const sortAscending: ActionSpec = {
 export const dataCleanup: ActionSpec = {
   name: _t("Data cleanup"),
   icon: "o-spreadsheet-Icon.DATA_CLEANUP",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const removeDuplicates: ActionSpec = {
@@ -66,7 +68,10 @@ export const splitToColumns: ActionSpec = {
   name: _t("Split text to columns"),
   sequence: 1,
   execute: (env) => env.openSidePanel("SplitToColumns", {}),
-  isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
+  isEnabled: (env) =>
+    !env.isSmall &&
+    env.model.getters.isSingleColSelected() &&
+    !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
 
@@ -78,6 +83,7 @@ export const reinsertDynamicPivotMenu: ActionSpec = {
   children: [ACTIONS.REINSERT_DYNAMIC_PIVOT_CHILDREN],
   isVisible: (env) =>
     env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const reinsertStaticPivotMenu: ActionSpec = {
@@ -88,4 +94,5 @@ export const reinsertStaticPivotMenu: ActionSpec = {
   children: [ACTIONS.REINSERT_STATIC_PIVOT_CHILDREN],
   isVisible: (env) =>
     env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };

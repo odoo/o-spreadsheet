@@ -12,6 +12,7 @@ export const insertRow: ActionSpec = {
     return number === 1 ? _t("Insert row") : _t("Insert %s rows", number.toString());
   },
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
@@ -22,6 +23,7 @@ export const rowInsertRowBefore: ActionSpec = {
   },
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
 };
 
@@ -56,6 +58,7 @@ export const rowInsertRowsAfter: ActionSpec = {
     return number === 1 ? _t("Insert row below") : _t("Insert %s rows below", number.toString());
   },
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_ROW_AFTER",
 };
 
@@ -76,6 +79,8 @@ export const insertCol: ActionSpec = {
     return number === 1 ? _t("Insert column") : _t("Insert %s columns", number.toString());
   },
   isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
+
   icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
@@ -145,6 +150,8 @@ export const insertCell: ActionSpec = {
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveCols().size === 0 &&
     env.model.getters.getActiveRows().size === 0,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
+
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
@@ -175,14 +182,14 @@ export const insertCellShiftRight: ActionSpec = {
 export const insertChart: ActionSpec = {
   name: _t("Chart"),
   execute: ACTIONS.CREATE_CHART,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
 export const insertCarousel: ActionSpec = {
   name: _t("Carousel"),
   execute: ACTIONS.CREATE_CAROUSEL,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.CAROUSEL",
 };
 
@@ -198,7 +205,7 @@ export const insertImage: ActionSpec = {
   description: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };
 
@@ -207,13 +214,14 @@ export const insertTable: ActionSpec = {
   execute: ACTIONS.INSERT_TABLE,
   isVisible: (env) =>
     ACTIONS.IS_SELECTION_CONTINUOUS(env) && !env.model.getters.getFirstTableInSelection(),
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.PAINT_TABLE",
 };
 
 export const insertFunction: ActionSpec = {
   name: _t("Function"),
   icon: "o-spreadsheet-Icon.FORMULA",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const insertFunctionSum: ActionSpec = {
@@ -277,6 +285,7 @@ export const insertLink: ActionSpec = {
   name: _t("Link"),
   execute: ACTIONS.INSERT_LINK,
   icon: "o-spreadsheet-Icon.INSERT_LINK",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const insertCheckbox: ActionSpec = {
@@ -297,6 +306,7 @@ export const insertCheckbox: ActionSpec = {
       },
     });
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_CHECKBOX",
 };
 
@@ -330,7 +340,7 @@ export const insertDropdown: ActionSpec = {
       },
     });
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
 };
 

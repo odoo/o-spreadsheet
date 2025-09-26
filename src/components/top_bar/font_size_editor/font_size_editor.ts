@@ -42,4 +42,10 @@ export class TopBarFontSizeEditor extends Component<Props, SpreadsheetChildEnv> 
   get isActive() {
     return this.topBarToolStore.isActive;
   }
+
+  get class() {
+    return `${this.props.class} ${
+      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
+    }`;
+  }
 }

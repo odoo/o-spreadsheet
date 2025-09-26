@@ -512,6 +512,14 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "Sheet1",
     chartId: "chartId",
   },
+  LOCK_SHEET: {
+    type: "LOCK_SHEET",
+    sheetId: "Sheet1",
+  },
+  UNLOCK_SHEET: {
+    type: "UNLOCK_SHEET",
+    sheetId: "Sheet1",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [

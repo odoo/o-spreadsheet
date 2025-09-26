@@ -117,12 +117,14 @@ export const unFreezePane: ActionSpec = {
     env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNFREEZE",
 };
 
 export const freezePane: ActionSpec = {
   name: _t("Freeze"),
   icon: "o-spreadsheet-Icon.FREEZE",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const unFreezeRows: ActionSpec = {
@@ -202,6 +204,7 @@ export const viewGridlines: ActionSpec = {
     const sheetId = env.model.getters.getActiveSheetId();
     return env.model.getters.getGridLinesVisibility(sheetId);
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const irregularityMap: ActionSpec = {

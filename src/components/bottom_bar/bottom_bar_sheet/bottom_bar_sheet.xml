@@ -13,6 +13,9 @@
         t-att-title="sheetName"
         t-att-data-id="props.sheetId"
         t-att-class="{active: isSheetActive}">
+        <span t-if="isSheetLocked" class="me-1">
+          <t t-call="o-spreadsheet-Icon.LOCK"/>
+        </span>
         <span
           class="o-sheet-name"
           t-att-class="{'o-sheet-name-editable': state.isEditing }"
@@ -24,9 +27,6 @@
           t-on-keydown="(ev) => this.onKeyDown(ev)"
           t-att-contenteditable="state.isEditing ? 'plaintext-only': 'false'"
         />
-        <span t-if="isSheetLocked" class="ms-1">
-          <i class="fa fa-lock"/>
-        </span>
         <span
           class="o-sheet-icon ms-1"
           tabindex="-1"

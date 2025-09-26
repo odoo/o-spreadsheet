@@ -135,4 +135,5 @@ export const formatNumberMenuItemSpec: ActionSpec = {
       return createActions([...numberFormatMenuRegistry.getAll(), ...customFormats]);
     },
   ],
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };

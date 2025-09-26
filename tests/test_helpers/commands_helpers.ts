@@ -1655,3 +1655,17 @@ export function selectCarouselItem(
     sheetId,
   });
 }
+
+export function lockSheet(
+  model: Model,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("LOCK_SHEET", { sheetId });
+}
+
+export function unlockSheet(
+  model: Model,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("UNLOCK_SHEET", { sheetId });
+}

@@ -217,6 +217,29 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_PIVOT",
 ]);
 
+export const overrideLockCommands = new Set<Command["type"]>([
+  "LOCK_SHEET",
+  "UNLOCK_SHEET",
+  "UPDATE_LOCALE",
+  "MOVE_SHEET",
+  "DUPLICATE_SHEET",
+  "COPY",
+  "START",
+  "SCROLL_TO_CELL",
+  "ACTIVATE_SHEET",
+  "RESIZE_SHEETVIEW",
+  "SET_VIEWPORT_OFFSET",
+  "SET_FORMULA_VISIBILITY",
+  "SELECT_FIGURE", // not  sure
+  "EVALUATE_CHARTS",
+  "EVALUATE_CELLS",
+  "UNDO",
+  "REDO",
+  "REQUEST_UNDO",
+  "REQUEST_REDO",
+  "REPLACE_SEARCH",
+]);
+
 export const coreTypes = new Set<CoreCommandTypes>([
   /** CELLS */
   "UPDATE_CELL",
@@ -251,6 +274,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "COLOR_SHEET",
   "HIDE_SHEET",
   "SHOW_SHEET",
+  "LOCK_SHEET",
+  "UNLOCK_SHEET",
 
   /** RANGES MANIPULATION */
   "MOVE_RANGES",
@@ -830,6 +855,14 @@ export interface RemoveDataValidationCommand extends SheetDependentCommand {
   id: string;
 }
 
+export interface LockSheetCommand extends SheetDependentCommand {
+  type: "LOCK_SHEET";
+}
+
+export interface UnlockSheetCommand extends SheetDependentCommand {
+  type: "UNLOCK_SHEET";
+}
+
 //#endregion
 
 //#region Local Commands
@@ -1155,6 +1188,8 @@ export type CoreCommand =
   | ColorSheetCommand
   | HideSheetCommand
   | ShowSheetCommand
+  | LockSheetCommand
+  | UnlockSheetCommand
 
   /** RANGES MANIPULATION */
   | MoveRangeCommand

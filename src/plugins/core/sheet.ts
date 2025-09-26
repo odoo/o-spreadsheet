@@ -243,6 +243,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "UNFREEZE_COLUMNS_ROWS":
         this.setPaneDivisions(cmd.sheetId, 0, "COL");
         this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+        break;
+      case "LOCK_SHEET":
+        this.history.update("sheets", cmd.sheetId, "isLocked", true);
+        break;
+      case "UNLOCK_SHEET":
+        this.history.update("sheets", cmd.sheetId, "isLocked", false);
+        break;
     }
   }
 

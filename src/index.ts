@@ -252,6 +252,7 @@ export {
   invalidateChartEvaluationCommands,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
+  overrideLockCommands,
   readonlyAllowedCommands,
 } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";

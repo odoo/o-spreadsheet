@@ -117,7 +117,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDblClick() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.env.model.getters.isReadonly() || this.isSheetLocked) {
       return;
     }
     this.startEdition();
