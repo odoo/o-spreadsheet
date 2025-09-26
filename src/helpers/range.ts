@@ -38,9 +38,9 @@ import {
 
 interface RangeArgs {
   zone: Readonly<UnboundedZone>;
-  parts: readonly RangePart[];
+  parts?: readonly RangePart[];
   /** true if the user provided the range with the sheet name */
-  prefixSheet: boolean;
+  prefixSheet?: boolean;
   /** the name of any sheet that is invalid */
   invalidSheetName?: string;
   /** the sheet on which the range is defined */
@@ -59,9 +59,9 @@ export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => Zon
   const unboundedZone = args.zone;
   const zone = boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId));
   let parts = args.parts;
-  if (args.parts.length === 1 && getZoneArea(zone) > 1) {
+  if (args.parts?.length === 1 && getZoneArea(zone) > 1) {
     parts = [args.parts[0], args.parts[0]];
-  } else if (args.parts.length === 2 && getZoneArea(zone) === 1) {
+  } else if (args.parts?.length === 2 && getZoneArea(zone) === 1) {
     parts = [args.parts[0]];
   }
   return {
@@ -228,6 +228,15 @@ function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
   return parts;
 }
 
+export function positionToRange(position: CellPosition): Range {
+  const zone = { left: position.col, top: position.row, right: position.col, bottom: position.row };
+  return {
+    sheetId: position.sheetId,
+    zone: zone,
+    unboundedZone: zone,
+  };
+}
+
 /**
  * Check that a zone is valid regarding the order of top-bottom and left-right.
  * Left should be smaller than right, top should be smaller than bottom.
@@ -248,12 +257,12 @@ export function orderRange(range: Range): Range {
     zone.left = right;
     parts = [
       {
-        colFixed: parts[1]?.colFixed || false,
-        rowFixed: parts[0]?.rowFixed || false,
+        colFixed: parts?.[1]?.colFixed || false,
+        rowFixed: parts?.[0]?.rowFixed || false,
       },
       {
-        colFixed: parts[0]?.colFixed || false,
-        rowFixed: parts[1]?.rowFixed || false,
+        colFixed: parts?.[0]?.colFixed || false,
+        rowFixed: parts?.[1]?.rowFixed || false,
       },
     ];
   }
@@ -266,12 +275,12 @@ export function orderRange(range: Range): Range {
     zone.top = bottom;
     parts = [
       {
-        colFixed: parts[0]?.colFixed || false,
-        rowFixed: parts[1]?.rowFixed || false,
+        colFixed: parts?.[0]?.colFixed || false,
+        rowFixed: parts?.[1]?.rowFixed || false,
       },
       {
-        colFixed: parts[1]?.colFixed || false,
-        rowFixed: parts[0]?.rowFixed || false,
+        colFixed: parts?.[1]?.colFixed || false,
+        rowFixed: parts?.[0]?.rowFixed || false,
       },
     ];
   }
@@ -487,9 +496,9 @@ function getRangePartString(
   part: 0 | 1,
   options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
 ): string {
-  const colFixed = range.parts[part]?.colFixed || options.useFixedReference ? "$" : "";
+  const colFixed = range.parts?.[part]?.colFixed || options.useFixedReference ? "$" : "";
   const col = part === 0 ? numberToLetters(range.zone.left) : numberToLetters(range.zone.right);
-  const rowFixed = range.parts[part]?.rowFixed || options.useFixedReference ? "$" : "";
+  const rowFixed = range.parts?.[part]?.rowFixed || options.useFixedReference ? "$" : "";
   const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
 
   let str = "";

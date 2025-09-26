@@ -1,9 +1,9 @@
 import { positionToZone } from "../../../helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
-import { recomputeZones } from "../../../helpers/recompute_zones";
-import { CellPosition, UID, Zone } from "../../../types";
-import { PositionSet } from "./position_set";
-import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
+import { BoundedRange, CellPosition, Range } from "../../../types";
+import { RTreeBoundingBox, RTreeItem } from "./r_tree";
+import { RangeRTree } from "./range_r_tree";
+import { RangeSet } from "./range_set";
 
 /**
  * Implementation of a dependency Graph.
@@ -13,14 +13,11 @@ import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
  * It uses an R-Tree data structure to efficiently find dependent cells.
  */
 export class FormulaDependencyGraph {
-  private readonly dependencies: PositionMap<RTreeItem<CellPosition>[]> = new PositionMap();
-  private readonly rTree: SpreadsheetRTree<CellPosition>;
+  private readonly dependencies: PositionMap<RTreeItem<Range>[]> = new PositionMap();
+  private readonly rTree: RangeRTree;
 
-  constructor(
-    private readonly createEmptyPositionSet: () => PositionSet,
-    data: RTreeItem<CellPosition>[] = []
-  ) {
-    this.rTree = new SpreadsheetRTree(data);
+  constructor(data: RTreeItem<BoundedRange>[] = []) {
+    this.rTree = new RangeRTree(data);
   }
 
   removeAllDependencies(formulaPosition: CellPosition) {
@@ -35,8 +32,16 @@ export class FormulaDependencyGraph {
   }
 
   addDependencies(formulaPosition: CellPosition, dependencies: RTreeBoundingBox[]): void {
+    if (dependencies.length === 0) {
+      return;
+    }
+    const formulaZone = positionToZone(formulaPosition);
     const rTreeItems = dependencies.map(({ sheetId, zone }) => ({
-      data: formulaPosition,
+      data: {
+        sheetId: formulaPosition.sheetId,
+        zone: formulaZone,
+        unboundedZone: formulaZone,
+      },
       boundingBox: {
         zone,
         sheetId,
@@ -58,44 +63,21 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(ranges: RTreeBoundingBox[]): PositionSet {
-    const visited = this.createEmptyPositionSet();
-    const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
+  getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
+    const visited = new RangeSet();
+    const queue: BoundedRange[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.add({ sheetId, col, row });
-        }
-      }
-
-      const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
-      const nextInQueue: Record<UID, Zone[]> = {};
-      for (const position of impactedPositions) {
-        if (!visited.has(position)) {
-          if (!nextInQueue[position.sheetId]) {
-            nextInQueue[position.sheetId] = [];
-          }
-          nextInQueue[position.sheetId].push(positionToZone(position));
-        }
-      }
-      for (const sheetId in nextInQueue) {
-        const zones = recomputeZones(nextInQueue[sheetId], []);
-        queue.push(...zones.map((zone) => ({ sheetId, zone })));
-      }
+      visited.add(range);
+      const impactedRanges = this.rTree.search(range).map(({ data }) => data);
+      // console.log("impactedRanges", impactedRanges.length);
+      // console.log("pushed to queue", [...new RangeSet(impactedRanges).difference(visited)].length);
+      queue.push(...new RangeSet(impactedRanges).difference(visited));
     }
 
     // remove initial ranges
     for (const range of ranges) {
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.delete({ sheetId, col, row });
-        }
-      }
+      visited.delete(range);
     }
     return visited;
   }

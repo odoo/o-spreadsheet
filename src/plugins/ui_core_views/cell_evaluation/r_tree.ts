@@ -87,7 +87,7 @@ export class SpreadsheetRTree<T> {
    * faster than inserting items one by one. After bulk loading (bulk insertion into
    * an empty tree), subsequent query performance is also ~20-30% better.
    */
-  constructor(items: RTreeItem[] = []) {
+  constructor(items: Iterable<RTreeItem<T>> = []) {
     const rangesPerSheet = {};
     for (const item of items) {
       const sheetId = item.boundingBox.sheetId;
@@ -130,7 +130,7 @@ export class SpreadsheetRTree<T> {
     this.rTrees[sheetId].remove(item, this.rtreeItemComparer);
   }
 
-  rtreeItemComparer(left: RTreeItem<T>, right: RTreeItem<T>) {
+  private rtreeItemComparer(left: RTreeItem<T>, right: RTreeItem<T>) {
     return (
       left.data === right.data &&
       left.boundingBox.sheetId === right.boundingBox.sheetId &&

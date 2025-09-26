@@ -178,7 +178,35 @@ export function modifyProfiles<T extends Zone | UnboundedZone>( // export for te
   }
 }
 
-function findIndexAndCreateProfile(
+export function profilesContainsZone(
+  profilesStartingPosition: number[],
+  profiles: Map<number, number[]>,
+  zone: Zone
+): boolean {
+  const leftValue = zone.left;
+  const rightValue = zone.right;
+  const topValue = zone.top;
+  const bottomValue = zone.bottom + 1;
+  const leftIndex = binaryPredecessorSearch(profilesStartingPosition, leftValue, 0);
+  const rightIndex = binaryPredecessorSearch(profilesStartingPosition, rightValue, leftIndex);
+  if (leftIndex === -1 || rightIndex === -1) {
+    return false;
+  }
+  for (let i = leftIndex; i <= rightIndex; i++) {
+    const profile = profiles.get(profilesStartingPosition[i])!;
+    const topPredIndex = binaryPredecessorSearch(profile, topValue, 0, true);
+    const bottomSuccIndex = binarySuccessorSearch(profile, bottomValue, 0, true);
+    if (topPredIndex === -1 || topPredIndex % 2 !== 0) {
+      return false;
+    }
+    if (topValue < profile[topPredIndex] || bottomValue > profile[bottomSuccIndex]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function findIndexAndCreateProfile(
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>,
   value: number | undefined,
@@ -277,7 +305,16 @@ function modifyProfile(
 
   // add the top and bottom value to the profile and
   // remove all information between the top and bottom index
-  profile.splice(topPredIndex + 1, bottomSuccIndex - topPredIndex - 1, ...newPoints);
+  const toDelete = bottomSuccIndex - topPredIndex - 1;
+  const toInsert = newPoints.length;
+  const start = topPredIndex + 1;
+  if (start === profile.length - 1 && toDelete === 1 && toInsert === 1) {
+    // fast path: we just need to replace the last element
+    // equivalent to `else` but faster and without memory allocation
+    profile[start] = newPoints[0] ?? newPoints[1];
+  } else {
+    profile.splice(start, toDelete, ...newPoints);
+  }
 }
 
 function removeContiguousProfiles(
@@ -301,7 +338,7 @@ function removeContiguousProfiles(
   }
 }
 
-function constructZonesFromProfiles<T extends UnboundedZone | Zone>(
+export function constructZonesFromProfiles<T extends UnboundedZone | Zone>(
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>
 ): T[] {
@@ -333,8 +370,10 @@ function constructZonesFromProfiles<T extends UnboundedZone | Zone>(
         left,
         bottom,
         right,
-        hasHeader: (bottom === undefined && top !== 0) || (right === undefined && left !== 0),
       };
+      if ((bottom === undefined && top !== 0) || (right === undefined && left !== 0)) {
+        profileZone.hasHeader = true;
+      }
 
       let findCorrespondingZone = false;
       for (let j = pendingZones.length - 1; j >= 0; j--) {

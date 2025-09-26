@@ -3984,7 +3984,8 @@ write a VLOOKUP that search in column C --> slow
   for (let row = 0; row < rows; row++) {
     cells["A" + row] = { content: `=SPLIT("1 2", " ")` };
     cells["C" + row] = { content: `=B${row}` };
-    cells["D" + row] = { content: `=vlookup("2",a1:c${rows},3)` };
+    cells["D" + row] = { content: `=vlookup("2",c1:c${rows},1)` };
+    cells["F" + row] = { content: `=D${row}` };
   }
   return cells;
 }

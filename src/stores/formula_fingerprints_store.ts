@@ -180,7 +180,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
     };
     for (const range of dependencies) {
       const zone = range.zone;
-      const [left, right] = range.parts;
+      const [left, right] = range.parts ?? [];
       const rangeSheetIndex = this.getters.getSheetIds().indexOf(range.sheetId);
       fingerprintVector.dSheet = rangeSheetIndex - positionSheetIndex;
 
