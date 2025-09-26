@@ -1,34 +1,47 @@
 :root {
   --os-gray-100: #f9fafb;
-  --os-gray-200: #e7e9ed;
-  --os-gray-300: #d8dadd;
+  --os-gray-200: #e7e9ed; /* GRAY_200 */
+  --os-gray-300: #d8dadd; /* GRAY_300 */
   --os-gray-400: #ced4da;
-  --os-gray-900: #111827;
-  --os-action-color: #017e84;
-  --os-action-color-hover: #01585c;
-  --os-icons-color: #4a4f59;
-  --os-selection-border-color: #3266ca;
-  --os-badge-selected-color: #e6f2f3;
+  --os-gray-500: #7c7f89;
+  --os-gray-600: #5f636f;
+  --os-gray-700: #374151;
+  --os-gray-800: #1f2937;
+  --os-gray-900: #111827; /* GRAY_900 */
+
+  --os-default-font: "Roboto", "Arial";
+  --os-default-font-size: 10px;
   --os-link-color: #017e84;
+  --os-link-hover-color: #01585c;
+  --os-text-body: #374151; /* TEXT_BODY */
+  --os-text-body-muted: #374151c2; /* TEXT_BODY_MUTED */
   --os-disabled-text-color: #cacaca;
-  --os-text-heading: #111827;
-  --os-figure-border-color: #c9ccd2;
-  --os-background-gray-color: #f5f5f5;
-  --os-background-header-color: #f8f9fa;
-  --os-text-body: #374151;
-  --os-text-body-muted: #374151c2;
-  --os-button-primary-bg: #714b67;
+
   --os-button-hover-bg: var(--os-gray-300);
-  --os-button-hover-text-color: #111827;
+  --os-button-hover-text-color: var(--os-gray-900);
   --os-button-active-bg: #e6f2f3;
-  --os-button-active-text-color: #111827;
-  --os-frozen-pane-header-border-color: #bcbcbc;
-  --os-header-grouping-border-color: #999;
-  --os-header-grouping-background-color: #f5f5f5;
-  --os-grid-border-color: #e2e3e3;
+  --os-button-active-text-color: var(--os-gray-900);
   --os-primary-button-bg: #714b67;
   --os-primary-button-hover-bg: #624159;
   --os-primary-button-active-bg: #f1edf0;
+  --os-action-color: var(--os-link-color); /* ACTION_COLOR */
+  --os-action-color-hover: var(--os-link-hover-color);
+
+  --os-composer-assistant-color: #9b359b; /* COMPOSER_ASSISTANT_COLOR */
+  --os-composer-assistant-background: #f2f2f2;
+  --os-composer-highlight-flag-color: #e6edf3;
+  --os-composer-selector-flag-color: #a9a9a9;
+
+  --os-selection-border-color: #3266ca; /* SELECTION_BORDER_COLOR */
+  --os-badge-selected-color: var(--os-button-active-bg);
+  --os-figure-border-color: var(--os-gray-400);
+  --os-background-gray-color: #f5f5f5;
+  --os-frozen-pane-header-border-color: #bcbcbc; /* FROZEN_PANE_HEADER_BORDER_COLOR */
+  --os-grid-border-color: #e2e3e3; /* CELL_BORDER_COLOR */
+  --os-separator-color: var(--os-gray-300);
+  --os-green-arrow-color: #6aa84f; /* Same color as CF arrow icon */
+  --os-red-arrow-color: #e06666; /* Same color as CF arrow icon */
+
   --os-alert-warning-bg: #fbebcc;
   --os-alert-warning-border: #f8e2b3;
   --os-alert-warning-text-color: #946d23;
@@ -38,10 +51,7 @@
   --os-alert-info-bg: #cdedf1;
   --os-alert-info-border: #98dbe2;
   --os-alert-info-text-color: #09414a;
-  --os-composer-assistant-color: #9b359b;
-  --os-separator-color: #e0e2e4;
-  --os-default-font: "Roboto", "Arial";
-  --os-default-font-size: 10px;
+
   --os-header-height: 26px;
   --os-header-width: 48px;
   --os-desktop-topbar-toolbar-height: 34px;
@@ -80,6 +90,7 @@
   --os-container-width: calc(var(--os-color-picker-width) + (2 * var(--os-picker-padding)));
   --os-menu-separator-border-width: 1px;
   --os-menu-separator-padding: 5px;
+
   --os-components-importance-grid: 0;
   --os-components-importance-highlight: 5;
   --os-components-importance-header-grouping-button: 6;

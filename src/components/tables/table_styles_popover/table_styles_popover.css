@@ -21,7 +21,7 @@
         &.selected {
           border-bottom-color: #fff;
           border-top-color: var(--os-primary-button-bg);
-          color: var(--os-text-heading);
+          color: var(--os-button-active-text-color);
         }
       }
     }
@@ -37,9 +37,9 @@
 
     .o-new-table-style {
       font-size: 36px;
-      color: #666;
+      color: var(--os-text-body-muted);
       &:hover {
-        background: #f5f5f5;
+        background: var(--os-button-hover-bg);
       }
     }
   }

@@ -59,20 +59,20 @@ exports[`figures selected figure snapshot 1`] = `
       class="position-absolute top-0 start-0 pe-none w-100 h-100"
     >
       <div
-        class="o-figure-border pe-auto w-100 h-0 position-absolute pb-2"
-        style="border-top: 2px solid #3266ca;"
+        class="o-figure-border pe-auto w-100 h-0 position-absolute pb-2 o-selected"
+        style="border-top-width: 2px;"
       />
       <div
-        class="o-figure-border pe-auto h-100 position-absolute start-0 ps-2"
-        style="border-left: 2px solid #3266ca;"
+        class="o-figure-border pe-auto h-100 position-absolute start-0 ps-2 o-selected"
+        style="border-left-width: 2px;"
       />
       <div
-        class="o-figure-border pe-auto w-100 position-absolute bottom-0 pt-2"
-        style="border-bottom: 2px solid #3266ca;"
+        class="o-figure-border pe-auto w-100 position-absolute bottom-0 pt-2 o-selected"
+        style="border-bottom-width: 2px;"
       />
       <div
-        class="o-figure-border pe-auto h-100 position-absolute end-0 pe-2"
-        style="border-right: 2px solid #3266ca;"
+        class="o-figure-border pe-auto h-100 position-absolute end-0 pe-2 o-selected"
+        style="border-right-width: 2px;"
       />
     </div>
     

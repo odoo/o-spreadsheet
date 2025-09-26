@@ -1,5 +1,4 @@
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { FIGURE_BORDER_COLOR, SELECTION_BORDER_COLOR } from "../../../constants";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
@@ -80,9 +79,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getBorderStyle(position: "top" | "right" | "bottom" | "left"): string {
-    const borderWidth = this.getBorderWidth();
-    const borderColor = this.isSelected ? SELECTION_BORDER_COLOR : FIGURE_BORDER_COLOR;
-    return `border-${position}: ${borderWidth}px solid ${borderColor};`;
+    return `border-${position}-width: ${this.getBorderWidth()}px;`;
   }
 
   get wrapperStyle() {

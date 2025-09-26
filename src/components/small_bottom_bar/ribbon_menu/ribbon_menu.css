@@ -3,7 +3,7 @@
 
   .o-ribbon-title {
     background-color: color-mix(in srgb, var(--os-background-gray-color), white 5%);
-    border-bottom: 2px solid #e0e2e4;
+    border-bottom: 2px solid var(--os-gray-200);
   }
   .o-previous-button {
     background-color: var(--os-background-gray-color);

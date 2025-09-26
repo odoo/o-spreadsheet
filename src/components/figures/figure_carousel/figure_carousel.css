@@ -53,11 +53,11 @@
       font-size: 14px;
 
       &:hover {
-        color: var(--os-button-primary-bg);
+        color: var(--os-primary-button-bg);
       }
 
       &.selected {
-        color: var(--os-button-primary-bg);
+        color: var(--os-primary-button-bg);
         font-weight: 600;
       }
     }

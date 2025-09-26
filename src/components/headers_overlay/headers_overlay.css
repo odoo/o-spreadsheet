@@ -41,12 +41,9 @@
       height: 10000px;
       background-color: var(--os-selection-border-color);
     }
-    .o-unhide {
-      color: var(--os-icons-color);
-    }
     .o-unhide:hover {
       z-index: calc(var(--os-components-importance-grid) + 1);
-      background-color: lightgrey;
+      background-color: var(--os-gray-400);
     }
   }
 
@@ -91,12 +88,9 @@
       height: 1px;
       background-color: var(--os-selection-border-color);
     }
-    .o-unhide {
-      color: var(--os-icons-color);
-    }
     .o-unhide:hover {
       z-index: calc(var(--os-components-importance-grid) + 1);
-      background-color: lightgrey;
+      background-color: var(--os-gray-400);
     }
   }
 

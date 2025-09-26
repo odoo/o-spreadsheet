@@ -71,7 +71,7 @@
       height: var(--os-desktop-topbar-toolbar-height);
 
       .o-readonly-toolbar {
-        background-color: var(--os-background-header-color);
+        background-color: var(--os-gray-100);
         padding-left: 18px;
         padding-right: 18px;
       }

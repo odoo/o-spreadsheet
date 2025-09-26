@@ -21,9 +21,6 @@
           flex-basis: 60%;
           min-width: 0px; /* input overflows in Firefox otherwise */
         }
-        .o-threshold-value input:disabled {
-          background-color: #edebed;
-        }
       }
     }
     .o-cf-iconset-rule {
@@ -80,10 +77,10 @@
     }
 
     .o-icon.arrow-down {
-      color: #e06666;
+      color: var(--os-red-arrow-color);
     }
     .o-icon.arrow-up {
-      color: #6aa84f;
+      color: var(--os-green-arrow-color);
     }
   }
 }

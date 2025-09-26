@@ -10,8 +10,8 @@
       bottom: 0px;
       height: var(--os-scrollbar-width);
       width: var(--os-scrollbar-width);
-      border-top: 1px solid #e2e3e3;
-      border-left: 1px solid #e2e3e3;
+      border-top: 1px solid var(--os-gray-400);
+      border-left: 1px solid var(--os-gray-400);
     }
   }
 }

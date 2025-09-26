@@ -1,7 +1,7 @@
 .o-spreadsheet {
   .o-dv-input {
     &.o-invalid {
-      background-color: #ffdddd;
+      background-color: var(--os-alert-danger-bg);
     }
     .error-icon {
       right: 7px;

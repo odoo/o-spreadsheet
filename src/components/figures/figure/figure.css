@@ -12,6 +12,11 @@
 
   div.o-figure-border {
     z-index: 1;
+    border: 0px solid var(--os-figure-border-color);
+
+    &.o-selected {
+      border-color: var(--os-selection-border-color);
+    }
   }
 
   .o-figure-wrapper {
@@ -29,7 +34,7 @@
       position: absolute;
       width: 8px;
       height: 8px;
-      background-color: #1a73e8;
+      background-color: var(--os-selection-border-color);
       outline: 1px solid white;
 
       &.o-top {

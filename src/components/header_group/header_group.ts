@@ -1,11 +1,6 @@
 import { Component } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import {
-  GROUP_LAYER_WIDTH,
-  HEADER_GROUPING_BORDER_COLOR,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "../../constants";
+import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates, Dimension, HeaderGroup, Rect } from "../../types";
@@ -95,8 +90,8 @@ export class RowGroup extends AbstractHeaderGroup {
       left: `calc(50% - 1px)`, // -1px: we want the border to be on the center
       width: `30%`,
       height: `calc(100% - ${groupBox.headerRect.height / 2}px)`,
-      "border-left": `1px solid ${HEADER_GROUPING_BORDER_COLOR}`,
-      "border-bottom": groupBox.isEndHidden ? "" : `1px solid ${HEADER_GROUPING_BORDER_COLOR}`,
+      "border-left": `1px solid`,
+      "border-bottom": groupBox.isEndHidden ? "" : `1px solid`,
     });
   }
 
@@ -156,8 +151,8 @@ export class ColGroup extends AbstractHeaderGroup {
       left: `${groupBox.headerRect.width / 2}px`,
       width: `calc(100% - ${groupBox.headerRect.width / 2}px)`,
       height: `30%`,
-      "border-top": `1px solid ${HEADER_GROUPING_BORDER_COLOR}`,
-      "border-right": groupBox.isEndHidden ? "" : `1px solid ${HEADER_GROUPING_BORDER_COLOR}`,
+      "border-top": `1px solid`,
+      "border-right": groupBox.isEndHidden ? "" : `1px solid`,
     });
   }
 

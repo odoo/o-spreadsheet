@@ -2,7 +2,7 @@
   .o-autofill {
     position: absolute;
     border: 1px solid white;
-    background-color: #1a73e8;
+    background-color: var(--os-selection-border-color);
     height: var(--os-autofill-edge-length);
     width: var(--os-autofill-edge-length);
   }

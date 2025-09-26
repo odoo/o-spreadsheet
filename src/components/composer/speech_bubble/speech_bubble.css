@@ -3,7 +3,7 @@
     background-color: white;
     box-sizing: border-box;
     box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
-    border: 1px solid #ccc;
+    border: 1px solid var(--os-gray-400);
     z-index: var(--os-components-importance-popover);
 
     &::after {
@@ -16,8 +16,8 @@
       width: var(--os-bubble-arrow-size);
       transform-origin: top left;
       transform: translate(0, -67%) rotate(45deg);
-      border-right: 1px solid #ccc;
-      border-bottom: 1px solid #ccc;
+      border-right: 1px solid var(--os-gray-400);
+      border-bottom: 1px solid var(--os-gray-400);
       box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);
     }
   }

@@ -8,14 +8,14 @@
     }
 
     &:hover {
-      background: #ddd;
+      background: var(--os-button-hover-bg);
       .o-table-style-edit-button {
         display: block !important;
         right: 0;
         top: 0;
         background: #fff;
         cursor: pointer;
-        border: 1px solid #ddd;
+        border: 1px solid var(--os-gray-300);
         padding: 1px 1px 1px 2px;
         .o-icon {
           font-size: 12px;

@@ -83,7 +83,7 @@
     }
     .o-sidePanel-handle {
       cursor: col-resize;
-      color: #a9a9a9;
+      color: var(--os-gray-500);
       .o-icon {
         height: 25px;
         margin-left: -5px;

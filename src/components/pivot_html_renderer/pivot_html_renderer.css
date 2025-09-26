@@ -9,7 +9,7 @@
 
     td,
     th {
-      border: 1px solid #dee2e6;
+      border: 1px solid var(--os-gray-300);
       background-color: #fff;
       padding: 0.3rem;
       white-space: nowrap;
@@ -24,14 +24,14 @@
     }
 
     th {
-      background-color: #f5f5f5;
+      background-color: var(--os-background-gray-color);
       font-weight: bold;
       color: black;
     }
 
     .o_missing_value {
-      color: #46646d;
-      background: #e7f2f6;
+      color: var(--os-gray-600);
+      background: var(--os-button-active-bg);
     }
   }
 }
