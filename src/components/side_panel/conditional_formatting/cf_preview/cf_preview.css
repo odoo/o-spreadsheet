@@ -15,7 +15,7 @@
     }
 
     &:not(:hover) .o-cf-delete-button {
-      display: none;
+      display: none !important;
     }
     .o-cf-preview-icon {
       border: 1px solid var(--os-gray-300);
@@ -43,11 +43,6 @@
       .o-cf-preview-range {
         font-size: 12px;
       }
-    }
-    .o-cf-delete {
-      left: 90%;
-      top: 39%;
-      position: absolute;
     }
     &:not(:hover):not(.o-cf-dragging) .o-cf-drag-handle {
       display: none !important;

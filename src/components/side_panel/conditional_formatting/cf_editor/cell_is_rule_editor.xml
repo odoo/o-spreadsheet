@@ -15,20 +15,21 @@
   <t t-name="o-spreadsheet-CellIsRuleEditor">
     <t t-set="fill_color">Fill Color</t>
     <t t-set="text_color">Text Color</t>
+    <t t-set="state" t-value="store.state"/>
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
       <SelectMenu
         class="'o-cell-is-operator o-input mb-2'"
-        menuItems="cfCriterionMenuItems"
-        selectedValue="selectedCriterionName"
+        menuItems="store.cfCriterionMenuItems"
+        selectedValue="store.selectedCriterionName"
       />
 
       <t
-        t-if="criterionComponent"
-        t-component="criterionComponent"
+        t-if="store.criterionComponent"
+        t-component="store.criterionComponent"
         t-key="state.rules.cellIs.operator"
-        criterion="genericCriterion"
-        onCriterionChanged.bind="onRuleValuesChanged"
+        criterion="store.genericCriterion"
+        onCriterionChanged.bind="(rule) => store.onRuleValuesChanged(rule)"
       />
 
       <div class="o-section-subtitle pt-3">Formatting style</div>
@@ -41,35 +42,35 @@
           class="o-hoverable-button o-menu-item-button"
           title="Bold"
           t-att-class="{active:rule.style.bold}"
-          t-on-click="() => this.toggleStyle('bold')">
+          t-on-click="() => store.toggleStyle('bold')">
           <t t-call="o-spreadsheet-Icon.BOLD"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Italic"
           t-att-class="{active:rule.style.italic}"
-          t-on-click="() => this.toggleStyle('italic')">
+          t-on-click="() => store.toggleStyle('italic')">
           <t t-call="o-spreadsheet-Icon.ITALIC"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Underline"
           t-att-class="{active:rule.style.underline}"
-          t-on-click="(ev) => this.toggleStyle('underline', ev)">
+          t-on-click="(ev) => store.toggleStyle('underline', ev)">
           <t t-call="o-spreadsheet-Icon.UNDERLINE"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Strikethrough"
           t-att-class="{active:rule.style.strikethrough}"
-          t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">
+          t-on-click="(ev) => store.toggleStyle('strikethrough', ev)">
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <ColorPickerWidget
           currentColor="rule.style.textColor || '#000000'"
-          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
+          toggleColorPicker="() => store.toggleMenu('cellIsRule-textColor')"
           showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
-          onColorPicked="(color) => this.setColor('textColor', color)"
+          onColorPicked="(color) => store.setColor('textColor', color)"
           title="text_color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
@@ -77,9 +78,9 @@
         <div class="o-divider"/>
         <ColorPickerWidget
           currentColor="rule.style.fillColor"
-          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)"
+          toggleColorPicker="() => store.toggleMenu('cellIsRule-fillColor')"
           showColorPicker="state.openedMenu === 'cellIsRule-fillColor'"
-          onColorPicked="(color) => this.setColor('fillColor', color)"
+          onColorPicked="(color) => store.setColor('fillColor', color)"
           title="fill_color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"

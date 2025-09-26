@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
-import { UID } from "../../src/types";
+import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { addDataValidation, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
@@ -8,6 +8,7 @@ import {
   editStandaloneComposer,
   getDataValidationRules,
   mountComponentWithPortalTarget,
+  mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -27,11 +28,14 @@ export async function mountDataValidationPanel(model?: Model) {
 describe("data validation sidePanel component", () => {
   let model: Model;
   let sheetId: UID;
+  let env: SpreadsheetChildEnv;
   let fixture: HTMLElement;
 
   beforeEach(async () => {
-    ({ model, fixture } = await mountDataValidationPanel());
+    ({ model, env, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
+    env.openSidePanel("DataValidation", {});
+    await nextTick();
   });
 
   async function changeCriterionType(type: string) {
@@ -253,6 +257,15 @@ describe("data validation sidePanel component", () => {
     simulateClick(".o-dv-save");
 
     expect(model.getters.getDataValidationRules(sheetId)).toMatchObject([{ isBlocking: true }]);
+  });
+
+  test("Clicking the preview opens the data validation editor", async () => {
+    addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
+    await nextTick();
+
+    await click(fixture.querySelector(".o-dv-preview")!);
+    await nextTick();
+    expect(fixture.querySelector(".o-dv-form")).toBeTruthy();
   });
 
   test("Preserves rule order when editing and saving via data validation preview panel", async () => {
