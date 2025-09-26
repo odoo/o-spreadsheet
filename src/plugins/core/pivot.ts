@@ -1,8 +1,10 @@
 import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
+import { adaptFormulaStringRanges } from "../../helpers/formulas";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   CellPosition,
   CommandResult,
@@ -144,10 +146,10 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
-    for (const sheetId in this.compiledMeasureFormulas) {
-      for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
-        const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
+  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, adaptSheetName: AdaptSheetName) {
+    for (const formulaSheetId in this.compiledMeasureFormulas) {
+      for (const formulaString in this.compiledMeasureFormulas[formulaSheetId]) {
+        const compiledFormula = this.compiledMeasureFormulas[formulaSheetId][formulaString];
         const newDependencies: Range[] = [];
         for (const range of compiledFormula.dependencies) {
           const change = applyChange(range);
@@ -157,13 +159,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
             newDependencies.push(change.range);
           }
         }
-        const newFormulaString = this.getters.getFormulaString(
+        const newFormulaString = adaptFormulaStringRanges(formulaSheetId, formulaString, {
           sheetId,
-          compiledFormula.tokens,
-          newDependencies
-        );
+          sheetName: adaptSheetName,
+          applyChange,
+        });
         if (newFormulaString !== formulaString) {
-          this.replaceMeasureFormula(sheetId, formulaString, newFormulaString);
+          this.replaceMeasureFormula(formulaSheetId, formulaString, newFormulaString);
         }
       }
     }
