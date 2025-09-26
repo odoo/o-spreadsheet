@@ -19,6 +19,7 @@
           t-ref="sheetNameSpan"
           t-esc="sheetName"
           t-on-pointerdown="(ev) => this.onMouseEventSheetName(ev)"
+          t-on-click="(ev) => this.onMouseEventSheetName(ev)"
           t-on-dblclick="() => this.onDblClick()"
           t-on-focusout="() => this.onFocusOut()"
           t-on-keydown="(ev) => this.onKeyDown(ev)"
