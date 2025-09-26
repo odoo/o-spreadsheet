@@ -28,7 +28,12 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import { makeTestEnv, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import {
+  makeTestEnv,
+  mountComponentWithPortalTarget,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
@@ -735,6 +740,26 @@ describe("BottomBar component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
+
+  test("Do not focus out from sheet name when renaming until clicking outside", async () => {
+    ({ fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+
+    const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+    expect(sheetName.getAttribute("contenteditable")).toEqual("false");
+
+    await doubleClick(sheetName);
+    await nextTick();
+    expect(sheetName.getAttribute("contenteditable")).toEqual("plaintext-only");
+    expect(document.activeElement).toEqual(sheetName);
+
+    await click(sheetName);
+    expect(document.activeElement).toEqual(sheetName);
+
+    await click(fixture, ".o-spreadsheet-bottom-bar");
+    expect(document.activeElement).toEqual(fixture.querySelector(".o-grid div.o-composer"));
   });
 
   describe("drag & drop sheet", () => {
