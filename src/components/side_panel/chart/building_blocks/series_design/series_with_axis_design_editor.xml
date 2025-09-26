@@ -55,11 +55,11 @@
                 </div>
                 <div class="w-50 ms-3" t-if="trendType === 'trailingMovingAverage'">
                   <span class="o-section-subtitle">Window</span>
-                  <input
-                    t-att-value="trend.window || this.defaultWindowSize"
-                    type="number"
-                    class="w-100 o-input trend-window-input"
-                    t-on-change="(ev) => this.onChangeMovingAverageWindow(index, ev)"
+                  <NumberInput
+                    value="trend.window || this.defaultWindowSize"
+                    class="'w-100 o-input trend-window-input'"
+                    min="2"
+                    onChange="(value) => this.onChangeMovingAverageWindow(index, value)"
                   />
                 </div>
                 <div class="w-50 ms-3" t-if="trendType === 'polynomial'">
