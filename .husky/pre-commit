@@ -37,4 +37,19 @@ if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
 
     # Css wrap check
     node .husky/css_check.js
+
+    # Check that all package.json versions are the same as the root
+    root_version=$(node -p "require('./package.json').version")
+    mismatch=0
+    for pkg in $(find packages -name package.json); do
+        pkg_version=$(node -p "require('./$pkg').version")
+        if [ "$pkg_version" != "$root_version" ]; then
+            echo "Version mismatch: $pkg ($pkg_version) != root ($root_version)"
+            mismatch=1
+        fi
+    done
+    if [ $mismatch -ne 0 ]; then
+        echo "❌ All package.json versions must match the root version."
+        exit 1
+    fi
 fi

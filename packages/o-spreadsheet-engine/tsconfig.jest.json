@@ -3,7 +3,5 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["src", "tests"],
-  "exclude": ["packages"],
-  "files": ["global.d.ts"]
+  "include": ["src", "tests"]
 }
