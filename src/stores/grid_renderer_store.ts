@@ -26,6 +26,7 @@ import {
   deepCopy,
   deepEquals,
   drawDecoratedText,
+  formatHasRepeatedChar,
   getZonesCols,
   getZonesRows,
   isZoneInside,
@@ -642,6 +643,9 @@ export class GridRenderer extends SpreadsheetStore {
     }
     const { align } = this.getters.getCellStyle(position);
     const evaluatedCell = this.getters.getEvaluatedCell(position);
+    if (formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
+      return "left";
+    }
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
     }
