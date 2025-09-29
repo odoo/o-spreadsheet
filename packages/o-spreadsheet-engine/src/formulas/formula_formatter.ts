@@ -260,6 +260,21 @@ function astToDoc(ast: AST): Doc {
         }
       }
       return wrapInParentheses(concat(splitArgsWithCommas(docs)), ast.value);
+
+    case "ARRAY": {
+      const rowDocs = ast.value.map((row) =>
+        concat(
+          row.map((value, index) =>
+            index === 0 ? astToDoc(value) : concat([", ", line(), astToDoc(value)])
+          )
+        )
+      );
+      const body = concat(
+        rowDocs.map((doc, index) => (index === 0 ? group(doc) : concat(["; ", line(), group(doc)])))
+      );
+      return wrapInBraces(body);
+    }
+
     case "UNARY_OPERATION":
       const operandDoc = astToDoc(ast.operand);
       const needParenthesis = ast.postfix
@@ -312,6 +327,10 @@ function wrapInParentheses(doc: Doc, functionName: undefined | string = undefine
   return group(concat(docToConcat));
 }
 
+function wrapInBraces(doc: Doc): Doc {
+  return group(concat(["{", nest(1, concat([line(), doc])), line(), "}"]));
+}
+
 /**
  * Converts an ast formula to the corresponding string
  */
@@ -339,6 +358,12 @@ export function astToFormula(ast: AST): string {
         ? `(${astToFormula(ast.operand)})`
         : astToFormula(ast.operand);
       return ast.value + rightOperand;
+    case "ARRAY":
+      return (
+        "{" +
+        ast.value.map((row) => row.map((cell) => astToFormula(cell)).join(",")).join(";") +
+        "}"
+      );
     case "BIN_OPERATION":
       const leftOperation = leftOperandNeedsParenthesis(ast)
         ? `(${astToFormula(ast.left)})`

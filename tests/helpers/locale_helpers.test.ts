@@ -48,6 +48,7 @@ describe("Locale helpers", () => {
       expect(canonicalizeContent("=1,1%", FR_LOCALE)).toBe("=1.1%");
       expect(canonicalizeContent("=SUM(1,1)", FR_LOCALE)).toBe("=SUM(1.1)");
       expect(canonicalizeContent("=SUM(1,1; 3)", FR_LOCALE)).toBe("=SUM(1.1, 3)");
+      expect(canonicalizeContent("={1;2\\3;4}", FR_LOCALE)).toBe("={1,2;3,4}");
     });
 
     test("Strings in formulas aren't canonicalized", () => {
@@ -78,6 +79,7 @@ describe("Locale helpers", () => {
       expect(localizeContent("=1.1%", FR_LOCALE)).toBe("=1,1%");
       expect(localizeContent("=SUM(1.1)", FR_LOCALE)).toBe("=SUM(1,1)");
       expect(localizeContent("=SUM(1.1, 3)", FR_LOCALE)).toBe("=SUM(1,1; 3)");
+      expect(localizeContent("={1,2;3,4}", FR_LOCALE)).toBe("={1;2\\3;4}");
     });
 
     test("Strings in formulas aren't localized", () => {

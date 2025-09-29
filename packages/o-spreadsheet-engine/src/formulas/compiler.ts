@@ -189,6 +189,23 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
           code.append(...args);
           const fnName = ast.value.toUpperCase();
           return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+        case "ARRAY": {
+          // a literal array is compiled into function calls
+          const arrayFunctionCall: ASTFuncall = {
+            type: "FUNCALL",
+            value: "ARRAY.LITERAL",
+            args: ast.value.map((row) => ({
+              type: "FUNCALL",
+              value: "ARRAY.ROW",
+              args: row,
+              tokenStartIndex: 0,
+              tokenEndIndex: 0,
+            })),
+            tokenStartIndex: 0,
+            tokenEndIndex: 0,
+          };
+          return compileAST(arrayFunctionCall);
+        }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
           const operand = compileAST(ast.operand, false, false).assignResultToVariable();
