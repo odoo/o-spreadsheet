@@ -112,6 +112,7 @@ describe("Split text into columns", () => {
       decimalSeparator: ",",
       formulaArgSeparator: ";",
       thousandsSeparator: " ",
+      arrayRowSeparator: "\\",
     });
     setGrid(model, { A1: "5,6||=SUM(5; 1,6)" });
     splitTextToColumns(model, "||", "A1");

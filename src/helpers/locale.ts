@@ -29,6 +29,7 @@ export function isValidLocale(locale: any): locale is Locale {
     "dateFormat",
     "timeFormat",
     "formulaArgSeparator",
+    "arrayRowSeparator",
   ]) {
     if (!locale[property] || typeof locale[property] !== "string") {
       return false;
@@ -36,6 +37,12 @@ export function isValidLocale(locale: any): locale is Locale {
   }
 
   if (locale.formulaArgSeparator === locale.decimalSeparator) {
+    return false;
+  }
+  if (locale.arrayRowSeparator === locale.formulaArgSeparator) {
+    return false;
+  }
+  if (locale.arrayRowSeparator === locale.decimalSeparator) {
     return false;
   }
   if (locale.thousandsSeparator === locale.decimalSeparator) {
@@ -151,6 +158,8 @@ function _localizeFormula(formula: string, fromLocale: Locale, toLocale: Locale)
       );
     } else if (token.type === "ARG_SEPARATOR") {
       localizedFormula += toLocale.formulaArgSeparator;
+    } else if (token.type === "ARRAY_ROW_SEPARATOR") {
+      localizedFormula += toLocale.arrayRowSeparator;
     } else {
       localizedFormula += token.value;
     }

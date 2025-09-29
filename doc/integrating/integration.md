@@ -149,6 +149,7 @@ const locale = {
     dateFormat: "m/d/yyyy",
     timeFormat: "hh:mm:ss a",
     formulaArgSeparator: ",",
+    arrayRowSeparator: ";",
 }
 
 async function loadLocales() {

@@ -86,7 +86,7 @@ export function insertTokenAfterLeftParenthesis(
  */
 export function extractFormulaIdFromToken(tokenAtCursor: EnrichedToken) {
   const idAst = tokenAtCursor.functionContext?.args[0];
-  if (!idAst || !["STRING", "NUMBER"].includes(idAst.type)) {
+  if (!idAst || (idAst.type !== "STRING" && idAst.type !== "NUMBER")) {
     return;
   }
   return idAst.value;

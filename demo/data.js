@@ -3823,6 +3823,7 @@ export const demoData = {
       dateFormat: "m/d/yyyy",
       timeFormat: "hh:mm:ss a",
       formulaArgSeparator: ",",
+      arrayRowSeparator: ";",
       weekStart: 7,
     },
   },

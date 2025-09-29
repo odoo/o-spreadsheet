@@ -336,6 +336,7 @@ describe("Locale helpers", () => {
     expect(isValidLocale({ ...locale, dateFormat: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, timeFormat: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, formulaArgSeparator: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, arrayRowSeparator: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, code: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, name: undefined })).toBe(false);
 
@@ -344,6 +345,7 @@ describe("Locale helpers", () => {
     expect(isValidLocale({ ...locale, dateFormat: "" })).toBe(false);
     expect(isValidLocale({ ...locale, timeFormat: "" })).toBe(false);
     expect(isValidLocale({ ...locale, formulaArgSeparator: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, arrayRowSeparator: "" })).toBe(false);
     expect(isValidLocale({ ...locale, code: "" })).toBe(false);
     expect(isValidLocale({ ...locale, name: "" })).toBe(false);
 
@@ -365,6 +367,10 @@ describe("Locale helpers", () => {
     expect(isValidLocale({ ...locale, formulaArgSeparator: ",", decimalSeparator: "," })).toBe(
       false
     );
+    expect(isValidLocale({ ...locale, arrayRowSeparator: ",", formulaArgSeparator: "," })).toBe(
+      false
+    );
+    expect(isValidLocale({ ...locale, arrayRowSeparator: ".", decimalSeparator: "." })).toBe(false);
   });
 
   test("isValidLocale with identical thousands and decimal separators", () => {
