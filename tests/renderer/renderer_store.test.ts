@@ -42,6 +42,7 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setCellFormat,
   setFormat,
   setSelection,
   setStyle,
@@ -2409,6 +2410,24 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
     box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
     expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
+  });
+
+  test("Cells with repeated character format are aligned to the left", () => {
+    const { drawGridRenderer, model } = setRenderer();
+    setCellContent(model, "A1", "1");
+
+    let textAligns: string[] = [];
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => (key === "textAlign" ? textAligns.push(value) : null),
+    });
+
+    drawGridRenderer(ctx);
+    expect(textAligns).toEqual(["right", "center"]); // center for headers
+
+    textAligns = [];
+    setCellFormat(model, "A1", "dd* ");
+    drawGridRenderer(ctx);
+    expect(textAligns).toEqual(["left", "center"]); // center for headers
   });
 
   test("Each frozen pane is clipped in the grid", () => {

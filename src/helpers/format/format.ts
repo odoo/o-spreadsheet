@@ -24,6 +24,7 @@ import {
   DateInternalFormat,
   InternalFormat,
   MAX_DECIMAL_PLACES,
+  MultiPartInternalFormat,
   NumberInternalFormat,
   TextInternalFormat,
   convertInternalFormatToFormat,
@@ -104,7 +105,7 @@ export function formatValue(
         return value;
       }
       const internalFormat = parseFormat(format);
-      const formatToApply = internalFormat.text || internalFormat.positive;
+      const formatToApply = getFormatToApply(value, internalFormat).format;
       if (!formatToApply || formatToApply.type !== "text") {
         return value;
       }
@@ -114,18 +115,18 @@ export function formatValue(
       if (!format) {
         format = createDefaultFormat(value);
       }
-
       const internalFormat = parseFormat(format);
-      if (internalFormat.positive.type === "text") {
-        return applyTextInternalFormat(value.toString(), internalFormat.positive, formatWidth);
+      const { format: formatToApply, isNegativeFormat } = getFormatToApply(value, internalFormat);
+      if (!formatToApply) {
+        return value.toString();
       }
 
-      let formatToApply: InternalFormat = internalFormat.positive;
-      if (value < 0 && internalFormat.negative) {
-        formatToApply = internalFormat.negative;
-        value = -value;
-      } else if (value === 0 && internalFormat.zero) {
-        formatToApply = internalFormat.zero;
+      if (formatToApply.type === "text") {
+        return applyTextInternalFormat(value.toString(), formatToApply, formatWidth);
+      }
+
+      if (isNegativeFormat) {
+        value = Math.abs(value);
       }
 
       if (formatToApply.type === "date") {
@@ -141,6 +142,36 @@ export function formatValue(
     case "object": // case value === null
       return "";
   }
+}
+
+function getFormatToApply(
+  value: CellValue,
+  internalFormat: MultiPartInternalFormat
+): { format: InternalFormat | undefined; isNegativeFormat: boolean } {
+  let formatToApply: InternalFormat | undefined = undefined;
+  let isNegativeFormat = false;
+
+  switch (typeof value) {
+    case "number":
+      if (value < 0 && internalFormat.negative) {
+        formatToApply = internalFormat.negative;
+        isNegativeFormat = true;
+      } else if (value === 0 && internalFormat.zero) {
+        formatToApply = internalFormat.zero;
+      } else {
+        formatToApply = internalFormat.positive;
+      }
+      break;
+
+    case "string":
+      const format = internalFormat.text || internalFormat.positive;
+      if (format.type === "text") {
+        formatToApply = format;
+      }
+      break;
+  }
+
+  return { format: formatToApply, isNegativeFormat };
 }
 
 function applyTextInternalFormat(
@@ -890,4 +921,28 @@ export function isTextFormat(format: Format | undefined): boolean {
   } catch {
     return false;
   }
+}
+
+export function formatHasRepeatedChar(value: CellValue, format: Format | undefined): boolean {
+  if (!format) {
+    return false;
+  }
+
+  try {
+    const internalFormat = parseFormat(format);
+    const { format: formatToApply } = getFormatToApply(value, internalFormat);
+    if (formatToApply?.type === "text" || formatToApply?.type === "date") {
+      const tokens: FormatToken[] = formatToApply.tokens;
+      return tokens.some((token) => token.type === "REPEATED_CHAR");
+    } else if (formatToApply?.type === "number") {
+      return (
+        formatToApply.integerPart.some((token) => token.type === "REPEATED_CHAR") ||
+        (formatToApply.decimalPart
+          ? formatToApply.decimalPart.some((token) => token.type === "REPEATED_CHAR")
+          : false)
+      );
+    }
+  } catch {}
+
+  return false;
 }
