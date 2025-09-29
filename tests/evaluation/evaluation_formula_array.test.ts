@@ -24,7 +24,7 @@ import { addToRegistry } from "../test_helpers/helpers";
 let model: Model;
 let sheetId: UID;
 
-describe("evaluate formulas that return an array", () => {
+describe("evaluate formulas that use/return an array", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
@@ -1021,6 +1021,98 @@ describe("evaluate formulas that return an array", () => {
 
       expect(getEvaluatedCell(model, "F6").value).toBe(42);
       expect(getEvaluatedCell(model, "G6").value).toBe(42);
+    });
+  });
+
+  describe("evaluate literals array", () => {
+    test("literal array with one row only", () => {
+      setCellContent(model, "A1", "={1,2,3}");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe(2);
+      expect(getEvaluatedCell(model, "C1").value).toBe(3);
+    });
+
+    test("literal array with one column only", () => {
+      setCellContent(model, "A1", "={1;2;3}");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "A2").value).toBe(2);
+      expect(getEvaluatedCell(model, "A3").value).toBe(3);
+    });
+
+    test("literal array as table", () => {
+      setCellContent(model, "A1", "={1,2;3,4}");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe(2);
+      expect(getEvaluatedCell(model, "A2").value).toBe(3);
+      expect(getEvaluatedCell(model, "B2").value).toBe(4);
+    });
+
+    test("literal array no matter argument type", () => {
+      setCellContent(model, "A1", `={1,"test";TRUE,"42"}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe("test");
+      expect(getEvaluatedCell(model, "A2").value).toBe(true);
+      expect(getEvaluatedCell(model, "B2").value).toBe("42");
+    });
+
+    test("literal array with formula", () => {
+      setCellContent(model, "A1", `={1,2,SUM(1,2)}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe(2);
+      expect(getEvaluatedCell(model, "C1").value).toBe(3);
+    });
+
+    test("literal array with array formula", () => {
+      setCellContent(model, "A1", `={"1","2";SPLIT("3,4",",")}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe("1");
+      expect(getEvaluatedCell(model, "B1").value).toBe("2");
+      expect(getEvaluatedCell(model, "A2").value).toBe("3");
+      expect(getEvaluatedCell(model, "B2").value).toBe("4");
+    });
+
+    test("literal array with literal array", () => {
+      setCellContent(model, "A1", `={{1,2;3,4},{"A","B";"C","D"}}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe(2);
+      expect(getEvaluatedCell(model, "C1").value).toBe("A");
+      expect(getEvaluatedCell(model, "D1").value).toBe("B");
+      expect(getEvaluatedCell(model, "A2").value).toBe(3);
+      expect(getEvaluatedCell(model, "B2").value).toBe(4);
+      expect(getEvaluatedCell(model, "C2").value).toBe("C");
+      expect(getEvaluatedCell(model, "D2").value).toBe("D");
+
+      setCellContent(model, "A1", `={{1,2;3,4};{"A","B";"C","D"}}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B1").value).toBe(2);
+      expect(getEvaluatedCell(model, "A2").value).toBe(3);
+      expect(getEvaluatedCell(model, "B2").value).toBe(4);
+      expect(getEvaluatedCell(model, "A3").value).toBe("A");
+      expect(getEvaluatedCell(model, "B3").value).toBe("B");
+      expect(getEvaluatedCell(model, "A4").value).toBe("C");
+      expect(getEvaluatedCell(model, "B4").value).toBe("D");
+    });
+
+    test("literal array can only combine row argument with same number of columns", () => {
+      setCellContent(model, "A1", `={"A","B";"C","D","E"}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getCellError(model, "A1")).toBe(
+        "All ranges in ARRAY.LITERAL must have the same number of columns (got 2, 3)."
+      );
+    });
+
+    test("literal array can only combine column argument with same number of rows", () => {
+      setCellContent(model, "A1", `={{"A";"B"},{"C";"D";"E"}}`);
+      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getCellError(model, "A1")).toBe(
+        "All ranges in ARRAY.ROW must have the same number of columns (got 2, 3)."
+      );
+    });
+
+    test("literal array as argument", () => {
+      setCellContent(model, "A1", "=SUM({1,2,3})");
+      setCellContent(model, "A2", "=INDEX({1,2;3,4},2,1)");
+      expect(getEvaluatedCell(model, "A1").value).toBe(6);
+      expect(getEvaluatedCell(model, "A2").value).toBe(3);
     });
   });
 });

@@ -71,6 +71,49 @@ return ctx['USEMETAARG'](_1);
 }"
 `;
 
+exports[`expression compiler array literal expression 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx
+) {
+// ={|N|,|N|;|N|,|N|}
+const _1 = this.literalValues.numbers[0];
+const _2 = this.literalValues.numbers[1];
+const _5 = ctx['ARRAY.ROW'](_1,_2);
+const _3 = this.literalValues.numbers[2];
+const _4 = this.literalValues.numbers[3];
+const _6 = ctx['ARRAY.ROW'](_3,_4);
+return ctx['ARRAY.LITERAL'](_5,_6);
+}"
+`;
+
+exports[`expression compiler array literal expression with one column only 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx
+) {
+// ={|N|;|N|;|N|;|N|}
+const _1 = this.literalValues.numbers[0];
+const _5 = ctx['ARRAY.ROW'](_1);
+const _2 = this.literalValues.numbers[1];
+const _6 = ctx['ARRAY.ROW'](_2);
+const _3 = this.literalValues.numbers[2];
+const _7 = ctx['ARRAY.ROW'](_3);
+const _4 = this.literalValues.numbers[3];
+const _8 = ctx['ARRAY.ROW'](_4);
+return ctx['ARRAY.LITERAL'](_5,_6,_7,_8);
+}"
+`;
+
+exports[`expression compiler array literal expression with one row only 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx
+) {
+// ={|N|,|N|,|N|,|N|}
+const _1 = this.literalValues.numbers[0];
+const _2 = this.literalValues.numbers[1];
+const _3 = this.literalValues.numbers[2];
+const _4 = this.literalValues.numbers[3];
+const _5 = ctx['ARRAY.ROW'](_1,_2,_3,_4);
+return ctx['ARRAY.LITERAL'](_5);
+}"
+`;
+
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {

@@ -17,8 +17,80 @@ import {
   transposeMatrix,
 } from "./helpers";
 
+function stackHorizontally(
+  ranges: Arg[],
+  options?: { requireSameRowCount?: boolean }
+): Matrix<FunctionResultObject> | EvaluationError {
+  const matrices = ranges.map(toMatrix);
+  const nbRowsArr = matrices.map((m) => m?.[0]?.length ?? 0);
+  const nbRows = Math.max(...nbRowsArr);
+
+  if (options?.requireSameRowCount) {
+    const firstLength = nbRowsArr[0];
+    if (nbRowsArr.some((len) => len !== firstLength)) {
+      return new EvaluationError(
+        _t(
+          "All ranges in [[FUNCTION_NAME]] must have the same number of columns (got %s).",
+          nbRowsArr.join(", ")
+        )
+      );
+    }
+  }
+
+  const result: Matrix<FunctionResultObject> = [];
+  for (const matrix of matrices) {
+    for (let col = 0; col < matrix.length; col++) {
+      // Fill with nulls if needed
+      const array: FunctionResultObject[] = Array(nbRows).fill({ value: null });
+      for (let row = 0; row < matrix[col].length; row++) {
+        array[row] = matrix[col][row];
+      }
+      result.push(array);
+    }
+  }
+  return result;
+}
+
+function stackVertically(
+  ranges: Arg[],
+  options?: { requireSameColCount?: boolean }
+): Matrix<FunctionResultObject> | EvaluationError {
+  const matrices = ranges.map(toMatrix);
+  const nbColsArr = matrices.map((m) => m?.length ?? 0);
+  const nbCols = Math.max(...nbColsArr);
+
+  if (options?.requireSameColCount) {
+    const firstLength = nbColsArr[0];
+    if (nbColsArr.some((len) => len !== firstLength)) {
+      return new EvaluationError(
+        _t(
+          "All ranges in [[FUNCTION_NAME]] must have the same number of columns (got %s).",
+          nbColsArr.join(", ")
+        )
+      );
+    }
+  }
+
+  const nbRows = matrices.reduce((acc, m) => acc + (m?.[0]?.length ?? 0), 0);
+  const result: Matrix<FunctionResultObject> = generateMatrix(nbCols, nbRows, () => ({
+    value: null,
+  }));
+
+  let currentRow = 0;
+  for (const matrix of matrices) {
+    for (let col = 0; col < matrix.length; col++) {
+      for (let row = 0; row < matrix[col].length; row++) {
+        result[col][currentRow + row] = matrix[col][row];
+      }
+    }
+    currentRow += matrix[0]?.length ?? 0;
+  }
+
+  return result;
+}
+
 // -----------------------------------------------------------------------------
-// ARRAY_CONSTRAIN
+// ARRAY.CONSTRAIN
 // -----------------------------------------------------------------------------
 export const ARRAY_CONSTRAIN = {
   description: _t("Returns a result array constrained to a specific width and height."),
@@ -53,6 +125,36 @@ export const ARRAY_CONSTRAIN = {
     return generateMatrix(_nbColumns, _nbRows, (col, row) => _array[col][row]);
   },
   isExported: false,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// ARRAY.LITERAL
+// -----------------------------------------------------------------------------
+export const ARRAY_LITERAL = {
+  description: _t(
+    "Appends ranges vertically and in sequence to return a larger array. All ranges must have the same number of columns."
+  ),
+  args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
+  compute: function (...ranges: Arg[]) {
+    return stackVertically(ranges, { requireSameColCount: true });
+  },
+  isExported: false,
+  hidden: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// ARRAY.ROW
+// -----------------------------------------------------------------------------
+export const ARRAY_ROW = {
+  description: _t(
+    "Appends ranges horizontally and in sequence to return a larger array. All ranges must have the same number of rows."
+  ),
+  args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
+  compute: function (...ranges: Arg[]) {
+    return stackHorizontally(ranges, { requireSameRowCount: true });
+  },
+  isExported: false,
+  hidden: true,
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
@@ -267,23 +369,8 @@ export const FREQUENCY = {
 export const HSTACK = {
   description: _t("Appends ranges horizontally and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
-    const nbRows = Math.max(...ranges.map((r) => r?.[0]?.length ?? 0));
-
-    const result: Matrix<FunctionResultObject> = [];
-
-    for (const range of ranges) {
-      const _range = toMatrix(range);
-      for (let col = 0; col < _range.length; col++) {
-        //TODO: fill with #N/A for unavailable values instead of zeroes
-        const array: FunctionResultObject[] = Array(nbRows).fill({ value: null });
-        for (let row = 0; row < _range[col].length; row++) {
-          array[row] = _range[col][row];
-        }
-        result.push(array);
-      }
-    }
-    return result;
+  compute: function (...ranges: Arg[]) {
+    return stackHorizontally(ranges);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -652,26 +739,8 @@ export const TRANSPOSE = {
 export const VSTACK = {
   description: _t("Appends ranges vertically and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
-    const nbColumns = Math.max(...ranges.map((range) => toMatrix(range).length));
-    const nbRows = ranges.reduce((acc, range) => acc + toMatrix(range)[0].length, 0);
-
-    const result: Matrix<FunctionResultObject> = Array(nbColumns)
-      .fill([])
-      .map(() => Array(nbRows).fill({ value: 0 })); // TODO fill with #N/A
-
-    let currentRow = 0;
-    for (const range of ranges) {
-      const _array = toMatrix(range);
-      for (let col = 0; col < _array.length; col++) {
-        for (let row = 0; row < _array[col].length; row++) {
-          result[col][currentRow + row] = _array[col][row];
-        }
-      }
-      currentRow += _array[0].length;
-    }
-
-    return result;
+  compute: function (...ranges: Arg[]) {
+    return stackVertically(ranges);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

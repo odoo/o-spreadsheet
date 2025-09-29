@@ -151,6 +151,8 @@ function _localizeFormula(formula: string, fromLocale: Locale, toLocale: Locale)
       );
     } else if (token.type === "ARG_SEPARATOR") {
       localizedFormula += toLocale.formulaArgSeparator;
+    } else if (token.type === "ARRAY_ROW_SEPARATOR") {
+      localizedFormula += toLocale.formulaArgSeparator === ";" ? "\\" : ";";
     } else {
       localizedFormula += token.value;
     }

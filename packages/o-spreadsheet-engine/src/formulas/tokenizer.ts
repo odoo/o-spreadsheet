@@ -38,8 +38,11 @@ type TokenType =
   | "SPACE"
   | "DEBUGGER"
   | "ARG_SEPARATOR"
+  | "ARRAY_ROW_SEPARATOR"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
+  | "LEFT_BRACE"
+  | "RIGHT_BRACE"
   | "REFERENCE"
   | "INVALID_REFERENCE"
   | "UNKNOWN";
@@ -61,7 +64,9 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
     let token =
       tokenizeNewLine(chars) ||
       tokenizeSpace(chars) ||
+      tokenizeArrayRowSeparator(chars, locale) ||
       tokenizeArgsSeparator(chars, locale) ||
+      tokenizeBraces(chars) ||
       tokenizeParenthesis(chars) ||
       tokenizeOperator(chars) ||
       tokenizeString(chars) ||
@@ -100,6 +105,19 @@ function tokenizeParenthesis(chars: TokenizingChars): Token | null {
   return null;
 }
 
+const braces = {
+  "{": { type: "LEFT_BRACE", value: "{" },
+  "}": { type: "RIGHT_BRACE", value: "}" },
+} as const;
+
+function tokenizeBraces(chars: TokenizingChars): Token | null {
+  if (chars.current === "{" || chars.current === "}") {
+    const value = chars.shift();
+    return braces[value];
+  }
+  return null;
+}
+
 function tokenizeArgsSeparator(chars: TokenizingChars, locale: Locale): Token | null {
   if (chars.current === locale.formulaArgSeparator) {
     const value = chars.shift();
@@ -107,6 +125,21 @@ function tokenizeArgsSeparator(chars: TokenizingChars, locale: Locale): Token | 
     return { type, value };
   }
 
+  return null;
+}
+
+function tokenizeArrayRowSeparator(chars: TokenizingChars, locale: Locale): Token | null {
+  // The array row separator is used in array literals to separate rows.
+  // It is not explicitly defined in locales, but depends on the formulaArgSeparator.
+  // Example: {1,2,3;4,5,6} — here, ';' separates rows and ',' separates columns.
+  const rowSeparator = locale.formulaArgSeparator === ";" ? "\\" : ";";
+  if (!rowSeparator) {
+    return null;
+  }
+  if (chars.current === rowSeparator) {
+    chars.shift();
+    return { type: "ARRAY_ROW_SEPARATOR", value: rowSeparator };
+  }
   return null;
 }
 
