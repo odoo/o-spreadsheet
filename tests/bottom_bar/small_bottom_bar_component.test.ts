@@ -91,6 +91,19 @@ describe("Small Bottom Bar", () => {
       expect(fixture.querySelector(".o-ribbon-menu")).toBeNull();
     });
   });
+
+  test("scroll is reset when navigating through ribbon menu", async () => {
+    await click(fixture, ".bottom-bar-menu .ribbon-toggler");
+    const ribbonMenuWrapper = fixture.querySelector<HTMLElement>(".o-ribbon-menu-wrapper")!;
+    expect(ribbonMenuWrapper).not.toBeNull();
+
+    expect(fixture.querySelector(".o-ribbon-menu-wrapper")?.scrollTop).toBe(0);
+    ribbonMenuWrapper.scrollTop = 10;
+    await nextTick();
+
+    await click(fixture, ".o-ribbon-menu .o-menu-item[title='View']");
+    expect(ribbonMenuWrapper.scrollTop).toBe(0);
+  });
 });
 
 describe("Small Bottom Bar - Mobile Mode", () => {

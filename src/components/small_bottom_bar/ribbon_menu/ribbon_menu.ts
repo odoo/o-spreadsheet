@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, useExternalListener, useRef, useState } from "@odoo/owl";
 import { Action } from "../../../actions/action";
 import { topbarMenuRegistry } from "../../../registries/menus";
 import { _t } from "../../../translation";
@@ -28,6 +28,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
 
   rootItems = topbarMenuRegistry.getMenuItems();
   private menuRef = useRef("menu");
+  private containerRef = useRef("container");
 
   state: State = useState({
     menuItems: this.rootItems,
@@ -37,6 +38,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    onMounted(this.updateShadows);
   }
 
   onExternalClick(ev: Event) {
@@ -51,6 +53,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
       this.state.parentState = { ...this.state };
       this.state.menuItems = children;
       this.state.title = menu.name(this.env);
+      this.containerRef.el?.scrollTo({ top: 0 });
     } else {
       this.state.menuItems = this.rootItems;
       this.state.title = undefined;
@@ -74,6 +77,20 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
     });
   }
 
+  updateShadows() {
+    if (!this.containerRef.el) {
+      return;
+    }
+    this.containerRef.el.classList.remove("scroll-top", "scroll-bottom");
+    const maxScroll = this.containerRef.el.scrollHeight - this.containerRef.el.clientHeight || 0;
+    if (this.containerRef.el.scrollTop < maxScroll - 1) {
+      this.containerRef.el.classList.add("scroll-bottom");
+    }
+    if (this.containerRef.el.scrollTop > 0) {
+      this.containerRef.el.classList.add("scroll-top");
+    }
+  }
+
   onClickBack() {
     if (!this.state.parentState) {
       this.props.onClose();
@@ -82,6 +99,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
     this.state.menuItems = this.state.parentState.menuItems;
     this.state.title = this.state.parentState.title;
     this.state.parentState = this.state.parentState.parentState;
+    this.containerRef.el?.scrollTo({ top: 0 });
   }
 
   get backTitle() {
