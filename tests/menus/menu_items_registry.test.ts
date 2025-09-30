@@ -1200,10 +1200,17 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Custom currency", async () => {
+    test("Custom formats", async () => {
       const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+
       doAction(["format", "format_number", "format_custom_currency"], env);
-      expect(spyOpenSidePanel).toHaveBeenCalledWith("CustomCurrency", {});
+      expect(spyOpenSidePanel).toHaveBeenCalledWith("MoreFormats", { category: "currency" });
+
+      doAction(["format", "format_number", "format_custom_date"], env);
+      expect(spyOpenSidePanel).toHaveBeenCalledWith("MoreFormats", { category: "date" });
+
+      doAction(["format", "format_number", "format_custom_number"], env);
+      expect(spyOpenSidePanel).toHaveBeenCalledWith("MoreFormats", { category: "number" });
     });
 
     test("Automatic format is active when format is computed", () => {

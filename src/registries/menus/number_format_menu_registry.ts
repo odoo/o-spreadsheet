@@ -44,11 +44,6 @@ numberFormatMenuRegistry
     ...ACTION_FORMAT.formatNumberCurrencyRounded,
     id: "format_number_currency_rounded",
     sequence: 50,
-  })
-  .add("format_custom_currency", {
-    ...ACTION_FORMAT.formatCustomCurrency,
-    id: "format_custom_currency",
-    sequence: 60,
     separator: true,
   })
   .add("format_number_date", {
@@ -72,10 +67,20 @@ numberFormatMenuRegistry
     sequence: 100,
     separator: true,
   })
-  .add("more_formats", {
-    ...ACTION_FORMAT.moreFormats,
-    id: "more_formats",
+  .add("format_custom_currency", {
+    ...ACTION_FORMAT.formatCustomCurrency,
+    id: "format_custom_currency",
     sequence: 120,
+  })
+  .add("format_custom_date", {
+    ...ACTION_FORMAT.customDateFormat,
+    id: "format_custom_date",
+    sequence: 130,
+  })
+  .add("format_custom_number", {
+    ...ACTION_FORMAT.customNumberFormat,
+    id: "format_custom_number",
+    sequence: 140,
   });
 
 export function getCustomNumberFormats(
