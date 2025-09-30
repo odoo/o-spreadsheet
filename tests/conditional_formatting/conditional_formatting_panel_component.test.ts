@@ -55,20 +55,18 @@ function errorMessages(): string[] {
 const selectors = {
   listPreviewPanel: ".o-cf-preview-list",
   listPreview: ".o-cf-preview-list .o-cf-preview",
-  editorPanel: ".o-cf-ruleEditor",
+  editorPanel: ".o-cf-editor",
   ruleEditor: {
-    range: ".o-cf-ruleEditor .o-cf-range .o-range input",
+    range: ".o-cf-editor .o-cf-range .o-range input",
     editor: {
-      operatorInput: ".o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
-      valueInput: ".o-cf-ruleEditor .o-cf-editor .o-cf-cell-is-rule .o-composer",
-      bold: ".o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Bold']",
-      italic:
-        ".o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Italic']",
-      underline:
-        ".o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Underline']",
+      operatorInput: ".o-cf-editor .o-cell-is-operator",
+      valueInput: ".o-cf-editor .o-cf-cell-is-rule .o-composer",
+      bold: ".o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Bold']",
+      italic: ".o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Italic']",
+      underline: ".o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Underline']",
       strikethrough:
-        ".o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Strikethrough']",
-      colorDropdown: ".o-cf-ruleEditor .o-cf-editor .o-color-picker-widget .o-color-picker-button",
+        ".o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Strikethrough']",
+      colorDropdown: ".o-cf-editor .o-color-picker-widget .o-color-picker-button",
       iconSetRule: {
         container: ".o-cf-iconset-rule",
         iconsets: ".o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
