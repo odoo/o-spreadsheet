@@ -284,7 +284,7 @@ function tokensToTextInternalFormat(
  * Replace in place tokens "mm" and "m" that denote minutes in date format with "MM" to avoid confusion with months.
  *
  * As per OpenXML specification, in date formats if a date token "m" or "mm" is followed by a date token "s" or
- * preceded by a data token "h", then it's not a month but an minute.
+ * preceded by a data token "h", then it's not a month but a minute.
  */
 function convertTokensToMinutesInDateFormat(tokens: DateInternalFormat["tokens"]) {
   const dateParts = tokens.filter((token) => token.type === "DATE_PART") as DatePartToken[];
@@ -331,6 +331,9 @@ function internalFormatPartToFormat(
         break;
       case "REPEATED_CHAR":
         format += "*" + token.value;
+        break;
+      case "DATE_PART":
+        format += token.value === "MM" ? "mm" : token.value; // Convert "MM" back to "mm" for minutes
         break;
       default:
         format += token.value;
