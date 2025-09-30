@@ -39,7 +39,14 @@ export default (commandLineArgs) => {
           find: "@odoo/o-spreadsheet-engine",
           replacement: path.resolve(
             __dirname,
-            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"
+            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
+          ),
+        },
+        {
+          find: "@odoo/o-spreadsheet-engine/*",
+          replacement: path.resolve(
+            __dirname,
+            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
           ),
         },
       ],
