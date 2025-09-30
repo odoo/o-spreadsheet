@@ -1,6 +1,6 @@
 import { Registry } from "../registry";
 
-interface ProcessResult<TStored, TMapped> {
+export interface ProcessResult<TStored, TMapped> {
   key: string;
   stored: TStored;
   mapped: TMapped;

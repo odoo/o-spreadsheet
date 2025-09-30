@@ -37,6 +37,4 @@ export * from "./types/base";
 export * from "./types/errors";
 export * from "./types/history";
 export * from "./types/locale";
-export * from "./types/pivot";
-export * from "./types/pivot_runtime";
 export * from "./types/validator";

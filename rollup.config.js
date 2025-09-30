@@ -86,12 +86,12 @@ export default (commandLineArgs) => {
     ];
     plugins.push(typescript({ useTsconfigDeclarationDir: true }));
     config = [
-      {
-        input,
-        external: ["@odoo/owl"],
-        output,
-        plugins,
-      },
+      // {
+      //   input,
+      //   external: ["@odoo/owl"],
+      //   output,
+      //   plugins,
+      // },
       {
         input: "dist/types/src/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
@@ -102,9 +102,13 @@ export default (commandLineArgs) => {
             entries: [
               {
                 find: "@odoo/o-spreadsheet-engine",
+                replacement: path.resolve(__dirname, "./dist/types/packages/o-spreadsheet-engine"),
+              },
+              {
+                find: "@odoo/o-spreadsheet-engine/*",
                 replacement: path.resolve(
                   __dirname,
-                  "./dist/types/packages/o-spreadsheet-engine/index.d.ts"
+                  "./dist/types/packages/o-spreadsheet-engine/*"
                 ),
               },
             ],
