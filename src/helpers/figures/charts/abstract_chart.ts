@@ -1,13 +1,5 @@
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  CommandResult,
-  CoreGetters,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { AdaptSheetName, ApplyRangeChange, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine";
+import { CommandResult, CoreGetters, Getters, Range } from "../../../types";
 import {
   ChartCreationContext,
   ChartDefinition,

@@ -1,15 +1,14 @@
+import { CellPosition, FunctionResultObject } from "@odoo/o-spreadsheet-engine";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
   Cell,
-  CellPosition,
   CellValue,
   CellValueType,
   DEFAULT_LOCALE,
   EmptyCell,
   ErrorCell,
   EvaluatedCell,
-  FunctionResultObject,
   LiteralCell,
   Locale,
   LocaleFormat,
@@ -25,8 +24,6 @@ import {
 } from "../format/format";
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
-import { isNumber, parseNumber } from "../numbers";
-
 export function evaluateLiteral(
   literalCell: LiteralCell,
   localeFormat: LocaleFormat,

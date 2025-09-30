@@ -1,8 +1,20 @@
+import {
+  CellPosition,
+  Color,
+  functionRegistry,
+  FunctionResultObject,
+  HeaderIndex,
+  Highlight,
+  isMatrix,
+  Matrix,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
-import { functionRegistry } from "../../../functions";
 import { isEvaluationError, transposeMatrix } from "../../../functions/helpers";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
@@ -32,23 +44,7 @@ import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
-import {
-  CellPosition,
-  Color,
-  Command,
-  Direction,
-  EditionMode,
-  FunctionResultObject,
-  HeaderIndex,
-  Highlight,
-  isMatrix,
-  Matrix,
-  Range,
-  RangePart,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "../../../types";
+import { Command, Direction, EditionMode, Range, RangePart } from "../../../types";
 import { EvaluationError } from "../../../types/errors";
 import { SelectionEvent } from "../../../types/event_stream";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";

@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import {
@@ -5,7 +6,6 @@ import {
   CustomizedDataSet,
   DispatchResult,
   SpreadsheetChildEnv,
-  UID,
 } from "../../../../types/index";
 import { ChartTerms } from "../../../translations_terms";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";

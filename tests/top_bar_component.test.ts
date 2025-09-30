@@ -1,3 +1,4 @@
+import { Pixel, Style } from "@odoo/o-spreadsheet-engine";
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
@@ -8,7 +9,7 @@ import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
-import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../src/types";
+import { ConditionalFormat, Currency, SpreadsheetChildEnv } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {

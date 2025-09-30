@@ -1,7 +1,7 @@
 import "../test_helpers/helpers";
 
 import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
-import { Border, ConditionalFormat, Style } from "../../src/types";
+import { ConditionalFormat } from "../../src/types";
 import {
   addDataValidation,
   createSheet,
@@ -23,19 +23,18 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
-  XCToMergeCellMap,
   addToRegistry,
   getDataValidationRules,
   getMergeCellMap,
   getPlugin,
   makeTestComposerStore,
   toRangesData,
+  XCToMergeCellMap,
 } from "../test_helpers/helpers";
 
+import { Border, DIRECTION, functionRegistry, Style } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
-import { functionRegistry } from "../../src/functions";
 import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
-import { DIRECTION } from "../../src/types/index";
 
 let autoFill: AutofillPlugin;
 let model: Model;

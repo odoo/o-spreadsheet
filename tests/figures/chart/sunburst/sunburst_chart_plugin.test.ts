@@ -1,4 +1,5 @@
-import { Model, UID } from "../../../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../../../src";
 import { COLOR_TRANSPARENT } from "../../../../src/constants";
 import { ColorGenerator } from "../../../../src/helpers";
 import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";

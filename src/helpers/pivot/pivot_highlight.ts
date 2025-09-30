@@ -1,5 +1,6 @@
+import { CellPosition, Highlight, UID } from "@odoo/o-spreadsheet-engine";
 import { HIGHLIGHT_COLOR } from "../../constants";
-import { CellPosition, Getters, Highlight, UID } from "../../types";
+import { Getters } from "../../types";
 import { mergeContiguousZones, positionToZone } from "../zones";
 
 export function getPivotHighlights(getters: Getters, pivotId: UID): Highlight[] {

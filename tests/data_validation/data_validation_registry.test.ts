@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { parseLiteral } from "../../src/helpers/cells";
 import {
@@ -11,7 +12,6 @@ import {
   EvaluatedCriterion,
   GenericDateCriterion,
   Getters,
-  UID,
 } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";

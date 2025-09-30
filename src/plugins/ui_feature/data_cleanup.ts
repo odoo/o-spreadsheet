@@ -1,3 +1,4 @@
+import { HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import {
   deepEquals,
@@ -9,14 +10,7 @@ import {
 } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { _t } from "../../translation";
-import {
-  Command,
-  CommandResult,
-  HeaderIndex,
-  RemoveDuplicatesCommand,
-  UID,
-  Zone,
-} from "../../types/index";
+import { Command, CommandResult, RemoveDuplicatesCommand } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataCleanupPlugin extends UIPlugin {

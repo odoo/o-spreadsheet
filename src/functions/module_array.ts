@@ -1,5 +1,5 @@
+import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
@@ -52,7 +52,7 @@ export const ARRAY_CONSTRAIN = {
     return generateMatrix(_nbColumns, _nbRows, (col, row) => _array[col][row]);
   },
   isExported: false,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CHOOSECOLS
@@ -98,7 +98,7 @@ export const CHOOSECOLS = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CHOOSEROWS
@@ -138,7 +138,7 @@ export const CHOOSEROWS = {
     });
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EXPAND
@@ -191,7 +191,7 @@ export const EXPAND = {
     );
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FLATTEN
@@ -206,7 +206,7 @@ export const FLATTEN = {
     return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
   isExported: false,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FREQUENCY
@@ -266,7 +266,7 @@ export const FREQUENCY = {
     return [result];
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // HSTACK
@@ -296,7 +296,7 @@ export const HSTACK = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MDETERM
@@ -321,7 +321,7 @@ export const MDETERM = {
     return invertMatrix(_matrix).determinant;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MINVERSE
@@ -350,7 +350,7 @@ export const MINVERSE = {
     return inverted;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MMULT
@@ -391,7 +391,7 @@ export const MMULT = {
     return multiplyMatrices(_matrix1, _matrix2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUMPRODUCT
@@ -435,7 +435,7 @@ export const SUMPRODUCT = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUMX2MY2
@@ -500,7 +500,7 @@ export const SUMX2MY2 = {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUMX2PY2
@@ -525,7 +525,7 @@ export const SUMX2PY2 = {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUMXMY2
@@ -550,7 +550,7 @@ export const SUMXMY2 = {
     return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TOCOL
@@ -617,7 +617,7 @@ export const TOCOL = {
     return [result];
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TOROW
@@ -644,7 +644,7 @@ export const TOROW = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TRANSPOSE
@@ -660,7 +660,7 @@ export const TRANSPOSE = {
     return generateMatrix(nbColumns, nbRows, (col, row) => _array[row][col]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VSTACK
@@ -693,7 +693,7 @@ export const VSTACK = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // WRAPCOLS
@@ -734,7 +734,7 @@ export const WRAPCOLS = {
     });
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // WRAPROWS
@@ -775,4 +775,4 @@ export const WRAPROWS = {
     });
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

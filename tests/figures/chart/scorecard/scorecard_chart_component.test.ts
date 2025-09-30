@@ -1,3 +1,4 @@
+import { Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
@@ -10,7 +11,7 @@ import {
   ScorecardChartConfig,
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
-import { Pixel, SpreadsheetChildEnv, UID } from "../../../../src/types";
+import { SpreadsheetChildEnv } from "../../../../src/types";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -28,12 +29,6 @@ import {
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
-import {
-  mountComponentWithPortalTarget,
-  nextTick,
-  toRangesData,
-} from "../../../test_helpers/helpers";
-
 let model: Model;
 let chartId: string;
 let sheetId: string;

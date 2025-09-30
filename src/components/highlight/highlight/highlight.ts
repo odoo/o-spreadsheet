@@ -1,21 +1,13 @@
+import { Color, HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
 import { clip, isEqual } from "../../../helpers";
-import {
-  Color,
-  HeaderIndex,
-  Range,
-  ResizeDirection,
-  SpreadsheetChildEnv,
-  Zone,
-} from "../../../types";
+import { Range, ResizeDirection, SpreadsheetChildEnv } from "../../../types";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import {
   DnDDirection,
   useDragAndDropBeyondTheViewport,
 } from "../../helpers/drag_and_drop_grid_hook";
 import { Border } from "../border/border";
-import { Corner } from "../corner/corner";
-
 export interface HighlightProps {
   range: Range;
   color: Color;

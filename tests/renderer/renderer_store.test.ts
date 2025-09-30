@@ -1,3 +1,4 @@
+import { Align, BorderPosition, Zone } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
@@ -19,15 +20,7 @@ import { Mode } from "../../src/model";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
-import {
-  Align,
-  BorderPosition,
-  Box,
-  DataValidationCriterion,
-  GridRenderingContext,
-  Viewport,
-  Zone,
-} from "../../src/types";
+import { Box, DataValidationCriterion, GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,

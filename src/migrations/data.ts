@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_REVISION_ID } from "../constants";
 import { UuidGenerator, getDuplicateSheetName, getNextSheetName } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
@@ -8,7 +9,6 @@ import {
   ExcelSheetData,
   ExcelWorkbookData,
   SheetData,
-  UID,
   WorkbookData,
 } from "../types/index";
 import { XlsxReader } from "../xlsx/xlsx_reader";

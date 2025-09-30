@@ -1,18 +1,8 @@
-import { handleError } from "../../../functions";
+import { FunctionResultObject, handleError, Maybe, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { toString } from "../../../functions/helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
-import {
-  CellValueType,
-  EvaluatedCell,
-  FunctionResultObject,
-  Getters,
-  Maybe,
-  Range,
-  UID,
-  ValueAndLabel,
-  Zone,
-} from "../../../types";
+import { CellValueType, EvaluatedCell, Getters, Range, ValueAndLabel } from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   Granularity,

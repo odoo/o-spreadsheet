@@ -1,15 +1,7 @@
+import { FunctionResultObject, Maybe } from "@odoo/o-spreadsheet-engine";
 import { toNumber } from "../../functions/helpers";
 import { _t } from "../../translation";
-import {
-  CellValue,
-  Currency,
-  Format,
-  FormattedValue,
-  FunctionResultObject,
-  Locale,
-  LocaleFormat,
-  Maybe,
-} from "../../types";
+import { CellValue, Currency, Format, FormattedValue, Locale, LocaleFormat } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {

@@ -1,3 +1,4 @@
+import { ApplyRangeChange, CellPosition, Style, UID } from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../formulas";
 import {
   deepCopy,
@@ -8,21 +9,7 @@ import {
   toXC,
 } from "../../helpers";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import {
-  AddDataValidationCommand,
-  ApplyRangeChange,
-  CellPosition,
-  Command,
-  CommandResult,
-  CoreCommand,
-  DataValidationRule,
-  ExcelWorkbookData,
-  Range,
-  Style,
-  UID,
-  WorkbookData,
-} from "../../types";
-import { CorePlugin } from "../core_plugin";
+import { DataValidationRule } from "../../types";
 
 interface DataValidationState {
   readonly rules: { [sheet: string]: DataValidationRule[] };

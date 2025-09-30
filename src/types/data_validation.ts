@@ -1,5 +1,5 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { DateCriterionValue } from "./generic_criterion";
-import { Color, UID } from "./misc";
 import { Range } from "./range";
 
 export interface DataValidationRule {

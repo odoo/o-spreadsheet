@@ -1,3 +1,4 @@
+import { Sheet, Wrapping } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -6,7 +7,7 @@ import {
 } from "../../src/constants";
 import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Cell, CommandResult, Sheet, Wrapping } from "../../src/types";
+import { Cell, CommandResult } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -26,8 +27,6 @@ import {
   unMerge,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
-
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(cell: Cell | undefined, colSize = DEFAULT_CELL_WIDTH) {
   return Math.round(getDefaultCellHeightHelper(ctx, cell, colSize));

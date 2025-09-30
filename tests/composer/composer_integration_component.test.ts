@@ -1,4 +1,5 @@
-import { HeaderIndex, Model } from "../../src";
+import { HeaderIndex } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,

@@ -1,16 +1,15 @@
+import {
+  Arg,
+  FunctionResultObject,
+  Functions,
+  isMatrix,
+  Matrix,
+  Maybe,
+} from "@odoo/o-spreadsheet-engine";
 import { splitReference, toZone } from "../helpers";
 import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  EvaluatedCell,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types";
+import { EvaluatedCell, FunctionResultNumber } from "../types";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertNotZero } from "./helper_assert";
@@ -47,7 +46,7 @@ export const ABS = {
     return Math.abs(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ACOS
@@ -70,7 +69,7 @@ export const ACOS = {
     return Math.acos(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ACOSH
@@ -93,7 +92,7 @@ export const ACOSH = {
     return Math.acosh(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ACOT
@@ -110,7 +109,7 @@ export const ACOT = {
     return (sign * Math.PI) / 2 - Math.atan(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ACOTH
@@ -135,7 +134,7 @@ export const ACOTH = {
     return Math.log((_value + 1) / (_value - 1)) / 2;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ASIN
@@ -156,7 +155,7 @@ export const ASIN = {
     return Math.asin(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ASINH
@@ -170,7 +169,7 @@ export const ASINH = {
     return Math.asinh(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ATAN
@@ -182,7 +181,7 @@ export const ATAN = {
     return Math.atan(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ATAN2
@@ -214,7 +213,7 @@ export const ATAN2 = {
     return Math.atan2(_y, _x);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ATANH
@@ -237,7 +236,7 @@ export const ATANH = {
     return Math.atanh(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CEILING
@@ -269,7 +268,7 @@ export const CEILING = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CEILING.MATH
@@ -322,7 +321,7 @@ export const CEILING_MATH = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CEILING.PRECISE
@@ -351,7 +350,7 @@ export const CEILING_PRECISE = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COS
@@ -363,7 +362,7 @@ export const COS = {
     return Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COSH
@@ -375,7 +374,7 @@ export const COSH = {
     return Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COT
@@ -393,7 +392,7 @@ export const COT = {
     return 1 / Math.tan(_angle);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COTH
@@ -411,7 +410,7 @@ export const COTH = {
     return 1 / Math.tanh(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNTBLANK
@@ -447,7 +446,7 @@ export const COUNTBLANK = {
     );
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNTIF
@@ -470,7 +469,7 @@ export const COUNTIF = {
     return count;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNTIFS
@@ -500,7 +499,7 @@ export const COUNTIFS = {
     return count;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNTUNIQUE
@@ -518,7 +517,7 @@ export const COUNTUNIQUE = {
   compute: function (...args: Arg[]): number {
     return countUnique(args);
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNTUNIQUEIFS
@@ -560,7 +559,7 @@ export const COUNTUNIQUEIFS = {
     );
     return uniqueValues.size;
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CSC
@@ -578,7 +577,7 @@ export const CSC = {
     return 1 / Math.sin(_angle);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CSCH
@@ -596,7 +595,7 @@ export const CSCH = {
     return 1 / Math.sinh(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DECIMAL
@@ -640,7 +639,7 @@ export const DECIMAL = {
     return deci;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DEGREES
@@ -652,7 +651,7 @@ export const DEGREES = {
     return (toNumber(angle, this.locale) * 180) / Math.PI;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EXP
@@ -664,7 +663,7 @@ export const EXP = {
     return Math.exp(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FLOOR
@@ -695,7 +694,7 @@ export const FLOOR = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FLOOR.MATH
@@ -749,7 +748,7 @@ export const FLOOR_MATH = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FLOOR.PRECISE
@@ -778,7 +777,7 @@ export const FLOOR_PRECISE = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISEVEN
@@ -792,7 +791,7 @@ export const ISEVEN = {
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISO.CEILING
@@ -821,7 +820,7 @@ export const ISO_CEILING = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISODD
@@ -835,7 +834,7 @@ export const ISODD = {
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LN
@@ -851,7 +850,7 @@ export const LN = {
     return Math.log(_value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LOG
@@ -880,7 +879,7 @@ export const LOG = {
     return Math.log10(_value) / Math.log10(_base);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MOD
@@ -913,7 +912,7 @@ export const MOD = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MUNIT
@@ -934,7 +933,7 @@ export const MUNIT = {
     return getUnitMatrix(_n);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ODD
@@ -953,7 +952,7 @@ export const ODD = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PI
@@ -965,7 +964,7 @@ export const PI = {
     return Math.PI;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // POWER
@@ -987,7 +986,7 @@ export const POWER = {
     return { value: Math.pow(_base, _exponent), format: base?.format };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PRODUCT
@@ -1032,7 +1031,7 @@ export const PRODUCT = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RAND
@@ -1044,7 +1043,7 @@ export const RAND = {
     return Math.random();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RANDARRAY
@@ -1111,7 +1110,7 @@ export const RANDARRAY = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RANDBETWEEN
@@ -1144,7 +1143,7 @@ export const RANDBETWEEN = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ROUND
@@ -1181,7 +1180,7 @@ export const ROUND = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ROUNDDOWN
@@ -1221,7 +1220,7 @@ export const ROUNDDOWN = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ROUNDUP
@@ -1258,7 +1257,7 @@ export const ROUNDUP = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SEC
@@ -1270,7 +1269,7 @@ export const SEC = {
     return 1 / Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SECH
@@ -1282,7 +1281,7 @@ export const SECH = {
     return 1 / Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SEQUENCE
@@ -1321,7 +1320,7 @@ export const SEQUENCE = {
     });
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SIN
@@ -1333,7 +1332,7 @@ export const SIN = {
     return Math.sin(toNumber(angle, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SINH
@@ -1345,7 +1344,7 @@ export const SINH = {
     return Math.sinh(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SQRT
@@ -1361,7 +1360,7 @@ export const SQRT = {
     return { value: Math.sqrt(_value), format: value?.format };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUBTOTAL
@@ -1453,7 +1452,7 @@ export const SUBTOTAL = {
     return this[subtotalFunctionAggregateByCode[code]].apply(this, [[evaluatedCellToKeep]]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUM
@@ -1475,7 +1474,7 @@ export const SUM = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUMIF
@@ -1513,7 +1512,7 @@ export const SUMIF = {
     return sum;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUMIFS
@@ -1542,7 +1541,7 @@ export const SUMIFS = {
     return sum;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TAN
@@ -1554,7 +1553,7 @@ export const TAN = {
     return Math.tan(toNumber(angle, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TANH
@@ -1566,7 +1565,7 @@ export const TANH = {
     return Math.tanh(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TRUNC
@@ -1599,7 +1598,7 @@ export const TRUNC = {
     return { value: trunc(_value, _places), format: value?.format };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // INT
@@ -1611,4 +1610,4 @@ export const INT = {
     return Math.floor(toNumber(value, this.locale));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

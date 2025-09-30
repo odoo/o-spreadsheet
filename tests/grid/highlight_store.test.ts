@@ -1,12 +1,10 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HIGHLIGHT_COLOR } from "../../src/constants";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
-import { Highlight, UID } from "../../src/types";
 
+import { Highlight, UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
-
 let highlightStore: HighlightStore;
 let ctx: MockGridRenderingContext;
 let ctxInstructions: string[];

@@ -1,9 +1,10 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { CoreCommand, CorePlugin, Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { corePluginRegistry } from "../../src/plugins";
-import { CellValueType, CommandResult, UID } from "../../src/types";
+import { CellValueType, CommandResult } from "../../src/types";
 import {
   addColumns,
   addRows,

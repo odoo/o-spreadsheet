@@ -1,4 +1,5 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model, SpreadsheetChildEnv } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import {
   addNewChartToCarousel,

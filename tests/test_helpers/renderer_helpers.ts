@@ -1,6 +1,7 @@
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { getDefaultSheetViewSize } from "../../src/constants";
-import { GridRenderingContext, Viewport, Zone } from "../../src/types";
+import { GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {

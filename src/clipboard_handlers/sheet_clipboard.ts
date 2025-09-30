@@ -1,8 +1,7 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { doesAnyZoneCrossFrozenPane } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
-import { ClipboardOptions, CommandResult, UID, Zone } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
-
+import { ClipboardOptions, CommandResult } from "../types";
 type ClipboardContent = {
   cells: any[][];
   zones: Zone[];

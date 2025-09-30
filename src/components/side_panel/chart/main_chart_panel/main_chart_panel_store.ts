@@ -1,7 +1,8 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { deepEquals } from "../../../../helpers";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { SpreadsheetStore } from "../../../../stores";
-import { ChartCreationContext, ChartDefinition, UID } from "../../../../types";
+import { ChartCreationContext, ChartDefinition } from "../../../../types";
 
 export class MainChartPanelStore extends SpreadsheetStore {
   mutators = ["activatePanel", "changeChartType"] as const;

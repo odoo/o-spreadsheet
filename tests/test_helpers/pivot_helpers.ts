@@ -1,4 +1,5 @@
-import { DispatchResult, Model, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { DispatchResult, Model } from "../../src";
 import { deepCopy, toZone } from "../../src/helpers";
 import { PivotMeasureDisplay, SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
 import { pivotModelData } from "../pivots/pivot_data";

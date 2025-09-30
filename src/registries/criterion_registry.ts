@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { DVTerms } from "../components/translations_terms";
 import { tryToNumber } from "../functions/helpers";
 import {
@@ -35,7 +36,6 @@ import {
   GenericCriterionType,
   Getters,
   Locale,
-  UID,
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { Registry } from "./registry";

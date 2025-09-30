@@ -1,7 +1,8 @@
+import { Alias } from "@odoo/o-spreadsheet-engine";
 import type { TimeScaleOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { largeMax, largeMin, parseDateTime } from ".";
-import { Alias, Format, Locale } from "../types";
+import { Format, Locale } from "../types";
 
 // -----------------------------------------------------------------------------
 // File for helpers needed to use time axis in ChartJS

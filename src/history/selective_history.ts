@@ -1,4 +1,5 @@
-import { TransformationFactory, UID } from "../types";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { TransformationFactory } from "../types";
 import { Branch } from "./branch";
 import { Operation } from "./operation";
 import { OperationSequence } from "./operation_sequence";

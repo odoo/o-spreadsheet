@@ -1,3 +1,15 @@
+import {
+  ApplyRangeChange,
+  Border,
+  BorderData,
+  BorderDescr,
+  CellPosition,
+  Color,
+  HeaderIndex,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
   deepCopy,
@@ -11,22 +23,12 @@ import {
 } from "../../helpers/index";
 import { adjacent, overlap, splitIfAdjacent, zoneToXc } from "../../helpers/zones";
 import {
-  ApplyRangeChange,
-  Border,
-  BorderData,
-  BorderDescr,
-  CellPosition,
-  Color,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
-  HeaderIndex,
   SetBorderCommand,
   SetZoneBordersCommand,
-  UID,
-  UnboundedZone,
   WorkbookData,
-  Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 

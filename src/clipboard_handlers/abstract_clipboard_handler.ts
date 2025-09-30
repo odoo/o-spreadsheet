@@ -1,3 +1,4 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -6,8 +7,6 @@ import {
   CommandDispatcher,
   CommandResult,
   Getters,
-  UID,
-  Zone,
 } from "../types";
 
 export class ClipboardHandler<T> {

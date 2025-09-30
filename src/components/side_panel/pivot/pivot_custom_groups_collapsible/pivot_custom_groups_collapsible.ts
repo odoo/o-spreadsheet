@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
@@ -7,7 +8,6 @@ import {
   PivotCustomGroup,
   PivotCustomGroupedField,
   SpreadsheetChildEnv,
-  UID,
 } from "../../../../types";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";

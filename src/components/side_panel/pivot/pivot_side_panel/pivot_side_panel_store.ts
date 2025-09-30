@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
@@ -7,7 +8,7 @@ import { Get } from "../../../../store_engine";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { _t } from "../../../../translation";
-import { Command, UID } from "../../../../types";
+import { Command } from "../../../../types";
 import {
   PivotCoreDefinition,
   PivotCoreDimension,

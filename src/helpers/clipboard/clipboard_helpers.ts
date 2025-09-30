@@ -1,3 +1,4 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -9,8 +10,6 @@ import {
   MinimalClipboardData,
   OSClipboardContent,
   ParsedOSClipboardContent,
-  UID,
-  Zone,
 } from "../../types";
 import { AllowedImageMimeTypes } from "../../types/image";
 import { mergeOverlappingZones, positions, union } from "../zones";

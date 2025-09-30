@@ -1,3 +1,4 @@
+import { MenuMouseEvent, Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import {
   Component,
   onWillUnmount,
@@ -8,7 +9,7 @@ import {
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
-import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { cssPropertiesToCss } from "../helpers/css";
 import {

@@ -3,25 +3,16 @@ import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import {
-  Arg,
-  CellValue,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  SortDirection,
-  isMatrix,
-} from "../types";
+import { CellValue, FunctionResultNumber, Locale, SortDirection } from "../types";
 import {
   CellErrorType,
+  errorTypes,
   ErrorValue,
   EvaluationError,
   NotAvailableError,
-  errorTypes,
 } from "../types/errors";
-import { LookupCaches } from "../types/functions";
+
+import { Arg, FunctionResultObject, isMatrix, LookupCaches, Matrix, Maybe } from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 

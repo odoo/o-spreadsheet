@@ -1,6 +1,7 @@
+import { Arg, FunctionResultObject, isMatrix, Matrix } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types";
-import { DivisionByZeroError, EvaluationError } from "../types/errors";
+import { FunctionResultNumber } from "../types";
+import { EvaluationError } from "../types/errors";
 
 export function assert(condition: boolean, message: string): asserts condition {
   if (!condition) {

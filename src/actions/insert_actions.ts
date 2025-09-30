@@ -1,4 +1,4 @@
-import { functionRegistry } from "../functions";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine";
 import { isDefined } from "../helpers";
 import { localizeDataValidationRule } from "../helpers/locale";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";

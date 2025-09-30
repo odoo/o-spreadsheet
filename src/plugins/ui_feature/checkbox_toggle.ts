@@ -1,4 +1,5 @@
-import { Command, UID, Zone } from "../../types/index";
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class CheckboxTogglePlugin extends UIPlugin {

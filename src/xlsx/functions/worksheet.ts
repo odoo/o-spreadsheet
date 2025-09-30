@@ -1,3 +1,4 @@
+import { HeaderIndex } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   isInside,
@@ -25,7 +26,6 @@ import {
   normalizeStyle,
 } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
-import { HeaderIndex } from "./../../types/misc";
 import { addContent, addFormula } from "./cells";
 
 export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString {

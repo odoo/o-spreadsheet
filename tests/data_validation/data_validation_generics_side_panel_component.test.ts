@@ -1,6 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
-import { UID } from "../../src/types";
 import { addDataValidation, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";

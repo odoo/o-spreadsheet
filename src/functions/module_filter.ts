@@ -1,18 +1,15 @@
+import {
+  Arg,
+  FunctionResultObject,
+  Functions,
+  isMatrix,
+  Matrix,
+  Maybe,
+} from "@odoo/o-spreadsheet-engine";
 import { range } from "../helpers";
 import { cellsSortingCriterion } from "../helpers/sort";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  CellValue,
-  CellValueType,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  SortDirection,
-  isMatrix,
-} from "../types";
+import { CellValue, CellValueType, Locale, SortDirection } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
@@ -159,12 +156,12 @@ export const FILTER = {
     return mode === "row" ? transposeMatrix(result) : result;
   },
   isExported: false,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SORT
 // -----------------------------------------------------------------------------
-export const SORT: AddFunctionDescription = {
+export const SORT: Functions = {
   description: _t("Sorts the rows of a given array or range by the values in one or more columns."),
   args: [
     arg("range (range)", _t("The data to be sorted.")),
@@ -196,7 +193,7 @@ export const SORT: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // SORTN
 // -----------------------------------------------------------------------------
-export const SORTN: AddFunctionDescription = {
+export const SORTN: Functions = {
   description: _t("Returns the first n items in a data set after performing a sort."),
   args: [
     arg("range (range)", _t("The data to be sorted.")),
@@ -366,4 +363,4 @@ export const UNIQUE = {
     return _byColumn ? result : transposeMatrix(result);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

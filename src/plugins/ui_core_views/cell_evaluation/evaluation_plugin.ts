@@ -1,8 +1,17 @@
-import { isExportableToExcel } from "../../../formulas/index";
+import {
+  CellPosition,
+  FunctionResultObject,
+  GetSymbolValue,
+  isExportableToExcel,
+  isMatrix,
+  Matrix,
+  RangeCompiledFormula,
+  UID,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { matrixMap } from "../../../functions/helpers";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
-  CellPosition,
   CellValue,
   CellValueType,
   Command,
@@ -11,15 +20,8 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
-  FunctionResultObject,
-  GetSymbolValue,
-  Matrix,
-  Range,
-  RangeCompiledFormula,
-  UID,
-  Zone,
   invalidateDependenciesCommands,
-  isMatrix,
+  Range,
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";

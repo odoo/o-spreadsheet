@@ -1,5 +1,6 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
-import { Color, IsValueInListCriterion } from "../../../../types";
+import { IsValueInListCriterion } from "../../../../types";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";

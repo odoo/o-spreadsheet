@@ -1,11 +1,6 @@
+import { FunctionResultObject, Maybe, UID } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
-import {
-  FunctionResultObject,
-  Maybe,
-  SpreadsheetChildEnv,
-  SpreadsheetPivotTable,
-  UID,
-} from "../..";
+import { SpreadsheetChildEnv, SpreadsheetPivotTable } from "../..";
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";

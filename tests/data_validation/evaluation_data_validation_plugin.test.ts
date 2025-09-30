@@ -1,5 +1,6 @@
+import { CellPosition, UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
-import { CellPosition, DataValidationCriterion, UID } from "../../src/types";
+import { DataValidationCriterion } from "../../src/types";
 import {
   addDataValidation,
   duplicateSheet,

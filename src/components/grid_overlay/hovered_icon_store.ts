@@ -1,5 +1,6 @@
 import { SpreadsheetStore } from "../../stores";
-import { CellPosition } from "../../types";
+
+import { CellPosition } from "@odoo/o-spreadsheet-engine";
 
 interface HoveredIcon {
   id: string;

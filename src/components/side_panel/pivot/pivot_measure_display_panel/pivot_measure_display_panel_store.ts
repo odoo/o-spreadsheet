@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { deepCopy } from "../../../../helpers";
 import { NEXT_VALUE, PREVIOUS_VALUE } from "../../../../helpers/pivot/pivot_domain_helpers";
 import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
@@ -9,7 +10,6 @@ import {
   PivotCoreMeasure,
   PivotMeasureDisplay,
   PivotMeasureDisplayType,
-  UID,
 } from "../../../../types";
 
 export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {

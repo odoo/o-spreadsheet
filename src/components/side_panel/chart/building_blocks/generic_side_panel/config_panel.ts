@@ -1,3 +1,4 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
 import {
   createValidRange,
@@ -21,8 +22,6 @@ import {
   CustomizedDataSet,
   DispatchResult,
   SpreadsheetChildEnv,
-  UID,
-  Zone,
 } from "../../../../../types";
 import { ChartTerms } from "../../../../translations_terms";
 import { Checkbox } from "../../../components/checkbox/checkbox";

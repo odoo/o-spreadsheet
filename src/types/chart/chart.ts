@@ -1,5 +1,6 @@
+import { Align, Color, VerticalAlign } from "@odoo/o-spreadsheet-engine";
 import { Point } from "chart.js";
-import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
+import { Format, Locale, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -19,8 +20,6 @@ import {
   TreeMapChartRuntime,
   TreeMapColoringOptions,
 } from "./tree_map_chart";
-import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
-
 export const CHART_TYPES = [
   "line",
   "bar",

@@ -1,3 +1,4 @@
+import { FunctionResultObject, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
@@ -11,15 +12,7 @@ import {
 } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import {
-  CellValue,
-  DEFAULT_LOCALE,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  Pivot,
-} from "../../types";
+import { CellValue, DEFAULT_LOCALE, Locale, Pivot } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
@@ -35,8 +28,6 @@ import {
 } from "../../types/pivot";
 import { getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
-import { pivotTimeAdapter } from "./pivot_time_adapter";
-
 const AGGREGATOR_NAMES = {
   count: _t("Count"),
   count_distinct: _t("Count Distinct"),

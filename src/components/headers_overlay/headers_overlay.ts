@@ -1,15 +1,8 @@
+import { HeaderDimensions, HeaderIndex, Pixel } from "@odoo/o-spreadsheet-engine";
 import { Component, useRef, useState } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Store, useStore } from "../../store_engine";
-import {
-  CommandResult,
-  EdgeScrollInfo,
-  HeaderDimensions,
-  HeaderIndex,
-  Pixel,
-  Ref,
-  SpreadsheetChildEnv,
-} from "../../types/index";
+import { CommandResult, EdgeScrollInfo, Ref, SpreadsheetChildEnv } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
 import { cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";

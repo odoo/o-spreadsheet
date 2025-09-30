@@ -1,3 +1,4 @@
+import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
 import {
   addMonthsToDate,
   getYearFrac,
@@ -6,7 +7,7 @@ import {
   range,
 } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Locale, Matrix, Maybe } from "../types";
+import { Locale } from "../types";
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { areSameDimensions, assert } from "./helper_assert";
@@ -216,7 +217,7 @@ export const ACCRINTM = {
     return _redemption * _rate * yearFrac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // AMORLINC
@@ -313,7 +314,7 @@ export const AMORLINC = {
     return _salvage - valueAtPeriod < deprec ? deprec - (_salvage - valueAtPeriod) : 0;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUPDAYS
@@ -364,7 +365,7 @@ export const COUPDAYS = {
     return daysInYear / _frequency;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUPDAYBS
@@ -447,7 +448,7 @@ export const COUPDAYBS = {
     return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUPDAYSNC
@@ -508,7 +509,7 @@ export const COUPDAYSNC = {
     return toNumber(coupDays, this.locale) - toNumber(coupDayBs, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUPNCD
@@ -552,7 +553,7 @@ export const COUPNCD = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUPNUM
@@ -595,7 +596,7 @@ export const COUPNUM = {
     return num - 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUPPCD
@@ -635,7 +636,7 @@ export const COUPPCD = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CUMIPMT
@@ -705,7 +706,7 @@ export const CUMIPMT = {
     return cumSum;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CUMPRINC
@@ -775,7 +776,7 @@ export const CUMPRINC = {
     return cumSum;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DB
@@ -849,7 +850,7 @@ export const DB = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DDB
@@ -929,7 +930,7 @@ export const DDB = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DISC
@@ -998,7 +999,7 @@ export const DISC = {
     return (_redemption - _price) / _redemption / yearsFrac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DOLLARDE
@@ -1031,7 +1032,7 @@ export const DOLLARDE = {
     return truncatedPrice + priceFractionalPart * frac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DOLLARFR
@@ -1061,7 +1062,7 @@ export const DOLLARFR = {
     return truncatedPrice + priceFractionalPart * frac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DURATION
@@ -1146,7 +1147,7 @@ export const DURATION = {
     return count === 0 ? 0 : sum / count;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EFFECT
@@ -1175,7 +1176,7 @@ export const EFFECT = {
     return Math.pow(1 + nominal / periods, periods) - 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FV
@@ -1226,7 +1227,7 @@ export const FV = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FVSCHEDULE
@@ -1249,7 +1250,7 @@ export const FVSCHEDULE = {
     );
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // INTRATE
@@ -1314,7 +1315,7 @@ export const INTRATE = {
     return (_redemption - _investment) / _investment / yearFrac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // IPMT
@@ -1360,7 +1361,7 @@ export const IPMT = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // IRR
@@ -1448,7 +1449,7 @@ export const IRR = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISPMT
@@ -1480,7 +1481,7 @@ export const ISPMT = {
     return -1 * currentInvestment * interestRate;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MDURATION
@@ -1531,7 +1532,7 @@ export const MDURATION = {
     return toNumber(duration, this.locale) / (1 + y / k);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MIRR
@@ -1603,7 +1604,7 @@ export const MIRR = {
     return (-fv / pv) ** exponent - 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NOMINAL
@@ -1632,7 +1633,7 @@ export const NOMINAL = {
     return (Math.pow(effective + 1, 1 / periods) - 1) * periods;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NPER
@@ -1689,7 +1690,7 @@ export const NPER = {
     return Math.log((c - fv) / (pv + c)) / Math.log(1 + r);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NPV
@@ -1731,7 +1732,7 @@ export const NPV = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PDURATION
@@ -1765,7 +1766,7 @@ export const PDURATION = {
     return (Math.log(_futureValue) - Math.log(_presentValue)) / Math.log(1 + _rate);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PMT
@@ -1822,7 +1823,7 @@ export const PMT = {
     return { value: pmt(r, n, pv, fv, t), format: "#,##0.00" };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PPMT
@@ -1887,7 +1888,7 @@ export const PPMT = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PV
@@ -1932,7 +1933,7 @@ export const PV = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PRICE
@@ -2032,7 +2033,7 @@ export const PRICE = {
     );
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PRICEDISC
@@ -2100,7 +2101,7 @@ export const PRICEDISC = {
     return _redemption - _discount * _redemption * yearsFrac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PRICEMAT
@@ -2199,7 +2200,7 @@ export const PRICEMAT = {
     return numerator / denominator - term2;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RATE
@@ -2278,7 +2279,7 @@ export const RATE = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RECEIVED
@@ -2351,7 +2352,7 @@ export const RECEIVED = {
     return _investment / (1 - _discount * yearsFrac);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RRI
@@ -2386,7 +2387,7 @@ export const RRI = {
     return (fv / pv) ** (1 / n) - 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SLN
@@ -2416,7 +2417,7 @@ export const SLN = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SYD
@@ -2471,7 +2472,7 @@ export const SYD = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TBILLPRICE
@@ -2531,7 +2532,7 @@ export const TBILLPRICE = {
     return tBillPrice(start, end, disc);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TBILLEQ
@@ -2615,7 +2616,7 @@ export const TBILLEQ = {
     return num / denom;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TBILLYIELD
@@ -2671,7 +2672,7 @@ export const TBILLYIELD = {
     return ((100 - p) / p) * (1 / yearFrac);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VDB
@@ -2789,7 +2790,7 @@ export const VDB = {
     return resultDeprec;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // XIRR
@@ -2884,7 +2885,7 @@ export const XIRR = {
     return newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // XNPV
@@ -2961,7 +2962,7 @@ export const XNPV = {
     return pv;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YIELD
@@ -3113,7 +3114,7 @@ export const YIELD = {
     return (methodResult - 1) * _frequency;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YIELDDISC
@@ -3179,7 +3180,7 @@ export const YIELDDISC = {
     return (_redemption / _price - 1) / yearFrac;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YIELDMAT
@@ -3251,4 +3252,4 @@ export const YIELDMAT = {
     return numerator / settlementToMaturity;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

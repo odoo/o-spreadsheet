@@ -1,3 +1,4 @@
+import { Align, VerticalAlign, Wrapping } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_CURRENCY,
   DEFAULT_FONT_SIZE,
@@ -9,19 +10,9 @@ import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat 
 import { parseLiteral } from "../helpers/cells";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import {
-  Align,
-  CellValue,
-  DEFAULT_LOCALE,
-  Format,
-  SpreadsheetChildEnv,
-  VerticalAlign,
-  Wrapping,
-} from "../types";
+import { CellValue, DEFAULT_LOCALE, Format, SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
-import { setFormatter, setStyle } from "./menu_items_actions";
-
 export interface NumberFormatActionSpec extends ActionSpec {
   format?: Format | ((env: SpreadsheetChildEnv) => Format);
 }

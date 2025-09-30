@@ -1,3 +1,4 @@
+import { CellPosition, Position, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   changeDecimalPlaces,
   createDefaultFormat,
@@ -7,16 +8,12 @@ import {
   recomputeZones,
 } from "../../helpers";
 import {
-  CellPosition,
   CellValueType,
   Command,
   Format,
   PivotTableCell,
   PivotValueCell,
-  Position,
   SetDecimalStep,
-  UID,
-  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

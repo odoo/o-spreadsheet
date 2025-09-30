@@ -1,4 +1,4 @@
-import { Color } from "../..";
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";

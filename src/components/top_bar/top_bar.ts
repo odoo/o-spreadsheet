@@ -1,3 +1,4 @@
+import { Color, Pixel } from "@odoo/o-spreadsheet-engine";
 import {
   Component,
   onWillStart,
@@ -15,7 +16,7 @@ import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry"
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/index";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
@@ -23,8 +24,6 @@ import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { Popover, PopoverProps } from "../popover";
 import { TopBarToolStore } from "./top_bar_tool_store";
-import { topBarToolBarRegistry } from "./top_bar_tools_registry";
-
 interface State {
   menuState: MenuState;
   invisibleToolsCategories: string[];

@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
@@ -8,7 +9,6 @@ import {
   CommandResult,
   ConditionalFormattingOperatorValues,
   SpreadsheetChildEnv,
-  UID,
 } from "../../src/types";
 import {
   activateSheet,

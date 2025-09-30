@@ -1,11 +1,5 @@
-import { CellValue, DataValidationRule, Format, Locale } from ".";
-import { ZoneBorderData } from "../plugins/core";
-import { ExcelChartDefinition } from "./chart/chart";
-import { ConditionalFormat } from "./conditional_formatting";
-import { Image } from "./image";
 import {
   Color,
-  Dimension,
   HeaderGroup,
   HeaderIndex,
   PaneDivision,
@@ -13,7 +7,13 @@ import {
   PixelPosition,
   Style,
   UID,
-} from "./misc";
+} from "@odoo/o-spreadsheet-engine";
+import { CellValue, DataValidationRule, Format, Locale } from ".";
+import { ZoneBorderData } from "../plugins/core";
+import { ExcelChartDefinition } from "./chart/chart";
+import { ConditionalFormat } from "./conditional_formatting";
+import { Image } from "./image";
+import { Dimension } from "./misc";
 import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 

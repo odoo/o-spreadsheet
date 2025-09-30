@@ -1,3 +1,4 @@
+import { HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   getAddHeaderStartIndex,
   getRangeAdapter,
@@ -13,12 +14,10 @@ import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CoreCommand,
-  HeaderIndex,
   PositionDependentCommand,
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
-  Zone,
   isPositionDependent,
   isSheetDependent,
   isTargetDependent,

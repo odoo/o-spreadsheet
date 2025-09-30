@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../..";
+import { CellPosition, UID } from "@odoo/o-spreadsheet-engine";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};

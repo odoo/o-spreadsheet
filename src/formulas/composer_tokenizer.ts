@@ -1,4 +1,5 @@
-import { Color, Locale } from "../types";
+import { Color } from "@odoo/o-spreadsheet-engine";
+import { Locale } from "../types";
 import { Token } from "./index";
 import { AST, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";

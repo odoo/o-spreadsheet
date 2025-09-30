@@ -1,3 +1,4 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
@@ -7,7 +8,7 @@ import {
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
-import { Color, Range } from "../../src/types";
+import { Range } from "../../src/types";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {

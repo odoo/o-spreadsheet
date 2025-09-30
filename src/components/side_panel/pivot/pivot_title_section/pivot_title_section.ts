@@ -1,7 +1,8 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { _t } from "../../../../translation";
-import { CommandResult, SpreadsheetChildEnv, UID } from "../../../../types";
+import { CommandResult, SpreadsheetChildEnv } from "../../../../types";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";

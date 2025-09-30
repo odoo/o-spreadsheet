@@ -1,4 +1,5 @@
-import { Arg, Locale } from "../types";
+import { Arg } from "@odoo/o-spreadsheet-engine";
+import { Locale } from "../types";
 import { isDataNonEmpty, reduceAny, reduceNumbers } from "./helpers";
 
 export function sum(values: Arg[], locale: Locale): number {

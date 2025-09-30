@@ -1,7 +1,5 @@
-import { Position, UID } from "../types";
+import { Position, UID } from "@odoo/o-spreadsheet-engine";
 import { recomputeZones } from "./recompute_zones";
-import { positionToZone, toZone, zoneToXc } from "./zones";
-
 type ReverseLookup = Map<string, number>;
 type ItemsDic<T> = { [id: number]: T };
 

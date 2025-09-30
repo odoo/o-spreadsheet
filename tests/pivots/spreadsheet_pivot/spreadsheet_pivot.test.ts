@@ -1,4 +1,5 @@
-import { CellErrorType, EvaluatedCell, FunctionResultObject, Model } from "../../../src";
+import { FunctionResultObject } from "@odoo/o-spreadsheet-engine";
+import { CellErrorType, EvaluatedCell, Model } from "../../../src";
 import { GRID_ICON_MARGIN, PIVOT_INDENT } from "../../../src/constants";
 import { positions, toZone } from "../../../src/helpers";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";

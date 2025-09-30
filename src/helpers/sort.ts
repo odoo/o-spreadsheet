@@ -1,15 +1,13 @@
+import { Position, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
 import {
   CellValue,
   CellValueType,
   CommandResult,
   EvaluatedCell,
-  Position,
   SortDirection,
   SortOptions,
   SpreadsheetChildEnv,
-  UID,
-  Zone,
 } from "../types";
 import { isEqual } from "./zones";
 

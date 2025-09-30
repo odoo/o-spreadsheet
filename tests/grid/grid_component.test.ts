@@ -1,3 +1,4 @@
+import { Align } from "@odoo/o-spreadsheet-engine";
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
@@ -25,7 +26,7 @@ import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
+import { ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";

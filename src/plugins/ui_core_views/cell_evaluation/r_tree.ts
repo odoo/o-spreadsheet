@@ -1,6 +1,6 @@
 import RBush from "rbush";
 
-import { UID, Zone } from "../../../types";
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 
 /**
  * R-Tree Data Structure

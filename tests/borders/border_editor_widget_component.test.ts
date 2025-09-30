@@ -1,11 +1,10 @@
+import { BorderPosition, BorderStyle, Color } from "@odoo/o-spreadsheet-engine";
 import { Component, useState, xml } from "@odoo/owl";
-import { BorderPosition, BorderStyle, Color, Model, SpreadsheetChildEnv } from "../../src";
+import { Model, SpreadsheetChildEnv } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { toHex, toZone } from "../../src/helpers";
 import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
-import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-
 let fixture: HTMLElement;
 let model: Model;
 type Props = BorderEditorWidget["props"];

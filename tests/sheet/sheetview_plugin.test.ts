@@ -1,3 +1,4 @@
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import { CommandResult } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
@@ -10,7 +11,6 @@ import {
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
-import { Zone } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,

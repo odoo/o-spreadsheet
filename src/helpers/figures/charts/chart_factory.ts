@@ -1,6 +1,7 @@
+import { RangeAdapter, UID } from "@odoo/o-spreadsheet-engine";
 import { ChartConfiguration } from "chart.js";
 import { chartRegistry } from "../../../registries/chart_types";
-import { CommandResult, RangeAdapter, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart/chart";
 import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";

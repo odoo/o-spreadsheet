@@ -1,8 +1,8 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import {
   ChartDatasetOrientation,
-  Color,
   CustomizedDataSet,
   SpreadsheetChildEnv,
 } from "../../../../../types";

@@ -1,4 +1,4 @@
-import { UID } from "..";
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";

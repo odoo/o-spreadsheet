@@ -1,8 +1,9 @@
-import { arg, functionRegistry } from "../../src/functions";
+import { functionRegistry, UID } from "@odoo/o-spreadsheet-engine";
+import { arg } from "../../src/functions";
 import { toMatrix } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
-import { CellValueType, ErrorCell, UID } from "../../src/types";
+import { CellValueType, ErrorCell } from "../../src/types";
 import { CellErrorType, EvaluationError } from "../../src/types/errors";
 import {
   activateSheet,

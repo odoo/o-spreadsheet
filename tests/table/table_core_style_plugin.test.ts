@@ -1,4 +1,5 @@
-import { CommandResult, TableStyle, TableStyleTemplateName, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { CommandResult, TableStyle, TableStyleTemplateName } from "../../src";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { createTable, createTableStyle, redo, undo } from "../test_helpers/commands_helpers";

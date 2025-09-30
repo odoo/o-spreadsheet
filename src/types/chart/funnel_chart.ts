@@ -1,5 +1,5 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
 import { LegendPosition } from "./common_chart";
 

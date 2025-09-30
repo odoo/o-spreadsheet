@@ -6,7 +6,7 @@ import {
   UnboundedZone,
   Zone,
   ZoneDimension,
-} from "../types";
+} from "@odoo/o-spreadsheet-engine";
 import {
   MAX_COL,
   MAX_ROW,

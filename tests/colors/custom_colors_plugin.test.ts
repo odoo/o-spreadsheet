@@ -1,6 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { TableStyle, UID } from "../../src/types";
+import { TableStyle } from "../../src/types";
 import {
   createChart,
   createScorecardChart,

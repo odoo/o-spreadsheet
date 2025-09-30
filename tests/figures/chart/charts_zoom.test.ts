@@ -1,7 +1,8 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../../src";
 import { ZoomableChartStore } from "../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { CreateFigureCommand, SpreadsheetChildEnv, UID } from "../../../src/types";
+import { CreateFigureCommand, SpreadsheetChildEnv } from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent } from "../../test_helpers/commands_helpers";

@@ -64,9 +64,8 @@ import {
   PIVOT_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
 } from "./constants";
-import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
-import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
+import { FunctionRegistry, arg } from "./functions/index";
 import {
   ColorGenerator,
   UuidGenerator,
@@ -112,7 +111,7 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
-import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { isMatrix } from "@odoo/o-spreadsheet-engine";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
@@ -204,7 +203,6 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 

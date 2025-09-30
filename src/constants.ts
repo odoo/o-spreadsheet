@@ -1,5 +1,3 @@
-import { BorderDescr, ChartStyle, Color, Currency, Style } from "./types";
-
 export const CANVAS_SHIFT = 0.5;
 
 // Colors

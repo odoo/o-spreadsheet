@@ -1,26 +1,15 @@
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  HeaderIndex,
+  PixelPosition,
+  UID,
+} from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  Command,
-  CommandResult,
-  CoreCommand,
-  CreateChartCommand,
-  DeleteChartCommand,
-  DOMDimension,
-  FigureData,
-  HeaderIndex,
-  PixelPosition,
-  UID,
-  UpdateChartCommand,
-  WorkbookData,
-} from "../../types/index";
-import { CorePlugin } from "../core_plugin";
-
 interface FigureChart {
   figureId: UID;
   chart: AbstractChart;

@@ -1,16 +1,7 @@
+import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine";
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  CoreGetters,
-  DatasetDesign,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { CommandResult, CoreGetters, DatasetDesign, Getters, Range } from "../../../types";
 import {
   ChartCreationContext,
   CustomizedDataSet,

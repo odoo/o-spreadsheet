@@ -1,5 +1,5 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { toHex } from "../../helpers";
-import { Color } from "../../types";
 import { XlsxHexColor } from "../../types/xlsx";
 
 /**

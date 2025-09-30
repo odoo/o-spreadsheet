@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { PivotPresenceTracker } from "../../helpers/pivot/pivot_presence_tracker";
-import { Command, UID } from "../../types";
+import { Command } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class PivotPresencePlugin extends UIPlugin {

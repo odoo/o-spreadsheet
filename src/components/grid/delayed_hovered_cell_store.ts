@@ -1,5 +1,6 @@
+import { Position } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetStore } from "../../stores";
-import { Command, Position } from "../../types";
+import { Command } from "../../types";
 
 export class DelayedHoveredCellStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;

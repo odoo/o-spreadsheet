@@ -1,3 +1,4 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { deepCopy, UuidGenerator } from "../helpers";
 import { AbstractChart } from "../helpers/figures/charts";
 import {
@@ -7,8 +8,6 @@ import {
   ClipboardPasteTarget,
   CommandResult,
   Figure,
-  UID,
-  Zone,
 } from "../types";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
 

@@ -1,6 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { DispatchResult, SpreadsheetChildEnv } from "../../../../types/index";
 import { Section } from "../../components/section/section";
 
 interface Props {

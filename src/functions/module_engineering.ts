@@ -1,5 +1,5 @@
+import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -23,4 +23,4 @@ export const DELTA = {
     return _number1 === _number2 ? 1 : 0;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

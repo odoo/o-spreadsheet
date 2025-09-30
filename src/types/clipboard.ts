@@ -1,7 +1,5 @@
+import { ClipboardCell, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetClipboardData } from "../plugins/ui_stateful";
-import { AllowedImageMimeTypes, Image } from "./image";
-import { ClipboardCell, HeaderIndex, UID, Zone } from "./misc";
-
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
   Html = "text/html",

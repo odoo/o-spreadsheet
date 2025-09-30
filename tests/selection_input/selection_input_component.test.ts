@@ -1,3 +1,4 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
@@ -6,7 +7,7 @@ import { ColorGenerator, toCartesian, toZone } from "../../src/helpers";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { Color, SpreadsheetChildEnv } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,

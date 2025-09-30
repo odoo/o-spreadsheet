@@ -1,6 +1,4 @@
-import { CellPosition, UID } from "../../../types";
-import { BinaryGrid } from "./binary_grid";
-
+import { CellPosition, UID } from "@odoo/o-spreadsheet-engine";
 export type SheetSizes = Record<UID, { rows: number; cols: number }>;
 
 export class PositionSet {

@@ -1,6 +1,6 @@
+import { functionRegistry } from "@odoo/o-spreadsheet-engine";
 import { Model, UIPlugin } from "../../src";
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { featurePluginRegistry } from "../../src/plugins";

@@ -1,5 +1,5 @@
+import { functionRegistry } from "@odoo/o-spreadsheet-engine";
 import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../src/formulas/compiler";
-import { functionRegistry } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { splitReference } from "../../src/helpers";

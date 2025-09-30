@@ -1,6 +1,5 @@
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget, UID, Zone } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
-
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types";
 interface ClipboardContent {
   zones: Zone[];
   sheetId: UID;

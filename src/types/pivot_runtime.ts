@@ -1,14 +1,6 @@
+import { FunctionResultObject, Maybe } from "@odoo/o-spreadsheet-engine";
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { SpreadsheetPivotTable } from "../helpers/pivot/table_spreadsheet_pivot";
-import { FunctionResultObject, Maybe } from "./misc";
-import {
-  PivotCoreDefinition,
-  PivotDimension,
-  PivotDomain,
-  PivotFields,
-  PivotMeasure,
-} from "./pivot";
-
 export interface InitPivotParams {
   reload?: boolean;
 }

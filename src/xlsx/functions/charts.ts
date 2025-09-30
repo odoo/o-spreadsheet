@@ -1,7 +1,8 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constants";
 import { ColorGenerator, largeMax, lightenColor, range } from "../../helpers";
 import { chartMutedFontColor } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData } from "../../types";
+import { ExcelWorkbookData, FigureData } from "../../types";
 import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
 import { XMLAttributes, XMLString, XlsxHexColor } from "../../types/xlsx";
 import {

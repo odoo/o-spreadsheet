@@ -1,8 +1,5 @@
-import { CellValue } from "./cells";
-import { Getters } from "./getters";
+import { CellPosition } from "./base";
 import { Locale } from "./locale";
-import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
-import { Range } from "./range";
 
 export type ArgType =
   | "ANY"
@@ -34,10 +31,9 @@ export interface ArgDefinition {
 }
 
 export type ArgProposal = { value: CellValue; label?: string };
-
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
-export interface AddFunctionDescription {
+export interface Functions {
   compute: ComputeFunction<
     FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>
   >;
@@ -48,14 +44,13 @@ export interface AddFunctionDescription {
   hidden?: boolean;
 }
 
-export type FunctionDescription = AddFunctionDescription & {
+export type FunctionDescription = Functions & {
   name: string;
   minArgRequired: number;
   maxArgPossible: number;
   nbrArgRepeating: number;
   nbrArgOptional: number;
 };
-
 export type EvalContext = {
   __originSheetId: UID;
   __originCellPosition?: CellPosition;
@@ -67,7 +62,6 @@ export type EvalContext = {
   debug?: boolean;
   lookupCaches?: LookupCaches;
 };
-
 /**
  * used to cache lookup values for linear search
  **/

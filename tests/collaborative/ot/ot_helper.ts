@@ -1,9 +1,9 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
   AddPivotCommand,
   CoreCommand,
-  UID,
   UpdateCellCommand,
 } from "../../../src";
 import { deepCopy } from "../../../src/helpers";

@@ -1,5 +1,5 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import type { ChartOptions } from "chart.js";
-import { Color } from "../misc";
 import { TitleDesign } from "./chart";
 
 export interface GaugeChartDefinition {

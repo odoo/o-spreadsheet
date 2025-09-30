@@ -1,8 +1,14 @@
-import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
-import { _t } from "../../../translation";
 import {
   ApplyRangeChange,
   Color,
+  RangeAdapter,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
+import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import { _t } from "../../../translation";
+import {
   CommandResult,
   CoreGetters,
   DOMCoordinates,
@@ -11,10 +17,6 @@ import {
   Locale,
   LocaleFormat,
   Range,
-  RangeAdapter,
-  UID,
-  UnboundedZone,
-  Zone,
 } from "../../../types";
 import {
   ChartAxisFormats,

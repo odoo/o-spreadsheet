@@ -1,6 +1,7 @@
 import { Branch } from "../history/branch";
 import { Operation } from "../history/operation";
-import { UID } from "./misc";
+
+import { UID } from "@odoo/o-spreadsheet-engine";
 
 export interface CreateRevisionOptions {
   revisionId?: UID;

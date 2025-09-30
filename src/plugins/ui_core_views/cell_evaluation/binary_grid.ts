@@ -1,4 +1,4 @@
-import { CellPosition } from "../../../types";
+import { CellPosition } from "@odoo/o-spreadsheet-engine";
 
 type Bit = 0 | 1;
 

@@ -1,4 +1,4 @@
-import { UID } from "../types";
+import { UID } from "@odoo/o-spreadsheet-engine";
 import {
   CollaborationMessage,
   NewMessageCallback,

@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { lazy } from "../helpers";
-import { Lazy, Transformation, UID } from "../types";
+import { Lazy, Transformation } from "../types";
 
 /**
  * An Operation can be executed to change a data structure from state A

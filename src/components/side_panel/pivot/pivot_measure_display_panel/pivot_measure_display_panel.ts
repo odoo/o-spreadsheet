@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { PivotCoreMeasure, SpreadsheetChildEnv, UID } from "../../../..";
+import { PivotCoreMeasure, SpreadsheetChildEnv } from "../../../..";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";

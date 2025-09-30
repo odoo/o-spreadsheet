@@ -1,18 +1,13 @@
+import { Border, CellPosition, HeaderIndex, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
 import {
-  Border,
-  CellPosition,
   ClipboardCellData,
   ClipboardCopyOptions,
   ClipboardOptions,
   ClipboardPasteTarget,
   CoreTableType,
-  HeaderIndex,
   RangeData,
-  Style,
   TableConfig,
-  UID,
-  Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 

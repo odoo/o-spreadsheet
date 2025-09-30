@@ -1,5 +1,6 @@
+import { Pixel } from "@odoo/o-spreadsheet-engine";
 import { Component, useRef } from "@odoo/owl";
-import { Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import { Rect, SpreadsheetChildEnv } from "../../types";
 import { ColorPicker } from "./color_picker";
 
 interface Props {

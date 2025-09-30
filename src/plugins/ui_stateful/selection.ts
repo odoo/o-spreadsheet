@@ -1,3 +1,15 @@
+import {
+  AnchorZone,
+  CellPosition,
+  HeaderIndex,
+  Pixel,
+  Selection,
+  Sheet,
+  Style,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
@@ -15,26 +27,16 @@ import {
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
-  AnchorZone,
-  CellPosition,
   ClientPosition,
   Command,
   CommandResult,
   Dimension,
   EvaluatedCell,
   GridRenderingContext,
-  HeaderIndex,
   LocalCommand,
   MoveColumnsRowsCommand,
-  Pixel,
   RemoveColumnsRowsCommand,
-  Selection,
-  Sheet,
-  Style,
-  UID,
-  UnboundedZone,
   UpdateFigureCommand,
-  Zone,
 } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 

@@ -1,4 +1,5 @@
-import { Color, SpreadsheetChildEnv } from "../types";
+import { Color } from "@odoo/o-spreadsheet-engine";
+import { SpreadsheetChildEnv } from "../types";
 
 /*
  * An Action represent a menu item for the menus of the top bar

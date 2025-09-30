@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { DispatchResult, UID } from "../../../../..";
+import { DispatchResult } from "../../../../..";
 import { SpreadsheetChildEnv } from "../../../../../types";
 import {
   TreeMapChartDefaults,

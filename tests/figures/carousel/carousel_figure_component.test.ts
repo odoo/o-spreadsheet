@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { ChartConfiguration } from "chart.js";
-import { Model, SpreadsheetChildEnv, UID } from "../../../src";
+import { Model, SpreadsheetChildEnv } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";

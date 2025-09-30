@@ -1,8 +1,9 @@
+import { Color, Position } from "@odoo/o-spreadsheet-engine";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
 import { range } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { SpreadsheetStore } from "../../stores";
-import { Color, Command, Position } from "../../types";
+import { Command } from "../../types";
 
 export class HoveredTableStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;

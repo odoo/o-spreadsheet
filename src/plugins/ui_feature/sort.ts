@@ -1,3 +1,4 @@
+import { CellPosition, HeaderIndex, Position, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   deepEquals,
   isInside,
@@ -8,19 +9,14 @@ import {
 } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import {
-  CellPosition,
   CellValueType,
   Command,
   CommandResult,
-  HeaderIndex,
   LocalCommand,
-  Position,
   SortCommand,
   SortDirection,
   SortOptions,
-  UID,
   UpdateCellCommand,
-  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

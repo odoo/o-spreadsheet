@@ -1,4 +1,5 @@
-import { ChartCreationContext, Model, UID } from "../../../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { ChartCreationContext, Model } from "../../../../src";
 import { ColorGenerator } from "../../../../src/helpers";
 import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart";
 import { FunnelChartRuntime } from "../../../../src/types/chart/funnel_chart";

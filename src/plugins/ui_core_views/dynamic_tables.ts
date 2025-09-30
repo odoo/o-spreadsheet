@@ -1,3 +1,4 @@
+import { CellPosition, FilterId, TableId, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   areZonesContinuous,
   deepEquals,
@@ -10,17 +11,12 @@ import {
 } from "../../helpers";
 import { createFilter } from "../../helpers/table_helpers";
 import {
-  CellPosition,
   Command,
   CoreTable,
   DynamicTable,
   ExcelWorkbookData,
   Filter,
-  FilterId,
   Table,
-  TableId,
-  UID,
-  Zone,
   invalidateEvaluationCommands,
 } from "../../types/index";
 import { CoreViewPlugin } from "../core_view_plugin";

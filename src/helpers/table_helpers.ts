@@ -1,9 +1,7 @@
-import { Border, BorderDescr, CellPosition, Range, Style, UID, Zone } from "../types";
+import { Range } from "../types";
 import { CoreTable, Filter, StaticTable, Table, TableConfig, TableStyle } from "../types/table";
 
-import { generateMatrix } from "../functions/helpers";
-import { ComputedTableStyle } from "./../types/table";
-
+import { Border, BorderDescr, CellPosition, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
 type TableElement = keyof Omit<
   TableStyle,
   "category" | "displayName" | "templateName" | "primaryColor"

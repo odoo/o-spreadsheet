@@ -1,15 +1,9 @@
-import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
-import { ModelConfig } from "../model";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
   CommandResult,
   CoreCommand,
   CoreCommandDispatcher,
   ExcelWorkbookData,
   HistoryChange,
-  RangeProvider,
-  UID,
   WorkbookData,
 } from "../types";
 import { CoreGetters } from "../types/getters";

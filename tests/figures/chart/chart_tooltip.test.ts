@@ -1,4 +1,5 @@
-import { ChartJSRuntime, Color, Model } from "../../../src";
+import { Color } from "@odoo/o-spreadsheet-engine";
+import { ChartJSRuntime, Model } from "../../../src";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
 
 interface TooltipArgs {

@@ -1,6 +1,7 @@
+import { CellPosition, Zone } from "@odoo/o-spreadsheet-engine";
 import { isInside } from "../../helpers";
 import { getTableContentZone } from "../../helpers/table_helpers";
-import { CellPosition, CellValueType, Command, Zone } from "../../types";
+import { CellValueType, Command } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class TableAutofillPlugin extends UIPlugin {

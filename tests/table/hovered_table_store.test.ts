@@ -1,4 +1,5 @@
-import { Model, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../src/constants";
 import { createTable, setCellContent } from "../test_helpers/commands_helpers";

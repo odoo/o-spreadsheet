@@ -1,4 +1,5 @@
-import { FunctionResultObject, Lazy } from "../../types";
+import { FunctionResultObject } from "@odoo/o-spreadsheet-engine";
+import { Lazy } from "../../types";
 import {
   DimensionTree,
   DimensionTreeNode,

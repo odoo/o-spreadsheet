@@ -1,21 +1,8 @@
+import { ApplyRangeChange, HeaderIndex, PixelPosition, UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "../../constants";
 import { clip } from "../../helpers/index";
 import { AnchorOffset } from "../../types/figure";
-import {
-  ApplyRangeChange,
-  CommandResult,
-  CoreCommand,
-  CreateFigureCommand,
-  DeleteFigureCommand,
-  ExcelWorkbookData,
-  Figure,
-  HeaderIndex,
-  PixelPosition,
-  UID,
-  UpdateFigureCommand,
-  WorkbookData,
-} from "../../types/index";
-import { CorePlugin } from "../core_plugin";
+import { Figure } from "../../types/index";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };

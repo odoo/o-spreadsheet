@@ -1,4 +1,5 @@
-import { Color, Model } from "../../src";
+import { Color, Pixel } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import {
@@ -10,9 +11,7 @@ import {
   toHex,
   toZone,
 } from "../../src/helpers";
-import { DOMCoordinates, Pixel } from "../../src/types";
-import { nextTick } from "./helpers";
-
+import { DOMCoordinates } from "../../src/types";
 export type DOMTarget = string | Element | Document | Window | null;
 
 export async function simulateClick(

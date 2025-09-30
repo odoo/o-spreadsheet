@@ -1,5 +1,3 @@
-import { UID, UnboundedZone, Zone } from "./misc";
-
 export interface RangePart {
   readonly colFixed: boolean;
   readonly rowFixed: boolean;

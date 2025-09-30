@@ -1,3 +1,14 @@
+import {
+  CellPosition,
+  HeaderIndex,
+  PaneDivision,
+  Row,
+  Sheet,
+  UID,
+  UnboundedZone,
+  Zone,
+  ZoneDimension,
+} from "@odoo/o-spreadsheet-engine";
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
 import {
   createDefaultRows,
@@ -19,7 +30,6 @@ import {
 import { isSheetNameEqual } from "../../helpers/sheet";
 import {
   Cell,
-  CellPosition,
   Command,
   CommandResult,
   CoreCommand,
@@ -28,18 +38,10 @@ import {
   ExcelWorkbookData,
   FreezeColumnsCommand,
   FreezeRowsCommand,
-  HeaderIndex,
-  PaneDivision,
   RenameSheetCommand,
-  Row,
-  Sheet,
   SheetData,
-  UID,
-  UnboundedZone,
   UpdateCellPositionCommand,
   WorkbookData,
-  Zone,
-  ZoneDimension,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 

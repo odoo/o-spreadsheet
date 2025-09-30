@@ -1,3 +1,4 @@
+import { HeaderGroup } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import {
@@ -8,7 +9,7 @@ import {
 } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
-import { DOMCoordinates, Dimension, HeaderGroup, Rect } from "../../types";
+import { DOMCoordinates, Dimension, Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { cssPropertiesToCss } from "../helpers";
 

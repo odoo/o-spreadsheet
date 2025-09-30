@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { CommandResult, Model } from "../../src";
-import { DataValidationCriterion, UID } from "../../src/types";
+import { DataValidationCriterion } from "../../src/types";
 import {
   addColumns,
   addDataValidation,

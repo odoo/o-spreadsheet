@@ -1,10 +1,6 @@
+import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Maybe,
-} from "../types";
+import { FunctionResultNumber } from "../types";
 import { DivisionByZeroError } from "../types/errors";
 import { arg } from "./arguments";
 import { isEvaluationError, toNumber, toString } from "./helpers";
@@ -28,7 +24,7 @@ export const ADD = {
       format: value1?.format || value2?.format,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CONCAT
@@ -46,7 +42,7 @@ export const CONCAT = {
     return toString(value1) + toString(value2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DIVIDE
@@ -67,7 +63,7 @@ export const DIVIDE = {
       format: dividend?.format || divisor?.format,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EQ
@@ -108,7 +104,7 @@ export const EQ = {
     }
     return { value: _value1 === _value2 };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // GT
@@ -157,7 +153,7 @@ export const GT = {
       return v1 > v2;
     });
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // GTE
@@ -179,7 +175,7 @@ export const GTE = {
       return v1 >= v2;
     });
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LT
@@ -197,7 +193,7 @@ export const LT = {
     }
     return { value: !result.value };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LTE
@@ -218,7 +214,7 @@ export const LTE = {
     }
     return { value: !result.value };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MINUS
@@ -238,7 +234,7 @@ export const MINUS = {
       format: value1?.format || value2?.format,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MULTIPLY
@@ -258,7 +254,7 @@ export const MULTIPLY = {
       format: factor1?.format || factor2?.format,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NE
@@ -276,7 +272,7 @@ export const NE = {
     }
     return { value: !result.value };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // POW
@@ -290,7 +286,7 @@ export const POW = {
   compute: function (base: Maybe<FunctionResultObject>, exponent: Maybe<FunctionResultObject>) {
     return POWER.compute.bind(this)(base, exponent);
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // UMINUS
@@ -309,7 +305,7 @@ export const UMINUS = {
       format: value?.format,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // UNARY_PERCENT
@@ -320,7 +316,7 @@ export const UNARY_PERCENT = {
   compute: function (percentage: Maybe<FunctionResultObject>): number {
     return toNumber(percentage, this.locale) / 100;
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // UPLUS
@@ -331,4 +327,4 @@ export const UPLUS = {
   compute: function (value: Maybe<FunctionResultObject> = { value: null }): FunctionResultObject {
     return value;
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;

@@ -1,7 +1,5 @@
+import { Color, HeaderIndex } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { Color, HeaderIndex, SpreadsheetChildEnv } from "../../types";
-import { cssPropertiesToCss } from "../helpers/css";
-
 interface ClientTagProps {
   active: boolean;
   name: string;

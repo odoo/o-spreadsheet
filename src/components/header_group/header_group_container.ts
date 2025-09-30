@@ -1,14 +1,13 @@
+import { HeaderGroup, Pixel } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH } from "../../constants";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../../types";
-import { CSSProperties, Dimension, HeaderGroup, Pixel } from "../../types/misc";
+import { CSSProperties, Dimension } from "../../types/misc";
 import { cssPropertiesToCss } from "../helpers";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "./../../constants";
-import { ColGroup, RowGroup } from "./header_group";
-
 interface Props {
   dimension: Dimension;
   layers: HeaderGroup[][];

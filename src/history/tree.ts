@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { linkNext } from "../helpers";
-import { OperationSequenceNode, Transformation, TransformationFactory, UID } from "../types";
+import { OperationSequenceNode, Transformation, TransformationFactory } from "../types";
 import { Branch } from "./branch";
 import { Operation } from "./operation";
 import { OperationSequence } from "./operation_sequence";

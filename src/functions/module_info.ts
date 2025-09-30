@@ -1,13 +1,8 @@
+import { FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
 import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  CellValueType,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-} from "../types";
+import { CellValueType } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { isEvaluationError, toString } from "./helpers";
@@ -89,7 +84,7 @@ export const CELL = {
     return "";
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISERR
@@ -102,7 +97,7 @@ export const ISERR = {
     return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISERROR
@@ -115,7 +110,7 @@ export const ISERROR = {
     return isEvaluationError(value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISLOGICAL
@@ -127,7 +122,7 @@ export const ISLOGICAL = {
     return typeof value?.value === "boolean";
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISNA
@@ -139,7 +134,7 @@ export const ISNA = {
     return data?.value === CellErrorType.NotAvailable;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISNONTEXT
@@ -151,7 +146,7 @@ export const ISNONTEXT = {
     return !ISTEXT.compute.bind(this)(value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISNUMBER
@@ -164,7 +159,7 @@ export const ISNUMBER = {
     return typeof value?.value === "number";
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISTEXT
@@ -176,7 +171,7 @@ export const ISTEXT = {
     return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISBLANK
@@ -188,7 +183,7 @@ export const ISBLANK = {
     return value?.value === null;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NA
@@ -200,4 +195,4 @@ export const NA = {
     return { value: CellErrorType.NotAvailable };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

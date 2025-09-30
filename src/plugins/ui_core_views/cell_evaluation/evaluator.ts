@@ -1,5 +1,4 @@
 import { compile } from "../../../formulas";
-import { handleError, implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
 import {
   aggregatePositionsToZones,
@@ -14,28 +13,14 @@ import { PositionMap } from "../../../helpers/cells/position_map";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
-import {
-  CellPosition,
-  CellValueType,
-  EvaluatedCell,
-  FormulaCell,
-  FunctionResultObject,
-  GetSymbolValue,
-  Getters,
-  Matrix,
-  Range,
-  RangeCompiledFormula,
-  UID,
-  Zone,
-  isMatrix,
-} from "../../../types";
+import { CellValueType, EvaluatedCell, FormulaCell, Getters, Range } from "../../../types";
 import {
   BadExpressionError,
   CellErrorType,
   CircularDependencyError,
   SplillBlockedError,
 } from "../../../types/errors";
-import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
+import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";

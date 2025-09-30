@@ -1,3 +1,4 @@
+import { HeaderIndex, PixelPosition, UID } from "@odoo/o-spreadsheet-engine";
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy, isDefined } from "../../helpers";
 import { FileStore } from "../../types/files";
@@ -9,13 +10,8 @@ import {
   ExcelWorkbookData,
   FigureData,
   FigureSize,
-  HeaderIndex,
-  PixelPosition,
-  UID,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin, CorePluginConfig } from "../core_plugin";
-
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;
 }

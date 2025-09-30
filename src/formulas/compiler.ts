@@ -1,3 +1,4 @@
+import { CompiledFormula, FormulaToExecute, functionRegistry } from "@odoo/o-spreadsheet-engine";
 import {
   OPERATOR_MAP,
   UNARY_OPERATOR_MAP,
@@ -8,8 +9,6 @@ import {
   setFunctionRegistryProvider,
 } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { argTargeting } from "../functions/arguments";
-import { functionRegistry } from "../functions/index";
-import type { CompiledFormula, FormulaToExecute } from "../types";
 import type { Token } from "./tokenizer";
 
 //TODO When the getters will be moved to o-spreadsheet-engine, we will be able

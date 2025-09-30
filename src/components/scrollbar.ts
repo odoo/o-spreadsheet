@@ -1,4 +1,4 @@
-import { Pixel } from "../types";
+import { Pixel } from "@odoo/o-spreadsheet-engine";
 
 export type ScrollDirection = "horizontal" | "vertical";
 

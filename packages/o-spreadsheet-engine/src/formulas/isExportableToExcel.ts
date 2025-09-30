@@ -1,4 +1,4 @@
-import { functionRegistry } from "../functions";
+import { functionRegistry } from "../functions/functionRegistry";
 import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
 import { Token } from "./tokenizer";
 

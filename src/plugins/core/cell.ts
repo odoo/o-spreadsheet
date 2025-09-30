@@ -1,3 +1,15 @@
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  CellPosition,
+  CompiledFormula,
+  HeaderIndex,
+  RangeCompiledFormula,
+  Style,
+  UID,
+  UpdateCellData,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
@@ -21,30 +33,20 @@ import {
   toXC,
 } from "../../helpers/index";
 import {
-  AdaptSheetName,
   AddColumnsRowsCommand,
-  ApplyRangeChange,
   Cell,
-  CellPosition,
   ClearCellCommand,
   CommandResult,
-  CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
   Format,
   FormulaCell,
-  HeaderIndex,
   LiteralCell,
   PositionDependentCommand,
   Range,
-  RangeCompiledFormula,
   RangePart,
-  Style,
-  UID,
   UpdateCellCommand,
-  UpdateCellData,
   WorkbookData,
-  Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 

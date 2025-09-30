@@ -1,13 +1,7 @@
+import { HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { recomputeZones } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
-import {
-  ClipboardCellData,
-  ClipboardCopyOptions,
-  ClipboardOptions,
-  HeaderIndex,
-  UID,
-  Zone,
-} from "../types";
+import { ClipboardCellData, ClipboardCopyOptions, ClipboardOptions } from "../types";
 import { ClipboardHandler } from "./abstract_clipboard_handler";
 
 export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<T> {

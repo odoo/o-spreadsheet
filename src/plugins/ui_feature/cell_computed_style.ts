@@ -1,3 +1,4 @@
+import { Border, CellPosition, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { isObjectEmptyRecursive, positionToZone, removeFalsyAttributes } from "../../helpers/index";
@@ -7,7 +8,6 @@ import {
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types";
-import { Border, CellPosition, Style, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 

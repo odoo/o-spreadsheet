@@ -1,6 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model, UIPlugin } from "../../src";
 import { featurePluginRegistry } from "../../src/plugins";
-import { Command, DataValidationCriterion, UID } from "../../src/types";
+import { Command, DataValidationCriterion } from "../../src/types";
 import {
   activateSheet,
   addDataValidation,

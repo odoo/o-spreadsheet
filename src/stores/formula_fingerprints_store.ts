@@ -1,3 +1,4 @@
+import { CellPosition, Color } from "@odoo/o-spreadsheet-engine";
 import {
   AlternatingColorGenerator,
   isFullColRange,
@@ -6,15 +7,7 @@ import {
   setColorAlpha,
 } from "../helpers";
 import { PositionMap } from "../helpers/cells/position_map";
-import {
-  Cell,
-  CellPosition,
-  CellValueType,
-  Color,
-  Command,
-  FormulaCell,
-  isCoreCommand,
-} from "../types/index";
+import { Cell, CellValueType, Command, FormulaCell, isCoreCommand } from "../types/index";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 /**

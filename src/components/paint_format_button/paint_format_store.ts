@@ -1,3 +1,4 @@
+import { ClipboardCell, Highlight, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
@@ -9,9 +10,6 @@ import {
 } from "../../helpers/clipboard/clipboard_helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
-import { HighlightStore } from "../../stores/highlight_store";
-import { ClipboardCell, ClipboardOptions, Command, Highlight, UID, Zone } from "../../types";
-
 interface ClipboardContent {
   cells: ClipboardCell[][];
   zones: Zone[];

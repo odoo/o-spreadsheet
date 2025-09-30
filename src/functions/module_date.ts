@@ -1,3 +1,4 @@
+import { Arg, FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import {
   addMonthsToDate,
   areTwoDatesWithinOneYear,
@@ -15,13 +16,7 @@ import {
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Maybe,
-} from "../types";
+import { FunctionResultNumber } from "../types";
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert } from "./helper_assert";
@@ -85,7 +80,7 @@ export const DATE = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DATEDIF
@@ -199,7 +194,7 @@ export const DATEDIF = {
     }
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DATEVALUE
@@ -220,7 +215,7 @@ export const DATEVALUE = {
     return Math.trunc(internalDate!.value);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DAY
@@ -232,7 +227,7 @@ export const DAY = {
     return toJsDate(date, this.locale).getDate();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DAYS
@@ -254,7 +249,7 @@ export const DAYS = {
     return Math.round(dateDif / MS_PER_DAY);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DAYS360
@@ -287,7 +282,7 @@ export const DAYS360 = {
     return Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EDATE
@@ -315,7 +310,7 @@ export const EDATE = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EOMONTH
@@ -345,7 +340,7 @@ export const EOMONTH = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // HOUR
@@ -357,7 +352,7 @@ export const HOUR = {
     return toJsDate(date, this.locale).getHours();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ISOWEEKNUM
@@ -445,7 +440,7 @@ export const ISOWEEKNUM = {
     return Math.floor(diff / 7) + 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MINUTE
@@ -457,7 +452,7 @@ export const MINUTE = {
     return toJsDate(date, this.locale).getMinutes();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MONTH
@@ -469,7 +464,7 @@ export const MONTH = {
     return toJsDate(date, this.locale).getMonth() + 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NETWORKDAYS
@@ -498,7 +493,7 @@ export const NETWORKDAYS = {
     return NETWORKDAYS_INTL.compute.bind(this)(startDate, endDate, { value: 1 }, holidays);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NETWORKDAYS.INTL
@@ -648,7 +643,7 @@ export const NETWORKDAYS_INTL = {
     return invertDate ? -netWorkingDay : netWorkingDay;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NOW
@@ -667,7 +662,7 @@ export const NOW = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SECOND
@@ -679,7 +674,7 @@ export const SECOND = {
     return toJsDate(date, this.locale).getSeconds();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TIME
@@ -718,7 +713,7 @@ export const TIME = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TIMEVALUE
@@ -740,7 +735,7 @@ export const TIMEVALUE = {
     return result < 0 ? 1 + result : result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TODAY
@@ -757,7 +752,7 @@ export const TODAY = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // WEEKDAY
@@ -817,7 +812,7 @@ export const WEEKDAY = {
     return result === 0 ? 7 : result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // WEEKNUM
@@ -888,7 +883,7 @@ export const WEEKNUM = {
     return Math.floor(dif / 7) + (dayStart === 1 ? 1 : 2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // WORKDAY
@@ -914,7 +909,7 @@ export const WORKDAY = {
     return WORKDAY_INTL.compute.bind(this)(startDate, numDays, { value: 1 }, holidays);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // WORKDAY.INTL
@@ -981,7 +976,7 @@ export const WORKDAY_INTL = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YEAR
@@ -993,7 +988,7 @@ export const YEAR = {
     return toJsDate(date, this.locale).getFullYear();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YEARFRAC
@@ -1043,7 +1038,7 @@ export const YEARFRAC = {
 
     return getYearFrac(_startDate, _endDate, _dayCountConvention);
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MONTH.START
@@ -1061,7 +1056,7 @@ export const MONTH_START = {
       format: this.locale.dateFormat,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MONTH.END
@@ -1072,7 +1067,7 @@ export const MONTH_END = {
   compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
     return EOMONTH.compute.bind(this)(date, { value: 0 });
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // QUARTER
@@ -1083,7 +1078,7 @@ export const QUARTER = {
   compute: function (date: Maybe<FunctionResultObject>): number {
     return Math.ceil((toJsDate(date, this.locale).getMonth() + 1) / 3);
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // QUARTER.START
@@ -1100,7 +1095,7 @@ export const QUARTER_START = {
       format: this.locale.dateFormat,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // QUARTER.END
@@ -1117,7 +1112,7 @@ export const QUARTER_END = {
       format: this.locale.dateFormat,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YEAR.START
@@ -1133,7 +1128,7 @@ export const YEAR_START = {
       format: this.locale.dateFormat,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // YEAR.END
@@ -1149,4 +1144,4 @@ export const YEAR_END = {
       format: this.locale.dateFormat,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;

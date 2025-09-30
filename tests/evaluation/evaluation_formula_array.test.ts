@@ -1,9 +1,10 @@
-import { arg, functionRegistry } from "../../src/functions";
+import { functionRegistry, UID } from "@odoo/o-spreadsheet-engine";
+import { arg } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { DEFAULT_LOCALE, ErrorCell, UID } from "../../src/types";
+import { DEFAULT_LOCALE, ErrorCell } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -18,8 +19,6 @@ import {
   unMerge,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry } from "../test_helpers/helpers";
-
 let model: Model;
 let sheetId: UID;
 

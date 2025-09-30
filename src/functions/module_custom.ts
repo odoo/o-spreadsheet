@@ -1,11 +1,7 @@
+import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { formatLargeNumber } from "../helpers";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Maybe,
-} from "../types";
+import { FunctionResultNumber } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -36,4 +32,4 @@ export const FORMAT_LARGE_NUMBER = {
       format: formatLargeNumber(value, unite, this.locale),
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;

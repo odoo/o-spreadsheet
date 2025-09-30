@@ -13,7 +13,7 @@ import {
   zoneToXc,
 } from "../../src/helpers/index";
 
-import { Zone } from "../../src/types";
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import { target } from "../test_helpers/helpers";
 
 describe("overlap", () => {

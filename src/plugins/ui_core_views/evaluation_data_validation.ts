@@ -1,3 +1,4 @@
+import { CellPosition, HeaderIndex, Matrix, Style, UID } from "@odoo/o-spreadsheet-engine";
 import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
@@ -6,7 +7,6 @@ import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } fr
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
-  CellPosition,
   CellValue,
   CellValueType,
   DEFAULT_LOCALE,
@@ -14,12 +14,8 @@ import {
   DataValidationCriterionType,
   DataValidationRule,
   EvaluatedCriterion,
-  HeaderIndex,
   Lazy,
-  Matrix,
   Offset,
-  Style,
-  UID,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CoreViewPlugin } from "../core_view_plugin";

@@ -1,3 +1,4 @@
+import { BorderDescr } from "@odoo/o-spreadsheet-engine";
 import { CellIsRule, Model } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
@@ -9,13 +10,7 @@ import {
 import { toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { getCurrentVersion } from "../../src/migrations/data";
-import {
-  BorderDescr,
-  ColorScaleRule,
-  DEFAULT_LOCALE,
-  DEFAULT_LOCALES,
-  IconSetRule,
-} from "../../src/types";
+import { ColorScaleRule, DEFAULT_LOCALE, DEFAULT_LOCALES, IconSetRule } from "../../src/types";
 import {
   activateSheet,
   resizeColumns,

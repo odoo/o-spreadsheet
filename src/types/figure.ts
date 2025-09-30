@@ -1,4 +1,4 @@
-import { DOMCoordinates, HeaderIndex, Pixel, PixelPosition, TitleDesign, UID } from ".";
+import { Pixel, UID } from "@odoo/o-spreadsheet-engine";
 
 export interface FigureInfo {
   id: UID;

@@ -1,3 +1,4 @@
+import { CellPosition, FilterId, UID } from "@odoo/o-spreadsheet-engine";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import {
   deepCopy,
@@ -12,7 +13,6 @@ import {
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
-  CellPosition,
   Command,
   CommandResult,
   CriterionFilter,
@@ -20,9 +20,7 @@ import {
   DataFilterValue,
   ExcelFilterData,
   ExcelWorkbookData,
-  FilterId,
   Table,
-  UID,
 } from "../../types";
 import { LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";

@@ -1,4 +1,4 @@
-import { Style, UID } from "./misc";
+import { Style, UID } from "@odoo/o-spreadsheet-engine";
 import { Range } from "./range";
 
 // -----------------------------------------------------------------------------

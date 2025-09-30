@@ -1,3 +1,4 @@
+import { CellPosition, FunctionResultObject, isMatrix, UID } from "@odoo/o-spreadsheet-engine";
 import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
@@ -15,23 +16,17 @@ import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import {
   AddPivotCommand,
-  CellPosition,
   Command,
   CoreCommand,
-  FunctionResultObject,
+  invalidateEvaluationCommands,
   PivotCoreMeasure,
   PivotTableCell,
   PivotVisibilityOptions,
   SortDirection,
-  UID,
   UpdatePivotCommand,
-  invalidateEvaluationCommands,
-  isMatrix,
 } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
-import { UIPluginConfig } from "../ui_plugin";
-
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT", "REMOVE_PIVOT"];
 
 function isPivotCommand(cmd: CoreCommand): cmd is AddPivotCommand | UpdatePivotCommand {

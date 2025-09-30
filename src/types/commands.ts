@@ -1,27 +1,18 @@
-import {
-  ConditionalFormat,
-  DataValidationRule,
-  Figure,
-  Format,
-  Locale,
-  Style,
-  Zone,
-} from "./index";
+import { ConditionalFormat, DataValidationRule, Figure, Format, Locale } from "./index";
+import { Dimension, SetDecimalStep, SortDirection, SortOptions } from "./misc";
+
 import {
   Border,
   BorderData,
   CellPosition,
   Color,
-  Dimension,
   HeaderIndex,
   Pixel,
   PixelPosition,
-  SetDecimalStep,
-  SortDirection,
-  SortOptions,
+  Style,
   UID,
-} from "./misc";
-
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { Carousel, CarouselItem, FigureSize } from "./figure";

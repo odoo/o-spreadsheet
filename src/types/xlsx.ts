@@ -1,4 +1,5 @@
-import { Alias, ExcelChartDefinition, Format, PaneDivision, UID } from ".";
+import { Alias, PaneDivision, UID } from "@odoo/o-spreadsheet-engine";
+import { ExcelChartDefinition, Format } from ".";
 import { ExcelImage } from "../types/image";
 import { ExcelFigureSize } from "./figure";
 

@@ -1,5 +1,5 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import type { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface PieChartDefinition extends CommonChartDefinition {

@@ -1,6 +1,7 @@
 import { UuidGenerator } from "../../src/helpers";
 import { SelectiveHistory } from "../../src/history/selective_history";
-import { UID } from "../../src/types";
+
+import { UID } from "@odoo/o-spreadsheet-engine";
 
 interface Command {
   position: number;

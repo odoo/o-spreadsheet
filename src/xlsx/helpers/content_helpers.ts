@@ -1,3 +1,4 @@
+import { Style, UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
 import {
   getCanonicalRepresentation,
@@ -5,13 +6,7 @@ import {
   splitReference,
   toUnboundedZone,
 } from "../../helpers";
-import {
-  ConditionalFormattingOperatorValues,
-  ExcelWorkbookData,
-  Style,
-  UID,
-  WorkbookData,
-} from "../../types";
+import { ConditionalFormattingOperatorValues, ExcelWorkbookData, WorkbookData } from "../../types";
 import {
   ExtractedStyle,
   XLSXDataValidationDateOperatorType,

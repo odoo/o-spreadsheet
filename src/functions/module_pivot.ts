@@ -1,15 +1,10 @@
+import { FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { range } from "../helpers/index";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  PivotVisibilityOptions,
-} from "../types";
+import { PivotVisibilityOptions } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -74,7 +69,7 @@ export const PIVOT_VALUE = {
     }
     return pivot.getPivotCellValueAndFormat(_measure, domain);
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // PIVOT.HEADER
 
@@ -127,7 +122,7 @@ export const PIVOT_HEADER = {
           : format,
     };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 export const PIVOT = {
   description: _t("Get a pivot table."),
@@ -223,4 +218,4 @@ export const PIVOT = {
     }
     return result;
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;

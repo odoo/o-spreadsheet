@@ -1,3 +1,4 @@
+import { MenuMouseEvent } from "@odoo/o-spreadsheet-engine";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
@@ -10,7 +11,6 @@ import {
   CarouselItem,
   CSSProperties,
   FigureUI,
-  MenuMouseEvent,
   SpreadsheetChildEnv,
 } from "../../../types";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";

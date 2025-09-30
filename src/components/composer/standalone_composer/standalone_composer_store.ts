@@ -1,12 +1,10 @@
+import { Color, UID, UnboundedZone, Zone } from "@odoo/o-spreadsheet-engine";
 import { Token, rangeTokenize } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { localizeContent } from "../../../helpers/locale";
 import { setXcToFixedReferenceType } from "../../../helpers/reference_type";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Get } from "../../../store_engine";
-import { Color, UID, UnboundedZone, Zone } from "../../../types";
-import { AbstractComposerStore } from "../composer/abstract_composer_store";
-
 export interface StandaloneComposerArgs {
   onConfirm: (content: string) => void;
   content: string;

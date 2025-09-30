@@ -1,4 +1,5 @@
-import { Model, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import { PivotHTMLRenderer } from "../../src/components/pivot_html_renderer/pivot_html_renderer";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";

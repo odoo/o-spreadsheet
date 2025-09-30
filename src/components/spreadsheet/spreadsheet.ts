@@ -1,3 +1,4 @@
+import { HeaderGroup, Pixel } from "@odoo/o-spreadsheet-engine";
 import {
   Component,
   onMounted,
@@ -18,13 +19,7 @@ import { ModelStore } from "../../stores";
 import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { _t } from "../../translation";
-import {
-  CSSProperties,
-  HeaderGroup,
-  InformationNotification,
-  Pixel,
-  SpreadsheetChildEnv,
-} from "../../types";
+import { CSSProperties, InformationNotification, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";

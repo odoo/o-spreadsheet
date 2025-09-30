@@ -1,8 +1,8 @@
+import { HeaderIndex, Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepCopy, getAddHeaderStartIndex, range, removeIndexesFromArray } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
-import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
-import { CorePlugin } from "../core_plugin";
+import { Dimension } from "../../types/misc";
 
 interface HeaderSizeState {
   sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>>;

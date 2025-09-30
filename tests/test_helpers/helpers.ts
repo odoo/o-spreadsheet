@@ -1,5 +1,4 @@
-import { BasePlugin } from "@odoo/o-spreadsheet-engine";
-import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
+import { CellPosition, Highlight, Matrix, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
@@ -12,7 +11,6 @@ import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/do
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
-import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,
@@ -46,7 +44,6 @@ import { NotificationStore } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
 import { _t } from "../../src/translation";
 import {
-  CellPosition,
   CellValue,
   ChartDefinition,
   ColorScaleMidPointThreshold,
@@ -61,14 +58,9 @@ import {
   ExcelWorkbookData,
   Format,
   GridRenderingContext,
-  Highlight,
-  Matrix,
   OrderedLayers,
   RangeData,
   SpreadsheetChildEnv,
-  Style,
-  UID,
-  Zone,
 } from "../../src/types";
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
@@ -79,8 +71,6 @@ import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
 import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
-import { getCellContent, getEvaluatedCell } from "./getters_helpers";
-
 const functionsContent = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
 

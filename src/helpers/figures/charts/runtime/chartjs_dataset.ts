@@ -1,3 +1,4 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { ChartDataset, Point } from "chart.js";
 import {
   BACKGROUND_CHART_COLOR,
@@ -9,7 +10,7 @@ import {
   LINE_FILL_TRANSPARENCY,
 } from "../../../../constants";
 import { _t } from "../../../../translation";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import { ChartRuntimeGenerationArgs, GenericDefinition } from "../../../../types";
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,

@@ -10,7 +10,7 @@ export abstract class FunctionRegistry<TInput, TStored, TMapped> {
   private registry = new Registry<TStored>();
   mapping: Record<string, TMapped> = {} as Record<string, TMapped>;
 
-  get content(): Record<string, TStored> {
+  public get content(): Record<string, TStored> {
     return this.registry.content;
   }
 

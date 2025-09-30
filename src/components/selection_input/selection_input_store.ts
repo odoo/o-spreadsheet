@@ -1,11 +1,9 @@
+import { Color, Highlight, UID } from "@odoo/o-spreadsheet-engine";
 import { ColorGenerator, isEqual, positionToZone, splitReference } from "../../helpers/index";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";
 import { SelectionEvent } from "../../types/event_stream";
-import { Color, Command, Highlight, UID } from "../../types/index";
-import { FocusStore } from "../focus_store";
-
 export interface RangeInputValue {
   id: number;
   xc: string;

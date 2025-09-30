@@ -1,4 +1,5 @@
-import { CoreCommand, RangeAdapter } from "../types";
+import { RangeAdapter } from "@odoo/o-spreadsheet-engine";
+import { CoreCommand } from "../types";
 import { Registry } from "./registry";
 
 /*

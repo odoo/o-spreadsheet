@@ -1,4 +1,5 @@
-import { Model, PivotCoreMeasure, SpreadsheetChildEnv, UID } from "../../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model, PivotCoreMeasure, SpreadsheetChildEnv } from "../../../src";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { toZone } from "../../../src/helpers";
 import { PREVIOUS_VALUE } from "../../../src/helpers/pivot/pivot_domain_helpers";

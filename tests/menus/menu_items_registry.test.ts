@@ -1,5 +1,5 @@
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   copy,
   createDynamicTable,
@@ -45,10 +45,10 @@ import {
 
 import { Currency, Model } from "../../src";
 
+import { functionRegistry, UID } from "@odoo/o-spreadsheet-engine";
 import { ActionSpec, createAction } from "../../src/actions/action";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
-import { functionRegistry } from "../../src/functions";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {

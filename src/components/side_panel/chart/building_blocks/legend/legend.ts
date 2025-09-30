@@ -1,9 +1,9 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import {
   ChartWithDataSetDefinition,
   DispatchResult,
   SpreadsheetChildEnv,
-  UID,
 } from "../../../../../types";
 import { Section } from "../../../components/section/section";
 

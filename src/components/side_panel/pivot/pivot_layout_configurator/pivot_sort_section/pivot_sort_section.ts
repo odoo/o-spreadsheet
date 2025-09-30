@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../..";
 import { formatValue } from "../../../../../helpers";
@@ -7,7 +8,7 @@ import {
 } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { _t } from "../../../../../translation";
-import { PivotDomain, UID } from "../../../../../types";
+import { PivotDomain } from "../../../../../types";
 import { Section } from "../../../components/section/section";
 
 interface Props {

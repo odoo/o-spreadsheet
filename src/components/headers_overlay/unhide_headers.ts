@@ -1,9 +1,7 @@
+import { ConsecutiveIndexes, HeaderIndex } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { positionToZone } from "../../helpers";
-import { ConsecutiveIndexes, HeaderIndex, SpreadsheetChildEnv } from "../../types";
-import { cssPropertiesToCss } from "../helpers";
-
 interface Props {
   headersGroups: ConsecutiveIndexes[];
   offset: number;

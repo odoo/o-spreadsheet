@@ -1,8 +1,7 @@
+import { Color, Zone } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
-import { Color, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../../types";
-import { cssPropertiesToCss } from "../../helpers/css";
-
+import { ResizeDirection, SpreadsheetChildEnv } from "../../../types";
 const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";

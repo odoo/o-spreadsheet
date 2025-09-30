@@ -1,24 +1,16 @@
+import {
+  Arg,
+  FunctionResultObject,
+  Functions,
+  Matrix,
+  Maybe,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { getFullReference, splitReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
-import {
-  LinearSearchMode,
-  dichotomicSearch,
-  expectNumberRangeError,
-  generateMatrix,
-  isEvaluationError,
-  linearSearch,
-  strictToInteger,
-  toBoolean,
-  toMatrix,
-  toNumber,
-  toString,
-  valueNotAvailable,
-} from "./helpers";
-
 const DEFAULT_IS_SORTED = true;
 const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
@@ -103,7 +95,7 @@ export const ADDRESS = {
     return cellReference;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COLUMN
@@ -146,7 +138,7 @@ export const COLUMN = {
     return generateMatrix(cellReference.length, 1, (col, row) => ({ value: left + col + 1 }));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COLUMNS
@@ -166,7 +158,7 @@ export const COLUMNS = {
     return _range.length;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // HLOOKUP
@@ -231,12 +223,12 @@ export const HLOOKUP = {
     return col[_index - 1];
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // INDEX
 // -----------------------------------------------------------------------------
-export const INDEX: AddFunctionDescription = {
+export const INDEX: Functions = {
   description: _t("Returns the content of a cell, specified by row and column offset."),
   args: [
     arg("reference (any, range)", _t("The range of cells from which the values are returned.")),
@@ -282,7 +274,7 @@ export const INDEX: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // INDIRECT
 // -----------------------------------------------------------------------------
-export const INDIRECT: AddFunctionDescription = {
+export const INDIRECT: Functions = {
   description: _t("Returns the content of a cell, specified by a string."),
   args: [
     arg("reference (string)", _t("The range of cells from which the values are returned.")),
@@ -421,7 +413,7 @@ export const LOOKUP = {
     return _resultRange[0][index];
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MATCH
@@ -497,7 +489,7 @@ export const MATCH = {
     return index + 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ROW
@@ -540,7 +532,7 @@ export const ROW = {
     return generateMatrix(1, cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // ROWS
@@ -560,7 +552,7 @@ export const ROWS = {
     return _range[0].length;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VLOOKUP
@@ -634,7 +626,7 @@ export const VLOOKUP = {
     return value;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // XLOOKUP
@@ -764,7 +756,7 @@ export const XLOOKUP = {
     return [[defaultValue]];
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 //--------------------------------------------------------------------------
 // OFFSET
@@ -878,4 +870,4 @@ export const OFFSET = {
         })
     );
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;

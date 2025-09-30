@@ -1,5 +1,3 @@
-import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
-import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
@@ -34,7 +32,6 @@ import { FileStore } from "./types/files";
 import {
   Client,
   ClientPosition,
-  Color,
   Command,
   CommandDispatcher,
   CommandHandler,
@@ -52,7 +49,6 @@ import {
   LayerName,
   LocalCommand,
   Locale,
-  UID,
   canExecuteInReadonly,
   isCoreCommand,
 } from "./types/index";

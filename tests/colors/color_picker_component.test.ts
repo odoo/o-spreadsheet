@@ -1,7 +1,7 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers";
-import { Color } from "../../src/types";
 import { setStyle } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,

@@ -1,18 +1,8 @@
+import { Border, Merge, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
-import {
-  Border,
-  Cell,
-  CellValue,
-  CellValueType,
-  EvaluatedCell,
-  FormattedValue,
-  Merge,
-  Style,
-  UID,
-  Zone,
-} from "../../src/types";
+import { Cell, CellValue, CellValueType, EvaluatedCell, FormattedValue } from "../../src/types";
 import { setSelection } from "./commands_helpers";
 import { getPlugin } from "./helpers";
 

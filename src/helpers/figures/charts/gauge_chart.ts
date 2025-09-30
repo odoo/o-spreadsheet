@@ -1,4 +1,3 @@
-import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -7,17 +6,12 @@ import {
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
   CellValueType,
-  Color,
   CommandResult,
   CoreGetters,
   Format,
   Getters,
   Range,
-  RangeAdapter,
-  UID,
   Validation,
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";

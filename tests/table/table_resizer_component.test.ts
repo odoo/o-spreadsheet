@@ -1,4 +1,5 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model, SpreadsheetChildEnv } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers";

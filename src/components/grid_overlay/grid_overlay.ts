@@ -1,17 +1,9 @@
+import { HeaderIndex, Pixel, Position } from "@odoo/o-spreadsheet-engine";
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { Store, useStore } from "../../store_engine";
-import {
-  DOMCoordinates,
-  GridClickModifiers,
-  HeaderIndex,
-  Pixel,
-  Position,
-  Rect,
-  Ref,
-  SpreadsheetChildEnv,
-} from "../../types";
+import { DOMCoordinates, GridClickModifiers, Rect, Ref, SpreadsheetChildEnv } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
@@ -27,8 +19,6 @@ import { useInterval } from "../helpers/time_hooks";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { HoveredTableStore } from "../tables/hovered_table_store";
-import { HoveredIconStore } from "./hovered_icon_store";
-
 function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const hoveredTable = useStore(HoveredTableStore);

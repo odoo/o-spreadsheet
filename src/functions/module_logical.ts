@@ -1,5 +1,5 @@
+import { Arg, FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
@@ -38,12 +38,12 @@ export const AND = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FALSE
 // -----------------------------------------------------------------------------
-export const FALSE: AddFunctionDescription = {
+export const FALSE: Functions = {
   description: _t("Logical value `false`."),
   args: [],
   compute: function (): boolean {
@@ -81,7 +81,7 @@ export const IF = {
     return result ?? { value: 0 };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // IFERROR
@@ -103,7 +103,7 @@ export const IFERROR = {
     return result ?? { value: 0 };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // IFNA
@@ -125,7 +125,7 @@ export const IFNA = {
     return result ?? { value: 0 };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // IFS
@@ -168,7 +168,7 @@ export const IFS = {
     return new EvaluationError(_t("No match."));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // NOT
@@ -187,7 +187,7 @@ export const NOT = {
     return !toBoolean(logicalExpression);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // OR
@@ -214,7 +214,7 @@ export const OR = {
     return result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SWITCH
@@ -261,12 +261,12 @@ export const SWITCH = {
     return defaultValue || { value: 0 };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TRUE
 // -----------------------------------------------------------------------------
-export const TRUE: AddFunctionDescription = {
+export const TRUE: Functions = {
   description: _t("Logical value `true`."),
   args: [],
   compute: function (): boolean {
@@ -306,4 +306,4 @@ export const XOR = {
     return acc;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

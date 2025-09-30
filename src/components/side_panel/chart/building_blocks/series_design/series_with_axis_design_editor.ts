@@ -1,3 +1,4 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
@@ -5,11 +6,9 @@ import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
   ChartJSRuntime,
   ChartWithDataSetDefinition,
-  Color,
   DispatchResult,
   SpreadsheetChildEnv,
   TrendConfiguration,
-  UID,
 } from "../../../../../types";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";

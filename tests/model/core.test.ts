@@ -1,6 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, coreTypes, UID } from "../../src/types";
+import { CommandResult, coreTypes } from "../../src/types";
 import {
   activateSheet,
   addColumns,

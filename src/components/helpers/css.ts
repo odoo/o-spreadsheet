@@ -7,7 +7,8 @@
  * created for the first time.
  */
 
-import { CSSProperties, Style } from "../../types";
+import { Style } from "@odoo/o-spreadsheet-engine";
+import { CSSProperties } from "../../types";
 
 export function getTextDecoration({
   strikethrough,

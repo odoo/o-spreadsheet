@@ -1,10 +1,11 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
   ChartSubtypeProperties,
   chartCategories,
   chartSubtypeRegistry,
 } from "../../../../registries/chart_types";
-import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { ChartDefinition, ChartType, SpreadsheetChildEnv } from "../../../../types/index";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../popover";

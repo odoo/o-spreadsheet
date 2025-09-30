@@ -14,22 +14,18 @@ import {
   AutofillData,
   AutofillModifier,
   AutofillResult,
-  Border,
   Cell,
   CellValueType,
   Command,
   CommandResult,
-  DIRECTION,
   GeneratorCell,
   Getters,
   GridRenderingContext,
-  HeaderIndex,
   LocalCommand,
   Tooltip,
-  UID,
-  Zone,
 } from "../../types/index";
 
+import { Border, DIRECTION, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { UIPlugin } from "../ui_plugin";
 
 type AutofillCellData = Omit<AutoFillCellCommand, "type">;

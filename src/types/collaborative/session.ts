@@ -1,6 +1,4 @@
-import { CoreCommand } from "../commands";
-import { Color, HeaderIndex, UID } from "../misc";
-
+import { Color, HeaderIndex, UID } from "@odoo/o-spreadsheet-engine";
 export type ClientId = string;
 
 export interface Client {

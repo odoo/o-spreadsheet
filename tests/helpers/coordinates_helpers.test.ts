@@ -1,5 +1,6 @@
 import { numberToLetters, toCartesian, toXC } from "../../src/helpers/index";
-import { Position } from "../../src/types";
+
+import { Position } from "@odoo/o-spreadsheet-engine";
 
 function toPosition(col: number, row: number): Position {
   return { col, row };

@@ -1,9 +1,8 @@
+import { EvalContext, FunctionResultObject, Maybe, UID } from "@odoo/o-spreadsheet-engine";
 import { isZoneInside, positionToZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
+import { Getters, Range } from "../types";
 import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
-import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
-
 /**
  * Get the pivot ID from the formula pivot ID.
  */

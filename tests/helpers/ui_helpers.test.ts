@@ -1,3 +1,4 @@
+import { Position, UID } from "@odoo/o-spreadsheet-engine";
 import { TableTerms } from "../../src/components/translations_terms";
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
@@ -19,7 +20,7 @@ import {
   interactiveToggleGroup,
 } from "../../src/helpers/ui/toggle_group_interactive";
 import { Model } from "../../src/model";
-import { CommandResult, Dimension, Position, SpreadsheetChildEnv, UID } from "../../src/types";
+import { CommandResult, Dimension, SpreadsheetChildEnv } from "../../src/types";
 import {
   addCellToSelection,
   copy,
@@ -38,8 +39,6 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, makeTestEnv, target } from "../test_helpers/helpers";
-
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
   for (const cell of Object.values(model.getters.getCells(sheetId))) {

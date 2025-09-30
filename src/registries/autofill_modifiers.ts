@@ -1,3 +1,4 @@
+import { DIRECTION } from "@odoo/o-spreadsheet-engine";
 import { toJsDate } from "../functions/helpers";
 import { jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
@@ -6,7 +7,6 @@ import {
   AutofillData,
   AutofillModifierImplementation,
   CopyModifier,
-  DIRECTION,
   FormulaModifier,
   Getters,
   IncrementModifier,

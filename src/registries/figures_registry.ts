@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Action } from "../actions/action";
 import {
   getCarouselMenuActions,
@@ -7,7 +8,7 @@ import {
 import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
-import { SpreadsheetChildEnv, UID } from "../types";
+import { SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------

@@ -1,5 +1,4 @@
-import { DateCriterionValue, GenericCriterionType } from "./generic_criterion";
-import { Border, BorderDescr, Style, TableId, UID } from "./misc";
+import { Border, BorderDescr, Style, TableId, UID } from "@odoo/o-spreadsheet-engine";
 import { Range } from "./range";
 
 export interface Table {

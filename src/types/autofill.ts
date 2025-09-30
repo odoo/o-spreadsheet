@@ -8,10 +8,7 @@
  *  - Formula: update the formula, with the same behavior than paste
  */
 
-import { Getters } from ".";
-import { Cell } from "./cells";
-import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
-
+import { Border, DIRECTION, UID, UpdateCellData } from "@odoo/o-spreadsheet-engine";
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
   increment: number;

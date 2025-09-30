@@ -1,5 +1,5 @@
-import { Format, FormattedValue } from "./format";
-import { FunctionResultObject, Link, RangeCompiledFormula, Style, UID } from "./misc";
+import { Style, UID } from "@odoo/o-spreadsheet-engine";
+import { Format } from "./format";
 
 interface CellAttributes {
   readonly id: UID;

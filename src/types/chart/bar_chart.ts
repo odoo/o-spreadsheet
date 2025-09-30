@@ -1,6 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { CommonChartDefinition } from ".";
-import { Color } from "../misc";
+
+import { Color } from "@odoo/o-spreadsheet-engine";
 
 export interface BarChartDefinition extends CommonChartDefinition {
   readonly type: "bar";

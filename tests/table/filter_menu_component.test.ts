@@ -1,9 +1,9 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import {
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
-  UID,
 } from "../../src/types";
 import {
   createDynamicTable,

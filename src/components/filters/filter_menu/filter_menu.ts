@@ -1,3 +1,4 @@
+import { Position } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort";
@@ -5,7 +6,6 @@ import {
   CellValueType,
   CriterionFilter,
   DataFilterValue,
-  Position,
   SortDirection,
   SpreadsheetChildEnv,
   filterDateCriterionOperators,

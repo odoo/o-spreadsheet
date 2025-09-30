@@ -1,4 +1,5 @@
-import { AbstractChart, Carousel, CarouselItem, Command, UID } from "../..";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { AbstractChart, Carousel, CarouselItem, Command } from "../..";
 import { deepEquals, UuidGenerator } from "../../helpers";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
 import { CommandResult, LocalCommand } from "../../types";

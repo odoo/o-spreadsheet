@@ -1,6 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { toZone, zoneToXc } from "../../src/helpers";
-import { UID } from "../../src/types";
 import {
   copy,
   createDynamicTable,

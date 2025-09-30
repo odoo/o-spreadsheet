@@ -1,7 +1,7 @@
+import { functionRegistry } from "@odoo/o-spreadsheet-engine";
 import { registries } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { autoCompleteProviders } from "../../src/registries/auto_completes";
 import { Store } from "../../src/store_engine";

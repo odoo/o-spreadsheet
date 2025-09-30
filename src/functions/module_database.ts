@@ -1,13 +1,6 @@
+import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-} from "../types";
+import { FunctionResultNumber, Locale } from "../types";
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { toString, visitMatchingRanges } from "./helpers";
@@ -178,7 +171,7 @@ export const DAVERAGE = {
     return AVERAGE.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DCOUNT
@@ -195,7 +188,7 @@ export const DCOUNT = {
     return COUNT.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DCOUNTA
@@ -212,7 +205,7 @@ export const DCOUNTA = {
     return COUNTA.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DGET
@@ -232,7 +225,7 @@ export const DGET = {
     return cells[0];
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DMAX
@@ -249,7 +242,7 @@ export const DMAX = {
     return MAX.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DMIN
@@ -266,7 +259,7 @@ export const DMIN = {
     return MIN.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DPRODUCT
@@ -283,7 +276,7 @@ export const DPRODUCT = {
     return PRODUCT.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DSTDEV
@@ -300,7 +293,7 @@ export const DSTDEV = {
     return STDEV.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DSTDEVP
@@ -317,7 +310,7 @@ export const DSTDEVP = {
     return STDEVP.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DSUM
@@ -334,7 +327,7 @@ export const DSUM = {
     return SUM.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DVAR
@@ -351,7 +344,7 @@ export const DVAR = {
     return VAR.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // DVARP
@@ -368,4 +361,4 @@ export const DVARP = {
     return VARP.compute.bind(this)([cells]);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

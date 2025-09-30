@@ -14,14 +14,10 @@ import {
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import {
-  AnchorZone,
-  Border,
-  BorderData,
   Carousel,
   ChartDefinition,
   ChartWithDataSetDefinition,
   ClipboardPasteOptions,
-  Color,
   CreateFigureCommand,
   CreateSheetCommand,
   CreateTableStyleCommand,
@@ -29,20 +25,26 @@ import {
   Dimension,
   Direction,
   DispatchResult,
-  HeaderIndex,
   Locale,
   ParsedOsClipboardContentWithImageData,
-  Pixel,
-  PixelPosition,
   SelectionStep,
   SortDirection,
   SortOptions,
   SplitTextIntoColumnsCommand,
-  Style,
-  UID,
 } from "../../src/types";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
+import {
+  AnchorZone,
+  Border,
+  BorderData,
+  Color,
+  HeaderIndex,
+  Pixel,
+  PixelPosition,
+  Style,
+  UID,
+} from "@odoo/o-spreadsheet-engine";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import { SunburstChartDefinition } from "../../src/types/chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";

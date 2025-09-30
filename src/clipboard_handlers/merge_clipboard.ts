@@ -1,14 +1,6 @@
+import { CellPosition, HeaderIndex, Maybe, Merge, UID } from "@odoo/o-spreadsheet-engine";
 import { isDefined } from "../helpers";
-import {
-  CellPosition,
-  ClipboardCellData,
-  ClipboardOptions,
-  ClipboardPasteTarget,
-  HeaderIndex,
-  Maybe,
-  Merge,
-  UID,
-} from "../types";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {

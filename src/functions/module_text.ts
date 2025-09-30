@@ -1,6 +1,6 @@
+import { Arg, FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { reduceAny, toBoolean, toMatrix, toNumber, toString, transposeMatrix } from "./helpers";
@@ -38,7 +38,7 @@ export const CHAR = {
     return String.fromCharCode(_tableNumber);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CLEAN
@@ -57,7 +57,7 @@ export const CLEAN = {
     return cleanedStr;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // CONCATENATE
@@ -72,7 +72,7 @@ export const CONCATENATE = {
     return reduceAny(datas, (acc, a) => acc + toString(a), "");
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // EXACT
@@ -90,7 +90,7 @@ export const EXACT = {
     return toString(string1) === toString(string2);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FIND
@@ -141,7 +141,7 @@ export const FIND = {
     return result + 1;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // JOIN
@@ -166,7 +166,7 @@ export const JOIN = {
     const _delimiter = toString(delimiter);
     return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LEFT
@@ -191,7 +191,7 @@ export const LEFT = {
     return toString(text).substring(0, _numberOfCharacters);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LEN
@@ -203,7 +203,7 @@ export const LEN = {
     return toString(text).length;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LOWER
@@ -215,7 +215,7 @@ export const LOWER = {
     return toString(text).toLowerCase();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MID
@@ -258,7 +258,7 @@ export const MID = {
     return _text.slice(_starting_at - 1, _starting_at + _extract_length - 1);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PROPER
@@ -280,7 +280,7 @@ export const PROPER = {
     });
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 const REGEXEXTRACT_DEFAULT_MODE = 0;
 const REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY = 0;
@@ -354,7 +354,7 @@ export const REGEXEXTRACT = {
     }
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // REPLACE
@@ -389,7 +389,7 @@ export const REPLACE = {
     return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // RIGHT
@@ -415,7 +415,7 @@ export const RIGHT = {
     return _text.substring(stringLength - _numberOfCharacters, stringLength);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SEARCH
@@ -468,7 +468,7 @@ export const SEARCH = {
     return { value: result + 1 };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SPLIT
@@ -517,7 +517,7 @@ export const SPLIT = {
     return transposeMatrix([result]);
   },
   isExported: false,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SUBSTITUTE
@@ -565,7 +565,7 @@ export const SUBSTITUTE = {
     return _textToSearch.replace(reg, (text) => (++n === _occurrenceNumber ? _replaceWith : text));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TEXTJOIN
@@ -614,7 +614,7 @@ export const TEXTJOIN = {
     );
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TEXTSPLIT
@@ -718,7 +718,7 @@ export const TEXTSPLIT = {
     return transposeMatrix(cells);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TRIM
@@ -732,7 +732,7 @@ export const TRIM = {
     return trimContent(toString(text));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // UPPER
@@ -744,7 +744,7 @@ export const UPPER = {
     return toString(text).toUpperCase();
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TEXT
@@ -768,7 +768,7 @@ export const TEXT = {
     return formatValue(_number, { format: toString(format), locale: this.locale });
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VALUE
@@ -780,7 +780,7 @@ export const VALUE = {
     return toNumber(value, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TEXTAFTER
@@ -862,7 +862,7 @@ export const TEXTAFTER = {
     return targetIndex === undefined ? ifNotFound : { value: _text.substring(targetIndex) };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // TEXTBEFORE
@@ -942,4 +942,4 @@ export const TEXTBEFORE = {
       : { value: _text.substring(0, targetIndex - _delimiter.length) };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

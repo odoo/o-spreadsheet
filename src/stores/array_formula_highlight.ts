@@ -1,5 +1,5 @@
+import { Highlight } from "@odoo/o-spreadsheet-engine";
 import { Get } from "../store_engine";
-import { Highlight } from "../types";
 import { CellErrorType } from "../types/errors";
 import { HighlightStore } from "./highlight_store";
 import { SpreadsheetStore } from "./spreadsheet_store";

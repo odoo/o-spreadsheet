@@ -1,4 +1,4 @@
-import { arg, functionRegistry } from "../../src/functions";
+import { arg } from "../../src/functions";
 import { NOW, TODAY } from "../../src/functions/module_date";
 import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
@@ -10,6 +10,7 @@ import { hexaToInt } from "../../src/xlsx/conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
+import { functionRegistry } from "@odoo/o-spreadsheet-engine";
 import {
   createChart,
   createGaugeChart,

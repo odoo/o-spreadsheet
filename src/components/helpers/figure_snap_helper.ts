@@ -1,6 +1,4 @@
-import { FigureUI, Getters, Pixel, PixelPosition, UID } from "../../types";
-import { FIGURE_BORDER_WIDTH } from "./../../constants";
-
+import { Pixel, PixelPosition, UID } from "@odoo/o-spreadsheet-engine";
 const SNAP_MARGIN: Pixel = 5;
 
 export type HFigureAxisType = "top" | "bottom" | "vCenter";

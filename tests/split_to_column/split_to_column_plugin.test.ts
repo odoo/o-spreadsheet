@@ -1,6 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, DEFAULT_LOCALE, UID } from "../../src/types";
+import { CommandResult, DEFAULT_LOCALE } from "../../src/types";
 import {
   merge,
   redo,

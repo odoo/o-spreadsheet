@@ -1,4 +1,5 @@
-import { Command, UID } from "../../../../..";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Command } from "../../../../..";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,

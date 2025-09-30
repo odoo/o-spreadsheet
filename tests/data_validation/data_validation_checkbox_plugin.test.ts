@@ -1,4 +1,5 @@
-import { Model, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import {
   addDataValidation,
   deleteContent,

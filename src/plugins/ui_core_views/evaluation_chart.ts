@@ -1,6 +1,7 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
+import { ExcelWorkbookData, FigureData, Range } from "../../types";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
@@ -8,8 +9,6 @@ import {
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { CoreViewPlugin } from "../core_view_plugin";
-
 interface EvaluationChartStyle {
   background: Color;
   fontColor: Color;

@@ -16,8 +16,6 @@ import {
 import { createFilter } from "../../helpers/table_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import {
-  ApplyRangeChange,
-  CellPosition,
   CommandResult,
   CoreCommand,
   CoreTable,
@@ -30,14 +28,12 @@ import {
   Table,
   TableConfig,
   TableData,
-  TableId,
-  UID,
   UpdateCellCommand,
   UpdateTableCommand,
   WorkbookData,
-  Zone,
 } from "../../types/index";
 
+import { ApplyRangeChange, CellPosition, TableId, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { CorePlugin } from "../core_plugin";
 
 interface TableState {

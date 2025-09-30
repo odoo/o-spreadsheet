@@ -1,7 +1,8 @@
 import { ChartMeta, ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { Color } from "../../../../types";
+
+import { Color } from "@odoo/o-spreadsheet-engine";
 
 export interface ChartShowValuesPluginOptions {
   showValues: boolean;

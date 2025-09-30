@@ -1,13 +1,12 @@
+import { CellPosition, Zone } from "@odoo/o-spreadsheet-engine";
 import { NEWLINE } from "../../constants";
 import { range } from "../../helpers";
 import { canonicalizeNumberContent } from "../../helpers/locale";
 import {
-  CellPosition,
   CellValueType,
   Command,
   CommandResult,
   SplitTextIntoColumnsCommand,
-  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

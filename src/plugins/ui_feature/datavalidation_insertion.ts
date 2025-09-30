@@ -1,5 +1,6 @@
+import { isMatrix } from "@odoo/o-spreadsheet-engine";
 import { getCellPositionsInRanges, isBoolean } from "../../helpers";
-import { CellValueType, Command, isMatrix } from "../../types/index";
+import { CellValueType, Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataValidationInsertionPlugin extends UIPlugin {

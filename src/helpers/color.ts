@@ -1,5 +1,6 @@
-import { Color, HSLA, RGBA } from "../types";
+import { HSLA, RGBA } from "../types";
 
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { concat } from "./misc";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;

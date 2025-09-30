@@ -1,3 +1,4 @@
+import { HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   getAddHeaderStartIndex,
   moveHeaderIndexesOnHeaderAddition,
@@ -22,7 +23,6 @@ import {
   FreezeColumnsCommand,
   FreezeRowsCommand,
   GroupHeadersCommand,
-  HeaderIndex,
   InsertPivotCommand,
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
@@ -37,7 +37,6 @@ import {
   UpdateFigureCommand,
   UpdatePivotCommand,
   UpdateTableCommand,
-  Zone,
 } from "../../types";
 import { transformRangeData, transformZone } from "./ot_helpers";
 

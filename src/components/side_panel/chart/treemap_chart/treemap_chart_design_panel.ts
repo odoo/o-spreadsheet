@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import {
@@ -6,7 +7,7 @@ import {
   TreeMapChartDefinition,
   TreeMapColorScaleOptions,
 } from "../../../../types/chart/tree_map_chart";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { DispatchResult, SpreadsheetChildEnv } from "../../../../types/index";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

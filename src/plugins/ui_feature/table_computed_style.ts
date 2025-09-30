@@ -1,22 +1,7 @@
+import { Border, CellPosition, Style, TableId, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { lazy } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import {
-  Border,
-  CellPosition,
-  Command,
-  CommandTypes,
-  Lazy,
-  Style,
-  Table,
-  TableConfig,
-  TableId,
-  UID,
-  Zone,
-  invalidateEvaluationCommands,
-} from "../../types";
-import { UIPlugin } from "../ui_plugin";
-
 interface ComputedTableStyle {
   styles: Record<number, Record<number, Style | undefined>>;
   borders: Record<number, Record<number, Border | undefined>>;

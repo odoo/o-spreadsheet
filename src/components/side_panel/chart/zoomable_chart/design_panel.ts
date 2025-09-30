@@ -1,7 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import {
   DispatchResult,
   GenericDefinition,
-  UID,
   ZoomableChartDefinition,
 } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";

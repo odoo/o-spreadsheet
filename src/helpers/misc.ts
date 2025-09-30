@@ -1,12 +1,10 @@
 //------------------------------------------------------------------------------
 // Miscellaneous
 //------------------------------------------------------------------------------
+import { ConsecutiveIndexes, Style, UID } from "@odoo/o-spreadsheet-engine";
 import { escapeRegExp as engineEscapeRegExp } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../constants";
-import { ChartStyle, ConsecutiveIndexes, Lazy, UID } from "../types";
-import { SearchOptions } from "../types/find_and_replace";
-import { Cloneable, DebouncedFunction, Style } from "./../types/misc";
-
+import { ChartStyle, Lazy } from "../types";
 export {
   escapeRegExp,
   getCanonicalSymbolName,

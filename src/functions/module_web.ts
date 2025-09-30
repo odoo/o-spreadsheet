@@ -1,6 +1,6 @@
+import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { markdownLink } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toString } from "./helpers";
 
@@ -26,4 +26,4 @@ export const HYPERLINK = {
     return markdownLink(processedLabel, processedUrl);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

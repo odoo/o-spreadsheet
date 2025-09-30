@@ -1,6 +1,5 @@
 import { CommandResult, Model } from "../../src";
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { UID } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -39,6 +38,7 @@ import {
   toRangesData,
 } from "../test_helpers/helpers";
 
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { EvaluationPlugin } from "../../src/plugins/ui_core_views";

@@ -11,7 +11,8 @@ import {
   UpdateChartCommand,
   UpdatePivotCommand,
 } from "../../types/commands";
-import { RangeAdapter } from "../../types/misc";
+
+import { RangeAdapter } from "@odoo/o-spreadsheet-engine";
 
 function updateCellCommandAdaptRange(
   cmd: UpdateCellCommand,

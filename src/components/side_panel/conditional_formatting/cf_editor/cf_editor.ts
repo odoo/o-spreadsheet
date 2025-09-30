@@ -1,3 +1,4 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
@@ -13,7 +14,6 @@ import { _t } from "../../../../translation";
 import {
   CancelledReason,
   CellIsRule,
-  Color,
   ColorScaleRule,
   ColorScaleThreshold,
   CommandResult,

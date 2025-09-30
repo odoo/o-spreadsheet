@@ -1,21 +1,16 @@
+import {
+  ApplyRangeChange,
+  CellPosition,
+  Position,
+  RangeCompiledFormula,
+  UID,
+} from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import {
-  ApplyRangeChange,
-  CellPosition,
-  CellValue,
-  CommandResult,
-  CoreCommand,
-  Position,
-  Range,
-  RangeCompiledFormula,
-  UID,
-  WorkbookData,
-} from "../../types";
-import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
-import { CorePlugin } from "../core_plugin";
+import { CellValue, CommandResult, CoreCommand, Range, WorkbookData } from "../../types";
+import { PivotCoreDefinition } from "../../types/pivot";
 
 interface Pivot {
   definition: PivotCoreDefinition;

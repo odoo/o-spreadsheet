@@ -1,5 +1,6 @@
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv, Zone } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers/css";
 
 type Orientation = "n" | "s" | "w" | "e";

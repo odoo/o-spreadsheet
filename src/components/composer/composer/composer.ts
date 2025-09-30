@@ -1,20 +1,17 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
-import { functionRegistry } from "../../../functions/index";
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
-import { DEFAULT_TOKEN_COLOR } from "../../../constants";
+import { FunctionDescription, functionRegistry } from "@odoo/o-spreadsheet-engine";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
   CSSProperties,
-  Color,
   ComposerFocusType,
   DOMDimension,
   Direction,
-  FunctionDescription,
   Rect,
   SpreadsheetChildEnv,
 } from "../../../types/index";
@@ -25,9 +22,6 @@ import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
-import { SpeechBubble } from "../speech_bubble/speech_bubble";
-import { CellComposerStore } from "./cell_composer_store";
-
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;

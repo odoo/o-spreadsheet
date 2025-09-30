@@ -1,3 +1,4 @@
+import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -6,17 +7,13 @@ import {
 } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
 import {
-  ApplyRangeChange,
   CellValueType,
-  Color,
   CommandResult,
   CoreGetters,
   EvaluatedCell,
   Getters,
   Locale,
   Range,
-  RangeAdapter,
-  UID,
 } from "../../../types";
 import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
 import {

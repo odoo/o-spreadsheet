@@ -1,3 +1,4 @@
+import { Align, HeaderIndex, Pixel } from "@odoo/o-spreadsheet-engine";
 import {
   Component,
   onMounted,
@@ -41,7 +42,6 @@ import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { AllowedImageMimeTypes } from "../../types/image";
 import {
-  Align,
   CellValueType,
   Client,
   ClipboardMIMEType,
@@ -50,8 +50,6 @@ import {
   Dimension,
   Direction,
   GridClickModifiers,
-  HeaderIndex,
-  Pixel,
   Rect,
   Ref,
   SpreadsheetChildEnv,

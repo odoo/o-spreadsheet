@@ -1,7 +1,5 @@
+import { HeaderIndex, Row } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import { HeaderIndex, Row } from "../types";
-import { getUnquotedSheetName, isDefined } from "./misc";
-
 export function createDefaultRows(rowNumber: number): Row[] {
   const rows: Row[] = [];
   for (let i = 0; i < rowNumber; i++) {

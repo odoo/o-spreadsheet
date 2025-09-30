@@ -1,4 +1,4 @@
-import { Color, Style } from "../misc";
+import { Color, Style } from "@odoo/o-spreadsheet-engine";
 import { TitleDesign } from "./chart";
 
 export interface ScorecardChartDefinition {

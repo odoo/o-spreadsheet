@@ -1,3 +1,4 @@
+import { DIRECTION } from "@odoo/o-spreadsheet-engine";
 import { toJsDate } from "../functions/helpers";
 import {
   DateTime,
@@ -7,7 +8,7 @@ import {
   isDateTimeFormat,
 } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
-import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE, DIRECTION } from "../types/index";
+import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE } from "../types/index";
 import { EvaluatedCell, LiteralCell } from "./../types/cells";
 import { Registry } from "./registry";
 

@@ -1,5 +1,6 @@
+import { UnboundedZone, Zone } from "@odoo/o-spreadsheet-engine";
 import { expandZoneOnInsertion, reduceZoneOnDeletion } from "../../helpers";
-import { CoreCommand, RangeData, UnboundedZone, Zone } from "../../types";
+import { CoreCommand } from "../../types";
 
 export function transformZone<Z extends Zone | UnboundedZone>(
   zone: Z,

@@ -1,4 +1,12 @@
 import {
+  ApplyRangeChange,
+  CellPosition,
+  HeaderIndex,
+  Merge,
+  UID,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
+import {
   clip,
   createRange,
   deepEquals,
@@ -19,19 +27,13 @@ import {
 } from "../../helpers/index";
 import {
   AddMergeCommand,
-  ApplyRangeChange,
-  CellPosition,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
-  HeaderIndex,
-  Merge,
   Range,
   TargetDependentCommand,
-  UID,
   UpdateCellCommand,
   WorkbookData,
-  Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 

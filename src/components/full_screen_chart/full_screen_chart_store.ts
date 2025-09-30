@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetStore } from "../../stores";
-import { FigureUI, UID } from "../../types";
+import { FigureUI } from "../../types";
 
 export class FullScreenChartStore extends SpreadsheetStore {
   mutators = ["toggleFullScreenChart"] as const;

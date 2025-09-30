@@ -1,13 +1,13 @@
 import {
-  AddFunctionDescription,
   ArgDefinition,
   ArgProposal,
   ArgType,
   FunctionDescription,
-} from "../types";
+  Functions,
+} from "../types/functions";
 
 //------------------------------------------------------------------------------
-// Arg description DSL
+// Arg description DSLÒ
 //------------------------------------------------------------------------------
 
 const ARG_REGEXP = /(.*?)\((.*?)\)(.*)/;
@@ -97,10 +97,7 @@ function makeArg(str: string, description: string, proposals?: ArgProposal[]): A
  *
  * This information is useful during compilation.
  */
-export function addMetaInfoFromArg(
-  name: string,
-  addDescr: AddFunctionDescription
-): FunctionDescription {
+export function addMetaInfoFromArg(name: string, addDescr: Functions): FunctionDescription {
   let countArg = 0;
   let minArg = 0;
   let repeatingArg = 0;

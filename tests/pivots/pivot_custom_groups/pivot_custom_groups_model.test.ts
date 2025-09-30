@@ -1,4 +1,5 @@
-import { CommandResult, Model, PivotCustomGroupedField, UID } from "../../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { CommandResult, Model, PivotCustomGroupedField } from "../../../src";
 import { setCellContent } from "../../test_helpers/commands_helpers";
 import { getFormattedGrid, target } from "../../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";

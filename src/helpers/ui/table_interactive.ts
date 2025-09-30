@@ -1,5 +1,6 @@
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../types";
+import { CommandResult, DispatchResult, SpreadsheetChildEnv } from "../../types";
 
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { TableTerms } from "../../components/translations_terms";
 import { TableConfig } from "../../types/table";
 import { DEFAULT_TABLE_CONFIG } from "../table_presets";

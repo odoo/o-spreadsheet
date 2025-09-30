@@ -1,16 +1,11 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
-import {
-  Color,
-  CommandResult,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+import { CommandResult, DispatchResult, SpreadsheetChildEnv } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

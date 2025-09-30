@@ -1,4 +1,5 @@
-import { Rect, Zone } from "../types";
+import { Zone } from "@odoo/o-spreadsheet-engine";
+import { Rect } from "../types";
 import { intersection, union } from "./zones";
 
 /**

@@ -1,3 +1,12 @@
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  ApplyRangeChangeResult,
+  RangeProvider,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../formulas";
 import {
   createInvalidRange,
@@ -17,9 +26,6 @@ import {
 } from "../../helpers/index";
 import { CellErrorType } from "../../types/errors";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  ApplyRangeChangeResult,
   Command,
   CommandHandler,
   CommandResult,
@@ -28,11 +34,7 @@ import {
   Dimension,
   Range,
   RangeData,
-  RangeProvider,
   RangeStringOptions,
-  UID,
-  UnboundedZone,
-  Zone,
 } from "../../types/index";
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {

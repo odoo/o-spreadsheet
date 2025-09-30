@@ -1,10 +1,11 @@
+import { Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
-import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -34,8 +35,6 @@ import {
   nextTick,
   setMobileMode,
 } from "../test_helpers/helpers";
-import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-
 let fixture: HTMLElement;
 
 function isDragAndDropActive(): boolean {

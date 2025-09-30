@@ -1,5 +1,5 @@
+import { CellPosition } from "@odoo/o-spreadsheet-engine";
 import {
-  CellPosition,
   CellValue,
   Getters,
   PivotCoreDefinition,

@@ -1,10 +1,10 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import {
   Carousel,
   CarouselItem,
   CommandResult,
   CoreCommand,
-  UID,
   UpdateCarouselCommand,
   WorkbookData,
 } from "../../types/index";

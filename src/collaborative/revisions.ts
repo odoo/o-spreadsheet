@@ -1,4 +1,5 @@
-import { ClientId, Command, CoreCommand, HistoryChange, RevisionData, UID } from "../types";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { ClientId, Command, CoreCommand, HistoryChange, RevisionData } from "../types";
 
 export class Revision implements RevisionData {
   public readonly id: UID;

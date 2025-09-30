@@ -1,8 +1,14 @@
+import {
+  Alias,
+  Align,
+  BorderDescr,
+  Color,
+  DataBarFill,
+  Pixel,
+  Style,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { memoize } from "../helpers/misc";
-import { GridIcon } from "../registries/icons_on_cell_registry";
-import { ImageSVG } from "./image";
-import { Alias, Align, BorderDescr, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
-
 /**
  * Coordinate in pixels
  */

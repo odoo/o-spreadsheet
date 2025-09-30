@@ -1,3 +1,4 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -6,13 +7,7 @@ import {
 } from "../../../../constants";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
-import {
-  Color,
-  DispatchResult,
-  GenericDefinition,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types";
+import { DispatchResult, GenericDefinition, SpreadsheetChildEnv } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";

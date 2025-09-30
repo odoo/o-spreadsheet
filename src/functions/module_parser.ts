@@ -1,5 +1,5 @@
+import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../translation";
-import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { getTransformation, getTranslatedCategory, UNIT_OPTIONS } from "./helper_parser";
@@ -60,4 +60,4 @@ export const CONVERT = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

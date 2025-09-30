@@ -1,3 +1,4 @@
+import { CellPosition, isMatrix } from "@odoo/o-spreadsheet-engine";
 import { prettify } from "../../../formulas/formula_formatter";
 import { parseTokens } from "../../../formulas/parser";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
@@ -19,7 +20,6 @@ import { criterionEvaluatorRegistry } from "../../../registries/criterion_regist
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
-  CellPosition,
   CellValueType,
   Command,
   Direction,
@@ -27,10 +27,8 @@ import {
   FormulaCell,
   Locale,
   RemoveColumnsRowsCommand,
-  isMatrix,
 } from "../../../types";
 import { AbstractComposerStore } from "./abstract_composer_store";
-
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
 export class CellComposerStore extends AbstractComposerStore {

@@ -1,7 +1,7 @@
+import { Border, BorderDescr } from "@odoo/o-spreadsheet-engine";
 import { deepCopy } from "../../src/helpers";
 import { getComputedTableStyle } from "../../src/helpers/table_helpers";
-import { Border, BorderDescr } from "../../src/types";
-import { ComputedTableStyle, TableConfig, TableStyle } from "../../src/types/table";
+import { TableStyle } from "../../src/types/table";
 
 const TEST_TABLE_STYLE: TableStyle = {
   category: "light",

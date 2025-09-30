@@ -1,8 +1,9 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
 import { transformAll } from "../collaborative/ot/ot";
 import { Revision } from "../collaborative/revisions";
 import { inverseCommand } from "../helpers/inverse_commands";
-import { CoreCommand, HistoryChange, UID } from "../types";
+import { CoreCommand, HistoryChange } from "../types";
 import { SelectiveHistory } from "./selective_history";
 
 export function buildRevisionLog(args: {

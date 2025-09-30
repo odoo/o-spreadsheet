@@ -1,3 +1,11 @@
+import {
+  CellPosition,
+  DataBarFill,
+  HeaderIndex,
+  Style,
+  UID,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../formulas";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells";
@@ -6,28 +14,20 @@ import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellIsRule,
-  CellPosition,
   CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
   DEFAULT_LOCALE,
-  DataBarFill,
   DataBarRule,
   EvaluatedCell,
-  HeaderIndex,
   IconSetRule,
   IconThreshold,
   Lazy,
   NumberCell,
-  Style,
-  UID,
-  Zone,
   invalidateCFEvaluationCommands,
 } from "../../types/index";
 import { CoreViewPlugin } from "../core_view_plugin";
-import { CoreViewCommand, invalidateEvaluationCommands } from "./../../types/commands";
-
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
 type ComputedDataBars = { [col: HeaderIndex]: (DataBarFill | undefined)[] };

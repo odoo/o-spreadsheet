@@ -1,8 +1,6 @@
+import { Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import { onWillUnmount, useState } from "@odoo/owl";
-import { CSSProperties, Pixel, UID } from "../../types";
-import { cssPropertiesToCss } from "./css";
-import { startDnd } from "./drag_and_drop";
-
+import { CSSProperties } from "../../types";
 type Direction = "horizontal" | "vertical";
 
 interface DragAndDropItemsPartial {

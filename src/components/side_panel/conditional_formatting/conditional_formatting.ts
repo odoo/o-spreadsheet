@@ -1,10 +1,9 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { localizeCFRule } from "../../../helpers/locale";
-import { ConditionalFormat, SpreadsheetChildEnv, UID, Zone } from "../../../types";
+import { ConditionalFormat, SpreadsheetChildEnv } from "../../../types";
 import { Section } from "../components/section/section";
 import { ConditionalFormattingEditor } from "./cf_editor/cf_editor";
-import { ConditionalFormatPreviewList } from "./cf_preview_list/cf_preview_list";
-
 interface Props {
   selection?: Zone[];
   onCloseSidePanel: () => void;

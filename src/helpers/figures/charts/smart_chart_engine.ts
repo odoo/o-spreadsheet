@@ -1,9 +1,10 @@
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
-import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
+import { CellValueType, ChartDefinition, EvaluatedCell, Getters } from "../../../types";
 import { isDateTimeFormat } from "../../format/format";
 import { recomputeZones } from "../../recompute_zones";
 import { getZoneArea, getZonesByColumns, zoneToXc } from "../../zones";

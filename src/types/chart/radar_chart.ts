@@ -1,5 +1,5 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface RadarChartDefinition extends CommonChartDefinition {

@@ -1,3 +1,4 @@
+import { Pixel, PixelPosition, Style } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_FONT,
@@ -7,9 +8,7 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
-import { Cell, Pixel, PixelPosition, Style } from "../types";
-import { isMarkdownLink, parseMarkdownLink } from "./misc";
-
+import { Cell } from "../types";
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
 }

@@ -8,8 +8,9 @@ import {
   MENU_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
-import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/types";
+import { Figure, SpreadsheetChildEnv } from "../../src/types";
 
+import { Pixel, Position, UID } from "@odoo/o-spreadsheet-engine";
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { ChartFigure } from "../../src/components/figures/figure_chart/figure_chart";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";

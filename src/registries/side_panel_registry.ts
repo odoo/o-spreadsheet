@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
@@ -19,7 +20,7 @@ import {
 } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
-import { Getters, SpreadsheetChildEnv, UID } from "../types";
+import { Getters, SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------

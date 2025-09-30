@@ -1,4 +1,5 @@
-import { CommandResult, Model, UID } from "../../src";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { CommandResult, Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import {
   createDynamicTable,

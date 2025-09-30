@@ -1,3 +1,4 @@
+import { Pixel, PixelPosition } from "@odoo/o-spreadsheet-engine";
 import { Color } from "chart.js";
 import {
   CHART_PADDING,
@@ -6,7 +7,7 @@ import {
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "../../../constants";
-import { DOMDimension, Pixel, PixelPosition } from "../../../types";
+import { DOMDimension } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { getDefaultContextFont } from "../../text_helper";
 import { chartMutedFontColor } from "./chart_common";

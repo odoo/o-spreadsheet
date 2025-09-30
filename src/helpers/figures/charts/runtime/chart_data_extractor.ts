@@ -1,9 +1,9 @@
 import { Point } from "chart.js";
 import { ChartTerms } from "../../../../components/translations_terms";
+import { getMovingAverageValues } from "../../../../functions/get_moving_average_values";
 import {
   evaluatePolynomial,
   expM,
-  getMovingAverageValues,
   logM,
   polynomialRegression,
   predictLinearValues,

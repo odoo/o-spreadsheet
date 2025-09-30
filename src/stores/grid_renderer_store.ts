@@ -1,3 +1,4 @@
+import { Align, CellPosition, HeaderIndex, Pixel, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { getPath2D } from "../components/icons/icons";
@@ -38,20 +39,14 @@ import {
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { Get, Store } from "../store_engine";
 import {
-  Align,
   BorderDescrWithOpacity,
   Box,
-  CellPosition,
   CellValueType,
   Command,
   GridRenderingContext,
-  HeaderIndex,
   LayerName,
-  Pixel,
   RenderingBox,
-  UID,
   Viewport,
-  Zone,
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 

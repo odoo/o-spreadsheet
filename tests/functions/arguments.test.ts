@@ -4,7 +4,8 @@ import {
   argTargeting,
   validateArguments,
 } from "../../src/functions/arguments";
-import { AddFunctionDescription } from "../../src/types";
+
+import { Functions } from "@odoo/o-spreadsheet-engine";
 
 describe("args", () => {
   test("various", () => {
@@ -126,7 +127,7 @@ describe("args", () => {
 });
 
 describe("arguments validation", () => {
-  const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
+  const aRandomFunction: Omit<Functions, "args"> = {
     description: "a random function",
     compute: () => 0,
   };
@@ -197,7 +198,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"] },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("basicFunction", basicFunction);
     expect(descr.minArgRequired).toBe(2);
@@ -220,7 +221,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"], optional: true },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useOptional", useOptional);
     expect(descr.minArgRequired).toBe(1);
@@ -246,7 +247,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"], repeating: true },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatable", useRepeatable);
     expect(descr.minArgRequired).toBe(1);
@@ -275,7 +276,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg2", description: "", type: ["ANY"], repeating: true },
         { name: "arg3", description: "", type: ["ANY"], repeating: true },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatables1", useRepeatables);
     expect(descr.minArgRequired).toBe(1);
@@ -304,7 +305,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg3", description: "", type: ["ANY"], repeating: true },
         { name: "arg4", description: "", type: ["ANY"], optional: true },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatables2", useRepeatables);
     expect(descr.minArgRequired).toBe(1);
@@ -349,7 +350,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg5", description: "", type: ["ANY"], optional: true },
         { name: "arg6", description: "", type: ["ANY"], optional: true },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatables3", useRepeatables);
     expect(descr.minArgRequired).toBe(1);
@@ -391,7 +392,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg3", description: "", type: ["ANY"], repeating: true },
         { name: "arg4", description: "", type: ["ANY"] },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatables4", useRepeatables);
     expect(descr.minArgRequired).toBe(2);
@@ -431,7 +432,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg3", description: "", type: ["ANY"], optional: true },
         { name: "arg4", description: "", type: ["ANY"] },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatables5", useRepeatables);
     expect(descr.minArgRequired).toBe(2);
@@ -474,7 +475,7 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg9", description: "", type: ["ANY"], optional: true },
         { name: "arg10", description: "", type: ["ANY"] },
       ],
-    } as AddFunctionDescription;
+    } as Functions;
 
     const descr = addMetaInfoFromArg("useRepeatables6", useRepeatables);
     expect(descr.minArgRequired).toBe(3);

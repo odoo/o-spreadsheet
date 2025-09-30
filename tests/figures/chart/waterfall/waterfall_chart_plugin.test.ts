@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { ChartMeta } from "chart.js";
-import { ChartCreationContext, Model, UID } from "../../../../src";
+import { ChartCreationContext, Model } from "../../../../src";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,

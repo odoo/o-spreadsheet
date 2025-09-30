@@ -1,10 +1,11 @@
+import { CellPosition, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { getUniqueText, sanitizeSheetName } from "../../helpers";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
-import { CellPosition, HeaderIndex, PivotTableCell, PivotTableData, UID, Zone } from "../../types";
+import { PivotTableCell, PivotTableData } from "../../types";
 import { Command, CommandResult } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 

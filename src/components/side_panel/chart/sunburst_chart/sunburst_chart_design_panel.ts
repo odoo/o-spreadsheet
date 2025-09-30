@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import {
@@ -6,7 +7,7 @@ import {
   SunburstChartJSDataset,
   SunburstChartRuntime,
 } from "../../../../types/chart";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { DispatchResult, SpreadsheetChildEnv } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

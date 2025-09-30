@@ -1,7 +1,8 @@
+import { Highlight } from "@odoo/o-spreadsheet-engine";
 import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
 import { Get } from "../store_engine";
-import { GridRenderingContext, Highlight, LayerName } from "../types";
+import { GridRenderingContext, LayerName } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export interface HighlightProvider {

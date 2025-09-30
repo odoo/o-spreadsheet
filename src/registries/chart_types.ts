@@ -1,3 +1,4 @@
+import { RangeAdapter, UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { ZoomableChartJsComponent } from "../components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
@@ -28,7 +29,7 @@ import {
   createWaterfallChartRuntime,
 } from "../helpers/figures/charts/waterfall_chart";
 import { _t } from "../translation";
-import { CommandResult, CoreGetters, Getters, RangeAdapter, UID } from "../types";
+import { CommandResult, CoreGetters, Getters } from "../types";
 import {
   BarChartDefinition,
   GaugeChartDefinition,

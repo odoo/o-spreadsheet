@@ -1,6 +1,6 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../../src";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
-import { Color, UID } from "../../../src/types";
 import {
   activateSheet,
   createChart,

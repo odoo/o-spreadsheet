@@ -1,15 +1,14 @@
-import { percentile } from "../helpers/index";
-import { _t } from "../translation";
 import {
-  AddFunctionDescription,
   Arg,
-  FunctionResultNumber,
   FunctionResultObject,
-  Locale,
+  Functions,
+  isMatrix,
   Matrix,
   Maybe,
-  isMatrix,
-} from "../types";
+} from "@odoo/o-spreadsheet-engine";
+import { percentile } from "../helpers/index";
+import { _t } from "../translation";
+import { FunctionResultNumber, Locale } from "../types";
 import { DivisionByZeroError, EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { areSameDimensions, assert, assertNotZero } from "./helper_assert";
@@ -237,7 +236,7 @@ export const AVEDEV = {
     return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // AVERAGE
@@ -261,7 +260,7 @@ export const AVERAGE = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // AVERAGE.WEIGHTED
@@ -332,7 +331,7 @@ export const AVERAGE_WEIGHTED = {
     }
     return { value: sum / count, format: inferFormat(args[0]) };
   },
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // AVERAGEA
@@ -371,7 +370,7 @@ export const AVERAGEA = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // AVERAGEIF
@@ -416,7 +415,7 @@ export const AVERAGEIF = {
     return sum / count;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // AVERAGEIFS
@@ -456,7 +455,7 @@ export const AVERAGEIFS = {
     return sum / count;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNT
@@ -477,7 +476,7 @@ export const COUNT = {
     return countNumbers(values, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COUNTA
@@ -495,7 +494,7 @@ export const COUNTA = {
     return countAny(values);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COVAR
@@ -516,7 +515,7 @@ export const COVAR = {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COVARIANCE.P
@@ -534,7 +533,7 @@ export const COVARIANCE_P = {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // COVARIANCE.S
@@ -552,12 +551,12 @@ export const COVARIANCE_S = {
     return covariance(dataY, dataX, true);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // FORECAST
 // -----------------------------------------------------------------------------
-export const FORECAST: AddFunctionDescription = {
+export const FORECAST: Functions = {
   description: _t(
     "Calculates the expected y-value for a specified x based on a linear regression of a dataset."
   ),
@@ -595,7 +594,7 @@ export const FORECAST: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // GROWTH
 // -----------------------------------------------------------------------------
-export const GROWTH: AddFunctionDescription = {
+export const GROWTH: Functions = {
   description: _t("Fits points to exponential growth trend."),
   args: [
     arg(
@@ -643,7 +642,7 @@ export const GROWTH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // INTERCEPT
 // -----------------------------------------------------------------------------
-export const INTERCEPT: AddFunctionDescription = {
+export const INTERCEPT: Functions = {
   description: _t("Compute the intercept of the linear regression."),
   args: [
     arg(
@@ -710,12 +709,12 @@ export const LARGE = {
     return result!;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // LINEST
 // -----------------------------------------------------------------------------
-export const LINEST: AddFunctionDescription = {
+export const LINEST: Functions = {
   description: _t(
     "Given partial data about a linear trend, calculates various parameters about the ideal linear trend using the least-squares method."
   ),
@@ -763,7 +762,7 @@ export const LINEST: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // LOGEST
 // -----------------------------------------------------------------------------
-export const LOGEST: AddFunctionDescription = {
+export const LOGEST: Functions = {
   description: _t(
     "Given partial data about an exponential growth curve, calculates various parameters about the best fit ideal exponential growth curve."
   ),
@@ -815,7 +814,7 @@ export const LOGEST: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // MATTHEWS
 // -----------------------------------------------------------------------------
-export const MATTHEWS: AddFunctionDescription = {
+export const MATTHEWS: Functions = {
   description: _t("Compute the Matthews correlation coefficient of a dataset."),
   args: [
     arg("data_x (range)", _t("The range representing the array or matrix of observed data.")),
@@ -878,7 +877,7 @@ export const MAX = {
     return max(values, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MAXA
@@ -907,7 +906,7 @@ export const MAXA = {
     return { value: maxa === -Infinity ? 0 : maxa, format: inferFormat(args[0]) };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MAXIFS
@@ -946,7 +945,7 @@ export const MAXIFS = {
     return result === -Infinity ? 0 : result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MEDIAN
@@ -978,7 +977,7 @@ export const MEDIAN = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MIN
@@ -999,7 +998,7 @@ export const MIN = {
     return min(values, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MINA
@@ -1028,7 +1027,7 @@ export const MINA = {
     return { value: mina === Infinity ? 0 : mina, format: inferFormat(args[0]) };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // MINIFS
@@ -1067,7 +1066,7 @@ export const MINIFS = {
     return result === Infinity ? 0 : result;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PEARSON
@@ -1100,7 +1099,7 @@ function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResu
   );
 }
 
-export const PEARSON: AddFunctionDescription = {
+export const PEARSON: Functions = {
   description: _t("Compute the Pearson product-moment correlation coefficient of a dataset."),
   args: [
     arg(
@@ -1123,7 +1122,7 @@ export const PEARSON: AddFunctionDescription = {
 
 // CORREL
 // In GSheet, CORREL is just an alias to PEARSON
-export const CORREL: AddFunctionDescription = PEARSON;
+export const CORREL: Functions = PEARSON;
 
 // -----------------------------------------------------------------------------
 // PERCENTILE
@@ -1141,7 +1140,7 @@ export const PERCENTILE = {
     return PERCENTILE_INC.compute.bind(this)(data, percentile);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PERCENTILE.EXC
@@ -1164,7 +1163,7 @@ export const PERCENTILE_EXC = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // PERCENTILE.INC
@@ -1185,12 +1184,12 @@ export const PERCENTILE_INC = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // POLYFIT
 // -----------------------------------------------------------------------------
-export const POLYFIT_COEFFS: AddFunctionDescription = {
+export const POLYFIT_COEFFS: Functions = {
   description: _t("Compute the coefficients of polynomial regression of the dataset."),
   args: [
     arg(
@@ -1235,7 +1234,7 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // POLYFIT.FORECAST
 // -----------------------------------------------------------------------------
-export const POLYFIT_FORECAST: AddFunctionDescription = {
+export const POLYFIT_FORECAST: Functions = {
   description: _t("Predict value by computing a polynomial regression of the dataset."),
   args: [
     arg("x (number, range<number>)", _t("The value(s) on the x-axis to forecast.")),
@@ -1291,7 +1290,7 @@ export const QUARTILE = {
     return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // QUARTILE.EXC
@@ -1315,7 +1314,7 @@ export const QUARTILE_EXC = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // QUARTILE.INC
@@ -1334,11 +1333,11 @@ export const QUARTILE_INC = {
     };
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // RANK
 // -----------------------------------------------------------------------------
-export const RANK: AddFunctionDescription = {
+export const RANK: Functions = {
   description: _t("Returns the rank of a specified value in a dataset."),
   args: [
     arg("value (number)", _t("The value whose rank will be determined.")),
@@ -1385,7 +1384,7 @@ export const RANK: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // RSQ
 // -----------------------------------------------------------------------------
-export const RSQ: AddFunctionDescription = {
+export const RSQ: Functions = {
   description: _t(
     "Compute the square of r, the Pearson product-moment correlation coefficient of a dataset."
   ),
@@ -1415,7 +1414,7 @@ export const RSQ: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // SLOPE
 // -----------------------------------------------------------------------------
-export const SLOPE: AddFunctionDescription = {
+export const SLOPE: Functions = {
   description: _t("Compute the slope of the linear regression."),
   args: [
     arg(
@@ -1482,12 +1481,12 @@ export const SMALL = {
     return result!;
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // SPEARMAN
 // -----------------------------------------------------------------------------
-export const SPEARMAN: AddFunctionDescription = {
+export const SPEARMAN: Functions = {
   description: _t("Compute the Spearman rank correlation coefficient of a dataset."),
   args: [
     arg(
@@ -1539,7 +1538,7 @@ export const STDEV = {
     return Math.sqrt(VAR.compute.bind(this)(...args));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // STDEV.P
@@ -1557,7 +1556,7 @@ export const STDEV_P = {
     return Math.sqrt(VAR_P.compute.bind(this)(...args));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // STDEV.S
@@ -1575,7 +1574,7 @@ export const STDEV_S = {
     return Math.sqrt(VAR_S.compute.bind(this)(...args));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // STDEVA
@@ -1593,7 +1592,7 @@ export const STDEVA = {
     return Math.sqrt(VARA.compute.bind(this)(...args));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // STDEVP
@@ -1611,7 +1610,7 @@ export const STDEVP = {
     return Math.sqrt(VARP.compute.bind(this)(...args));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // STDEVPA
@@ -1629,12 +1628,12 @@ export const STDEVPA = {
     return Math.sqrt(VARPA.compute.bind(this)(...args));
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // STEYX
 // -----------------------------------------------------------------------------
-export const STEYX: AddFunctionDescription = {
+export const STEYX: Functions = {
   description: _t(
     "Calculates the standard error of the predicted y-value for each x in the regression of a dataset."
   ),
@@ -1662,7 +1661,7 @@ export const STEYX: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 // TREND
 // -----------------------------------------------------------------------------
-export const TREND: AddFunctionDescription = {
+export const TREND: Functions = {
   description: _t("Fits points to linear trend derived via least-squares."),
   args: [
     arg(
@@ -1721,7 +1720,7 @@ export const VAR = {
     return variance(args, true, false, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VAR.P
@@ -1739,7 +1738,7 @@ export const VAR_P = {
     return variance(args, false, false, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VAR.S
@@ -1757,7 +1756,7 @@ export const VAR_S = {
     return variance(args, true, false, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VARA
@@ -1775,7 +1774,7 @@ export const VARA = {
     return variance(args, true, true, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VARP
@@ -1793,7 +1792,7 @@ export const VARP = {
     return variance(args, false, false, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;
 
 // -----------------------------------------------------------------------------
 // VARPA
@@ -1811,4 +1810,4 @@ export const VARPA = {
     return variance(args, false, true, this.locale);
   },
   isExported: true,
-} satisfies AddFunctionDescription;
+} satisfies Functions;

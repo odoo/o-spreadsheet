@@ -1,4 +1,4 @@
-import { Border, BorderDescr, Style } from "../../types";
+import { Border, BorderDescr, Style } from "@odoo/o-spreadsheet-engine";
 import {
   XLSXBorder,
   XLSXBorderDescr,
@@ -22,8 +22,6 @@ import {
   SUPPORTED_VERTICAL_ALIGNMENTS,
   V_ALIGNMENT_CONVERSION_MAP,
 } from "./conversion_maps";
-import { convertXlsxFormat } from "./format_conversion";
-
 interface StyleStruct {
   fontStyle?: XLSXFont;
   fillStyle?: XLSXFill;

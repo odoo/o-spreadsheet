@@ -1,12 +1,6 @@
+import { Align, BorderStyle, VerticalAlign } from "@odoo/o-spreadsheet-engine";
 import { IconSetType } from "../../components/icons/icons";
-import {
-  Align,
-  BorderStyle,
-  ConditionalFormattingOperatorValues,
-  ExcelChartType,
-  ThresholdType,
-  VerticalAlign,
-} from "../../types";
+import { ConditionalFormattingOperatorValues, ExcelChartType, ThresholdType } from "../../types";
 import { LegendPosition } from "../../types/chart/common_chart";
 import { AllowedImageMimeTypes } from "../../types/image";
 import {
@@ -21,8 +15,6 @@ import {
   XLSXDataValidationOperatorType,
   XLSXHorizontalAlignment,
 } from "../../types/xlsx";
-import { XLSXVerticalAlignment } from "./../../types/xlsx";
-
 export const SUPPORTED_BORDER_STYLES = ["thin", "medium", "thick", "dashed", "dotted"];
 export const SUPPORTED_HORIZONTAL_ALIGNMENTS: XLSXHorizontalAlignment[] = [
   "general",

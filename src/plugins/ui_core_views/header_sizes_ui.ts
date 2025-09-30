@@ -1,3 +1,4 @@
+import { CellPosition, HeaderIndex, Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
   deepCopy,
@@ -9,8 +10,7 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
-import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { Immutable } from "../../types/misc";
 
 interface HeaderSizeState {
   tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>>;

@@ -1,20 +1,7 @@
-import { functionRegistry } from "../../../functions";
 import { getFullReference, intersection, isZoneValid, toXC, zoneToXc } from "../../../helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
-import {
-  CellPosition,
-  EnsureRange,
-  EvalContext,
-  EvaluatedCell,
-  FunctionResultObject,
-  Getters,
-  Matrix,
-  Range,
-  ReferenceDenormalizer,
-} from "../../../types";
-import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
-
+import { EvaluatedCell, Getters, Range } from "../../../types";
 export type CompilationParameters = {
   referenceDenormalizer: ReferenceDenormalizer;
   ensureRange: EnsureRange;

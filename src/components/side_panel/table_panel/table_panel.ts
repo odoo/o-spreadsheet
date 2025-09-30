@@ -7,9 +7,9 @@ import {
   Range,
   SpreadsheetChildEnv,
   TableConfig,
-  Zone,
 } from "../../../types";
 
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";

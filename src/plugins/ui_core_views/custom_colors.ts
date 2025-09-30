@@ -1,3 +1,4 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { COLOR_PICKER_DEFAULTS } from "../../constants";
 import {
   colorNumberToHex,
@@ -9,9 +10,7 @@ import {
   rgbaToHSLA,
   toHex,
 } from "../../helpers";
-import { Color, Command, Immutable, RGBA, TableElementStyle, UID } from "../../types";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
-
+import { Command, Immutable, RGBA, TableElementStyle } from "../../types";
 const chartColorRegex = /"(#[0-9a-fA-F]{6})"/g;
 
 /**

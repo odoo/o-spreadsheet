@@ -1,6 +1,6 @@
+import { functionRegistry } from "@odoo/o-spreadsheet-engine";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { AST, ASTFuncall, ASTString, convertAstNodes, parse } from "../../formulas/parser";
-import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { CellValue, Format } from "../../types";

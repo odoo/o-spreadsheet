@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
+import { DispatchResult, SpreadsheetChildEnv } from "../../../../types";
 import { GenericDefinition, PieChartDefinition } from "../../../../types/chart";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
 import { Checkbox } from "../../components/checkbox/checkbox";

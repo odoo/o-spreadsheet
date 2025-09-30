@@ -1,6 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
-import { DispatchResult, UID } from "../../../../..";
+import { DispatchResult } from "../../../../..";
 import { deepCopy } from "../../../../../helpers";
 import { SpreadsheetChildEnv } from "../../../../../types";
 import {

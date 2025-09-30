@@ -1,14 +1,10 @@
+import { CellPosition, HeaderIndex, Maybe, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { UuidGenerator, deepEquals, positionToZone, recomputeZones } from "../helpers";
 import {
-  CellPosition,
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
   DataValidationRule,
-  HeaderIndex,
-  Maybe,
-  UID,
-  Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 

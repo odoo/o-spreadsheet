@@ -1,11 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
-import {
-  DispatchResult,
-  GenericDefinition,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+import { DispatchResult, GenericDefinition, SpreadsheetChildEnv } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";

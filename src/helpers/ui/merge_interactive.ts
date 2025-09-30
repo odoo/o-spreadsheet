@@ -1,6 +1,5 @@
+import { UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { _t } from "../../translation";
-import { CommandResult, SpreadsheetChildEnv, UID, Zone } from "../../types";
-
 export const AddMergeInteractiveContent = {
   MergeIsDestructive: _t(
     "Merging these cells will only preserve the top-leftmost value. Merge anyway?"

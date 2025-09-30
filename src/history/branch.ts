@@ -1,4 +1,5 @@
-import { Transformation, TransformationFactory, UID } from "../types";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { Transformation, TransformationFactory } from "../types";
 import { Operation } from "./operation";
 
 /**

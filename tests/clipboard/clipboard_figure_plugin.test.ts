@@ -1,7 +1,7 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
-import { UID } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart";
 import {
   activateSheet,

@@ -1,5 +1,6 @@
+import { Pixel } from "@odoo/o-spreadsheet-engine";
 import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
-import { CSSProperties, Pixel, Ref } from "../../types";
+import { CSSProperties, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
 import { ScrollBar as ScrollBarElement, ScrollDirection } from "../scrollbar";
 

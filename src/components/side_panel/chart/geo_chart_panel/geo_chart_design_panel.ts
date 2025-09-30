@@ -1,14 +1,13 @@
+import { Color, UID } from "@odoo/o-spreadsheet-engine";
 import { LegendPosition } from "../../../../types/chart";
 import {
   GeoChartColorScale,
   GeoChartCustomColorScale,
   GeoChartDefinition,
 } from "../../../../types/chart/geo_chart";
-import { Color, DispatchResult, UID } from "../../../../types/index";
+import { DispatchResult } from "../../../../types/index";
 import { ChartTerms } from "../../../translations_terms";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
-import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
-
 interface Props {
   chartId: UID;
   definition: GeoChartDefinition;

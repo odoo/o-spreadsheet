@@ -1,3 +1,4 @@
+import { Zone } from "@odoo/o-spreadsheet-engine";
 import { RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
@@ -8,7 +9,6 @@ import {
   ParsedOSClipboardContent,
   ParsedOsClipboardContentWithImageData,
   SpreadsheetChildEnv,
-  Zone,
 } from "../../types";
 
 export const PasteInteractiveContent = {

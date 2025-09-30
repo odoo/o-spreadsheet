@@ -1,3 +1,4 @@
+import { functionRegistry, UID } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -10,12 +11,12 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
-import { arg, functionRegistry } from "../../src/functions";
+import { arg } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
+import { CommandResult, Format, SetDecimalStep } from "../../src/types";
 import {
   createSheet,
   createTableWithFilter,
@@ -41,8 +42,6 @@ import {
   spyUiPluginHandle,
   target,
 } from "../test_helpers/helpers";
-import { addPivot } from "../test_helpers/pivot_helpers";
-
 function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
     sheetId: model.getters.getActiveSheetId(),

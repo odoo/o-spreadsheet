@@ -1,3 +1,4 @@
+import { HeaderIndex, PixelPosition } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
 import {
   getFullReference,
@@ -13,8 +14,6 @@ import {
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
   FigureData,
-  HeaderIndex,
-  PixelPosition,
   TrendConfiguration,
 } from "../../types";
 import { AnchorOffset } from "../../types/figure";
@@ -23,8 +22,6 @@ import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
 import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
-import { EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING } from "./conversion_maps";
-
 export function convertFigures(sheetData: XLSXWorksheet): FigureData<any>[] {
   let id = 1;
   return sheetData.figures

@@ -1,9 +1,8 @@
+import { HeaderIndex, Highlight, Zone } from "@odoo/o-spreadsheet-engine";
 import { Component, useState } from "@odoo/owl";
-import { HeaderIndex, Highlight, SpreadsheetChildEnv, Table, Zone } from "../../../types";
+import { SpreadsheetChildEnv, Table } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
-import { useHighlights } from "../../helpers/highlight_hook";
-
 const SIZE = 3;
 const COLOR = "#777";
 

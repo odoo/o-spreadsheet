@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
@@ -6,7 +7,6 @@ import {
   DispatchResult,
   GenericDefinition,
   SpreadsheetChildEnv,
-  UID,
 } from "../../../../types/index";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";

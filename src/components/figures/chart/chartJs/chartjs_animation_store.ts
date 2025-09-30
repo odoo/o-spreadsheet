@@ -1,5 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
-import { ChartType, UID } from "../../../../types";
+import { ChartType } from "../../../../types";
 
 export class ChartAnimationStore extends SpreadsheetStore {
   mutators = ["disableAnimationForChart", "enableAnimationForChart"] as const;

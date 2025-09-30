@@ -1,4 +1,4 @@
-import { AnchorZone } from "..";
+import { AnchorZone } from "@odoo/o-spreadsheet-engine";
 
 export type SelectionEventOptions = {
   scrollIntoView?: boolean;

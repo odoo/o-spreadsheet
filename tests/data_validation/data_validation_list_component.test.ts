@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
@@ -8,7 +9,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
+import { IsValueInListCriterion, SpreadsheetChildEnv } from "../../src/types";
 import {
   addDataValidation,
   createTableWithFilter,

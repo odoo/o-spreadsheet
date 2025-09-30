@@ -1,7 +1,8 @@
+import { CellPosition, Position } from "@odoo/o-spreadsheet-engine";
 import { positionToZone } from "../../helpers";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores";
-import { CellPosition, Command, Position, Rect } from "../../types";
+import { Command, Rect } from "../../types";
 import {
   CellPopoverType,
   ClosedCellPopover,

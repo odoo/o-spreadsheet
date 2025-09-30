@@ -1,5 +1,5 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import { FigureSize } from "./figure";
-import { Color } from "./misc";
 import { XLSXFigureSize } from "./xlsx";
 
 export type ImageSVG = {

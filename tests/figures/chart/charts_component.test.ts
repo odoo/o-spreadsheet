@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
@@ -17,7 +18,6 @@ import {
   ChartWithDataSetDefinition,
   CreateFigureCommand,
   SpreadsheetChildEnv,
-  UID,
 } from "../../../src/types";
 import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
