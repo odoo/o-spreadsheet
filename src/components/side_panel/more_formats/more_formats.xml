@@ -1,18 +1,94 @@
 <templates>
   <t t-name="o-spreadsheet-MoreFormatsPanel">
     <div class="o-more-formats-panel">
-      <div
-        t-foreach="dateFormatsActions"
-        t-as="action"
-        t-key="action.name(env)"
-        t-att-data-name="action.name(env)"
-        t-on-click="() => action.execute(env)"
-        class="w-100 d-flex align-items-center border-bottom format-preview bg-white">
-        <span class="ms-3 check-icon">
-          <t t-if="action.isActive(env)" t-call="o-spreadsheet-Icon.CHECK"/>
-        </span>
-        <span t-out="action.description(env)"/>
-      </div>
+      <Section title.translate="Format type">
+        <BadgeSelection
+          choices="store.categories"
+          onChange.bind="(category) => store.changeCategory(category)"
+          selectedValue="store.category"
+        />
+      </Section>
+      <t t-if="store.category === 'currency'" t-call="o-spreadsheet-CustomCurrencySection"/>
+      <t t-set="proposals" t-value="store.formatProposals"/>
+      <Section title.translate="Type" t-if="proposals.length">
+        <div class="o-format-proposals overflow-auto">
+          <div
+            t-foreach="proposals"
+            t-as="proposal"
+            t-key="proposal.format"
+            t-att-data-name="proposal.format"
+            t-on-click="() => this.store.updateFormat(proposal.format)"
+            class="w-100 d-flex align-items-center format-preview px-2 py-1"
+            t-att-class="{'active': (proposal.format || '') === (store.currentFormat || '')}">
+            <span t-out="proposal.label"/>
+          </div>
+        </div>
+      </Section>
+
+      <Section title.translate="Format" class="'o-custom-format-section'">
+        <TextInput
+          value="store.currentFormat || ''"
+          onChange="(format) => this.store.updateFormat(format)"
+          placeholder.translate="Format code"
+          alwaysShowBorder="true"
+          errorMessage="store.invalidFormatMessage"
+        />
+        <t t-set="examples" t-value="store.formatExamples"/>
+        <div class="o-format-examples mt-4 p-2 rounded" t-if="examples.length">
+          <table class="w-100">
+            <t t-foreach="examples" t-as="example" t-key="example_index">
+              <tr>
+                <td class="w-25 pe-3 o-fw-bold" t-esc="example.label"/>
+                <td class="w-75 text-truncate" t-esc="example.value"/>
+              </tr>
+            </t>
+          </table>
+        </div>
+      </Section>
     </div>
+  </t>
+
+  <t t-name="o-spreadsheet-CustomCurrencySection">
+    <t t-set="availableCurrencies" t-value="store.availableCurrencies"/>
+    <Section t-if="availableCurrencies.length > 1" title.translate="Currency">
+      <select
+        class="o-input o-available-currencies"
+        t-on-change="(ev) => this.updateSelectCurrency(ev)">
+        <t t-foreach="availableCurrencies" t-as="currency" t-key="currency_index">
+          <option
+            t-att-value="currency_index"
+            t-esc="currencyDisplayName(currency)"
+            t-att-selected="currency_index === store.selectedCurrencyIndex"
+          />
+        </t>
+      </select>
+    </Section>
+    <Section>
+      <div class="o-subsection-left">
+        <div class="o-section-title">Code</div>
+        <TextInput
+          value="store.currencyCode"
+          placeholder.translate="code"
+          onChange="(code) => this.store.changeCurrencyCode(code)"
+          alwaysShowBorder="true"
+        />
+      </div>
+      <div class="o-subsection-right">
+        <div class="o-section-title">Symbol</div>
+        <TextInput
+          value="store.currencySymbol"
+          placeholder.translate="symbol"
+          onChange="(symbol) => this.store.changeCurrencySymbol(symbol)"
+          alwaysShowBorder="true"
+        />
+      </div>
+      <Checkbox
+        name="'accountingFormat'"
+        className="'pt-2'"
+        label.translate="Accounting format"
+        value="store.isAccountingFormat"
+        onChange="() => store.toggleAccountingFormat()"
+      />
+    </Section>
   </t>
 </templates>

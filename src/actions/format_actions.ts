@@ -109,7 +109,7 @@ export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCAL
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
   isVisible: (env) => env.loadCurrencies !== undefined && !env.isSmall,
-  execute: (env) => env.openSidePanel("CustomCurrency", {}),
+  execute: (env) => env.openSidePanel("MoreFormats", { category: "currency" }),
 };
 
 export const formatNumberDate = createFormatActionSpec({
@@ -139,74 +139,21 @@ export const formatNumberDuration = createFormatActionSpec({
   format: "hhhh:mm:ss",
 });
 
-export const formatNumberQuarter = createFormatActionSpec({
-  name: _t("Quarter"),
-  descriptionValue: EXAMPLE_DATE,
-  format: "qq yyyy",
-});
+export const customDateFormat: ActionSpec = {
+  name: _t("Custom date and time"),
+  isVisible: (env) => !env.isSmall,
+  execute: (env) => env.openSidePanel("MoreFormats", { category: "date" }),
+};
 
-export const formatNumberFullQuarter = createFormatActionSpec({
-  name: _t("Full quarter"),
-  descriptionValue: EXAMPLE_DATE,
-  format: "qqqq yyyy",
-});
-
-export const moreFormats: ActionSpec = {
-  name: _t("More date formats"),
-  execute: (env) => env.openSidePanel("MoreFormats", {}),
+export const customNumberFormat: ActionSpec = {
+  name: _t("Custom number format"),
+  isVisible: (env) => !env.isSmall,
+  execute: (env) => env.openSidePanel("MoreFormats", { category: "number" }),
 };
 
 export const formatNumberFullDateTime = createFormatActionSpec({
   name: _t("Full date time"),
   format: "dddd d mmmm yyyy hh:mm:ss a",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberISODate = createFormatActionSpec({
-  name: _t("ISO Date"),
-  format: "yyyy-mm-dd",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberISODateTime = createFormatActionSpec({
-  name: _t("ISO Date time"),
-  format: "yyyy-mm-dd hh:mm:ss",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberFullWeekDayAndMonth = createFormatActionSpec({
-  name: _t("Full week day and month"),
-  format: "dddd d mmmm yyyy",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberDayAndFullMonth = createFormatActionSpec({
-  name: _t("Day and full month"),
-  format: "d mmmm yyyy",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberShortWeekDay = createFormatActionSpec({
-  name: _t("Short week day"),
-  format: "ddd d mmm yyyy",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberDayAndShortMonth = createFormatActionSpec({
-  name: _t("Day and short month"),
-  format: "d mmm yyyy",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberFullMonth = createFormatActionSpec({
-  name: _t("Full month"),
-  format: "mmmm yyyy",
-  descriptionValue: EXAMPLE_DATE,
-});
-
-export const formatNumberShortMonth = createFormatActionSpec({
-  name: _t("Short month"),
-  format: "mmm yyyy",
   descriptionValue: EXAMPLE_DATE,
 });
 
