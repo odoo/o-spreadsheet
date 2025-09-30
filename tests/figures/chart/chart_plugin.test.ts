@@ -2670,6 +2670,7 @@ describe("Linear/Time charts", () => {
     );
     const config = getChartConfiguration(model, chartId);
     expect(config.options?.scales?.x?.type).toEqual("time");
+    expect(config.options?.scales?.x?.ticks?.callback).toBeUndefined();
   });
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
