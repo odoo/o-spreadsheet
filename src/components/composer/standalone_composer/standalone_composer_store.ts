@@ -23,7 +23,7 @@ export interface StandaloneComposerArgs {
 export class StandaloneComposerStore extends AbstractComposerStore {
   constructor(get: Get, private args: () => StandaloneComposerArgs) {
     super(get);
-    this._currentContent = this.getComposerContent();
+    this._currentContent = this.getComposerContent().content;
   }
 
   protected getAutoCompleteProviders(): AutoCompleteProviderDefinition[] {
@@ -46,7 +46,7 @@ export class StandaloneComposerStore extends AbstractComposerStore {
     return res;
   }
 
-  protected getComposerContent(): string {
+  protected getComposerContent() {
     let content = this._currentContent;
     if (this.editionMode === "inactive") {
       // References in the content might not be linked to the current active sheet
@@ -63,8 +63,9 @@ export class StandaloneComposerStore extends AbstractComposerStore {
         })
         .join("");
     }
-
-    return localizeContent(content, this.getters.getLocale());
+    return {
+      content: localizeContent(content, this.getters.getLocale()),
+    };
   }
 
   stopEdition() {

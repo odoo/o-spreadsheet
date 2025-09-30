@@ -26,6 +26,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
 import { SpeechBubble } from "../speech_bubble/speech_bubble";
+import { ComposerSelection } from "./abstract_composer_store";
 import { CellComposerStore } from "./cell_composer_store";
 
 const functions = functionRegistry.content;
@@ -131,8 +132,8 @@ export interface CellComposerProps {
   inputStyle?: string;
   rect?: Rect;
   delimitation?: DOMDimension;
-  onComposerContentFocused: () => void;
-  onComposerCellFocused?: (content: String) => void;
+  onComposerContentFocused: (selection: ComposerSelection) => void;
+  onComposerCellFocused?: (content: string) => void;
   onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
   composerStore: Store<CellComposerStore>;
@@ -600,11 +601,13 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
     const newSelection = this.contentHelper.getCurrentSelection();
-
     this.props.composerStore.stopComposerRangeSelection();
-    this.props.onComposerContentFocused();
+    const isCurrentlyInactive = this.props.composerStore.editionMode === "inactive";
+    this.props.onComposerContentFocused(newSelection);
+    if (!isCurrentlyInactive) {
+      this.props.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
+    }
 
-    this.props.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     this.processTokenAtCursor();
   }
 

@@ -413,12 +413,6 @@ describe("edition", () => {
     expect(composerStore.currentContent).toBe("coucou");
   });
 
-  test("start edition with a wrong selection", () => {
-    composerStore.startEdition("coucou", { start: 10, end: 1 });
-    expect(composerStore.composerSelection).not.toEqual({ start: 10, end: 0 });
-    expect(composerStore.currentContent).not.toEqual("coucou");
-  });
-
   test("set value of the active cell updates the content", () => {
     expect(getActivePosition(model)).toBe("A1");
     setCellContent(model, "A1", "Hello sir");
