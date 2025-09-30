@@ -2668,9 +2668,15 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    const config = getChartConfiguration(model, chartId);
-    expect(config.options?.scales?.x?.type).toEqual("time");
-    expect(config.options?.scales?.x?.ticks?.callback).toBeUndefined();
+    const scale = getChartConfiguration(model, chartId).options.scales.x;
+    expect(scale.type).toEqual("time");
+    expect(scale.ticks?.callback).toBeUndefined();
+    expect(scale.time).toEqual({
+      displayFormats: { day: "M/d/yyyy" }, // luxon format
+      parser: "M/d/yyyy",
+      tooltipFormat: "M/d/yyyy",
+      unit: "day",
+    });
   });
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
