@@ -144,7 +144,7 @@ class ScorecardChartConfigBuilder {
         baselineX = CHART_PADDING + baselineArrowSize;
         break;
       default:
-        baselineX = (this.width - baselineWidth - baselineDescrWidth + baselineArrowSize) / 2;
+        baselineX = (this.width - baselineWidth - baselineDescrWidth + 1.6 * baselineArrowSize) / 2;
     }
 
     if (this.baseline) {
@@ -164,7 +164,7 @@ class ScorecardChartConfigBuilder {
           direction: this.baselineArrow,
           style: style.baselineArrow,
           position: {
-            x: structure.baseline.position.x - baselineArrowSize,
+            x: structure.baseline.position.x - 1.6 * baselineArrowSize,
             y: structure.baseline.position.y - (baselineHeight + baselineArrowSize) / 2,
           },
         };
