@@ -29,6 +29,10 @@ export const chartShowValuesPlugin: Plugin = {
     }
     const ctx = chart.ctx as CanvasRenderingContext2D;
     ctx.save();
+    const { left, top, height, width } = chart.chartArea;
+    ctx.beginPath();
+    ctx.rect(left, top, width, height);
+    ctx.clip();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
