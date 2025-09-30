@@ -1,3 +1,4 @@
+import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -5,7 +6,6 @@ import {
 } from "../../../constants";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
-import { BasePlugin } from "../../../plugins/base_plugin";
 import {
   AdaptSheetName,
   ApplyRangeChange,
@@ -51,7 +51,7 @@ function isDataRangeValid(definition: GaugeChartDefinition): CommandResult {
 
 function checkRangeLimits(
   check: RangeLimitsValidation,
-  batchValidations: BasePlugin["batchValidations"]
+  batchValidations: BasePlugin<any, any, CommandResult>["batchValidations"]
 ): Validation<GaugeChartDefinition> {
   return batchValidations(
     (definition) => {
@@ -71,7 +71,7 @@ function checkRangeLimits(
 
 function checkInflectionPointsValue(
   check: InflectionPointValueValidation,
-  batchValidations: BasePlugin["batchValidations"]
+  batchValidations: BasePlugin<any, any, CommandResult>["batchValidations"]
 ): Validation<GaugeChartDefinition> {
   return batchValidations(
     (definition) => {

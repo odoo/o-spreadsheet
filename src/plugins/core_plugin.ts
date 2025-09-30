@@ -1,17 +1,18 @@
-import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
+import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
 import { ModelConfig } from "../model";
 import {
   AdaptSheetName,
   ApplyRangeChange,
+  CommandResult,
   CoreCommand,
   CoreCommandDispatcher,
+  ExcelWorkbookData,
   HistoryChange,
   RangeProvider,
   UID,
   WorkbookData,
 } from "../types";
 import { CoreGetters } from "../types/getters";
-import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
@@ -36,7 +37,7 @@ export interface CorePluginConstructor {
  * They should not be concerned about UI parts or transient state.
  */
 export class CorePlugin<State = any>
-  extends BasePlugin<State, CoreCommand>
+  extends BasePlugin<State, CoreCommand, CommandResult, HistoryChange, ExcelWorkbookData>
   implements RangeProvider
 {
   protected getters: CoreGetters;
@@ -44,7 +45,7 @@ export class CorePlugin<State = any>
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
-    super(stateObserver);
+    super(stateObserver, CommandResult.Success);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;

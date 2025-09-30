@@ -1,4 +1,4 @@
-import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
+import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
 import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
@@ -13,7 +13,6 @@ import {
   load,
   repairInitialMessages,
 } from "./migrations/data";
-import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
