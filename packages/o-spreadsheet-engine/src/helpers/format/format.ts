@@ -4,7 +4,7 @@ import { CellValue } from "../../types/cells";
 import { Currency } from "../../types/currency";
 import { EvaluationError } from "../../types/errors";
 import { Format, FormattedValue, LocaleFormat } from "../../types/format";
-import { Locale } from "../../types/locale";
+import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { FunctionResultObject, Maybe } from "../../types/misc";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {
@@ -25,7 +25,7 @@ import {
   convertInternalFormatToFormat,
   parseFormat,
 } from "./format_parser";
-import { FormatToken } from "./format_tokenizer";
+import { FormatToken, tokenizeFormat } from "./format_tokenizer";
 
 /**
  * Number of digits for the default number format. This number of digit make a number fit well in a cell
@@ -947,4 +947,17 @@ export function formatHasRepeatedChar(value: CellValue, format: Format | undefin
   } catch {}
 
   return false;
+}
+
+export function isFormatValid(format: Format): boolean {
+  try {
+    formatValue(0, { format, locale: DEFAULT_LOCALE });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function getNumberOfFormatParts(format: Format): number {
+  return tokenizeFormat(format).length;
 }
