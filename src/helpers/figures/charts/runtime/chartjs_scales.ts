@@ -105,6 +105,7 @@ export function getLineChartScales(
     };
     Object.assign(scales!.x!, axis);
     scales!.x!.ticks!.maxTicksLimit = 15;
+    delete scales?.x?.ticks?.callback;
   } else if (axisType === "linear") {
     scales!.x!.type = "linear";
     scales!.x!.ticks!.callback = (value) => formatValue(value, { format: labelFormat, locale });
