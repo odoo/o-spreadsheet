@@ -1053,6 +1053,7 @@ describe("rounding format", () => {
     expect(roundFormat("ddd-mm-yyyy")).toBe("ddd-mm-yyyy");
     expect(roundFormat("#,##0,,")).toBe("#,##0,,");
     expect(roundFormat("#,##0.00,")).toBe("#,##0,");
+    expect(roundFormat("hh:mm:ss")).toBe("hh:mm:ss");
   });
 
   test("Round multi part format", () => {
