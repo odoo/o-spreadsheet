@@ -1,23 +1,28 @@
 //------------------------------------------------------------------------------
 // Miscellaneous
 //------------------------------------------------------------------------------
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
+import { escapeRegExp as engineEscapeRegExp } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../constants";
 import { ChartStyle, ConsecutiveIndexes, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
 import { Cloneable, DebouncedFunction, Style } from "./../types/misc";
+
+export {
+  escapeRegExp,
+  getCanonicalSymbolName,
+  getUnquotedSheetName,
+  memoize,
+  replaceNewLines,
+  specialWhiteSpaceRegexp,
+  TokenizingChars,
+  unquote,
+  whiteSpaceCharacters,
+} from "@odoo/o-spreadsheet-engine/helpers/misc";
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 
 function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<T> {
   return "clone" in obj && obj.clone instanceof Function;
-}
-
-/**
- * Escapes a string to use as a literal string in a RegExp.
- * @url https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
- */
-export function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -70,43 +75,6 @@ function isPlainObject(obj: unknown): boolean {
     // obj.constructor can be undefined when there's no prototype (`Object.create(null, {})`)
     (obj?.constructor === Object || obj?.constructor === undefined)
   );
-}
-
-/**
- * Sanitize the name of a sheet, by eventually removing quotes
- * @param sheetName name of the sheet, potentially quoted with single quotes
- */
-export function getUnquotedSheetName(sheetName: string): string {
-  return unquote(sheetName, "'");
-}
-
-/**
- * Remove quotes from a quoted string
- * ```js
- * unquote('"Hello"')
- * > 'Hello'
- * ```
- */
-export function unquote(string: string, quoteChar: "'" | '"' = '"'): string {
-  if (string.startsWith(quoteChar)) {
-    string = string.slice(1);
-  }
-  if (string.endsWith(quoteChar)) {
-    string = string.slice(0, -1);
-  }
-  return string;
-}
-
-/**
- * Add quotes around the sheet name or any symbol name if it contains at least one non alphanumeric character
- * '\w' captures [0-9][a-z][A-Z] and _.
- * @param symbolName Name of the sheet or symbol
- */
-export function getCanonicalSymbolName(symbolName: string): string {
-  if (symbolName.match(/\w/g)?.length !== symbolName.length) {
-    symbolName = `'${symbolName}'`;
-  }
-  return symbolName;
 }
 
 /** Replace the excel-excluded characters of a sheetName */
@@ -454,42 +422,6 @@ export function removeFalsyAttributes<T extends Object | undefined | null>(obj: 
 }
 
 /**
- * Equivalent to "\s" in regexp, minus the new lines characters
- *
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes
- */
-const specialWhiteSpaceSpecialCharacters = [
-  "\t",
-  "\f",
-  "\v",
-  String.fromCharCode(parseInt("00a0", 16)),
-  String.fromCharCode(parseInt("1680", 16)),
-  String.fromCharCode(parseInt("2000", 16)),
-  String.fromCharCode(parseInt("200a", 16)),
-  String.fromCharCode(parseInt("2028", 16)),
-  String.fromCharCode(parseInt("2029", 16)),
-  String.fromCharCode(parseInt("202f", 16)),
-  String.fromCharCode(parseInt("205f", 16)),
-  String.fromCharCode(parseInt("3000", 16)),
-  String.fromCharCode(parseInt("feff", 16)),
-];
-export const specialWhiteSpaceRegexp = new RegExp(
-  specialWhiteSpaceSpecialCharacters.join("|"),
-  "g"
-);
-const newLineRegexp = /(\r\n|\r)/g;
-
-export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
-
-/**
- * Replace all different newlines characters by \n
- */
-export function replaceNewLines(text: string | undefined): string {
-  if (!text) return "";
-  return text.replace(newLineRegexp, NEWLINE);
-}
-
-/**
  * Determine if the numbers are consecutive.
  */
 export function isConsecutive(iterable: Iterable<number>): boolean {
@@ -500,23 +432,6 @@ export function isConsecutive(iterable: Iterable<number>): boolean {
     }
   }
   return true;
-}
-
-/**
- * Creates a version of the function that's memoized on the value of its first
- * argument, if any.
- */
-export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
-  const cache = new Map<any, U>();
-  const funcName = func.name ? func.name + " (memoized)" : "memoized";
-  return {
-    [funcName](...args: T) {
-      if (!cache.has(args[0])) {
-        cache.set(args[0], func(...args));
-      }
-      return cache.get(args[0])!;
-    },
-  }[funcName];
 }
 
 /**
@@ -562,7 +477,7 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
  * Get a Regex for the find & replace that matches the given search string and options.
  */
 export function getSearchRegex(searchStr: string, searchOptions: SearchOptions): RegExp {
-  let searchValue = escapeRegExp(searchStr);
+  let searchValue = engineEscapeRegExp(searchStr);
   const flags = !searchOptions.matchCase ? "i" : "";
   if (searchOptions.exactMatch) {
     searchValue = `^${searchValue}$`;
@@ -600,49 +515,6 @@ export function largeMin(array: number[]) {
     min = array[len] < min ? array[len] : min;
   }
   return min;
-}
-
-export class TokenizingChars {
-  private text: string;
-  private currentIndex: number = 0;
-  current: string;
-
-  constructor(text: string) {
-    this.text = text;
-    this.current = text[0];
-  }
-
-  shift() {
-    const current = this.current;
-    const next = this.text[++this.currentIndex];
-    this.current = next;
-    return current;
-  }
-
-  advanceBy(length: number) {
-    this.currentIndex += length;
-    this.current = this.text[this.currentIndex];
-  }
-
-  isOver() {
-    return this.currentIndex >= this.text.length;
-  }
-
-  remaining() {
-    return this.text.substring(this.currentIndex);
-  }
-
-  currentStartsWith(str: string) {
-    if (this.current !== str[0]) {
-      return false;
-    }
-    for (let j = 1; j < str.length; j++) {
-      if (this.text[this.currentIndex + j] !== str[j]) {
-        return false;
-      }
-    }
-    return true;
-  }
 }
 
 /**

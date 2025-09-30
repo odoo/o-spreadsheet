@@ -4,7 +4,8 @@
     "outDir": "build/js",
     "preserveWatchOutput": true,
     "paths": {
-      "@odoo/o-spreadsheet-engine": ["./packages/o-spreadsheet-engine/src/"]
+      "@odoo/o-spreadsheet-engine": ["./packages/o-spreadsheet-engine/src/index.ts"],
+      "@odoo/o-spreadsheet-engine/*": ["./packages/o-spreadsheet-engine/src/*"]
     }
   },
   "include": ["src"]
