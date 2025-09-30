@@ -64,6 +64,7 @@ export function getChartTimeOptions(
     parser: luxonFormat,
     displayFormats,
     unit: timeUnit ?? false,
+    tooltipFormat: luxonFormat,
   };
 }
 
