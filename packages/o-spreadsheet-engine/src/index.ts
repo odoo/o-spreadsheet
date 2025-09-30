@@ -1,3 +1,13 @@
+export { FunctionCodeBuilder, Scope, type FunctionCode } from "./formulas/code_builder";
+export {
+  OPERATOR_MAP,
+  UNARY_OPERATOR_MAP,
+  compile,
+  compileTokens,
+  functionCache,
+  setArgTargetingImplementation,
+  setFunctionRegistryProvider,
+} from "./formulas/compiler";
 export {
   OP_PRIORITY,
   convertAstNodes,

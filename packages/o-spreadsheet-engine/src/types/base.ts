@@ -17,6 +17,8 @@ export interface Zone {
   bottom: HeaderIndex;
 }
 
+export type Range = unknown;
+
 export type CellValue = string | number | boolean | null;
 
 export type Format = string & Alias;
@@ -35,4 +37,31 @@ export interface FunctionResultObject {
   errorOriginPosition?: CellPosition;
   message?: string;
   origin?: CellPosition;
+}
+
+export type ReferenceDenormalizer = (
+  range: Range,
+  isMeta: boolean,
+  functionName: string,
+  paramNumber: number
+) => FunctionResultObject;
+
+export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FunctionResultObject>;
+
+export type GetSymbolValue = (symbolName: string) => unknown;
+
+export type FormulaToExecute = (
+  deps: Range[],
+  refFn: ReferenceDenormalizer,
+  range: EnsureRange,
+  getSymbolValue: GetSymbolValue,
+  ctx: Record<string, unknown>
+) => Matrix<FunctionResultObject> | FunctionResultObject;
+
+export interface CompiledFormula {
+  execute: FormulaToExecute;
+  tokens: unknown[];
+  dependencies: string[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
 }
