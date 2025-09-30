@@ -985,18 +985,22 @@ test("The menu items are orderer by their sequence", async () => {
   addToRegistry(topbarMenuRegistry, "test", {
     sequence: 1,
     name: "test",
+    execute: () => {},
   });
   topbarMenuRegistry.addChild("second", ["test"], {
     name: "second",
     sequence: 2,
+    execute: () => {},
   });
   topbarMenuRegistry.addChild("first", ["test"], {
     name: "first",
     sequence: 1,
+    execute: () => {},
   });
   topbarMenuRegistry.addChild("third", ["test"], {
     name: "third",
     sequence: 3,
+    execute: () => {},
   });
   const { fixture } = await mountSpreadsheet();
   await click(fixture, ".o-topbar-menu[data-id='test']");
