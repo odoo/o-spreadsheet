@@ -151,10 +151,10 @@ function checkBaseline(definition: ScorecardChartDefinition): CommandResult {
 }
 
 const arrowDownPath = new window.Path2D(
-  "M8.6 4.8a.5.5 0 0 1 0 .75l-3.9 3.9a.5 .5 0 0 1 -.75 0l-3.8 -3.9a.5 .5 0 0 1 0 -.75l.4-.4a.5.5 0 0 1 .75 0l2.3 2.4v-5.7c0-.25.25-.5.5-.5h.6c.25 0 .5.25.5.5v5.8l2.3 -2.4a.5.5 0 0 1 .75 0z"
+  "M9 9.5h3.25a.75.75 0 0 0 .75-.75V5.2a.75.75 0 0 0-1.5 0V7l-4-4s-.5-.5-1 0L5 4.5l-3-3a.75.75 0 0 0-1 1L4.5 6s.5.5 1 0L7 4.5 10.5 8H8.75a.75.75 0 0 0 0 1.5z"
 );
 const arrowUpPath = new window.Path2D(
-  "M8.7 5.5a.5.5 0 0 0 0-.75l-3.8-4a.5.5 0 0 0-.75 0l-3.8 4a.5.5 0 0 0 0 .75l.4.4a.5.5 0 0 0 .75 0l2.3-2.4v5.8c0 .25.25.5.5.5h.6c.25 0 .5-.25.5-.5v-5.8l2.2 2.4a.5.5 0 0 0 .75 0z"
+  "M9 .5h3.25a.75.75 0 0 1 .75.75V4.8a.75.75 0 0 1-1.5 0V3l-4 4s-.5.5-1 0L5 5.5l-3 3a.75.75 0 0 1-1-1L4.5 4s.5-.5 1 0L7 5.5 10.5 2H8.75a.75.75 0 0 1 0-1.5z"
 );
 
 export class ScorecardChart extends AbstractChart {
