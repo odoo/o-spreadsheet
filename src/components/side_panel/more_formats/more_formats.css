@@ -1,15 +1,37 @@
 .o-spreadsheet {
   .o-more-formats-panel {
+    .o-format-proposals {
+      border: 1px solid var(--os-gray-300);
+      max-height: 320px;
+      font-size: 12px;
+    }
+
+    .o-format-examples {
+      background: var(--os-gray-100);
+      border: 1px solid var(--os-gray-300);
+    }
+
+    table {
+      table-layout: fixed;
+    }
+
+    input.o-invalid {
+      background-color: var(--os-alert-danger-bg);
+      border-color: var(--os-alert-danger-border);
+    }
+
     .format-preview {
-      height: 49px;
-      background-color: white;
+      height: 26px;
       cursor: pointer;
+
+      &.active,
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
       }
-    }
-    .check-icon {
-      width: 24px;
+
+      &.active:hover {
+        background-color: rgba(0, 0, 0, 0.12);
+      }
     }
   }
 }

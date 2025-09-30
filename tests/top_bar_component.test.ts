@@ -791,7 +791,7 @@ describe("TopBar - Custom currency", () => {
     });
     await click(fixture, ".o-menu-item-button[title='More formats']");
     await click(fixture, ".o-menu-item[title='Custom currency']");
-    expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-more-formats-panel")).toBeTruthy();
   });
 });
 
