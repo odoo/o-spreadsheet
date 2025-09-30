@@ -1,14 +1,22 @@
+import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
 import { Session } from "../collaborative/session";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
-import { StateObserver } from "../state_observer";
-import { ClientPosition, Color, Command, Currency, Getters } from "../types/index";
+import {
+  ClientPosition,
+  Color,
+  Command,
+  CoreCommand,
+  Currency,
+  Getters,
+  HistoryChange,
+} from "../types/index";
 import { BasePlugin } from "./base_plugin";
 import { UIActions } from "./ui_plugin";
 
 export interface CoreViewPluginConfig {
   readonly getters: Getters;
-  readonly stateObserver: StateObserver;
+  readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
   readonly selection: SelectionStreamProcessor;
   readonly moveClient: (position: ClientPosition) => void;
   readonly uiActions: UIActions;

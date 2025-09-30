@@ -1,15 +1,17 @@
+import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
 import { Session } from "../collaborative/session";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
-import { StateObserver } from "../state_observer";
 import {
   ClientPosition,
   Color,
   Command,
   CommandDispatcher,
+  CoreCommand,
   Currency,
   Getters,
   GridRenderingContext,
+  HistoryChange,
   LayerName,
 } from "../types/index";
 import { BasePlugin } from "./base_plugin";
@@ -18,7 +20,7 @@ export type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
 
 export interface UIPluginConfig {
   readonly getters: Getters;
-  readonly stateObserver: StateObserver;
+  readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
   readonly dispatch: CommandDispatcher["dispatch"];
   readonly canDispatch: CommandDispatcher["dispatch"];
   readonly selection: SelectionStreamProcessor;

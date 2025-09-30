@@ -30,6 +30,7 @@ export type { Token } from "./formulas/tokenizer";
 export { FunctionRegistry } from "./functions/function_registry";
 export * from "./helpers";
 export { Registry } from "./registry";
+export { StateObserver, type StateObserverChange } from "./state_observer";
 export * from "./translation";
 export * from "./types/base";
 export * from "./types/errors";

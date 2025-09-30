@@ -1,10 +1,11 @@
+import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
 import { ModelConfig } from "../model";
-import { StateObserver } from "../state_observer";
 import {
   AdaptSheetName,
   ApplyRangeChange,
   CoreCommand,
   CoreCommandDispatcher,
+  HistoryChange,
   RangeProvider,
   UID,
   WorkbookData,
@@ -15,7 +16,7 @@ import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
-  readonly stateObserver: StateObserver;
+  readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];

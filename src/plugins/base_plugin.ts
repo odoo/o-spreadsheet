@@ -1,4 +1,4 @@
-import { StateObserver } from "../state_observer";
+import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
 import {
   CommandHandler,
   CommandResult,
