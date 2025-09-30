@@ -840,7 +840,7 @@ describe("TopBar - CF", () => {
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeTruthy();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeFalsy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-editor")).toBeFalsy();
   });
 
   test("open sidepanel with one CF in selected zone", async () => {
@@ -867,7 +867,7 @@ describe("TopBar - CF", () => {
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeFalsy();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-editor")).toBeTruthy();
   });
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
@@ -909,9 +909,7 @@ describe("TopBar - CF", () => {
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeTruthy();
-    expect(
-      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")
-    ).toBeFalsy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-editor")).toBeFalsy();
   });
 
   test("will update sidepanel if we reopen it from other cell", async () => {
@@ -942,13 +940,13 @@ describe("TopBar - CF", () => {
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeFalsy();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-editor")).toBeTruthy();
 
     setSelection(model, ["A1:F1"]);
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeTruthy();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-ruleEditor")).toBeFalsy();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-editor")).toBeFalsy();
   });
 });
 
