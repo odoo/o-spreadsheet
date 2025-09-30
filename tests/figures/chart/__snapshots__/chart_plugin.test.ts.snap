@@ -223,6 +223,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
               "day": "M/d/yyyy",
             },
             "parser": "M/d/yyyy",
+            "tooltipFormat": "M/d/yyyy",
             "unit": "day",
           },
           "title": undefined,

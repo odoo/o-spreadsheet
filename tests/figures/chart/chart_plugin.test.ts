@@ -2534,12 +2534,14 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let config = getChartConfiguration(model, chartId);
-    expect(config.options?.scales?.x?.type).toEqual("time");
-
-    updateChart(model, chartId, { type: "bar" });
-    model.getters.getChartRuntime(chartId)!; //ANHE : this test doesn't seems to update anything ...
-    expect(config.options?.scales?.x?.type).toEqual("time");
+    const scale = getChartConfiguration(model, chartId).options.scales.x;
+    expect(scale.type).toEqual("time");
+    expect(scale.time).toEqual({
+      displayFormats: { day: "M/d/yyyy" }, // luxon format
+      parser: "M/d/yyyy",
+      tooltipFormat: "M/d/yyyy",
+      unit: "day",
+    });
   });
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
