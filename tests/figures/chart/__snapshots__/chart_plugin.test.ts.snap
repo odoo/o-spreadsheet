@@ -383,7 +383,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           },
           "stacked": undefined,
           "ticks": {
-            "callback": [Function],
             "color": "#000000",
             "maxTicksLimit": 15,
             "padding": 5,
