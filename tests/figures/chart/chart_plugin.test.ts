@@ -1908,12 +1908,14 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
-    expect(chart.options?.scales?.x?.type).toEqual("time");
-
-    updateChart(model, chartId, { type: "bar" });
-    model.getters.getChartRuntime(chartId)!;
-    expect(chart.options?.scales?.x?.type).toEqual("time");
+    const scale = (model.getters.getChartRuntime(chartId) as any).chartJsConfig.options.scales.x;
+    expect(scale.type).toEqual("time");
+    expect(scale.time).toEqual({
+      displayFormats: { day: "M/d/yyyy" }, // luxon format
+      parser: "M/d/yyyy",
+      tooltipFormat: "M/d/yyyy",
+      unit: "day",
+    });
   });
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
