@@ -4,13 +4,7 @@ import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
-import {
-  Color,
-  CommandResult,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+import { Color, CommandResult, SpreadsheetChildEnv } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -19,20 +13,17 @@ import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 interface PanelState {
   sectionRuleCancelledReasons?: CommandResult[];
   sectionRule: SectionRule;
 }
 
-interface Props {
-  chartId: UID;
-  definition: GaugeChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-}
-
-export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class GaugeChartDesignPanel extends Component<
+  ChartSidePanelProps<GaugeChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = {
     SidePanelCollapsible,
@@ -43,12 +34,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     StandaloneComposer,
     ChartHumanizeNumbers,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: { type: Function, optional: true },
-  };
+  static props = ChartSidePanelPropsObject;
 
   protected state!: PanelState;
 

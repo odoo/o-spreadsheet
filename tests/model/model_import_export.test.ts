@@ -6,7 +6,7 @@ import {
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEETNAME_CHARS,
 } from "../../src/constants";
-import { toCartesian, toZone } from "../../src/helpers";
+import { COLORSCHEMES, toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { getCurrentVersion } from "../../src/migrations/data";
 import {
@@ -778,6 +778,26 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
   };
   const model = new Model(data);
   expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
+});
+
+test("migrate version 18.5.2: colorScale is changed to a trio of color", () => {
+  const data = {
+    version: "18.5.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "someuuid",
+            tag: "chart",
+            data: { type: "geo", colorScale: "reds", labelRange: "", dataSets: [] },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  expect(model.exportData().sheets[0].figures[0].data.colorScale).toEqual(COLORSCHEMES.reds);
 });
 
 describe("Import", () => {

@@ -625,6 +625,21 @@ type ColorScaleThreshold = {
   maxColorAlpha: number;
 };
 
+export const COLORSCHEMES = {
+  greys: ["#ffffff", "#808080", "#000000"],
+  blues: ["#f7fbff", "#6aaed6", "#08306b"],
+  reds: ["#fff5f0", "#fb694a", "#67000d"],
+  greens: ["#f7fcf5", "#73c476", "#00441b"],
+  oranges: ["#fff5eb", "#fd8c3b", "#7f2704"],
+  purples: ["#fcfbfd", "#9e9ac8", "#3f007d"],
+  viridis: ["#440154", "#21918c", "#fde725"],
+  cividis: ["#00224e", "#7d7c78", "#fee838"],
+  rainbow: ["#B41DB4", "#FFFF00", "#00FFFF"],
+} as const;
+
+export const COLORSCALES = Object.keys(COLORSCHEMES);
+export type ColorScale = keyof typeof COLORSCHEMES;
+
 /**
  * Returns a function that maps a value to a color using a color scale defined by the given
  * color/threshold values pairs.

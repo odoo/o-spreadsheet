@@ -1,0 +1,29 @@
+.o-spreadsheet {
+  .color-scale-container {
+    margin: 0px;
+    padding: 5px;
+    cursor: pointer;
+  }
+  .color-scale-label {
+    margin-right: 10px;
+  }
+  .color-scale-preview {
+    height: 20px;
+    width: 70%;
+    border: 1px solid;
+  }
+  .custom-color-scale-container {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #d8dadd;
+  }
+  .custom-color-scale {
+    background: url(data:image/svg+xml,%0A%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%3E%0A%20%20%3Cpath%20fill%3D%22%23d9d9d9%22%20d%3D%22M5%205h5v5H5zH0V0h5%22%2F%3E%0A%3C%2Fsvg%3E%0A);
+  }
+  .o-popover-content {
+    .color-scale-container {
+      &:hover {
+        background-color: var(--os-badge-selected-color);
+      }
+    }
+  }
+}

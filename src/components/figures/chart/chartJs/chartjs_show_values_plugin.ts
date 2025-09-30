@@ -5,7 +5,7 @@ import { Color } from "../../../../types";
 
 export interface ChartShowValuesPluginOptions {
   showValues: boolean;
-  background?: Color;
+  background?: (value: number | string, dataset: ChartMeta, index: number) => Color | undefined;
   horizontal?: boolean;
   callback: (value: number | string, dataset: ChartMeta, index: number) => string;
 }
@@ -39,12 +39,14 @@ export const chartShowValuesPlugin: Plugin = {
       case "doughnut":
         drawPieChartValues(chart, options, ctx);
         break;
-      case "bar":
       case "line":
       case "radar":
+        drawLineOrRadarChartValues(chart, options, ctx);
+        break;
+      case "bar":
         options.horizontal
           ? drawHorizontalBarChartValues(chart, options, ctx)
-          : drawLineOrBarOrRadarChartValues(chart, options, ctx);
+          : drawBarChartValues(chart, options, ctx);
         break;
       case "funnel":
         drawHorizontalBarChartValues(chart, options, ctx);
@@ -62,7 +64,54 @@ function drawTextWithBackground(text: string, x: number, y: number, ctx: CanvasR
   ctx.fillText(text, x, y);
 }
 
-function drawLineOrBarOrRadarChartValues(
+function drawLineOrRadarChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+  const textsPositions: Record<number, number[]> = {};
+
+  for (const dataset of chart._metasets) {
+    if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
+      continue;
+    }
+
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
+      if (isNaN(value)) {
+        continue;
+      }
+
+      const point = dataset.data[i];
+      const xPosition = point.x;
+
+      let yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      yPosition = Math.min(yPosition, yMax);
+      yPosition = Math.max(yPosition, yMin);
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < 13) {
+          yPosition = value < 0 ? otherPosition + 13 : otherPosition - 13;
+        }
+      }
+      textsPositions[xPosition].push(yPosition);
+
+      ctx.fillStyle = point.options.backgroundColor;
+      ctx.strokeStyle = options.background?.(Number(value), dataset, i) || "#ffffff";
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBarChartValues(
   chart: any,
   options: ChartShowValuesPluginOptions,
   ctx: CanvasRenderingContext2D
@@ -88,18 +137,14 @@ function drawLineOrBarOrRadarChartValues(
       const xPosition = point.x;
 
       let yPosition = 0;
-      if (chart.config.type === "line" || chart.config.type === "radar") {
-        yPosition = value < 0 ? point.y + 10 : point.y - 10;
-      } else {
-        const yZeroLine = yAxisScale.getPixelForValue(0);
-        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
-        const textHeight = 12; // ChartJS default text height
+      const yZeroLine = yAxisScale.getPixelForValue(0);
+      const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+      const textHeight = 12; // ChartJS default text height
 
-        if (distanceFromAxisOrigin < textHeight) {
-          yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
-        } else {
-          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
-        }
+      if (distanceFromAxisOrigin < textHeight) {
+        yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+      } else {
+        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
       }
 
       yPosition = Math.min(yPosition, yMax);
@@ -116,8 +161,8 @@ function drawLineOrBarOrRadarChartValues(
       }
       textsPositions[xPosition].push(yPosition);
 
-      ctx.fillStyle = point.options.backgroundColor;
-      ctx.strokeStyle = options.background || "#ffffff";
+      ctx.strokeStyle = point.options.backgroundColor;
+      ctx.fillStyle = options.background?.(Number(value), dataset, i) || "#ffffff";
       const valueToDisplay = options.callback(Number(value), dataset, i);
       drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
     }
@@ -175,8 +220,8 @@ function drawHorizontalBarChartValues(
       }
       textsPositions[yPosition].push(xPosition);
 
-      ctx.fillStyle = point.options.backgroundColor;
-      ctx.strokeStyle = options.background || "#ffffff";
+      ctx.strokeStyle = point.options.backgroundColor;
+      ctx.fillStyle = options.background?.(Number(value), dataset, i) || "#ffffff";
       drawTextWithBackground(displayValue, xPosition, yPosition, ctx);
     }
   }
@@ -215,8 +260,9 @@ function drawPieChartValues(
         continue;
       }
 
-      ctx.fillStyle = chartFontColor(options.background);
-      ctx.strokeStyle = options.background || "#ffffff";
+      const background = options.background?.(Number(value), dataset, i);
+      ctx.fillStyle = chartFontColor(background);
+      ctx.strokeStyle = background || "#ffffff";
 
       drawTextWithBackground(displayValue, x, y, ctx);
     }
