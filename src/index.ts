@@ -267,7 +267,7 @@ export const SPREADSHEET_DIMENSIONS = {
   SCROLLBAR_WIDTH,
 };
 
-export const registries: Record<string, unknown> = {
+export const registries = {
   autoCompleteProviders,
   autofillModifiersRegistry,
   autofillRulesRegistry,
@@ -275,7 +275,7 @@ export const registries: Record<string, unknown> = {
   colMenuRegistry,
   errorTypes,
   linkMenuRegistry,
-  functionRegistry,
+  functionRegistry: typeof functionRegistry,
   featurePluginRegistry,
   iconsOnCellRegistry,
   statefulUIPluginRegistry,
@@ -307,7 +307,7 @@ export const registries: Record<string, unknown> = {
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
   chartJsExtensionRegistry,
-} as const;
+};
 export const helpers = {
   arg,
   isEvaluationError,

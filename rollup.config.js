@@ -86,12 +86,12 @@ export default (commandLineArgs) => {
     ];
     plugins.push(typescript({ useTsconfigDeclarationDir: true }));
     config = [
-      // {
-      //   input,
-      //   external: ["@odoo/owl"],
-      //   output,
-      //   plugins,
-      // },
+      {
+        input,
+        external: ["@odoo/owl"],
+        output,
+        plugins,
+      },
       {
         input: "dist/types/src/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
