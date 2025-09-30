@@ -1,3 +1,4 @@
+import { FunctionRegistry as EngineFunctionRegistry } from "@odoo/o-spreadsheet-engine";
 import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
 import { tokenColors } from "../constants";
 import { EnrichedToken } from "../formulas/composer_tokenizer";
@@ -5,7 +6,6 @@ import {
   AutoCompleteProposal,
   autoCompleteProviders,
 } from "../registries/auto_completes/auto_complete_registry";
-import { Registry } from "../registries/registry";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
@@ -38,6 +38,7 @@ import * as parser from "./module_parser";
 import * as statistical from "./module_statistical";
 import * as text from "./module_text";
 import * as web from "./module_web";
+export { FunctionRegistry } from "@odoo/o-spreadsheet-engine";
 
 export { arg } from "./arguments";
 
@@ -68,38 +69,33 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 // Function registry
 //------------------------------------------------------------------------------
 
-export class FunctionRegistry extends Registry<FunctionDescription> {
-  mapping: {
-    [key: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
-  } = {};
-
-  add(name: string, addDescr: AddFunctionDescription) {
-    name = name.toUpperCase();
-    if (name in this.content) {
-      throw new Error(`${name} is already present in this registry!`);
-    }
-    return this.replace(name, addDescr);
-  }
-
-  replace(name: string, addDescr: AddFunctionDescription) {
-    name = name.toUpperCase();
-    if (!functionNameRegex.test(name)) {
+class SpreadsheetFunctionRegistry extends EngineFunctionRegistry<
+  AddFunctionDescription,
+  FunctionDescription,
+  ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>
+> {
+  protected process(name: string, addDescr: AddFunctionDescription) {
+    const normalizedName = name.toUpperCase();
+    if (!functionNameRegex.test(normalizedName)) {
       throw new Error(
         _t(
           "Invalid function name %s. Function names can exclusively contain alphanumerical values separated by dots (.) or underscore (_)",
-          name
+          normalizedName
         )
       );
     }
-    const descr = addMetaInfoFromArg(name, addDescr);
+    const descr = addMetaInfoFromArg(normalizedName, addDescr);
     validateArguments(descr);
-    this.mapping[name] = createComputeFunction(descr);
-    super.replace(name, descr);
-    return this;
+    const compute = createComputeFunction(descr);
+    return {
+      key: normalizedName,
+      stored: descr,
+      mapped: compute,
+    };
   }
 }
 
-export const functionRegistry: FunctionRegistry = new FunctionRegistry();
+export const functionRegistry = new SpreadsheetFunctionRegistry();
 
 for (const category of categories) {
   const fns = category.functions;

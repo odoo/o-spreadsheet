@@ -17,7 +17,12 @@ export type {
 export { rangeTokenize } from "./formulas/range_tokenizer";
 export { POSTFIX_UNARY_OPERATORS, tokenize } from "./formulas/tokenizer";
 export type { Token } from "./formulas/tokenizer";
+export { FunctionRegistry } from "./functions/function_registry";
 export * from "./helpers";
+export { Registry } from "./registry";
 export * from "./translation";
+export * from "./types/base";
 export * from "./types/errors";
 export * from "./types/locale";
+export * from "./types/pivot";
+export * from "./types/pivot_runtime";
