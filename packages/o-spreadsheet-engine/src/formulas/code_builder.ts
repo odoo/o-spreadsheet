@@ -1,16 +1,10 @@
-/**
- * Block of code that produces a value.
- */
 export interface FunctionCode {
   readonly returnExpression: string;
-  /**
-   * Return the same function code but with the return expression assigned to a variable.
-   */
   assignResultToVariable(): FunctionCode;
 }
 
 export class FunctionCodeBuilder {
-  private code: string = "";
+  private code = "";
 
   constructor(private scope: Scope = new Scope()) {}
 
@@ -64,10 +58,6 @@ export class Scope {
   }
 }
 
-/**
- * Takes a list of strings that might be single or multiline
- * and maps them in a list of single line strings.
- */
 function splitLines(str: string): string[] {
   return str
     .split("\n")

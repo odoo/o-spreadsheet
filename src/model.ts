@@ -1,3 +1,4 @@
+import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
 import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
@@ -12,7 +13,6 @@ import {
   load,
   repairInitialMessages,
 } from "./migrations/data";
-import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
@@ -27,7 +27,6 @@ import {
   SelectionStreamProcessor,
   SelectionStreamProcessorImpl,
 } from "./selection_stream/selection_stream_processor";
-import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { GeoChartRegion } from "./types/chart/geo_chart";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
@@ -48,6 +47,7 @@ import {
   DispatchResult,
   Getters,
   GridRenderingContext,
+  HistoryChange,
   InformationNotification,
   LayerName,
   LocalCommand,
@@ -168,7 +168,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private coreViewPluginConfig: CoreViewPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
-  private state: StateObserver;
+  private state: StateObserver<CoreCommand, HistoryChange>;
 
   readonly selection: SelectionStreamProcessor;
 
@@ -207,7 +207,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     const workbookData = load(data, verboseImport);
 
-    this.state = new StateObserver();
+    this.state = new StateObserver<CoreCommand, HistoryChange>();
 
     this.uuidGenerator = uuidGenerator;
 

@@ -39,7 +39,14 @@ export default (commandLineArgs) => {
           find: "@odoo/o-spreadsheet-engine",
           replacement: path.resolve(
             __dirname,
-            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/index.js"
+            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
+          ),
+        },
+        {
+          find: "@odoo/o-spreadsheet-engine/*",
+          replacement: path.resolve(
+            __dirname,
+            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
           ),
         },
       ],
@@ -95,9 +102,13 @@ export default (commandLineArgs) => {
             entries: [
               {
                 find: "@odoo/o-spreadsheet-engine",
+                replacement: path.resolve(__dirname, "./dist/types/packages/o-spreadsheet-engine"),
+              },
+              {
+                find: "@odoo/o-spreadsheet-engine/*",
                 replacement: path.resolve(
                   __dirname,
-                  "./dist/types/packages/o-spreadsheet-engine/index.d.ts"
+                  "./dist/types/packages/o-spreadsheet-engine/*"
                 ),
               },
             ],

@@ -1,3 +1,4 @@
+import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
@@ -24,7 +25,6 @@ import {
 } from "../../src/helpers/index";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model, ModelExternalConfig } from "../../src/model";
-import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { SheetUIPlugin } from "../../src/plugins/ui_feature";

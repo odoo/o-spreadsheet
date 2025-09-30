@@ -1,24 +1,27 @@
+import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
 import { Session } from "../collaborative/session";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
-import { StateObserver } from "../state_observer";
 import {
   ClientPosition,
   Color,
   Command,
   CommandDispatcher,
+  CommandResult,
+  CoreCommand,
   Currency,
+  ExcelWorkbookData,
   Getters,
   GridRenderingContext,
+  HistoryChange,
   LayerName,
 } from "../types/index";
-import { BasePlugin } from "./base_plugin";
 
 export type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
 
 export interface UIPluginConfig {
   readonly getters: Getters;
-  readonly stateObserver: StateObserver;
+  readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
   readonly dispatch: CommandDispatcher["dispatch"];
   readonly canDispatch: CommandDispatcher["dispatch"];
   readonly selection: SelectionStreamProcessor;
@@ -41,7 +44,13 @@ export interface UIPluginConstructor {
  * UI plugins handle any transient data required to display a spreadsheet.
  * They can draw on the grid canvas.
  */
-export class UIPlugin<State = any> extends BasePlugin<State, Command> {
+export class UIPlugin<State = any> extends BasePlugin<
+  State,
+  Command,
+  CommandResult,
+  HistoryChange,
+  ExcelWorkbookData
+> {
   static layers: Readonly<LayerName[]> = [];
 
   protected getters: Getters;
@@ -58,7 +67,7 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
     uiActions,
     selection,
   }: UIPluginConfig) {
-    super(stateObserver);
+    super(stateObserver, CommandResult.Success);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;

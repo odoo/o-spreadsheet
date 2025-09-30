@@ -1,13 +1,13 @@
+import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
 import { transformAll } from "../collaborative/ot/ot";
 import { Revision } from "../collaborative/revisions";
 import { inverseCommand } from "../helpers/inverse_commands";
-import { StateObserver } from "../state_observer";
 import { CoreCommand, HistoryChange, UID } from "../types";
 import { SelectiveHistory } from "./selective_history";
 
 export function buildRevisionLog(args: {
   initialRevisionId: UID;
-  recordChanges: StateObserver["recordChanges"];
+  recordChanges: StateObserver<CoreCommand, HistoryChange>["recordChanges"];
   dispatch: (command: CoreCommand) => void;
 }) {
   return new SelectiveHistory<Revision>({

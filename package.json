@@ -147,7 +147,8 @@
       ]
     },
     "moduleNameMapper": {
-      "^@odoo/o-spreadsheet-engine$": "<rootDir>/packages/o-spreadsheet-engine/src"
+      "^@odoo/o-spreadsheet-engine$": "<rootDir>/packages/o-spreadsheet-engine/src",
+      "^@odoo/o-spreadsheet-engine/(.*)$": "<rootDir>/packages/o-spreadsheet-engine/src/$1"
     },
     "verbose": false,
     "testEnvironment": "jsdom",

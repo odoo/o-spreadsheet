@@ -1,6 +1,7 @@
 import { CellValue, EvaluatedCell } from "./cells";
 
-import { CommandResult } from "./commands";
+import type { Validation as EngineValidation } from "@odoo/o-spreadsheet-engine/types/validator";
+import type { CommandResult } from "./commands";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
@@ -316,7 +317,7 @@ export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) => void;
 }
 
-export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
+export type Validation<T> = EngineValidation<T, CommandResult>;
 
 export type Increment = 1 | -1 | 0;
 
