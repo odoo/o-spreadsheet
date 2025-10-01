@@ -58,7 +58,7 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(ranges: RTreeBoundingBox[]): PositionSet {
+  getCellsDependingOn(ranges: RTreeBoundingBox[], ignore: PositionSet): PositionSet {
     const visited = this.createEmptyPositionSet();
     const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
@@ -74,7 +74,7 @@ export class FormulaDependencyGraph {
       const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
       const nextInQueue: Record<UID, Zone[]> = {};
       for (const position of impactedPositions) {
-        if (!visited.has(position)) {
+        if (!visited.has(position) && !ignore.has(position)) {
           if (!nextInQueue[position.sheetId]) {
             nextInQueue[position.sheetId] = [];
           }
