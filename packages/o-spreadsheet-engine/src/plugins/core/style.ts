@@ -3,7 +3,12 @@ import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
-import { AddColumnsRowsCommand, CoreCommand } from "../../types/commands";
+import {
+  AddColumnsRowsCommand,
+  CommandResult,
+  CoreCommand,
+  SetFormattingCommand,
+} from "../../types/commands";
 import {
   ApplyRangeChange,
   CellPosition,
@@ -46,6 +51,14 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   ] as const;
 
   readonly styles: Record<UID, ZoneStyle[] | undefined> = {};
+
+  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
+    switch (cmd.type) {
+      case "SET_FORMATTING":
+        return this.checkUselessSetFormatting(cmd);
+    }
+    return CommandResult.Success;
+  }
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -328,5 +341,30 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
+  }
+
+  private checkUselessSetFormatting(cmd: SetFormattingCommand) {
+    const { sheetId, target } = cmd;
+    const hasStyle = "style" in cmd;
+    const hasFormat = "format" in cmd;
+    if (!hasStyle && !hasFormat) {
+      return CommandResult.NoChanges;
+    }
+    for (const zone of recomputeZones(target)) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const position = { sheetId, col, row };
+          const cell = this.getters.getCell(position);
+          const style = this.getCellStyle(position);
+          if (
+            (hasStyle && !deepEquals(style, cmd.style)) ||
+            (hasFormat && cell?.format !== cmd.format)
+          ) {
+            return CommandResult.Success;
+          }
+        }
+      }
+    }
+    return CommandResult.NoChanges;
   }
 }
