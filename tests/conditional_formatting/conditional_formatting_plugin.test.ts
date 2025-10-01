@@ -1,6 +1,9 @@
+import {
+  ConditionalFormat,
+  ConditionalFormatRule,
+} from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
 import { Model } from "../../src/model";
 import { CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src/types";
-import { ConditionalFormat, ConditionalFormatRule } from "../../src/types/conditional_formatting";
 import {
   activateSheet,
   addColumns,

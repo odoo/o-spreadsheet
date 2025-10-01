@@ -1,13 +1,4 @@
 import {
-  ConditionalFormat,
-  DataValidationRule,
-  Figure,
-  Format,
-  Locale,
-  Style,
-  Zone,
-} from "./index";
-import {
   Border,
   BorderData,
   CellPosition,
@@ -20,16 +11,30 @@ import {
   SortDirection,
   SortOptions,
   UID,
-} from "./misc";
+} from "@odoo/o-spreadsheet-engine/types/misc";
+import {
+  ConditionalFormat,
+  DataValidationRule,
+  Figure,
+  Format,
+  Locale,
+  Style,
+  Zone,
+} from "./index";
 
-import { ChartDefinition } from "./chart/chart";
+import { ChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { Carousel, CarouselItem, FigureSize } from "@odoo/o-spreadsheet-engine/types/figure";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { RangeData } from "@odoo/o-spreadsheet-engine/types/range";
+import {
+  CoreTableType,
+  DataFilterValue,
+  TableConfig,
+  TableStyleTemplateName,
+} from "@odoo/o-spreadsheet-engine/types/table";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
-import { Carousel, CarouselItem, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
-import { Image } from "./image";
 import { PivotCoreDefinition, PivotTableData } from "./pivot";
-import { RangeData } from "./range";
-import { CoreTableType, DataFilterValue, TableConfig, TableStyleTemplateName } from "./table";
 
 // -----------------------------------------------------------------------------
 // Grid commands

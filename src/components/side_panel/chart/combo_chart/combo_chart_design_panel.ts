@@ -1,5 +1,5 @@
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { _t } from "../../../../translation";
-import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { DispatchResult, GenericDefinition, UID } from "../../../../types/index";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";

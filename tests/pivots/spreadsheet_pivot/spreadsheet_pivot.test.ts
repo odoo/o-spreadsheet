@@ -1,3 +1,4 @@
+import { CellValue, CellValueType } from "@odoo/o-spreadsheet-engine/types/cells";
 import { CellErrorType, EvaluatedCell, FunctionResultObject, Model } from "../../../src";
 import { GRID_ICON_MARGIN, PIVOT_INDENT } from "../../../src/constants";
 import { positions, toZone } from "../../../src/helpers";
@@ -26,7 +27,6 @@ import {
   removePivot,
   updatePivot,
 } from "../../test_helpers/pivot_helpers";
-import { CellValue, CellValueType } from "./../../../src/types/cells";
 
 describe("Spreadsheet Pivot", () => {
   test("Pivot is correctly registered", () => {

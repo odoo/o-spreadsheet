@@ -1,3 +1,4 @@
+import { XLSXChartType, XLSX_CHART_TYPES } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { isColorValid, toHex } from "../../helpers";
 import {
   ExcelChartDataset,
@@ -5,7 +6,6 @@ import {
   ExcelChartTrendConfiguration,
   ExcelTrendlineType,
 } from "../../types";
-import { XLSXChartType, XLSX_CHART_TYPES } from "../../types/xlsx";
 import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";

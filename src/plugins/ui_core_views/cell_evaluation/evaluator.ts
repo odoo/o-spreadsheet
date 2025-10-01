@@ -1,6 +1,6 @@
+import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { compile } from "../../../formulas";
 import { handleError, implementationErrorMessage } from "../../../functions";
-import { matrixMap } from "../../../functions/helpers";
 import {
   aggregatePositionsToZones,
   excludeTopLeft,

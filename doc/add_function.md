@@ -323,7 +323,7 @@ const NEW_FORMULA = {
 
 ## Casting and converting arguments
 
-See [src/functions/helpers.ts](../src/functions/helpers.ts)
+See [src/functions/helpers.ts](../packages/o-spreadsheet-engine/src/functions/helpers.ts)
 
 Takes a value and converts it to the specific type, taking o-spreadsheet specific considerations into account
 
@@ -335,7 +335,7 @@ Takes a value and converts it to the specific type, taking o-spreadsheet specifi
 
 ## Looping over arguments
 
-See [src/functions/helpers.ts](../src/functions/helpers.ts)
+See [src/functions/helpers.ts](../packages/o-spreadsheet-engine/src/functions/helpers.ts)
 
 Most formula can take cell references as argument, ranges or list of ranges, like `=sum(A2)`, `=sum(a2,b5)` and `=sum(a2,a3, a5:b10)`.
 Treating arguments of type Range is difficult because the `compute` function doesn't know in

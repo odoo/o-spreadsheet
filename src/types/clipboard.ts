@@ -1,6 +1,6 @@
+import { AllowedImageMimeTypes, Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { ClipboardCell, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetClipboardData } from "../plugins/ui_stateful";
-import { AllowedImageMimeTypes, Image } from "./image";
-import { ClipboardCell, HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",

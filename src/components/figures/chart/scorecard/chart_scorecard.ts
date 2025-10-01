@@ -1,8 +1,8 @@
+import { ScorecardChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
-import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 
 interface Props {
   chartId: UID;

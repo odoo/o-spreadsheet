@@ -1,5 +1,5 @@
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { tokenize } from "../formulas/tokenizer";
-import { toNumber } from "../functions/helpers";
 import {
   ColorScaleThreshold,
   ConditionalFormatRule,

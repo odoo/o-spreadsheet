@@ -1,5 +1,5 @@
+import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { Component, useState } from "@odoo/owl";
-import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import {
   CommandResult,
   CustomizedDataSet,

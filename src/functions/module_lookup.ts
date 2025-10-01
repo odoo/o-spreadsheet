@@ -1,9 +1,5 @@
-import { getFullReference, splitReference, toXC, toZone } from "../helpers/index";
-import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
-import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
-import { arg } from "./arguments";
-import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { expectNumberGreaterThanOrEqualToOne } from "@odoo/o-spreadsheet-engine/functions/helper_assert";
 import {
   LinearSearchMode,
   dichotomicSearch,
@@ -17,7 +13,11 @@ import {
   toNumber,
   toString,
   valueNotAvailable,
-} from "./helpers";
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { getFullReference, splitReference, toXC, toZone } from "../helpers/index";
+import { _t } from "../translation";
+import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
+import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 
 const DEFAULT_IS_SORTED = true;
 const DEFAULT_MATCH_MODE = 0;

@@ -1,4 +1,3 @@
-import { positions, toXC, toZone } from "../../helpers";
 import {
   XLSXCell,
   XLSXColumn,
@@ -20,7 +19,8 @@ import {
   XLSXTable,
   XLSXTheme,
   XLSXWorksheet,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { positions, toXC, toZone } from "../../helpers";
 import { EXCEL_DEFAULT_COL_WIDTH, EXCEL_DEFAULT_ROW_HEIGHT } from "../constants";
 import { CELL_TYPE_CONVERSION_MAP } from "../conversion";
 import { getRelativePath } from "../helpers/misc";

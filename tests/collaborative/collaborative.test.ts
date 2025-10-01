@@ -1,3 +1,4 @@
+import { CollaborationMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model, UIPlugin } from "../../src";
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
@@ -5,7 +6,6 @@ import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { featurePluginRegistry } from "../../src/plugins";
 import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
-import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,

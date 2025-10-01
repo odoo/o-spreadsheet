@@ -1,15 +1,5 @@
-import {
-  addMonthsToDate,
-  getYearFrac,
-  isLastDayOfMonth,
-  jsDateToRoundNumber,
-  range,
-} from "../helpers";
-import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Locale, Matrix, Maybe } from "../types";
-import { EvaluationError } from "../types/errors";
-import { arg } from "./arguments";
-import { areSameDimensions, assert } from "./helper_assert";
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { areSameDimensions, assert } from "@odoo/o-spreadsheet-engine/functions/helper_assert";
 import {
   DAY_COUNT_CONVENTION_OPTIONS,
   expectCashFlowsAndDatesHaveSameDimension,
@@ -66,7 +56,7 @@ import {
   isInvalidDayCountConvention,
   isInvalidFrequency,
   isSettlementLessThanOneYearBeforeMaturity,
-} from "./helper_financial";
+} from "@odoo/o-spreadsheet-engine/functions/helper_financial";
 import {
   reduceAny,
   reduceNumbers,
@@ -77,7 +67,17 @@ import {
   toNumber,
   transposeMatrix,
   visitNumbers,
-} from "./helpers";
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  addMonthsToDate,
+  getYearFrac,
+  isLastDayOfMonth,
+  jsDateToRoundNumber,
+  range,
+} from "../helpers";
+import { _t } from "../translation";
+import { AddFunctionDescription, Arg, FunctionResultObject, Locale, Matrix, Maybe } from "../types";
+import { EvaluationError } from "../types/errors";
 import { DAYS } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;

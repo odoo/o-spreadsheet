@@ -1,5 +1,5 @@
+import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { DVTerms } from "../components/translations_terms";
-import { tryToNumber } from "../functions/helpers";
 import {
   DateTime,
   areDatesSameDay,

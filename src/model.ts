@@ -1,12 +1,20 @@
 import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
+import { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/local_transport_service";
+import { ReadonlyTransportFilter } from "@odoo/o-spreadsheet-engine/collaborative/readonly_transport_filter";
+import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
+import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
+import { GeoChartRegion } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import {
+  StateUpdateMessage,
+  TransportService,
+} from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
+import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { markRaw } from "@odoo/owl";
-import { LocalTransportService } from "./collaborative/local_transport_service";
-import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
-import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator, deepCopy, lazy } from "./helpers/index";
-import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
   createEmptyWorkbookData,
@@ -28,9 +36,6 @@ import {
   SelectionStreamProcessorImpl,
 } from "./selection_stream/selection_stream_processor";
 import { _t, setDefaultTranslationMethod } from "./translation";
-import { GeoChartRegion } from "./types/chart/geo_chart";
-import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
-import { FileStore } from "./types/files";
 import {
   Client,
   ClientPosition,
@@ -56,8 +61,6 @@ import {
   canExecuteInReadonly,
   isCoreCommand,
 } from "./types/index";
-import { WorkbookData } from "./types/workbook_data";
-import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
 /**

@@ -1,4 +1,3 @@
-import { isObjectEmptyRecursive } from "../../helpers";
 import {
   XLSXBorder,
   XLSXBorderDescr,
@@ -9,7 +8,8 @@ import {
   XLSXStyle,
   XMLAttributes,
   XMLString,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { isObjectEmptyRecursive } from "../../helpers";
 import { FIRST_NUMFMT_ID } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";

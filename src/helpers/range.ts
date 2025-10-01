@@ -1,3 +1,4 @@
+import { numberToLetters } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { Registry } from "../registries/registry";
 import {
   AddColumnsRowsCommand,
@@ -20,7 +21,6 @@ import {
   ZoneDimension,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { numberToLetters } from "./coordinates";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
 import { isSheetNameEqual } from "./sheet";

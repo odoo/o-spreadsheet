@@ -1,3 +1,4 @@
+import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import {
   Component,
   onMounted,
@@ -39,7 +40,6 @@ import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
-import { AllowedImageMimeTypes } from "../../types/image";
 import {
   Align,
   CellValueType,

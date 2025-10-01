@@ -1,6 +1,6 @@
+import { XlsxHexColor } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { toHex } from "../../helpers";
 import { Color } from "../../types";
-import { XlsxHexColor } from "../../types/xlsx";
 
 /**
  * Convert a JS color hexadecimal to an excel compatible color.

@@ -1,5 +1,5 @@
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { Component } from "@odoo/owl";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
   DispatchResult,
   GenericDefinition,

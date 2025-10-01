@@ -1,6 +1,6 @@
+import { ExcelImage } from "@odoo/o-spreadsheet-engine/types/image";
+import { XLSXFigure, XLSXFigureAnchor } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { ExcelChartDefinition, ExcelFigureSize } from "../../types";
-import { ExcelImage } from "../../types/image";
-import { XLSXFigure, XLSXFigureAnchor } from "../../types/xlsx";
 import { IMAGE_EXTENSION_TO_MIMETYPE_MAPPING } from "../conversion";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";

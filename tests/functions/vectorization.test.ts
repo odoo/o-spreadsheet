@@ -1,7 +1,7 @@
+import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
-import { toScalar } from "../../src/functions/helper_matrices";
-import { toString } from "../../src/functions/helpers";
 import { splitReference } from "../../src/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {

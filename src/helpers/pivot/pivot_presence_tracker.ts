@@ -1,5 +1,5 @@
+import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { CellValue } from "../..";
-import { toString } from "../../functions/helpers";
 import { PivotDomain } from "../../types";
 
 export class PivotPresenceTracker {

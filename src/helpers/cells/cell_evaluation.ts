@@ -1,4 +1,4 @@
-import { isEvaluationError, toString } from "../../functions/helpers";
+import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import {
   BooleanCell,
   Cell,

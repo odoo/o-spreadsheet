@@ -5,7 +5,7 @@ import {
   XLSXTable,
   XLSXTableCol,
   XLSXTableStyleInfo,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 export class XlsxTableExtractor extends XlsxBaseExtractor {

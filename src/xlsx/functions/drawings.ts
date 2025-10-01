@@ -1,12 +1,12 @@
+import { ExcelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { FigureData, HeaderData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import { XLSXStructure, XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { FIGURE_BORDER_WIDTH } from "../../constants";
 import { HeaderIndex, SheetData } from "../../types";
-import { ExcelChartDefinition } from "../../types/chart/chart";
-import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
-import { Image } from "./../../types/image";
-import { FigureData, HeaderData } from "./../../types/workbook_data";
 
 type FigurePosition = {
   to: {

@@ -1,7 +1,7 @@
+import { GeoChartRegion } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import * as GeoJSON from "geojson";
 import TopoJSON from "topojson-specification";
 import { ModelConfig } from "../../model";
-import { GeoChartRegion } from "../../types/chart/geo_chart";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export class GeoFeaturePlugin extends UIPlugin {

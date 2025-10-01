@@ -1,7 +1,11 @@
+import {
+  ChartType,
+  GaugeChartRuntime,
+  ScorecardChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { Figure } from "../../../types";
-import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
-import { ChartRuntime } from "../../../types/chart/chart";
 import { deepCopy } from "../../misc";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";

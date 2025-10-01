@@ -1,4 +1,4 @@
-import { toJsDate } from "../functions/helpers";
+import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format/format";

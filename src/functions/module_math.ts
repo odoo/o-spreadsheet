@@ -1,3 +1,20 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { assertNotZero } from "@odoo/o-spreadsheet-engine/functions/helper_assert";
+import { countUnique, sum } from "@odoo/o-spreadsheet-engine/functions/helper_math";
+import { getUnitMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  generateMatrix,
+  inferFormat,
+  isDataNonEmpty,
+  isEvaluationError,
+  reduceAny,
+  strictToNumber,
+  toBoolean,
+  toInteger,
+  toNumber,
+  toString,
+  visitMatchingRanges,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { splitReference, toZone } from "../helpers";
 import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
@@ -12,23 +29,6 @@ import {
   isMatrix,
 } from "../types";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
-import { arg } from "./arguments";
-import { assertNotZero } from "./helper_assert";
-import { countUnique, sum } from "./helper_math";
-import { getUnitMatrix } from "./helper_matrices";
-import {
-  generateMatrix,
-  inferFormat,
-  isDataNonEmpty,
-  isEvaluationError,
-  reduceAny,
-  strictToNumber,
-  toBoolean,
-  toInteger,
-  toNumber,
-  toString,
-  visitMatchingRanges,
-} from "./helpers";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;

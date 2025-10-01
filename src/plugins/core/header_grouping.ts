@@ -1,3 +1,4 @@
+import { Dimension, HeaderGroup, HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
 import {
   deepCopy,
   getAddHeaderStartIndex,
@@ -8,7 +9,6 @@ import {
 } from "../../helpers";
 import { CommandResult, CoreCommand, ExcelWorkbookData, UID, WorkbookData } from "../../types";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
-import { Dimension, HeaderGroup, HeaderIndex, Zone } from "./../../types/misc";
 import { CorePlugin } from "./../core_plugin";
 
 interface State {

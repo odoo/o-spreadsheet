@@ -1,8 +1,8 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { markdownLink } from "../helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
-import { arg } from "./arguments";
-import { toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // HYPERLINK

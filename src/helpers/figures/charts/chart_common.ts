@@ -1,3 +1,13 @@
+import {
+  ChartAxisFormats,
+  ChartWithDataSetDefinition,
+  CustomizedDataSet,
+  DataSet,
+  DatasetValues,
+  ExcelChartDataset,
+  ExcelChartTrendConfiguration,
+  GenericDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
@@ -16,16 +26,6 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import {
-  ChartAxisFormats,
-  ChartWithDataSetDefinition,
-  CustomizedDataSet,
-  DataSet,
-  DatasetValues,
-  ExcelChartDataset,
-  ExcelChartTrendConfiguration,
-  GenericDefinition,
-} from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";

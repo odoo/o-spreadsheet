@@ -1,4 +1,15 @@
 import { FunctionRegistry as EngineFunctionRegistry } from "@odoo/o-spreadsheet-engine";
+import {
+  addMetaInfoFromArg,
+  argTargeting,
+  validateArguments,
+} from "@odoo/o-spreadsheet-engine/functions/arguments";
+import {
+  applyVectorization,
+  isEvaluationError,
+  matrixForEach,
+  matrixMap,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
 import { tokenColors } from "../constants";
 import { EnrichedToken } from "../formulas/composer_tokenizer";
@@ -20,8 +31,6 @@ import {
   isMatrix,
 } from "../types";
 import { BadExpressionError, EvaluationError } from "../types/errors";
-import { addMetaInfoFromArg, argTargeting, validateArguments } from "./arguments";
-import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -42,7 +51,7 @@ import * as web from "./module_web";
 
 export { FunctionRegistry } from "@odoo/o-spreadsheet-engine";
 
-export { arg } from "./arguments";
+export { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 
 type Functions = { [functionName: string]: AddFunctionDescription };
 type Category = { name: string; functions: Functions };

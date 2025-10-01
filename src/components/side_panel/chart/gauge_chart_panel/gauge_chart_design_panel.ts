@@ -1,9 +1,15 @@
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  GaugeChartDefinition,
+  SectionRule,
+} from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { Component, useState } from "@odoo/owl";
-import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
-import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
-import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import {
   Color,
   CommandResult,

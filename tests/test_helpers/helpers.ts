@@ -1,4 +1,7 @@
 import { BasePlugin } from "@odoo/o-spreadsheet-engine";
+import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
@@ -11,7 +14,6 @@ import { ComposerFocusStore } from "../../src/components/composer/composer_focus
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
-import { matrixMap } from "../../src/functions/helpers";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
@@ -70,8 +72,6 @@ import {
   UID,
   Zone,
 } from "../../src/types";
-import { Image } from "../../src/types/image";
-import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { FileStore } from "../__mocks__/mock_file_store";

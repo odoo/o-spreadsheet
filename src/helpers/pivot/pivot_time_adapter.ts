@@ -1,4 +1,4 @@
-import { toJsDate, toNumber } from "../../functions/helpers";
+import { toJsDate, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";

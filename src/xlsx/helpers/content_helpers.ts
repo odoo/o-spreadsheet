@@ -1,3 +1,15 @@
+import {
+  ExtractedStyle,
+  XLSXDataValidationDateOperatorType,
+  XLSXDataValidationOperatorType,
+  XLSXHorizontalAlignment,
+  XLSXNumFormat,
+  XLSXRel,
+  XLSXRelFile,
+  XLSXStructure,
+  XLSXStyle,
+  XLSXWorksheet,
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
 import {
   getCanonicalRepresentation,
@@ -12,18 +24,6 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
-import {
-  ExtractedStyle,
-  XLSXDataValidationDateOperatorType,
-  XLSXDataValidationOperatorType,
-  XLSXHorizontalAlignment,
-  XLSXNumFormat,
-  XLSXRel,
-  XLSXRelFile,
-  XLSXStructure,
-  XLSXStyle,
-  XLSXWorksheet,
-} from "../../types/xlsx";
 import {
   EXCEL_DEFAULT_COL_WIDTH,
   EXCEL_DEFAULT_ROW_HEIGHT,

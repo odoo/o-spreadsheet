@@ -1,13 +1,3 @@
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
-import {
-  CHART_AXIS_TITLE_FONT_SIZE,
-  CHART_PADDING,
-  CHART_PADDING_BOTTOM,
-  CHART_PADDING_TOP,
-  GRAY_300,
-} from "../../../../constants";
-import { LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   BarChartDefinition,
@@ -20,13 +10,23 @@ import {
   PyramidChartDefinition,
   ScatterChartDefinition,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
-} from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
+import {
+  CHART_AXIS_TITLE_FONT_SIZE,
+  CHART_PADDING,
+  CHART_PADDING_BOTTOM,
+  CHART_PADDING_TOP,
+  GRAY_300,
+} from "../../../../constants";
+import { LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 import { getColorScale } from "../../../color";
 import { formatValue, humanizeNumber } from "../../../format/format";

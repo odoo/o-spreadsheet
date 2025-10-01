@@ -1,3 +1,4 @@
+import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -12,7 +13,6 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { AllowedImageMimeTypes } from "../../types/image";
 import { mergeOverlappingZones, positions, union } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {

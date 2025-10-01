@@ -1,7 +1,4 @@
-import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
-import { _DeepPartialObject } from "chart.js/dist/types/utils";
-import { toNumber } from "../../../../functions/helpers";
-import { CellValue } from "../../../../types";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -12,10 +9,13 @@ import {
   SunburstChartDefinition,
   SunburstChartRawData,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
-import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
+import { _DeepPartialObject } from "chart.js/dist/types/utils";
+import { CellValue } from "../../../../types";
 import { setColorAlpha } from "../../../color";
 import { formatOrHumanizeValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";

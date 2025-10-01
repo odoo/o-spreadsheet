@@ -1,3 +1,5 @@
+import { HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
+import { XLSXStructure, XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   isInside,
@@ -14,7 +16,6 @@ import { PositionMap } from "../../helpers/cells/position_map";
 import { withHttps } from "../../helpers/links";
 import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
-import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import {
@@ -25,7 +26,6 @@ import {
   normalizeStyle,
 } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
-import { HeaderIndex } from "./../../types/misc";
 import { addContent, addFormula } from "./cells";
 
 export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString {

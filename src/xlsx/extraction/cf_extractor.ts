@@ -7,15 +7,15 @@ import {
   XLSXCfValueObject,
   XLSXCfValueObjectType,
   XLSXColor,
+  XLSXColorScale,
   XLSXConditionalFormat,
   XLSXDataBar,
   XLSXFileStructure,
   XLSXIconSet,
   XLSXImportFile,
   XLSXTheme,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
-import { XLSXColorScale } from "./../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 export class XlsxCfExtractor extends XlsxBaseExtractor {

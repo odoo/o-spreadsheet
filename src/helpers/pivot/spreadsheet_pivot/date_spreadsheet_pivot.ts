@@ -1,4 +1,4 @@
-import { toJsDate, toNumber } from "../../../functions/helpers";
+import { toJsDate, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { CellValue, Locale } from "../../../types";
 import { PivotDimension } from "../../../types/pivot";
 import { toNormalizedPivotValue } from "../pivot_helpers";

@@ -1,4 +1,4 @@
-import { Range } from "./range";
+import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 
 export interface SearchOptions {
   matchCase: boolean;

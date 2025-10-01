@@ -1,3 +1,4 @@
+import { Align, CellPosition } from "@odoo/o-spreadsheet-engine/types/misc";
 import { isDefined } from "../../helpers/index";
 import {
   GridIcon,
@@ -5,7 +6,6 @@ import {
   iconsOnCellRegistry,
 } from "../../registries/icons_on_cell_registry";
 import { Command, Rect } from "../../types";
-import { Align, CellPosition } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 export class CellIconPlugin extends CoreViewPlugin {

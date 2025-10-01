@@ -1,3 +1,18 @@
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import {
+  LegendPosition,
+  VerticalAxisPosition,
+} from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
+import {
+  WaterfallChartDefinition,
+  WaterfallChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -10,18 +25,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  ExcelChartDefinition,
-} from "../../../types/chart/chart";
-import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
-import {
-  WaterfallChartDefinition,
-  WaterfallChartRuntime,
-} from "../../../types/chart/waterfall_chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";

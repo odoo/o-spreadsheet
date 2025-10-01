@@ -1,4 +1,12 @@
 import {
+  XLSXCell,
+  XLSXColumn,
+  XLSXHyperLink,
+  XLSXImportData,
+  XLSXRow,
+  XLSXWorksheet,
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import {
   buildSheetLink,
   largeMax,
   markdownLink,
@@ -8,14 +16,6 @@ import {
   toXC,
 } from "../../helpers";
 import { Dimension, HeaderData, HeaderGroup, SheetData } from "../../types";
-import {
-  XLSXCell,
-  XLSXColumn,
-  XLSXHyperLink,
-  XLSXImportData,
-  XLSXRow,
-  XLSXWorksheet,
-} from "../../types/xlsx";
 import {
   EXCEL_DEFAULT_COL_WIDTH,
   EXCEL_DEFAULT_ROW_HEIGHT,

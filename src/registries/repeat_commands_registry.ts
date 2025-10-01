@@ -1,8 +1,7 @@
-import { deepCopy } from "../helpers";
 import {
   genericRepeatsTransforms,
   repeatZoneDependantCommand,
-} from "../history/repeat_commands/repeat_commands_generic";
+} from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_commands_generic";
 import {
   repeatAddColumnsRowsCommand,
   repeatAutoResizeCommand,
@@ -15,7 +14,8 @@ import {
   repeatInsertOrDeleteCellCommand,
   repeatPasteCommand,
   repeatSortCellsCommand,
-} from "../history/repeat_commands/repeat_commands_specific";
+} from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_commands_specific";
+import { deepCopy } from "../helpers";
 import { CoreCommand, Getters } from "../types";
 import { Command, LocalCommand } from "./../types/commands";
 import { Registry } from "./registry";

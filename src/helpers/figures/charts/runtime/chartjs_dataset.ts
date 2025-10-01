@@ -1,15 +1,3 @@
-import { ChartDataset, Point } from "chart.js";
-import {
-  BACKGROUND_CHART_COLOR,
-  CHART_WATERFALL_NEGATIVE_COLOR,
-  CHART_WATERFALL_POSITIVE_COLOR,
-  CHART_WATERFALL_SUBTOTAL_COLOR,
-  COLOR_TRANSPARENT,
-  LINE_DATA_POINT_RADIUS,
-  LINE_FILL_TRANSPARENCY,
-} from "../../../../constants";
-import { _t } from "../../../../translation";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
@@ -26,13 +14,13 @@ import {
   TitleDesign,
   TrendConfiguration,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
-} from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
@@ -40,7 +28,19 @@ import {
   TreeMapColorScaleOptions,
   TreeMapDataset,
   TreeMapGroupColor,
-} from "../../../../types/chart/tree_map_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { ChartDataset, Point } from "chart.js";
+import {
+  BACKGROUND_CHART_COLOR,
+  CHART_WATERFALL_NEGATIVE_COLOR,
+  CHART_WATERFALL_POSITIVE_COLOR,
+  CHART_WATERFALL_SUBTOTAL_COLOR,
+  COLOR_TRANSPARENT,
+  LINE_DATA_POINT_RADIUS,
+  LINE_FILL_TRANSPARENCY,
+} from "../../../../constants";
+import { _t } from "../../../../translation";
+import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import {
   ColorGenerator,
   colorToRGBA,

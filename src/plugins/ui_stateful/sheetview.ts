@@ -1,3 +1,4 @@
+import { HeaderDimensions, PixelPosition } from "@odoo/o-spreadsheet-engine/types/misc";
 import { getDefaultSheetViewSize } from "../../constants";
 import { clip, findCellInNewZone, isDefined, positionToZone, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
@@ -28,7 +29,6 @@ import {
   Zone,
   invalidateEvaluationCommands,
 } from "../../types/index";
-import { HeaderDimensions, PixelPosition } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 type SheetViewports = {

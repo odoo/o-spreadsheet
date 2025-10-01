@@ -1,4 +1,7 @@
-import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import {
   deepCopy,
   getUniqueText,

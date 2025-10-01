@@ -1,6 +1,10 @@
+import {
+  XLSXImportData,
+  XLSXSharedFormula,
+  XLSXWorksheet,
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { cellReference, isSheetNameEqual, toCartesian, toXC } from "../../helpers";
 import { RangePart } from "../../types";
-import { XLSXImportData, XLSXSharedFormula, XLSXWorksheet } from "../../types/xlsx";
 import { SUBTOTAL_FUNCTION_CONVERSION_MAP } from "./conversion_maps";
 
 type SharedFormulasMap = Record<number, XLSXSharedFormula>;

@@ -1,5 +1,8 @@
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { compile } from "../../formulas";
-import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";

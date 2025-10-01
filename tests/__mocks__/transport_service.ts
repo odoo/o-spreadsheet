@@ -1,11 +1,11 @@
-import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { deepCopy } from "../../src/helpers";
-import { UID, WorkbookData } from "../../src/types";
 import {
   CollaborationMessage,
   NewMessageCallback,
   TransportService,
-} from "../../src/types/collaborative/transport_service";
+} from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { DEFAULT_REVISION_ID } from "../../src/constants";
+import { deepCopy } from "../../src/helpers";
+import { UID, WorkbookData } from "../../src/types";
 
 export class MockTransportService implements TransportService<CollaborationMessage> {
   private listeners: { id: UID; callback: NewMessageCallback }[] = [];

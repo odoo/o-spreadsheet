@@ -1,9 +1,9 @@
-import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
-import { arg } from "./arguments";
-import { boolAnd, boolOr } from "./helper_logical";
-import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { boolAnd, boolOr } from "@odoo/o-spreadsheet-engine/functions/helper_logical";
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import {
   applyVectorization,
   conditionalVisitBoolean,
@@ -11,7 +11,10 @@ import {
   noValidInputErrorMessage,
   toBoolean,
   valueNotAvailable,
-} from "./helpers";
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "../translation";
+import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
+import { CellErrorType, EvaluationError } from "../types/errors";
 
 // -----------------------------------------------------------------------------
 // AND

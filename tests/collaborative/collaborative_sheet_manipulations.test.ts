@@ -1,7 +1,7 @@
+import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import { CellIsRule, Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
-import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,

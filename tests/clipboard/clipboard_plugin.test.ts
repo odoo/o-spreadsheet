@@ -1,3 +1,4 @@
+import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { UIPlugin } from "../../src";
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
@@ -18,7 +19,6 @@ import {
   DEFAULT_LOCALE,
   DEFAULT_LOCALES,
 } from "../../src/types/index";
-import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
 import { MockClipboardData } from "../test_helpers/clipboard";

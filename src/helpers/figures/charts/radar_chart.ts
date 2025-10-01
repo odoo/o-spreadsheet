@@ -1,3 +1,14 @@
+import {
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDefinition,
+  LegendPosition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  RadarChartDefinition,
+  RadarChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -11,14 +22,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import {
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  ExcelChartDefinition,
-  LegendPosition,
-} from "../../../types/chart";
-import { RadarChartDefinition, RadarChartRuntime } from "../../../types/chart/radar_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";

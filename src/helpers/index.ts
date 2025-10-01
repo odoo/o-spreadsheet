@@ -1,5 +1,5 @@
+export * from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 export * from "./color";
-export * from "./coordinates";
 export * from "./criterion_helpers";
 export * from "./data_normalization";
 export * from "./dates";

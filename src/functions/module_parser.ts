@@ -1,9 +1,13 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import {
+  getTransformation,
+  getTranslatedCategory,
+  UNIT_OPTIONS,
+} from "@odoo/o-spreadsheet-engine/functions/helper_parser";
+import { toNumber, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
-import { arg } from "./arguments";
-import { getTransformation, getTranslatedCategory, UNIT_OPTIONS } from "./helper_parser";
-import { toNumber, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CONVERT

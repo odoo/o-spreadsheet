@@ -1,5 +1,5 @@
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Component } from "@odoo/owl";
-import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { Section } from "../../components/section/section";
 

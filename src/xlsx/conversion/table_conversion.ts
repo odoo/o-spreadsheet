@@ -1,9 +1,14 @@
+import { SheetData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import {
+  XLSXImportData,
+  XLSXPivotTable,
+  XLSXTable,
+  XLSXWorksheet,
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { isSheetNameEqual, toCartesian, toZone, zoneToXc } from "../../helpers";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
 import { TableConfig, WorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
-import { SheetData } from "../../types/workbook_data";
-import { XLSXImportData, XLSXPivotTable, XLSXTable, XLSXWorksheet } from "../../types/xlsx";
 
 /**
  * Convert the imported XLSX tables and pivots convert the table-specific formula references into standard references.

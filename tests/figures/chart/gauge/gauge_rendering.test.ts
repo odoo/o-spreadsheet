@@ -1,3 +1,4 @@
+import { GaugeAnimatedRuntime, GaugeChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Model } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
@@ -8,7 +9,6 @@ import {
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
 import { readonlyAllowedCommands, Rect } from "../../../../src/types";
-import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { createGaugeChart, setCellContent } from "../../../test_helpers/commands_helpers";
 import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";

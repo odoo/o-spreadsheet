@@ -1,13 +1,13 @@
-import { ChartMeta } from "chart.js";
-import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
-import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import {
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
   SunburstChartDefaults,
   SunburstChartDefinition,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartMeta } from "chart.js";
+import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import { formatChartDatasetValue } from "../chart_common";
 
 export function getChartShowValues(

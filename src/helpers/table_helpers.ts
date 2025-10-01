@@ -1,8 +1,15 @@
+import {
+  CoreTable,
+  Filter,
+  StaticTable,
+  Table,
+  TableConfig,
+  TableStyle,
+} from "@odoo/o-spreadsheet-engine/types/table";
 import { Border, BorderDescr, CellPosition, Range, Style, UID, Zone } from "../types";
-import { CoreTable, Filter, StaticTable, Table, TableConfig, TableStyle } from "../types/table";
 
-import { generateMatrix } from "../functions/helpers";
-import { ComputedTableStyle } from "./../types/table";
+import { generateMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { ComputedTableStyle } from "@odoo/o-spreadsheet-engine/types/table";
 
 type TableElement = keyof Omit<
   TableStyle,

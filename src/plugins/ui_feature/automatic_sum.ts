@@ -1,3 +1,4 @@
+import { HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
 import {
   groupConsecutive,
   isDateTimeFormat,
@@ -20,7 +21,6 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { HeaderIndex } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {

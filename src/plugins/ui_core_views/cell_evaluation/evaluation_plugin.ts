@@ -1,5 +1,5 @@
+import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { isExportableToExcel } from "../../../formulas/index";
-import { matrixMap } from "../../../functions/helpers";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,

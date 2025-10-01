@@ -1,3 +1,4 @@
+import { XLSXDataValidation } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { getDateCriterionFormattedValues, rangeReference } from "../../helpers";
 import {
   DEFAULT_LOCALE,
@@ -6,7 +7,6 @@ import {
   DateIsBetweenCriterion,
   DateIsNotBetweenCriterion,
 } from "../../types";
-import { XLSXDataValidation } from "../../types/xlsx";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import {
   XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,

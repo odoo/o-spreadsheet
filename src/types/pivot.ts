@@ -1,8 +1,14 @@
+import { CellValue } from "@odoo/o-spreadsheet-engine/types/cells";
+import { Format } from "@odoo/o-spreadsheet-engine/types/format";
+import {
+  Dimension,
+  FunctionResultObject,
+  SortDirection,
+  UID,
+  Zone,
+} from "@odoo/o-spreadsheet-engine/types/misc";
 import { NEXT_VALUE, PREVIOUS_VALUE } from "../helpers/pivot/pivot_domain_helpers";
-import { CellValue } from "./cells";
-import { Format } from "./format";
 import { Locale } from "./locale";
-import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
 
 export type Aggregator =
   | "array_agg"

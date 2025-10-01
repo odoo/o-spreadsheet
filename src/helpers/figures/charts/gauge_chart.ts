@@ -1,11 +1,22 @@
 import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import {
+  GaugeChartDefinition,
+  GaugeChartRuntime,
+  GaugeInflectionValue,
+  SectionRule,
+  SectionThreshold,
+} from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
+import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
-import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
-import { tryToNumber } from "../../../functions/helpers";
 import {
   AdaptSheetName,
   ApplyRangeChange,
@@ -20,14 +31,6 @@ import {
   UID,
   Validation,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
-import {
-  GaugeChartDefinition,
-  GaugeChartRuntime,
-  GaugeInflectionValue,
-  SectionRule,
-  SectionThreshold,
-} from "../../../types/chart/gauge_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";

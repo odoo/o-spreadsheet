@@ -1,4 +1,3 @@
-import { Border, BorderDescr, Style } from "../../types";
 import {
   XLSXBorder,
   XLSXBorderDescr,
@@ -8,7 +7,8 @@ import {
   XLSXHorizontalAlignment,
   XLSXImportData,
   XLSXVerticalAlignment,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { Border, BorderDescr, Style } from "../../types";
 import { arrayToObject } from "../helpers/misc";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertColor } from "./color_conversion";

@@ -1,5 +1,5 @@
+import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { Component, useState } from "@odoo/owl";
-import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";

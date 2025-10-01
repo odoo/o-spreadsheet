@@ -1,3 +1,4 @@
+import { XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { AST, ASTFuncall, ASTString, convertAstNodes, parse } from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
@@ -5,7 +6,6 @@ import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { CellValue, Format } from "../../types";
 import { CellErrorType } from "../../types/errors";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";

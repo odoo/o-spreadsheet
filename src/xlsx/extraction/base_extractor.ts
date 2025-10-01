@@ -1,18 +1,18 @@
-import { isDefined } from "../../helpers";
 import {
   XLSXColor,
   XLSXColorScheme,
   XLSXFileStructure,
+  XLSXImageFile,
   XLSXImportFile,
   XLSXRel,
   XLSXTheme,
   XMLFile,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { isDefined } from "../../helpers";
 import { DEFAULT_SYSTEM_COLOR } from "../conversion";
 import { fixXlsxUnicode } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { escapeQueryNameSpaces } from "../helpers/xml_helpers";
-import { XLSXImageFile } from "./../../types/xlsx";
 
 interface MapOnElementArgs {
   query: string;

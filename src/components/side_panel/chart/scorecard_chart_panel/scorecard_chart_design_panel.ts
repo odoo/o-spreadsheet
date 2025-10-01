@@ -1,3 +1,4 @@
+import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { Component } from "@odoo/owl";
 import {
   DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
@@ -5,7 +6,6 @@ import {
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "../../../../constants";
 import { _t } from "../../../../translation";
-import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import {
   Color,
   DispatchResult,

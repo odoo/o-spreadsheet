@@ -1,4 +1,4 @@
-import { ClientDisconnectedError } from "../../collaborative/session";
+import { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { AlternatingColorMap } from "../../helpers";
 import {

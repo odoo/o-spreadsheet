@@ -1,3 +1,11 @@
+import {
+  CellPosition,
+  Dimension,
+  HeaderIndex,
+  Immutable,
+  Pixel,
+  UID,
+} from "@odoo/o-spreadsheet-engine/types/misc";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
   deepCopy,
@@ -9,7 +17,6 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
-import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {

@@ -1,4 +1,4 @@
-import { toNumber } from "../../functions/helpers";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { _t } from "../../translation";
 import {
   CellValue,

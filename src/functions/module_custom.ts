@@ -1,3 +1,5 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { formatLargeNumber } from "../helpers";
 import { _t } from "../translation";
 import {
@@ -6,8 +8,6 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { arg } from "./arguments";
-import { toNumber } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // FORMAT.LARGE.NUMBER

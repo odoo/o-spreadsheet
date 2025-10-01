@@ -1,6 +1,9 @@
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { prettify } from "../../../formulas/formula_formatter";
 import { parseTokens } from "../../../formulas/parser";
-import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { parseLiteral } from "../../../helpers/cells";
 import {
   formatValue,

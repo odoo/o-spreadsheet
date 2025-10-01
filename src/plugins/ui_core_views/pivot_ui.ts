@@ -1,7 +1,7 @@
+import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { toBoolean } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/formula_formatter";
-import { toScalar } from "../../functions/helper_matrices";
-import { toBoolean } from "../../functions/helpers";
 import { deepEquals, getUniqueText } from "../../helpers";
 import {
   getFirstPivotFunction,

@@ -1,7 +1,7 @@
+import { FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator } from "../../../../src/helpers";
 import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart";
-import { FunnelChartRuntime } from "../../../../src/types/chart/funnel_chart";
 import { createFunnelChart, setCellContent, setFormat } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import { setGrid } from "../../../test_helpers/helpers";

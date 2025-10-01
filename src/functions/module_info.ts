@@ -1,3 +1,5 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
@@ -9,8 +11,6 @@ import {
   Maybe,
 } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
-import { arg } from "./arguments";
-import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL

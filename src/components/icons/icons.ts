@@ -1,3 +1,4 @@
+import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
 import {
   ACTION_COLOR,
   FILTERS_COLOR,
@@ -8,7 +9,6 @@ import {
 } from "../../constants";
 import { isDefined } from "../../helpers";
 import { Style } from "../../types";
-import { ImageSVG } from "../../types/image";
 
 export type IconSetType = keyof typeof ICON_SETS;
 

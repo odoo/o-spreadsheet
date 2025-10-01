@@ -1,5 +1,5 @@
+import { transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { handleError } from "../../functions";
-import { transposeMatrix } from "../../functions/helpers";
 import { ModelConfig } from "../../model";
 import { _t } from "../../translation";
 import {

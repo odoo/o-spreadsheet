@@ -1,5 +1,5 @@
 import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
-import { Session } from "../collaborative/session";
+import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import {

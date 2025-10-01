@@ -1,9 +1,9 @@
+import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
-import { isEvaluationError, transposeMatrix } from "../../../functions/helpers";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,

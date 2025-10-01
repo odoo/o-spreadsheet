@@ -1,11 +1,11 @@
-import { Component } from "@odoo/owl";
-import { DispatchResult, UID } from "../../../../..";
-import { SpreadsheetChildEnv } from "../../../../../types";
 import {
   TreeMapChartDefaults,
   TreeMapChartDefinition,
   TreeMapColorScaleOptions,
-} from "../../../../../types/chart/tree_map_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { Component } from "@odoo/owl";
+import { DispatchResult, UID } from "../../../../..";
+import { SpreadsheetChildEnv } from "../../../../../types";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 interface Props {

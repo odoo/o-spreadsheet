@@ -1,7 +1,10 @@
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
-import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";

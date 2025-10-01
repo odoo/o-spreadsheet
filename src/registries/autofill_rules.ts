@@ -1,4 +1,5 @@
-import { toJsDate } from "../functions/helpers";
+import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { EvaluatedCell, LiteralCell } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   DateTime,
   getTimeDifferenceInWholeDays,
@@ -8,7 +9,6 @@ import {
 } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE, DIRECTION } from "../types/index";
-import { EvaluatedCell, LiteralCell } from "./../types/cells";
 import { Registry } from "./registry";
 
 /**

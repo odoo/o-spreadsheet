@@ -1,10 +1,17 @@
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { ChartCreationContext, TitleDesign } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import {
+  BaselineArrowDirection,
+  BaselineMode,
+  ScorecardChartDefinition,
+  ScorecardChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
-import { toNumber } from "../../../functions/helpers";
 import {
   ApplyRangeChange,
   CellValueType,
@@ -18,13 +25,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
-import {
-  BaselineArrowDirection,
-  BaselineMode,
-  ScorecardChartDefinition,
-  ScorecardChartRuntime,
-} from "../../../types/chart/scorecard_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";

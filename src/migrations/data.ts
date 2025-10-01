@@ -1,7 +1,7 @@
+import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { DEFAULT_REVISION_ID } from "../constants";
 import { UuidGenerator, getDuplicateSheetName, getNextSheetName } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
-import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
   DEFAULT_LOCALE,

@@ -1,11 +1,11 @@
-import { Component } from "@odoo/owl";
-import { _t } from "../../../../translation";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
   TreeMapChartDefinition,
   TreeMapColorScaleOptions,
-} from "../../../../types/chart/tree_map_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { Component } from "@odoo/owl";
+import { _t } from "../../../../translation";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../components/checkbox/checkbox";

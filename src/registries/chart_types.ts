@@ -1,3 +1,25 @@
+import {
+  BarChartDefinition,
+  GaugeChartDefinition,
+  LineChartDefinition,
+  PieChartDefinition,
+  ScorecardChartDefinition,
+  SunburstChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  ChartCreationContext,
+  ChartDefinition,
+  ChartRuntime,
+  ChartType,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { PyramidChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { ScatterChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import { Component } from "@odoo/owl";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { ZoomableChartJsComponent } from "../components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
@@ -29,28 +51,6 @@ import {
 } from "../helpers/figures/charts/waterfall_chart";
 import { _t } from "../translation";
 import { CommandResult, CoreGetters, Getters, RangeAdapter, UID } from "../types";
-import {
-  BarChartDefinition,
-  GaugeChartDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  ScorecardChartDefinition,
-  SunburstChartDefinition,
-} from "../types/chart";
-import {
-  ChartCreationContext,
-  ChartDefinition,
-  ChartRuntime,
-  ChartType,
-} from "../types/chart/chart";
-import { ComboChartDefinition } from "../types/chart/combo_chart";
-import { FunnelChartDefinition } from "../types/chart/funnel_chart";
-import { GeoChartDefinition } from "../types/chart/geo_chart";
-import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
-import { RadarChartDefinition } from "../types/chart/radar_chart";
-import { ScatterChartDefinition } from "../types/chart/scatter_chart";
-import { TreeMapChartDefinition } from "../types/chart/tree_map_chart";
-import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 

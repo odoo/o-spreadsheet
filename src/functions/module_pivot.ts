@@ -1,3 +1,11 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import {
+  addPivotDependencies,
+  assertDomainLength,
+  assertMeasureExist,
+  getPivotId,
+} from "@odoo/o-spreadsheet-engine/functions/helper_lookup";
+import { toBoolean, toNumber, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { range } from "../helpers/index";
@@ -11,14 +19,6 @@ import {
   PivotVisibilityOptions,
 } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
-import { arg } from "./arguments";
-import {
-  addPivotDependencies,
-  assertDomainLength,
-  assertMeasureExist,
-  getPivotId,
-} from "./helper_lookup";
-import { toBoolean, toNumber, toString } from "./helpers";
 
 //--------------------------------------------------------------------------
 // Pivot functions

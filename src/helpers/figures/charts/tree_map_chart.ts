@@ -1,3 +1,16 @@
+import {
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDefinition,
+  TitleDesign,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
+import {
+  TreeMapChartDefinition,
+  TreeMapChartRuntime,
+  TreeMapColoringOptions,
+} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -10,19 +23,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import {
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  ExcelChartDefinition,
-  TitleDesign,
-} from "../../../types/chart/chart";
-import { LegendPosition } from "../../../types/chart/common_chart";
-import {
-  TreeMapChartDefinition,
-  TreeMapChartRuntime,
-  TreeMapColoringOptions,
-} from "../../../types/chart/tree_map_chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";

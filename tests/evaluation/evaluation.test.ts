@@ -1,6 +1,6 @@
+import { toMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { toCartesian } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { arg, functionRegistry } from "../../src/functions";
-import { toMatrix } from "../../src/functions/helpers";
-import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
 import { CellValueType, ErrorCell, UID } from "../../src/types";
 import { CellErrorType, EvaluationError } from "../../src/types/errors";

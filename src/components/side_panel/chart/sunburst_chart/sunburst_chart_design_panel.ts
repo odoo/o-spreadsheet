@@ -1,11 +1,11 @@
-import { Component } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
 import {
   SunburstChartDefaults,
   SunburstChartDefinition,
   SunburstChartJSDataset,
   SunburstChartRuntime,
-} from "../../../../types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { Component } from "@odoo/owl";
+import { deepCopy } from "../../../../helpers";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

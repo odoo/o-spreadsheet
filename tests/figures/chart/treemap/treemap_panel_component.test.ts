@@ -1,7 +1,7 @@
+import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ColorGenerator } from "../../../../src/helpers";
-import { TreeMapChartDefinition } from "../../../../src/types/chart/tree_map_chart";
 import {
   changeColorPickerWidgetColor,
   changeRoundColorPickerColor,

@@ -1,3 +1,17 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import {
+  areSameDimensions,
+  assert,
+  isSingleColOrRow,
+} from "@odoo/o-spreadsheet-engine/functions/helper_assert";
+import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  matrixMap,
+  toBoolean,
+  toMatrix,
+  toNumber,
+  transposeMatrix,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { range } from "../helpers";
 import { cellsSortingCriterion } from "../helpers/sort";
 import { _t } from "../translation";
@@ -14,10 +28,6 @@ import {
   isMatrix,
 } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
-import { arg } from "./arguments";
-import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
-import { toScalar } from "./helper_matrices";
-import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,

@@ -4,7 +4,7 @@ import {
   XLSXFileStructure,
   XLSXImportFile,
   XLSXTheme,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XlsxBaseExtractor } from "./base_extractor";
 

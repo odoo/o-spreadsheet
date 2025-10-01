@@ -1,3 +1,11 @@
+import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { PieChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
+import { ScatterChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { SheetData, WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import { XLSXSharedFormula } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import {
   buildSheetLink,
@@ -8,14 +16,6 @@ import {
 } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
-import { BarChartDefinition } from "../../src/types/chart/bar_chart";
-import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
-import { LineChartDefinition } from "../../src/types/chart/line_chart";
-import { PieChartDefinition } from "../../src/types/chart/pie_chart";
-import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
-import { Image } from "../../src/types/image";
-import { SheetData, WorkbookData } from "../../src/types/workbook_data";
-import { XLSXSharedFormula } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,

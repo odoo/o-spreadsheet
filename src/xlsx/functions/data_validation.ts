@@ -1,6 +1,6 @@
-import { toNumber } from "../../functions/helpers";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { DataValidationRuleData, DEFAULT_LOCALE } from "../../types";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
 import {
   convertDateCriterionTypeToExcelOperator,
   convertDecimalCriterionTypeToExcelOperator,

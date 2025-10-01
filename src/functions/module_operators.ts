@@ -1,3 +1,9 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import {
+  isEvaluationError,
+  toNumber,
+  toString,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
@@ -6,8 +12,6 @@ import {
   Maybe,
 } from "../types";
 import { DivisionByZeroError } from "../types/errors";
-import { arg } from "./arguments";
-import { isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------

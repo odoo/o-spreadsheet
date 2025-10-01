@@ -1,7 +1,7 @@
-import { DEFAULT_FONT_SIZE } from "../../constants";
 import {
   XLSXBorder,
   XLSXBorderDescr,
+  XLSXBorderStyle,
   XLSXCellAlignment,
   XLSXDxf,
   XLSXFileStructure,
@@ -12,9 +12,9 @@ import {
   XLSXStyle,
   XLSXTheme,
   XLSXVerticalAlignment,
-} from "../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { DEFAULT_FONT_SIZE } from "../../constants";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
-import { XLSXBorderStyle } from "./../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 type BorderDirection = "left" | "right" | "top" | "bottom" | "diagonal";

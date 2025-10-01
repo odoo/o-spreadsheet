@@ -1,6 +1,4 @@
-import { DEFAULT_REVISION_ID } from "../constants";
-import { removeFalsyAttributes } from "../helpers";
-import { _t } from "../translation";
+import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import {
   ImportedFiles,
   XLSXExternalBook,
@@ -10,8 +8,10 @@ import {
   XLSXWorksheet,
   XLSXXmlDocuments,
   XMLString,
-} from "../types/xlsx";
-import { WorkbookData } from "./../types/workbook_data";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { DEFAULT_REVISION_ID } from "../constants";
+import { removeFalsyAttributes } from "../helpers";
+import { _t } from "../translation";
 import { CONTENT_TYPES } from "./constants";
 import {
   convertBorders,

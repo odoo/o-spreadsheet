@@ -1,6 +1,13 @@
+import { transformRangeData } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot_helpers";
+import {
+  isEvaluationError,
+  toBoolean,
+  toJsDate,
+  toNumber,
+  toString,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
-import { transformRangeData } from "./collaborative/ot/ot_helpers";
 import { ComposerFocusStore } from "./components/composer/composer_focus_store";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
@@ -65,7 +72,6 @@ import {
   SCROLLBAR_WIDTH,
 } from "./constants";
 import { getFunctionsFromTokens } from "./formulas";
-import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
   ColorGenerator,
@@ -216,9 +222,20 @@ import { DEFAULT_LOCALE } from "./types/locale";
  */
 
 export const __info__ = {};
-export { LocalTransportService } from "./collaborative/local_transport_service";
-export { Revision } from "./collaborative/revisions";
-export { ClientDisconnectedError } from "./collaborative/session";
+export { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/local_transport_service";
+export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
+export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
+export { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
+export {
+  ClientJoinedMessage,
+  ClientLeftMessage,
+  ClientMovedMessage,
+  CollaborationMessage,
+  RemoteRevisionMessage,
+  RevisionRedoneMessage,
+  RevisionUndoneMessage,
+  TransportService,
+} from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize, tokenColors } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";
@@ -235,17 +252,6 @@ export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
-export { Client } from "./types/collaborative/session";
-export {
-  ClientJoinedMessage,
-  ClientLeftMessage,
-  ClientMovedMessage,
-  CollaborationMessage,
-  RemoteRevisionMessage,
-  RevisionRedoneMessage,
-  RevisionUndoneMessage,
-  TransportService,
-} from "./types/collaborative/transport_service";
 export {
   coreTypes,
   invalidateCFEvaluationCommands,

@@ -1,3 +1,13 @@
+import {
+  AxesDesign,
+  CustomizedDataSet,
+  LegendPosition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  ComboChartDataSet,
+  ComboChartDefinition,
+  ComboChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -13,12 +23,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { AxesDesign, CustomizedDataSet, LegendPosition } from "../../../types/chart";
-import {
-  ComboChartDataSet,
-  ComboChartDefinition,
-  ComboChartRuntime,
-} from "../../../types/chart/combo_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";

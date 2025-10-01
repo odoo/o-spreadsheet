@@ -1,9 +1,9 @@
+import { ChartJSRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
-import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import {

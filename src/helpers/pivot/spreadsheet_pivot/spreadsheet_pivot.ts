@@ -1,5 +1,6 @@
+import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { handleError } from "../../../functions";
-import { toString } from "../../../functions/helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
@@ -25,7 +26,6 @@ import {
   TechnicalName,
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
-import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepEquals, isDefined } from "../../misc";
 import {

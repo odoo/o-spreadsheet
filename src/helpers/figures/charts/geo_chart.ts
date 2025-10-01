@@ -1,3 +1,16 @@
+import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  DatasetDesign,
+  ExcelChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import {
+  GeoChartColorScale,
+  GeoChartDefinition,
+  GeoChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -10,19 +23,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { LegendPosition } from "../../../types/chart";
-import {
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  DatasetDesign,
-  ExcelChartDefinition,
-} from "../../../types/chart/chart";
-import {
-  GeoChartColorScale,
-  GeoChartDefinition,
-  GeoChartRuntime,
-} from "../../../types/chart/geo_chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";

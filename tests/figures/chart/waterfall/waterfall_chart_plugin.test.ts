@@ -1,3 +1,4 @@
+import { WaterfallChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import { ChartMeta } from "chart.js";
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import {
@@ -6,7 +7,6 @@ import {
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../src/constants";
 import { WaterfallChart } from "../../../../src/helpers/figures/charts";
-import { WaterfallChartRuntime } from "../../../../src/types/chart/waterfall_chart";
 import {
   createWaterfallChart,
   setCellContent,

@@ -1,4 +1,4 @@
-import { dichotomicSearch as dichotomicSearchUniteData } from "../../src/functions/helpers";
+import { dichotomicSearch as dichotomicSearchUniteData } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { isValidLocale } from "../../src/helpers/locale";
 import { CellValue, DEFAULT_LOCALE, SortDirection } from "../../src/types";
 

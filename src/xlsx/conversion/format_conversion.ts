@@ -1,6 +1,6 @@
+import { XLSXNumFormat } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { formatValue } from "../../helpers";
 import { DEFAULT_LOCALE } from "../../types";
-import { XLSXNumFormat } from "../../types/xlsx";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XLSX_FORMATS_CONVERSION_MAP } from "./conversion_maps";
 

@@ -11,31 +11,31 @@
 import * as Chart from "chart.js";
 import * as ChartGeo from "chartjs-chart-geo";
 
+export * from "@odoo/o-spreadsheet-engine/types/cells";
+export * from "@odoo/o-spreadsheet-engine/types/chart/chart";
+export * from "@odoo/o-spreadsheet-engine/types/collaborative/revisions";
+export * from "@odoo/o-spreadsheet-engine/types/collaborative/session";
+export * from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
+export * from "@odoo/o-spreadsheet-engine/types/currency";
+export * from "@odoo/o-spreadsheet-engine/types/data_validation";
+export * from "@odoo/o-spreadsheet-engine/types/figure";
+export * from "@odoo/o-spreadsheet-engine/types/format";
+export * from "@odoo/o-spreadsheet-engine/types/functions";
+export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
+export * from "@odoo/o-spreadsheet-engine/types/history2";
+export * from "@odoo/o-spreadsheet-engine/types/misc";
+export * from "@odoo/o-spreadsheet-engine/types/range";
+export * from "@odoo/o-spreadsheet-engine/types/table";
+export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
 export * from "./autofill";
-export * from "./cells";
-export * from "./chart/chart";
 export * from "./clipboard";
-export * from "./collaborative/revisions";
-export * from "./collaborative/session";
 export * from "./commands";
-export * from "./conditional_formatting";
-export * from "./currency";
-export * from "./data_validation";
 export * from "./env";
-export * from "./figure";
-export * from "./format";
-export * from "./functions";
-export * from "./generic_criterion";
 export * from "./getters";
-export * from "./history";
 export * from "./locale";
-export * from "./misc";
 export * from "./pivot";
 export * from "./pivot_runtime";
-export * from "./range";
 export * from "./rendering";
-export * from "./table";
-export * from "./workbook_data";
 
 declare global {
   interface Window {

@@ -1,7 +1,7 @@
+import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
-import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { PositionMap } from "../../helpers/cells/position_map";

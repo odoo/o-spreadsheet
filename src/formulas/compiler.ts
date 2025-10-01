@@ -7,7 +7,7 @@ import {
   setArgTargetingImplementation,
   setFunctionRegistryProvider,
 } from "@odoo/o-spreadsheet-engine/formulas/compiler";
-import { argTargeting } from "../functions/arguments";
+import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "../functions/index";
 import type { CompiledFormula, FormulaToExecute } from "../types";
 import type { Token } from "./tokenizer";

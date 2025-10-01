@@ -1,4 +1,12 @@
 import {
+  CellPosition,
+  HeaderIndex,
+  Pixel,
+  Style,
+  VerticalAlign,
+  Zone,
+} from "@odoo/o-spreadsheet-engine/types/misc";
+import {
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_VERTICAL_ALIGN,
@@ -19,7 +27,6 @@ import {
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
 import { CellValueType, Command, CommandResult, LocalCommand, Rect, UID } from "../../types";
-import { CellPosition, HeaderIndex, Pixel, Style, VerticalAlign, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {

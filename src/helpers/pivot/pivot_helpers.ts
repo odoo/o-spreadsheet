@@ -1,6 +1,11 @@
-import { boolAnd, boolOr } from "../../functions/helper_logical";
-import { countUnique, sum } from "../../functions/helper_math";
-import { average, countAny, max, min } from "../../functions/helper_statistical";
+import { boolAnd, boolOr } from "@odoo/o-spreadsheet-engine/functions/helper_logical";
+import { countUnique, sum } from "@odoo/o-spreadsheet-engine/functions/helper_math";
+import {
+  average,
+  countAny,
+  max,
+  min,
+} from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import {
   inferFormat,
   isEvaluationError,
@@ -8,7 +13,7 @@ import {
   toNumber,
   toString,
   toValue,
-} from "../../functions/helpers";
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import {

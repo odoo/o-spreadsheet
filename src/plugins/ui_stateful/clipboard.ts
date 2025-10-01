@@ -1,3 +1,4 @@
+import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
@@ -21,7 +22,6 @@ import {
   MinimalClipboardData,
   OSClipboardContent,
 } from "../../types/clipboard";
-import { FileStore } from "../../types/files";
 import {
   Command,
   CommandResult,

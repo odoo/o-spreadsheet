@@ -1,3 +1,8 @@
+import {
+  ExcelIconSet,
+  XLSXConditionalFormat,
+  XLSXDxf,
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { ICON_SETS } from "../../components/icons/icons";
 import { tokenize } from "../../formulas";
 import {
@@ -7,7 +12,6 @@ import {
   ConditionalFormattingOperatorValues,
   IconThreshold,
 } from "../../types";
-import { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertColor, hexaToInt } from "./color_conversion";
 import {

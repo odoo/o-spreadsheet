@@ -1,15 +1,15 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
-import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
   XLSXExportFile,
+  XLSXExportXMLFile,
   XLSXRelFile,
   XLSXStructure,
   XMLAttributes,
   XMLString,
-} from "../types/xlsx";
-import { XLSXExportXMLFile } from "./../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
+import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
+import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   ARRAY_FORMULA_URI,
   CONTENT_TYPES,

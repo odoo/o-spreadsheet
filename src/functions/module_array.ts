@@ -1,9 +1,13 @@
-import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
-import { arg } from "./arguments";
-import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
-import { invertMatrix, multiplyMatrices } from "./helper_matrices";
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import {
+  areSameDimensions,
+  isSingleColOrRow,
+  isSquareMatrix,
+} from "@odoo/o-spreadsheet-engine/functions/helper_assert";
+import {
+  invertMatrix,
+  multiplyMatrices,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import {
   flattenRowFirst,
   generateMatrix,
@@ -14,7 +18,10 @@ import {
   toNumber,
   toNumberMatrix,
   transposeMatrix,
-} from "./helpers";
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "../translation";
+import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
+import { EvaluationError, NotAvailableError } from "../types/errors";
 
 // -----------------------------------------------------------------------------
 // ARRAY_CONSTRAIN

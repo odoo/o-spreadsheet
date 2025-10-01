@@ -1,3 +1,17 @@
+import {
+  FunnelChartColors,
+  FunnelChartDefinition,
+  FunnelChartRuntime,
+  LegendPosition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  DatasetDesign,
+  ExcelChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -10,20 +24,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import {
-  FunnelChartColors,
-  FunnelChartDefinition,
-  FunnelChartRuntime,
-  LegendPosition,
-} from "../../../types/chart";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  DatasetDesign,
-  ExcelChartDefinition,
-} from "../../../types/chart/chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";

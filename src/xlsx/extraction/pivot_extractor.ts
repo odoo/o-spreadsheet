@@ -1,4 +1,8 @@
-import { XLSXPivotTable, XLSXPivotTableLocation, XLSXPivotTableStyleInfo } from "../../types/xlsx";
+import {
+  XLSXPivotTable,
+  XLSXPivotTableLocation,
+  XLSXPivotTableStyleInfo,
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 /**

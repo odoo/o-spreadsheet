@@ -1,3 +1,9 @@
+import { PieChartRuntime, TrendConfiguration } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  BarChartDefinition,
+  BarChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
@@ -19,9 +25,6 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../src/types";
-import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
-import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
-import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,

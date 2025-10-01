@@ -1,3 +1,6 @@
+import { AnchorOffset } from "@odoo/o-spreadsheet-engine/types/figure";
+import { ExcelImage } from "@odoo/o-spreadsheet-engine/types/image";
+import { XLSXFigure, XLSXFigureAnchor, XLSXWorksheet } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
 import {
   getFullReference,
@@ -17,11 +20,7 @@ import {
   PixelPosition,
   TrendConfiguration,
 } from "../../types";
-import { AnchorOffset } from "../../types/figure";
-import { ExcelImage } from "../../types/image";
-import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
-import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
 import { EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING } from "./conversion_maps";
 

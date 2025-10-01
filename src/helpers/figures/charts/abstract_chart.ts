@@ -1,4 +1,13 @@
 import {
+  ChartCreationContext,
+  ChartDefinition,
+  ChartType,
+  DataSet,
+  ExcelChartDataset,
+  ExcelChartDefinition,
+  TitleDesign,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import {
   AdaptSheetName,
   ApplyRangeChange,
   CommandResult,
@@ -8,15 +17,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import {
-  ChartCreationContext,
-  ChartDefinition,
-  ChartType,
-  DataSet,
-  ExcelChartDataset,
-  ExcelChartDefinition,
-  TitleDesign,
-} from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toExcelDataset, toExcelLabelRange } from "./chart_common";

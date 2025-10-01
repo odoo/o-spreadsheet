@@ -1,4 +1,13 @@
 import {
+  MAX_COL,
+  MAX_ROW,
+  consumeDigits,
+  consumeLetters,
+  consumeSpaces,
+  numberToLetters,
+  toXC,
+} from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import {
   AdjacentEdge,
   CellPosition,
   Position,
@@ -7,15 +16,6 @@ import {
   Zone,
   ZoneDimension,
 } from "../types";
-import {
-  MAX_COL,
-  MAX_ROW,
-  consumeDigits,
-  consumeLetters,
-  consumeSpaces,
-  numberToLetters,
-  toXC,
-} from "./coordinates";
 import { TokenizingChars, range } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 

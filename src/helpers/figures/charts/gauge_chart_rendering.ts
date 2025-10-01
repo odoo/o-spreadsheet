@@ -1,3 +1,4 @@
+import { GaugeAnimatedRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   CHART_PADDING,
   CHART_PADDING_TOP,
@@ -5,7 +6,6 @@ import {
   DEFAULT_FONT,
 } from "../../../constants";
 import { Color, PixelPosition, Rect } from "../../../types";
-import { GaugeAnimatedRuntime } from "../../../types/chart";
 import { clip } from "../../misc";
 import {
   computeTextDimension,

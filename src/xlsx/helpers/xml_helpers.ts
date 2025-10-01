@@ -1,15 +1,15 @@
-import { DEFAULT_FONT_SIZE } from "../../constants";
-import { concat } from "../../helpers";
-import { BorderDescr, ExcelWorkbookData } from "../../types";
 import {
   XLSXBorder,
   XLSXBorderDescr,
+  XLSXExportXMLFile,
   XLSXStructure,
   XMLAttributeValue,
   XMLAttributes,
   XMLString,
-} from "../../types/xlsx";
-import { XLSXExportXMLFile } from "./../../types/xlsx";
+} from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { DEFAULT_FONT_SIZE } from "../../constants";
+import { concat } from "../../helpers";
+import { BorderDescr, ExcelWorkbookData } from "../../types";
 
 // -------------------------------------
 //            XML HELPERS

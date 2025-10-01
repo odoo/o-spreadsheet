@@ -1,6 +1,6 @@
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
 import { ScatterChart } from "../../../../helpers/figures/charts/scatter_chart";
-import { LineChartDefinition } from "../../../../types/chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class ScatterConfigPanel extends GenericChartConfigPanel {
