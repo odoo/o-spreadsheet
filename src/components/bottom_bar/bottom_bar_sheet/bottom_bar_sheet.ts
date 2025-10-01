@@ -1,10 +1,19 @@
-import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onPatched,
+  onWillUnmount,
+  useEffect,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
+import { throttle } from "../../../helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
-import { Rect, SpreadsheetChildEnv } from "../../../types";
+import { CommandResult, DispatchResult, Rect, SpreadsheetChildEnv } from "../../../types";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -21,6 +30,20 @@ interface State {
   isEditing: boolean;
   pickerOpened: boolean;
 }
+
+const getSheetLockAnimation = (
+  duration: number,
+  iterations: number
+): [Keyframe[], KeyframeAnimationOptions] => {
+  return [
+    [{ backgroundColor: "var(--os-action-color)" }],
+    {
+      duration,
+      iterations,
+      easing: "ease-in-out",
+    },
+  ];
+};
 
 export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
@@ -39,13 +62,28 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private state = useState<State>({ isEditing: false, pickerOpened: false });
 
   private sheetDivRef = useRef("sheetDiv");
+  private iconRef = useRef("icon");
   private sheetNameRef = useRef("sheetNameSpan");
 
   private editionState: "initializing" | "editing" = "initializing";
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
-
   setup() {
+    const animateLockedSheet = throttle(
+      () =>
+        this.sheetDivRef.el
+          ?.animate(...getSheetLockAnimation(400, 1))
+          .finished.then(() => this.iconRef.el?.animate(...getSheetLockAnimation(200, 2))),
+      800
+    );
+
+    this.env.model.on("command-rejected", this, ({ result }: { result: DispatchResult }) => {
+      if (result.isCancelledBecause(CommandResult.SheetLocked) && this.isSheetActive) {
+        this.scrollToSheet();
+        animateLockedSheet();
+      }
+    });
+
     onPatched(() => {
       if (this.sheetNameRef.el && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
@@ -63,6 +101,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.env.model.getters.getActiveSheetId()]
     );
+    onWillUnmount(() => {
+      this.env.model.off("command-rejected", this);
+    });
   }
 
   private focusInputAndSelectContent() {
