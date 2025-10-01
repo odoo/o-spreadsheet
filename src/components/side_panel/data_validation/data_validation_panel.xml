@@ -1,22 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationPanel">
-    <div class="o-data-validation">
-      <t t-if="state.mode === 'list'">
-        <div class="o-dv-preview-list">
-          <t t-foreach="validationRules" t-as="rule" t-key="rule.id">
-            <DataValidationPreview
-              rule="localizeDVRule(rule)"
-              onClick="() => this.onPreviewClick(rule.id)"
-            />
-          </t>
-        </div>
-        <div class="o-dv-add o-button-link p-4 float-end" t-on-click="addDataValidationRule">
-          + Add another rule
-        </div>
+    <div class="o-dv">
+      <t t-foreach="validationRules" t-as="rule" t-key="rule.id">
+        <DataValidationPreview rule="localizeDVRule(rule)"/>
       </t>
-      <t t-else="">
-        <DataValidationEditor rule="localizeDVRule(state.activeRule)" onExit.bind="onExitEditMode"/>
-      </t>
+      <div class="o-dv-add o-button-link p-4 float-end" t-on-click="addDataValidationRule">
+        + Add another rule
+      </div>
     </div>
   </t>
 </templates>
