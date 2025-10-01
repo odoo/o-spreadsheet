@@ -1,5 +1,3 @@
-import { Color } from "@odoo/o-spreadsheet-engine";
-import { ChartDataset, Point } from "chart.js";
 import {
   BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -52,7 +50,7 @@ import {
   setColorAlpha,
 } from "../../../color";
 import { formatValue } from "../../../format/format";
-import { isDefined, range } from "../../../misc";
+import { range } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,

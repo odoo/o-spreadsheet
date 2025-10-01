@@ -1,6 +1,4 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { Component, useRef } from "@odoo/owl";
-import { isDefined } from "../../../../helpers";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import {
   AGGREGATORS,
   getFieldDisplayName,
@@ -9,7 +7,7 @@ import {
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
-import { SortDirection, SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types";
 import {
   Aggregator,
   Granularity,

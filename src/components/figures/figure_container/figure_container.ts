@@ -1,7 +1,4 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
-import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
@@ -17,10 +14,10 @@ import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
-  SnapLine,
-  VFigureAxisType,
   snapForMove,
   snapForResize,
+  SnapLine,
+  VFigureAxisType,
 } from "../../helpers/figure_snap_helper";
 import { FigureComponent } from "../figure/figure";
 

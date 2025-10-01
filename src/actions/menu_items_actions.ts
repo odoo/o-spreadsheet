@@ -1,4 +1,5 @@
 import { Style } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { CellPopoverStore } from "../components/popover";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
@@ -24,7 +25,7 @@ import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
-import { Dimension, Format, SpreadsheetChildEnv } from "../types/index";
+import { Format, SpreadsheetChildEnv } from "../types/index";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------

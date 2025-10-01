@@ -1,16 +1,16 @@
-import { Position } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, Position } from "@odoo/o-spreadsheet-engine";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepEquals, isDateTimeFormat } from "../../../helpers";
+import { isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort";
 import {
   CellValueType,
   CriterionFilter,
   DataFilterValue,
-  SortDirection,
-  SpreadsheetChildEnv,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
+  SpreadsheetChildEnv,
 } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";

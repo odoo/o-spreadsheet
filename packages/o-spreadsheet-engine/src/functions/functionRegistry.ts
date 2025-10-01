@@ -1,6 +1,18 @@
 import { _t } from "../translation";
-import { ComputeFunction, FunctionDescription, Functions, Matrix } from "../types";
+import {
+  Arg,
+  BadExpressionError,
+  ComputeFunction,
+  EvalContext,
+  FunctionDescription,
+  FunctionResultObject,
+  Functions,
+  isMatrix,
+  Matrix,
+} from "../types";
 
+import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import { FunctionRegistry } from "./function_registry";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";

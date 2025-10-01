@@ -4,13 +4,14 @@ import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
-import { CustomizedDataSet, Dimension } from "../../src/types";
+import { CustomizedDataSet } from "../../src/types";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
 import { functionRegistry } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   createChart,
   createGaugeChart,

@@ -1,4 +1,4 @@
-import { DebouncedFunction } from "../../src/types";
+import { DebouncedFunction } from "@odoo/o-spreadsheet-engine/types";
 
 /** Mocked debounce that doesn't actually do any debouncing, but just calls the function directly */
 export function debounce<T extends (...args: any) => void>(func: T): DebouncedFunction<T> {

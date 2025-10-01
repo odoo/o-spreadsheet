@@ -1,4 +1,5 @@
 import { HeaderGroup } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   buildSheetLink,
   largeMax,
@@ -8,7 +9,7 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers";
-import { Dimension, HeaderData, SheetData } from "../../types";
+import { HeaderData, SheetData } from "../../types";
 import {
   XLSXCell,
   XLSXColumn,

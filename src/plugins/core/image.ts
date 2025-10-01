@@ -1,6 +1,4 @@
-import { HeaderIndex, PixelPosition, UID } from "@odoo/o-spreadsheet-engine";
-import { FIGURE_ID_SPLITTER } from "../../constants";
-import { deepCopy, isDefined } from "../../helpers";
+import { deepCopy } from "../../helpers";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
 import {

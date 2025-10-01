@@ -1,8 +1,7 @@
-import { Zone } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, Zone } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
 import { isSameColor, toHex } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
-import { deepEquals } from "../../src/helpers/misc";
 import { positions } from "../../src/helpers/zones";
 import { CancelledReason, DispatchResult } from "../../src/types";
 

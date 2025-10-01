@@ -1,6 +1,7 @@
 import { HeaderIndex, Pixel, Position, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { FOOTER_HEIGHT } from "../constants";
-import { DOMCoordinates, DOMDimension, Dimension, Getters, Rect } from "../types";
+import { DOMCoordinates, DOMDimension, Getters, Rect } from "../types";
 import { intersection, isInside } from "./zones";
 
 export class InternalViewport {

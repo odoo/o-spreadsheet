@@ -1,13 +1,3 @@
-import { HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine";
-import {
-  getAddHeaderStartIndex,
-  getRangeAdapter,
-  isDefined,
-  isInside,
-  moveHeaderIndexesOnHeaderAddition,
-  moveHeaderIndexesOnHeaderDeletion,
-  rangeAdapterRegistry,
-} from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
 import {

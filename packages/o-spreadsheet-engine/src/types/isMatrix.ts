@@ -1,3 +1,6 @@
+import { Token } from "../formulas/tokenizer";
+import { CellValue, EvaluatedCell, Format } from "./index";
+
 /**
  * The following type is meant to be used in union with other aliases to prevent
  * Intellisense from resolving it.

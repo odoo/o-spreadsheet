@@ -1,5 +1,6 @@
 import { useEffect, useState } from "@odoo/owl";
-import { Ref } from "../../types";
+
+import { Ref } from "@odoo/o-spreadsheet-engine/types";
 
 /**
  * Manages an event listener on a ref. Useful for hooks that want to manage

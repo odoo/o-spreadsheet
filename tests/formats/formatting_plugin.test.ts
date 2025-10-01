@@ -1,4 +1,5 @@
 import { functionRegistry, UID } from "@odoo/o-spreadsheet-engine";
+import { SetDecimalStep } from "@odoo/o-spreadsheet-engine/types";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -16,7 +17,7 @@ import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Format, SetDecimalStep } from "../../src/types";
+import { CommandResult, Format } from "../../src/types";
 import {
   createSheet,
   createTableWithFilter,

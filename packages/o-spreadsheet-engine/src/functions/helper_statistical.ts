@@ -1,19 +1,15 @@
-import { isMatrix } from "@odoo/o-spreadsheet-engine";
-import {
-  invertMatrix,
-  multiplyMatrices,
-} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { isMatrix } from "..";
+import { invertMatrix, multiplyMatrices } from "../functions/helper_matrices";
 import {
   isEvaluationError,
   reduceAny,
   reduceNumbers,
   transposeMatrix,
   visitNumbers,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { Arg, EvaluationError, Locale } from "@odoo/o-spreadsheet-engine/types";
-import { Matrix } from "@odoo/o-spreadsheet-engine/types/base";
+} from "../functions/helpers";
 import { isNumber, parseDateTime, range } from "../helpers";
 import { _t } from "../translation";
+import { Arg, EvaluationError, Locale, Matrix } from "../types";
 import { assert, assertNotZero } from "./helper_assert";
 
 export function assertSameNumberOfElements(...args: any[][]) {

@@ -1,4 +1,5 @@
-import { Dimension, ExcelHeaderData, ExcelSheetData } from "../../types";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
+import { ExcelHeaderData, ExcelSheetData } from "../../types";
 
 /**
  * Get the relative path between two files

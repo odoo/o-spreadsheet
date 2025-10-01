@@ -1,4 +1,5 @@
 import { Color, Pixel, PixelPosition } from "@odoo/o-spreadsheet-engine";
+import { HSLA } from "@odoo/o-spreadsheet-engine/types";
 import { Component, useState } from "@odoo/owl";
 import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "../../constants";
 import {
@@ -11,7 +12,7 @@ import {
   toHex,
 } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
-import { HSLA, Rect } from "../../types";
+import { Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";

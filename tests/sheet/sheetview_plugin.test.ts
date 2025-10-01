@@ -1,14 +1,12 @@
-import { Zone } from "@odoo/o-spreadsheet-engine";
-import { CommandResult } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
-  MESSAGE_VERSION,
   getDefaultSheetViewSize,
+  MESSAGE_VERSION,
 } from "../../src/constants";
-import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
+import { numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";

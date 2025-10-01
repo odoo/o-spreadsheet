@@ -1,4 +1,4 @@
-import { isDefined } from "../../helpers";
+import { isDefined } from "@odoo/o-spreadsheet-engine";
 import {
   XLSXColor,
   XLSXColorScheme,

@@ -1,4 +1,5 @@
 import { HeaderIndex, Position, Sheet, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   groupConsecutive,
   isDateTimeFormat,
@@ -11,7 +12,7 @@ import {
   union,
   zoneToDimension,
 } from "../../helpers";
-import { CellValueType, Command, Dimension, EvaluatedCell } from "../../types";
+import { CellValueType, Command, EvaluatedCell } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {

@@ -1,6 +1,7 @@
-import { ApplyRangeChange, UID, UnboundedZone, Zone } from "@odoo/o-spreadsheet-engine";
+import { ApplyRangeChange, deepEquals, UID, UnboundedZone, Zone } from "@odoo/o-spreadsheet-engine";
+import { Validation } from "@odoo/o-spreadsheet-engine/types";
 import { compile } from "../../formulas/compiler";
-import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
+import { isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddConditionalFormatCommand,
@@ -18,7 +19,6 @@ import {
   IconSetRule,
   IconThreshold,
   RangeData,
-  Validation,
   WorkbookData,
 } from "../../types";
 import { CorePlugin } from "../core_plugin";

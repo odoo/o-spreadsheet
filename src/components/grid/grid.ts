@@ -1,4 +1,5 @@
 import { Align, HeaderIndex, Pixel } from "@odoo/o-spreadsheet-engine";
+import { Dimension, Direction, Ref } from "@odoo/o-spreadsheet-engine/types";
 import {
   Component,
   onMounted,
@@ -47,11 +48,8 @@ import {
   ClipboardMIMEType,
   DOMCoordinates,
   DOMDimension,
-  Dimension,
-  Direction,
   GridClickModifiers,
   Rect,
-  Ref,
   SpreadsheetChildEnv,
   Table,
 } from "../../types/index";

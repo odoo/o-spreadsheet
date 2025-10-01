@@ -1,8 +1,7 @@
-import { CellPosition } from "@odoo/o-spreadsheet-engine";
+import { CellPosition, deepEquals } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import {
-  deepEquals,
   fontSizeInPixels,
   getFullReference,
   isFormula,

@@ -1,9 +1,9 @@
-import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
+import { arg } from "../functions/arguments";
+import { toString, visitMatchingRanges } from "../functions/helpers";
+import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "../index";
 import { _t } from "../translation";
 import { FunctionResultNumber, Locale } from "../types";
 import { EvaluationError } from "../types/errors";
-import { arg } from "./arguments";
-import { toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 

@@ -1,9 +1,10 @@
 import { CellPosition, Color, Style } from "@odoo/o-spreadsheet-engine";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { Component } from "@odoo/owl";
 import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
-import { SortDirection, SpreadsheetChildEnv } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 interface Props {
   position: CellPosition;

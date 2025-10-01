@@ -1,4 +1,5 @@
-import { deepEquals, toHex } from "../../helpers";
+import { deepEquals } from "@odoo/o-spreadsheet-engine";
+import { toHex } from "../../helpers";
 import {
   getBoundingRectAsPOJO,
   getCurrentSelection,

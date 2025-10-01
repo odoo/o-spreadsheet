@@ -1,6 +1,7 @@
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { dichotomicSearch as dichotomicSearchUniteData } from "../../src/functions/helpers";
 import { isValidLocale } from "../../src/helpers/locale";
-import { CellValue, DEFAULT_LOCALE, SortDirection } from "../../src/types";
+import { CellValue, DEFAULT_LOCALE } from "../../src/types";
 
 function getItem(arr: any[], i: number) {
   return arr[i];

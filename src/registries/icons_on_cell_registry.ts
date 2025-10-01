@@ -1,4 +1,4 @@
-import { Align, CellPosition } from "@odoo/o-spreadsheet-engine";
+import { Align, CellPosition, deepEquals } from "@odoo/o-spreadsheet-engine";
 import {
   CHECKBOX_CHECKED,
   CHECKBOX_UNCHECKED,
@@ -20,7 +20,7 @@ import {
   PIVOT_COLLAPSE_ICON_SIZE,
   PIVOT_INDENT,
 } from "../constants";
-import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
+import { computeTextFontSizeInPixels, relativeLuminance } from "../helpers";
 import { Getters, SpreadsheetChildEnv } from "../types";
 import { ImageSVG } from "../types/image";
 export type IconsOfCell = Record<Exclude<Align, undefined>, GridIcon | undefined>;

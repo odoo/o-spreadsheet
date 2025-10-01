@@ -1,10 +1,6 @@
+import { isDefined } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillStart, useState } from "@odoo/owl";
-import {
-  createAccountingFormat,
-  createCurrencyFormat,
-  formatValue,
-  isDefined,
-} from "../../../helpers";
+import { createAccountingFormat, createCurrencyFormat, formatValue } from "../../../helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { _t } from "../../../translation";
 import { Currency, Format, SpreadsheetChildEnv } from "../../../types";

@@ -1,5 +1,6 @@
+import { deepEquals } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillStart } from "@odoo/owl";
-import { DAYS, deepEquals, formatValue } from "../../../helpers";
+import { DAYS, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { ValidationMessages } from "../../validation_messages/validation_messages";

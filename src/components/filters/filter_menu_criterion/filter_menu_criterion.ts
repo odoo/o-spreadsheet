@@ -1,7 +1,7 @@
-import { Position } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, Position } from "@odoo/o-spreadsheet-engine";
 import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
-import { deepCopy, deepEquals } from "../../../helpers";
+import { deepCopy } from "../../../helpers";
 import {
   criterionComponentRegistry,
   getCriterionMenuItems,

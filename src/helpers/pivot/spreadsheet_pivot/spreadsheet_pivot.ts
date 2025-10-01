@@ -1,8 +1,7 @@
-import { FunctionResultObject, handleError, Maybe, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { toString } from "../../../functions/helpers";
+import { ValueAndLabel } from "@odoo/o-spreadsheet-engine/types";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
-import { CellValueType, EvaluatedCell, Getters, Range, ValueAndLabel } from "../../../types";
+import { CellValueType, EvaluatedCell, Getters, Range } from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   Granularity,
@@ -17,7 +16,6 @@ import {
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
-import { deepEquals, isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,

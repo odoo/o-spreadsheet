@@ -1,16 +1,15 @@
-import {
-  Arg,
-  FunctionResultObject,
-  Functions,
-  isMatrix,
-  Matrix,
-  Maybe,
-} from "@odoo/o-spreadsheet-engine";
 import { range } from "../helpers";
 import { cellsSortingCriterion } from "../helpers/sort";
+import { Arg, FunctionResultObject, Functions, isMatrix, Matrix, Maybe } from "../index";
 import { _t } from "../translation";
-import { CellValue, CellValueType, Locale, SortDirection } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
+import {
+  CellValue,
+  CellValueType,
+  EvaluationError,
+  Locale,
+  NotAvailableError,
+  SortDirection,
+} from "../types";
 import { arg } from "./arguments";
 import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";

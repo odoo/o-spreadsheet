@@ -1,4 +1,4 @@
-import { Ref } from "../../types";
+import { Ref } from "@odoo/o-spreadsheet-engine/types";
 import { useRefListener } from "./listener_hook";
 
 const friction = 0.95;

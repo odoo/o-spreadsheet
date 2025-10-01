@@ -1,6 +1,6 @@
-import { CellPosition } from "@odoo/o-spreadsheet-engine";
+import { CellPosition, deepEquals } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { deepEquals, positionToZone } from "../../helpers";
+import { positionToZone } from "../../helpers";
 import { CellValueType, SpreadsheetChildEnv } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 

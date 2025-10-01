@@ -1,5 +1,3 @@
-import { FunctionResultObject, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
-import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
 import {
@@ -26,7 +24,7 @@ import {
   PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
-import { getUniqueText, isDefined } from "../misc";
+import { getUniqueText } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 const AGGREGATOR_NAMES = {
   count: _t("Count"),

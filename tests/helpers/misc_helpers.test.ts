@@ -1,5 +1,6 @@
+import { deepEquals } from "@odoo/o-spreadsheet-engine";
 import seedrandom from "seedrandom";
-import { DateTime, deepCopy, deepEquals, UuidGenerator } from "../../src/helpers";
+import { DateTime, deepCopy, UuidGenerator } from "../../src/helpers";
 import {
   getUniqueText,
   groupConsecutive,

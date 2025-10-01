@@ -1,4 +1,5 @@
 import { CellPosition } from "@odoo/o-spreadsheet-engine";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import {
   CellValue,
   Getters,
@@ -8,7 +9,6 @@ import {
   PivotField,
   PivotFields,
   PivotHeaderCell,
-  SortDirection,
   SpreadsheetChildEnv,
 } from "../..";
 import { ActionSpec } from "../../actions/action";

@@ -1,8 +1,7 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, UID } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
-import { deepEquals } from "../../../helpers";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { _t } from "../../../translation";
 import { CarouselItem, SpreadsheetChildEnv, TitleDesign } from "../../../types";

@@ -1,6 +1,6 @@
 import { Locale } from "./locale";
 
-import { Alias } from "@odoo/o-spreadsheet-engine";
+import { Alias } from "../index";
 
 export type Format = string & Alias;
 

@@ -1,12 +1,13 @@
 import {
   ApplyRangeChange,
   CellPosition,
+  deepEquals,
   Position,
   RangeCompiledFormula,
   UID,
 } from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../formulas";
-import { deepCopy, deepEquals } from "../../helpers";
+import { deepCopy } from "../../helpers";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { CellValue, CommandResult, CoreCommand, Range, WorkbookData } from "../../types";

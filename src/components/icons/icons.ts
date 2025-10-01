@@ -1,13 +1,3 @@
-import { Style } from "@odoo/o-spreadsheet-engine";
-import {
-  ACTION_COLOR,
-  FILTERS_COLOR,
-  GRAY_200,
-  GRAY_300,
-  GRAY_900,
-  TEXT_BODY_MUTED,
-} from "../../constants";
-import { isDefined } from "../../helpers";
 import { ImageSVG } from "../../types/image";
 
 export type IconSetType = keyof typeof ICON_SETS;

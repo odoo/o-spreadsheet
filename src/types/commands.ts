@@ -1,5 +1,4 @@
 import { ConditionalFormat, DataValidationRule, Figure, Format, Locale } from "./index";
-import { Dimension, SetDecimalStep, SortDirection, SortOptions } from "./misc";
 
 import {
   Border,
@@ -13,6 +12,12 @@ import {
   UID,
   Zone,
 } from "@odoo/o-spreadsheet-engine";
+import {
+  Dimension,
+  SetDecimalStep,
+  SortDirection,
+  SortOptions,
+} from "@odoo/o-spreadsheet-engine/types";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { Carousel, CarouselItem, FigureSize } from "./figure";

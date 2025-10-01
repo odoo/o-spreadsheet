@@ -1,4 +1,5 @@
 import { HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
@@ -26,7 +27,6 @@ import { FileStore } from "../../types/files";
 import {
   Command,
   CommandResult,
-  Dimension,
   GridRenderingContext,
   LocalCommand,
   isCoreCommand,

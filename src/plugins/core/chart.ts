@@ -1,12 +1,12 @@
 import {
   AdaptSheetName,
   ApplyRangeChange,
+  deepEquals,
   HeaderIndex,
   PixelPosition,
   UID,
 } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
-import { deepEquals } from "../../helpers";
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";

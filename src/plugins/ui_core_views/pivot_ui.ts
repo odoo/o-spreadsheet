@@ -1,9 +1,16 @@
-import { CellPosition, FunctionResultObject, isMatrix, UID } from "@odoo/o-spreadsheet-engine";
+import {
+  CellPosition,
+  deepEquals,
+  FunctionResultObject,
+  isMatrix,
+  UID,
+} from "@odoo/o-spreadsheet-engine";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
 import { toBoolean } from "../../functions/helpers";
-import { deepEquals, getUniqueText } from "../../helpers";
+import { getUniqueText } from "../../helpers";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -22,7 +29,6 @@ import {
   PivotCoreMeasure,
   PivotTableCell,
   PivotVisibilityOptions,
-  SortDirection,
   UpdatePivotCommand,
 } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";

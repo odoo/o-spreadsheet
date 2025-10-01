@@ -1,3 +1,4 @@
+import { Lazy } from "@odoo/o-spreadsheet-engine/types";
 import { sum } from "../../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
 import { lazy, memoize, recomputeZones } from "../../../helpers";
@@ -8,7 +9,6 @@ import {
   CellValueType,
   Command,
   EvaluatedCell,
-  Lazy,
   Locale,
   invalidateEvaluationCommands,
 } from "../../../types";

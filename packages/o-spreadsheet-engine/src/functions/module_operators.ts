@@ -1,4 +1,4 @@
-import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
+import { FunctionResultObject, Functions, Maybe } from "../index";
 import { _t } from "../translation";
 import { FunctionResultNumber } from "../types";
 import { DivisionByZeroError } from "../types/errors";

@@ -1,24 +1,16 @@
-import { AnchorZone, CellPosition, HeaderIndex, Position, Zone } from "@odoo/o-spreadsheet-engine";
 import {
-  deepCopy,
+  AnchorZone,
+  CellPosition,
   deepEquals,
-  isEqual,
-  isInside,
-  positionToZone,
-  reorderZone,
-  union,
-} from "../helpers";
-import {
-  CellValueType,
-  CommandResult,
-  Direction,
-  DispatchResult,
-  Getters,
-  SelectionStep,
-} from "../types";
+  HeaderIndex,
+  Position,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
+import { Dimension, Direction, SelectionStep } from "@odoo/o-spreadsheet-engine/types";
+import { deepCopy, isEqual, isInside, positionToZone, reorderZone, union } from "../helpers";
+import { CellValueType, CommandResult, DispatchResult, Getters } from "../types";
 import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
-import { Dimension } from "./../types/misc";
-import { EventStream, StreamCallbacks } from "./event_stream";
+import { StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
 

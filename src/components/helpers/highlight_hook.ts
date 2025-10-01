@@ -1,8 +1,8 @@
+import { deepEquals } from "@odoo/o-spreadsheet-engine";
+import { Ref } from "@odoo/o-spreadsheet-engine/types";
 import { onMounted, useEffect } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
 import { useLocalStore, useStoreProvider } from "../../store_engine";
 import { HighlightProvider, HighlightStore } from "../../stores/highlight_store";
-import { Ref } from "../../types";
 import { useHoveredElement } from "./listener_hook";
 
 export function useHighlightsOnHover(ref: Ref<HTMLElement>, highlightProvider: HighlightProvider) {

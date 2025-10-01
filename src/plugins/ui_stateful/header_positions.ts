@@ -1,8 +1,8 @@
 import { HeaderDimensions, HeaderIndex, Pixel, UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { deepCopy } from "../../helpers/index";
 import { Command } from "../../types";
 import { invalidateEvaluationCommands } from "../../types/commands";
-import { Dimension } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderPositionsUIPlugin extends UIPlugin {

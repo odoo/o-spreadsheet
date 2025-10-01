@@ -10,7 +10,8 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
-import { Immutable } from "../../types/misc";
+
+import { Immutable } from "@odoo/o-spreadsheet-engine/types";
 
 interface HeaderSizeState {
   tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>>;

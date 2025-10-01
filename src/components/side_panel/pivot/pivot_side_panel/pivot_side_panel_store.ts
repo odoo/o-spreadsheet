@@ -1,6 +1,6 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, UID } from "@odoo/o-spreadsheet-engine";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
-import { deepCopy, deepEquals } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers";
 import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";

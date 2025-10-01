@@ -1,9 +1,9 @@
 import { UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { Action, createActions } from "../../actions/action";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
 import { _t } from "../../translation";
-import { Dimension } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 export function createHeaderGroupContainerContextMenu(

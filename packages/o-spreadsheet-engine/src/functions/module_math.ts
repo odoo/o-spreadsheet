@@ -1,15 +1,9 @@
-import {
-  Arg,
-  FunctionResultObject,
-  Functions,
-  isMatrix,
-  Matrix,
-  Maybe,
-} from "@odoo/o-spreadsheet-engine";
+import { FunctionResultNumber } from "@odoo/o-spreadsheet-engine/types";
 import { splitReference, toZone } from "../helpers";
-import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
+import { isSubtotalCell } from "../helpers/is_subtotal_cell";
+import { Arg, FunctionResultObject, Functions, isMatrix, Matrix, Maybe } from "../index";
 import { _t } from "../translation";
-import { EvaluatedCell, FunctionResultNumber } from "../types";
+import { EvaluatedCell } from "../types";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertNotZero } from "./helper_assert";

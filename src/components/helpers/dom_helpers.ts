@@ -1,4 +1,4 @@
-import { Ref } from "../../types/misc";
+import { Ref } from "@odoo/o-spreadsheet-engine/types";
 import { Rect } from "./../../types/rendering";
 
 const macRegex = /Mac/i;

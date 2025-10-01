@@ -1,3 +1,4 @@
+import { isDefined } from "@odoo/o-spreadsheet-engine";
 import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import {
@@ -30,7 +31,7 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { getChartTimeOptions } from "../../../chart_date";
 import { getColorScale } from "../../../color";
 import { formatValue, humanizeNumber } from "../../../format/format";
-import { isDefined, range, removeFalsyAttributes } from "../../../misc";
+import { range, removeFalsyAttributes } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,

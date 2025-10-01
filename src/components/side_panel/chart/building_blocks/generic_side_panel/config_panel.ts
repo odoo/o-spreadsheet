@@ -1,8 +1,5 @@
-import { UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { Component, useState } from "@odoo/owl";
 import {
   createValidRange,
-  isDefined,
   isXcRepresentation,
   mergeContiguousZones,
   numberToLetters,

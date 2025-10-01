@@ -1,6 +1,7 @@
 import { CellPosition, HeaderIndex, UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { range } from "../../helpers";
-import { Dimension, ExcelWorkbookData } from "../../types";
+import { ExcelWorkbookData } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderVisibilityUIPlugin extends UIPlugin {

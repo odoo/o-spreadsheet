@@ -1,4 +1,5 @@
 import { UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { Model } from "../../src";
 import { HeaderGroupContainer } from "../../src/components/header_group/header_group_container";
 import {
@@ -8,7 +9,6 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { Dimension } from "../../src/types";
 import {
   foldHeaderGroup,
   freezeColumns,

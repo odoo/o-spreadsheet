@@ -1,6 +1,5 @@
-import { MenuMouseEvent, Pixel, UID } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, MenuMouseEvent, Pixel, UID } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { Rect, SpreadsheetChildEnv } from "../../types";

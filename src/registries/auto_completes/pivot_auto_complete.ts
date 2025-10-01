@@ -1,7 +1,5 @@
-import { insertTokenAtArgStartingPosition } from "@odoo/o-spreadsheet-engine";
-import { tokenColors } from "../../constants";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { MONTHS, isDefined, range } from "../../helpers";
+import { MONTHS, range } from "../../helpers";
 import {
   extractFormulaIdFromToken,
   makeFieldProposal,

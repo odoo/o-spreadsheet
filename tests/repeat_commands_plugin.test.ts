@@ -1,4 +1,5 @@
 import { UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { Model } from "../src";
 import { DEFAULT_CELL_HEIGHT } from "../src/constants";
 import { toZone } from "../src/helpers";
@@ -7,7 +8,7 @@ import {
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
 } from "../src/registries/repeat_commands_registry";
-import { CoreCommand, Dimension } from "../src/types";
+import { CoreCommand } from "../src/types";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,

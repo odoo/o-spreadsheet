@@ -7,6 +7,7 @@ import {
   UnboundedZone,
   Zone,
 } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { compile } from "../../formulas";
 import {
   createInvalidRange,
@@ -31,7 +32,6 @@ import {
   CommandResult,
   CoreCommand,
   CoreGetters,
-  Dimension,
   Range,
   RangeData,
   RangeStringOptions,

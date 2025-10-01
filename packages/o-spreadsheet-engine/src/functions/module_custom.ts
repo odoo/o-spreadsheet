@@ -1,7 +1,6 @@
-import { FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
 import { formatLargeNumber } from "../helpers";
 import { _t } from "../translation";
-import { FunctionResultNumber } from "../types";
+import { FunctionResultNumber, FunctionResultObject, Functions, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 

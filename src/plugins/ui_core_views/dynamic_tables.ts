@@ -1,7 +1,6 @@
-import { CellPosition, FilterId, TableId, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { CellPosition, deepEquals, FilterId, TableId, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import {
   areZonesContinuous,
-  deepEquals,
   getZoneArea,
   isInside,
   overlap,
@@ -16,8 +15,8 @@ import {
   DynamicTable,
   ExcelWorkbookData,
   Filter,
-  Table,
   invalidateEvaluationCommands,
+  Table,
 } from "../../types/index";
 import { CoreViewPlugin } from "../core_view_plugin";
 

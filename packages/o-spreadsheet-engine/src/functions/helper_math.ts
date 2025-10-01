@@ -1,4 +1,4 @@
-import { Arg } from "@odoo/o-spreadsheet-engine";
+import { Arg } from "../index";
 import { Locale } from "../types";
 import { isDataNonEmpty, reduceAny, reduceNumbers } from "./helpers";
 

@@ -11,6 +11,7 @@ import {
   UnboundedZone,
   Zone,
 } from "@odoo/o-spreadsheet-engine";
+import { Direction } from "@odoo/o-spreadsheet-engine/types";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
@@ -44,7 +45,7 @@ import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
-import { Command, Direction, EditionMode, Range, RangePart } from "../../../types";
+import { Command, EditionMode, Range, RangePart } from "../../../types";
 import { EvaluationError } from "../../../types/errors";
 import { SelectionEvent } from "../../../types/event_stream";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";

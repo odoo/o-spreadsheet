@@ -10,6 +10,7 @@ import {
   UnboundedZone,
   Zone,
 } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
@@ -30,7 +31,6 @@ import {
   ClientPosition,
   Command,
   CommandResult,
-  Dimension,
   EvaluatedCell,
   GridRenderingContext,
   LocalCommand,

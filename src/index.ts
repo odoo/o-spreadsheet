@@ -73,12 +73,10 @@ import {
   computeTextWidth,
   createCurrencyFormat,
   deepCopy,
-  deepEquals,
   expandZoneOnInsertion,
   formatValue,
   getUniqueText,
   isDateTime,
-  isDefined,
   isInside,
   isMarkdownLink,
   isNumber,
@@ -111,9 +109,8 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
-import { isMatrix } from "@odoo/o-spreadsheet-engine";
-import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
-import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
+import { deepEquals, isDefined, isMatrix } from "@odoo/o-spreadsheet-engine";
+
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";

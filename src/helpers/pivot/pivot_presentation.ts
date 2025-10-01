@@ -1,4 +1,10 @@
-import { FunctionResultObject, handleError, isMatrix } from "@odoo/o-spreadsheet-engine";
+import {
+  deepEquals,
+  FunctionResultObject,
+  handleError,
+  isMatrix,
+} from "@odoo/o-spreadsheet-engine";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { transposeMatrix } from "../../functions/helpers";
 import { ModelConfig } from "../../model";
 import { _t } from "../../translation";
@@ -10,13 +16,10 @@ import {
   PivotMeasure,
   PivotMeasureDisplay,
   PivotValueCell,
-  SortDirection,
 } from "../../types";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
-import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc";
+import { removeDuplicates, transpose2dPOJO } from "../misc";
 import {
-  NEXT_VALUE,
-  PREVIOUS_VALUE,
   domainToColRowDomain,
   domainToString,
   getDimensionDomain,
@@ -29,6 +32,8 @@ import {
   getRunningTotalDomainKey,
   isDomainIsInPivot,
   isFieldInDomain,
+  NEXT_VALUE,
+  PREVIOUS_VALUE,
   replaceFieldValueInDomain,
 } from "./pivot_domain_helpers";
 import { AGGREGATORS_FN, isSortedColumnValid, toNormalizedPivotValue } from "./pivot_helpers";

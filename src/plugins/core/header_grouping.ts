@@ -9,7 +9,8 @@ import {
 } from "../../helpers";
 import { CommandResult, CoreCommand, ExcelWorkbookData, WorkbookData } from "../../types";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
-import { Dimension } from "./../../types/misc";
+
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 
 interface State {
   groups: Record<UID, Record<Dimension, HeaderGroup[]>>;

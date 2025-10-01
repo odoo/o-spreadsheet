@@ -22,14 +22,9 @@ import {
   CreateSheetCommand,
   CreateTableStyleCommand,
   DataValidationCriterion,
-  Dimension,
-  Direction,
   DispatchResult,
   Locale,
   ParsedOsClipboardContentWithImageData,
-  SelectionStep,
-  SortDirection,
-  SortOptions,
   SplitTextIntoColumnsCommand,
 } from "../../src/types";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
@@ -45,6 +40,13 @@ import {
   Style,
   UID,
 } from "@odoo/o-spreadsheet-engine";
+import {
+  Dimension,
+  Direction,
+  SelectionStep,
+  SortDirection,
+  SortOptions,
+} from "@odoo/o-spreadsheet-engine/types";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import { SunburstChartDefinition } from "../../src/types/chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
@@ -57,8 +59,6 @@ import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
-import { CarouselItem, FigureSize } from "./../../src/types/figure";
-
 /**
  * Dispatch an UNDO to the model
  */

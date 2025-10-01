@@ -1,3 +1,4 @@
+import { Validation } from "@odoo/o-spreadsheet-engine/types";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -5,15 +6,7 @@ import {
 } from "../../../constants";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
-import {
-  CellValueType,
-  CommandResult,
-  CoreGetters,
-  Format,
-  Getters,
-  Range,
-  Validation,
-} from "../../../types";
+import { CellValueType, CommandResult, CoreGetters, Format, Getters, Range } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
   GaugeChartDefinition,

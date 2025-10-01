@@ -12,7 +12,6 @@ import * as Chart from "chart.js";
 import * as ChartGeo from "chartjs-chart-geo";
 
 export * from "./autofill";
-export * from "./cells";
 export * from "./chart/chart";
 export * from "./clipboard";
 export * from "./collaborative/revisions";
@@ -23,8 +22,6 @@ export * from "./currency";
 export * from "./data_validation";
 export * from "./env";
 export * from "./figure";
-export * from "./format";
-export * from "./functions";
 export * from "./generic_criterion";
 export * from "./getters";
 export * from "./history";

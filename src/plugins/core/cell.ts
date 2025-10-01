@@ -3,6 +3,7 @@ import {
   ApplyRangeChange,
   CellPosition,
   CompiledFormula,
+  deepEquals,
   HeaderIndex,
   RangeCompiledFormula,
   Style,
@@ -11,10 +12,10 @@ import {
   Zone,
 } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_STYLE } from "../../constants";
-import { Token, compile } from "../../formulas";
+import { compile, Token } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
+import { isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {

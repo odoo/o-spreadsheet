@@ -1,6 +1,6 @@
-import { Color } from "@odoo/o-spreadsheet-engine";
+import { Color, deepEquals } from "@odoo/o-spreadsheet-engine";
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
-import { deepEquals, range } from "../../helpers";
+import { range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types";
 import { cssPropertiesToCss } from "../helpers/css";

@@ -1,12 +1,4 @@
-import { HeaderIndex, PixelPosition } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
-import {
-  getFullReference,
-  isDefined,
-  splitReference,
-  toUnboundedZone,
-  zoneToXc,
-} from "../../helpers";
+import { getFullReference, splitReference, toUnboundedZone, zoneToXc } from "../../helpers";
 import { chartRegistry } from "../../registries/chart_types";
 import {
   ChartCreationContext,

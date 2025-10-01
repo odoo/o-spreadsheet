@@ -1,4 +1,5 @@
 import { Arg, FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
+import { FunctionResultNumber } from "@odoo/o-spreadsheet-engine/types";
 import {
   addMonthsToDate,
   areTwoDatesWithinOneYear,
@@ -16,7 +17,6 @@ import {
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import { FunctionResultNumber } from "../types";
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert } from "./helper_assert";

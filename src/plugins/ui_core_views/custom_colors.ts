@@ -1,16 +1,4 @@
-import { Color, UID } from "@odoo/o-spreadsheet-engine";
-import { COLOR_PICKER_DEFAULTS } from "../../constants";
-import {
-  colorNumberToHex,
-  colorToRGBA,
-  isColorValid,
-  isDefined,
-  rgba,
-  rgbaToHex,
-  rgbaToHSLA,
-  toHex,
-} from "../../helpers";
-import { Command, Immutable, RGBA, TableElementStyle } from "../../types";
+import { Immutable, RGBA } from "@odoo/o-spreadsheet-engine/types";
 const chartColorRegex = /"(#[0-9a-fA-F]{6})"/g;
 
 /**

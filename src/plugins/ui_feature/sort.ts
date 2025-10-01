@@ -1,21 +1,20 @@
-import { CellPosition, HeaderIndex, Position, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import {
+  CellPosition,
   deepEquals,
-  isInside,
-  overlap,
-  positions,
-  range,
-  zoneToDimension,
-} from "../../helpers/index";
-import { sortCells } from "../../helpers/sort";
+  HeaderIndex,
+  Position,
+  UID,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
+import { sortCells } from "@odoo/o-spreadsheet-engine/helpers/sortCells";
+import { SortDirection, SortOptions } from "@odoo/o-spreadsheet-engine/types";
+import { isInside, overlap, positions, range, zoneToDimension } from "../../helpers/index";
 import {
   CellValueType,
   Command,
   CommandResult,
   LocalCommand,
   SortCommand,
-  SortDirection,
-  SortOptions,
   UpdateCellCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";

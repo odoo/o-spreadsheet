@@ -1,8 +1,8 @@
-import { UnboundedZone } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, UnboundedZone } from "@odoo/o-spreadsheet-engine";
 import { FunctionCodeBuilder } from "@odoo/o-spreadsheet-engine/formulas/code_builder";
 import seedrandom from "seedrandom";
 import { Model } from "../../src";
-import { deepCopy, deepEquals, range, reorderZone } from "../../src/helpers";
+import { deepCopy, range, reorderZone } from "../../src/helpers";
 import {
   Command,
   CoreCommand,

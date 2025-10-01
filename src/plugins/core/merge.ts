@@ -1,31 +1,4 @@
 import {
-  ApplyRangeChange,
-  CellPosition,
-  HeaderIndex,
-  Merge,
-  UID,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import {
-  clip,
-  createRange,
-  deepEquals,
-  doesAnyZoneCrossFrozenPane,
-  getFullReference,
-  isDefined,
-  isEqual,
-  isFullColRange,
-  isFullRowRange,
-  overlap,
-  positions,
-  splitReference,
-  toXC,
-  toZone,
-  union,
-  zoneToDimension,
-  zoneToXc,
-} from "../../helpers/index";
-import {
   AddMergeCommand,
   CommandResult,
   CoreCommand,

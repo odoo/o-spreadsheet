@@ -1,15 +1,5 @@
-import {
-  CellPosition,
-  HeaderDimensions,
-  HeaderIndex,
-  Pixel,
-  PixelPosition,
-  Position,
-  UID,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import { getDefaultSheetViewSize } from "../../constants";
-import { clip, findCellInNewZone, isDefined, positionToZone, range } from "../../helpers";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
+import { clip, findCellInNewZone, positionToZone, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
@@ -19,7 +9,6 @@ import {
   CommandResult,
   DOMCoordinates,
   DOMDimension,
-  Dimension,
   EdgeScrollInfo,
   Figure,
   FigureUI,

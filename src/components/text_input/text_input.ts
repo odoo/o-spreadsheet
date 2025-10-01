@@ -1,7 +1,7 @@
+import { isDefined } from "@odoo/o-spreadsheet-engine";
+import { Ref } from "@odoo/o-spreadsheet-engine/types";
 import { Component, useExternalListener, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
-import { isDefined } from "../../helpers";
-import { Ref } from "../../types";
 import { useAutofocus } from "../helpers/autofocus_hook";
 
 interface Props {

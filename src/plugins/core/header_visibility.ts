@@ -1,4 +1,5 @@
 import { ConsecutiveIndexes, HeaderIndex, UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   deepCopy,
   getAddHeaderStartIndex,
@@ -8,7 +9,6 @@ import {
   range,
 } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
-import { Dimension } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {

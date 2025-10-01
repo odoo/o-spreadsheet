@@ -2,7 +2,7 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
-import { HeaderIndex, Position } from "@odoo/o-spreadsheet-engine";
+import { HeaderIndex, Position } from "../index";
 import { RangePart } from "../types";
 import { TokenizingChars } from "./misc";
 

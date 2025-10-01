@@ -1,6 +1,7 @@
+import { Link } from "@odoo/o-spreadsheet-engine/types";
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
-import { CellValue, CommandResult, Getters, Link, SpreadsheetChildEnv } from "../types";
+import { CellValue, CommandResult, Getters, SpreadsheetChildEnv } from "../types";
 import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
 
 /**

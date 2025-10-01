@@ -1,4 +1,5 @@
 import { CellPosition, isMatrix } from "@odoo/o-spreadsheet-engine";
+import { Direction } from "@odoo/o-spreadsheet-engine/types";
 import { prettify } from "../../../formulas/formula_formatter";
 import { parseTokens } from "../../../formulas/parser";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
@@ -22,7 +23,6 @@ import {
   AddColumnsRowsCommand,
   CellValueType,
   Command,
-  Direction,
   Format,
   FormulaCell,
   Locale,

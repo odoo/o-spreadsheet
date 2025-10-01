@@ -1,15 +1,4 @@
-import {
-  CellPosition,
-  HeaderIndex,
-  PaneDivision,
-  Row,
-  Sheet,
-  UID,
-  UnboundedZone,
-  Zone,
-  ZoneDimension,
-} from "@odoo/o-spreadsheet-engine";
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   createDefaultRows,
   deepCopy,
@@ -19,7 +8,6 @@ import {
   groupConsecutive,
   includesAll,
   isColorValid,
-  isDefined,
   isZoneInside,
   isZoneValid,
   largeMax,
@@ -34,7 +22,6 @@ import {
   CommandResult,
   CoreCommand,
   CreateSheetCommand,
-  Dimension,
   ExcelWorkbookData,
   FreezeColumnsCommand,
   FreezeRowsCommand,

@@ -1,7 +1,8 @@
 import { Pixel } from "@odoo/o-spreadsheet-engine";
+import { Ref } from "@odoo/o-spreadsheet-engine/types";
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
-import { DOMCoordinates, DOMDimension, Rect, Ref, SpreadsheetChildEnv } from "../../types/index";
+import { DOMCoordinates, DOMDimension, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";

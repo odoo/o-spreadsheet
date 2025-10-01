@@ -6,6 +6,7 @@ import {
   UID,
   Zone,
 } from "@odoo/o-spreadsheet-engine";
+import { Lazy } from "@odoo/o-spreadsheet-engine/types";
 import { compile } from "../../formulas";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells";
@@ -23,7 +24,6 @@ import {
   EvaluatedCell,
   IconSetRule,
   IconThreshold,
-  Lazy,
   NumberCell,
   invalidateCFEvaluationCommands,
 } from "../../types/index";

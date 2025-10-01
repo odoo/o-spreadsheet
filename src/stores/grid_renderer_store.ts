@@ -1,4 +1,12 @@
-import { Align, CellPosition, HeaderIndex, Pixel, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import {
+  Align,
+  CellPosition,
+  deepEquals,
+  HeaderIndex,
+  Pixel,
+  UID,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { getPath2D } from "../components/icons/icons";
@@ -25,7 +33,6 @@ import {
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
   deepCopy,
-  deepEquals,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,

@@ -1,3 +1,6 @@
+import { UID, Zone } from "./base";
+import { UnboundedZone } from "./isMatrix";
+
 export interface RangePart {
   readonly colFixed: boolean;
   readonly rowFixed: boolean;

@@ -1,3 +1,4 @@
+import { deepEquals } from "@odoo/o-spreadsheet-engine";
 import {
   CellValue,
   DimensionTree,
@@ -6,7 +7,7 @@ import {
   PivotDomain,
   PivotNode,
 } from "../../types";
-import { clip, deepCopy, deepEquals } from "../misc";
+import { clip, deepCopy } from "../misc";
 
 export const PREVIOUS_VALUE = "(previous)";
 export const NEXT_VALUE = "(next)";

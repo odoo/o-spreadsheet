@@ -1,12 +1,5 @@
-import {
-  Arg,
-  FunctionResultObject,
-  Functions,
-  isMatrix,
-  Matrix,
-  Maybe,
-} from "@odoo/o-spreadsheet-engine";
 import { percentile } from "../helpers/index";
+import { Arg, FunctionResultObject, Functions, isMatrix, Matrix, Maybe } from "../index";
 import { _t } from "../translation";
 import { FunctionResultNumber, Locale } from "../types";
 import { DivisionByZeroError, EvaluationError, NotAvailableError } from "../types/errors";

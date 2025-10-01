@@ -1,4 +1,5 @@
-import { Cell, Command, invalidSubtotalFormulasCommands } from "../../types";
+import { isSubtotalCell } from "@odoo/o-spreadsheet-engine/helpers/is_subtotal_cell";
+import { Command, invalidSubtotalFormulasCommands } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class SubtotalEvaluationPlugin extends UIPlugin {
@@ -35,13 +36,4 @@ export class SubtotalEvaluationPlugin extends UIPlugin {
       this.dispatch("EVALUATE_CELLS", { cellIds: Array.from(this.subtotalCells) });
     }
   }
-}
-
-export function isSubtotalCell(cell: Cell): boolean {
-  return (
-    cell.isFormula &&
-    cell.compiledFormula.tokens.some(
-      (t) => t.type === "SYMBOL" && t.value.toUpperCase() === "SUBTOTAL"
-    )
-  );
 }

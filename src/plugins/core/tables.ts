@@ -1,9 +1,7 @@
 import {
   areZonesContinuous,
   deepCopy,
-  deepEquals,
   intersection,
-  isDefined,
   isInside,
   isZoneInside,
   overlap,
@@ -33,8 +31,7 @@ import {
   WorkbookData,
 } from "../../types/index";
 
-import { ApplyRangeChange, CellPosition, TableId, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { CorePlugin } from "../core_plugin";
+import { TableId, UID } from "@odoo/o-spreadsheet-engine";
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;

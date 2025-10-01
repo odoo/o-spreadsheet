@@ -1,6 +1,7 @@
+import { Direction } from "@odoo/o-spreadsheet-engine/types";
 import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Direction, Viewport } from "../../src/types";
+import { CommandResult, Viewport } from "../../src/types";
 import {
   hideColumns,
   hideRows,

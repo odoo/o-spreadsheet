@@ -5,6 +5,7 @@ import {
   BorderDescr,
   CellPosition,
   Color,
+  deepEquals,
   HeaderIndex,
   UID,
   UnboundedZone,
@@ -13,7 +14,6 @@ import {
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
   deepCopy,
-  deepEquals,
   getItemId,
   intersection,
   positionToZone,

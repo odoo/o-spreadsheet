@@ -3,8 +3,7 @@
 //------------------------------------------------------------------------------
 import { ConsecutiveIndexes, Style, UID } from "@odoo/o-spreadsheet-engine";
 import { escapeRegExp as engineEscapeRegExp } from "@odoo/o-spreadsheet-engine/helpers/misc";
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../constants";
-import { ChartStyle, Lazy } from "../types";
+import { Cloneable, DebouncedFunction, Lazy } from "@odoo/o-spreadsheet-engine/types";
 export {
   escapeRegExp,
   getCanonicalSymbolName,
@@ -209,14 +208,6 @@ export function parseSheetUrl(sheetLink: string) {
   throw new Error(`${sheetLink} is not a valid sheet link`);
 }
 
-/**
- * This helper function can be used as a type guard when filtering arrays.
- * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)
- */
-export function isDefined<T>(argument: T | undefined): argument is T {
-  return argument !== undefined;
-}
-
 export function isNotNull<T>(argument: T | null): argument is T {
   return argument !== null;
 }
@@ -340,60 +331,6 @@ export function findNextDefinedValue(arr: string[], index: number): string {
 /** Get index of first header added by an ADD_COLUMNS_ROWS command */
 export function getAddHeaderStartIndex(position: "before" | "after", base: number): number {
   return position === "after" ? base + 1 : base;
-}
-
-/**
- * Compares n objects.
- */
-
-export function deepEquals(...o: any[]): boolean {
-  if (o.length <= 1) return true;
-  for (let index = 1; index < o.length; index++) {
-    if (!_deepEquals(o[0], o[index])) return false;
-  }
-  return true;
-}
-
-function _deepEquals(o1: any, o2: any): boolean {
-  if (o1 === o2) return true;
-  if ((o1 && !o2) || (o2 && !o1)) return false;
-  if (typeof o1 !== typeof o2) return false;
-  if (typeof o1 !== "object") return false;
-
-  // Objects can have different keys if the values are undefined
-  for (const key in o2) {
-    if (!(key in o1) && o2[key] !== undefined) {
-      return false;
-    }
-  }
-
-  for (const key in o1) {
-    if (typeof o1[key] !== typeof o2[key]) return false;
-    if (typeof o1[key] === "object") {
-      if (!_deepEquals(o1[key], o2[key])) return false;
-    } else {
-      if (o1[key] !== o2[key]) return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Compares two arrays.
- * For performance reasons, this function is to be preferred
- * to 'deepEquals' in the case we know that the inputs are arrays.
- */
-export function deepEqualsArray(arr1: unknown[], arr2: unknown[]): boolean {
-  if (arr1.length !== arr2.length) {
-    return false;
-  }
-  for (let i = 0; i < arr1.length; i++) {
-    if (!deepEquals(arr1[i], arr2[i])) {
-      return false;
-    }
-  }
-  return true;
 }
 
 /**

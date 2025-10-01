@@ -1,6 +1,7 @@
 import { HeaderIndex, UID } from "@odoo/o-spreadsheet-engine";
 import { CommandResult, Model } from "../../src";
-import { Dimension } from "../../src/types/misc";
+
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 function getSortedGroups(model: Model, sheetId: UID, dimension: Dimension) {
   return model.getters
     .getHeaderGroups(sheetId, dimension)

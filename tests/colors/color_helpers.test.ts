@@ -1,17 +1,5 @@
 import { Color } from "@odoo/o-spreadsheet-engine";
-import {
-  colorToNumber,
-  colorToRGBA,
-  getColorScale,
-  hslaToRGBA,
-  isColorValid,
-  rgba,
-  rgbaToHex,
-  rgbaToHSLA,
-  toHex,
-} from "../../src/helpers/color";
-import { HSLA, RGBA } from "../../src/types";
-
+import { HSLA, RGBA } from "@odoo/o-spreadsheet-engine/types";
 const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [
   {
     input: "#000000",

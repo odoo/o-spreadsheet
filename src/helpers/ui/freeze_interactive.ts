@@ -1,6 +1,7 @@
 import { HeaderIndex } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { MergeErrorMessage } from "../../components/translations_terms";
-import { CommandResult, Dimension, SpreadsheetChildEnv } from "../../types";
+import { CommandResult, SpreadsheetChildEnv } from "../../types";
 
 export function interactiveFreezeColumnsRows(
   env: SpreadsheetChildEnv,

@@ -1,10 +1,3 @@
-import { Align, CellPosition } from "@odoo/o-spreadsheet-engine";
-import { isDefined } from "../../helpers/index";
-import {
-  GridIcon,
-  IconsOfCell,
-  iconsOnCellRegistry,
-} from "../../registries/icons_on_cell_registry";
 import { Command, Rect } from "../../types";
 import { CoreViewPlugin } from "../core_view_plugin";
 

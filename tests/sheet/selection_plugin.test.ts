@@ -1,3 +1,4 @@
+import { Direction } from "@odoo/o-spreadsheet-engine/types";
 import { CoreCommand, CorePlugin } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
@@ -10,7 +11,7 @@ import {
 } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
-import { CommandResult, Direction } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,

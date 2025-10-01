@@ -1,4 +1,5 @@
 import { CellPosition, HeaderIndex, Matrix, Style, UID } from "@odoo/o-spreadsheet-engine";
+import { Lazy, Offset } from "@odoo/o-spreadsheet-engine/types";
 import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
@@ -14,13 +15,9 @@ import {
   DataValidationCriterionType,
   DataValidationRule,
   EvaluatedCriterion,
-  Lazy,
-  Offset,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CoreViewPlugin } from "../core_view_plugin";
-import { _t } from "./../../translation";
-
 interface InvalidValidationResult {
   readonly isValid: false;
   readonly rule: DataValidationRule;

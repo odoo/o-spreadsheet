@@ -1,10 +1,11 @@
 import { CellPosition } from "@odoo/o-spreadsheet-engine";
+import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { ComponentConstructor } from "@odoo/owl";
 import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { openLink } from "../helpers/links";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { _t } from "../translation";
-import { Getters, SortDirection, SpreadsheetChildEnv } from "../types";
+import { Getters, SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 
 export interface CellClickableItem {

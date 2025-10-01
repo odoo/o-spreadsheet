@@ -1,4 +1,5 @@
 import { Position, UID } from "@odoo/o-spreadsheet-engine";
+import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { TableTerms } from "../../src/components/translations_terms";
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
@@ -20,7 +21,7 @@ import {
   interactiveToggleGroup,
 } from "../../src/helpers/ui/toggle_group_interactive";
 import { Model } from "../../src/model";
-import { CommandResult, Dimension, SpreadsheetChildEnv } from "../../src/types";
+import { CommandResult, SpreadsheetChildEnv } from "../../src/types";
 import {
   addCellToSelection,
   copy,

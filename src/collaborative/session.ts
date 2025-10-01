@@ -1,10 +1,9 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
+import { Lazy } from "@odoo/o-spreadsheet-engine/types";
 import { EventBus } from "../helpers/event_bus";
-import { debounce, isDefined } from "../helpers/misc";
+import { debounce } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
-import { CoreCommand, HistoryChange, Lazy, WorkbookData } from "../types";
+import { CoreCommand, HistoryChange, WorkbookData } from "../types";
 import {
   Client,
   ClientId,
