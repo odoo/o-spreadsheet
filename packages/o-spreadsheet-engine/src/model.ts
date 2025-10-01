@@ -519,6 +519,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         const result = this.checkDispatchAllowed(command);
         if (!result.isSuccessful) {
           this.trigger("update");
+          this.trigger("command-rejected", { command, result });
           return result;
         }
         this.status = Status.Running;
