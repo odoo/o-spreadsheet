@@ -5,6 +5,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { DEFAULT_STYLE_NO_ALIGN } from "@odoo/o-spreadsheet-engine/plugins/core/style";
+import { CommandResult } from "../../src";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import {
   addDataValidation,
@@ -19,6 +20,22 @@ import { getCell, getCellContent, getCellStyle } from "../test_helpers/getters_h
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("styles", () => {
+  test("update formatting with the same format as before", () => {
+    const model = new Model();
+    expect(setFormat(model, "A1", "#,##0.0")).toBeSuccessfullyDispatched();
+    expect(setFormat(model, "A1", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(setFormat(model, "A1:A2", "#,##0.0")).toBeSuccessfullyDispatched();
+    expect(setFormat(model, "A1:A2", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update style with the same style as before", () => {
+    const model = new Model();
+    expect(setStyle(model, "A1", { bold: true })).toBeSuccessfullyDispatched();
+    expect(setStyle(model, "A1", { bold: true })).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(setStyle(model, "A1:A2", { bold: true })).toBeSuccessfullyDispatched();
+    expect(setStyle(model, "A1:A2", { bold: true })).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
   test("can undo and redo a setStyle operation on an empty cell", () => {
     const model = new Model();
     setStyle(model, "B1", { fillColor: "red" });
