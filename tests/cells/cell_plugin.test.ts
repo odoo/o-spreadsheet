@@ -21,6 +21,7 @@ import {
   renameSheet,
   setCellContent,
   setCellFormat,
+  setFormat,
   setStyle,
   undo,
   updateFilter,
@@ -158,6 +159,22 @@ describe("getCellText", () => {
       style: { bold: true },
     });
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update formatting with the same format as before", () => {
+    const model = new Model();
+    expect(setFormat(model, "A1", "#,##0.0")).toBeSuccessfullyDispatched();
+    expect(setFormat(model, "A1", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(setFormat(model, "A1:A2", "#,##0.0")).toBeSuccessfullyDispatched();
+    expect(setFormat(model, "A1:A2", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update style with the same style as before", () => {
+    const model = new Model();
+    expect(setStyle(model, "A1", { bold: true })).toBeSuccessfullyDispatched();
+    expect(setStyle(model, "A1", { bold: true })).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(setStyle(model, "A1:A2", { bold: true })).toBeSuccessfullyDispatched();
+    expect(setStyle(model, "A1:A2", { bold: true })).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("clear content", () => {

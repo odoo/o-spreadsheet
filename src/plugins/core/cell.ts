@@ -39,6 +39,7 @@ import {
   Range,
   RangeCompiledFormula,
   RangePart,
+  SetFormattingCommand,
   Style,
   UID,
   UpdateCellCommand,
@@ -112,6 +113,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
           ? CommandResult.Success
           : CommandResult.InvalidCellId;
+      case "SET_FORMATTING":
+        return this.checkUselessSetFormatting(cmd);
       default:
         return CommandResult.Success;
     }
@@ -732,6 +735,30 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
+  }
+
+  private checkUselessSetFormatting(cmd: SetFormattingCommand) {
+    const { sheetId, target } = cmd;
+    const hasStyle = "style" in cmd;
+    const hasFormat = "format" in cmd;
+    if (!hasStyle && !hasFormat) {
+      return CommandResult.NoChanges;
+    }
+    for (const zone of recomputeZones(target)) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (
+            !cell ||
+            (hasStyle && !deepEquals(cell?.style, cmd.style)) ||
+            (hasFormat && cell?.format !== cmd.format)
+          ) {
+            return CommandResult.Success;
+          }
+        }
+      }
+    }
+    return CommandResult.NoChanges;
   }
 }
 
