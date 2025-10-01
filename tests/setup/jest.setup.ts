@@ -83,6 +83,13 @@ beforeAll(() => {
   };
 
   console.debug = () => {};
+
+  // Not implemented in JSDOM
+  Element.prototype.animate = jest.fn().mockReturnValue({
+    finished: Promise.resolve(),
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  });
 });
 
 beforeEach(() => {

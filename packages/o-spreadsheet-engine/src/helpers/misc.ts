@@ -332,6 +332,23 @@ export function batched(callback: () => void): () => void {
   };
 }
 
+/** Returns a copy of the function `callback` that can only be called
+ * at most once every `delay` milliseconds.
+ */
+export function throttle<T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+): (...args: Parameters<T>) => ReturnType<T> {
+  let lastCall = 0;
+  return function (...args) {
+    const now = Date.now();
+    if (now - lastCall >= delay) {
+      lastCall = now;
+      return callback(...args);
+    }
+  };
+}
+
 /*
  * Concatenate an array of strings.
  */

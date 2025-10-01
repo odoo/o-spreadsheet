@@ -177,8 +177,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     // This hack ensures the event declared in the template is properly registered/working
     useExternalListener(document.body, "wheel", () => {});
 
-    this.bindModelEvents();
-
     onWillUpdateProps((nextProps: SpreadsheetProps) => {
       if (nextProps.model !== this.props.model) {
         throw new Error("Changing the props model is not supported at the moment.");
@@ -194,6 +192,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      this.bindModelEvents();
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
