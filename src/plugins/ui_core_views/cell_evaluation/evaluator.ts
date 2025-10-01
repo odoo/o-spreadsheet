@@ -413,7 +413,8 @@ export class Evaluator {
   private invalidatePositionsDependingOnSpread(sheetId: UID, resultZone: Zone) {
     // the result matrix is split in 2 zones to exclude the array formula position
     const invalidatedPositions = this.formulaDependencies().getCellsDependingOn(
-      excludeTopLeft(resultZone).map((zone) => ({ sheetId, zone }))
+      excludeTopLeft(resultZone).map((zone) => ({ sheetId, zone })),
+      this.nextPositionsToUpdate
     );
     invalidatedPositions.delete({ sheetId, col: resultZone.left, row: resultZone.top });
     this.nextPositionsToUpdate.addMany(invalidatedPositions);
@@ -575,7 +576,7 @@ export class Evaluator {
     for (const sheetId in zonesBySheetIds) {
       ranges.push(...zonesBySheetIds[sheetId].map((zone) => ({ sheetId, zone })));
     }
-    return this.formulaDependencies().getCellsDependingOn(ranges);
+    return this.formulaDependencies().getCellsDependingOn(ranges, this.nextPositionsToUpdate);
   }
 }
 
