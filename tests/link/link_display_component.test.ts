@@ -1,5 +1,5 @@
+import { buildSheetLink } from "@odoo/o-spreadsheet-engine";
 import { Model, Spreadsheet } from "../../src";
-import { buildSheetLink } from "../../src/helpers";
 import {
   clearCell,
   createSheet,

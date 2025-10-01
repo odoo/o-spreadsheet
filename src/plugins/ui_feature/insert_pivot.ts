@@ -1,6 +1,4 @@
-import { CellPosition, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { PIVOT_TABLE_CONFIG } from "../../constants";
-import { getUniqueText, sanitizeSheetName } from "../../helpers";
+import { sanitizeSheetName } from "../../helpers";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea, positionToZone } from "../../helpers/zones";

@@ -1,6 +1,6 @@
+import { debounce } from "@odoo/o-spreadsheet-engine";
 import { Lazy } from "@odoo/o-spreadsheet-engine/types";
 import { EventBus } from "../helpers/event_bus";
-import { debounce } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import { CoreCommand, HistoryChange, WorkbookData } from "../types";

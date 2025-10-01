@@ -1,6 +1,4 @@
-import { deepEquals, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
-import { positions, range, recomputeZones, trimContent, zoneToDimension } from "../../helpers";
+import { positions, range, recomputeZones, zoneToDimension } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { _t } from "../../translation";
 import { Command, CommandResult, RemoveDuplicatesCommand } from "../../types/index";

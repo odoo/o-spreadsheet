@@ -1,14 +1,4 @@
-import { HeaderGroup } from "@odoo/o-spreadsheet-engine";
-import { Dimension } from "@odoo/o-spreadsheet-engine/types";
-import {
-  buildSheetLink,
-  largeMax,
-  markdownLink,
-  replaceNewLines,
-  splitReference,
-  toCartesian,
-  toXC,
-} from "../../helpers";
+import { markdownLink, replaceNewLines, splitReference, toCartesian, toXC } from "../../helpers";
 import { HeaderData, SheetData } from "../../types";
 import {
   XLSXCell,

@@ -1,14 +1,4 @@
 import {
-  ApplyRangeChange,
-  CellPosition,
-  ChangeType,
-  RangeAdapter,
-  UID,
-  UnboundedZone,
-  ZoneDimension,
-} from "@odoo/o-spreadsheet-engine";
-import { Registry } from "../registries/registry";
-import {
   AddColumnsRowsCommand,
   CoreCommand,
   CoreCommandTypes,
@@ -23,7 +13,7 @@ import {
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { numberToLetters } from "./coordinates";
-import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
+import { getCanonicalSymbolName, groupConsecutive } from "./misc";
 import { isRowReference, splitReference } from "./references";
 import { isSheetNameEqual } from "./sheet";
 import {

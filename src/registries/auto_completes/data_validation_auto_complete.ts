@@ -1,5 +1,6 @@
+import { isFormula } from "@odoo/o-spreadsheet-engine";
 import { GRAY_200 } from "../../constants";
-import { chipTextColor, isFormula } from "../../helpers";
+import { chipTextColor } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {

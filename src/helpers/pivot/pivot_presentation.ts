@@ -1,10 +1,3 @@
-import {
-  deepEquals,
-  FunctionResultObject,
-  handleError,
-  isMatrix,
-} from "@odoo/o-spreadsheet-engine";
-import { SortDirection } from "@odoo/o-spreadsheet-engine/types";
 import { transposeMatrix } from "../../functions/helpers";
 import { ModelConfig } from "../../model";
 import { _t } from "../../translation";
@@ -18,7 +11,6 @@ import {
   PivotValueCell,
 } from "../../types";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
-import { removeDuplicates, transpose2dPOJO } from "../misc";
 import {
   domainToColRowDomain,
   domainToString,

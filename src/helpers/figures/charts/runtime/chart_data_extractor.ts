@@ -1,3 +1,4 @@
+import { findNextDefinedValue } from "@odoo/o-spreadsheet-engine";
 import { Point } from "chart.js";
 import { ChartTerms } from "../../../../components/translations_terms";
 import { getMovingAverageValues } from "../../../../functions/get_moving_average_values";
@@ -40,7 +41,7 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isDateTimeFormat } from "../../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../../misc";
+import { deepCopy, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";

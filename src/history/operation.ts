@@ -1,6 +1,3 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { Lazy } from "@odoo/o-spreadsheet-engine/types";
-import { lazy } from "../helpers";
 import { Transformation } from "../types";
 
 /**

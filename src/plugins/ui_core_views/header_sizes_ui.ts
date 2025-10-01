@@ -1,13 +1,9 @@
-import { CellPosition, HeaderIndex, Pixel, UID } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
   deepCopy,
   getAddHeaderStartIndex,
   getDefaultCellHeight,
-  insertItemsAtIndex,
   positions,
   range,
-  removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
 

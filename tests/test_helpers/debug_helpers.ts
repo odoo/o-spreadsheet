@@ -1,6 +1,4 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { Model } from "../../src";
-import { concat, zoneToXc } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers";
 import { Branch } from "../../src/history/branch";
 import { Tree } from "../../src/history/tree";
 import { getEvaluatedGrid } from "./getters_helpers";

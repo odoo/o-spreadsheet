@@ -1,17 +1,3 @@
-import {
-  CellPosition,
-  Color,
-  functionRegistry,
-  FunctionResultObject,
-  HeaderIndex,
-  Highlight,
-  isMatrix,
-  Matrix,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import { Direction } from "@odoo/o-spreadsheet-engine/types";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
@@ -21,12 +7,10 @@ import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,
   colors,
-  concat,
   formatValue,
   fuzzyLookup,
   getZoneArea,
   isEqual,
-  isFormula,
   isNumber,
   isSheetNameEqual,
   positionToZone,

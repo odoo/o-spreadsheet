@@ -1,6 +1,6 @@
 import "../test_helpers/helpers";
 
-import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { ConditionalFormat } from "../../src/types";
 import {
   addDataValidation,
@@ -31,10 +31,6 @@ import {
   toRangesData,
   XCToMergeCellMap,
 } from "../test_helpers/helpers";
-
-import { Border, DIRECTION, functionRegistry, Style } from "@odoo/o-spreadsheet-engine";
-import { Model } from "../../src";
-import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 
 let autoFill: AutofillPlugin;
 let model: Model;

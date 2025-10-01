@@ -1,17 +1,8 @@
-import {
-  CellPosition,
-  DataBarFill,
-  HeaderIndex,
-  Style,
-  UID,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import { Lazy } from "@odoo/o-spreadsheet-engine/types";
 import { compile } from "../../formulas";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
-import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
+import { clip } from "../../helpers/misc";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellIsRule,

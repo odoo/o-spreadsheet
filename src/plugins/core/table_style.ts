@@ -1,4 +1,5 @@
-import { getUniqueText, toHex } from "../../helpers";
+import { getUniqueText } from "@odoo/o-spreadsheet-engine";
+import { toHex } from "../../helpers";
 import {
   DEFAULT_TABLE_CONFIG,
   TABLE_PRESETS,

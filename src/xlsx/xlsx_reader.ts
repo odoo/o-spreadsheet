@@ -1,5 +1,5 @@
+import { removeFalsyAttributes } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_REVISION_ID } from "../constants";
-import { removeFalsyAttributes } from "../helpers";
 import { _t } from "../translation";
 import {
   ImportedFiles,

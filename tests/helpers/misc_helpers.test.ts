@@ -1,14 +1,5 @@
-import { deepEquals } from "@odoo/o-spreadsheet-engine";
-import seedrandom from "seedrandom";
 import { DateTime, deepCopy, UuidGenerator } from "../../src/helpers";
-import {
-  getUniqueText,
-  groupConsecutive,
-  isConsecutive,
-  lazy,
-  memoize,
-  range,
-} from "../../src/helpers/misc";
+import { groupConsecutive, memoize, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
   test("range", () => {

@@ -1,7 +1,5 @@
-import { Border, CellPosition, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
-import { isObjectEmptyRecursive, positionToZone, removeFalsyAttributes } from "../../helpers/index";
+import { positionToZone } from "../../helpers/index";
 import {
   Command,
   invalidateBordersCommands,

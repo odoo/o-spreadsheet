@@ -1,4 +1,4 @@
-import { isObjectEmptyRecursive } from "../../helpers";
+import { isObjectEmptyRecursive } from "@odoo/o-spreadsheet-engine";
 import {
   XLSXBorder,
   XLSXBorderDescr,

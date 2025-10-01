@@ -1,5 +1,3 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { DVTerms } from "../components/translations_terms";
 import { tryToNumber } from "../functions/helpers";
 import {
   DateTime,
@@ -12,7 +10,6 @@ import {
   isDateBetween,
   isDateStrictlyAfter,
   isDateStrictlyBefore,
-  isNumberBetween,
   jsDateToRoundNumber,
   valueToDateNumber,
 } from "../helpers";

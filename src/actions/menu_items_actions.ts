@@ -1,5 +1,3 @@
-import { Style } from "@odoo/o-spreadsheet-engine";
-import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import { CellPopoverStore } from "../components/popover";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
@@ -10,15 +8,7 @@ import {
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import {
-  areZonesContinuous,
-  getZoneArea,
-  isConsecutive,
-  isEqual,
-  largeMax,
-  largeMin,
-  numberToLetters,
-} from "../helpers/index";
+import { areZonesContinuous, getZoneArea, isEqual, numberToLetters } from "../helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";

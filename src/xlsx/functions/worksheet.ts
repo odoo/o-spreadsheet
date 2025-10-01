@@ -1,13 +1,9 @@
-import { HeaderIndex } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   isInside,
   isMarkdownLink,
-  isSheetUrl,
   isTextFormat,
   iterateItemIdsPositions,
   parseMarkdownLink,
-  parseSheetUrl,
   toXC,
   toZone,
 } from "../../helpers";

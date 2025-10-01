@@ -1,17 +1,4 @@
-import { HeaderGroup, Pixel } from "@odoo/o-spreadsheet-engine";
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useSubEnv,
-} from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO, SCROLLBAR_WIDTH } from "../../constants";
-import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";

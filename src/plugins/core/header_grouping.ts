@@ -1,12 +1,3 @@
-import { HeaderGroup, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import {
-  deepCopy,
-  getAddHeaderStartIndex,
-  isConsecutive,
-  moveHeaderIndexesOnHeaderAddition,
-  moveHeaderIndexesOnHeaderDeletion,
-  range,
-} from "../../helpers";
 import { CommandResult, CoreCommand, ExcelWorkbookData, WorkbookData } from "../../types";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
 

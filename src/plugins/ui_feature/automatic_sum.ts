@@ -1,12 +1,8 @@
-import { HeaderIndex, Position, Sheet, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   groupConsecutive,
   isDateTimeFormat,
   isInside,
   isOneDimensional,
-  largeMax,
-  largeMin,
   positions,
   range,
   union,

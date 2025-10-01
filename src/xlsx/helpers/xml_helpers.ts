@@ -1,6 +1,3 @@
-import { BorderDescr } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_FONT_SIZE } from "../../constants";
-import { concat } from "../../helpers";
 import { ExcelWorkbookData } from "../../types";
 import {
   XLSXBorder,

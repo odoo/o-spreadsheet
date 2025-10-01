@@ -1,5 +1,6 @@
+import { getUniqueText } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
+import { escapeRegExp, toZone, zoneToDimension } from "../helpers";
 import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,

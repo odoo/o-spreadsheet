@@ -1,7 +1,4 @@
-import { RangeAdapter, UID } from "@odoo/o-spreadsheet-engine";
-import { rangeTokenize } from "../formulas";
 import { Range } from "../types";
-import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 export function adaptFormulaStringRanges(
   defaultSheetId: string,

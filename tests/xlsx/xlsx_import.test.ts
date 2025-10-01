@@ -1,11 +1,6 @@
+import { buildSheetLink } from "@odoo/o-spreadsheet-engine";
 import { ICON_SETS } from "../../src/components/icons/icons";
-import {
-  buildSheetLink,
-  formatValue,
-  lettersToNumber,
-  markdownLink,
-  toZone,
-} from "../../src/helpers";
+import { formatValue, lettersToNumber, markdownLink, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";

@@ -1,6 +1,3 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { Component } from "@odoo/owl";
-import { replaceItemAtIndex } from "../../../../helpers";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime";
 import { _t } from "../../../../translation";
 import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart";

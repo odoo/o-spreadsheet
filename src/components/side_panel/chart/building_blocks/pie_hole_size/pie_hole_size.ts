@@ -1,5 +1,6 @@
+import { debounce } from "@odoo/o-spreadsheet-engine";
 import { Component } from "@odoo/owl";
-import { clip, debounce } from "../../../../../helpers";
+import { clip } from "../../../../../helpers";
 import { SpreadsheetChildEnv } from "../../../../../types";
 import { Section } from "../../../components/section/section";
 

@@ -1,3 +1,4 @@
+import { debounce } from "@odoo/o-spreadsheet-engine";
 import { DebouncedFunction } from "@odoo/o-spreadsheet-engine/types";
 import {
   Component,
@@ -7,7 +8,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { debounce, zoneToXc } from "../../../helpers";
+import { zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/index";

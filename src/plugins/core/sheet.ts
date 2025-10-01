@@ -1,3 +1,4 @@
+import { includesAll, largeMax, largeMin } from "@odoo/o-spreadsheet-engine";
 import { Dimension } from "@odoo/o-spreadsheet-engine/types";
 import {
   createDefaultRows,
@@ -6,12 +7,9 @@ import {
   getNextSheetName,
   getUnquotedSheetName,
   groupConsecutive,
-  includesAll,
   isColorValid,
   isZoneInside,
   isZoneValid,
-  largeMax,
-  largeMin,
   range,
   toCartesian,
 } from "../../helpers/index";
@@ -30,8 +28,6 @@ import {
   UpdateCellPositionCommand,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
-
 interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;
   readonly orderedSheetIds: UID[];

@@ -1,27 +1,10 @@
 import {
-  CellPosition,
-  HeaderIndex,
-  Pixel,
-  Style,
-  UID,
-  VerticalAlign,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import {
-  DATA_VALIDATION_CHIP_MARGIN,
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_VERTICAL_ALIGN,
-  MIN_CELL_TEXT_MARGIN,
-  PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../constants";
-import {
   computeTextLinesHeight,
   computeTextWidth,
   formatValue,
   getCellContentHeight,
   groupConsecutive,
   isEqual,
-  largeMax,
   positions,
   range,
   splitTextToWidth,

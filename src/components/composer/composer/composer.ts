@@ -1,9 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
-import { debounce, isFormula, setColorAlpha } from "../../../helpers/index";
+import { setColorAlpha } from "../../../helpers/index";
 
-import { deepEquals, FunctionDescription, functionRegistry } from "@odoo/o-spreadsheet-engine";
-import { Direction } from "@odoo/o-spreadsheet-engine/types";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { Store, useStore } from "../../../store_engine";

@@ -1,4 +1,5 @@
-import { buildSheetLink, markdownLink } from "../helpers";
+import { buildSheetLink } from "@odoo/o-spreadsheet-engine";
+import { markdownLink } from "../helpers";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 

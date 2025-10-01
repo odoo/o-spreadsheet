@@ -1,24 +1,9 @@
 import {
-  ApplyRangeChange,
-  Border,
-  BorderData,
-  BorderDescr,
-  CellPosition,
-  Color,
-  deepEquals,
-  HeaderIndex,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import { PositionMap } from "../../helpers/cells/position_map";
-import {
   deepCopy,
   getItemId,
   intersection,
   positionToZone,
   recomputeZones,
-  removeFalsyAttributes,
   toZone,
 } from "../../helpers/index";
 import { adjacent, overlap, splitIfAdjacent, zoneToXc } from "../../helpers/zones";

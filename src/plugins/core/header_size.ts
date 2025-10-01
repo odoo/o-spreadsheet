@@ -1,6 +1,4 @@
-import { HeaderIndex, Pixel, UID } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex, range, removeIndexesFromArray } from "../../helpers";
+import { deepCopy, getAddHeaderStartIndex, range } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 
 import { Dimension } from "@odoo/o-spreadsheet-engine/types";

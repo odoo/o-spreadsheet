@@ -1,5 +1,3 @@
-import { Align } from "@odoo/o-spreadsheet-engine";
-import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
@@ -19,7 +17,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";

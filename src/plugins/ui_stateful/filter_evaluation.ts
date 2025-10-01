@@ -1,8 +1,5 @@
-import { CellPosition, FilterId, UID } from "@odoo/o-spreadsheet-engine";
-import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import {
   deepCopy,
-  getUniqueText,
   positions,
   range,
   toLowerCase,
@@ -16,8 +13,8 @@ import {
   Command,
   CommandResult,
   CriterionFilter,
-  DEFAULT_LOCALE,
   DataFilterValue,
+  DEFAULT_LOCALE,
   ExcelFilterData,
   ExcelWorkbookData,
   Table,

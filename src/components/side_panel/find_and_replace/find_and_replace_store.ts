@@ -1,9 +1,7 @@
-import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
+import { isInside, positionToZone } from "../../../helpers";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { Command } from "../../../types";
 
-import { CellPosition, Color, Highlight } from "@odoo/o-spreadsheet-engine";
-import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { NotificationStore } from "../../../stores/notification_store";

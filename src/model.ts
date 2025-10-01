@@ -1,9 +1,10 @@
+import { lazy } from "@odoo/o-spreadsheet-engine";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
-import { UuidGenerator, deepCopy, lazy } from "./helpers/index";
+import { UuidGenerator, deepCopy } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,

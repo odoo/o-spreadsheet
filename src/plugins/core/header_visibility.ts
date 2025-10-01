@@ -1,13 +1,4 @@
-import { ConsecutiveIndexes, HeaderIndex, UID } from "@odoo/o-spreadsheet-engine";
-import { Dimension } from "@odoo/o-spreadsheet-engine/types";
-import {
-  deepCopy,
-  getAddHeaderStartIndex,
-  includesAll,
-  largeMax,
-  largeMin,
-  range,
-} from "../../helpers";
+import { deepCopy, getAddHeaderStartIndex, range } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { CorePlugin } from "../core_plugin";
 

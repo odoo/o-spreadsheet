@@ -75,12 +75,10 @@ import {
   deepCopy,
   expandZoneOnInsertion,
   formatValue,
-  getUniqueText,
   isDateTime,
   isInside,
   isMarkdownLink,
   isNumber,
-  lazy,
   lettersToNumber,
   markdownLink,
   mergeContiguousZones,
@@ -109,10 +107,8 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
-import { deepEquals, isDefined, isMatrix } from "@odoo/o-spreadsheet-engine";
+import { deepEquals, getUniqueText, isDefined, isMatrix, lazy } from "@odoo/o-spreadsheet-engine";
 
-import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
-import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";

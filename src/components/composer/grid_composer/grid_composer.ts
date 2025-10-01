@@ -1,13 +1,5 @@
-import { CellPosition, deepEquals } from "@odoo/o-spreadsheet-engine";
-import { Component, onWillUpdateProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
-import {
-  fontSizeInPixels,
-  getFullReference,
-  isFormula,
-  positionToZone,
-  toXC,
-} from "../../../helpers";
+import { fontSizeInPixels, getFullReference, positionToZone, toXC } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
 import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";

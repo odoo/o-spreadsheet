@@ -1,7 +1,5 @@
-import { Alias } from "@odoo/o-spreadsheet-engine";
-import type { TimeScaleOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { largeMax, largeMin, parseDateTime } from ".";
+import { parseDateTime } from ".";
 import { Format, Locale } from "../types";
 
 // -----------------------------------------------------------------------------

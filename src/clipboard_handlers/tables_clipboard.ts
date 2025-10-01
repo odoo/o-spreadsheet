@@ -1,5 +1,3 @@
-import { Border, CellPosition, HeaderIndex, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
 import {
   ClipboardCellData,
   ClipboardCopyOptions,

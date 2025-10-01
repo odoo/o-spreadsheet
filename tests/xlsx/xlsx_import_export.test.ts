@@ -1,6 +1,4 @@
-import { Align, BorderDescr, Style, VerticalAlign, Wrapping } from "@odoo/o-spreadsheet-engine";
-import { Model } from "../../src";
-import { buildSheetLink, toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers";
 import { ConditionalFormatRule } from "../../src/types";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import {

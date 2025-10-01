@@ -1,9 +1,9 @@
+import { lazy } from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../../formulas";
 import { matrixMap } from "../../../functions/helpers";
 import {
   aggregatePositionsToZones,
   excludeTopLeft,
-  lazy,
   positionToZone,
   toXC,
   union,

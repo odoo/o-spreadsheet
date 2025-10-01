@@ -1,7 +1,8 @@
+import { lazy } from "@odoo/o-spreadsheet-engine";
 import { Lazy } from "@odoo/o-spreadsheet-engine/types";
 import { sum } from "../../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
-import { lazy, memoize, recomputeZones } from "../../../helpers";
+import { memoize, recomputeZones } from "../../../helpers";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { _t } from "../../../translation";

@@ -1,5 +1,3 @@
-import { CellPosition, Highlight, Matrix, Style, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
@@ -13,7 +11,6 @@ import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/
 import { matrixMap } from "../../src/functions/helpers";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
-  batched,
   range,
   toCartesian,
   toUnboundedZone,

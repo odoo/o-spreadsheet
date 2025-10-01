@@ -1,5 +1,5 @@
+import { buildSheetLink } from "@odoo/o-spreadsheet-engine";
 import { Model } from "../../src";
-import { buildSheetLink } from "../../src/helpers";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { CellValueType } from "../../src/types/cells";
 import {

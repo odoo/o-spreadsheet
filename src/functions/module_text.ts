@@ -1,5 +1,3 @@
-import { Arg, FunctionResultObject, Functions, Maybe } from "@odoo/o-spreadsheet-engine";
-import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";

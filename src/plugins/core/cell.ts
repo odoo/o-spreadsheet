@@ -1,17 +1,3 @@
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  CellPosition,
-  CompiledFormula,
-  deepEquals,
-  HeaderIndex,
-  RangeCompiledFormula,
-  Style,
-  UID,
-  UpdateCellData,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_STYLE } from "../../constants";
 import { compile, Token } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
@@ -24,7 +10,6 @@ import {
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
 import {
-  concat,
   detectDateFormat,
   detectNumberFormat,
   isInside,
