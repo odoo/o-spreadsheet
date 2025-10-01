@@ -1,4 +1,4 @@
-import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "@odoo/o-spreadsheet-engine";
+import { Arg, FunctionResultObject, Functions, Matrix, Maybe } from "../index";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";

@@ -1,4 +1,4 @@
-import { CellValue, CellValueType, EvaluatedCell, SortDirection } from "../index";
+import { CellValue, CellValueType, EvaluatedCell, SortDirection } from "../types";
 
 type CellWithIndex = { index: number; type: CellValueType; value: any };
 const SORT_TYPES: CellValueType[] = [

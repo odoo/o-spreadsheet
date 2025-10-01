@@ -1,4 +1,4 @@
-import { Arg } from "@odoo/o-spreadsheet-engine";
+import { Arg } from "../index";
 import { conditionalVisitBoolean } from "./helpers";
 
 export function boolAnd(args: Arg[]) {

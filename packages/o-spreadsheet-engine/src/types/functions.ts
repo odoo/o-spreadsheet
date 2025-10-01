@@ -1,4 +1,4 @@
-import { CellPosition } from "./base";
+import { Arg, CellPosition, CellValue, FunctionResultObject, Matrix, UID } from "./index";
 import { Locale } from "./locale";
 
 export type ArgType =
