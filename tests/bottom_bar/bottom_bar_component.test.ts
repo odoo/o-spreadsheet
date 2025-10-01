@@ -5,7 +5,7 @@ import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
-import { Pixel, UID } from "../../src/types";
+import { CommandResult, DispatchResult, Pixel, UID } from "../../src/types";
 import {
   activateSheet,
   createSheet,
@@ -1040,5 +1040,14 @@ describe("BottomBar component", () => {
       expect(getElComputedStyle(menuItemsIcons[1], "color")).toBeSameColorAs("#FFFF00");
       expect(getElComputedStyle(menuItemsIcons[2], "color")).toBeSameColorAs("#FF0000");
     });
+  });
+
+  test("Attempt to modify a locked sheet will trigger an animation", async () => {
+    const { model } = await mountBottomBar();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("LOCK_SHEET", { sheetId });
+
+    model.trigger("command-rejected", { result: new DispatchResult(CommandResult.SheetLocked) });
+    expect(HTMLDivElement.prototype.animate).toHaveBeenCalled();
   });
 });
