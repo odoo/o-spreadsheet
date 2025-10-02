@@ -104,6 +104,22 @@ describe("Carousel panel component", () => {
     expect(model.getters.getChartIds(model.getters.getActiveSheetId())).toHaveLength(1);
   });
 
+  test("Can duplicate a carousel chart", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+
+    await mountCarouselPanel(model, "carouselId");
+    await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
+    await click(fixture, '.o-menu-item[title="Duplicate chart"]');
+
+    const items = model.getters.getCarousel("carouselId").items;
+    expect(items).toHaveLength(2);
+
+    expect(model.getters.getChartDefinition(items[0]["chartId"])).toMatchObject({ type: "radar" });
+    expect(items[1]["chartId"]).not.toEqual(items[0]["chartId"]);
+    expect(model.getters.getChartDefinition(items[1]["chartId"])).toMatchObject({ type: "radar" });
+  });
+
   test("Can drag & drop carousel items to re-order them", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
