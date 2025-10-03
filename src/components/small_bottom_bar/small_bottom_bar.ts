@@ -73,7 +73,11 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get showFxIcon(): boolean {
-    return this.focus === "inactive" && !this.composerStore.currentContent;
+    return (
+      this.focus === "inactive" &&
+      !this.composerStore.currentContent &&
+      !this.composerStore.placeholder
+    );
   }
 
   get rect(): Rect {
@@ -103,6 +107,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
         "max-height": `130px`,
       }),
       showAssistant: !isIOS(), // Hide assistant on iOS as it breaks visually
+      placeholder: this.composerStore.placeholder,
     };
   }
 
