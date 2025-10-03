@@ -16,6 +16,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         
       </div>
       
+      
       <input
         class="o-input"
         placeholder=""

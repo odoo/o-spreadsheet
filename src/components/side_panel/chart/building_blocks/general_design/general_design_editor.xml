@@ -10,9 +10,10 @@
         </Section>
         <ChartTitle
           title="title.text"
+          titleMode="'dynamic'"
           updateTitle.bind="updateTitle"
           name.translate="Chart title"
-          placeholder.translate="Add a Title"
+          placeholder.translate="Enter text or formula"
           updateStyle.bind="updateChartTitleStyle"
           style="title"
           defaultStyle="{align: 'left', fontSize: this.props.defaultChartTitleFontSize}"

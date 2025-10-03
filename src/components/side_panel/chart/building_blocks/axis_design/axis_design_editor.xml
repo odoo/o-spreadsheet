@@ -9,12 +9,15 @@
       />
     </Section>
     <ChartTitle
+      t-key="state.currentAxis"
       title="this.getAxisTitle()"
+      titleMode="'dynamic'"
       updateTitle.bind="updateAxisTitle"
       updateStyle.bind="updateAxisTitleStyle"
       name="editor_label"
       style="axisTitleStyle"
       defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
+      placeholder.translate="Enter text or formula"
     />
   </t>
 </templates>

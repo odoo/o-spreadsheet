@@ -44,7 +44,11 @@ import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
-import { shouldRemoveFirstLabel } from "../chart_common";
+import {
+  getEvaluatedAxesDesign,
+  getEvaluatedChartTitle,
+  shouldRemoveFirstLabel,
+} from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -84,10 +88,15 @@ export function getBarChartData(
     trendDataSetsValues.push(trendDataset);
   }
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+  const evaluatedAxesDesign = getEvaluatedAxesDesign(getters, definition.axesDesign);
+
   return {
     dataSetsValues,
     trendDataSetsValues,
     axisFormats,
+    evaluatedChartTitle,
+    evaluatedAxesDesign,
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
@@ -168,9 +177,14 @@ export function getLineChartData(
     );
   }
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+  const evaluatedAxesDesign = getEvaluatedAxesDesign(getters, definition.axesDesign);
+
   return {
     dataSetsValues,
     axisFormats,
+    evaluatedChartTitle,
+    evaluatedAxesDesign,
     labels,
     locale: getters.getLocale(),
     trendDataSetsValues,
@@ -201,10 +215,12 @@ export function getPieChartData(
   ({ dataSetsValues, labels } = keepOnlyPositiveValues(labels, dataSetsValues));
 
   const dataSetFormat = getChartDatasetFormat(getters, dataSets, "left");
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
 
   return {
     dataSetsValues,
     axisFormats: { y: dataSetFormat },
+    evaluatedChartTitle,
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
@@ -234,10 +250,13 @@ export function getRadarChartData(
     getChartDatasetFormat(getters, dataSets, "right");
   const axisFormats = { r: dataSetFormat };
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+
   return {
     dataSetsValues,
     axisFormats,
     labels,
+    evaluatedChartTitle,
     locale: getters.getLocale(),
   };
 }
@@ -261,9 +280,12 @@ export function getGeoChartData(
     getChartDatasetFormat(getters, dataSets, "left") ||
     getChartDatasetFormat(getters, dataSets, "right");
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+
   return {
     dataSetsValues,
     axisFormats: { y: format },
+    evaluatedChartTitle,
     labels,
     locale: getters.getLocale(),
     availableRegions: getters.getGeoChartAvailableRegions(),
@@ -297,9 +319,14 @@ export function getFunnelChartData(
     getChartDatasetFormat(getters, dataSets, "left") ||
     getChartDatasetFormat(getters, dataSets, "right");
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+  const evaluatedAxesDesign = getEvaluatedAxesDesign(getters, definition.axesDesign);
+
   return {
     dataSetsValues,
     axisFormats: { x: format },
+    evaluatedChartTitle,
+    evaluatedAxesDesign,
     labels,
     locale: getters.getLocale(),
   };
@@ -325,9 +352,12 @@ export function getHierarchalChartData(
   ({ labels, dataSetsValues } = filterValuesWithDifferentSigns(labels, dataSetsValues));
   ({ labels, dataSetsValues } = filterInvalidHierarchicalPoints(labels, dataSetsValues));
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+
   return {
     dataSetsValues,
     axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
+    evaluatedChartTitle,
     labels,
     locale: getters.getLocale(),
   };

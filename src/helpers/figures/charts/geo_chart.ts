@@ -10,7 +10,7 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { LegendPosition } from "../../../types/chart";
+import { LegendPosition, TitleDesign } from "../../../types/chart";
 import {
   ChartCreationContext,
   CustomizedDataSet,
@@ -29,6 +29,7 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -127,26 +128,47 @@ export class GeoChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      newSheetId
+    );
     return new GeoChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GeoChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
       sheetId
     );
     return new GeoChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GeoChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(this.dataSets, this.labelRange, this.title);
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
     targetSheetId?: UID
   ): GeoChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -165,7 +187,7 @@ export class GeoChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       colorScale: this.colorScale,
       missingValueColor: this.missingValueColor,
       region: this.region,
@@ -178,16 +200,19 @@ export class GeoChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): GeoChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      undefined,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(dataSets, labelRange, chartTitle);
     return new GeoChart(definition, this.sheetId, this.getters);
   }
 }
@@ -206,7 +231,7 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
       layout: getChartLayout(definition, chartData),
       scales: getGeoChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         tooltip: getGeoChartTooltip(definition, chartData),
         legend: { display: false },
       },

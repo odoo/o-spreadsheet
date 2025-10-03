@@ -15,6 +15,7 @@ import {
   FunnelChartDefinition,
   FunnelChartRuntime,
   LegendPosition,
+  TitleDesign,
 } from "../../../types/chart";
 import {
   AxesDesign,
@@ -30,6 +31,8 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -141,26 +144,69 @@ export class FunnelChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.axesDesign,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
+      newSheetId
+    );
     return new FunnelChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): FunnelChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.axesDesign,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
       sheetId
     );
     return new FunnelChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): FunnelChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
+    axesDesign?: AxesDesign,
     targetSheetId?: UID
   ): FunnelChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -179,10 +225,10 @@ export class FunnelChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       aggregated: this.aggregated,
       horizontal: this.horizontal,
-      axesDesign: this.axesDesign,
+      axesDesign,
       showValues: this.showValues,
       funnelColors: this.funnelColors,
       cumulative: this.cumulative,
@@ -195,16 +241,24 @@ export class FunnelChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): FunnelChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign
+    );
     return new FunnelChart(definition, this.sheetId, this.getters);
   }
 }
@@ -225,7 +279,7 @@ export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): 
       layout: getChartLayout(definition, chartData),
       scales: getFunnelChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: { display: false },
         tooltip: getFunnelChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),

@@ -94,7 +94,7 @@ describe("Geo chart side panel", () => {
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#000000");
-      expect(".o-chart-title input").toHaveValue("Title");
+      expect(".o-chart-title .o-composer").toHaveText("Title");
       expect(".o-chart-legend-position").toHaveValue("right");
       expect("span[title=Bold]").toHaveClass("active");
       expect(".o-color-scale select").toHaveValue("purples");
