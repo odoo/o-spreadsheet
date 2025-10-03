@@ -1,4 +1,4 @@
-import { Component, onMounted } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { useStore } from "../../../store_engine";
 import { GenericCriterion, SpreadsheetChildEnv } from "../../../types";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
@@ -21,9 +21,9 @@ export abstract class CriterionForm<
   };
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
-    onMounted(() => {
+    if (composerFocusStore.activeComposer.editionMode !== "inactive") {
       composerFocusStore.activeComposer.stopEdition();
-    });
+    }
   }
 
   updateCriterion(criterion: Partial<T>) {
