@@ -23,6 +23,7 @@
             t-key="state.rule.criterion.type"
             criterion="state.rule.criterion"
             onCriterionChanged.bind="onCriterionChanged"
+            autofocus="state.isTypeUpdated"
           />
         </div>
       </Section>
