@@ -1,5 +1,4 @@
-import { unquote } from "../helpers/misc";
-import { parseNumber } from "../helpers/numbers";
+import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, FormulaToExecute } from "../types/base";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
