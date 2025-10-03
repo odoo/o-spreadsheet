@@ -16,6 +16,7 @@ export function createHeaderGroupContainerContextMenu(
       execute: (env) => {
         env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
       },
+      icon: "o-spreadsheet-Icon.EXPAND",
     },
     {
       id: "fold_all",
@@ -23,6 +24,7 @@ export function createHeaderGroupContainerContextMenu(
       execute: (env) => {
         env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
       },
+      icon: "o-spreadsheet-Icon.COLLAPSE",
     },
   ]);
 }
@@ -49,6 +51,11 @@ export function getHeaderGroupContextMenu(
         const sheetId = env.model.getters.getActiveSheetId();
         interactiveToggleGroup(env, sheetId, dimension, start, end);
       },
+      icon: (env) => {
+        const sheetId = env.model.getters.getActiveSheetId();
+        const groupIsFolded = env.model.getters.isGroupFolded(sheetId, dimension, start, end);
+        return groupIsFolded ? "o-spreadsheet-Icon.EXPAND" : "o-spreadsheet-Icon.COLLAPSE";
+      },
     },
     {
       id: "remove_group",
@@ -57,6 +64,7 @@ export function getHeaderGroupContextMenu(
         const sheetId = env.model.getters.getActiveSheetId();
         env.model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start, end });
       },
+      icon: "o-spreadsheet-Icon.TRASH",
       separator: true,
     },
   ]);
