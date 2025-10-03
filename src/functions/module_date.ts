@@ -24,9 +24,9 @@ import {
   numberToJsDate,
   parseDateTime,
 } from "@odoo/o-spreadsheet-engine/helpers/dates";
+import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { getDateTimeFormat } from "../helpers/locale";
 import {
   AddFunctionDescription,
   Arg,

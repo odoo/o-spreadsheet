@@ -1,5 +1,6 @@
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
@@ -22,7 +23,6 @@ import {
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
-import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,

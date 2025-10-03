@@ -1,5 +1,5 @@
+import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { CommandResult, Model } from "../../src";
-import { getDateTimeFormat } from "../../src/helpers/locale";
 import { DEFAULT_LOCALE, Locale } from "../../src/types/locale";
 import {
   redo,

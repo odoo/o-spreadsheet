@@ -1,7 +1,7 @@
+import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
-import { canonicalizeContent } from "../../../../helpers/locale";
 import {
   criterionComponentRegistry,
   getCriterionMenuItems,

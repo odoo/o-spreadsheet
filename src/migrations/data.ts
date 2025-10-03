@@ -1,7 +1,7 @@
 import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
+import { isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { UuidGenerator, getDuplicateSheetName, getNextSheetName } from "../helpers/index";
-import { isValidLocale } from "../helpers/locale";
 import {
   CoreCommand,
   DEFAULT_LOCALE,

@@ -5,6 +5,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { localizeFormula } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import {
   CellPosition,
   HeaderIndex,
@@ -25,7 +26,6 @@ import {
   range,
   splitTextToWidth,
 } from "../../helpers/index";
-import { localizeFormula } from "../../helpers/locale";
 import { CellValueType, Command, CommandResult, LocalCommand, Rect, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 

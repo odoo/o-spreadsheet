@@ -1,6 +1,6 @@
+import { localizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Token, rangeTokenize } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
-import { localizeContent } from "../../../helpers/locale";
 import { setXcToFixedReferenceType } from "../../../helpers/reference_type";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Get } from "../../../store_engine";

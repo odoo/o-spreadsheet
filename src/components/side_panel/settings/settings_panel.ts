@@ -1,6 +1,6 @@
+import { getDateTimeFormat, isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Component, onWillStart } from "@odoo/owl";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
-import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";

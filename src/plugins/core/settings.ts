@@ -1,4 +1,4 @@
-import { getDateTimeFormat, isValidLocale } from "../../helpers/locale";
+import { getDateTimeFormat, isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import {
   CommandResult,
   CoreCommand,

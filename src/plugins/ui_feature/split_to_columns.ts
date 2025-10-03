@@ -1,6 +1,6 @@
 import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
+import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { range } from "../../helpers";
-import { canonicalizeNumberContent } from "../../helpers/locale";
 import {
   CellPosition,
   CellValueType,
