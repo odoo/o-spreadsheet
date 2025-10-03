@@ -246,8 +246,16 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       const cell = this.getters.getCell(position);
       if (cell?.isFormula) {
         const pivotFunction = getFirstPivotFunction(cell.compiledFormula.tokens);
-        const pivotFormulaId = pivotFunction?.args[0]?.value;
-        if (pivotFunction && updatedPivotFormulaId === pivotFormulaId.toString()) {
+        const pivotArg = pivotFunction?.args[0];
+        const pivotFormulaId =
+          pivotArg && (pivotArg.type === "STRING" || pivotArg.type === "NUMBER")
+            ? pivotArg.value
+            : undefined;
+        if (
+          pivotFunction &&
+          pivotFormulaId !== undefined &&
+          updatedPivotFormulaId === pivotFormulaId.toString()
+        ) {
           if (pivotFunction.functionName === "PIVOT") {
             // if we have at least one dynamic pivot visible inserted the viewport
             // we return false
