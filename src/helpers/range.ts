@@ -1,5 +1,11 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { numberToLetters } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import {
+  getCanonicalSymbolName,
+  groupConsecutive,
+  largeMax,
+  largeMin,
+} from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
@@ -22,7 +28,6 @@ import {
   ZoneDimension,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
 import {
   boundUnboundedZone,

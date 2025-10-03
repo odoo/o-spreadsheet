@@ -1,4 +1,12 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  escapeRegExp,
+  insertItemsAtIndex,
+  memoize,
+  range,
+  removeIndexesFromArray,
+  replaceItemAtIndex,
+} from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { _t } from "../../translation";
 import {
   CellValue,
@@ -12,14 +20,6 @@ import {
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
-import {
-  escapeRegExp,
-  insertItemsAtIndex,
-  memoize,
-  range,
-  removeIndexesFromArray,
-  replaceItemAtIndex,
-} from "../misc";
 import {
   DateInternalFormat,
   InternalFormat,

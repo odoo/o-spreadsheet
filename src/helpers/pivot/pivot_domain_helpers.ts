@@ -1,3 +1,4 @@
+import { clip, deepCopy, deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { CellValue } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   DimensionTree,
@@ -8,7 +9,6 @@ import {
   PREVIOUS_VALUE,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Pivot } from "../../types";
-import { clip, deepCopy, deepEquals } from "../misc";
 
 export function getDomainOfParentRow(pivot: Pivot, domain: PivotDomain): PivotDomain {
   const { colDomain, rowDomain } = domainToColRowDomain(pivot, domain);

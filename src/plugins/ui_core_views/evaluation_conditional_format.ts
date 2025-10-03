@@ -2,6 +2,7 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { clip, largeMax, largeMin, lazy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   CoreViewCommand,
   invalidateEvaluationCommands,
@@ -9,7 +10,6 @@ import {
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
-import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellIsRule,

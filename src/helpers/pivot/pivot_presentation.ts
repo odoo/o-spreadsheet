@@ -3,7 +3,11 @@ import { handleError } from "../../functions";
 import { ModelConfig } from "../../model";
 import { _t } from "../../translation";
 
-import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc";
+import {
+  deepEquals,
+  removeDuplicates,
+  transpose2dPOJO,
+} from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   domainToColRowDomain,
   domainToString,

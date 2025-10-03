@@ -1,6 +1,5 @@
 // HELPERS
 import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../../../../src/helpers/dates";
-import { memoize } from "../../../../src/helpers/misc";
 import { isNumber, parseNumber } from "../../../../src/helpers/numbers";
 import { _t } from "../../../../src/translation";
 import {
@@ -21,6 +20,7 @@ import {
   NotAvailableError,
   errorTypes,
 } from "../../../../src/types/errors";
+import { memoize } from "../helpers/misc2";
 import { LookupCaches } from "../types/functions";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];

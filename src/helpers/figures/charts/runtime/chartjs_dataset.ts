@@ -7,6 +7,7 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { isDefined, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
@@ -51,7 +52,6 @@ import {
   setColorAlpha,
 } from "../../../color";
 import { formatValue } from "../../../format/format";
-import { isDefined, range } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,

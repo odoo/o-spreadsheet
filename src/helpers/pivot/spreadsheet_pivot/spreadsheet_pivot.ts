@@ -1,5 +1,6 @@
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { deepEquals, isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   Granularity,
   PivotDimension,
@@ -27,7 +28,6 @@ import {
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { formatValue, isDateTimeFormat } from "../../format/format";
-import { deepEquals, isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,

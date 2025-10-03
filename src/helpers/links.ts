@@ -1,7 +1,13 @@
+import {
+  isMarkdownLink,
+  isSheetUrl,
+  isWebLink,
+  parseMarkdownLink,
+  parseSheetUrl,
+} from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "../translation";
 import { CellValue, CommandResult, Getters, Link, SpreadsheetChildEnv } from "../types";
-import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
 
 /**
  * Add the `https` prefix to the url if it's missing

@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
 // Miscellaneous
 //------------------------------------------------------------------------------
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "@odoo/o-spreadsheet-engine/constants";
-import { escapeRegExp as engineEscapeRegExp } from "@odoo/o-spreadsheet-engine/helpers/misc";
-import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
-import { Cloneable, DebouncedFunction, Style } from "@odoo/o-spreadsheet-engine/types/misc";
-import { ChartStyle, ConsecutiveIndexes, Lazy, UID } from "../types";
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../constants";
+import { escapeRegExp as engineEscapeRegExp } from "../helpers/misc";
+import { ChartStyle } from "../types/chart";
+import { SearchOptions } from "../types/find_and_replace";
+import { Cloneable, ConsecutiveIndexes, DebouncedFunction, Lazy, Style, UID } from "../types/misc";
 
 export {
   escapeRegExp,
@@ -17,7 +17,7 @@ export {
   TokenizingChars,
   unquote,
   whiteSpaceCharacters,
-} from "@odoo/o-spreadsheet-engine/helpers/misc";
+} from "../helpers/misc";
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 

@@ -1,7 +1,7 @@
+import { concat } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
-import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
 

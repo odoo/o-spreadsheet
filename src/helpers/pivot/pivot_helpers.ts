@@ -14,6 +14,7 @@ import {
   toString,
   toValue,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { getUniqueText, isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   Granularity,
@@ -38,7 +39,6 @@ import {
   Pivot,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
-import { getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 

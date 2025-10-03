@@ -1,5 +1,5 @@
+import { deepEquals, groupConsecutive } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
-import { deepEquals, groupConsecutive } from "../helpers/misc";
 import { ZoneBorder, ZoneBorderData } from "../plugins/core";
 import {
   BorderDescr,

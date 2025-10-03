@@ -1,8 +1,7 @@
-import { RangeAdapter } from "src/types/misc";
-import { deepCopy } from "../../../../../src/helpers";
 import { transformDefinition } from "../../../../../src/helpers/figures/charts";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../../../../src/helpers/formulas";
 import { specificRangeTransformRegistry } from "../../../../../src/registries/srt_registry";
+import { deepCopy } from "../../helpers/misc2";
 import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
@@ -12,6 +11,7 @@ import {
   UpdateChartCommand,
   UpdatePivotCommand,
 } from "../../types/commands";
+import { RangeAdapter } from "../../types/misc";
 
 function updateCellCommandAdaptRange(
   cmd: UpdateCellCommand,

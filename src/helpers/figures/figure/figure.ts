@@ -1,5 +1,5 @@
+import { deepCopy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { AnchorOffset, FigureSize, Getters } from "../../../types";
-import { deepCopy } from "../../misc";
 
 export function centerFigurePosition(getters: Getters, size: FigureSize): AnchorOffset {
   const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();

@@ -1,5 +1,6 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "@odoo/o-spreadsheet-engine/constants";
+import { isDefined, largeMax } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   ChartAxisFormats,
   ChartWithDataSetDefinition,
@@ -31,7 +32,6 @@ import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
-import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";

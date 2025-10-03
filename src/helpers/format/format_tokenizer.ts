@@ -1,4 +1,4 @@
-import { TokenizingChars } from "../misc";
+import { TokenizingChars } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 
 export interface DigitToken {
   type: "DIGIT";

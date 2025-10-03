@@ -1,6 +1,6 @@
 import { Color, HSLA, RGBA } from "../types";
 
-import { concat } from "./misc";
+import { concat } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;
 const HEX_MATCH = /^#([A-F\d]{2}){3,4}$/;

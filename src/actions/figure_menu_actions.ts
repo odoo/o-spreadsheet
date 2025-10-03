@@ -1,8 +1,8 @@
+import { deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { deepEquals } from "../helpers/misc";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";

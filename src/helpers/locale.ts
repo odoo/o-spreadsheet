@@ -1,4 +1,5 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { deepCopy, isFormula } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { tokenize } from "../formulas/tokenizer";
 import {
   ColorScaleThreshold,
@@ -10,7 +11,6 @@ import {
 } from "../types";
 import { isDateTime } from "./dates";
 import { formatValue, getDecimalNumberRegex } from "./format/format";
-import { deepCopy, isFormula } from "./misc";
 import { isNumber } from "./numbers";
 
 export function isValidLocale(locale: any): locale is Locale {

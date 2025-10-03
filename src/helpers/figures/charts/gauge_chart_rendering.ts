@@ -4,9 +4,9 @@ import {
   CHART_TITLE_FONT_SIZE,
   DEFAULT_FONT,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { clip } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { GaugeAnimatedRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Color, PixelPosition, Rect } from "../../../types";
-import { clip } from "../../misc";
 import {
   computeTextDimension,
   computeTextWidth,

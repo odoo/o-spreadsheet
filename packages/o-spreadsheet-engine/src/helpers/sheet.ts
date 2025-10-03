@@ -1,6 +1,6 @@
-import { getUnquotedSheetName, isDefined } from "../../../../src/helpers/misc";
 import { _t } from "../translation";
 import { HeaderIndex, Row } from "../types/misc";
+import { getUnquotedSheetName, isDefined } from "./misc2";
 
 export function createDefaultRows(rowNumber: number): Row[] {
   const rows: Row[] = [];

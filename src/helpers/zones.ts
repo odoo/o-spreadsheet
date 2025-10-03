@@ -7,6 +7,7 @@ import {
   numberToLetters,
   toXC,
 } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { TokenizingChars, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   AdjacentEdge,
   CellPosition,
@@ -16,7 +17,6 @@ import {
   Zone,
   ZoneDimension,
 } from "../types";
-import { TokenizingChars, range } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 
 /**

@@ -1,3 +1,4 @@
+import { toExcelDataset, toExcelLabelRange } from "../../../../../../src/helpers/figures/charts";
 import { UID } from "../../../types/base";
 import {
   ChartCreationContext,

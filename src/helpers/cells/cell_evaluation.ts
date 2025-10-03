@@ -1,4 +1,5 @@
 import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isBoolean, memoize } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   BooleanCell,
   Cell,
@@ -24,7 +25,6 @@ import {
   isTextFormat,
 } from "../format/format";
 import { detectLink } from "../links";
-import { isBoolean, memoize } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
 
 export function evaluateLiteral(

@@ -7,8 +7,8 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { isMarkdownLink, parseMarkdownLink } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { Cell, Pixel, PixelPosition, Style } from "../types";
-import { isMarkdownLink, parseMarkdownLink } from "./misc";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;

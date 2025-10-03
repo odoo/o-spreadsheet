@@ -1,5 +1,5 @@
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { Format } from "../../types";
-import { isDefined } from "../misc";
 import {
   CharToken,
   DatePartToken,
