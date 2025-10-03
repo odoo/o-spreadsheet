@@ -1,4 +1,22 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import {
+  Command,
+  CommandHandler,
+  CommandResult,
+  CoreCommand,
+} from "@odoo/o-spreadsheet-engine/types/commands";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  ApplyRangeChangeResult,
+  Dimension,
+  RangeProvider,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "@odoo/o-spreadsheet-engine/types/misc";
+import { Range, RangeData, RangeStringOptions } from "@odoo/o-spreadsheet-engine/types/range";
 import { compile } from "../../formulas";
 import {
   createInvalidRange,
@@ -16,24 +34,6 @@ import {
   splitReference,
   unionUnboundedZones,
 } from "../../helpers/index";
-import { CellErrorType } from "../../types/errors";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  ApplyRangeChangeResult,
-  Command,
-  CommandHandler,
-  CommandResult,
-  CoreCommand,
-  Dimension,
-  Range,
-  RangeData,
-  RangeProvider,
-  RangeStringOptions,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "../../types/index";
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
