@@ -1,4 +1,4 @@
-import { CellIsRule, Model } from "../../src";
+import { CellErrorType, CellIsRule, Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -659,6 +659,49 @@ describe("Collaborative Sheet manipulation", () => {
         ]
       );
     });
+
+    test("Concurrent conditional format update and delete sheet", () => {
+      const sheetId = bob.getters.getActiveSheetId();
+      const secondSheetId = "42";
+      const secondSheetName = "SecondSheet";
+      createSheet(alice, { sheetId: secondSheetId, name: secondSheetName, activate: true });
+      const cf = createEqualCF(`=${secondSheetName}!A1`, { fillColor: "#FF0000" }, "1");
+      network.concurrent(() => {
+        deleteSheet(alice, secondSheetId);
+        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          ranges: toRangesData(sheetId, "A2"),
+        });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A2"],
+            rule: {
+              ...cf.rule,
+              values: [`=${CellErrorType.InvalidReference}`],
+            } as CellIsRule,
+          },
+        ]
+      );
+      undo(alice);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getConditionalFormats(sheetId),
+        [
+          {
+            id: "1",
+            ranges: ["A2"],
+            rule: {
+              ...cf.rule,
+              values: [`=${CellErrorType.InvalidReference}`],
+            } as CellIsRule,
+          },
+        ]
+      );
+    });
   });
 
   describe("Chart creation & update", () => {
@@ -1205,6 +1248,67 @@ test("concurrent pivot computed measure and rename sheet", () => {
         fieldName: "mm",
         aggregator: "sum",
         computedBy: { formula: `=${sheetName}!A1*2`, sheetId },
+      },
+    ]
+  );
+});
+
+test("concurrent pivot computed measure and delete sheet", () => {
+  const sheetId = "sid";
+  const sheetName = "SheetName";
+
+  const secondSheetId = "42";
+  const secondSheetName = "SecondSheet";
+  const { network, alice, bob, charlie } = setupCollaborativeEnv({
+    sheets: [{ id: sheetId, name: sheetName }],
+  });
+  createSheet(bob, { sheetId: secondSheetId, name: secondSheetName });
+
+  setCellContent(alice, "A1", "1", sheetId);
+  setCellContent(alice, "B1", "2", sheetId);
+  setCellContent(alice, "A2", "3", sheetId);
+  setCellContent(alice, "B2", "4", sheetId);
+
+  network.concurrent(() => {
+    deleteSheet(alice, secondSheetId);
+    addPivot(
+      bob,
+      "A1:B2",
+      {
+        measures: [
+          {
+            id: "measure",
+            fieldName: "mm",
+            aggregator: "sum",
+            computedBy: { formula: `=${secondSheetName}!A1*2`, sheetId: secondSheetId },
+          },
+        ],
+      },
+      "pivot1"
+    );
+  });
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getPivotCoreDefinition("pivot1").measures,
+    [
+      {
+        id: "measure",
+        fieldName: "mm",
+        aggregator: "sum",
+        computedBy: { formula: `=${CellErrorType.InvalidReference}*2`, sheetId: secondSheetId },
+      },
+    ]
+  );
+
+  undo(alice);
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getPivotCoreDefinition("pivot1").measures,
+    [
+      {
+        id: "measure",
+        fieldName: "mm",
+        aggregator: "sum",
+        computedBy: { formula: `=${CellErrorType.InvalidReference}*2`, sheetId: secondSheetId },
       },
     ]
   );
