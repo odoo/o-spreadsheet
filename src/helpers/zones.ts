@@ -8,6 +8,7 @@ import {
   toXC,
 } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { TokenizingChars, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import {
   AdjacentEdge,
   CellPosition,
@@ -17,7 +18,6 @@ import {
   Zone,
   ZoneDimension,
 } from "../types";
-import { recomputeZones } from "./recompute_zones";
 
 /**
  * Convert from a cartesian reference to a Zone

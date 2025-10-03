@@ -8,6 +8,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import {
   AxisType,
   BarChartDefinition,
@@ -42,7 +43,6 @@ import {
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isDateTimeFormat } from "../../../format/format";
 import { isNumber } from "../../../numbers";
-import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
 import { shouldRemoveFirstLabel } from "../chart_common";
 

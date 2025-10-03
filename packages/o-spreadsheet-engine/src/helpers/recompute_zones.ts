@@ -1,5 +1,5 @@
-import { deepEqualsArray } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { UnboundedZone, Zone } from "../types";
+import { UnboundedZone, Zone } from "../types/misc";
+import { deepEqualsArray } from "./misc2";
 
 /**
  * ####################################################

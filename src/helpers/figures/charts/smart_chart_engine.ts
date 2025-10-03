@@ -3,9 +3,9 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
 import { isDateTimeFormat } from "../../format/format";
-import { recomputeZones } from "../../recompute_zones";
 import { getZoneArea, getZonesByColumns, zoneToXc } from "../../zones";
 
 type ColumnType = "number" | "text" | "date" | "percentage" | "empty";
