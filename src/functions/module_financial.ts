@@ -68,6 +68,7 @@ import {
   transposeMatrix,
   visitNumbers,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { DAYS } from "@odoo/o-spreadsheet-engine/functions/module_date";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
@@ -78,7 +79,6 @@ import {
   range,
 } from "../helpers";
 import { AddFunctionDescription, Arg, FunctionResultObject, Locale, Matrix, Maybe } from "../types";
-import { DAYS } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;

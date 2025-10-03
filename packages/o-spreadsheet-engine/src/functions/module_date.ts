@@ -1,14 +1,3 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { assert } from "@odoo/o-spreadsheet-engine/functions/helper_assert";
-import { DAY_COUNT_CONVENTION_OPTIONS } from "@odoo/o-spreadsheet-engine/functions/helper_financial";
-import {
-  expectStringSetError,
-  toBoolean,
-  toJsDate,
-  toNumber,
-  toString,
-  visitAny,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import {
   addMonthsToDate,
   areTwoDatesWithinOneYear,
@@ -23,17 +12,17 @@ import {
   MS_PER_DAY,
   numberToJsDate,
   parseDateTime,
-} from "@odoo/o-spreadsheet-engine/helpers/dates";
-import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  AddFunctionDescription,
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Maybe,
-} from "../types";
+} from "../helpers/dates";
+import { getDateTimeFormat } from "../helpers/locale";
+import { _t } from "../translation";
+import { FunctionResultObject, Maybe } from "../types/base";
+import { EvaluationError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { Arg, FunctionResultNumber } from "../types/misc";
+import { arg } from "./arguments";
+import { assert } from "./helper_assert";
+import { DAY_COUNT_CONVENTION_OPTIONS } from "./helper_financial";
+import { expectStringSetError, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const DEFAULT_TYPE = 1;
 const DEFAULT_WEEKEND = 1;
