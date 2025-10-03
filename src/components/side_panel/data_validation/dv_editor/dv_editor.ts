@@ -33,6 +33,7 @@ interface Props {
 interface State {
   rule: DataValidationRuleData;
   errors: CancelledReason[];
+  isTypeUpdated: boolean;
 }
 
 export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -44,7 +45,11 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     onCloseSidePanel: { type: Function, optional: true },
   };
 
-  state = useState<State>({ rule: this.defaultDataValidationRule, errors: [] });
+  state = useState<State>({
+    rule: this.defaultDataValidationRule,
+    errors: [],
+    isTypeUpdated: false,
+  });
   private editingSheetId!: UID;
 
   setup() {
@@ -62,6 +67,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
   onCriterionTypeChanged(type: DataValidationCriterionType) {
     this.state.rule.criterion.type = type;
+    this.state.isTypeUpdated = true;
   }
 
   onRangesChanged(ranges: string[]) {

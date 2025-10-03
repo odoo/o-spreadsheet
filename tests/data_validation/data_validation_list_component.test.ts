@@ -82,6 +82,15 @@ describe("Edit criterion in side panel", () => {
       expect(inputs[0].innerText).toBe("hola");
     });
 
+    test("first input is focused when criterion type is changed", async () => {
+      expect(document.activeElement).not.toBe(fixture.querySelector(".o-dv-input input"));
+      await click(fixture, ".o-dv-type");
+      await click(fixture, `.o-menu-item[data-name="containsText"]`);
+      await click(fixture, ".o-dv-type");
+      await click(fixture, `.o-menu-item[data-name="isValueInList"]`);
+      expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input input"));
+    });
+
     test("Can add a new value", async () => {
       await click(fixture, ".o-dv-list-add-value");
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
@@ -200,6 +209,15 @@ describe("Edit criterion in side panel", () => {
       setInputValueAndTrigger(rangeInput, "B1:B9");
       await click(fixture, ".o-dv-save");
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["B1:B9"]);
+    });
+
+    test("range input is focused when criterion type is changed", async () => {
+      expect(".o-dv-settings .o-selection-input input").not.toHaveClass("o-focused");
+      await click(fixture, ".o-dv-type");
+      await click(fixture, `.o-menu-item[data-name="containsText"]`);
+      await click(fixture, ".o-dv-type");
+      await click(fixture, `.o-menu-item[data-name="isValueInRange"]`);
+      expect(".o-dv-settings .o-selection-input input").toHaveClass("o-focused");
     });
 
     test("Can change display style", () => {

@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { useStore } from "../../../store_engine";
 import { GenericCriterion } from "../../../types";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
@@ -8,6 +8,7 @@ interface Props<T extends GenericCriterion> {
   criterion: T;
   onCriterionChanged: (criterion: T) => void;
   disableFormulas?: boolean;
+  autofocus?: boolean;
 }
 
 export abstract class CriterionForm<
@@ -17,12 +18,13 @@ export abstract class CriterionForm<
     criterion: Object,
     onCriterionChanged: Function,
     disableFormulas: { type: Boolean, optional: true },
+    autofocus: { type: Boolean, optional: true },
   };
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
-    onMounted(() => {
+    if (composerFocusStore.activeComposer.editionMode !== "inactive") {
       composerFocusStore.activeComposer.stopEdition();
-    });
+    }
   }
 
   updateCriterion(criterion: Partial<T>) {
