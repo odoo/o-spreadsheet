@@ -2,13 +2,12 @@
   <t t-name="o-spreadsheet.PieHoleSize">
     <Section class="'pt-0'" title.translate="Center radius">
       <div class="d-flex flex-row">
-        <input
-          t-att-value="props.value"
-          type="number"
-          class="o-input o-pie-hole-size-input"
+        <NumberInput
+          value="props.value"
+          class="'o-pie-hole-size-input'"
           min="0"
           max="95"
-          t-on-change="(ev) => debouncedOnChange(ev.target.value)"
+          onChange.bind="debouncedOnChange"
         />
         %
       </div>

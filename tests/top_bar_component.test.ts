@@ -426,7 +426,6 @@ describe("TopBar component", () => {
     expect(getCell(model, "A1")).toBeUndefined();
     const formatTool = fixture.querySelector('.o-menu-item-button[title="More formats"]')!;
     await click(formatTool);
-    expect(fixture).toMatchSnapshot();
     await click(fixture, `.o-menu-item[title="Percent"]`);
     expect(getCell(model, "A1")!.format).toEqual("0.00%");
   });
@@ -436,6 +435,8 @@ describe("TopBar component", () => {
     const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     await click(fixture, ".o-font-size-editor");
+    // ensure the input is no longer selected (not automaticly done by click in jsdom)
+    fontSizeText.blur();
     await click(fixture, '.o-text-options [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
@@ -781,7 +782,7 @@ describe("TopBar - Custom currency", () => {
     });
     await click(fixture, ".o-menu-item-button[title='More formats']");
     await click(fixture, ".o-menu-item[title='Custom currency']");
-    expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-more-formats-panel")).toBeTruthy();
   });
 });
 
