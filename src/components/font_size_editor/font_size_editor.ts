@@ -1,7 +1,14 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillUpdateProps,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
 import { clip } from "../../helpers/index";
-import { SpreadsheetChildEnv } from "../../types/index";
+import { Ref, SpreadsheetChildEnv } from "../../types/index";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 
@@ -36,12 +43,23 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 
   dropdown: State = useState({ isOpen: false });
 
-  private inputRef = useRef("inputFontSize");
+  private inputRef: Ref<HTMLInputElement> = useRef("inputFontSize");
   private rootEditorRef = useRef("FontSizeEditor");
   private fontSizeListRef = useRef("fontSizeList");
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    onWillUpdateProps((newProps) => {
+      if (this.inputRef.el && document.activeElement !== this.inputRef.el) {
+        this.inputRef.el.value = newProps.currentFontSize;
+      }
+    });
+
+    onMounted(() => {
+      if (this.inputRef.el) {
+        this.inputRef.el.value = this.props.currentFontSize.toString();
+      }
+    });
   }
 
   get popoverProps(): PopoverProps {
