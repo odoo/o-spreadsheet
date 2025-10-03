@@ -3,6 +3,7 @@ import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
+import { applyZoomRect } from "../helpers/zoom";
 import { CSSProperties } from "./../../types/misc";
 
 type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -84,7 +85,11 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     const el = this.popoverRef.el!;
     const contentEl = this.popoverContentRef.el!;
 
-    const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
+    const containerRect = applyZoomRect(
+      this.env.model.getters.getViewportZoomLevel(),
+      this.containerRect
+    );
+    const anchor = rectIntersection(this.props.anchorRect, containerRect);
     const newDisplay: DisplayValue = anchor ? "block" : "none";
     if (this.currentDisplayValue !== "none" && newDisplay === "none") {
       this.props.onPopoverHidden?.();
@@ -106,14 +111,14 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       this.props.positioning === "bottom-left"
         ? new BottomLeftPopoverContext(
             anchor,
-            this.containerRect,
+            containerRect,
             propsMaxSize,
             spreadsheetRect,
             this.currentPosition
           )
         : new TopRightPopoverContext(
             anchor,
-            this.containerRect,
+            containerRect,
             propsMaxSize,
             spreadsheetRect,
             this.currentPosition

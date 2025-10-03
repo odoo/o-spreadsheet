@@ -10,7 +10,7 @@ import {
   toHex,
   toZone,
 } from "../../src/helpers";
-import { DOMCoordinates, Pixel } from "../../src/types";
+import { DOMCoordinates, HeaderIndex, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
 export type DOMTarget = string | Element | Document | Window | null;
@@ -146,17 +146,49 @@ export async function hoverCell(model: Model, xc: string, delay: number) {
 export async function clickCell(
   model: Model,
   xc: string,
-  extra: MouseEventInit = { bubbles: true }
+  extra: MouseEventInit = { bubbles: true },
+  option: { clickInMiddle: boolean } = { clickInMiddle: false }
 ) {
   const zone = toZone(xc);
   const sheetId = model.getters.getActiveSheetId();
   if (!model.getters.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
-  let { x, y } = model.getters.getVisibleRect(zone);
+  let { x, y, width, height } = model.getters.getVisibleRectWithZoom(zone);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
+  }
+  if (option.clickInMiddle) {
+    x += width / 2;
+    y += height / 2;
+  }
+  await simulateClick(".o-grid-overlay", Math.ceil(x), Math.ceil(y), extra);
+}
+
+export async function clickHeader(
+  model: Model,
+  dim: "COL" | "ROW",
+  header: HeaderIndex,
+  extra: MouseEventInit = { bubbles: true }
+) {
+  let x = 1;
+  let y = 1;
+  const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
+  if (dim === "COL") {
+    x = model.getters.getVisibleRectWithZoom({
+      left: header,
+      right: header,
+      top: sheetZone.top,
+      bottom: sheetZone.bottom,
+    }).x;
+  } else {
+    y = model.getters.getVisibleRectWithZoom({
+      left: sheetZone.left,
+      right: sheetZone.right,
+      top: header,
+      bottom: header,
+    }).y;
   }
   await simulateClick(".o-grid-overlay", x, y, extra);
 }

@@ -263,9 +263,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   get gridContainerStyle(): string {
     const gridColSize = GROUP_LAYER_WIDTH * this.rowLayers.length;
     const gridRowSize = GROUP_LAYER_WIDTH * this.colLayers.length;
+    const zoom = this.env.model.getters.getViewportZoomLevel();
     return cssPropertiesToCss({
       "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
       "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
+      zoom: `${zoom}`,
     });
   }
 
@@ -280,6 +282,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   getGridSize() {
+    const zoom = this.env.model.getters.getViewportZoomLevel();
     const topBarHeight =
       this.spreadsheetRef.el
         ?.querySelector(".o-spreadsheet-topbar-wrapper")
@@ -298,8 +301,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       topBarHeight -
       bottomBarHeight;
     return {
-      width: Math.max(gridWidth - SCROLLBAR_WIDTH, 0),
-      height: Math.max(gridHeight - SCROLLBAR_WIDTH, 0),
+      width: Math.max(gridWidth / zoom - SCROLLBAR_WIDTH, 0),
+      height: Math.max(gridHeight / zoom - SCROLLBAR_WIDTH, 0),
     };
   }
 }
