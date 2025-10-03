@@ -1,7 +1,7 @@
+import { RAND, RANDARRAY, RANDBETWEEN } from "@odoo/o-spreadsheet-engine/functions/module_math";
 import { XLSXExportXMLFile, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { arg, functionRegistry } from "../../src/functions";
 import { NOW, TODAY } from "../../src/functions/module_date";
-import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";

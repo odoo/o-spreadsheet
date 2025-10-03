@@ -1,7 +1,22 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { assertNotZero } from "@odoo/o-spreadsheet-engine/functions/helper_assert";
-import { countUnique, sum } from "@odoo/o-spreadsheet-engine/functions/helper_math";
-import { getUnitMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { splitReference } from "../helpers";
+import { isSubtotalCell } from "../helpers/is_subtotal_cell";
+import { toZone } from "../helpers/zones";
+import { _t } from "../translation";
+import { EvaluatedCell } from "../types/cells";
+import { DivisionByZeroError, EvaluationError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import {
+  Arg,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  isMatrix,
+} from "../types/misc";
+import { arg } from "./arguments";
+import { assertNotZero } from "./helper_assert";
+import { countUnique, sum } from "./helper_math";
+import { getUnitMatrix } from "./helper_matrices";
 import {
   generateMatrix,
   inferFormat,
@@ -14,21 +29,7 @@ import {
   toNumber,
   toString,
   visitMatchingRanges,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { DivisionByZeroError, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { splitReference, toZone } from "../helpers";
-import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
-import {
-  AddFunctionDescription,
-  Arg,
-  EvaluatedCell,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types";
+} from "./helpers";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;

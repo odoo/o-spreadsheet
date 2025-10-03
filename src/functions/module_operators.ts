@@ -4,6 +4,7 @@ import {
   toNumber,
   toString,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { POWER } from "@odoo/o-spreadsheet-engine/functions/module_math";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { DivisionByZeroError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
@@ -12,7 +13,6 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
 // ADD
