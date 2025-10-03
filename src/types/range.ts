@@ -18,6 +18,11 @@ export interface Range {
   readonly sheetId: UID;
 }
 
+export interface BoundedRange {
+  sheetId: UID;
+  zone: Zone;
+}
+
 export interface RangeStringOptions {
   useBoundedReference?: boolean;
   useFixedReference?: boolean;
