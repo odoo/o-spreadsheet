@@ -4,24 +4,36 @@ import {
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { getZoneArea, getZonesByColumns, zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { BarChartDefinition, LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
 
 type ColumnType = "number" | "text" | "date" | "percentage" | "empty";
+
+const DEFAULT_BAR_CHART_CONFIG: BarChartDefinition = {
+  type: "bar",
+  title: {},
+  dataSets: [],
+  legendPosition: "none",
+  dataSetsHaveTitle: false,
+  stacked: false,
+};
+
+const DEFAULT_LINE_CHART_CONFIG: LineChartDefinition = {
+  type: "line",
+  title: {},
+  dataSets: [],
+  legendPosition: "none",
+  dataSetsHaveTitle: false,
+  stacked: false,
+  cumulative: false,
+  labelsAsText: false,
+};
 
 interface ColumnInfo {
   zone: Zone;
   type: ColumnType;
 }
-
-const CHART_LIMITS = {
-  MAX_PIE_CATEGORIES: 7,
-  MAX_PIE_CATEGORIES_NO_TITLE: 6,
-  MIN_RADAR_CATEGORIES: 3,
-  MAX_RADAR_CATEGORIES: 12,
-  PERCENTAGE_THRESHOLD: 100,
-} as const;
 
 function getUnboundRange(getters: Getters, zone: Zone): string {
   return zoneToXc(getters.getUnboundedZone(getters.getActiveSheetId(), zone));
@@ -58,48 +70,21 @@ function detectColumnType(cells: EvaluatedCell[]): ColumnType {
   return detectedType;
 }
 
-function categorizeColumns(
-  zones: Zone[],
-  getters: Getters
-): Record<"number" | "text" | "date", ColumnInfo[]> {
-  const columns: Record<"number" | "text" | "date", ColumnInfo[]> = {
-    number: [],
-    text: [],
-    date: [],
-  };
+function categorizeColumns(zones: Zone[], getters: Getters): ColumnInfo[] {
+  const columns: ColumnInfo[] = [];
   for (const zone of getZonesByColumns(zones)) {
     const cells = getters.getEvaluatedCellsInZone(getters.getActiveSheetId(), zone);
-    const type = detectColumnType(cells);
-    if (type !== "empty") {
-      const targetType = type === "percentage" ? "number" : type;
-      columns[targetType].push({ zone, type });
-    }
+    columns.push({ zone, type: detectColumnType(cells) });
   }
   return columns;
 }
 
 function getCellStats(getters: Getters, zone: Zone) {
   const cells = getters.getEvaluatedCellsInZone(getters.getActiveSheetId(), zone);
-  const uniqueValues = new Set<string>();
-  let totalCount = 0;
-  let percentageSum = 0;
-  for (let i = 0; i < cells.length; i++) {
-    const { value } = cells[i];
-    const str = value?.toString().trim();
-    if (!str) {
-      continue;
-    }
-    uniqueValues.add(str);
-    totalCount++;
-    const num = Number(value);
-    if (!isNaN(num)) {
-      percentageSum += Math.abs(num) * 100;
-    }
-  }
+  const values = cells.map((c) => c.value?.toString().trim() || "").filter((s) => s);
   return {
-    uniqueCount: uniqueValues.size,
-    totalCount,
-    percentageSum,
+    uniqueCount: new Set(values).size,
+    totalCount: values.length,
   };
 }
 
@@ -112,20 +97,14 @@ function isDatasetTitled(getters: Getters, column: ColumnInfo): boolean {
   return ![CellValueType.number, CellValueType.empty].includes(titleCell.type);
 }
 
-function createBaseChart(
-  type: string,
-  dataSets: any[],
-  options: Partial<ChartDefinition> = {}
-): ChartDefinition {
-  return {
-    type,
-    title: {},
-    dataSets,
-    legendPosition: "none",
-    ...options,
-  } as ChartDefinition;
-}
-
+/**
+ * Builds a chart definition for a single column selection. The logic to detect the chart type is as follows:
+ * - If the column contains a single cell, create a scorecard.
+ * - If the column type is "percentage", create a pie chart.
+ * - If the column type is "text", create a pie chart
+ * - If the column type is "date", create a line chart.
+ * - Otherwise, create a bar chart.
+ */
 function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefinition {
   const { type, zone } = column;
   const sheetId = getters.getActiveSheetId();
@@ -133,14 +112,19 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
   const dataRange = getUnboundRange(getters, zone);
   const titleCell = getters.getEvaluatedCell({ sheetId, col: zone.left, row: zone.top });
 
+  if (getZoneArea(zone) === 1) {
+    return buildScorecard(zone, getters);
+  }
+
   switch (type) {
     case "percentage":
-      const { percentageSum } = getCellStats(getters, zone);
-      return createBaseChart("pie", [{ dataRange }], {
+      return {
+        type: "pie",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
+        dataSets: [{ dataRange }],
+        legendPosition: "none",
         dataSetsHaveTitle,
-        isDoughnut: percentageSum < CHART_LIMITS.PERCENTAGE_THRESHOLD,
-      });
+      };
 
     case "text":
       const cells = getters.getEvaluatedCellsInZone(sheetId, zone);
@@ -149,181 +133,182 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
         0
       );
       const hasUniqueTitle = titleCell.value !== null && titleCount === 1;
-      return createBaseChart("pie", [{ dataRange }], {
+      return {
+        type: "pie",
         title: hasUniqueTitle ? { text: String(titleCell.value) } : {},
+        dataSets: [{ dataRange }],
         labelRange: dataRange,
         dataSetsHaveTitle: hasUniqueTitle,
-        isDoughnut: false,
         aggregated: true,
         legendPosition: "top",
-      });
+      };
 
-    // TODO: Handle date column with matrix chart when matrix chart is supported
     case "date":
-      return createBaseChart("line", [{ dataRange }], {
-        labelRange: dataRange,
+      return {
+        ...DEFAULT_LINE_CHART_CONFIG,
+        type: "line",
+        title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
+        dataSets: [{ dataRange }],
         dataSetsHaveTitle,
-        cumulative: false,
-        labelsAsText: false,
-      });
+      };
   }
-  return createBaseChart("bar", [{ dataRange }], { dataSetsHaveTitle });
+  return {
+    ...DEFAULT_BAR_CHART_CONFIG,
+    title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
+    dataSets: [{ dataRange }],
+    dataSetsHaveTitle,
+  };
 }
 
-function buildTwoColumnChart(
-  columns: Record<"number" | "text" | "date", ColumnInfo[]>,
-  getters: Getters
-): ChartDefinition {
-  const { number: numberColumns, text: textColumns, date: dateColumns } = columns;
-
-  if (numberColumns.length === 2) {
-    return createBaseChart(
-      "scatter",
-      [{ dataRange: getUnboundRange(getters, numberColumns[1].zone) }],
-      {
-        labelRange: getUnboundRange(getters, numberColumns[0].zone),
-        dataSetsHaveTitle: isDatasetTitled(getters, numberColumns[1]),
-        labelsAsText: false,
-      }
-    );
+/**
+ * Builds a chart definition for a selection of two columns. The logic to detect the chart type always consider the
+ * columns left to right, and is as follows:
+ * - any type + percentage columns: pie chart
+ * - number + number columns: scatter chart
+ * - date + number columns: line chart
+ * - text + number columns: treemap if repetition in labels
+ * - any other combination: bar chart
+ */
+function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefinition {
+  if (columns.length !== 2) {
+    throw new Error("buildTwoColumnChart expects exactly two columns");
   }
 
-  // TODO: Handle date + number with matrix chart when matrix chart is supported
-  if (dateColumns.length === 1 && numberColumns.length === 1) {
-    return createBaseChart(
-      "line",
-      [{ dataRange: getUnboundRange(getters, numberColumns[0].zone) }],
-      {
-        labelRange: getUnboundRange(getters, dateColumns[0].zone),
-        dataSetsHaveTitle: isDatasetTitled(getters, numberColumns[0]),
-        aggregated: false,
-        cumulative: false,
-        labelsAsText: false,
-      }
-    );
+  if (columns[1].type === "percentage") {
+    return {
+      type: "pie",
+      title: {},
+      dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
+      labelRange: getUnboundRange(getters, columns[0].zone),
+      dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
+      aggregated: true,
+      legendPosition: "none",
+    };
   }
 
-  if (textColumns.length === 1 && numberColumns.length === 1) {
-    const [textColumn] = textColumns;
-    const [numberColumn] = numberColumns;
+  if (columns[0].type === "number" && columns[1].type === "number") {
+    return {
+      type: "scatter",
+      title: {},
+      dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
+      labelRange: getUnboundRange(getters, columns[0].zone),
+      dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
+      labelsAsText: false,
+      legendPosition: "none",
+    };
+  }
+
+  // TODO: Handle date + number with calendar chart when implemented (and change the docstring)
+  if (columns[0].type === "date" && columns[1].type === "number") {
+    return {
+      ...DEFAULT_LINE_CHART_CONFIG,
+      type: "line",
+      dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
+      labelRange: getUnboundRange(getters, columns[0].zone),
+      dataSetsHaveTitle: isDatasetTitled(getters, columns[0]),
+    };
+  }
+
+  if (columns[0].type === "text" && columns[1].type === "number") {
+    const textColumn = columns[0];
+    const numberColumn = columns[1];
+
     const { uniqueCount, totalCount } = getCellStats(getters, textColumn.zone);
     const dataSetsHaveTitle = isDatasetTitled(getters, numberColumn);
-    const maxCategories = dataSetsHaveTitle
-      ? CHART_LIMITS.MAX_PIE_CATEGORIES
-      : CHART_LIMITS.MAX_PIE_CATEGORIES_NO_TITLE;
-    const labelRange = getUnboundRange(getters, textColumn.zone);
-    const dataRange = getUnboundRange(getters, numberColumn.zone);
 
-    if (uniqueCount <= maxCategories) {
-      const { percentageSum } = getCellStats(getters, numberColumn.zone);
-      return createBaseChart("pie", [{ dataRange }], {
-        labelRange,
-        dataSetsHaveTitle,
-        isDoughnut:
-          numberColumn.type === "percentage" && percentageSum < CHART_LIMITS.PERCENTAGE_THRESHOLD,
-        aggregated: true,
-        legendPosition: "top",
-      });
-    }
-
-    // Use treemap when categories repeat, as pie chart would be cluttered
     if (uniqueCount !== totalCount) {
-      return createBaseChart("treemap", [{ dataRange: labelRange }], {
-        labelRange: dataRange,
+      return {
+        type: "treemap",
+        title: {},
+        dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone) }],
+        labelRange: getUnboundRange(getters, numberColumn.zone),
         dataSetsHaveTitle,
-      });
+        legendPosition: "none",
+      };
     }
-
-    return createBaseChart("bar", [{ dataRange }], {
-      labelRange,
-      dataSetsHaveTitle,
-    });
   }
 
-  const labelColumn = textColumns[0] || dateColumns[0] || numberColumns[0];
-  const dataColumn = numberColumns[0] || textColumns[0] || dateColumns[0];
-
-  return createBaseChart("line", [{ dataRange: getUnboundRange(getters, dataColumn.zone) }], {
-    labelRange: getUnboundRange(getters, labelColumn.zone),
-    dataSetsHaveTitle: isDatasetTitled(getters, dataColumn),
-    cumulative: false,
-    labelsAsText: true,
-  });
+  return {
+    ...DEFAULT_BAR_CHART_CONFIG,
+    dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
+    labelRange: getUnboundRange(getters, columns[0].zone),
+    dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
+  };
 }
 
-function buildMultiColumnChart(
-  columns: Record<"number" | "text" | "date", ColumnInfo[]>,
-  getters: Getters
-): ChartDefinition {
-  const { number: numberColumns, text: textColumns, date: dateColumns } = columns;
-  const dataSetsHaveTitle = numberColumns.some((col) => isDatasetTitled(getters, col));
-
-  if (textColumns.length >= 2 && numberColumns.length === 1) {
-    const sortedTextColumns = textColumns.sort(
-      (colA, colB) =>
-        getCellStats(getters, colA.zone).uniqueCount - getCellStats(getters, colB.zone).uniqueCount
-    );
-    const dataSets = sortedTextColumns.map(({ zone }) => ({
-      dataRange: getUnboundRange(getters, zone),
-    }));
-    return createBaseChart(textColumns.length >= 3 ? "sunburst" : "treemap", dataSets, {
-      labelRange: getUnboundRange(getters, numberColumns[0].zone),
-      dataSetsHaveTitle,
-    });
+/**
+ * Builds a chart definition for a selection more than two columns. The logic to detect the chart type always consider
+ * the columns left to right, and is as follows:
+ * - multiple text + single number/percentage columns: sunburst if 3+ text columns, treemap otherwise
+ * - any type + multiple percentage columns: pie chart
+ * - date + multiple number columns: line chart
+ * - any other combination: bar chart
+ */
+function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefinition {
+  if (columns.length < 3) {
+    throw new Error("buildMultiColumnChart expects at least three columns");
   }
 
-  const dataSets = recomputeZones(numberColumns.map((col) => col.zone)).map((zone) => ({
+  const dataSetsHaveTitle = columns.some(
+    (col) => col.type !== "text" && isDatasetTitled(getters, col)
+  );
+
+  const lastColumn = columns[columns.length - 1];
+  const columnsExceptLast = columns.slice(0, columns.length - 1);
+
+  if (
+    (lastColumn.type === "percentage" || lastColumn.type === "number") &&
+    columnsExceptLast.every((col) => col.type === "text")
+  ) {
+    const dataSets = columnsExceptLast.map(({ zone }) => ({
+      dataRange: getUnboundRange(getters, zone),
+    }));
+    return {
+      type: columnsExceptLast.length >= 3 ? "sunburst" : "treemap",
+      title: {},
+      dataSets,
+      labelRange: getUnboundRange(getters, lastColumn.zone),
+      dataSetsHaveTitle,
+      legendPosition: "none",
+    };
+  }
+
+  const firstColumn = columns[0];
+  const columnsExceptFirst = columns.slice(1);
+  const rangesOfColumnsExceptFirst = columnsExceptFirst.map(({ zone }) => ({
     dataRange: getUnboundRange(getters, zone),
   }));
 
-  if (dateColumns.length === 1 && numberColumns.length > 1) {
-    return createBaseChart("line", dataSets, {
-      labelRange: getUnboundRange(getters, dateColumns[0].zone),
+  if (columnsExceptFirst.every((col) => col.type === "percentage")) {
+    return {
+      type: "pie",
+      title: {},
+      dataSets: rangesOfColumnsExceptFirst,
+      labelRange: getUnboundRange(getters, firstColumn.zone),
       dataSetsHaveTitle,
-      cumulative: false,
-      labelsAsText: false,
+      aggregated: false,
       legendPosition: "top",
-    });
+    };
   }
 
-  if (textColumns.length === 1 && numberColumns.length >= 2) {
-    const [textColumn] = textColumns;
-    const firstCell = getters.getEvaluatedCell({
-      sheetId: getters.getActiveSheetId(),
-      row: textColumn.zone.top,
-      col: textColumn.zone.left,
-    });
-    const { uniqueCount, totalCount } = getCellStats(getters, textColumn.zone);
-    const categoryCount = dataSetsHaveTitle && firstCell.value ? uniqueCount - 1 : uniqueCount;
-    const expectedDataCount =
-      categoryCount * numberColumns.length + (dataSetsHaveTitle ? numberColumns.length : 0);
-    const actualDataCount = numberColumns.reduce(
-      (sum, dataCol) => sum + getCellStats(getters, dataCol.zone).totalCount,
-      0
-    );
-
-    if (
-      uniqueCount === totalCount &&
-      uniqueCount >= CHART_LIMITS.MIN_RADAR_CATEGORIES &&
-      uniqueCount <= CHART_LIMITS.MAX_RADAR_CATEGORIES &&
-      expectedDataCount === actualDataCount
-    ) {
-      return createBaseChart("radar", dataSets, {
-        title: dataSetsHaveTitle && firstCell.value ? { text: String(firstCell.value) } : {},
-        labelRange: getUnboundRange(getters, textColumn.zone),
-        dataSetsHaveTitle,
-        legendPosition: "top",
-      });
-    }
+  if (firstColumn.type === "date" && columnsExceptFirst.every((col) => col.type === "number")) {
+    return {
+      ...DEFAULT_LINE_CHART_CONFIG,
+      type: "line",
+      dataSets: rangesOfColumnsExceptFirst,
+      labelRange: getUnboundRange(getters, firstColumn.zone),
+      dataSetsHaveTitle,
+      legendPosition: "top",
+    };
   }
 
-  const labelColumn = textColumns[0] || dateColumns[0] || numberColumns[0];
-  return createBaseChart("bar", dataSets, {
-    labelRange: dataSets.length ? getUnboundRange(getters, labelColumn.zone) : "",
+  return {
+    ...DEFAULT_BAR_CHART_CONFIG,
+    dataSets: rangesOfColumnsExceptFirst,
+    labelRange: getUnboundRange(getters, firstColumn.zone),
     dataSetsHaveTitle,
-    aggregated: true,
     legendPosition: "top",
-  });
+  };
 }
 
 function buildScorecard(zone: Zone, getters: Getters): ChartDefinition {
@@ -348,22 +333,19 @@ function buildScorecard(zone: Zone, getters: Getters): ChartDefinition {
  */
 export function getSmartChartDefinition(zones: Zone[], getters: Getters): ChartDefinition {
   const columns = categorizeColumns(zones, getters);
-  const { number: numberColumns, text: textColumns, date: dateColumns } = columns;
 
-  const columnCount = numberColumns.length + textColumns.length + dateColumns.length;
-  switch (columnCount) {
-    case 0:
-      return createBaseChart("bar", [{ dataRange: getUnboundRange(getters, zones[0]) }], {
-        dataSetsHaveTitle: false,
-      });
+  if (columns.length === 0 || columns.every((col) => col.type === "empty")) {
+    const dataSets = columns.map(({ zone }) => ({ dataRange: getUnboundRange(getters, zone) }));
+    return { ...DEFAULT_BAR_CHART_CONFIG, dataSets };
+  }
+
+  const nonEmptyColumns = columns.filter((col) => col.type !== "empty");
+  switch (nonEmptyColumns.length) {
     case 1:
-      const singleColumn = numberColumns[0] || textColumns[0] || dateColumns[0];
-      return getZoneArea(singleColumn.zone) === 1
-        ? buildScorecard(singleColumn.zone, getters)
-        : buildSingleColumnChart(singleColumn, getters);
+      return buildSingleColumnChart(nonEmptyColumns[0], getters);
     case 2:
-      return buildTwoColumnChart(columns, getters);
+      return buildTwoColumnChart(nonEmptyColumns, getters);
     default:
-      return buildMultiColumnChart(columns, getters);
+      return buildMultiColumnChart(nonEmptyColumns, getters);
   }
 }
