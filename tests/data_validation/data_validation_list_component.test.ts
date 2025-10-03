@@ -201,6 +201,15 @@ describe("Edit criterion in side panel", () => {
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["B1:B9"]);
     });
 
+    test("range input is focused when criterion type is changed", async () => {
+      expect(".o-dv-settings .o-selection-input input").not.toHaveClass("o-focused");
+      await click(fixture, ".o-dv-type");
+      await click(fixture, `.o-menu-item[data-name="containsText"]`);
+      await click(fixture, ".o-dv-type");
+      await click(fixture, `.o-menu-item[data-name="isValueInRange"]`);
+      expect(".o-dv-settings .o-selection-input input").toHaveClass("o-focused");
+    });
+
     test("Can change display style", () => {
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
       setInputValueAndTrigger(displayStyleInput, "plainText");
