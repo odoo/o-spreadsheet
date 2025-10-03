@@ -1,6 +1,6 @@
 import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { insertTokenAtArgStartingPosition } from "../../functions";
+import { insertTokenAtArgStartingPosition } from "../../functions/autocompleteArgumentsProvider";
 import { MONTHS, isDefined, range } from "../../helpers";
 import {
   extractFormulaIdFromToken,

@@ -1,5 +1,4 @@
-import { FunctionRegistry as EngineFunctionRegistry } from "@odoo/o-spreadsheet-engine";
-import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { CellValue, FunctionRegistry as EngineFunctionRegistry } from "@odoo/o-spreadsheet-engine";
 import {
   addMetaInfoFromArg,
   argTargeting,
@@ -11,26 +10,17 @@ import {
   matrixForEach,
   matrixMap,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
-import { EnrichedToken } from "../formulas/composer_tokenizer";
-import {
-  AutoCompleteProposal,
-  autoCompleteProviders,
-} from "../registries/auto_completes/auto_complete_registry";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { BadExpressionError, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   AddFunctionDescription,
-  Arg,
-  ArgDefinition,
-  CellValue,
   ComputeFunction,
   EvalContext,
   FunctionDescription,
-  FunctionResultObject,
-  Matrix,
-  isMatrix,
-} from "../types";
-import { BadExpressionError, EvaluationError } from "../types/errors";
+} from "@odoo/o-spreadsheet-engine/types/functions";
+import { Arg, FunctionResultObject, isMatrix, Matrix } from "@odoo/o-spreadsheet-engine/types/misc";
+
+import { createAutocompleteArgumentsProvider } from "./autocompleteArgumentsProvider";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -251,84 +241,4 @@ function hasStringMessage(obj: unknown): obj is { message: string } {
     (obj as { message: string })?.message !== undefined &&
     typeof (obj as { message: string }).message === "string"
   );
-}
-
-function createAutocompleteArgumentsProvider(formulaName: string, args: ArgDefinition[]) {
-  for (let i = 0; i < args.length; i++) {
-    const proposalValues = args[i].proposalValues;
-    if (proposalValues === undefined || proposalValues.length === 0) {
-      continue;
-    }
-
-    const getProposals = (tokenAtCursor: EnrichedToken) => {
-      const functionContext = tokenAtCursor.functionContext;
-      if (
-        !functionContext ||
-        functionContext.parent.toUpperCase() !== formulaName.toUpperCase() ||
-        functionContext.argPosition !== i
-      ) {
-        return;
-      }
-
-      const proposals: AutoCompleteProposal[] = [];
-      let text = "";
-      for (const { value, label } of proposalValues) {
-        switch (typeof value) {
-          case "string":
-            text = `"${value}"`;
-            break;
-          case "number":
-            text = value.toString();
-            break;
-          case "boolean":
-            text = value ? "TRUE" : "FALSE";
-            break;
-          default:
-        }
-
-        proposals.push({
-          text,
-          description: label,
-          htmlContent: [
-            {
-              value: text,
-              color: typeof value === "string" ? tokenColors.STRING : tokenColors.NUMBER,
-            },
-          ],
-          fuzzySearchKey: text,
-          alwaysExpanded: true,
-        });
-      }
-
-      return proposals;
-    };
-
-    autoCompleteProviders.add(`${formulaName}_function_${args[i].name}_argument_proposals`, {
-      sequence: 50,
-      autoSelectFirstProposal: true,
-      selectProposal: insertTokenAtArgStartingPosition,
-      getProposals,
-    });
-  }
-}
-
-/**
- * Perform the autocomplete of the composer by inserting the value
- * at the cursor position, replacing the current token if necessary.
- * Must be bound to the autocomplete provider.
- */
-export function insertTokenAtArgStartingPosition(
-  this: { composer: CellComposerStore },
-  tokenAtCursor: EnrichedToken,
-  value: string
-) {
-  let start = tokenAtCursor.end;
-  const end = tokenAtCursor.end;
-  if (!["LEFT_PAREN", "ARG_SEPARATOR"].includes(tokenAtCursor.type)) {
-    // replace the whole token
-    start = tokenAtCursor.start;
-  }
-  this.composer.stopComposerRangeSelection();
-  this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
 }
