@@ -1,6 +1,6 @@
 import { transform } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot";
+import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
-import { toZone } from "../../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,

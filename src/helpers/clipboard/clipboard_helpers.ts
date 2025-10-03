@@ -1,3 +1,4 @@
+import { mergeOverlappingZones, positions, union } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -13,7 +14,6 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { mergeOverlappingZones, positions, union } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
   const lefts = new Set(zones.map((z) => z.left));

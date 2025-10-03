@@ -3,11 +3,11 @@ import {
   FORMULA_REF_IDENTIFIER,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { overlap, toZone, zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { getItemId, getUniqueText, sanitizeSheetName } from "../helpers";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
-import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { CustomizedDataSet, DEFAULT_LOCALE, Format, WorkbookData, Zone } from "../types";
 import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";

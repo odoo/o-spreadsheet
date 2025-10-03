@@ -1,9 +1,9 @@
 import { PIVOT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/constants";
+import { getZoneArea, positionToZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { Command, CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { getUniqueText, sanitizeSheetName } from "../../helpers";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { CellPosition, HeaderIndex, PivotTableCell, PivotTableData, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";

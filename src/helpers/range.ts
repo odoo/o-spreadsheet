@@ -6,8 +6,21 @@ import {
   largeMax,
   largeMin,
 } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { isRowReference, splitReference } from "@odoo/o-spreadsheet-engine/helpers/references";
 import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
+import {
+  boundUnboundedZone,
+  createAdaptedZone,
+  getZoneArea,
+  isFullCol,
+  isFullRow,
+  isZoneInside,
+  isZoneOrdered,
+  positions,
+  toUnboundedZone,
+} from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -27,19 +40,6 @@ import {
   UnboundedZone,
   ZoneDimension,
 } from "../types";
-import { CellErrorType } from "../types/errors";
-import { isRowReference, splitReference } from "./references";
-import {
-  boundUnboundedZone,
-  createAdaptedZone,
-  getZoneArea,
-  isFullCol,
-  isFullRow,
-  isZoneInside,
-  isZoneOrdered,
-  positions,
-  toUnboundedZone,
-} from "./zones";
 
 interface RangeArgs {
   zone: Readonly<UnboundedZone>;

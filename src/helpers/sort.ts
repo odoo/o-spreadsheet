@@ -1,3 +1,4 @@
+import { isEqual } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { _t } from "../translation";
 import {
   CellValue,
@@ -11,7 +12,6 @@ import {
   UID,
   Zone,
 } from "../types";
-import { isEqual } from "./zones";
 
 type CellWithIndex = { index: number; type: CellValueType; value: any };
 

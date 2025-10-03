@@ -1,15 +1,4 @@
 import {
-  MAX_COL,
-  MAX_ROW,
-  consumeDigits,
-  consumeLetters,
-  consumeSpaces,
-  numberToLetters,
-  toXC,
-} from "@odoo/o-spreadsheet-engine/helpers/coordinates";
-import { TokenizingChars, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
-import {
   AdjacentEdge,
   CellPosition,
   Position,
@@ -17,7 +6,18 @@ import {
   UnboundedZone,
   Zone,
   ZoneDimension,
-} from "../types";
+} from "../types/misc";
+import {
+  MAX_COL,
+  MAX_ROW,
+  consumeDigits,
+  consumeLetters,
+  consumeSpaces,
+  numberToLetters,
+  toXC,
+} from "./coordinates";
+import { TokenizingChars, range } from "./misc2";
+import { recomputeZones } from "./recompute_zones";
 
 /**
  * Convert from a cartesian reference to a Zone

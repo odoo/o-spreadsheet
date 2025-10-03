@@ -1,3 +1,9 @@
+import {
+  adjacent,
+  overlap,
+  splitIfAdjacent,
+  zoneToXc,
+} from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
   deepCopy,
@@ -9,7 +15,6 @@ import {
   removeFalsyAttributes,
   toZone,
 } from "../../helpers/index";
-import { adjacent, overlap, splitIfAdjacent, zoneToXc } from "../../helpers/zones";
 import {
   ApplyRangeChange,
   Border,

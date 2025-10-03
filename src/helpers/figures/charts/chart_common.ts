@@ -2,6 +2,13 @@ import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "@odoo/o-spreadsheet-engine/constants";
 import { isDefined, largeMax } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
+  getZoneArea,
+  isFullRow,
+  toUnboundedZone,
+  zoneToDimension,
+  zoneToXc,
+} from "@odoo/o-spreadsheet-engine/helpers/zones";
+import {
   ChartAxisFormats,
   ChartWithDataSetDefinition,
   CustomizedDataSet,
@@ -34,7 +41,6 @@ import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
-import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";

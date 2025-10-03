@@ -226,6 +226,7 @@ export { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/
 export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
 export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
 export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+export { findCellInNewZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
 export { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 export { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
 export {
@@ -252,7 +253,6 @@ export { astToFormula } from "./formulas/formula_formatter";
 export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
-export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
