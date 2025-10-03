@@ -1,13 +1,10 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { formatLargeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import {
-  AddFunctionDescription,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Maybe,
-} from "../types";
+import { arg } from "../functions/arguments";
+import { toNumber } from "../functions/helpers";
+import { formatLargeNumber } from "../helpers/format/format";
+import { _t } from "../translation";
+import { FunctionResultObject, Maybe } from "../types/base";
+import { AddFunctionDescription } from "../types/functions";
+import { FunctionResultNumber } from "../types/misc";
 
 // -----------------------------------------------------------------------------
 // FORMAT.LARGE.NUMBER
