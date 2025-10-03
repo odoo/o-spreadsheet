@@ -1,28 +1,13 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { toString, visitMatchingRanges } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { PRODUCT, SUM } from "@odoo/o-spreadsheet-engine/functions/module_math";
-import {
-  AVERAGE,
-  COUNT,
-  COUNTA,
-  MAX,
-  MIN,
-  STDEV,
-  STDEVP,
-  VAR,
-  VARP,
-} from "@odoo/o-spreadsheet-engine/functions/module_statistical";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  AddFunctionDescription,
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-} from "../types";
+import { _t } from "../translation";
+import { FunctionResultObject, Matrix, Maybe } from "../types/base";
+import { EvaluationError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { Locale } from "../types/locale";
+import { Arg, FunctionResultNumber } from "../types/misc";
+import { arg } from "./arguments";
+import { toString, visitMatchingRanges } from "./helpers";
+import { PRODUCT, SUM } from "./module_math";
+import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(
   database: Matrix<FunctionResultObject>,

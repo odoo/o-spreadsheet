@@ -1,33 +1,16 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import {
-  areSameDimensions,
-  assert,
-  isSingleColOrRow,
-} from "@odoo/o-spreadsheet-engine/functions/helper_assert";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import {
-  matrixMap,
-  toBoolean,
-  toMatrix,
-  toNumber,
-  transposeMatrix,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { cellsSortingCriterion } from "@odoo/o-spreadsheet-engine/helpers/sort";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { EvaluationError, NotAvailableError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { range } from "../helpers";
-import {
-  AddFunctionDescription,
-  Arg,
-  CellValue,
-  CellValueType,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  SortDirection,
-  isMatrix,
-} from "../types";
+import { range } from "../helpers/misc2";
+import { cellsSortingCriterion } from "../helpers/sort";
+import { _t } from "../translation";
+import { CellValue, FunctionResultObject, Matrix, Maybe, SortDirection } from "../types/base";
+import { CellValueType } from "../types/cells";
+import { EvaluationError, NotAvailableError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { Locale } from "../types/locale";
+import { Arg, isMatrix } from "../types/misc";
+import { arg } from "./arguments";
+import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
+import { toScalar } from "./helper_matrices";
+import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,

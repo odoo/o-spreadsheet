@@ -1,4 +1,4 @@
-import { Matrix, isMatrix } from "../../../../src/types";
+import { Matrix, isMatrix } from "../types/misc";
 
 export function getUnitMatrix(n: number): Matrix<number> {
   const matrix: Matrix<number> = Array(n);
