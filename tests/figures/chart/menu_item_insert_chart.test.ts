@@ -3,13 +3,10 @@ import {
   DEFAULT_CELL_WIDTH,
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
-  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-  DEFAULT_SCORECARD_BASELINE_MODE,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Model } from "../../../src";
-import { zoneToXc } from "../../../src/helpers";
+import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
+import { toXC, zoneToXc } from "../../../src/helpers";
 import {
   addColumns,
   addRows,
@@ -24,7 +21,6 @@ import {
   mockChart,
   mountSpreadsheet,
   nextTick,
-  setGrid,
   spyModelDispatch,
 } from "../../test_helpers/helpers";
 
@@ -82,7 +78,6 @@ describe("Insert chart menu item", () => {
 
   let dispatchSpy: jest.SpyInstance;
   let defaultPayload: any;
-  let defaultPiePayload: any;
   let model: Model;
   let env: SpreadsheetChildEnv;
   let openSidePanelSpy: jest.Mock<any, any>;
@@ -117,20 +112,10 @@ describe("Insert chart menu item", () => {
       definition: {
         dataSets: [{ dataRange: "A1", yAxisId: "y" }],
         dataSetsHaveTitle: false,
+        stacked: false,
         legendPosition: "none",
         title: {},
         type: "bar",
-      },
-    };
-    defaultPiePayload = {
-      ...defaultPayload,
-      definition: {
-        dataSets: [{ dataRange: "A1" }],
-        dataSetsHaveTitle: false,
-        legendPosition: "top",
-        isDoughnut: false,
-        title: {},
-        type: "pie",
       },
     };
   });
@@ -404,310 +389,24 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart of single column without title", () => {
-    setSelection(model, ["B2:B5"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B2:B5" }];
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart of single column with title", () => {
-    setSelection(model, ["B1:B5"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
-    payload.definition.dataSetsHaveTitle = true;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart of several columns (ie labels) without title", () => {
-    setSelection(model, ["A2:B5"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.dataSets = [{ dataRange: "B2:B5" }];
-    payload.definition.labelRange = "A2:A5";
-    payload.definition.aggregated = true;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart of several columns (ie labels) with title", () => {
-    setSelection(model, ["A1:B5"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
-    payload.definition.labelRange = "A1:A5";
-    payload.definition.aggregated = true;
-    payload.definition.dataSetsHaveTitle = true;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("[Case 1] Chart is inserted with proper legend position", () => {
-    setSelection(model, ["A1:B5"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
-    payload.definition.labelRange = "A1:A5";
-    payload.definition.aggregated = true;
-    payload.definition.dataSetsHaveTitle = true;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-  test("[Case 2] Chart is inserted with proper legend position", () => {
-    setSelection(model, ["F1:I5"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "F1:H5" }];
-    payload.definition.labelRange = "F1:F5";
-    payload.definition.aggregated = true;
-    payload.definition.dataSetsHaveTitle = true;
-    payload.definition.legendPosition = "top";
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart of single isolated cell is a scorecard", () => {
-    setCellContent(model, "K5", "Hello");
-    setSelection(model, ["K5"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition = {
-      keyValue: "K5",
-      title: {},
-      type: "scorecard",
-      baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-      baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-      baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
-    };
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart of single isolated empty cell is a bar chart", () => {
-    setSelection(model, ["K5"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "K5" }];
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
   test("Chart of single cell will extend the selection to find a 'table'", () => {
     setSelection(model, ["A2"]);
     insertChart();
     const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B1:H5" }];
-    payload.definition.aggregated = true;
+    payload.definition.dataSets = [
+      { dataRange: "B1:B5" },
+      { dataRange: "C1:C5" },
+      { dataRange: "D1:D5" },
+      { dataRange: "E1:E5" },
+      { dataRange: "F1:F5" },
+      { dataRange: "G1:G5" },
+      { dataRange: "H1:H5" },
+    ];
     payload.definition.labelRange = "A1:A5";
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "top";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:H5");
-  });
-
-  test("Chart with number cells as labels is a scatter chart", () => {
-    setCellContent(model, "K1", "1");
-    setCellContent(model, "K2", "2");
-    setCellContent(model, "K3", "3");
-    setCellContent(model, "L1", "1");
-    setCellContent(model, "L2", "2");
-    setCellContent(model, "L3", "3");
-
-    setSelection(model, ["K1"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.type = "scatter";
-    payload.definition.dataSets = [{ dataRange: "L1:L3" }];
-    payload.definition.labelRange = "K1:K3";
-    payload.definition.labelsAsText = false;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
-  });
-
-  test("Chart with date cells as labels is a linear chart", () => {
-    setCellContent(model, "K1", "10/10/2022");
-    setCellContent(model, "K2", "10/11/2022");
-    setCellContent(model, "K3", "10/12/2022");
-    setCellContent(model, "L1", "1");
-    setCellContent(model, "L2", "2");
-    setCellContent(model, "L3", "3");
-
-    setSelection(model, ["K1"]);
-    insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.type = "line";
-    payload.definition.dataSets = [{ dataRange: "L1:L3" }];
-    payload.definition.labelRange = "K1:K3";
-    payload.definition.aggregated = false;
-    payload.definition.cumulative = false;
-    payload.definition.labelsAsText = false;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-    expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
-  });
-
-  test("Chart with percentage cells is a doughnut chart when sum < 100", () => {
-    setCellContent(model, "K1", "10%");
-    setCellContent(model, "K2", "20%");
-    setCellContent(model, "K3", "30%");
-    setSelection(model, ["K1:K3"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.dataSets = [{ dataRange: "K1:K3" }];
-    payload.definition.legendPosition = "none";
-    payload.definition.isDoughnut = true;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart with percentage cells is a pie chart when sum >= 100", () => {
-    setCellContent(model, "K1", "40%");
-    setCellContent(model, "K2", "30%");
-    setCellContent(model, "K3", "40%");
-
-    setSelection(model, ["K1:K3"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.dataSets = [{ dataRange: "K1:K3" }];
-    payload.definition.legendPosition = "none";
-    payload.definition.isDoughnut = false;
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart with text cells (including empty cells) is a pie chart", () => {
-    setCellContent(model, "K1", "Country");
-    setCellContent(model, "K2", "India");
-    setCellContent(model, "K3", "Pakistan");
-    setCellContent(model, "K4", "India");
-    setCellContent(model, "K6", "USA");
-
-    setSelection(model, ["K1:K100"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.title = { text: "Country" };
-    payload.definition.dataSets = [{ dataRange: "K:K" }];
-    payload.definition.labelRange = "K:K";
-    payload.definition.dataSetsHaveTitle = true;
-    payload.definition.aggregated = true;
-    payload.definition.legendPosition = "top";
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Text + number with <=6 unique labels creates pie chart", () => {
-    setSelection(model, ["A1:A5", "B1:B5"]);
-    insertChart();
-    const payload = { ...defaultPiePayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
-    payload.definition.labelRange = "A1:A5";
-    payload.definition.isDoughnut = false;
-    payload.definition.aggregated = true;
-    payload.definition.dataSetsHaveTitle = true;
-    payload.definition.legendPosition = "top";
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Text + number with > 6 non-unique labels creates treemap chart", () => {
-    const labels = ["A", "B", "C", "D", "E", "F", "G", "A", "B"];
-    const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 90];
-
-    labels.forEach((label, i) => {
-      setCellContent(model, `K${i + 1}`, label);
-    });
-
-    numbers.forEach((value, i) => {
-      setCellContent(model, `L${i + 1}`, value.toString());
-    });
-
-    setSelection(model, ["K1:K9", "L1:L9"]);
-    insertChart();
-    const payload = {
-      ...defaultPayload,
-      definition: {
-        type: "treemap",
-        title: {},
-        labelRange: "L1:L9",
-        dataSets: [{ dataRange: "K1:K9" }],
-        dataSetsHaveTitle: false,
-        legendPosition: "none",
-      },
-    };
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("unique text column + multiple numeric columns with <= 12 category creates radar chart", () => {
-    ["spring", "summer", "autumn", "fall", "winter"].forEach((val, i) => {
-      setCellContent(model, `W${i + 1}`, val);
-      setCellContent(model, `X${i + 1}`, `${10 + i}`);
-      setCellContent(model, `Y${i + 1}`, `${20 + i}`);
-    });
-    setSelection(model, ["W1:W5", "X1:X5", "Y1:Y5"]);
-    insertChart();
-
-    const payload = {
-      ...defaultPayload,
-      definition: {
-        type: "radar",
-        title: {},
-        dataSets: [{ dataRange: "X1:Y5" }],
-        labelRange: "W1:W5",
-        dataSetsHaveTitle: false,
-        legendPosition: "top",
-      },
-    };
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
-  });
-
-  test("Chart with 2 string columns is a treemap chart (without headers)", () => {
-    // prettier-ignore
-    const grid = {
-      K1: "Group1",    L1: "SubGroup1",    M1: "40",
-      K2: "Group1",    L2: "SubGroup2",    M2: "20",
-      K3: "Group2",    L3: "SubGroup1",    M3: "10",
-    };
-    setGrid(model, grid);
-    setSelection(model, ["K1"]);
-    insertChart();
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId()).at(-1)!;
-    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      type: "treemap",
-      dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
-      dataSetsHaveTitle: false,
-      labelRange: "M1:M3",
-    });
-  });
-
-  test("Chart with 2 string columns is a treemap chart (with headers)", () => {
-    // prettier-ignore
-    const grid = {
-      K1: "Header1",   L1: "Header2",      M1: "Header3",
-      K2: "Group1",    L2: "SubGroup1",    M2: "20",
-                       L3: "SubGroup2",    M3: "10",
-    };
-    setGrid(model, grid);
-    setSelection(model, ["K1"]);
-    insertChart();
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId()).at(-1)!;
-    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      type: "treemap",
-      dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
-      dataSetsHaveTitle: true,
-      labelRange: "M1:M3",
-    });
-  });
-
-  test("Chart with > 2 string columns is a sunburst chart (with headers)", () => {
-    // prettier-ignore
-    const grid = {
-      K1: "Continent",  L1: "Country",  M1: "State",        N1: "Sales",
-      K2: "Asia",       L2: "India",    M2: "Gujarat",      N2: "100",
-                        L3: "India",    M3: "Maharashtra",  N3: "200",
-      K4: "Europe",     L4: "Germany",  M4: "Bavaria",      N4: "150",
-    };
-    setGrid(model, grid);
-    setSelection(model, ["K1"]);
-    insertChart();
-
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId()).at(-1)!;
-    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      type: "sunburst",
-      dataSets: [{ dataRange: "K1:K4" }, { dataRange: "L1:L4" }, { dataRange: "M1:M4" }],
-      labelRange: "N1:N4",
-      dataSetsHaveTitle: true,
-    });
   });
 
   test("Chart can be inserted with unbounded ranges", () => {
@@ -719,4 +418,203 @@ describe("Insert chart menu item", () => {
       labelRange: "A:A",
     });
   });
+});
+
+describe("Smart chart type detection", () => {
+  type DatasetDescriptor = string[];
+
+  let model: Model;
+  let env: SpreadsheetChildEnv;
+
+  beforeEach(() => {
+    model = new Model();
+    env = makeTestEnv({ model });
+  });
+
+  /**
+   * Create a dataset according to the given pattern. The pattern is a list of column types, with possible modifiers
+   * (eg. ["text_with_header", "number_repeated", "empty", "date"]) would create a dataset of 4 columns.
+   */
+  function createDatasetFromDescription(description: DatasetDescriptor) {
+    for (let col = 0; col < description.length; col++) {
+      const colDescription = description[col];
+      const hasHeader = colDescription.includes("_with_header");
+      const repeatedValues = colDescription.includes("_repeated");
+      const type = colDescription.replace("_with_header", "").replace("_repeated", "");
+
+      for (let row = 0; row < 6; row++) {
+        const xc = toXC(col, row);
+        if (row === 0 && hasHeader) {
+          setCellContent(model, xc, `Header${col}`);
+          continue;
+        }
+        if (type === "empty") {
+          continue;
+        }
+        const generator = repeatedValues ? row % 3 : row;
+        if (type === "text") {
+          setCellContent(model, xc, `Text${generator}`);
+        } else if (type === "number") {
+          setCellContent(model, xc, `${generator}`);
+        } else if (type === "date") {
+          setCellContent(model, xc, `2022-10-${generator + 1}`);
+        } else if (type === "percentage") {
+          setCellContent(model, xc, `${generator * 10}%`);
+        }
+      }
+    }
+  }
+
+  test("Single cell: create a scorecard", () => {
+    setCellContent(model, "C3", "100");
+    setSelection(model, ["C3"]);
+    doAction(["insert", "insert_chart"], env);
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "scorecard",
+      keyValue: "C3",
+    });
+  });
+
+  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+    [["percentage"], { type: "pie" }],
+    [["number"], { type: "bar" }],
+    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true }], // categorical pie chart, the data range is also the label range
+    [["date"], { type: "line" }],
+    [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
+    [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
+  ])("Single column %s creates %s chart", (datasetPattern, expected) => {
+    createDatasetFromDescription(datasetPattern);
+    doAction(["insert", "insert_chart"], env);
+
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+
+    const definition = model.getters.getChartDefinition(chartId);
+    expect(definition).toMatchObject({
+      ...expected,
+      dataSets: [{ dataRange: "A1:A6" }],
+      labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+    });
+  });
+
+  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+    [["text", "percentage"], { type: "pie" }],
+    [["number", "percentage"], { type: "pie" }],
+    [["date", "percentage"], { type: "pie" }],
+    [["number", "number"], { type: "scatter" }],
+    [["date", "number"], { type: "line" }],
+    [["text", "number"], { type: "bar" }],
+    [["text_repeated", "number"], { type: "treemap" }],
+    [["text", "date"], { type: "bar" }],
+    [["number", "text"], { type: "bar" }],
+    [["text", "number_with_header"], { type: "bar", dataSetsHaveTitle: true }],
+    [["number", "number_with_header"], { type: "scatter", dataSetsHaveTitle: true }],
+  ])("Two columns %s creates %s chart", (datasetPattern, expected) => {
+    createDatasetFromDescription(datasetPattern);
+    doAction(["insert", "insert_chart"], env);
+
+    const expectedDataset =
+      expected.type === "treemap" ? [{ dataRange: "A1:A6" }] : [{ dataRange: "B1:B6" }];
+    const expectedLabelRange = expected.type === "treemap" ? "B1:B6" : "A1:A6";
+
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      ...expected,
+      dataSets: expectedDataset,
+      labelRange: expectedLabelRange,
+    });
+  });
+
+  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+    [["text", "text", "number"], { type: "treemap" }],
+    [["text", "text", "text", "number"], { type: "sunburst" }],
+    [["text", "text", "percentage"], { type: "treemap" }],
+    [["text", "text", "text", "percentage"], { type: "sunburst" }],
+    [["text", "text", "text", "number_with_header"], { type: "sunburst", dataSetsHaveTitle: true }],
+  ])("Multiple text columns  %s create a %s hierarchical chart", (datasetPattern, expected) => {
+    createDatasetFromDescription(datasetPattern);
+    doAction(["insert", "insert_chart"], env);
+
+    const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
+    const expectedDatasets: CustomizedDataSet[] = [];
+    for (let i = 0; i < datasetLastCol; i++) {
+      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
+    }
+    const expectedLabelRange = toXC(datasetLastCol, 0) + ":" + toXC(datasetLastCol, 5);
+
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      ...expected,
+      dataSets: expectedDatasets,
+      labelRange: expectedLabelRange,
+    });
+  });
+
+  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+    [["text", "percentage", "percentage"], { type: "pie" }],
+    [["number", "percentage", "percentage", "percentage"], { type: "pie" }],
+    [["date", "number", "number"], { type: "line" }],
+    // Any other combination should give a bar chart with correct datasets
+    [["text", "number", "percentage"], { type: "bar" }],
+    [["text", "number", "date"], { type: "bar" }],
+    [["text", "number", "number"], { type: "bar" }],
+    [["number", "number", "number"], { type: "bar" }],
+    [["date", "date", "number", "text"], { type: "bar" }],
+    [["text", "number_with_header", "percentage"], { type: "bar", dataSetsHaveTitle: true }],
+    [["text", "number", "date_with_header"], { type: "bar", dataSetsHaveTitle: true }],
+  ])("Multiple columns  %s create a %s chart", (datasetPattern, expected) => {
+    createDatasetFromDescription(datasetPattern);
+    doAction(["insert", "insert_chart"], env);
+
+    const expectedDatasets: CustomizedDataSet[] = [];
+    for (let i = 1; i < datasetPattern.length; i++) {
+      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
+    }
+
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      ...expected,
+      dataSets: expectedDatasets,
+      labelRange: "A1:A6",
+    });
+  });
+
+  test("Empty columns are passed in the chart dataset if the whole selection is empty", () => {
+    setSelection(model, ["A1:B6"]);
+    doAction(["insert", "insert_chart"], env);
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "bar",
+      dataSets: [{ dataRange: "A1:A6" }, { dataRange: "B1:B6" }],
+      dataSetsHaveTitle: false,
+    });
+  });
+
+  test("Empty columns are ignored in the chart dataset if other columns are not empty", () => {
+    createDatasetFromDescription(["number", "empty", "number"]);
+    setSelection(model, ["A1:C6"]);
+    doAction(["insert", "insert_chart"], env);
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "scatter",
+      dataSets: [{ dataRange: "C1:C6" }],
+      labelRange: "A1:A6",
+    });
+  });
+
+  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+    [["number"], { legendPosition: "none" }],
+    [["text", "number"], { legendPosition: "none" }],
+    [["date", "number", "number"], { legendPosition: "top" }],
+    [["text", "number", "number"], { legendPosition: "top" }],
+  ])(
+    "Pie charts and charts with more than one column in their dataset %s have a legend",
+    (datasetPattern, expected) => {
+      createDatasetFromDescription(datasetPattern);
+      doAction(["insert", "insert_chart"], env);
+
+      const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject(expected);
+    }
+  );
 });
