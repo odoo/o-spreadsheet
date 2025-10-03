@@ -141,6 +141,15 @@ describe("data validation sidePanel component", () => {
     ]);
   });
 
+  test("date input is focused when criterion type is changed", async () => {
+    await simulateClick(".o-dv-add");
+    expect(document.activeElement).not.toBe(fixture.querySelector(".o-dv-input .o-composer"));
+    await changeCriterionType("dateIs");
+    setInputValueAndTrigger(".o-dv-date-value", "exactDate");
+    expect(".o-dv-input .o-composer").toHaveClass("active");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input .o-composer"));
+  });
+
   test("Invalid range", async () => {
     await simulateClick(".o-dv-add");
     await nextTick();
@@ -246,6 +255,28 @@ describe("data validation sidePanel component", () => {
     expect(errorMessageEl?.textContent).toContain(
       "One or more of the provided criteria values are invalid. Please review and correct them."
     );
+  });
+
+  test("single input is focused when changing type", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    expect(".o-dv-input .o-composer.active").toHaveCount(0);
+    await changeCriterionType("isEqualText");
+    expect(".o-dv-input .o-composer.active").toHaveCount(1);
+    expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input .o-composer"));
+    expect(".o-dv-input .o-composer").toHaveClass("active");
+  });
+
+  test("first input of two is focused when changing type", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    expect(".o-dv-input .o-composer.active").toHaveCount(0);
+    await changeCriterionType("isBetween");
+    expect(".o-dv-input .o-composer.active").toHaveCount(1);
+    const composers = fixture.querySelectorAll(".o-dv-input .o-composer");
+    expect(document.activeElement).toBe(composers[0]);
+    expect(composers[0]).toHaveClass("active");
+    expect(composers[1]).not.toHaveClass("active");
   });
 
   test("Can make the rule blocking", async () => {

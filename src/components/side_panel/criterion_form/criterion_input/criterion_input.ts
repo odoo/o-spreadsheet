@@ -41,8 +41,8 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     useEffect(
       () => {
-        if (this.props.focused) {
-          this.inputRef.el!.focus();
+        if (this.props.focused && this.inputRef.el) {
+          this.inputRef.el.focus();
         }
       },
       () => [this.props.focused, this.inputRef.el]
@@ -94,6 +94,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
       defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
       defaultStatic: true,
+      autofocus: this.props.focused,
     };
   }
 

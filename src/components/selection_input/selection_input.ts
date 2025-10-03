@@ -12,6 +12,7 @@ interface Props {
   ranges: string[];
   hasSingleRange?: boolean;
   required?: boolean;
+  autofocus?: boolean;
   isInvalid?: boolean;
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
@@ -50,6 +51,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     ranges: Array,
     hasSingleRange: { type: Boolean, optional: true },
     required: { type: Boolean, optional: true },
+    autofocus: { type: Boolean, optional: true },
     isInvalid: { type: Boolean, optional: true },
     class: { type: String, optional: true },
     onSelectionChanged: { type: Function, optional: true },
@@ -105,6 +107,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       this.props.colors,
       this.props.disabledRanges
     );
+    if (this.props.autofocus) {
+      this.store.focusById(this.store.selectionInputs[0]?.id);
+    }
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
         this.triggerChange();
