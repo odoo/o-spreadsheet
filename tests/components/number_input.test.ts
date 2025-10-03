@@ -28,6 +28,13 @@ async function mountNumberInput(props: Props) {
 }
 
 describe("NumberInput", () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
   test("Can render a number input", async () => {
     await mountNumberInput({ value: 5, onChange: () => {} });
     expect(fixture).toMatchSnapshot();
@@ -50,6 +57,7 @@ describe("NumberInput", () => {
     await mountNumberInput({ value: 5, onChange });
     setInputValueAndTrigger(fixture.querySelector("input")!, "2");
     await click(document.body);
+    jest.advanceTimersByTime(100);
     expect(onChange).toHaveBeenCalledWith("2");
   });
 
@@ -66,6 +74,7 @@ describe("NumberInput", () => {
     fixture.querySelector("input")!.focus();
     setInputValueAndTrigger(fixture.querySelector("input")!, "4");
     await keyDown({ key: "Enter" });
+    jest.advanceTimersByTime(100);
     expect(onChange).toHaveBeenCalledWith("4");
   });
 
@@ -82,6 +91,7 @@ describe("NumberInput", () => {
     await mountNumberInput({ value: 5, onChange });
     setInputValueAndTrigger(fixture.querySelector("input")!, "2");
     fixture.querySelector("input")!.blur();
+    jest.advanceTimersByTime(100);
     expect(onChange).toHaveBeenCalledWith("2");
   });
 

@@ -7,7 +7,7 @@
           class="'o-pie-hole-size-input'"
           min="0"
           max="95"
-          onChange.bind="debouncedOnChange"
+          onChange.bind="onChange"
         />
         %
       </div>
