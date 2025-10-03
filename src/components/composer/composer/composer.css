@@ -40,6 +40,14 @@
       }
     }
 
+    .o-composer[placeholder]:empty:not(:focus):not(.active)::before {
+      content: attr(placeholder);
+      color: var(--os-composer-placeholder-color);
+      position: relative;
+      top: 0%;
+      pointer-events: none;
+    }
+
     .fa-stack {
       /* reset stack size which is doubled by default */
       width: 18px;
