@@ -854,16 +854,29 @@ describe("TopBar composer", () => {
     selectCell(model, "A2");
     await nextTick();
 
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
-    expect(topBarComposer.textContent).toBe("");
-    expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=MUNIT(3)");
+    expect(".o-topbar-composer .o-composer").toHaveText("");
+    expect(".o-topbar-composer .o-composer").toHaveAttribute("placeholder", "=MUNIT(3)");
+    expect(".o-topbar-composer .o-icon").toHaveCount(0);
 
-    await simulateClick(topBarComposer);
-    expect(topBarComposer!.textContent).toBe("");
+    await simulateClick(".o-topbar-composer .o-composer");
+    expect(".o-topbar-composer .o-composer").toHaveText("");
+    expect(".o-topbar-composer .o-icon").toHaveCount(0);
 
     await keyDown({ key: "Enter" });
-    expect(topBarComposer!.textContent).toBe("");
-    expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=MUNIT(3)");
+    expect(".o-topbar-composer .o-composer").toHaveText("");
+    expect(".o-topbar-composer .o-composer").toHaveAttribute("placeholder", "=MUNIT(3)");
+    expect(".o-topbar-composer .o-icon").toHaveCount(0);
+  });
+
+  test("Fx icon is not shown in spreaded cell results", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    setCellContent(model, "A1", "=MUNIT(3)");
+    selectCell(model, "A2");
+    await nextTick();
+
+    expect(".o-spreadsheet-topbar .o-composer").toHaveText("");
+    expect(".o-spreadsheet-topbar .o-composer").toHaveAttribute("placeholder", "=MUNIT(3)");
+    expect(".o-topbar-composer .o-icon").toHaveCount(0);
   });
 
   test("Spreaded cell placeholder follows the current locale", async () => {
