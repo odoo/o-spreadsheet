@@ -4,7 +4,7 @@ import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_
 import { CreateFigureCommand, SpreadsheetChildEnv, UID } from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
-import { createChart, setCellContent } from "../../test_helpers/commands_helpers";
+import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import {
@@ -153,14 +153,14 @@ describe("zoom", () => {
     test("Can select on the master chart", async () => {
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
-      const startX = left + width / 3 - 5;
+      const startX = left + width / 4;
       const startY = top + height / 2;
-      const offsetX = width / 3 + 10;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      const offsetX = width / 2;
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
-      expect(newMin).toEqual(1);
-      expect(newMax).toEqual(2);
+      expect(newMin).toEqual(0.75);
+      expect(newMax).toEqual(2.25);
     });
 
     test("Can select from the left bound on the master chart", async () => {
@@ -169,10 +169,10 @@ describe("zoom", () => {
       const startX = left;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
-      expect(newMin).toEqual(2);
+      expect(newMin).toEqual(1.5);
       expect(newMax).toEqual(3);
     });
 
@@ -182,11 +182,11 @@ describe("zoom", () => {
       const startX = left + width;
       const startY = top + height / 2;
       const offsetX = -width / 2;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(0);
-      expect(newMax).toEqual(1);
+      expect(newMax).toEqual(1.5);
     });
 
     test("Can move the slicer on the master chart", async () => {
@@ -199,7 +199,7 @@ describe("zoom", () => {
       const startX = left + width / 2;
       const startY = top + height / 2;
       const offsetX = width / 3 + 10;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
       expect(newMin).toEqual(2);
       expect(newMax).toEqual(3);
@@ -268,19 +268,6 @@ describe("zoom", () => {
       expect(newMin).toEqual(1);
       expect(newMax).toEqual(2);
     });
-
-    test("Boundaries are rounded for categorical axis", async () => {
-      const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
-      const { left, top, width, height } = element.getBoundingClientRect();
-      const startX = left + width / 6;
-      const startY = top + height / 2;
-      const offsetX = (2 * width) / 3;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
-      const store = env.getStore(ZoomableChartStore);
-      const { min: newMin, max: newMax } = store.currentAxesLimits[lineChartId]?.x ?? {};
-      expect(newMin).toEqual(1);
-      expect(newMax).toEqual(2);
-    });
   });
 
   describe("Bar chart", () => {
@@ -290,13 +277,26 @@ describe("zoom", () => {
       await nextTick();
     });
 
+    test("allowZoom checkbox is hidden for horizontal bar chart", async () => {
+      createTestChart(chartId);
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect(fixture.querySelector("input[name='zoomable']")).not.toBeNull();
+
+      updateChart(model, chartId, { horizontal: true });
+      await nextTick();
+
+      expect(fixture.querySelector("input[name='zoomable']")).toBeNull();
+    });
+
     test("Can select on the master chart", async () => {
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
-      const startX = left + width / 4 - 5;
+      const startX = left + width / 4;
       const startY = top + height / 2;
-      const offsetX = width / 4 + 10;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      const offsetX = width / 4;
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(0.5);
@@ -309,7 +309,7 @@ describe("zoom", () => {
       const startX = left;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(1.5);
@@ -322,7 +322,7 @@ describe("zoom", () => {
       const startX = left + width;
       const startY = top + height / 2;
       const offsetX = -width / 2;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const store = env.getStore(ZoomableChartStore);
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(-0.5);
@@ -339,7 +339,7 @@ describe("zoom", () => {
       const startX = left + width / 2;
       const startY = top + height / 2;
       const offsetX = width / 2;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
+      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY });
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toEqual(1.5);
       expect(newMax).toEqual(3.5);
@@ -409,19 +409,6 @@ describe("zoom", () => {
       expect(newMax).toEqual(2.5);
     });
 
-    test("Boundaries are half-rounded for categorical axis", async () => {
-      const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
-      const { left, top, width, height } = element.getBoundingClientRect();
-      const startX = left + (3 * width) / 8 - 5;
-      const startY = top + height / 2;
-      const offsetX = width / 2;
-      await clickAndDrag(element, { x: offsetX, y: 0 }, { x: startX, y: startY }, true);
-      const store = env.getStore(ZoomableChartStore);
-      const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
-      expect(newMin).toEqual(0.5);
-      expect(newMax).toEqual(2.5);
-    });
-
     test("Changing dataset boundaries clear the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
@@ -435,5 +422,20 @@ describe("zoom", () => {
       expect(newMin).toBeUndefined();
       expect(newMax).toBeUndefined();
     });
+  });
+
+  test("Chart with one point shows timeline as disabled", async () => {
+    await mountSpreadsheet();
+    createTestChart(chartId, {}, { zoomable: true });
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    let container = fixture.querySelector(".o-master-chart-container");
+    let style = container?.getAttribute("style");
+    expect(style).toEqual("");
+
+    updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
+    await nextTick();
+    container = fixture.querySelector(".o-master-chart-container");
+    style = container?.getAttribute("style");
+    expect(style).toContain("opacity: 0.3");
   });
 });
