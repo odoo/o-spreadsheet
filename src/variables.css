@@ -27,6 +27,7 @@
   --os-action-color: var(--os-link-color); /* ACTION_COLOR */
   --os-action-color-hover: var(--os-link-hover-color);
 
+  --os-composer-placeholder-color: #bdbdbd;
   --os-composer-assistant-color: #9b359b; /* COMPOSER_ASSISTANT_COLOR */
   --os-composer-assistant-background: #f2f2f2;
   --os-composer-highlight-flag-color: #e6edf3;
