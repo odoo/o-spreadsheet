@@ -268,16 +268,26 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       return { pass: false, message: () => message };
     }
     const pass = element.classList.contains(expectedClass);
-    const message = () =>
-      pass
-        ? ""
-        : `expect(target).toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
-            expectedClass,
-            element.className,
-            "Expected class",
-            "Received class",
-            false
-          )}`;
+    const message = () => {
+      if (this.isNot && pass) {
+        return `expect(target).not.toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
+          expectedClass,
+          element.className,
+          "Unexpected class",
+          "Received class",
+          false
+        )}`;
+      } else if (!pass) {
+        return `expect(target).toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
+          expectedClass,
+          element.className,
+          "Expected class",
+          "Received class",
+          false
+        )}`;
+      }
+      return "";
+    };
     return { pass, message };
   },
   toHaveAttribute(target: DOMTarget, attribute: string, expectedValue: string) {
