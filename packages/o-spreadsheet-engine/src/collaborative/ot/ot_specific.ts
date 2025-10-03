@@ -1,5 +1,6 @@
 import { DEFAULT_TABLE_CONFIG } from "../../../../../src/helpers/table_presets";
 import { otRegistry } from "../../../../../src/registries/ot_registry";
+import { HeaderIndex, Zone } from "../../types/base";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -29,8 +30,7 @@ import {
   UpdateFigureCommand,
   UpdatePivotCommand,
   UpdateTableCommand,
-} from "../../../../../src/types";
-import { HeaderIndex, Zone } from "../../types/base";
+} from "../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 
 /*

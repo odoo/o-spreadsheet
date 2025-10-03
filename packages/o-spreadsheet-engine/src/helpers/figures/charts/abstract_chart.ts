@@ -8,7 +8,8 @@ import {
   ExcelChartDefinition,
   TitleDesign,
 } from "../../../types/chart";
-import { CommandResult, CoreGetters } from "../../../types/commands";
+import { CommandResult } from "../../../types/commands";
+import { CoreGetters } from "../../../types/coreGetters";
 import { CellErrorType } from "../../../types/errors";
 import { AdaptSheetName, ApplyRangeChange, RangeAdapter } from "../../../types/misc";
 import { Validator } from "../../../types/validator";
