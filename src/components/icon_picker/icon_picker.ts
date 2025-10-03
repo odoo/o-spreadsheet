@@ -1,5 +1,5 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/env";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../types/env";
 import { ICONS, ICON_SETS } from "../icons/icons";
 
 interface Props {

@@ -4,12 +4,12 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/env";
 import { Component } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates, Dimension, HeaderGroup, Rect } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/env";
 import { cssPropertiesToCss } from "../helpers";
 
 interface Props {

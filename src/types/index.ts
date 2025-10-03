@@ -20,6 +20,7 @@ export * from "@odoo/o-spreadsheet-engine/types/commands";
 export * from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
 export * from "@odoo/o-spreadsheet-engine/types/currency";
 export * from "@odoo/o-spreadsheet-engine/types/data_validation";
+export * from "@odoo/o-spreadsheet-engine/types/env";
 export * from "@odoo/o-spreadsheet-engine/types/figure";
 export * from "@odoo/o-spreadsheet-engine/types/format";
 export * from "@odoo/o-spreadsheet-engine/types/functions";
@@ -48,7 +49,6 @@ export {
 export * from "@odoo/o-spreadsheet-engine/types/table";
 export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
 export * from "./autofill";
-export * from "./env";
 export * from "./getters";
 export * from "./locale";
 export * from "./pivot_runtime";

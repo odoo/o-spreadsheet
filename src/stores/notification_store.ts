@@ -1,10 +1,4 @@
-import { InformationNotification } from "../types";
-
-export interface NotificationStoreMethods {
-  notifyUser: (notification: InformationNotification) => void;
-  raiseError: (text: string, callback?: () => void) => void;
-  askConfirmation: (content: string, confirm: () => void, cancel?: () => void) => void;
-}
+import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
 
 export class NotificationStore {
   mutators = [

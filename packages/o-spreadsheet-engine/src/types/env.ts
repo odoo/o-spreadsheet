@@ -1,10 +1,10 @@
-import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
-import { ImageProviderInterface } from "@odoo/o-spreadsheet-engine/types/files";
-import { Model } from "..";
-import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
-import { Get } from "../store_engine";
-import { NotificationStoreMethods } from "../stores/notification_store";
+import { Model } from "../../../../src";
+import { Get } from "../../../../src/store_engine";
+import { ClipboardInterface } from "./clipboard/clipboard_interface";
+import { Currency } from "./currency";
+import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
+import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
 export interface EditTextOptions {
   error?: string;

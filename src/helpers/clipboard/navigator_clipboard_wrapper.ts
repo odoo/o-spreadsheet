@@ -1,15 +1,9 @@
 import { ClipboardMIMEType, OSClipboardContent } from "@odoo/o-spreadsheet-engine/types/clipboard";
+import {
+  ClipboardInterface,
+  ClipboardReadResult,
+} from "@odoo/o-spreadsheet-engine/types/clipboard/clipboard_interface";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
-
-export type ClipboardReadResult =
-  | { status: "ok"; content: OSClipboardContent }
-  | { status: "permissionDenied" | "notImplemented" };
-
-export interface ClipboardInterface {
-  write(clipboardContent: OSClipboardContent): Promise<void>;
-  writeText(text: string): Promise<void>;
-  read(): Promise<ClipboardReadResult>;
-}
 
 export function instantiateClipboard(): ClipboardInterface {
   return new WebClipboardWrapper(navigator.clipboard);

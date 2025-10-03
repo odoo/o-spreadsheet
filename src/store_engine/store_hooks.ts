@@ -1,6 +1,6 @@
 import { onWillUnmount, status, useComponent, useEnv, useSubEnv } from "@odoo/owl";
+import { StoreConstructor } from "../../packges/o-spreadsheet-engine/src/types/store_engine";
 import { DependencyContainer } from "./dependency_container";
-import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "./store";
 
 /**
  * This hook should be used at the root of your app to provide the store container.

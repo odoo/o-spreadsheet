@@ -3,6 +3,7 @@ import {
   MAXIMAL_FREEZABLE_RATIO,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
 import {
   Component,
   onMounted,
@@ -19,7 +20,7 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
-import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
+import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { _t } from "../../translation";
 import {

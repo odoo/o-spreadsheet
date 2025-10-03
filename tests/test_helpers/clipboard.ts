@@ -1,7 +1,7 @@
 import {
   ClipboardInterface,
   ClipboardReadResult,
-} from "../../src/helpers/clipboard/navigator_clipboard_wrapper";
+} from "@odoo/o-spreadsheet-engine/types/clipboard/clipboard_interface";
 import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
 
 export class MockClipboard implements ClipboardInterface {

@@ -1,3 +1,4 @@
+import { BasePlugin, CoreGetters, StateObserver } from "@odoo/o-spreadsheet-engine";
 import { ReadonlyTransportFilter } from "@odoo/o-spreadsheet-engine/collaborative/readonly_transport_filter";
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";

@@ -1,7 +1,7 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/env";
 import { Component, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
 import { MenuMouseEvent } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
