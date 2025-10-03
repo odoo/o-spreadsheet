@@ -1,17 +1,10 @@
-import { isEqual } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import {
-  CellValue,
-  CellValueType,
-  CommandResult,
-  EvaluatedCell,
-  Position,
-  SortDirection,
-  SortOptions,
-  SpreadsheetChildEnv,
-  UID,
-  Zone,
-} from "../types";
+import { _t } from "../translation";
+import { SortDirection, UID, Zone } from "../types/base";
+import { CellValue, CellValueType, EvaluatedCell } from "../types/cells";
+import { CommandResult } from "../types/commands";
+import { SpreadsheetChildEnv } from "../types/env";
+import { Position, SortOptions } from "../types/misc";
+import { isEqual } from "./zones";
 
 type CellWithIndex = { index: number; type: CellValueType; value: any };
 

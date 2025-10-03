@@ -1,3 +1,4 @@
+import { sortCells } from "@odoo/o-spreadsheet-engine/helpers/sort";
 import {
   deepEquals,
   isInside,
@@ -6,7 +7,6 @@ import {
   range,
   zoneToDimension,
 } from "../../helpers/index";
-import { sortCells } from "../../helpers/sort";
 import {
   CellPosition,
   CellValueType,

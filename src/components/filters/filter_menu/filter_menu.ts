@@ -1,6 +1,6 @@
+import { interactiveSort } from "@odoo/o-spreadsheet-engine/helpers/sort";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
-import { interactiveSort } from "../../../helpers/sort";
 import {
   CellValueType,
   CriterionFilter,

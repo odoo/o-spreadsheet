@@ -12,10 +12,10 @@ import {
   toNumber,
   transposeMatrix,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { cellsSortingCriterion } from "@odoo/o-spreadsheet-engine/helpers/sort";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError, NotAvailableError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { range } from "../helpers";
-import { cellsSortingCriterion } from "../helpers/sort";
 import {
   AddFunctionDescription,
   Arg,

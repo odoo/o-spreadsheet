@@ -1,6 +1,6 @@
+import { interactiveSortSelection } from "@odoo/o-spreadsheet-engine/helpers/sort";
 import { TableTerms } from "../../src/components/translations_terms";
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
-import { interactiveSortSelection } from "../../src/helpers/sort";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
 import { interactiveFreezeColumnsRows } from "../../src/helpers/ui/freeze_interactive";
 import {
