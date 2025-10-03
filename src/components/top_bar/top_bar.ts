@@ -1,3 +1,4 @@
+import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import {
   Component,
   onWillStart,
@@ -9,7 +10,6 @@ import {
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
-import { DEFAULT_FONT_SIZE } from "../../constants";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";

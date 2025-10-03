@@ -39,7 +39,7 @@ import {
   toRangesData,
 } from "../test_helpers/helpers";
 
-import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { EvaluationPlugin } from "../../src/plugins/ui_core_views";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";

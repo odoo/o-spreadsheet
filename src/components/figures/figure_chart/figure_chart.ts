@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { chartComponentRegistry } from "../../../registries/chart_types";
+import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType, CSSProperties, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 

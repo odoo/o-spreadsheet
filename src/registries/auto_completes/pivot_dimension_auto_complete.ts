@@ -1,4 +1,4 @@
-import { PIVOT_TOKEN_COLOR } from "../../constants";
+import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { getCanonicalSymbolName } from "../../helpers";
 import { PivotRuntimeDefinition } from "../../helpers/pivot/pivot_runtime_definition";
 import { PivotMeasure } from "../../types";

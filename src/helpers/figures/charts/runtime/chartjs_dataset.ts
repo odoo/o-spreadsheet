@@ -1,4 +1,13 @@
 import {
+  BACKGROUND_CHART_COLOR,
+  CHART_WATERFALL_NEGATIVE_COLOR,
+  CHART_WATERFALL_POSITIVE_COLOR,
+  CHART_WATERFALL_SUBTOTAL_COLOR,
+  COLOR_TRANSPARENT,
+  LINE_DATA_POINT_RADIUS,
+  LINE_FILL_TRANSPARENCY,
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
   DatasetValues,
@@ -30,15 +39,6 @@ import {
   TreeMapGroupColor,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
-import {
-  BACKGROUND_CHART_COLOR,
-  CHART_WATERFALL_NEGATIVE_COLOR,
-  CHART_WATERFALL_POSITIVE_COLOR,
-  CHART_WATERFALL_SUBTOTAL_COLOR,
-  COLOR_TRANSPARENT,
-  LINE_DATA_POINT_RADIUS,
-  LINE_FILL_TRANSPARENCY,
-} from "../../../../constants";
 import { _t } from "../../../../translation";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import {

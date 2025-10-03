@@ -1,5 +1,5 @@
+import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";

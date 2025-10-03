@@ -1,4 +1,4 @@
-import { Registry } from "../registries/registry";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   BordersPlugin,
   CellPlugin,

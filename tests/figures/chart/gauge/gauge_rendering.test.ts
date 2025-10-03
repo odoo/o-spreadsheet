@@ -1,7 +1,7 @@
+import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { GaugeAnimatedRuntime, GaugeChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Model } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
-import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import {
   GAUGE_DEFAULT_VALUE_FONT_SIZE,

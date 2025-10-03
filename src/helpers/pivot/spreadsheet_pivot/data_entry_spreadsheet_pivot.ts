@@ -1,11 +1,11 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
 import {
   DimensionTree,
   PivotDimension,
   PivotTableColumn,
   PivotTableRow,
-} from "../../../types/pivot";
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
 import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 

@@ -2,6 +2,10 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  CoreViewCommand,
+  invalidateEvaluationCommands,
+} from "@odoo/o-spreadsheet-engine/types/commands";
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
@@ -29,7 +33,6 @@ import {
   invalidateCFEvaluationCommands,
 } from "../../types/index";
 import { CoreViewPlugin } from "../core_view_plugin";
-import { CoreViewCommand, invalidateEvaluationCommands } from "./../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };

@@ -1,9 +1,9 @@
-import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   GaugeChartDefinition,
@@ -13,17 +13,11 @@ import {
   SectionThreshold,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import {
-  DEFAULT_GAUGE_LOWER_COLOR,
-  DEFAULT_GAUGE_MIDDLE_COLOR,
-  DEFAULT_GAUGE_UPPER_COLOR,
-} from "../../../constants";
-import {
   AdaptSheetName,
   ApplyRangeChange,
   CellValueType,
   Color,
   CommandResult,
-  CoreGetters,
   Format,
   Getters,
   Range,
@@ -37,7 +31,6 @@ import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
-import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;

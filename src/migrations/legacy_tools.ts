@@ -1,4 +1,4 @@
-import { FORMULA_REF_IDENTIFIER } from "../constants";
+import { FORMULA_REF_IDENTIFIER } from "@odoo/o-spreadsheet-engine/constants";
 import { rangeTokenize } from "../formulas/range_tokenizer";
 import { cellReference } from "../helpers";
 

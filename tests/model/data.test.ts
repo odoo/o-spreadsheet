@@ -1,4 +1,4 @@
-import { DEFAULT_REVISION_ID } from "../../src/constants";
+import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
 import { getCurrentVersion, load } from "../../src/migrations/data";
 import { DEFAULT_LOCALE } from "../../src/types";
 

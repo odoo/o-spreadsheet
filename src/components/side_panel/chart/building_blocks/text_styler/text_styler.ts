@@ -1,6 +1,6 @@
+import { DEFAULT_STYLE } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
-import { DEFAULT_STYLE } from "../../../../../constants";
 import { _t } from "../../../../../translation";
 import { Align, ChartStyle, Color, SpreadsheetChildEnv, VerticalAlign } from "../../../../../types";
 import { ActionButton } from "../../../../action_button/action_button";

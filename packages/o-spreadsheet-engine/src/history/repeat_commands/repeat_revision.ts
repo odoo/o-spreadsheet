@@ -5,8 +5,8 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "../../../../../src/registries/repeat_commands_registry";
 import { CoreCommand, Getters } from "../../../../../src/types";
-import { Command, isCoreCommand } from "../../../../../src/types/commands";
 import { Revision } from "../../collaborative/revisions";
+import { Command, isCoreCommand } from "../../types/commands";
 
 export function canRepeatRevision(revision: Revision | undefined): boolean {
   if (!revision || !revision.rootCommand || typeof revision.rootCommand !== "object") {

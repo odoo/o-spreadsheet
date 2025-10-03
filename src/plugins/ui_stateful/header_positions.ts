@@ -1,3 +1,4 @@
+import { invalidateEvaluationCommands } from "@odoo/o-spreadsheet-engine/types/commands";
 import {
   Dimension,
   HeaderDimensions,
@@ -6,7 +7,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/misc";
 import { deepCopy } from "../../helpers/index";
 import { Command, UID } from "../../types";
-import { invalidateEvaluationCommands } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderPositionsUIPlugin extends UIPlugin {

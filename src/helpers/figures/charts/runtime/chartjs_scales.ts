@@ -1,4 +1,11 @@
 import {
+  CHART_AXIS_TITLE_FONT_SIZE,
+  CHART_PADDING,
+  CHART_PADDING_BOTTOM,
+  CHART_PADDING_TOP,
+  GRAY_300,
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
   AxisDesign,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -19,13 +26,6 @@ import {
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import {
-  CHART_AXIS_TITLE_FONT_SIZE,
-  CHART_PADDING,
-  CHART_PADDING_BOTTOM,
-  CHART_PADDING_TOP,
-  GRAY_300,
-} from "../../../../constants";
 import { LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 import { getColorScale } from "../../../color";

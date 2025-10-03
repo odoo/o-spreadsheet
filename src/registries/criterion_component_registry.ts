@@ -1,3 +1,4 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { ComponentConstructor } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { DateCriterionForm } from "../components/side_panel/criterion_form/date_criterion/date_criterion";
@@ -7,7 +8,6 @@ import { ListCriterionForm } from "../components/side_panel/criterion_form/value
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
 import { GenericCriterionType } from "../types";
 import { criterionEvaluatorRegistry } from "./criterion_registry";
-import { Registry } from "./registry";
 
 export type CriterionCategory = "text" | "date" | "number" | "misc" | "list";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {

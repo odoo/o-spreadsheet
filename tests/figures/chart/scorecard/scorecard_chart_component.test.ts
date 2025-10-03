@@ -1,13 +1,13 @@
 import {
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import {
-  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-} from "../../../../src/constants";
 import { getContextFontSize } from "../../../../src/helpers";
 import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
 import {

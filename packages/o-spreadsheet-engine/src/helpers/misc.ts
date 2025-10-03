@@ -1,4 +1,4 @@
-import { NEWLINE } from "../constants";
+import { NEWLINE } from "../../types/constants";
 
 /**
  * Escapes a string to use as a literal string in a RegExp.

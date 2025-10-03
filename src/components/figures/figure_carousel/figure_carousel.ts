@@ -1,9 +1,9 @@
+import { DEFAULT_CAROUSEL_TITLE_STYLE } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
-import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
-import { chartComponentRegistry } from "../../../registries/chart_types";
+import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
 import {
   Carousel,

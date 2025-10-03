@@ -1,6 +1,5 @@
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
   ClipboardCellData,
@@ -10,6 +9,7 @@ import {
   MinimalClipboardData,
   OSClipboardContent,
   ParsedOSClipboardContent,
+  SpreadsheetClipboardData,
   UID,
   Zone,
 } from "../../types";

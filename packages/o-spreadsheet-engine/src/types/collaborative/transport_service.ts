@@ -1,4 +1,4 @@
-import { CoreCommand } from "../../../../../src/types/commands";
+import { CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
 import { ClientId, ClientWithPosition } from "./session";

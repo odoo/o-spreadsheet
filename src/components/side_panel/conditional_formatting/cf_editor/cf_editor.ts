@@ -1,6 +1,6 @@
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
-import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";

@@ -14,18 +14,7 @@ import {
   toString,
   toValue,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { Registry } from "../../registries/registry";
-import { _t } from "../../translation";
-import {
-  CellValue,
-  DEFAULT_LOCALE,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  Pivot,
-} from "../../types";
-import { EvaluationError } from "../../types/errors";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   Granularity,
   PivotCoreDefinition,
@@ -37,7 +26,18 @@ import {
   PivotFields,
   PivotSortedColumn,
   PivotTableCell,
-} from "../../types/pivot";
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { _t } from "../../translation";
+import {
+  CellValue,
+  DEFAULT_LOCALE,
+  FunctionResultObject,
+  Locale,
+  Matrix,
+  Maybe,
+  Pivot,
+} from "../../types";
+import { EvaluationError } from "../../types/errors";
 import { getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";

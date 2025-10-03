@@ -1,5 +1,5 @@
+import { CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useState } from "@odoo/owl";
-import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import {
   ChartDefinition,
   Color,

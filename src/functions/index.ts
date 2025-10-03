@@ -1,4 +1,5 @@
 import { FunctionRegistry as EngineFunctionRegistry } from "@odoo/o-spreadsheet-engine";
+import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import {
   addMetaInfoFromArg,
   argTargeting,
@@ -11,7 +12,6 @@ import {
   matrixMap,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
-import { tokenColors } from "../constants";
 import { EnrichedToken } from "../formulas/composer_tokenizer";
 import {
   AutoCompleteProposal,

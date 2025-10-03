@@ -1,5 +1,5 @@
+import { ClipboardMIMEType, OSClipboardContent } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
-import { ClipboardMIMEType, OSClipboardContent } from "./../../types/clipboard";
 
 export type ClipboardReadResult =
   | { status: "ok"; content: OSClipboardContent }

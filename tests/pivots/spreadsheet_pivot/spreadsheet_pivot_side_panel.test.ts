@@ -1,6 +1,6 @@
+import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Model, PivotSortedColumn, SpreadsheetChildEnv, SpreadsheetPivotTable } from "../../../src";
 import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
-import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
 import { toXC, toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { topbarMenuRegistry } from "../../../src/registries/menus";

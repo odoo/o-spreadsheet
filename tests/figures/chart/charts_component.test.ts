@@ -1,3 +1,8 @@
+import {
+  BACKGROUND_CHART_COLOR,
+  DEBOUNCE_TIME,
+  LINE_DATA_POINT_RADIUS,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { PieChartRuntime, TrendConfiguration } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   BarChartDefinition,
@@ -8,11 +13,6 @@ import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
-import {
-  BACKGROUND_CHART_COLOR,
-  DEBOUNCE_TIME,
-  LINE_DATA_POINT_RADIUS,
-} from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";

@@ -1,3 +1,11 @@
+import {
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
+  MIN_CF_ICON_MARGIN,
+  PIVOT_COLLAPSE_ICON_SIZE,
+  PIVOT_INDENT,
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
 import {
   CHECKBOX_CHECKED,
@@ -13,16 +21,8 @@ import {
   ICONS,
 } from "../components/icons/icons";
 import { CellPopoverStore } from "../components/popover";
-import {
-  GRID_ICON_EDGE_LENGTH,
-  GRID_ICON_MARGIN,
-  MIN_CF_ICON_MARGIN,
-  PIVOT_COLLAPSE_ICON_SIZE,
-  PIVOT_INDENT,
-} from "../constants";
 import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
-import { Registry } from "./registry";
 
 export type IconsOfCell = Record<Exclude<Align, undefined>, GridIcon | undefined>;
 

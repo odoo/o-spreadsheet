@@ -1,4 +1,4 @@
-import { NEWLINE } from "../../constants";
+import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 import { range } from "../../helpers";
 import { canonicalizeNumberContent } from "../../helpers/locale";
 import {

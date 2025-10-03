@@ -1,6 +1,6 @@
 import { CellValue, EvaluatedCell } from "./cells";
 
-import type { CommandResult } from "../../../../src/types/commands";
+import type { CommandResult } from "./commands";
 import type { Validation as EngineValidation } from "./validator";
 // -----------------------------------------------------------------------------
 // MISC

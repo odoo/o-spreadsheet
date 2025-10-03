@@ -1,3 +1,9 @@
+import {
+  AUTOFILL_EDGE_LENGTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  SCROLLBAR_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import {
   Component,
@@ -16,12 +22,6 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import {
-  AUTOFILL_EDGE_LENGTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-} from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";

@@ -1,11 +1,15 @@
 import {
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+  FIGURE_ID_SPLITTER,
+} from "@odoo/o-spreadsheet-engine/constants";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import {
   ChartCreationContext,
   ChartDefinition,
   ChartType,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { deepEquals } from "../../helpers";
-import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import {
   AdaptSheetName,

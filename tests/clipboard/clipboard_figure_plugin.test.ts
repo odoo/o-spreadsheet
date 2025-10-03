@@ -1,6 +1,6 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { CommandResult, Model } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { UID } from "../../src/types";
 import {

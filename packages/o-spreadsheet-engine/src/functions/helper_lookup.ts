@@ -13,7 +13,7 @@ import {
   EvaluationError,
   InvalidReferenceError,
 } from "../../../../src/types/errors";
-import { PivotCoreDefinition, PivotCoreMeasure } from "../../../../src/types/pivot";
+import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 
 /**
  * Get the pivot ID from the formula pivot ID.

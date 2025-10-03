@@ -1,15 +1,14 @@
+import { CellValue } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
-  CellValue,
   DimensionTree,
-  Pivot,
+  NEXT_VALUE,
   PivotColRowDomain,
   PivotDomain,
   PivotNode,
-} from "../../types";
+  PREVIOUS_VALUE,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { Pivot } from "../../types";
 import { clip, deepCopy, deepEquals } from "../misc";
-
-export const PREVIOUS_VALUE = "(previous)";
-export const NEXT_VALUE = "(next)";
 
 export function getDomainOfParentRow(pivot: Pivot, domain: PivotDomain): PivotDomain {
   const { colDomain, rowDomain } = domainToColRowDomain(pivot, domain);

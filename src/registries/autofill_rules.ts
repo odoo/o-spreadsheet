@@ -1,4 +1,5 @@
 import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { EvaluatedCell, LiteralCell } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   DateTime,
@@ -9,7 +10,6 @@ import {
 } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE, DIRECTION } from "../types/index";
-import { Registry } from "./registry";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill

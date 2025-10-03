@@ -1,9 +1,9 @@
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
+import { MAX_HISTORY_STEPS } from "@odoo/o-spreadsheet-engine/constants";
 import {
   canRepeatRevision,
   repeatRevision,
 } from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_revision";
-import { MAX_HISTORY_STEPS } from "../../constants";
 import { Command, CommandResult, UID } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 

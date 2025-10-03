@@ -1,6 +1,3 @@
-import { Model, PivotSortedColumn, SpreadsheetPivotCoreDefinition } from "../../src";
-import { PREVIOUS_VALUE } from "../../src/helpers/pivot/pivot_domain_helpers";
-import { isSortedColumnValid } from "../../src/helpers/pivot/pivot_helpers";
 import { createModelFromGrid, getFormattedGrid, getGrid } from "../test_helpers/helpers";
 import {
   addPivot,

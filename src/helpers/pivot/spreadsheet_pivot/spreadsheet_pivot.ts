@@ -1,5 +1,15 @@
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import {
+  Granularity,
+  PivotDimension,
+  PivotDomain,
+  PivotFields,
+  PivotMeasure,
+  PivotNode,
+  SpreadsheetPivotCoreDefinition,
+  TechnicalName,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { handleError } from "../../../functions";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
@@ -15,16 +25,6 @@ import {
   Zone,
 } from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
-import {
-  Granularity,
-  PivotDimension,
-  PivotDomain,
-  PivotFields,
-  PivotMeasure,
-  PivotNode,
-  SpreadsheetPivotCoreDefinition,
-  TechnicalName,
-} from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepEquals, isDefined } from "../../misc";

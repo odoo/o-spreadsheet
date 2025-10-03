@@ -13,8 +13,10 @@ import * as ChartGeo from "chartjs-chart-geo";
 
 export * from "@odoo/o-spreadsheet-engine/types/cells";
 export * from "@odoo/o-spreadsheet-engine/types/chart/chart";
+export * from "@odoo/o-spreadsheet-engine/types/clipboard";
 export * from "@odoo/o-spreadsheet-engine/types/collaborative/revisions";
 export * from "@odoo/o-spreadsheet-engine/types/collaborative/session";
+export * from "@odoo/o-spreadsheet-engine/types/commands";
 export * from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
 export * from "@odoo/o-spreadsheet-engine/types/currency";
 export * from "@odoo/o-spreadsheet-engine/types/data_validation";
@@ -24,16 +26,31 @@ export * from "@odoo/o-spreadsheet-engine/types/functions";
 export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
 export * from "@odoo/o-spreadsheet-engine/types/history2";
 export * from "@odoo/o-spreadsheet-engine/types/misc";
+export * from "@odoo/o-spreadsheet-engine/types/pivot";
 export * from "@odoo/o-spreadsheet-engine/types/range";
+export {
+  BorderDescrWithOpacity,
+  Box,
+  BoxTextContent,
+  DOMCoordinates,
+  DOMDimension,
+  GridRenderingContext,
+  Image,
+  LAYERS,
+  LayerName,
+  Rect,
+  RenderingBorder,
+  RenderingBox,
+  RenderingGridIcon,
+  SheetDOMScrollInfo,
+  Viewport,
+} from "@odoo/o-spreadsheet-engine/types/rendering";
 export * from "@odoo/o-spreadsheet-engine/types/table";
 export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
 export * from "./autofill";
-export * from "./clipboard";
-export * from "./commands";
 export * from "./env";
 export * from "./getters";
 export * from "./locale";
-export * from "./pivot";
 export * from "./pivot_runtime";
 export * from "./rendering";
 

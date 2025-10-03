@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "@odoo/o-spreadsheet-engine/constants";
 import {
   createDefaultRows,
   deepCopy,

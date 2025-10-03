@@ -1,4 +1,3 @@
-import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
 import {
   ACTION_COLOR,
   FILTERS_COLOR,
@@ -6,7 +5,8 @@ import {
   GRAY_300,
   GRAY_900,
   TEXT_BODY_MUTED,
-} from "../../constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
 import { isDefined } from "../../helpers";
 import { Style } from "../../types";
 

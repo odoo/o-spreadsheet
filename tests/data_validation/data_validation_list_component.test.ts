@@ -1,12 +1,12 @@
-import { Model } from "../../src";
-import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_WIDTH,
   GRAY_200,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { toZone } from "../../src/helpers";
 import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
 import {

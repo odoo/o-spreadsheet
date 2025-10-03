@@ -1,5 +1,6 @@
 import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
@@ -33,7 +34,6 @@ import { SheetUIPlugin } from "../../src/plugins/ui_feature";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus";
-import { Registry } from "../../src/registries/registry";
 import {
   DependencyContainer,
   Store,

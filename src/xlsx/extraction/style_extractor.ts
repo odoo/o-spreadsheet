@@ -1,3 +1,4 @@
+import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import {
   XLSXBorder,
   XLSXBorderDescr,
@@ -13,7 +14,6 @@ import {
   XLSXTheme,
   XLSXVerticalAlignment,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { DEFAULT_FONT_SIZE } from "../../constants";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XlsxBaseExtractor } from "./base_extractor";
 

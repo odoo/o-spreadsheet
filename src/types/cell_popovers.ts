@@ -2,7 +2,8 @@ import { CellPosition } from "@odoo/o-spreadsheet-engine/types/misc";
 import { ComponentConstructor } from "@odoo/owl";
 import { Getters } from "./index";
 import { PropsOf } from "./propsOf";
-import { Rect } from "./rendering";
+
+import { Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
 
 export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
 export type PopoverPropsPosition = "top-right" | "bottom-left";

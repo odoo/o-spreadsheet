@@ -1,4 +1,4 @@
-import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
+import { TABLE_HOVER_BACKGROUND_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { range } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { SpreadsheetStore } from "../../stores";

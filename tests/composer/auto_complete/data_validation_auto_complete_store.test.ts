@@ -1,5 +1,5 @@
+import { GRAY_200 } from "@odoo/o-spreadsheet-engine/constants";
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
-import { GRAY_200 } from "../../../src/constants";
 import { addDataValidation, setCellContent } from "../../test_helpers/commands_helpers";
 import { nextTick } from "../../test_helpers/helpers";
 import { makeStore } from "../../test_helpers/stores";

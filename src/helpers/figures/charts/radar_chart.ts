@@ -1,3 +1,6 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   ChartCreationContext,
   CustomizedDataSet,
@@ -10,12 +13,10 @@ import {
   RadarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   ApplyRangeChange,
   Color,
   CommandResult,
-  CoreGetters,
   DatasetDesign,
   Getters,
   Range,
@@ -25,7 +26,6 @@ import {
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";
-import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
   checkDataset,

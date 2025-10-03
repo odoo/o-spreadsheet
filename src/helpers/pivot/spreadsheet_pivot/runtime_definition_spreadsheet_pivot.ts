@@ -1,5 +1,8 @@
+import {
+  PivotFields,
+  SpreadsheetPivotCoreDefinition,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Getters, Range } from "../../../types";
-import { PivotFields, SpreadsheetPivotCoreDefinition } from "../../../types/pivot";
 import { PivotRuntimeDefinition } from "../pivot_runtime_definition";
 
 export class SpreadsheetPivotRuntimeDefinition extends PivotRuntimeDefinition {

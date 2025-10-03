@@ -1,4 +1,12 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import {
+  CHART_PADDING,
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  DEFAULT_SCORECARD_BASELINE_MODE,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { ChartCreationContext, TitleDesign } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   BaselineArrowDirection,
@@ -7,17 +15,10 @@ import {
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import {
-  CHART_PADDING,
-  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-  DEFAULT_SCORECARD_BASELINE_MODE,
-} from "../../../constants";
-import {
   ApplyRangeChange,
   CellValueType,
   Color,
   CommandResult,
-  CoreGetters,
   EvaluatedCell,
   Getters,
   Locale,
@@ -33,7 +34,6 @@ import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
-import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 

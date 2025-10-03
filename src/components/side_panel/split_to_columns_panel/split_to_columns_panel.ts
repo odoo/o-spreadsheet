@@ -1,5 +1,5 @@
+import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onMounted, useEffect, useState } from "@odoo/owl";
-import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { useStore } from "../../../store_engine";
 import { _t } from "../../../translation";

@@ -1,7 +1,12 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import {
+  PivotCoreDefinition,
+  PivotField,
+  PivotFields,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { ModelConfig } from "../../model";
-import { Registry } from "../../registries/registry";
-import { CoreGetters, Getters } from "../../types";
-import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
+import { Getters } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { SpreadsheetPivotRuntimeDefinition } from "./spreadsheet_pivot/runtime_definition_spreadsheet_pivot";

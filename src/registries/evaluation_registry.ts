@@ -1,5 +1,5 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Getters } from "../types";
-import { Registry } from "./registry";
 
 /**
  * This registry is used to register functions that should be called after each iteration of the evaluation.

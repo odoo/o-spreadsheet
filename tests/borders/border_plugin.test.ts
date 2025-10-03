@@ -1,4 +1,4 @@
-import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { toZone } from "../../src/helpers";
 import { removeFalsyAttributes } from "../../src/helpers/misc";
 import { Model } from "../../src/model";

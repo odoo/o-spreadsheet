@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
+import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
 import {
   getCanonicalSymbolName,
   numberToLetters,

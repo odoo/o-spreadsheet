@@ -1,11 +1,7 @@
-import {
-  DOMCoordinates,
-  HeaderIndex,
-  Pixel,
-  PixelPosition,
-  TitleDesign,
-  UID,
-} from "../../../../src/types";
+import { HeaderIndex, Pixel, PixelPosition, UID } from "./misc";
+
+import { TitleDesign } from "./chart";
+import { DOMCoordinates } from "./rendering";
 
 export interface FigureInfo {
   id: UID;

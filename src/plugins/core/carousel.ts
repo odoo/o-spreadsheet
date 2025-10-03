@@ -1,4 +1,4 @@
-import { FIGURE_ID_SPLITTER } from "../../constants";
+import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
 import {
   Carousel,
   CarouselItem,

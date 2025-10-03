@@ -1,4 +1,4 @@
-import { groupConsecutive } from "../helpers/index";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -19,8 +19,8 @@ import {
   RenameSheetCommand,
   UnhideColumnsRowsCommand,
   coreTypes,
-} from "../types/commands";
-import { Registry } from "./registry";
+} from "@odoo/o-spreadsheet-engine/types/commands";
+import { groupConsecutive } from "../helpers/index";
 
 type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
 

@@ -1,9 +1,9 @@
+import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
 import {
   CollaborationMessage,
   NewMessageCallback,
   TransportService,
 } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
-import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { deepCopy } from "../../src/helpers";
 import { UID, WorkbookData } from "../../src/types";
 

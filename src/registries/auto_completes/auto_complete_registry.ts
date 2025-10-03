@@ -1,7 +1,7 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { HtmlContent } from "../../components/composer/composer/composer";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { CellPosition, Getters } from "../../types";
-import { Registry } from "../registry";
 
 export interface AutoCompleteProposal {
   /**

@@ -1,5 +1,5 @@
+import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
   fontSizeInPixels,

@@ -1,6 +1,6 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
 import { XLSXStructure, XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   isInside,
   isMarkdownLink,

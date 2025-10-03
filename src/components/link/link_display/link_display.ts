@@ -1,5 +1,5 @@
+import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
-import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
 import { Store, useStore } from "../../../store_engine";

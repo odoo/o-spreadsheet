@@ -1,5 +1,5 @@
+import { CHART_PADDING_TOP } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../../src";
-import { CHART_PADDING_TOP } from "../../../src/constants";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";

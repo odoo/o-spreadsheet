@@ -1,4 +1,9 @@
 import {
+  GROUP_LAYER_WIDTH,
+  MAXIMAL_FREEZABLE_RATIO,
+  SCROLLBAR_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
   Component,
   onMounted,
   onPatched,
@@ -9,7 +14,6 @@ import {
   useRef,
   useSubEnv,
 } from "@odoo/owl";
-import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO, SCROLLBAR_WIDTH } from "../../constants";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";

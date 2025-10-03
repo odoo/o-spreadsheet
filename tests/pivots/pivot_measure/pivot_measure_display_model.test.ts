@@ -1,6 +1,3 @@
-import { CellErrorType, PivotMeasureDisplay } from "../../../src";
-import { NEXT_VALUE, PREVIOUS_VALUE } from "../../../src/helpers/pivot/pivot_domain_helpers";
-import { setCellContent } from "../../test_helpers/commands_helpers";
 import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { getFormattedGrid, getGrid } from "../../test_helpers/helpers";
 import {

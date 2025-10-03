@@ -1,3 +1,6 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   FunnelChartColors,
   FunnelChartDefinition,
@@ -13,12 +16,10 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   ApplyRangeChange,
   Color,
   CommandResult,
-  CoreGetters,
   Getters,
   Range,
   RangeAdapter,
@@ -26,7 +27,6 @@ import {
 } from "../../../types";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
-import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,

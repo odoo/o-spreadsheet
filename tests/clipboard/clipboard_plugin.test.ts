@@ -1,7 +1,7 @@
+import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { UIPlugin } from "../../src";
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
-import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
 import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import {
   getClipboardDataPositions,

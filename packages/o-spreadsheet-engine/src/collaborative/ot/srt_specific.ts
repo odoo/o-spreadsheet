@@ -11,7 +11,7 @@ import {
   UpdateCellCommand,
   UpdateChartCommand,
   UpdatePivotCommand,
-} from "../../../../../src/types/commands";
+} from "../../types/commands";
 
 function updateCellCommandAdaptRange(
   cmd: UpdateCellCommand,

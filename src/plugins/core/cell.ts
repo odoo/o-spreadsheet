@@ -1,5 +1,5 @@
+import { DEFAULT_STYLE } from "@odoo/o-spreadsheet-engine/constants";
 import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";

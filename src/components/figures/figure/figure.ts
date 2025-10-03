@@ -1,5 +1,5 @@
+import { FIGURE_BORDER_COLOR, SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { FIGURE_BORDER_COLOR, SELECTION_BORDER_COLOR } from "../../../constants";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,

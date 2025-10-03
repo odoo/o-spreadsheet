@@ -48,15 +48,15 @@ import {
   target,
 } from "../../test_helpers/helpers";
 
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
-import { ChartTerms } from "../../../src/components/translations_terms";
 import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
   FIGURE_ID_SPLITTER,
-} from "../../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+import { ChartTerms } from "../../../src/components/translations_terms";
 import { zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin, FigurePlugin } from "../../../src/plugins/core";

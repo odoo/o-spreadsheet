@@ -1,3 +1,4 @@
+import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { Model } from "../../src";
 import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_replace/find_and_replace_store";
 import { functionRegistry } from "../../src/functions";
@@ -5,7 +6,6 @@ import { toZone, zoneToXc } from "../../src/helpers";
 import { DependencyContainer } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { UID } from "../../src/types";
-import { SearchOptions } from "../../src/types/find_and_replace";
 import { DEFAULT_LOCALE } from "../../src/types/locale";
 import {
   activateSheet,

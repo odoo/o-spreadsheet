@@ -1,11 +1,11 @@
-import { WaterfallChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
-import { ChartMeta } from "chart.js";
-import { ChartCreationContext, Model, UID } from "../../../../src";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
-} from "../../../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { WaterfallChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
+import { ChartMeta } from "chart.js";
+import { ChartCreationContext, Model, UID } from "../../../../src";
 import { WaterfallChart } from "../../../../src/helpers/figures/charts";
 import {
   createWaterfallChart,

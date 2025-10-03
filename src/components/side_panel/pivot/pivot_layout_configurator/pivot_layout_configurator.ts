@@ -1,3 +1,13 @@
+import {
+  Aggregator,
+  Granularity,
+  PivotCoreDefinition,
+  PivotCoreDimension,
+  PivotCoreMeasure,
+  PivotDimension as PivotDimensionType,
+  PivotField,
+  PivotMeasure,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import {
@@ -9,16 +19,6 @@ import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_
 import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
-import {
-  Aggregator,
-  Granularity,
-  PivotCoreDefinition,
-  PivotCoreDimension,
-  PivotCoreMeasure,
-  PivotDimension as PivotDimensionType,
-  PivotField,
-  PivotMeasure,
-} from "../../../../types/pivot";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { measureDisplayTerms } from "../../../translations_terms";

@@ -1,6 +1,6 @@
+import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
 import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
-import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy, isDefined } from "../../helpers";
 import {
   CommandResult,

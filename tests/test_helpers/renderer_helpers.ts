@@ -1,5 +1,5 @@
+import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
-import { getDefaultSheetViewSize } from "../../src/constants";
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 

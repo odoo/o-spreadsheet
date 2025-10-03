@@ -17,12 +17,12 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "src/types/collaborative/transport_service";
-import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../../../src/constants";
 import { EventBus } from "../../../../src/helpers/event_bus";
 import { debounce, isDefined } from "../../../../src/helpers/misc";
 import { UuidGenerator } from "../../../../src/helpers/uuid";
 import { CoreCommand, HistoryChange, Lazy, UID, WorkbookData } from "../../../../src/types";
-import { Command } from "../../../../src/types/commands";
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
+import { Command } from "../types/commands";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 

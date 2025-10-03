@@ -18,7 +18,7 @@ import {
   ResizeColumnsRowsCommand,
   SortCommand,
   UnGroupHeadersCommand,
-} from "../../../../../src/types/commands";
+} from "../../types/commands";
 import {
   repeatPositionDependantCommand,
   repeatSheetDependantCommand,

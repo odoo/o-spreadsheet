@@ -1,3 +1,4 @@
+import { DEFAULT_CELL_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import {
   CellPosition,
   Dimension,
@@ -6,7 +7,6 @@ import {
   Pixel,
   UID,
 } from "@odoo/o-spreadsheet-engine/types/misc";
-import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
   deepCopy,
   getAddHeaderStartIndex,

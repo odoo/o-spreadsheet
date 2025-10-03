@@ -1,13 +1,13 @@
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { ChartRuntime, ExcelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
-} from "../../types/commands";
+} from "@odoo/o-spreadsheet-engine/types/commands";
+import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
+import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface EvaluationChartStyle {

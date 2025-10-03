@@ -1,5 +1,5 @@
+import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { BorderEditor, BorderEditorProps } from "../../src/components/border_editor/border_editor";
-import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountComponentWithPortalTarget } from "../test_helpers/helpers";

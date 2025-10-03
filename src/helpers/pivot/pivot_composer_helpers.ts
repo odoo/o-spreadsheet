@@ -1,5 +1,5 @@
+import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
-import { tokenColors } from "../../constants";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { Granularity, PivotField, PivotMeasure } from "../../types";

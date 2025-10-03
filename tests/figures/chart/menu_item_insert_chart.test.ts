@@ -1,4 +1,3 @@
-import { Model } from "../../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -7,7 +6,8 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "../../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "../../../src";
 import { zoneToXc } from "../../../src/helpers";
 import { SpreadsheetChildEnv } from "../../../src/types";
 import {

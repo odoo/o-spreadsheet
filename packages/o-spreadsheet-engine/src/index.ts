@@ -34,6 +34,8 @@ export { Registry } from "./registry";
 export { StateObserver, type StateObserverChange } from "./state_observer";
 export * from "./translation";
 export * from "./types/base";
+export { SpreadsheetClipboardData } from "./types/clipboard";
+export { CoreGetters, PluginGetters } from "./types/coreGetters";
 export * from "./types/errors";
 export * from "./types/history";
 export * from "./types/locale";

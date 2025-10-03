@@ -1,5 +1,20 @@
 import { transformRangeData } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot_helpers";
 import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DESKTOP_BOTTOMBAR_HEIGHT,
+  FIGURE_ID_SPLITTER,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  HIGHLIGHT_COLOR,
+  MIN_COL_WIDTH,
+  MIN_ROW_HEIGHT,
+  PIVOT_TABLE_CONFIG,
+  SCROLLBAR_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
   isEvaluationError,
   toBoolean,
   toJsDate,
@@ -56,21 +71,6 @@ import { PivotSidePanelStore } from "./components/side_panel/pivot/pivot_side_pa
 import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_section/pivot_title_section";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  DESKTOP_BOTTOMBAR_HEIGHT,
-  FIGURE_ID_SPLITTER,
-  GRID_ICON_EDGE_LENGTH,
-  GRID_ICON_MARGIN,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  HIGHLIGHT_COLOR,
-  MIN_COL_WIDTH,
-  MIN_ROW_HEIGHT,
-  PIVOT_TABLE_CONFIG,
-  SCROLLBAR_WIDTH,
-} from "./constants";
 import { getFunctionsFromTokens } from "./formulas";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
@@ -118,6 +118,11 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
+import {
+  chartComponentRegistry,
+  chartRegistry,
+  chartSubtypeRegistry,
+} from "@odoo/o-spreadsheet-engine/registries/chart_types";
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
@@ -177,11 +182,6 @@ import { autofillModifiersRegistry } from "./registries/autofill_modifiers";
 import { autofillRulesRegistry } from "./registries/autofill_rules";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
-import {
-  chartComponentRegistry,
-  chartRegistry,
-  chartSubtypeRegistry,
-} from "./registries/chart_types";
 import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "./registries/inverse_command_registry";
@@ -225,6 +225,8 @@ export const __info__ = {};
 export { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/local_transport_service";
 export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
 export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
+export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+export { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 export { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
 export {
   ClientJoinedMessage,
@@ -236,8 +238,15 @@ export {
   RevisionUndoneMessage,
   TransportService,
 } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+export {
+  coreTypes,
+  invalidateCFEvaluationCommands,
+  invalidateChartEvaluationCommands,
+  invalidateDependenciesCommands,
+  invalidateEvaluationCommands,
+  readonlyAllowedCommands,
+} from "@odoo/o-spreadsheet-engine/types/commands";
 export { Spreadsheet } from "./components/index";
-export { setDefaultSheetViewSize, tokenColors } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";
 export { astToFormula } from "./formulas/formula_formatter";
 export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
@@ -249,17 +258,8 @@ export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { CoreViewPlugin } from "./plugins/core_view_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
-export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
-export {
-  coreTypes,
-  invalidateCFEvaluationCommands,
-  invalidateChartEvaluationCommands,
-  invalidateDependenciesCommands,
-  invalidateEvaluationCommands,
-  readonlyAllowedCommands,
-} from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
 
 export const SPREADSHEET_DIMENSIONS = {

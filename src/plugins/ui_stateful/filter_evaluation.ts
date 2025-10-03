@@ -2,6 +2,7 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { LocalCommand, UpdateFilterCommand } from "@odoo/o-spreadsheet-engine/types/commands";
 import {
   deepCopy,
   getUniqueText,
@@ -27,7 +28,6 @@ import {
   Table,
   UID,
 } from "../../types";
-import { LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };

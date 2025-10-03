@@ -1,4 +1,4 @@
-import { CoreCommand } from "../../../../../src/types/commands";
+import { CoreCommand } from "../commands";
 import { Color, HeaderIndex, UID } from "../misc";
 
 export type ClientId = string;

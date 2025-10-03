@@ -1,4 +1,8 @@
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  CoreViewCommand,
+  invalidateEvaluationCommands,
+} from "@odoo/o-spreadsheet-engine/types/commands";
 import { isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
@@ -23,7 +27,6 @@ import {
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
-import { CoreViewCommand, invalidateEvaluationCommands } from "./../../../types/commands";
 import { Evaluator } from "./evaluator";
 
 //#region

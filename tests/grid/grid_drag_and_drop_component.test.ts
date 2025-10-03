@@ -1,7 +1,7 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import {

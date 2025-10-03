@@ -1,5 +1,5 @@
+import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useRef } from "@odoo/owl";
-import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";

@@ -1,3 +1,4 @@
+import { PIVOT_MAX_NUMBER_OF_CELLS } from "@odoo/o-spreadsheet-engine/constants";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import {
   addPivotDependencies,
@@ -7,7 +8,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/helper_lookup";
 import { toBoolean, toNumber, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
-import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { range } from "../helpers/index";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";

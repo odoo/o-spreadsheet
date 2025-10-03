@@ -21,6 +21,7 @@ import {
   isSheetDependent,
   isTargetDependent,
 } from "../../../../../src/types";
+import { HeaderIndex, Zone } from "../../types/base";
 import {
   HeadersDependentCommand,
   RangesDependentCommand,
@@ -28,8 +29,7 @@ import {
   isHeadersDependant,
   isRangeDependant,
   isZoneDependent,
-} from "../../../../../src/types/commands";
-import { HeaderIndex, Zone } from "../../types/base";
+} from "../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
 import "./srt_specific";

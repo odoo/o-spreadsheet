@@ -1,7 +1,8 @@
+import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_types";
 import { AnchorOffset } from "@odoo/o-spreadsheet-engine/types/figure";
 import { ExcelImage } from "@odoo/o-spreadsheet-engine/types/image";
 import { XLSXFigure, XLSXFigureAnchor, XLSXWorksheet } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
 import {
   getFullReference,
   isDefined,
@@ -9,7 +10,6 @@ import {
   toUnboundedZone,
   zoneToXc,
 } from "../../helpers";
-import { chartRegistry } from "../../registries/chart_types";
 import {
   ChartCreationContext,
   ChartDefinition,

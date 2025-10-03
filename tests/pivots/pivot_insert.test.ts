@@ -1,5 +1,5 @@
+import { PIVOT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
-import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { insertPivot } from "../test_helpers/commands_helpers";
 import { getCellText, getCoreTable } from "../test_helpers/getters_helpers";

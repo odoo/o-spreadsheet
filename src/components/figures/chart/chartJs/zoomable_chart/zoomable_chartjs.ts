@@ -1,6 +1,6 @@
+import { MASTER_CHART_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import { MASTER_CHART_HEIGHT } from "../../../../../constants";
 import { clip } from "../../../../../helpers";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,

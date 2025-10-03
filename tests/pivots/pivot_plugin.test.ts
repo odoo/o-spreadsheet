@@ -1,5 +1,5 @@
+import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
 import { CommandResult, Model } from "../../src";
-import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";

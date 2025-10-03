@@ -1,6 +1,6 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Color, Model } from "../../src";
 import { iterateChildren } from "../../src/components/helpers/dom_helpers";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import {
   MIN_DELAY,
   lettersToNumber,

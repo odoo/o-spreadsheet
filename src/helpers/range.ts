@@ -1,5 +1,6 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { numberToLetters } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
-import { Registry } from "../registries/registry";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -7,7 +8,6 @@ import {
   ChangeType,
   CoreCommand,
   CoreCommandTypes,
-  CoreGetters,
   DeleteSheetCommand,
   MoveRangeCommand,
   Range,

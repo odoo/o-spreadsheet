@@ -1,5 +1,5 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { CoreCommand, RangeAdapter } from "../types";
-import { Registry } from "./registry";
 
 /*
  * Specific Ranges Transform Registry

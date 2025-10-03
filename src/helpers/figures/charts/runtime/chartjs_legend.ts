@@ -1,4 +1,9 @@
 import {
+  CHART_WATERFALL_NEGATIVE_COLOR,
+  CHART_WATERFALL_POSITIVE_COLOR,
+  CHART_WATERFALL_SUBTOTAL_COLOR,
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
@@ -12,11 +17,6 @@ import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/com
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import {
-  CHART_WATERFALL_NEGATIVE_COLOR,
-  CHART_WATERFALL_POSITIVE_COLOR,
-  CHART_WATERFALL_SUBTOTAL_COLOR,
-} from "../../../../constants";
 import { _t } from "../../../../translation";
 import { ColorGenerator } from "../../../color";
 import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";

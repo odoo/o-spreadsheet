@@ -4,7 +4,7 @@ import {
   DEFAULT_VERTICAL_ALIGN,
   DEFAULT_WRAPPING_MODE,
   FONT_SIZES,
-} from "../constants";
+} from "@odoo/o-spreadsheet-engine/constants";
 import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { getDateTimeFormat } from "../helpers/locale";

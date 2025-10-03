@@ -1,3 +1,5 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "@odoo/o-spreadsheet-engine/constants";
 import {
   ChartAxisFormats,
   ChartWithDataSetDefinition,
@@ -8,13 +10,11 @@ import {
   ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ApplyRangeChange,
   Color,
   CommandResult,
-  CoreGetters,
   DOMCoordinates,
   DOMDimension,
   Getters,

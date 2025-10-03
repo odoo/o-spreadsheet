@@ -6,7 +6,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
-} from "../constants";
+} from "@odoo/o-spreadsheet-engine/constants";
 import { Cell, Pixel, PixelPosition, Style } from "../types";
 import { isMarkdownLink, parseMarkdownLink } from "./misc";
 

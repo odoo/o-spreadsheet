@@ -1,5 +1,5 @@
+import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
-import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model, ModelConfig } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/index";

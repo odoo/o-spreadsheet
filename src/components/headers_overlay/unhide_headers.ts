@@ -1,5 +1,5 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { positionToZone } from "../../helpers";
 import { ConsecutiveIndexes, HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { cssPropertiesToCss } from "../helpers";

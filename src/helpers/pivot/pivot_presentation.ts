@@ -2,23 +2,9 @@ import { transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { handleError } from "../../functions";
 import { ModelConfig } from "../../model";
 import { _t } from "../../translation";
-import {
-  CellValue,
-  DimensionTree,
-  FunctionResultObject,
-  Getters,
-  PivotDomain,
-  PivotMeasure,
-  PivotMeasureDisplay,
-  PivotValueCell,
-  SortDirection,
-  isMatrix,
-} from "../../types";
-import { CellErrorType, NotAvailableError } from "../../types/errors";
+
 import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc";
 import {
-  NEXT_VALUE,
-  PREVIOUS_VALUE,
   domainToColRowDomain,
   domainToString,
   getDimensionDomain,

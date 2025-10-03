@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
-import { chartComponentRegistry } from "../../registries/chart_types";
+import { chartComponentRegistry } from "../../registries/chart_component_registry";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types";

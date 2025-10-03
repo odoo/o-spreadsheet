@@ -1,5 +1,3 @@
-import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
-import { ModelConfig } from "../model";
 import {
   AdaptSheetName,
   ApplyRangeChange,
@@ -12,7 +10,6 @@ import {
   UID,
   WorkbookData,
 } from "../types";
-import { CoreGetters } from "../types/getters";
 import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {

@@ -1,5 +1,5 @@
+import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useState } from "@odoo/owl";
-import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "../../constants";
 import {
   clip,
   hexToHSLA,

@@ -1,11 +1,11 @@
-import { Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";

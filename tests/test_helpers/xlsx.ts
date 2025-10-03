@@ -1,3 +1,4 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import {
   DataValidationRuleData,
   SheetData,
@@ -5,7 +6,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import { isSheetNameEqual, toCartesian, toXC, toZone } from "../../src/helpers";
 import { Border, Color, ConditionalFormat, Style } from "../../src/types";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../../src/constants";
 
 export function getWorkbookSheet(sheetName: string, data: WorkbookData): SheetData | undefined {
   return data.sheets.find((sheet) => isSheetNameEqual(sheet.name, sheetName));

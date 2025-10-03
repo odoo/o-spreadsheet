@@ -1,5 +1,4 @@
 import { ZoneBorderData } from "../../../../src/plugins/core";
-import { PivotCoreDefinition } from "../../../../src/types/pivot";
 import { CellValue, Format } from "./base";
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
@@ -17,6 +16,7 @@ import {
   Style,
   UID,
 } from "./misc";
+import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 
 export interface Dependencies {

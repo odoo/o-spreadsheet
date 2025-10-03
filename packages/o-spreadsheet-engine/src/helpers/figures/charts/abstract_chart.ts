@@ -1,3 +1,4 @@
+import { UID } from "../../../types/base";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -6,20 +7,11 @@ import {
   ExcelChartDataset,
   ExcelChartDefinition,
   TitleDesign,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  CommandResult,
-  CoreGetters,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+} from "../../../types/chart";
+import { CommandResult, CoreGetters } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
+import { AdaptSheetName, ApplyRangeChange, RangeAdapter } from "../../../types/misc";
 import { Validator } from "../../../types/validator";
-import { toExcelDataset, toExcelLabelRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.

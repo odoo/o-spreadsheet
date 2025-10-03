@@ -2,7 +2,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "../../../constants";
+} from "@odoo/o-spreadsheet-engine/constants";
 import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
 import { isDateTimeFormat } from "../../format/format";
 import { recomputeZones } from "../../recompute_zones";

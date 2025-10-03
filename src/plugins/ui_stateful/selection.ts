@@ -1,6 +1,6 @@
+import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
-import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
   clip,

@@ -15,10 +15,10 @@ import {
   repeatPasteCommand,
   repeatSortCellsCommand,
 } from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_commands_specific";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { Command, LocalCommand } from "@odoo/o-spreadsheet-engine/types/commands";
 import { deepCopy } from "../helpers";
 import { CoreCommand, Getters } from "../types";
-import { Command, LocalCommand } from "./../types/commands";
-import { Registry } from "./registry";
 
 type RepeatTransform = (getters: Getters, cmd: CoreCommand) => CoreCommand | undefined;
 

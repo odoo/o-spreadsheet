@@ -1,3 +1,4 @@
+import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
 import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import {
   ImportedFiles,
@@ -9,7 +10,6 @@ import {
   XLSXXmlDocuments,
   XMLString,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { DEFAULT_REVISION_ID } from "../constants";
 import { removeFalsyAttributes } from "../helpers";
 import { _t } from "../translation";
 import { CONTENT_TYPES } from "./constants";

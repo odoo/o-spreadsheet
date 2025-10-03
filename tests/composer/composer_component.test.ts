@@ -1,5 +1,5 @@
+import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { tokenColors } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";

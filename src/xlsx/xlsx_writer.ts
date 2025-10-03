@@ -1,3 +1,4 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import {
   XLSXExport,
   XLSXExportFile,
@@ -7,7 +8,6 @@ import {
   XMLAttributes,
   XMLString,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
 import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {

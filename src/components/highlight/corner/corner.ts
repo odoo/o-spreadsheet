@@ -1,5 +1,5 @@
+import { AUTOFILL_EDGE_LENGTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { Color, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers/css";
 

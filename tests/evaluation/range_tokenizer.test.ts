@@ -1,4 +1,4 @@
-import { NEWLINE } from "../../src/constants";
+import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 import { rangeTokenize } from "../../src/formulas";
 
 describe("rangeTokenizer", () => {

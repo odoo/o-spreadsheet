@@ -1,4 +1,4 @@
-export * from "./abstract_chart";
+export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 export * from "./bar_chart";
 export * from "./chart_common";
 export * from "./chart_factory";

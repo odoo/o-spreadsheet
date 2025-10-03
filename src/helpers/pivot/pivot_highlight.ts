@@ -1,4 +1,4 @@
-import { HIGHLIGHT_COLOR } from "../../constants";
+import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { CellPosition, Getters, Highlight, UID } from "../../types";
 import { mergeContiguousZones, positionToZone } from "../zones";
 

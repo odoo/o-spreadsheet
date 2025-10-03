@@ -1,5 +1,3 @@
-import { _t } from "../../translation";
-import { EvaluationError } from "../../types/errors";
 import {
   CommonPivotCoreDefinition,
   PivotCollapsedDomains,
@@ -10,7 +8,9 @@ import {
   PivotFields,
   PivotMeasure,
   PivotSortedColumn,
-} from "../../types/pivot";
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { _t } from "../../translation";
+import { EvaluationError } from "../../types/errors";
 import { isDateOrDatetimeField } from "./pivot_helpers";
 
 /**

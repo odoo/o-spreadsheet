@@ -1,8 +1,6 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { Box, Rect, RenderingBox } from "@odoo/o-spreadsheet-engine/types/rendering";
 import { getColorScale } from "../helpers/color";
-import { Box, Rect, RenderingBox } from "../types/rendering";
-import { GridIcon } from "./icons_on_cell_registry";
-import { Registry } from "./registry";
-
 interface CellAnimationItem {
   id: string;
   easingFn: keyof typeof EASING_FN;

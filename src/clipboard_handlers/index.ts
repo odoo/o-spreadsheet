@@ -1,4 +1,4 @@
-import { Registry } from "../registries/registry";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
 import { BorderClipboardHandler } from "./borders_clipboard";

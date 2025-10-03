@@ -1,4 +1,5 @@
 import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format/format";
@@ -13,7 +14,6 @@ import {
   LiteralCell,
 } from "../types/index";
 import { AlphanumericIncrementModifier, DateIncrementModifier } from "./../types/autofill";
-import { Registry } from "./registry";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a

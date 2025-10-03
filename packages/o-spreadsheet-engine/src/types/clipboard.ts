@@ -1,6 +1,5 @@
-import { AllowedImageMimeTypes, Image } from "@odoo/o-spreadsheet-engine/types/image";
-import { ClipboardCell, HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
-import { SpreadsheetClipboardData } from "../plugins/ui_stateful";
+import { AllowedImageMimeTypes, Image } from "./image";
+import { ClipboardCell, HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
@@ -14,6 +13,11 @@ export type OSClipboardContent = {
   [ClipboardMIMEType.PlainText]?: string;
   [ClipboardMIMEType.Html]?: string;
 };
+
+export interface SpreadsheetClipboardData extends MinimalClipboardData {
+  version?: string;
+  clipboardId?: string;
+}
 
 export type ParsedOSClipboardContent = {
   text?: string;

@@ -1,5 +1,5 @@
+import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
 import { AnchorOffset } from "@odoo/o-spreadsheet-engine/types/figure";
-import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "../../constants";
 import { clip } from "../../helpers/index";
 import {
   ApplyRangeChange,

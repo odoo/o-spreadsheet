@@ -1,10 +1,11 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_types";
 import { ChartDefinition, ChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
-import { chartRegistry } from "../../../registries/chart_types";
 import { CommandResult, RangeAdapter, UID } from "../../../types";
-import { CoreGetters, Getters } from "../../../types/getters";
+import { Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
-import { AbstractChart } from "./abstract_chart";
 import { generateMasterChartConfig } from "./runtime/chart_zoom";
 
 /**

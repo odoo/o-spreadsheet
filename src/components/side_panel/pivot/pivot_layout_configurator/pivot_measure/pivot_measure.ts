@@ -1,5 +1,5 @@
+import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
-import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { Token, compile } from "../../../../../formulas";
 import { unquote } from "../../../../../helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";

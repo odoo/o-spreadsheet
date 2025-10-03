@@ -1,19 +1,4 @@
-import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
-import { clipboardHandlersRegistries } from "../../clipboard_handlers";
-import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
-import { convertImageToPng } from "../../components/helpers/dom_helpers";
-import { SELECTION_BORDER_COLOR } from "../../constants";
-import {
-  applyClipboardHandlersPaste,
-  getClipboardDataPositions,
-  getPasteTargetFromHandlers,
-  selectPastedZone,
-} from "../../helpers/clipboard/clipboard_helpers";
-import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { UuidGenerator, isZoneValid } from "../../helpers/index";
-import { getCurrentVersion } from "../../migrations/data";
-import { _t } from "../../translation";
+import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -21,17 +6,33 @@ import {
   ClipboardOptions,
   MinimalClipboardData,
   OSClipboardContent,
-} from "../../types/clipboard";
+} from "@odoo/o-spreadsheet-engine/types/clipboard";
+import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
+import { clipboardHandlersRegistries } from "../../clipboard_handlers";
+import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
+import { convertImageToPng } from "../../components/helpers/dom_helpers";
+import {
+  applyClipboardHandlersPaste,
+  getClipboardDataPositions,
+  getPasteTargetFromHandlers,
+  selectPastedZone,
+} from "../../helpers/clipboard/clipboard_helpers";
+import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
+import { isZoneValid, UuidGenerator } from "../../helpers/index";
+import { getCurrentVersion } from "../../migrations/data";
+import { _t } from "../../translation";
 import {
   Command,
   CommandResult,
   Dimension,
   GridRenderingContext,
   HeaderIndex,
+  isCoreCommand,
   LocalCommand,
+  SpreadsheetClipboardData,
   UID,
   Zone,
-  isCoreCommand,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
@@ -43,10 +44,6 @@ interface InsertDeleteCellsTargets {
   paste: Zone[];
 }
 
-export interface SpreadsheetClipboardData extends MinimalClipboardData {
-  version?: string;
-  clipboardId?: string;
-}
 /**
  * Clipboard Plugin
  *

@@ -1,5 +1,5 @@
+import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
-import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, Color, SortDirection, SpreadsheetChildEnv, Style } from "../../../types";

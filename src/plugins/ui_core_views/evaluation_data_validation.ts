@@ -1,9 +1,13 @@
+import { GRAY_200 } from "@odoo/o-spreadsheet-engine/constants";
 import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  CoreViewCommand,
+  invalidateEvaluationCommands,
+} from "@odoo/o-spreadsheet-engine/types/commands";
 import { DVTerms } from "../../components/translations_terms";
-import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
 import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
@@ -24,7 +28,6 @@ import {
   Style,
   UID,
 } from "../../types";
-import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CoreViewPlugin } from "../core_view_plugin";
 import { _t } from "./../../translation";
 

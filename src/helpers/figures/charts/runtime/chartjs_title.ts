@@ -1,7 +1,7 @@
+import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { ChartWithDataSetDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { TitleOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
-import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
 import { Getters } from "../../../../types";
 import { chartMutedFontColor } from "../chart_common";
 

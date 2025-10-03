@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { compile } from "../../formulas";
 import {
   createInvalidRange,
@@ -24,7 +25,6 @@ import {
   CommandHandler,
   CommandResult,
   CoreCommand,
-  CoreGetters,
   Dimension,
   Range,
   RangeData,

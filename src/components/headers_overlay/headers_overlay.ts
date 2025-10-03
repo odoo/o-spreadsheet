@@ -1,5 +1,5 @@
+import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useRef, useState } from "@odoo/owl";
-import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,

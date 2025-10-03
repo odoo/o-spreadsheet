@@ -1,4 +1,5 @@
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { DVTerms } from "../components/translations_terms";
 import {
   DateTime,
@@ -38,7 +39,6 @@ import {
   UID,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { Registry } from "./registry";
 
 export type CriterionEvaluator = {
   type: GenericCriterionType;

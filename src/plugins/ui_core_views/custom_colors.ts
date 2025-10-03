@@ -1,4 +1,4 @@
-import { COLOR_PICKER_DEFAULTS } from "../../constants";
+import { COLOR_PICKER_DEFAULTS } from "@odoo/o-spreadsheet-engine/constants";
 import {
   colorNumberToHex,
   colorToRGBA,

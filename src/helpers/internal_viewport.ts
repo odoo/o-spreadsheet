@@ -1,4 +1,4 @@
-import { FOOTER_HEIGHT } from "../constants";
+import { FOOTER_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import {
   DOMCoordinates,
   DOMDimension,

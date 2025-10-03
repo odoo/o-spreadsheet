@@ -1,5 +1,3 @@
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -11,7 +9,9 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { arg, functionRegistry } from "../../src/functions";
 import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";

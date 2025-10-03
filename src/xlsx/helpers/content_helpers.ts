@@ -1,3 +1,4 @@
+import { DEFAULT_FONT_SIZE, NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 import {
   ExtractedStyle,
   XLSXDataValidationDateOperatorType,
@@ -10,7 +11,6 @@ import {
   XLSXStyle,
   XLSXWorksheet,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
 import {
   getCanonicalRepresentation,
   isSheetNameEqual,

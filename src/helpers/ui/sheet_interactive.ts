@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEETNAME_CHARS } from "../../constants";
+import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv, UID } from "../../types";
 

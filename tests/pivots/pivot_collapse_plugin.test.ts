@@ -1,5 +1,9 @@
+import {
+  GRID_ICON_MARGIN,
+  PIVOT_COLLAPSE_ICON_SIZE,
+  PIVOT_INDENT,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
-import { GRID_ICON_MARGIN, PIVOT_COLLAPSE_ICON_SIZE, PIVOT_INDENT } from "../../src/constants";
 import { positionToZone, positions, toZone, zoneToXc } from "../../src/helpers";
 import { GridIcon } from "../../src/registries/icons_on_cell_registry";
 import { getCellContent, getEvaluatedGrid } from "../test_helpers/getters_helpers";

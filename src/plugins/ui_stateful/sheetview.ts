@@ -1,5 +1,5 @@
+import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import { HeaderDimensions, PixelPosition } from "@odoo/o-spreadsheet-engine/types/misc";
-import { getDefaultSheetViewSize } from "../../constants";
 import { clip, findCellInNewZone, isDefined, positionToZone, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";

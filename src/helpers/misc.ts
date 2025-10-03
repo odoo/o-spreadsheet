@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
 // Miscellaneous
 //------------------------------------------------------------------------------
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "@odoo/o-spreadsheet-engine/constants";
 import { escapeRegExp as engineEscapeRegExp } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { Cloneable, DebouncedFunction, Style } from "@odoo/o-spreadsheet-engine/types/misc";
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../constants";
 import { ChartStyle, ConsecutiveIndexes, Lazy, UID } from "../types";
-import { SearchOptions } from "../types/find_and_replace";
 
 export {
   escapeRegExp,

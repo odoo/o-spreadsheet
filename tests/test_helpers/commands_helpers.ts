@@ -3,7 +3,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
 import {
   colorToNumber,
   isInside,

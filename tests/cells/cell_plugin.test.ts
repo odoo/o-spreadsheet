@@ -1,5 +1,5 @@
+import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { CoreCommand, CorePlugin, Model } from "../../src";
-import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { corePluginRegistry } from "../../src/plugins";

@@ -1,11 +1,15 @@
-import { Image } from "@odoo/o-spreadsheet-engine/types/image";
-import { CellPopoverStore } from "../components/popover";
-import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
   PIVOT_MAX_NUMBER_OF_CELLS,
-} from "../constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
+  ClipboardMIMEType,
+  ClipboardPasteOptions,
+} from "@odoo/o-spreadsheet-engine/types/clipboard";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { CellPopoverStore } from "../components/popover";
+import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
@@ -22,7 +26,6 @@ import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
-import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 import { ActionSpec } from "./action";
 

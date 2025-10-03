@@ -1,9 +1,10 @@
-import { NEWLINE } from "../constants";
 import { TokenizingChars, replaceNewLines, specialWhiteSpaceRegexp } from "../helpers/misc";
 import { getFormulaNumberRegex } from "../helpers/numbers";
 import { rangeReference } from "../helpers/references";
 import { CellErrorType } from "../types/errors";
 import { DEFAULT_LOCALE, type Locale } from "../types/locale";
+
+import { NEWLINE } from "../../types/constants";
 
 export const POSTFIX_UNARY_OPERATORS = ["%"];
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);

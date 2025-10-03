@@ -1,5 +1,5 @@
+import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
-import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
 import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { cssPropertiesToCss } from "../../helpers/css";
