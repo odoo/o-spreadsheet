@@ -1,3 +1,4 @@
+import { debounce } from "../../helpers";
 import { GenericInput, GenericInputProps } from "../generic_input/generic_input";
 
 interface Props extends GenericInputProps {
@@ -15,6 +16,16 @@ export class NumberInput extends GenericInput<Props> {
     min: { type: Number, optional: true },
     max: { type: Number, optional: true },
   };
+
+  // Very short debounce to prevent up/down arrow on number input to spam the onChange
+  debouncedOnChange = debounce(this.props.onChange.bind(this), 100, true);
+
+  save() {
+    const currentValue = (this.inputRef.el?.value || "").trim();
+    if (currentValue !== this.props.value.toString()) {
+      this.debouncedOnChange(currentValue);
+    }
+  }
 
   get inputClass(): string {
     return [this.props.class, "o-input"].join(" ");

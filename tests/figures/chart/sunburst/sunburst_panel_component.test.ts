@@ -174,16 +174,18 @@ describe("Sunburst chart side panel", () => {
     });
   });
 
-  test("Can change sunburst chart hole size, and input is debounced", async () => {
+  test("Can change sunburst chart hole size, and input is debounced on ,ultiple calls", async () => {
     const chartId = createSunburstChart(model, {});
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(".o-pie-hole-size-input").toHaveValue("25");
     jest.useFakeTimers();
-    await setInputValueAndTrigger(".o-pie-hole-size-input", "50");
-    expect(getSunburstDefinition(chartId).pieHolePercentage).toEqual(undefined); // debounced
+    setInputValueAndTrigger(".o-pie-hole-size-input", "50");
+    setInputValueAndTrigger(".o-pie-hole-size-input", "51");
+    setInputValueAndTrigger(".o-pie-hole-size-input", "52");
+    expect(getSunburstDefinition(chartId).pieHolePercentage).toEqual(50); // debounced
     jest.advanceTimersByTime(1000);
-    expect(getSunburstDefinition(chartId).pieHolePercentage).toEqual(50);
+    expect(getSunburstDefinition(chartId).pieHolePercentage).toEqual(52);
     jest.useRealTimers();
   });
 });
