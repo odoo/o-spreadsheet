@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
@@ -46,6 +46,16 @@ describe("Small Bottom Bar", () => {
 
       await click(fixture, ".o-spreadsheet-editor-symbol[title='-']");
       expect(composerEl.textContent).toBe("=(-");
+    });
+
+    test("Spreaded cell has no value in the composer but has a placeholder", async () => {
+      setCellContent(model, "A1", "=MUNIT(3)");
+      selectCell(model, "A2");
+      await nextTick();
+
+      expect(".o-small-composer .o-composer").toHaveText("");
+      expect(".o-small-composer .o-composer").toHaveAttribute("placeholder", "=MUNIT(3)");
+      expect(".o-small-composer .o-icon").toHaveCount(0);
     });
   });
 

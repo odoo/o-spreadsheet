@@ -65,7 +65,11 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
   }
 
   get showFxIcon(): boolean {
-    return this.focus === "inactive" && !this.composerStore.currentContent;
+    return (
+      this.focus === "inactive" &&
+      !this.composerStore.currentContent &&
+      !this.composerStore.placeholder
+    );
   }
 
   get composerStyle(): string {
