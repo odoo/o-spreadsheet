@@ -34,11 +34,17 @@
       width: 0; /* To make flex-fill work */
     }
 
-    .o-carousel-tabs-dropdown {
+    .o-carousel-button {
       cursor: pointer;
-      padding: 2px;
-      font-size: 16px;
-      line-height: 16px;
+
+      &.o-carousel-tabs-dropdown {
+        font-size: 16px;
+        line-height: 16px;
+      }
+
+      &.o-carousel-menu-button {
+        padding: 3px 5px;
+      }
 
       &.active,
       &:hover {
