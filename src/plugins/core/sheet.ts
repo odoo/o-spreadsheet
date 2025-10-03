@@ -1,4 +1,5 @@
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "@odoo/o-spreadsheet-engine/constants";
+import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
 import {
   createDefaultRows,
   deepCopy,
@@ -16,7 +17,6 @@ import {
   range,
   toCartesian,
 } from "../../helpers/index";
-import { isSheetNameEqual } from "../../helpers/sheet";
 import {
   Cell,
   CellPosition,

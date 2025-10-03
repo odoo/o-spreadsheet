@@ -1,5 +1,6 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { numberToLetters } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   AddColumnsRowsCommand,
@@ -23,7 +24,6 @@ import {
 import { CellErrorType } from "../types/errors";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
-import { isSheetNameEqual } from "./sheet";
 import {
   boundUnboundedZone,
   createAdaptedZone,

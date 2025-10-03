@@ -1,9 +1,9 @@
+import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
-import { isSheetNameEqual } from "./sheet";
 
 export function adaptFormulaStringRanges(
   defaultSheetId: string,

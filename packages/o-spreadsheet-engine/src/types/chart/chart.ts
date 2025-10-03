@@ -21,7 +21,7 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-import { Format } from "../base";
+import { Format, Range } from "../base";
 import { Locale } from "../locale";
 export const CHART_TYPES = [
   "line",
