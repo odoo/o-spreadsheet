@@ -26,7 +26,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   };
 
   protected refName = "input";
-  private inputRef!: Ref<HTMLInputElement>;
+  protected inputRef!: Ref<HTMLInputElement>;
 
   setup() {
     this.inputRef = useRef(this.refName);

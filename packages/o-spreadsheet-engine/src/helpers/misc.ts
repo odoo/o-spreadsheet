@@ -261,8 +261,17 @@ export function isObjectEmptyRecursive<T extends object>(argument: T | undefined
 /**
  * Returns a function, that, as long as it continues to be invoked, will not
  * be triggered. The function will be called after it stops being called for
- * N milliseconds. If `immediate` is passed, trigger the function on the
- * leading edge, instead of the trailing.
+ * N milliseconds. If `immediate` is passed,  the function is called is called
+ * immediately on the first call and the debouncing is triggered starting the second
+ * call in the defined time window.
+ *
+ * Example:
+ * debouncedFunction = debounce(() => console.log('Hello!'), 250);
+ * debouncedFunction(); debouncedFunction(); // Will log 'Hello!' after 250ms
+ *
+ * debouncedFunction = debounce(() => console.log('Hello!'), 250, true);
+ * debouncedFunction(); debouncedFunction(); // Will log 'Hello!' and relog it after 250ms
+ *
  *
  * Also decorate the argument function with two methods: stopDebounce and isDebouncePending.
  *
@@ -274,21 +283,23 @@ export function debounce<T extends (...args: any) => void>(
   immediate?: boolean
 ): DebouncedFunction<T> {
   let timeout: any | undefined = undefined;
+  let firstCalled = false;
   const debounced = function (this: any): void {
     const context = this;
     const args = Array.from(arguments);
+    if (!firstCalled && immediate) {
+      firstCalled = true;
+      return func.apply(context, args);
+    }
+
     function later() {
       timeout = undefined;
-      if (!immediate) {
-        func.apply(context, args);
-      }
-    }
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) {
+      firstCalled = false;
       func.apply(context, args);
     }
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
   };
   debounced.isDebouncePending = () => timeout !== undefined;
   debounced.stopDebounce = () => {
