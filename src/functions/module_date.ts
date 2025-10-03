@@ -23,7 +23,7 @@ import {
   MS_PER_DAY,
   numberToJsDate,
   parseDateTime,
-} from "../helpers/dates";
+} from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import {

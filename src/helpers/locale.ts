@@ -1,4 +1,5 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { deepCopy, isFormula } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { tokenize } from "../formulas/tokenizer";
 import {
@@ -9,7 +10,6 @@ import {
   IconThreshold,
   Locale,
 } from "../types";
-import { isDateTime } from "./dates";
 import { formatValue, getDecimalNumberRegex } from "./format/format";
 import { isNumber } from "./numbers";
 

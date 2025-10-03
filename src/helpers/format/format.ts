@@ -1,5 +1,12 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import {
+  DateTime,
+  INITIAL_1900_DAY,
+  isDateTime,
+  numberToJsDate,
+  parseDateTime,
+} from "@odoo/o-spreadsheet-engine/helpers/dates";
+import {
   escapeRegExp,
   insertItemsAtIndex,
   memoize,
@@ -19,7 +26,6 @@ import {
   Maybe,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
-import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {
   DateInternalFormat,
   InternalFormat,

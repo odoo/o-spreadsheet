@@ -2,8 +2,9 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
-import { isDefined, whiteSpaceCharacters } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { CellValue, Format, Locale } from "../types";
+import { CellValue, Format } from "../types/base";
+import { Locale } from "../types/locale";
+import { isDefined, whiteSpaceCharacters } from "./misc2";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:

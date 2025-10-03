@@ -20,8 +20,8 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "@odoo/o-spreadsheet-engine/types/misc";
 
+import * as array from "@odoo/o-spreadsheet-engine/functions/module_array";
 import { createAutocompleteArgumentsProvider } from "./autocompleteArgumentsProvider";
-import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
 import * as date from "./module_date";

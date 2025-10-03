@@ -1,27 +1,27 @@
 // HELPERS
-import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../../../../src/helpers/dates";
-import { isNumber, parseNumber } from "../../../../src/helpers/numbers";
-import { _t } from "../../../../src/translation";
-import {
-  Arg,
-  CellValue,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  SortDirection,
-  isMatrix,
-} from "../../../../src/types";
+import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
+import { memoize } from "../helpers/misc2";
+import { isNumber, parseNumber } from "../helpers/numbers";
+import { _t } from "../translation";
+import { CellValue } from "../types/base";
 import {
   CellErrorType,
   ErrorValue,
   EvaluationError,
   NotAvailableError,
   errorTypes,
-} from "../../../../src/types/errors";
-import { memoize } from "../helpers/misc2";
+} from "../types/errors";
 import { LookupCaches } from "../types/functions";
+import { Locale } from "../types/locale";
+import {
+  Arg,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  SortDirection,
+  isMatrix,
+} from "../types/misc";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 

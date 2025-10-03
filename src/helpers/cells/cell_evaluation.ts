@@ -1,4 +1,5 @@
 import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { isBoolean, memoize } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   BooleanCell,
@@ -16,7 +17,6 @@ import {
   LocaleFormat,
   NumberCell,
 } from "../../types";
-import { parseDateTime } from "../dates";
 import {
   detectDateFormat,
   detectNumberFormat,

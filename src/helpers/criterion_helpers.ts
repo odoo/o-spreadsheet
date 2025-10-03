@@ -1,6 +1,10 @@
+import {
+  DateTime,
+  jsDateToNumber,
+  valueToDateNumber,
+} from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { DateCriterionValue, EvaluatedDateCriterion, Locale } from "../types";
 import { parseLiteral } from "./cells";
-import { DateTime, jsDateToNumber, valueToDateNumber } from "./dates";
 import { formatValue } from "./format/format";
 
 function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate">): number {

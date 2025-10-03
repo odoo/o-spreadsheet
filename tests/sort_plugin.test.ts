@@ -1,4 +1,4 @@
-import { parseDateTime } from "../src/helpers/dates";
+import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { toZone, zoneToXc } from "../src/helpers/index";
 import { Model } from "../src/model";
 import { CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src/types";
