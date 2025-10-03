@@ -1,13 +1,29 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
-import { numberToLetters } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { CoreGetters } from "../index";
+import { Registry } from "../registries/registry";
 import {
-  getCanonicalSymbolName,
-  groupConsecutive,
-  largeMax,
-  largeMin,
-} from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { isRowReference, splitReference } from "@odoo/o-spreadsheet-engine/helpers/references";
-import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
+  AddColumnsRowsCommand,
+  CoreCommand,
+  CoreCommandTypes,
+  DeleteSheetCommand,
+  MoveRangeCommand,
+  RemoveColumnsRowsCommand,
+  RenameSheetCommand,
+} from "../types/commands";
+import { CellErrorType } from "../types/errors";
+import {
+  ApplyRangeChange,
+  CellPosition,
+  ChangeType,
+  RangeAdapter,
+  UID,
+  UnboundedZone,
+  ZoneDimension,
+} from "../types/misc";
+import { Range, RangePart, RangeStringOptions } from "../types/range";
+import { numberToLetters } from "./coordinates";
+import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc2";
+import { isRowReference, splitReference } from "./references";
+import { isSheetNameEqual } from "./sheet";
 import {
   boundUnboundedZone,
   createAdaptedZone,
@@ -18,28 +34,7 @@ import {
   isZoneOrdered,
   positions,
   toUnboundedZone,
-} from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  AddColumnsRowsCommand,
-  ApplyRangeChange,
-  CellPosition,
-  ChangeType,
-  CoreCommand,
-  CoreCommandTypes,
-  DeleteSheetCommand,
-  MoveRangeCommand,
-  Range,
-  RangeAdapter,
-  RangePart,
-  RangeStringOptions,
-  RemoveColumnsRowsCommand,
-  RenameSheetCommand,
-  UID,
-  UnboundedZone,
-  ZoneDimension,
-} from "../types";
+} from "./zones";
 
 interface RangeArgs {
   zone: Readonly<UnboundedZone>;

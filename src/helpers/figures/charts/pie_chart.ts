@@ -1,6 +1,7 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   DataSet,
@@ -23,7 +24,6 @@ import {
 } from "../../../types";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
 import {
   chartFontColor,
   checkDataset,

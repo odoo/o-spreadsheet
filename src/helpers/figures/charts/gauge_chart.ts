@@ -4,6 +4,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   GaugeChartDefinition,
@@ -29,7 +30,6 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
-import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 

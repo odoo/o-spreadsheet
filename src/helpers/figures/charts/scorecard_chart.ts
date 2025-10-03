@@ -7,6 +7,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext, TitleDesign } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   BaselineArrowDirection,
@@ -31,7 +32,6 @@ import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
 import { isNumber } from "../../numbers";
-import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";

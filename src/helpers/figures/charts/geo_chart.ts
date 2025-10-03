@@ -1,6 +1,7 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
@@ -25,7 +26,6 @@ import {
   UID,
 } from "../../../types";
 import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
 import {
   checkDataset,
   checkLabelRange,

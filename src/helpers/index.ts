@@ -1,5 +1,6 @@
 export * from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 export * from "@odoo/o-spreadsheet-engine/helpers/misc2";
+export * from "@odoo/o-spreadsheet-engine/helpers/range";
 export * from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 export * from "@odoo/o-spreadsheet-engine/helpers/sheet";
 export * from "@odoo/o-spreadsheet-engine/helpers/zones";
@@ -10,7 +11,6 @@ export * from "./dates";
 export * from "./edge_scrolling";
 export * from "./format/format";
 export * from "./numbers";
-export * from "./range";
 export * from "./references";
 export * from "./search";
 export * from "./text_helper";
