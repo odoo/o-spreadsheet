@@ -14,16 +14,10 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
+import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
+import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import type { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";

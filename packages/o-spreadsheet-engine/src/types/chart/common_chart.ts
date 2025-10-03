@@ -1,4 +1,4 @@
-import { Color } from "../../../../../src";
+import { Color } from "../misc";
 import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";
