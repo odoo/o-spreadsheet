@@ -22,11 +22,12 @@ import { Arg, FunctionResultObject, isMatrix, Matrix } from "@odoo/o-spreadsheet
 
 import * as misc from "@odoo/o-spreadsheet-engine/formulas/module_custom";
 import * as array from "@odoo/o-spreadsheet-engine/functions/module_array";
+import * as engineering from "@odoo/o-spreadsheet-engine/functions/module_engineering";
 import * as math from "@odoo/o-spreadsheet-engine/functions/module_math";
+import * as statistical from "@odoo/o-spreadsheet-engine/functions/module_statistical";
 import { createAutocompleteArgumentsProvider } from "./autocompleteArgumentsProvider";
 import * as database from "./module_database";
 import * as date from "./module_date";
-import * as engineering from "./module_engineering";
 import * as filter from "./module_filter";
 import * as financial from "./module_financial";
 import * as info from "./module_info";
@@ -35,7 +36,6 @@ import * as lookup from "./module_lookup";
 import * as operators from "./module_operators";
 import * as parser from "./module_parser";
 import * as pivots from "./module_pivot";
-import * as statistical from "./module_statistical";
 import * as text from "./module_text";
 import * as web from "./module_web";
 

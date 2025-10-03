@@ -1,9 +1,18 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { percentile } from "../helpers/numbers";
+import { _t } from "../translation";
+import { DivisionByZeroError, EvaluationError, NotAvailableError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { Locale } from "../types/locale";
 import {
-  areSameDimensions,
-  assert,
-  assertNotZero,
-} from "@odoo/o-spreadsheet-engine/functions/helper_assert";
+  Arg,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  isMatrix,
+} from "../types/misc";
+import { arg } from "./arguments";
+import { areSameDimensions, assert, assertNotZero } from "./helper_assert";
 import {
   assertSameNumberOfElements,
   average,
@@ -17,7 +26,7 @@ import {
   min,
   polynomialRegression,
   predictLinearValues,
-} from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
+} from "./helper_statistical";
 import {
   dichotomicSearch,
   emptyDataErrorMessage,
@@ -33,24 +42,7 @@ import {
   visitAny,
   visitMatchingRanges,
   visitNumbers,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import {
-  DivisionByZeroError,
-  EvaluationError,
-  NotAvailableError,
-} from "@odoo/o-spreadsheet-engine/types/errors";
-import { percentile } from "../helpers/index";
-import {
-  AddFunctionDescription,
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types";
+} from "./helpers";
 
 const CALCULATE_B_OPTIONS = [
   { value: true, label: _t("b is calculated normally") },
