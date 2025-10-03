@@ -1,14 +1,17 @@
-import { Command, CommandResult, Model } from "../../src";
-import { whiteListedTypes } from "../../src/plugins/ui_feature/lock_sheet";
-import { createSheet, deleteSheet, lockSheet } from "../test_helpers/commands_helpers";
+import { Command, CommandResult, Model, overrideLockCommands } from "../../src";
+import {
+  createSheet,
+  deleteSheet,
+  duplicateSheet,
+  lockSheet,
+} from "../test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "../test_helpers/constants";
 
 const allowedCommands: Command["type"][] = [];
 const rejectedCommands: Command["type"][] = [];
-whiteListedTypes;
 
 (Object.keys(TEST_COMMANDS) as Command["type"][]).forEach((cmdType) => {
-  if (whiteListedTypes.includes(cmdType)) {
+  if (overrideLockCommands.has(cmdType)) {
     allowedCommands.push(cmdType);
   } else {
     rejectedCommands.push(cmdType);
@@ -46,5 +49,17 @@ describe("Lock Sheet plugin", () => {
     expect(spyTrigger).toHaveBeenCalledWith("raise-error-ui", {
       text: "This sheet is locked and cannot be modified. Please unlock it first.",
     });
+  });
+
+  test("Duplicating a locked sheet creates an unlocked copy", () => {
+    const model = new Model();
+    createSheet(model, { name: "Another sheet", position: 0 });
+    const sheetId = model.getters.getActiveSheetId();
+    lockSheet(model);
+    const result = duplicateSheet(model, sheetId, "Duplicated");
+    expect(result).toBeSuccessfullyDispatched();
+    const newSheet = model.getters.getSheet("Duplicated");
+    expect(newSheet).toBeDefined();
+    expect(newSheet?.isLocked).toBe(false);
   });
 });

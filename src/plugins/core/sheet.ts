@@ -310,6 +310,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         areGridLinesVisible:
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
         isVisible: sheet.isVisible,
+        isLocked: sheet.isLocked,
         color: sheet.color,
       };
       if (sheet.panes.xSplit || sheet.panes.ySplit) {
@@ -746,6 +747,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const newSheet: Sheet = deepCopy(sheet);
     newSheet.id = toId;
     newSheet.name = toName;
+    newSheet.isLocked = false;
     for (let col = 0; col <= newSheet.numberOfCols; col++) {
       for (let row = 0; row <= newSheet.rows.length; row++) {
         if (newSheet.rows[row]) {

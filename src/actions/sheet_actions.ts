@@ -103,7 +103,6 @@ export const sheetMoveLeft: ActionSpec = {
 export const hideSheet: ActionSpec = {
   name: _t("Hide sheet"),
   isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
-  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   execute: (env) =>
     env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
   icon: "o-spreadsheet-Icon.HIDE_SHEET",

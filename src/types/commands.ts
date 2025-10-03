@@ -238,6 +238,8 @@ export const overrideLockCommands = new Set<Command["type"]>([
   "REQUEST_UNDO",
   "REQUEST_REDO",
   "REPLACE_SEARCH",
+  "HIDE_SHEET",
+  "SHOW_SHEET",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
