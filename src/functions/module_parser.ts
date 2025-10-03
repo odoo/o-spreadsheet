@@ -5,9 +5,9 @@ import {
   UNIT_OPTIONS,
 } from "@odoo/o-spreadsheet-engine/functions/helper_parser";
 import { toNumber, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType } from "../types/errors";
 
 // -----------------------------------------------------------------------------
 // CONVERT

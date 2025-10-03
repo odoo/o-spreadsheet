@@ -6,10 +6,10 @@ import {
   max,
   min,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { lazy, memoize, recomputeZones } from "../../../helpers";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
-import { _t } from "../../../translation";
 import {
   CellValueType,
   Command,

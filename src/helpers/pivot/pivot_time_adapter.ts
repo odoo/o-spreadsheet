@@ -1,14 +1,14 @@
 import { toJsDate, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { DAYS, formatValue, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   Granularity,
   PivotTimeAdapter,
   PivotTimeAdapterNotNull,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";
-import { EvaluationError } from "../../types/errors";
-import { DAYS, formatValue, MONTHS } from "../format/format";
 
 export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 

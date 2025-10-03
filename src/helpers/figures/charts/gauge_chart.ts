@@ -13,6 +13,7 @@ import {
   SectionRule,
   SectionThreshold,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   AdaptSheetName,
   ApplyRangeChange,
@@ -26,7 +27,6 @@ import {
   UID,
   Validation,
 } from "../../../types";
-import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";

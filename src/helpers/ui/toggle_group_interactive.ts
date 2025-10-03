@@ -1,4 +1,4 @@
-import { _t } from "../../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { CommandResult, Dimension, HeaderIndex, SpreadsheetChildEnv, UID } from "../../types";
 
 export const ToggleGroupInteractiveContent = {

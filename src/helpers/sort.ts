@@ -1,5 +1,5 @@
 import { isEqual } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   CellValue,
   CellValueType,

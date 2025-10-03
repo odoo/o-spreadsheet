@@ -1,7 +1,7 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
-import { _t } from "../../../../translation";
 import {
   PivotCoreDefinition,
   PivotCustomGroup,

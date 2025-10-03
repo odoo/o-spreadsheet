@@ -1,4 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -21,7 +22,6 @@ import {
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { isZoneValid, UuidGenerator } from "../../helpers/index";
 import { getCurrentVersion } from "../../migrations/data";
-import { _t } from "../../translation";
 import {
   Command,
   CommandResult,

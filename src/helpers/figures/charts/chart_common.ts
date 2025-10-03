@@ -1,5 +1,6 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "@odoo/o-spreadsheet-engine/constants";
+import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isDefined, largeMax } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   createRange,
@@ -12,6 +13,7 @@ import {
   zoneToDimension,
   zoneToXc,
 } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   ChartAxisFormats,
   ChartWithDataSetDefinition,
@@ -22,7 +24,7 @@ import {
   ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { _t } from "../../../translation";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   ApplyRangeChange,
   Color,
@@ -38,10 +40,8 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import { CellErrorType } from "../../../types/errors";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
-import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
 import { rangeReference } from "../../references";
 

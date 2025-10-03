@@ -24,8 +24,9 @@ import {
   numberToJsDate,
   parseDateTime,
 } from "@odoo/o-spreadsheet-engine/helpers/dates";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { getDateTimeFormat } from "../helpers/locale";
-import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -33,7 +34,6 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { EvaluationError } from "../types/errors";
 
 const DEFAULT_TYPE = 1;
 const DEFAULT_WEEKEND = 1;

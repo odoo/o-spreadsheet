@@ -5,10 +5,10 @@ import {
   DEFAULT_WRAPPING_MODE,
   FONT_SIZES,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { getDateTimeFormat } from "../helpers/locale";
-import { _t } from "../translation";
 import {
   Align,
   CellValue,

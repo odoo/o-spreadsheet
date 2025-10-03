@@ -1,7 +1,7 @@
 import { transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { handleError } from "../../functions";
 import { ModelConfig } from "../../model";
-import { _t } from "../../translation";
 
 import {
   deepEquals,

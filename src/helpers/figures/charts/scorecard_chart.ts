@@ -7,6 +7,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext, TitleDesign } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -15,6 +16,7 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   ApplyRangeChange,
   CellValueType,
@@ -27,9 +29,7 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
-import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
 import { isNumber } from "../../numbers";
 import { rangeReference } from "../../references";

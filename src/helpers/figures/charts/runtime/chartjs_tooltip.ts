@@ -1,4 +1,5 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { formatOrHumanizeValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -17,7 +18,6 @@ import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOption
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CellValue } from "../../../../types";
 import { setColorAlpha } from "../../../color";
-import { formatOrHumanizeValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";

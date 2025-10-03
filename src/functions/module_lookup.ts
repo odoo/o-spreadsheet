@@ -14,10 +14,14 @@ import {
   toString,
   valueNotAvailable,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  CellErrorType,
+  EvaluationError,
+  InvalidReferenceError,
+} from "@odoo/o-spreadsheet-engine/types/errors";
 import { getFullReference, splitReference, toXC, toZone } from "../helpers/index";
-import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
-import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 
 const DEFAULT_IS_SORTED = true;
 const DEFAULT_MATCH_MODE = 0;

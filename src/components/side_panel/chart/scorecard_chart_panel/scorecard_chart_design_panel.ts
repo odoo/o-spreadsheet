@@ -3,9 +3,9 @@ import {
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { Component } from "@odoo/owl";
-import { _t } from "../../../../translation";
 import {
   Color,
   DispatchResult,

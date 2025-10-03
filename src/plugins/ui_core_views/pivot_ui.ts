@@ -1,5 +1,6 @@
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toBoolean } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { deepEquals, getUniqueText } from "../../helpers";
@@ -12,7 +13,6 @@ import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { _t } from "../../translation";
 import {
   AddPivotCommand,
   CellPosition,

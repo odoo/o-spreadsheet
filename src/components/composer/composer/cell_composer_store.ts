@@ -2,6 +2,7 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { prettify } from "../../../formulas/formula_formatter";
 import { parseTokens } from "../../../formulas/parser";
 import { parseLiteral } from "../../../helpers/cells";
@@ -19,7 +20,6 @@ import {
 } from "../../../helpers/index";
 import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
 import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
-import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   CellPosition,

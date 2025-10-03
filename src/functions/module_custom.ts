@@ -1,7 +1,7 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { formatLargeNumber } from "../helpers";
-import { _t } from "../translation";
+import { formatLargeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   AddFunctionDescription,
   FunctionResultNumber,

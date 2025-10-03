@@ -1,4 +1,4 @@
-import { Color, HSLA, RGBA } from "../types";
+import { Color, HSLA, RGBA } from "@odoo/o-spreadsheet-engine/types/misc";
 
 import { concat } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 

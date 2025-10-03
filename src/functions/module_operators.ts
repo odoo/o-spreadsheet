@@ -4,14 +4,14 @@ import {
   toNumber,
   toString,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { DivisionByZeroError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   AddFunctionDescription,
   FunctionResultNumber,
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { DivisionByZeroError } from "../types/errors";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------

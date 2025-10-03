@@ -7,6 +7,7 @@ import {
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
@@ -42,7 +43,6 @@ import {
   Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
-import { isDateTimeFormat } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { shouldRemoveFirstLabel } from "../chart_common";
 

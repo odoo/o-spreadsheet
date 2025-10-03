@@ -1,6 +1,7 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { toString, visitMatchingRanges } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   AddFunctionDescription,
   Arg,
@@ -10,7 +11,6 @@ import {
   Matrix,
   Maybe,
 } from "../types";
-import { EvaluationError } from "../types/errors";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 

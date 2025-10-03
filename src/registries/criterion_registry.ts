@@ -1,5 +1,7 @@
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import { DVTerms } from "../components/translations_terms";
 import {
   DateTime,
@@ -19,7 +21,6 @@ import {
 import { detectLink } from "../helpers/links";
 import { localizeContent } from "../helpers/locale";
 import { rangeReference } from "../helpers/references";
-import { _t } from "../translation";
 import {
   CellValue,
   DEFAULT_LOCALE,
@@ -38,7 +39,6 @@ import {
   Locale,
   UID,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 
 export type CriterionEvaluator = {
   type: GenericCriterionType;

@@ -1,6 +1,6 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 
 const DEFAULT_DELTA_ARG = 0;

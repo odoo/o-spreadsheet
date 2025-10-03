@@ -6,7 +6,7 @@ import {
   parseSheetUrl,
 } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { CellValue, CommandResult, Getters, Link, SpreadsheetChildEnv } from "../types";
 
 /**

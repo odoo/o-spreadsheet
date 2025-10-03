@@ -1,8 +1,8 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Dimension } from "@odoo/o-spreadsheet-engine/types/misc";
 import { numberToLetters } from "../helpers";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
-import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";

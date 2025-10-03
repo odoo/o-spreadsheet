@@ -1,8 +1,8 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { ToolBarRegistry } from "../../registries/toolbar_menu_registry";
-import { _t } from "../../translation";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
 import { PaintFormatButton } from "../paint_format_button/paint_format_button";

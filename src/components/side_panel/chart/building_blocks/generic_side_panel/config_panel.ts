@@ -1,4 +1,5 @@
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_types";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, useState } from "@odoo/owl";
 import {
   createValidRange,
@@ -13,7 +14,6 @@ import {
 } from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
-import { _t } from "../../../../../translation";
 import {
   ChartDatasetOrientation,
   ChartWithDataSetDefinition,

@@ -1,7 +1,8 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError, InvalidReferenceError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { functionRegistry } from "../../../functions";
 import { getFullReference, intersection, isZoneValid, toXC, zoneToXc } from "../../../helpers";
 import { ModelConfig } from "../../../model";
-import { _t } from "../../../translation";
 import {
   CellPosition,
   EnsureRange,
@@ -13,7 +14,6 @@ import {
   Range,
   ReferenceDenormalizer,
 } from "../../../types";
-import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
 export type CompilationParameters = {
   referenceDenormalizer: ReferenceDenormalizer;

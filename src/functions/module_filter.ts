@@ -12,9 +12,10 @@ import {
   toNumber,
   transposeMatrix,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError, NotAvailableError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { range } from "../helpers";
 import { cellsSortingCriterion } from "../helpers/sort";
-import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -27,7 +28,6 @@ import {
   SortDirection,
   isMatrix,
 } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,

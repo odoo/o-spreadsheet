@@ -1,5 +1,5 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { DispatchResult } from "@odoo/o-spreadsheet-engine/types/commands";
-import { _t } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../types";
 
 export const SplitToColumnsInteractiveContent = {

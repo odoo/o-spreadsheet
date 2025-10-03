@@ -1,11 +1,11 @@
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import {
-  DateTime,
-  INITIAL_1900_DAY,
-  isDateTime,
-  numberToJsDate,
-  parseDateTime,
-} from "@odoo/o-spreadsheet-engine/helpers/dates";
+import { toNumber } from "../../functions/helpers";
+import { _t } from "../../translation";
+import { CellValue, Format, FunctionResultObject, Maybe } from "../../types/base";
+import { Currency } from "../../types/currency";
+import { EvaluationError } from "../../types/errors";
+import { FormattedValue, LocaleFormat } from "../../types/format";
+import { Locale } from "../../types/locale";
+import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {
   escapeRegExp,
   insertItemsAtIndex,
@@ -13,19 +13,7 @@ import {
   range,
   removeIndexesFromArray,
   replaceItemAtIndex,
-} from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { _t } from "../../translation";
-import {
-  CellValue,
-  Currency,
-  Format,
-  FormattedValue,
-  FunctionResultObject,
-  Locale,
-  LocaleFormat,
-  Maybe,
-} from "../../types";
-import { EvaluationError } from "../../types/errors";
+} from "../misc2";
 import {
   DateInternalFormat,
   InternalFormat,

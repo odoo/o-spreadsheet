@@ -3,13 +3,13 @@ import {
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   GaugeChartDefinition,
   SectionRule,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { Component, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
-import { _t } from "../../../../translation";
 import {
   Color,
   CommandResult,

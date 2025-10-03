@@ -3,10 +3,10 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import { Component } from "@odoo/owl";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
-import { _t } from "../../../../translation";
 import {
   Color,
   DispatchResult,

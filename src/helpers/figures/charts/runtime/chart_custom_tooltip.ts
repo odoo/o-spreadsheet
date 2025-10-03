@@ -1,5 +1,5 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { App, Component, blockDom } from "@odoo/owl";
-import { _t } from "../../../../translation";
 
 /**
  * Custom tooltip for the charts. Mostly copied from Odoo's custom tooltip, with some slight changes to make it work

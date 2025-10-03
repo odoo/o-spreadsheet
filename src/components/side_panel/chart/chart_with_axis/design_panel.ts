@@ -1,6 +1,6 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
-import { _t } from "../../../../translation";
 import {
   ChartWithDataSetDefinition,
   DispatchResult,

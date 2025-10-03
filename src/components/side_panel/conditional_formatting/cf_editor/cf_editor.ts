@@ -1,4 +1,5 @@
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
@@ -9,7 +10,6 @@ import {
   getCriterionMenuItems,
 } from "../../../../registries/criterion_component_registry";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { _t } from "../../../../translation";
 import {
   CancelledReason,
   CellIsRule,

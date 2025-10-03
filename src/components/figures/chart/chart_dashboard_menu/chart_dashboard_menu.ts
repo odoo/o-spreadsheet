@@ -1,9 +1,9 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";

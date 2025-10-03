@@ -3,6 +3,7 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   CoreViewCommand,
   invalidateEvaluationCommands,
@@ -29,7 +30,6 @@ import {
   UID,
 } from "../../types";
 import { CoreViewPlugin } from "../core_view_plugin";
-import { _t } from "./../../translation";
 
 interface InvalidValidationResult {
   readonly isValid: false;

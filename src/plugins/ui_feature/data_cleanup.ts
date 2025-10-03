@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import {
   deepEquals,
@@ -8,7 +9,6 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { _t } from "../../translation";
 import {
   Command,
   CommandResult,

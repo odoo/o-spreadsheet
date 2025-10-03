@@ -1,5 +1,7 @@
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
@@ -31,7 +33,6 @@ import { Get, Store } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
-import { _t } from "../../../translation";
 import {
   CellPosition,
   Color,
@@ -49,7 +50,6 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import { EvaluationError } from "../../../types/errors";
 import { SelectionEvent } from "../../../types/event_stream";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 

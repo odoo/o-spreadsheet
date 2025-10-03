@@ -1,5 +1,12 @@
 import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
+import {
+  detectDateFormat,
+  detectNumberFormat,
+  formatValue,
+  isDateTimeFormat,
+  isTextFormat,
+} from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isBoolean, memoize } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   BooleanCell,
@@ -17,13 +24,6 @@ import {
   LocaleFormat,
   NumberCell,
 } from "../../types";
-import {
-  detectDateFormat,
-  detectNumberFormat,
-  formatValue,
-  isDateTimeFormat,
-  isTextFormat,
-} from "../format/format";
 import { detectLink } from "../links";
 import { isNumber, parseNumber } from "../numbers";
 

@@ -1,4 +1,4 @@
-import { _t } from "../../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 import * as ACTION_EDIT from "../../actions/edit_actions";

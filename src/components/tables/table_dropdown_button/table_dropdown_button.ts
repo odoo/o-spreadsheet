@@ -1,9 +1,9 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { TableConfig } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
-import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";

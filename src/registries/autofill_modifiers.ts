@@ -1,8 +1,8 @@
 import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
-import { formatValue } from "../helpers/format/format";
 import {
   AutofillData,
   AutofillModifierImplementation,

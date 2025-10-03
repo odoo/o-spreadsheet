@@ -68,6 +68,8 @@ import {
   transposeMatrix,
   visitNumbers,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   addMonthsToDate,
   getYearFrac,
@@ -75,9 +77,7 @@ import {
   jsDateToRoundNumber,
   range,
 } from "../helpers";
-import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Locale, Matrix, Maybe } from "../types";
-import { EvaluationError } from "../types/errors";
 import { DAYS } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;

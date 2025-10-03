@@ -1,8 +1,8 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { deepCopy } from "../../../../helpers";
 import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";
-import { _t } from "../../../../translation";
 import {
   NEXT_VALUE,
   PivotCoreDefinition,

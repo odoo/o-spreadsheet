@@ -7,7 +7,9 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isDefined, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
@@ -40,7 +42,6 @@ import {
   TreeMapGroupColor,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
-import { _t } from "../../../../translation";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import {
   ColorGenerator,
@@ -51,7 +52,6 @@ import {
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
-import { formatValue } from "../../../format/format";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,

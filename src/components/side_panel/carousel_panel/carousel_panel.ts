@@ -1,9 +1,9 @@
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { deepEquals } from "../../../helpers";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
-import { _t } from "../../../translation";
 import { CarouselItem, SpreadsheetChildEnv, TitleDesign, UID } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";

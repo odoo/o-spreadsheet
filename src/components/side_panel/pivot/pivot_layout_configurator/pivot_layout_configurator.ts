@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   Aggregator,
   Granularity,
@@ -17,7 +18,6 @@ import {
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
-import { _t } from "../../../../translation";
 import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";

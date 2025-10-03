@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { getUniqueText, toHex } from "../../helpers";
 import {
   DEFAULT_TABLE_CONFIG,
@@ -5,7 +6,6 @@ import {
   TABLE_STYLES_TEMPLATES,
   buildTableStyle as buildCustomTableStyle,
 } from "../../helpers/table_presets";
-import { _t } from "../../translation";
 import {
   CommandResult,
   CoreCommand,

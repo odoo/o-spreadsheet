@@ -1,4 +1,4 @@
-import { _t } from "../../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../types";
 
 export function interactiveCut(env: SpreadsheetChildEnv) {

@@ -7,10 +7,14 @@ import {
   toString,
   transposeMatrix,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  CellErrorType,
+  EvaluationError,
+  NotAvailableError,
+} from "@odoo/o-spreadsheet-engine/types/errors";
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
-import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 
 const DEFAULT_STARTING_AT = 1;
 

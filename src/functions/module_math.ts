@@ -15,9 +15,10 @@ import {
   toString,
   visitMatchingRanges,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { DivisionByZeroError, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { splitReference, toZone } from "../helpers";
 import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
-import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -28,7 +29,6 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { DivisionByZeroError, EvaluationError } from "../types/errors";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;

@@ -34,8 +34,13 @@ import {
   visitMatchingRanges,
   visitNumbers,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  DivisionByZeroError,
+  EvaluationError,
+  NotAvailableError,
+} from "@odoo/o-spreadsheet-engine/types/errors";
 import { percentile } from "../helpers/index";
-import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -46,7 +51,6 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { DivisionByZeroError, EvaluationError, NotAvailableError } from "../types/errors";
 
 const CALCULATE_B_OPTIONS = [
   { value: true, label: _t("b is calculated normally") },

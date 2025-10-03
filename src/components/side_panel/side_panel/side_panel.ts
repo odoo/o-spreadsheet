@@ -1,6 +1,6 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component } from "@odoo/owl";
 import { SidePanelContent } from "../../../registries/side_panel_registry";
-import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { SidePanelComponentProps } from "./side_panel_store";

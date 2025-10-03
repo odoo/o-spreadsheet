@@ -5,6 +5,7 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isDefined, range, removeFalsyAttributes } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   AxisDesign,
@@ -30,7 +31,6 @@ import { DeepPartial } from "chart.js/dist/types/utils";
 import { LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 import { getColorScale } from "../../../color";
-import { formatValue, humanizeNumber } from "../../../format/format";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,

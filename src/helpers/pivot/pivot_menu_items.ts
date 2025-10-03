@@ -1,5 +1,6 @@
 import { deepCopy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { cellPositions } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   CellPosition,
   CellValue,
@@ -14,7 +15,6 @@ import {
   SpreadsheetChildEnv,
 } from "../..";
 import { ActionSpec } from "../../actions/action";
-import { _t } from "../../translation";
 import { CellValueType } from "../../types";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
 import {

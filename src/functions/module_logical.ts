@@ -12,9 +12,9 @@ import {
   toBoolean,
   valueNotAvailable,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "../translation";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
 
 // -----------------------------------------------------------------------------
 // AND

@@ -1,7 +1,7 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { markdownLink } from "../helpers";
-import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 
 // -----------------------------------------------------------------------------

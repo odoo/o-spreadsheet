@@ -1,4 +1,11 @@
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  BadExpressionError,
+  CellErrorType,
+  CircularDependencyError,
+  SplillBlockedError,
+} from "@odoo/o-spreadsheet-engine/types/errors";
 import { compile } from "../../../formulas";
 import { handleError, implementationErrorMessage } from "../../../functions";
 import {
@@ -13,7 +20,6 @@ import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
-import { _t } from "../../../translation";
 import {
   CellPosition,
   CellValueType,
@@ -29,12 +35,6 @@ import {
   Zone,
   isMatrix,
 } from "../../../types";
-import {
-  BadExpressionError,
-  CellErrorType,
-  CircularDependencyError,
-  SplillBlockedError,
-} from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";

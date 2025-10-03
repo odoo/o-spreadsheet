@@ -7,10 +7,11 @@ import {
   getPivotId,
 } from "@odoo/o-spreadsheet-engine/functions/helper_lookup";
 import { toBoolean, toNumber, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { range } from "../helpers/index";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
-import { _t } from "../translation";
 import {
   AddFunctionDescription,
   FunctionResultObject,
@@ -18,7 +19,6 @@ import {
   Maybe,
   PivotVisibilityOptions,
 } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
 
 //--------------------------------------------------------------------------
 // Pivot functions

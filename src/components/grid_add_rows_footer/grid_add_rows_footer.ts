@@ -1,5 +1,5 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
 import { ValidationMessages } from "../validation_messages/validation_messages";

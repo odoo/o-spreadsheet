@@ -3,6 +3,7 @@ import {
   DEFAULT_FIGURE_WIDTH,
   PIVOT_MAX_NUMBER_OF_CELLS,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   ClipboardMIMEType,
   ClipboardPasteOptions,
@@ -25,7 +26,6 @@ import {
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
-import { _t } from "../translation";
 import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 import { ActionSpec } from "./action";
 

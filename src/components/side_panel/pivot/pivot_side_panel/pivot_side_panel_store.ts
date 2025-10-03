@@ -1,4 +1,5 @@
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   PivotCoreDefinition,
   PivotCoreDimension,
@@ -16,7 +17,6 @@ import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { Get } from "../../../../store_engine";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
-import { _t } from "../../../../translation";
 import { Command, UID } from "../../../../types";
 import { getPivotTooBigErrorMessage } from "../../../translations_terms";
 
