@@ -2,6 +2,7 @@ import { BasePlugin, CoreGetters, StateObserver } from "@odoo/o-spreadsheet-engi
 import { ReadonlyTransportFilter } from "@odoo/o-spreadsheet-engine/collaborative/readonly_transport_filter";
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
+import { EventBus } from "@odoo/o-spreadsheet-engine/helpers/event_bus";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
 import { GeoChartRegion } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import {
@@ -12,7 +13,6 @@ import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
 import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { markRaw } from "@odoo/owl";
-import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator, deepCopy, lazy } from "./helpers/index";
 import {
   createEmptyExcelWorkbookData,

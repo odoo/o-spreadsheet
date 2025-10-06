@@ -32,8 +32,8 @@ export type Get = <T extends StoreConstructor>(
  * @example
  * type A = SkipFirst<[number, string, boolean]> // [string, boolean]
  */
-type SkipFirst<T extends any[]> = T extends [any, ...infer U] ? U : never;
-type OmitFunctions<T> = {
+export type SkipFirst<T extends any[]> = T extends [any, ...infer U] ? U : never;
+export type OmitFunctions<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
 export type Store<S> = S extends { mutators: readonly (keyof S)[] }
@@ -50,11 +50,13 @@ export type Store<S> = S extends { mutators: readonly (keyof S)[] }
  * [2] https://en.wikipedia.org/wiki/Command%E2%80%93query_separation
  * [3] in an ideal world, they would be deeply read-only, but that's not possible natively in TypeScript
  */
-type CQS<T> = {
+export type CQS<T> = {
   readonly [key in keyof T]: NeverReturns<T[key]>;
 };
 /**
  * Force any function to never return anything, effectively
  * making it write-only.
  */
-type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
+export type NeverReturns<T> = T extends (...args: any[]) => any
+  ? (...args: Parameters<T>) => void
+  : T;

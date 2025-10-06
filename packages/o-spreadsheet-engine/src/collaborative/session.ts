@@ -1,10 +1,14 @@
-import { SelectiveHistory as RevisionLog } from "src/history/selective_history";
+import { UuidGenerator } from "../../../../src/helpers/uuid";
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
+import { EventBus } from "../helpers/event_bus";
+import { debounce, isDefined } from "../helpers/misc2";
+import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import {
   Client,
   ClientId,
   ClientPosition,
   CollaborativeEvent,
-} from "src/types/collaborative/session";
+} from "../types/collaborative/session";
 import {
   ClientJoinedMessage,
   ClientLeftMessage,
@@ -16,13 +20,13 @@ import {
   SnapshotCreatedMessage,
   StateUpdateMessage,
   TransportService,
-} from "src/types/collaborative/transport_service";
-import { EventBus } from "../../../../src/helpers/event_bus";
-import { UuidGenerator } from "../../../../src/helpers/uuid";
-import { CoreCommand, HistoryChange, Lazy, UID, WorkbookData } from "../../../../src/types";
-import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
-import { debounce, isDefined } from "../helpers/misc2";
-import { Command } from "../types/commands";
+} from "../types/collaborative/transport_service";
+import { Command, CoreCommand } from "../types/commands";
+
+import { UID } from "../types/base";
+import { HistoryChange } from "../types/history2";
+import { Lazy } from "../types/misc";
+import { WorkbookData } from "../types/workbook_data";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 

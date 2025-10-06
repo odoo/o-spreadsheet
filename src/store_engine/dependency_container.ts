@@ -1,3 +1,6 @@
+import { EventBus } from "@odoo/o-spreadsheet-engine/helpers/event_bus";
+import { Get, StoreConstructor, StoreParams } from "@odoo/o-spreadsheet-engine/types/store_engine";
+
 interface StoreUpdateEvent {
   type: "store-updated";
 }
