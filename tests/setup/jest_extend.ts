@@ -6,6 +6,7 @@ import { Model } from "../../src";
 import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
 type DOMTarget = string | Element | Document | Window | null;
+type ExpectResult = { pass: boolean; message: () => string };
 
 declare global {
   namespace jest {
@@ -40,6 +41,11 @@ declare global {
       toHaveClass(className: string): R;
       toHaveAttribute(attribute: string, value: string): R;
       toHaveStyle(style: Record<string, string>): R;
+    }
+    interface Expect {
+      toBeBetween(lower: number, upper: number): ExpectResult;
+      toBeSameColorAs(expected: string, tolerance?: number): ExpectResult;
+      toBeCloseTo(expected: number, closeDigit?: number): ExpectResult;
     }
   }
 }
@@ -184,6 +190,20 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       };
     }
     return { pass: true, message: () => "" };
+  },
+  toBeCloseTo(received: number, expected: number, numDigits?: number) {
+    numDigits = numDigits ?? -2;
+    const pass = Math.abs(expected - received) < 10 ** numDigits / 2;
+    if (pass) {
+      return { pass: true, message: () => "" };
+    }
+    return {
+      pass: false,
+      message: () =>
+        `Expected ${received} to be close to ${expected} with a tolerance of ${
+          10 ** numDigits / 2
+        }`,
+    };
   },
   toBeSameColorAs(received: string, expected: string, tolerance: number = 0) {
     const pass = isSameColor(received, expected, tolerance);
