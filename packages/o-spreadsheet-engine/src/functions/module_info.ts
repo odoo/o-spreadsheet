@@ -1,16 +1,11 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { getFullReference, splitReference } from "../helpers";
-import { setXcToFixedReferenceType } from "../helpers/reference_type";
-import {
-  AddFunctionDescription,
-  CellValueType,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-} from "../types";
+import { getFullReference, setXcToFixedReferenceType, splitReference } from "../helpers/references";
+import { _t } from "../translation";
+import { CellValueType } from "../types/cells";
+import { CellErrorType, EvaluationError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { arg } from "./arguments";
+import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL

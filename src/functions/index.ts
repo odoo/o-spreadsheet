@@ -27,6 +27,7 @@ import * as date from "@odoo/o-spreadsheet-engine/functions/module_date";
 import * as engineering from "@odoo/o-spreadsheet-engine/functions/module_engineering";
 import * as filter from "@odoo/o-spreadsheet-engine/functions/module_filter";
 import * as financial from "@odoo/o-spreadsheet-engine/functions/module_financial";
+import * as info from "@odoo/o-spreadsheet-engine/functions/module_info";
 import * as math from "@odoo/o-spreadsheet-engine/functions/module_math";
 import * as statistical from "@odoo/o-spreadsheet-engine/functions/module_statistical";
 import * as logical from "../../packages/o-spreadsheet-engine/src/functions/module_logical";
@@ -36,7 +37,6 @@ import * as parser from "../../packages/o-spreadsheet-engine/src/functions/modul
 import * as text from "../../packages/o-spreadsheet-engine/src/functions/module_text";
 import * as web from "../../packages/o-spreadsheet-engine/src/functions/module_web";
 import { createAutocompleteArgumentsProvider } from "./autocompleteArgumentsProvider";
-import * as info from "./module_info";
 import * as pivots from "./module_pivot";
 
 export { FunctionRegistry } from "@odoo/o-spreadsheet-engine";

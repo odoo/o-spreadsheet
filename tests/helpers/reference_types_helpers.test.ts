@@ -1,8 +1,4 @@
 import { Token } from "../../src/formulas";
-import {
-  loopThroughReferenceType,
-  setXcToFixedReferenceType,
-} from "../../src/helpers/reference_type";
 
 function refToken(referenceString: string): Token {
   return { type: "REFERENCE", value: referenceString };
