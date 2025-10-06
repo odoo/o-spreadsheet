@@ -11,6 +11,7 @@ import {
   TrendConfiguration,
   UID,
 } from "../../../../../types";
+import { NumberInput } from "../../../../number_input/number_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
@@ -32,6 +33,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     RadioSelection,
     Section,
     RoundColorPicker,
+    NumberInput,
   };
   static props = {
     chartId: String,
@@ -136,9 +138,8 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     return DEFAULT_WINDOW_SIZE;
   }
 
-  onChangeMovingAverageWindow(index: number, ev: InputEvent) {
-    const element = ev.target as HTMLInputElement;
-    let window = parseInt(element.value) || DEFAULT_WINDOW_SIZE;
+  onChangeMovingAverageWindow(index: number, value: string) {
+    let window = parseInt(value) || DEFAULT_WINDOW_SIZE;
     if (window <= 1) {
       window = DEFAULT_WINDOW_SIZE;
     }
