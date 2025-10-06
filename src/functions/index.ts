@@ -29,15 +29,15 @@ import * as filter from "@odoo/o-spreadsheet-engine/functions/module_filter";
 import * as financial from "@odoo/o-spreadsheet-engine/functions/module_financial";
 import * as math from "@odoo/o-spreadsheet-engine/functions/module_math";
 import * as statistical from "@odoo/o-spreadsheet-engine/functions/module_statistical";
+import * as logical from "../../packages/o-spreadsheet-engine/src/functions/module_logical";
+import * as lookup from "../../packages/o-spreadsheet-engine/src/functions/module_lookup";
+import * as operators from "../../packages/o-spreadsheet-engine/src/functions/module_operators";
+import * as parser from "../../packages/o-spreadsheet-engine/src/functions/module_parser";
+import * as text from "../../packages/o-spreadsheet-engine/src/functions/module_text";
+import * as web from "../../packages/o-spreadsheet-engine/src/functions/module_web";
 import { createAutocompleteArgumentsProvider } from "./autocompleteArgumentsProvider";
 import * as info from "./module_info";
-import * as logical from "./module_logical";
-import * as lookup from "./module_lookup";
-import * as operators from "./module_operators";
-import * as parser from "./module_parser";
 import * as pivots from "./module_pivot";
-import * as text from "./module_text";
-import * as web from "./module_web";
 
 export { FunctionRegistry } from "@odoo/o-spreadsheet-engine";
 

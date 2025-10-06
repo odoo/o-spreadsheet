@@ -1,18 +1,10 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import {
-  isEvaluationError,
-  toNumber,
-  toString,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { POWER } from "@odoo/o-spreadsheet-engine/functions/module_math";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { DivisionByZeroError } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  AddFunctionDescription,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Maybe,
-} from "../types";
+import { _t } from "../translation";
+import { DivisionByZeroError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { arg } from "./arguments";
+import { isEvaluationError, toNumber, toString } from "./helpers";
+import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
 // ADD
