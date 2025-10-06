@@ -2,7 +2,10 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "outDir": "build/js",
-    "preserveWatchOutput": true
+    "preserveWatchOutput": true,
+    "paths": {
+      "@odoo/o-spreadsheet-engine": ["./packages/o-spreadsheet-engine/src/"]
+    }
   },
   "include": ["src"]
 }
