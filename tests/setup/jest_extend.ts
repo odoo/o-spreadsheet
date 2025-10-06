@@ -6,6 +6,7 @@ import { Model } from "../../src";
 import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
 type DOMTarget = string | Element | Document | Window | null;
+type ExpectResult = { pass: boolean; message: () => string };
 
 declare global {
   namespace jest {
@@ -40,6 +41,10 @@ declare global {
       toHaveClass(className: string): R;
       toHaveAttribute(attribute: string, value: string): R;
       toHaveStyle(style: Record<string, string>): R;
+    }
+    interface Expect {
+      toBeBetween(lower: number, upper: number): ExpectResult;
+      toBeSameColorAs(expected: string, tolerance?: number): ExpectResult;
     }
   }
 }
