@@ -1,3 +1,4 @@
+import { handleError } from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { formatValue, isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
@@ -14,7 +15,6 @@ import {
   SpreadsheetPivotCoreDefinition,
   TechnicalName,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { handleError } from "../../../functions";
 import { ModelConfig } from "../../../model";
 import {
   CellValueType,

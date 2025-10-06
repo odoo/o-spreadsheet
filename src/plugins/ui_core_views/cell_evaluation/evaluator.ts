@@ -1,3 +1,7 @@
+import {
+  handleError,
+  implementationErrorMessage,
+} from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
@@ -7,7 +11,6 @@ import {
   SplillBlockedError,
 } from "@odoo/o-spreadsheet-engine/types/errors";
 import { compile } from "../../../formulas";
-import { handleError, implementationErrorMessage } from "../../../functions";
 import {
   aggregatePositionsToZones,
   excludeTopLeft,

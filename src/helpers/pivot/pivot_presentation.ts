@@ -1,13 +1,27 @@
 import { transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { handleError } from "../../functions";
 import { ModelConfig } from "../../model";
 
+import { CellErrorType, FunctionResultObject, NotAvailableError } from "@odoo/o-spreadsheet-engine";
+import { handleError } from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
 import {
   deepEquals,
   removeDuplicates,
   transpose2dPOJO,
 } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import {
+  CellValue,
+  DimensionTree,
+  Getters,
+  isMatrix,
+  NEXT_VALUE,
+  PivotDomain,
+  PivotMeasure,
+  PivotMeasureDisplay,
+  PivotValueCell,
+  PREVIOUS_VALUE,
+  SortDirection,
+} from "../../types";
 import {
   domainToColRowDomain,
   domainToString,
@@ -26,7 +40,6 @@ import {
 import { AGGREGATORS_FN, isSortedColumnValid, toNormalizedPivotValue } from "./pivot_helpers";
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
-
 const PERCENT_FORMAT = "0.00%";
 
 type CacheForMeasureAndField<T> = { [measureId: string]: { [field: string]: T } };

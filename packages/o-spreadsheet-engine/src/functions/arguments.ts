@@ -4,7 +4,7 @@ import {
   ArgProposal,
   ArgType,
   FunctionDescription,
-} from "../../../../src/types";
+} from "../types/functions";
 
 //------------------------------------------------------------------------------
 // Arg description DSL
