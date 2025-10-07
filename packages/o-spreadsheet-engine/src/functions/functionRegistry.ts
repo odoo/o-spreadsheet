@@ -24,7 +24,7 @@ import * as web from "./module_web";
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
-class SpreadsheetFunctionRegistry extends FunctionRegistry<
+export class SpreadsheetFunctionRegistry extends FunctionRegistry<
   AddFunctionDescription,
   FunctionDescription,
   ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>

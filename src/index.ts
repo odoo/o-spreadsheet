@@ -72,7 +72,6 @@ import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_sec
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import { getFunctionsFromTokens } from "./formulas";
-import { FunctionRegistry, arg } from "./functions/index";
 import {
   ColorGenerator,
   UuidGenerator,
@@ -118,6 +117,7 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import {
   chartRegistry,
@@ -501,11 +501,11 @@ export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 
+export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";
 export type { Token } from "./formulas/tokenizer";
 export type * from "./types";
-export type { FunctionRegistry };
 
 export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
 export { AbstractFigureClipboardHandler } from "./clipboard_handlers/abstract_figure_clipboard_handler";
