@@ -30,7 +30,6 @@ import {
 } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
-import { UIPluginConfig } from "../ui_plugin";
 
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT", "REMOVE_PIVOT"];
 
@@ -52,11 +51,9 @@ export class PivotUIPlugin extends CoreViewPlugin {
 
   private pivots: Record<UID, Pivot> = {};
   private unusedPivots?: UID[];
-  private custom: UIPluginConfig["custom"];
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
-    this.custom = config.custom;
   }
 
   beforeHandle(cmd: Command) {
@@ -329,7 +326,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
     const definition = this.getters.getPivotCoreDefinition(pivotId);
     if (!(pivotId in this.pivots)) {
       const Pivot = withPivotPresentationLayer(pivotRegistry.get(definition.type).ui);
-      this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });
+      this.pivots[pivotId] = new Pivot({ definition, getters: this.getters });
     } else if (recreate) {
       this.pivots[pivotId].onDefinitionChange(definition);
     }
