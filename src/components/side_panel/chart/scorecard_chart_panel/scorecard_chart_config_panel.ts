@@ -1,8 +1,9 @@
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { Component, useState } from "@odoo/owl";
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { CommandResult, DispatchResult, UID } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { SelectionInput } from "../../../selection_input/selection_input";
-import { ChartTerms } from "../../../translations_terms";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 

@@ -2,7 +2,8 @@ import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
 import { blendColors } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
-import { CellPosition, Color, SortDirection, SpreadsheetChildEnv, Style } from "../../../types";
+import { CellPosition, Color, SortDirection, Style } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../../helpers";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 

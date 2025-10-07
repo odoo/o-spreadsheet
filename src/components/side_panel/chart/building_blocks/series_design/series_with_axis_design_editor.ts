@@ -7,10 +7,10 @@ import {
   ChartWithDataSetDefinition,
   Color,
   DispatchResult,
-  SpreadsheetChildEnv,
   TrendConfiguration,
   UID,
 } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";

@@ -8,7 +8,8 @@ import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_r
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
-import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../src/types";
+import { ConditionalFormat, Currency, Pixel, Style } from "../src/types";
+import { SpreadsheetChildEnv } from "../src/types/spreadsheetChildEnv";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {

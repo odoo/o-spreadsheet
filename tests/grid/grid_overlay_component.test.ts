@@ -10,7 +10,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   deleteColumns,
   deleteRows,

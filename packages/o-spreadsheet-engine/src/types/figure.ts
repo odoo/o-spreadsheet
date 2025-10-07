@@ -1,7 +1,6 @@
-import { HeaderIndex, Pixel, PixelPosition, UID } from "./misc";
-
+import { HeaderIndex } from "./base";
 import { TitleDesign } from "./chart";
-import { DOMCoordinates } from "./rendering";
+import { Pixel, PixelPosition, UID } from "./misc";
 
 export interface FigureInfo {
   id: UID;
@@ -11,8 +10,6 @@ export interface FigureInfo {
 }
 
 export interface Figure extends FigureInfo, AnchorOffset {}
-
-export interface FigureUI extends DOMCoordinates, Figure {}
 
 export interface AnchorOffset {
   col: HeaderIndex;

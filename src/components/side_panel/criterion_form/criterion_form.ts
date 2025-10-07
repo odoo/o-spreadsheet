@@ -1,6 +1,7 @@
 import { Component, onMounted } from "@odoo/owl";
 import { useStore } from "../../../store_engine";
-import { GenericCriterion, SpreadsheetChildEnv } from "../../../types";
+import { GenericCriterion } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
 interface Props<T extends GenericCriterion> {

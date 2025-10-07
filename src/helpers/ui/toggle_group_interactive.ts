@@ -1,5 +1,6 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CommandResult, Dimension, HeaderIndex, SpreadsheetChildEnv, UID } from "../../types";
+import { CommandResult, Dimension, HeaderIndex, UID } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 
 export const ToggleGroupInteractiveContent = {
   CannotHideAllRows: _t("Cannot hide all the rows of a sheet."),

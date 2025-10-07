@@ -1,5 +1,6 @@
-import { Model, SpreadsheetChildEnv } from "../../../../src";
+import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheetChildEnv";
 import {
   click,
   createFunnelChart,

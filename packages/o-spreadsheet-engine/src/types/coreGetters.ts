@@ -1,7 +1,7 @@
 import { CarouselPlugin } from "../../../../src/plugins/core/carousel";
 import { HeaderGroupingPlugin } from "../../../../src/plugins/core/header_grouping";
-import { PivotCorePlugin } from "../../../../src/plugins/core/pivot";
 import { SettingsPlugin } from "../../../../src/plugins/core/settings";
+import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 
 /**

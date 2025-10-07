@@ -4,6 +4,7 @@ import { clip, findCellInNewZone, isDefined, positionToZone, range } from "../..
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
+import { FigureUI } from "../../types/figureUI";
 import {
   AnchorOffset,
   CellPosition,
@@ -14,7 +15,6 @@ import {
   Dimension,
   EdgeScrollInfo,
   Figure,
-  FigureUI,
   HeaderIndex,
   LocalCommand,
   Pixel,

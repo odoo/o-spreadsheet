@@ -1,7 +1,7 @@
 import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
-import { SpreadsheetChildEnv } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 

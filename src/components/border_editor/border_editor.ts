@@ -1,13 +1,6 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import {
-  BorderPosition,
-  BorderStyle,
-  Color,
-  Pixel,
-  Rect,
-  SpreadsheetChildEnv,
-  borderStyles,
-} from "../../types/index";
+import { BorderPosition, BorderStyle, Color, Pixel, Rect, borderStyles } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { Popover, PopoverProps } from "../popover/popover";
 

@@ -8,7 +8,8 @@ import {
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { toZone } from "../../src/helpers";
-import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
+import { IsValueInListCriterion, UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   addDataValidation,
   createTableWithFilter,

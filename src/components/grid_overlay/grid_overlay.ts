@@ -10,8 +10,8 @@ import {
   Position,
   Rect,
   Ref,
-  SpreadsheetChildEnv,
 } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";

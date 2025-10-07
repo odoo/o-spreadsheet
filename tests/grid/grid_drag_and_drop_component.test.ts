@@ -3,7 +3,8 @@ import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
 import { numberToLetters } from "../../src/helpers";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   addColumns,
   addRows,

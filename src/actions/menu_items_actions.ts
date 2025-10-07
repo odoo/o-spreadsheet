@@ -26,7 +26,8 @@ import {
 } from "../helpers/index";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
-import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
+import { Dimension, Format, Style } from "../types/index";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------

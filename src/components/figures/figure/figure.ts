@@ -1,16 +1,16 @@
 import { FIGURE_BORDER_COLOR, SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
+import { FigureUI } from "../../../types/figureUI";
 import {
   AnchorOffset,
   CSSProperties,
-  FigureUI,
   Pixel,
   Rect,
   ResizeDirection,
-  SpreadsheetChildEnv,
   UID,
 } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";

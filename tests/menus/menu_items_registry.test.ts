@@ -1,5 +1,5 @@
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { UID } from "../../src/types";
 import {
   copy,
   createDynamicTable,
@@ -58,6 +58,7 @@ import {
   topbarMenuRegistry,
 } from "../../src/registries/menus";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const TEST_CURRENCY: Partial<Currency> = {

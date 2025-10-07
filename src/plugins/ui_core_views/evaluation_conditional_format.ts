@@ -3,6 +3,7 @@ import {
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { clip, largeMax, largeMin, lazy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import {
   CoreViewCommand,
   invalidateEvaluationCommands,
@@ -10,7 +11,6 @@ import {
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
-import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellIsRule,
   CellPosition,

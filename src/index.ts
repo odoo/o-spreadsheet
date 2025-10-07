@@ -117,6 +117,7 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import {
@@ -161,7 +162,6 @@ import { RadioSelection } from "./components/side_panel/components/radio_selecti
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
-import { ChartTerms } from "./components/translations_terms";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";

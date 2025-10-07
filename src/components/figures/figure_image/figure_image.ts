@@ -1,5 +1,7 @@
 import { Component } from "@odoo/owl";
-import { CSSProperties, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
+import { CSSProperties, UID } from "../../../types";
+import { FigureUI } from "../../../types/figureUI";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 
 interface Props {
   figureUI: FigureUI;

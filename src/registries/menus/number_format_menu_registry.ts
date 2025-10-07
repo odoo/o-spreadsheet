@@ -3,7 +3,8 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ActionSpec, createActions } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { isDateTimeFormat, memoize } from "../../helpers";
-import { Format, SpreadsheetChildEnv } from "../../types";
+import { Format } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 
 export const numberFormatMenuRegistry = new Registry<ACTION_FORMAT.NumberFormatActionSpec>();
 

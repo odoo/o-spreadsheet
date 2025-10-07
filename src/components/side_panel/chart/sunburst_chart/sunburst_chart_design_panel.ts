@@ -6,7 +6,8 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { DispatchResult, UID } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

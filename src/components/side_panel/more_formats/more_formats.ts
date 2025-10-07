@@ -17,7 +17,8 @@ import {
   formatNumberShortWeekDay,
   formatNumberTime,
 } from "../../../actions/format_actions";
-import { SpreadsheetChildEnv } from "../../../types";
+
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 
 interface Props {
   onCloseSidePanel: () => void;

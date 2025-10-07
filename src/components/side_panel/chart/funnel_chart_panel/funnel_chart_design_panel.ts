@@ -3,7 +3,8 @@ import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-e
 import { Component } from "@odoo/owl";
 import { replaceItemAtIndex } from "../../../../helpers";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { DispatchResult, UID } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";

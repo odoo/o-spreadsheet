@@ -4,7 +4,8 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ComponentConstructor } from "@odoo/owl";
 import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
-import { CellPosition, Getters, SortDirection, SpreadsheetChildEnv } from "../types";
+import { CellPosition, Getters, SortDirection } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;

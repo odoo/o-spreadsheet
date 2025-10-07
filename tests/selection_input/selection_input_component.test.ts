@@ -6,7 +6,8 @@ import { ColorGenerator, toCartesian, toZone } from "../../src/helpers";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { Color, SpreadsheetChildEnv } from "../../src/types";
+import { Color } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   activateSheet,
   addCellToSelection,

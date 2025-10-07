@@ -1,3 +1,7 @@
+import {
+  MergeErrorMessage,
+  TableHeaderMoveErrorMessage,
+} from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useRef, useState } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
@@ -8,14 +12,13 @@ import {
   HeaderIndex,
   Pixel,
   Ref,
-  SpreadsheetChildEnv,
 } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { ContextMenuType } from "../grid/grid";
 import { cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
-import { MergeErrorMessage, TableHeaderMoveErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
 

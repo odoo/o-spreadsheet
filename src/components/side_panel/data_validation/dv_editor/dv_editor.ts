@@ -1,4 +1,6 @@
+import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
@@ -6,7 +8,6 @@ import {
   criterionComponentRegistry,
   getCriterionMenuItems,
 } from "../../../../registries/criterion_component_registry";
-import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import {
   AddDataValidationCommand,
   CancelledReason,
@@ -14,11 +15,10 @@ import {
   DataValidationCriterionType,
   DataValidationRule,
   DataValidationRuleData,
-  SpreadsheetChildEnv,
   availableDataValidationOperators,
 } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { SelectionInput } from "../../../selection_input/selection_input";
-import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";

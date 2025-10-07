@@ -5,9 +5,9 @@ import {
   ChartWithDataSetDefinition,
   DispatchResult,
   GenericDefinition,
-  SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {

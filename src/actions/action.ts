@@ -1,4 +1,5 @@
-import { Color, SpreadsheetChildEnv } from "../types";
+import { Color } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 
 /*
  * An Action represent a menu item for the menus of the top bar

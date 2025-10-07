@@ -1,7 +1,8 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { BorderPosition, BorderStyle, Color, Model, SpreadsheetChildEnv } from "../../src";
+import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { toHex, toZone } from "../../src/helpers";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";

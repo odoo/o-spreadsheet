@@ -5,14 +5,9 @@ import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
-import {
-  Carousel,
-  CarouselItem,
-  CSSProperties,
-  FigureUI,
-  MenuMouseEvent,
-  SpreadsheetChildEnv,
-} from "../../../types";
+import { Carousel, CarouselItem, CSSProperties, MenuMouseEvent } from "../../../types";
+import { FigureUI } from "../../../types/figureUI";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";

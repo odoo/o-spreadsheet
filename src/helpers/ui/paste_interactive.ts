@@ -1,5 +1,5 @@
+import { RemoveDuplicateTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
 import {
   ClipboardPasteOptions,
@@ -7,9 +7,9 @@ import {
   DispatchResult,
   ParsedOSClipboardContent,
   ParsedOsClipboardContentWithImageData,
-  SpreadsheetChildEnv,
   Zone,
 } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),

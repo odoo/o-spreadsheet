@@ -19,10 +19,10 @@ import {
   PivotFields,
   PivotHeaderCell,
   SortDirection,
-  SpreadsheetChildEnv,
 } from "../..";
 import { ActionSpec } from "../../actions/action";
 import { CellValueType } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { pivotRegistry } from "./pivot_registry";
 
 export const pivotProperties: ActionSpec = {

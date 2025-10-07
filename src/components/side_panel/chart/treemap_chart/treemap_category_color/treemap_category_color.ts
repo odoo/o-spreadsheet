@@ -8,7 +8,7 @@ import { Component } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import { DispatchResult, UID } from "../../../../..";
 import { deepCopy } from "../../../../../helpers";
-import { SpreadsheetChildEnv } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 

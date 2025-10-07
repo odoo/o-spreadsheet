@@ -1,6 +1,7 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { clip } from "../../helpers";
-import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import { HeaderIndex } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 

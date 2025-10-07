@@ -4,7 +4,8 @@ import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { UID } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 

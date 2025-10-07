@@ -1,10 +1,11 @@
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { DataValidationCriterion } from "@odoo/o-spreadsheet-engine/types/data_validation";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPreview } from "../../src/components/side_panel/data_validation/dv_preview/dv_preview";
 import { toZone } from "../../src/helpers";
-import { criterionEvaluatorRegistry } from "../../src/registries/criterion_registry";
-import { DataValidationRuleData, DEFAULT_LOCALE, SpreadsheetChildEnv } from "../../src/types";
+import { DataValidationRuleData, DEFAULT_LOCALE } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {

@@ -3,7 +3,7 @@ import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo
 import { deepEquals } from "../../../helpers";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
-import { SpreadsheetChildEnv } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { drawPreviewTable } from "./table_canvas_helpers";
 

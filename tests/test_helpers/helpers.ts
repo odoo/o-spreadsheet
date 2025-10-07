@@ -68,11 +68,11 @@ import {
   Matrix,
   OrderedLayers,
   RangeData,
-  SpreadsheetChildEnv,
   Style,
   UID,
   Zone,
 } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { FileStore } from "../__mocks__/mock_file_store";

@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
-import { SpreadsheetChildEnv } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 

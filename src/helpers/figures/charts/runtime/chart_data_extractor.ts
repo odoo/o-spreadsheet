@@ -1,4 +1,5 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   evaluatePolynomial,
   expM,
@@ -34,7 +35,6 @@ import {
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { Point } from "chart.js";
-import { ChartTerms } from "../../../../components/translations_terms";
 import {
   CellValue,
   DEFAULT_LOCALE,

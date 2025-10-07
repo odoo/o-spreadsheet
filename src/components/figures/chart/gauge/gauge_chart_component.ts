@@ -4,7 +4,8 @@ import { deepEquals } from "../../../../helpers";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { Store, useStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { UID } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;

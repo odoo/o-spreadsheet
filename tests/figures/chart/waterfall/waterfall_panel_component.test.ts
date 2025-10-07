@@ -1,6 +1,7 @@
 import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
-import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
+import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheetChildEnv";
 import {
   changeRoundColorPickerColor,
   click,

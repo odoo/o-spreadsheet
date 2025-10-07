@@ -15,7 +15,8 @@ import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry"
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
+import { Color, Pixel } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";

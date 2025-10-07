@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types";
+
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 
 interface Choice {
   value: unknown;

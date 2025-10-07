@@ -22,7 +22,8 @@ import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
 import { CellPopoverStore } from "../components/popover";
 import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
-import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
+import { Align, CellPosition, Getters } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 
 export type IconsOfCell = Record<Exclude<Align, undefined>, GridIcon | undefined>;
 

@@ -1,5 +1,6 @@
-import { Model, SpreadsheetChildEnv } from "../../../../src";
+import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheetChildEnv";
 import { createChart } from "../../../test_helpers";
 import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../../../test_helpers/dom_helper";

@@ -1,29 +1,29 @@
-import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { detectLink } from "@odoo/o-spreadsheet-engine/helpers/links";
-import { localizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
+import { Getters } from "../../../../src";
 import { DVTerms } from "../components/translations_terms";
+import { tryToNumber } from "../functions/helpers";
 import {
-  DateTime,
-  areDatesSameDay,
-  formatValue,
   getDateCriterionFormattedValues,
   getDateNumberCriterionValues,
+} from "../helpers/criterion_helpers";
+import {
+  areDatesSameDay,
+  DateTime,
   isDateAfter,
   isDateBefore,
   isDateBetween,
   isDateStrictlyAfter,
   isDateStrictlyBefore,
-  isNumberBetween,
   jsDateToRoundNumber,
   valueToDateNumber,
-} from "../helpers";
+} from "../helpers/dates";
+import { formatValue } from "../helpers/format/format";
+import { detectLink } from "../helpers/links";
+import { localizeContent } from "../helpers/locale";
+import { isNumberBetween } from "../helpers/misc2";
 import { rangeReference } from "../helpers/references";
+import { _t } from "../translation";
+import { CellValue } from "../types/base";
 import {
-  CellValue,
-  DEFAULT_LOCALE,
   DateIsAfterCriterion,
   DateIsBeforeCriterion,
   DateIsBetweenCriterion,
@@ -31,14 +31,17 @@ import {
   DateIsNotBetweenCriterion,
   DateIsOnOrAfterCriterion,
   DateIsOnOrBeforeCriterion,
+} from "../types/data_validation";
+import { CellErrorType } from "../types/errors";
+import {
   EvaluatedCriterion,
   EvaluatedDateCriterion,
   GenericCriterion,
   GenericCriterionType,
-  Getters,
-  Locale,
-  UID,
-} from "../types";
+} from "../types/generic_criterion";
+import { DEFAULT_LOCALE, Locale } from "../types/locale";
+import { UID } from "../types/misc";
+import { Registry } from "./registry";
 
 export type CriterionEvaluator = {
   type: GenericCriterionType;

@@ -2,7 +2,8 @@ import { buildTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_preset
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableStyleEditorPanelProps } from "../../src/components/side_panel/table_style_editor_panel/table_style_editor_panel";
-import { SpreadsheetChildEnv, TableStyle } from "../../src/types";
+import { TableStyle } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";

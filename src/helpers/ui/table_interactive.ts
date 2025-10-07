@@ -1,9 +1,10 @@
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../types";
+import { CommandResult, DispatchResult, UID } from "../../types";
 
+import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { getZoneArea } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { TableConfig } from "@odoo/o-spreadsheet-engine/types/table";
-import { TableTerms } from "../../components/translations_terms";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 
 /**
  * Create a table on the selected zone, with UI warnings to the user if the creation fails.

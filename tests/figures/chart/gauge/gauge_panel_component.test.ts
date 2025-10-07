@@ -1,6 +1,7 @@
-import { CommandResult, Model, SpreadsheetChildEnv } from "../../../../src";
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { CommandResult, Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { ChartTerms } from "../../../../src/components/translations_terms";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheetChildEnv";
 import { createGaugeChart, setInputValueAndTrigger, simulateClick } from "../../../test_helpers";
 import {
   openChartConfigSidePanel,

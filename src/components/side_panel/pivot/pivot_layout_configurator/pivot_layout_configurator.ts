@@ -1,3 +1,4 @@
+import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   AGGREGATORS,
   getFieldDisplayName,
@@ -18,10 +19,10 @@ import {
 import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
+import { SortDirection, UID } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
-import { measureDisplayTerms } from "../../../translations_terms";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";

@@ -7,9 +7,9 @@ import {
   CellIsRule,
   CommandResult,
   ConditionalFormattingOperatorValues,
-  SpreadsheetChildEnv,
   UID,
 } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   activateSheet,
   copy,

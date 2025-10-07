@@ -3,7 +3,7 @@ import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "..
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
-import { SpreadsheetChildEnv } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 

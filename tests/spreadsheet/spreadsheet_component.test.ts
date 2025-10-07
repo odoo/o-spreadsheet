@@ -12,7 +12,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import {
   addDataValidation,

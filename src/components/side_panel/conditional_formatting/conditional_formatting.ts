@@ -1,6 +1,7 @@
 import { localizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { ConditionalFormat, SpreadsheetChildEnv, UID, Zone } from "../../../types";
+import { ConditionalFormat, UID, Zone } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { Section } from "../components/section/section";
 import { ConditionalFormattingEditor } from "./cf_editor/cf_editor";
 import { ConditionalFormatPreviewList } from "./cf_preview_list/cf_preview_list";

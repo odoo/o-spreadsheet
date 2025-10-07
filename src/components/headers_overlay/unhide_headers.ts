@@ -1,7 +1,8 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component } from "@odoo/owl";
 import { positionToZone } from "../../helpers";
-import { ConsecutiveIndexes, HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import { ConsecutiveIndexes, HeaderIndex } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers";
 
 interface Props {

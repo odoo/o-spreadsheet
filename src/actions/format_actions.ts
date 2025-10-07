@@ -9,15 +9,8 @@ import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
-import {
-  Align,
-  CellValue,
-  DEFAULT_LOCALE,
-  Format,
-  SpreadsheetChildEnv,
-  VerticalAlign,
-  Wrapping,
-} from "../types";
+import { Align, CellValue, DEFAULT_LOCALE, Format, VerticalAlign, Wrapping } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";

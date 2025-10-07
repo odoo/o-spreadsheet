@@ -5,7 +5,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { Component } from "@odoo/owl";
 import { DispatchResult, UID } from "../../../../..";
-import { SpreadsheetChildEnv } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 interface Props {

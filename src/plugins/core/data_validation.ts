@@ -1,4 +1,5 @@
 import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { compile } from "../../formulas";
 import {
   deepCopy,
@@ -8,7 +9,6 @@ import {
   recomputeZones,
   toXC,
 } from "../../helpers";
-import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddDataValidationCommand,
   ApplyRangeChange,

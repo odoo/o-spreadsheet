@@ -1,13 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { clip, isEqual } from "../../../helpers";
-import {
-  Color,
-  HeaderIndex,
-  Range,
-  ResizeDirection,
-  SpreadsheetChildEnv,
-  Zone,
-} from "../../../types";
+import { Color, HeaderIndex, Range, ResizeDirection, Zone } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import {
   DnDDirection,

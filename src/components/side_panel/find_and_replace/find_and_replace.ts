@@ -9,7 +9,8 @@ import {
 } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
-import { DebouncedFunction, SpreadsheetChildEnv } from "../../../types/index";
+import { DebouncedFunction } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";

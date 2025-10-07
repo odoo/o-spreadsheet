@@ -1,6 +1,6 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { GeoChartColorScale } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { CommandResult } from "../types/index";
+import { _t } from "..";
+import { GeoChartColorScale } from "../types/chart/geo_chart";
+import { CommandResult } from "../types/commands";
 
 export const CfTerms = {
   Errors: {

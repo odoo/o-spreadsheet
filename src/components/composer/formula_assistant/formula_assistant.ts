@@ -1,5 +1,6 @@
 import { Component, useState } from "@odoo/owl";
-import { FunctionDescription, SpreadsheetChildEnv } from "../../../types";
+import { FunctionDescription } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { Collapse } from "../../side_panel/components/collapse/collapse";
 
 interface Props {

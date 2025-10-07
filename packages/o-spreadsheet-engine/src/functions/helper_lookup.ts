@@ -1,6 +1,6 @@
-import { Getters } from "../../../../src";
 import { isZoneInside, positionToZone, zoneToXc } from "../helpers/zones";
 import { _t } from "../translation";
+import { CoreGetters } from "../types/coreGetters";
 import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { EvalContext } from "../types/functions";
 import { FunctionResultObject, Maybe, UID } from "../types/misc";
@@ -9,7 +9,7 @@ import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 /**
  * Get the pivot ID from the formula pivot ID.
  */
-export function getPivotId(pivotFormulaId: string, getters: Getters) {
+export function getPivotId(pivotFormulaId: string, getters: CoreGetters) {
   const pivotId = getters.getPivotId(pivotFormulaId);
   if (!pivotId) {
     throw new EvaluationError(_t('There is no pivot with id "%s"', pivotFormulaId));
@@ -17,7 +17,7 @@ export function getPivotId(pivotFormulaId: string, getters: Getters) {
   return pivotId;
 }
 
-export function assertMeasureExist(pivotId: UID, measure: string, getters: Getters) {
+export function assertMeasureExist(pivotId: UID, measure: string, getters: CoreGetters) {
   const { measures } = getters.getPivotCoreDefinition(pivotId);
   if (!measures.find((m) => m.id === measure)) {
     const validMeasures = `(${measures.map((m) => m.id).join(", ")})`;

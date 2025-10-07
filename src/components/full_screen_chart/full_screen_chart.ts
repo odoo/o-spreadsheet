@@ -2,7 +2,7 @@ import { Component, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
 import { chartComponentRegistry } from "../../registries/chart_component_registry";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
-import { SpreadsheetChildEnv } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { ChartDashboardMenu } from "../figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
 import { useSpreadsheetRect } from "../helpers/position_hook";

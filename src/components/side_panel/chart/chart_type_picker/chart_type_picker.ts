@@ -4,7 +4,8 @@ import {
   chartCategories,
   chartSubtypeRegistry,
 } from "../../../../registries/chart_types";
-import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { ChartDefinition, ChartType, UID } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../popover";

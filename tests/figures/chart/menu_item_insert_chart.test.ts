@@ -9,7 +9,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../../src";
 import { zoneToXc } from "../../../src/helpers";
-import { SpreadsheetChildEnv } from "../../../src/types";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
 import {
   addColumns,
   addRows,

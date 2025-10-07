@@ -1,6 +1,7 @@
-import { Model, SpreadsheetChildEnv, SpreadsheetPivotCoreDefinition } from "../../src";
+import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import {

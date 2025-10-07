@@ -1,9 +1,9 @@
-import { SpreadsheetChildEnv } from "../../src/types";
 import { selectCell, setCellContent, setStyle } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { doAction, makeTestEnv } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste from Edit menu", async () => {

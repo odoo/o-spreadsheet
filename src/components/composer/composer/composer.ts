@@ -16,8 +16,8 @@ import {
   Direction,
   FunctionDescription,
   Rect,
-  SpreadsheetChildEnv,
 } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";

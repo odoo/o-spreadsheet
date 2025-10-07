@@ -12,8 +12,9 @@ import {
   useState,
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
   getOpenedMenus,

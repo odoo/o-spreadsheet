@@ -4,7 +4,7 @@ import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { SpreadsheetChildEnv } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";
 import { Action, ActionSpec, createActions } from "./action";
 

@@ -1,3 +1,4 @@
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
@@ -6,13 +7,8 @@ import {
   criterionComponentRegistry,
   getCriterionMenuItems,
 } from "../../../registries/criterion_component_registry";
-import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
-import {
-  CriterionFilter,
-  GenericCriterionType,
-  Position,
-  SpreadsheetChildEnv,
-} from "../../../types";
+import { CriterionFilter, GenericCriterionType, Position } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { SelectMenu } from "../../side_panel/select_menu/select_menu";
 
 interface Props {

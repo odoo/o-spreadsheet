@@ -20,7 +20,8 @@ import {
   TableStyleEditorPanelProps,
 } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
-import { Getters, SpreadsheetChildEnv, UID } from "../types";
+import { Getters, UID } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry

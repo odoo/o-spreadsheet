@@ -54,9 +54,9 @@ import {
   Pixel,
   Rect,
   Ref,
-  SpreadsheetChildEnv,
   Table,
 } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";

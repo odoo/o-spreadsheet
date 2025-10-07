@@ -1,4 +1,3 @@
-import { specificRangeTransformRegistry } from "../../../../../src/registries/srt_registry";
 import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc2";
 import { getRangeAdapter, rangeAdapterRegistry } from "../../helpers/range";
 import {
@@ -7,6 +6,7 @@ import {
 } from "../../helpers/sheet";
 import { isInside } from "../../helpers/zones";
 import { otRegistry } from "../../registries/ot_registry";
+import { specificRangeTransformRegistry } from "../../registries/srt_registry";
 import { HeaderIndex, Zone } from "../../types/base";
 import {
   AddColumnsRowsCommand,

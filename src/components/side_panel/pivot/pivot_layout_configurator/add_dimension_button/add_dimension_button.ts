@@ -7,7 +7,7 @@ import {
   AutoCompleteProvider,
 } from "../../../../../registries/auto_completes";
 import { Store, useLocalStore } from "../../../../../store_engine";
-import { SpreadsheetChildEnv } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
 import { useAutofocus } from "../../../../helpers/autofocus_hook";

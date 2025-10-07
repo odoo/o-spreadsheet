@@ -1,6 +1,7 @@
 import { Component, onWillUnmount } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import { Pixel, SpreadsheetChildEnv } from "../../types";
+import { Pixel } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers/css";
 
 //------------------------------------------------------------------------------

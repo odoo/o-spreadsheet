@@ -5,9 +5,9 @@ import {
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../..";
 import { formatValue } from "../../../../../helpers";
 import { PivotDomain, UID } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Section } from "../../../components/section/section";
 
 interface Props {

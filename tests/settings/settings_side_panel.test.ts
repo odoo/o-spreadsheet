@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { SettingsPanel } from "../../src/components/side_panel/settings/settings_panel";
-import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale, SpreadsheetChildEnv } from "../../src/types";
+import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
 import { setInputValueAndTrigger } from "../test_helpers/dom_helper";

@@ -1,3 +1,4 @@
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   BACKGROUND_CHART_COLOR,
   DEBOUNCE_TIME,
@@ -12,7 +13,6 @@ import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { ChartTerms } from "../../../src/components/translations_terms";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
@@ -22,9 +22,9 @@ import {
   ChartType,
   ChartWithDataSetDefinition,
   CreateFigureCommand,
-  SpreadsheetChildEnv,
   UID,
 } from "../../../src/types";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,

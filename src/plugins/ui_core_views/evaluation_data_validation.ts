@@ -1,18 +1,18 @@
+import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { GRAY_200 } from "@odoo/o-spreadsheet-engine/constants";
 import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   CoreViewCommand,
   invalidateEvaluationCommands,
 } from "@odoo/o-spreadsheet-engine/types/commands";
-import { DVTerms } from "../../components/translations_terms";
 import { compile } from "../../formulas";
 import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
-import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellPosition,
   CellValue,

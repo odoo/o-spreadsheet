@@ -48,6 +48,7 @@ import {
   target,
 } from "../../test_helpers/helpers";
 
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
@@ -56,7 +57,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
-import { ChartTerms } from "../../../src/components/translations_terms";
 import { zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin, FigurePlugin } from "../../../src/plugins/core";

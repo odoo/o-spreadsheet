@@ -1,7 +1,7 @@
 import { Component, useExternalListener, useRef } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../..";
 import { isDefined } from "../../helpers";
 import { Ref } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { useAutofocus } from "../helpers/autofocus_hook";
 
 interface Props {

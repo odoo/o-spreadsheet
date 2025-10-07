@@ -1,8 +1,9 @@
 import { CSSProperties } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
-import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates, DOMDimension, Pixel, Rect } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 
 type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";

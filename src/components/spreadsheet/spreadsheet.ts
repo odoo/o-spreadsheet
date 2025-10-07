@@ -23,13 +23,8 @@ import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
-import {
-  CSSProperties,
-  HeaderGroup,
-  InformationNotification,
-  Pixel,
-  SpreadsheetChildEnv,
-} from "../../types";
+import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";

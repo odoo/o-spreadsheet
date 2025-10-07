@@ -1,11 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component } from "@odoo/owl";
-import {
-  ChartDatasetOrientation,
-  Color,
-  CustomizedDataSet,
-  SpreadsheetChildEnv,
-} from "../../../../../types";
+import { ChartDatasetOrientation, Color, CustomizedDataSet } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Section } from "../../../components/section/section";
 

@@ -12,7 +12,8 @@ import {
 import { Component, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
-import { DOMCoordinates, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { ColGroup, RowGroup } from "./header_group";

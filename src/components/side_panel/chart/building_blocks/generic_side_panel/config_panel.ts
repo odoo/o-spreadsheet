@@ -1,3 +1,4 @@
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, useState } from "@odoo/owl";
@@ -20,11 +21,10 @@ import {
   CommandResult,
   CustomizedDataSet,
   DispatchResult,
-  SpreadsheetChildEnv,
   UID,
   Zone,
 } from "../../../../../types";
-import { ChartTerms } from "../../../../translations_terms";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { ChartDataSeries } from "../data_series/data_series";

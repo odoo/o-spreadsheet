@@ -1,7 +1,7 @@
 import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { compile } from "../../formulas/compiler";
 import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
-import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,

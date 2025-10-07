@@ -14,7 +14,8 @@ import {
   ScorecardChartConfig,
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
-import { Pixel, SpreadsheetChildEnv, UID } from "../../../../src/types";
+import { Pixel, UID } from "../../../../src/types";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheetChildEnv";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click } from "../../../test_helpers";
 import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";

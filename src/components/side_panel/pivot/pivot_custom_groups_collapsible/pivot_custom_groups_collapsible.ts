@@ -6,9 +6,9 @@ import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
-  SpreadsheetChildEnv,
   UID,
 } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

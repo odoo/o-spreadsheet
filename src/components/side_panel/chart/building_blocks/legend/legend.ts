@@ -1,10 +1,6 @@
 import { Component } from "@odoo/owl";
-import {
-  ChartWithDataSetDefinition,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../../types";
+import { ChartWithDataSetDefinition, DispatchResult, UID } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Section } from "../../../components/section/section";
 
 interface Props {

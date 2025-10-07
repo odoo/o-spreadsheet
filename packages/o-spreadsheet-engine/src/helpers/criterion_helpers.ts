@@ -1,11 +1,8 @@
-import {
-  DateTime,
-  jsDateToNumber,
-  valueToDateNumber,
-} from "@odoo/o-spreadsheet-engine/helpers/dates";
-import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { DateCriterionValue, EvaluatedDateCriterion, Locale } from "../types";
-import { parseLiteral } from "./cells";
+import { DateTime, jsDateToNumber, valueToDateNumber } from "../helpers/dates";
+import { formatValue } from "../helpers/format/format";
+import { DateCriterionValue, EvaluatedDateCriterion } from "../types/generic_criterion";
+import { Locale } from "../types/locale";
+import { parseLiteral } from "./cells/cell_evaluation";
 
 function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate">): number {
   const today = DateTime.now();

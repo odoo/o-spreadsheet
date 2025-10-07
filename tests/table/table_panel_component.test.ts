@@ -1,5 +1,5 @@
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { SpreadsheetChildEnv, Table, UID } from "../../src/types";
+import { Table, UID } from "../../src/types";
 import {
   createTable,
   createTableStyle,
@@ -12,10 +12,11 @@ import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/d
 import { getCell } from "../test_helpers/getters_helpers";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
+import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { TableTerms } from "../../src/components/translations_terms";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 
 function getTable(model: Model, sheetId: UID): Table {
   return model.getters.getTables(sheetId)[0];

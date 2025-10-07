@@ -1,5 +1,5 @@
 import { Component, onWillPatch, useRef } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 
 interface Props {

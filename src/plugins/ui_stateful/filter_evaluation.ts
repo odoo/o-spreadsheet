@@ -2,6 +2,7 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { LocalCommand, UpdateFilterCommand } from "@odoo/o-spreadsheet-engine/types/commands";
 import {
   deepCopy,
@@ -14,7 +15,6 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
-import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellPosition,
   Command,

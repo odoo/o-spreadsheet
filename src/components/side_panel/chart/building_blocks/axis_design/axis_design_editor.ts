@@ -1,13 +1,8 @@
 import { CHART_AXIS_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../../helpers";
-import {
-  ChartWithAxisDefinition,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  TitleDesign,
-  UID,
-} from "../../../../../types";
+import { ChartWithAxisDefinition, DispatchResult, TitleDesign, UID } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../chart_title/chart_title";
