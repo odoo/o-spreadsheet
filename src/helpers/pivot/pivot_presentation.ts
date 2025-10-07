@@ -1,6 +1,5 @@
 import { transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { ModelConfig } from "../../model";
 
 import { CellErrorType, FunctionResultObject, NotAvailableError } from "@odoo/o-spreadsheet-engine";
 import { handleError } from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
@@ -65,8 +64,8 @@ export default function (PivotClass: PivotUIConstructor) {
       DomainGroups<number | undefined> | undefined
     > = {};
 
-    constructor(custom: ModelConfig["custom"], params: PivotParams) {
-      super(custom, params);
+    constructor(params: PivotParams) {
+      super(params);
       this.getters = params.getters;
     }
 

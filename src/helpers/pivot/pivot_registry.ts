@@ -5,7 +5,6 @@ import {
   PivotField,
   PivotFields,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { ModelConfig } from "../../model";
 import { Getters } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
@@ -22,7 +21,7 @@ export interface PivotCoreParams {
   getters: CoreGetters;
 }
 
-export type PivotUIConstructor = new (custom: ModelConfig["custom"], params: PivotParams) => Pivot;
+export type PivotUIConstructor = new (params: PivotParams) => Pivot;
 
 type PivotDefinitionConstructor = new (
   definition: PivotCoreDefinition,

@@ -15,7 +15,6 @@ import {
   SpreadsheetPivotCoreDefinition,
   TechnicalName,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { ModelConfig } from "../../../model";
 import {
   CellValueType,
   EvaluatedCell,
@@ -104,7 +103,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    */
   needsReevaluation: boolean = true;
 
-  constructor(custom: ModelConfig["custom"], params: SpreadsheetPivotParams) {
+  constructor(params: SpreadsheetPivotParams) {
     this.getters = params.getters;
     this.coreDefinition = params.definition;
   }
