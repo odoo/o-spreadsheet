@@ -14,26 +14,36 @@ exports[`Label range Can add options to the label range component 1`] = `
     </div>
     
     <div
-      class="o-selection"
+      class="o-selection w-100"
     >
       <div
-        class="o-selection-input d-flex flex-row"
+        class="o-selection-input"
       >
-        
         <div
-          class="position-relative w-100"
+          class="d-flex"
         >
-          <input
-            class="o-input mb-2"
-            placeholder="e.g. A1:A2"
-            spellcheck="false"
-            style=""
-            type="text"
-          />
           
-          
+          <div
+            class="position-relative w-100"
+          >
+            <input
+              class="o-input mb-2"
+              placeholder="e.g. A1:A2"
+              spellcheck="false"
+              style=""
+              type="text"
+            />
+            
+            
+          </div>
+          <div
+            class="ms-2 d-flex align-items-center"
+          >
+            
+            
+          </div>
         </div>
-        
+        <div />
       </div>
       
       
@@ -76,26 +86,36 @@ exports[`Label range Can render a label range component 1`] = `
     </div>
     
     <div
-      class="o-selection"
+      class="o-selection w-100"
     >
       <div
-        class="o-selection-input d-flex flex-row"
+        class="o-selection-input"
       >
-        
         <div
-          class="position-relative w-100"
+          class="d-flex"
         >
-          <input
-            class="o-input mb-2"
-            placeholder="e.g. A1:A2"
-            spellcheck="false"
-            style=""
-            type="text"
-          />
           
-          
+          <div
+            class="position-relative w-100"
+          >
+            <input
+              class="o-input mb-2"
+              placeholder="e.g. A1:A2"
+              spellcheck="false"
+              style=""
+              type="text"
+            />
+            
+            
+          </div>
+          <div
+            class="ms-2 d-flex align-items-center"
+          >
+            
+            
+          </div>
         </div>
-        
+        <div />
       </div>
       
       

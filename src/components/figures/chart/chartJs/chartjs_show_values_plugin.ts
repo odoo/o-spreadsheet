@@ -83,6 +83,10 @@ function drawLineOrBarOrRadarChartValues(
       if (isNaN(value)) {
         continue;
       }
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      if (valueToDisplay === "") {
+        continue;
+      }
 
       const point = dataset.data[i];
       const xPosition = point.x;
@@ -118,7 +122,6 @@ function drawLineOrBarOrRadarChartValues(
 
       ctx.fillStyle = point.options.backgroundColor;
       ctx.strokeStyle = options.background || "#ffffff";
-      const valueToDisplay = options.callback(Number(value), dataset, i);
       drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
     }
   }

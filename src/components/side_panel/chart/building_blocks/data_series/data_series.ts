@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ActionSpec } from "../../../../../actions/action";
 import { _t } from "../../../../../translation";
 import {
   ChartDatasetOrientation,
@@ -6,7 +7,10 @@ import {
   CustomizedDataSet,
   SpreadsheetChildEnv,
 } from "../../../../../types";
-import { SelectionInput } from "../../../../selection_input/selection_input";
+import {
+  SelectionInput,
+  SelectionInputRowExtension,
+} from "../../../../selection_input/selection_input";
 import { Section } from "../../../components/section/section";
 
 interface Props {
@@ -21,6 +25,8 @@ interface Props {
   datasetOrientation?: ChartDatasetOrientation;
   canChangeDatasetOrientation?: boolean;
   onFlipAxis?: (structure: string) => void;
+  getRangeMenuItems?: (index: number) => ActionSpec[] | undefined;
+  getRangeExtensions?: (index: number) => SelectionInputRowExtension[] | undefined;
 }
 
 export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
@@ -38,6 +44,8 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     datasetOrientation: { type: String, optional: true },
     canChangeDatasetOrientation: { type: Boolean, optional: true },
     onFlipAxis: { type: Function, optional: true },
+    getRangeMenuItems: { type: Function, optional: true },
+    getRangeExtensions: { type: Function, optional: true },
   };
 
   get ranges(): string[] {
@@ -59,5 +67,17 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
       return this.props.title;
     }
     return this.props.hasSingleRange ? _t("Data range") : _t("Data series");
+  }
+
+  getRangeMenuItems(index: number): ActionSpec[] {
+    return this.props.getRangeMenuItems?.(index) || [];
+  }
+
+  hasMenu(index: number): boolean {
+    return this.getRangeMenuItems(index).length > 0;
+  }
+
+  getRangeExtensions(index: number): SelectionInputRowExtension[] {
+    return this.props.getRangeExtensions?.(index) || [];
   }
 }

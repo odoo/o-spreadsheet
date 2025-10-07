@@ -14,12 +14,18 @@ export function getChartShowValues(
   definition: ChartWithDataSetDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
-  const { axisFormats, locale } = args;
+  const { axisFormats, locale, dataSetsValues } = args;
+  const usesPointLabels = definition.type === "scatter" && definition.showValuesMode === "label";
   return {
     horizontal: "horizontal" in definition && definition.horizontal,
     showValues: "showValues" in definition ? !!definition.showValues : false,
     background: definition.background,
-    callback: (value: number | string, dataset: ChartMeta) => {
+    callback: (value: number | string, dataset: ChartMeta, index: number) => {
+      if (usesPointLabels) {
+        const datasetIndex = dataset.index ?? 0;
+        const pointLabel = dataSetsValues?.[datasetIndex]?.pointLabels?.[index];
+        return pointLabel ?? "";
+      }
       const axisId = getDatasetAxisId(definition, dataset);
       return formatChartDatasetValue(axisFormats, locale, definition.humanize)(value, axisId);
     },

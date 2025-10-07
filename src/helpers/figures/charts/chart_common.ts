@@ -73,6 +73,16 @@ export function updateChartRangesWithDataSets(
         };
       }
     }
+    if (ds.pointLabelRange) {
+      const pointLabelRange = adaptChartRange(ds.pointLabelRange, applyChange);
+      if (pointLabelRange !== ds.pointLabelRange) {
+        isStale = true;
+        ds = {
+          ...ds,
+          pointLabelRange,
+        };
+      }
+    }
     const dataRange = adaptChartRange(ds.dataRange, applyChange);
     if (
       dataRange === undefined ||
@@ -117,6 +127,9 @@ export function duplicateDataSetsInDuplicatedSheet(
       dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
       labelCell: ds.labelCell
         ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.labelCell)
+        : undefined,
+      pointLabelRange: ds.pointLabelRange
+        ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.pointLabelRange)
         : undefined,
     };
   });
@@ -171,6 +184,9 @@ export function createDataSets(
     if (invalidSheetName || invalidXc) {
       continue;
     }
+    const pointLabelRange = dataSet.pointLabelRange
+      ? getters.getRangeFromSheetXC(sheetId, dataSet.pointLabelRange)
+      : undefined;
     // It's a rectangle. We treat all columns (arbitrary) as different data series.
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       if (zone.right === undefined) {
@@ -202,6 +218,7 @@ export function createDataSets(
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
           trend: dataSet.trend,
+          pointLabelRange,
         });
       }
     } else {
@@ -224,6 +241,7 @@ export function createDataSets(
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
         trend: dataSet.trend,
+        pointLabelRange,
       });
     }
   }
@@ -344,6 +362,18 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
 
     if (adaptedRange !== CellErrorType.InvalidReference) {
       newDataSet.dataRange = adaptedRange;
+      if (dataSet.pointLabelRange) {
+        const adaptedPointLabelRange = adaptStringRange(
+          chartSheetId,
+          dataSet.pointLabelRange,
+          applyChange
+        );
+        if (adaptedPointLabelRange !== CellErrorType.InvalidReference) {
+          newDataSet.pointLabelRange = adaptedPointLabelRange;
+        } else {
+          delete newDataSet.pointLabelRange;
+        }
+      }
       dataSets.push(newDataSet);
     }
   }
@@ -378,6 +408,13 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
     const invalidRanges =
       definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
     if (invalidRanges) {
+      return CommandResult.InvalidDataSet;
+    }
+    const invalidPointLabelRanges =
+      definition.dataSets.find(
+        (range) => range.pointLabelRange && !rangeReference.test(range.pointLabelRange)
+      ) !== undefined;
+    if (invalidPointLabelRanges) {
       return CommandResult.InvalidDataSet;
     }
     const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));

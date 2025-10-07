@@ -652,6 +652,9 @@ function fixEmptyLabelsForDateCharts(
       newLabels[i] = findNextDefinedValue(newLabels, i);
       for (const ds of newDatasets) {
         ds.data[i] = undefined;
+        if (ds.pointLabels) {
+          ds.pointLabels[i] = undefined;
+        }
       }
     }
   }
@@ -672,6 +675,21 @@ export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[
     return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
   }
   return [];
+}
+
+function getPointLabels(getters: Getters, ds: DataSet): (string | undefined)[] {
+  if (!ds.pointLabelRange) {
+    return [];
+  }
+  const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
+  const zone = recomputeZones([ds.pointLabelRange.zone], labelCellZone)[0];
+  if (!zone) {
+    return [];
+  }
+  const range = getters.getRangeFromZone(ds.pointLabelRange.sheetId, zone);
+  return getters
+    .getRangeFormattedValues(range)
+    .map((value) => (value === undefined || value === null ? undefined : String(value)));
 }
 
 /**
@@ -699,6 +717,9 @@ function filterInvalidDataPoints(
       data: dataPointsIndexes.map((i) =>
         typeof dataset.data[i] === "number" ? dataset.data[i] : null
       ),
+      pointLabels: dataset.pointLabels
+        ? dataPointsIndexes.map((i) => dataset.pointLabels?.[i])
+        : dataset.pointLabels,
     })),
   };
 }
@@ -735,6 +756,9 @@ function filterInvalidHierarchicalPoints(
     dataSetsValues: hierarchy.map((dataset) => ({
       ...dataset,
       data: dataPointsIndexes.map((i) => dataset.data[i]),
+      pointLabels: dataset.pointLabels
+        ? dataPointsIndexes.map((i) => dataset.pointLabels?.[i])
+        : dataset.pointLabels,
     })),
   };
 }
@@ -762,6 +786,9 @@ function filterValuesWithDifferentSigns(values: string[], hierarchy: DatasetValu
     dataSetsValues: hierarchy.map((dataset) => ({
       ...dataset,
       data: indexesToKeep.map((i) => dataset.data[i]),
+      pointLabels: dataset.pointLabels
+        ? indexesToKeep.map((i) => dataset.pointLabels?.[i])
+        : dataset.pointLabels,
     })),
   };
 }
@@ -792,6 +819,7 @@ function aggregateDataForLabels(
     dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
       ...dataset,
       data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
+      pointLabels: undefined,
     })),
   };
 }
@@ -889,6 +917,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     }
 
     let data = ds.dataRange ? getData(getters, ds) : [];
+    const pointLabels = ds.pointLabelRange ? getPointLabels(getters, ds) : undefined;
     if (
       data.every((e) => !e || (typeof e === "string" && !isEvaluationError(e))) &&
       data.filter((e) => typeof e === "string").length > 1
@@ -902,7 +931,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     ) {
       hidden = true;
     }
-    datasetValues.push({ data, label, hidden });
+    datasetValues.push({ data, label, hidden, pointLabels });
   }
   return datasetValues;
 }

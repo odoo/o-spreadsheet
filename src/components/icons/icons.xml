@@ -1032,4 +1032,15 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.LABEL_TAG">
+    <svg class="o-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+      <path
+        stroke="currentColor"
+        fill="none"
+        stroke-linecap="round"
+        d="m7.707 2.793-5.5 5.5a1 1 0 0 0 0 1.414l4.086 4.086a1 1 0 0 0 1.414 0l5.5-5.5a1 1 0 0 0 .293-.707V3.5a1 1 0 0 0-1-1H8.414a1 1 0 0 0-.707.293zM5 9.5l2.75-2.75M6.5 11l1.25-1.25"
+      />
+      <path fill="currentColor" d="M11.5 5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+    </svg>
+  </t>
 </templates>

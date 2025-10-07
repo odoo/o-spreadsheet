@@ -50,6 +50,14 @@ export const ChartTerms: {
   CumulativeData: _t("Cumulative data"),
   TreatLabelsAsText: _t("Treat labels as text"),
   AggregatedChart: _t("Aggregate"),
+  PointLabels: _t("Point labels"),
+  PointLabelsMenuAdd: _t("Add labels"),
+  PointLabelsMenuRemove: _t("Remove labels"),
+  ShowValuesModeTitle: _t("Text to display"),
+  ShowValuesModes: {
+    Value: _t("Use y-value as title"),
+    Label: _t("Use label as title"),
+  },
   Errors: {
     Unexpected: _t("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)

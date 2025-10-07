@@ -1,58 +1,89 @@
 <templates>
   <t t-name="o-spreadsheet-SelectionInput">
-    <div class="o-selection" t-ref="o-selection">
+    <div class="o-selection w-100" t-ref="o-selection">
       <div
         t-foreach="ranges"
         t-as="range"
         t-key="range.id"
-        class="o-selection-input d-flex flex-row"
+        class="o-selection-input"
         t-att-style="dragAndDrop.itemsStyle[range.id]"
         t-att-class="props.class">
-        <span
-          t-if="ranges.length > 1 and props.onSelectionReordered"
-          title="Reorder range"
-          t-on-pointerdown="(ev) => this.startDragAndDrop(range.id, ev)"
-          class="o-drag-handle d-flex align-items-center mb-2 o-button-icon">
-          <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
-        </span>
-        <div class="position-relative w-100">
-          <input
-            type="text"
-            spellcheck="false"
-            placeholder="e.g. A1:A2"
-            t-on-input="(ev) => this.onInputChanged(range.id, ev)"
-            t-on-focus="() => this.focus(range.id)"
-            t-on-keydown="onKeydown"
-            t-att-value="range.xc"
-            t-att-style="getColor(range)"
-            class="o-input mb-2"
-            t-att-class="{
-              'o-disabled-ranges' : range.disabled and !range.isFocused,
-              'o-focused' : range.isFocused,
-              'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
-            }"
-            t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
-          />
+        <div class="d-flex">
           <span
-            t-if="isInvalid || !range.isValidRange"
-            class="input-icon text-danger position-absolute d-flex align-items-center"
-            title="This range is invalid">
-            <t t-call="o-spreadsheet-Icon.ERROR"/>
+            t-if="ranges.length > 1 and props.onSelectionReordered"
+            title="Reorder range"
+            t-on-pointerdown="(ev) => this.startDragAndDrop(range.id, ev)"
+            class="o-drag-handle d-flex align-items-center mb-2 o-button-icon">
+            <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
           </span>
-          <span
-            class="input-icon o-disabled-ranges position-absolute d-flex align-items-center"
-            t-if="!range.isFocused and range.disabled"
-            t-att-title="props.disabledRangeTitle">
-            <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
-          </span>
+          <div class="position-relative w-100">
+            <input
+              type="text"
+              spellcheck="false"
+              placeholder="e.g. A1:A2"
+              t-on-input="(ev) => this.onInputChanged(range.id, ev)"
+              t-on-focus="() => this.focus(range.id)"
+              t-on-keydown="onKeydown"
+              t-att-value="range.xc"
+              t-att-style="getColor(range)"
+              class="o-input mb-2"
+              t-att-class="{
+                'o-disabled-ranges' : range.disabled and !range.isFocused,
+                'o-focused' : range.isFocused,
+                'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
+                'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
+              }"
+              t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
+            />
+            <span
+              t-if="isInvalid || !range.isValidRange"
+              class="input-icon text-danger position-absolute d-flex align-items-center"
+              title="This range is invalid">
+              <t t-call="o-spreadsheet-Icon.ERROR"/>
+            </span>
+            <span
+              class="input-icon o-disabled-ranges position-absolute d-flex align-items-center"
+              t-if="!range.isFocused and range.disabled"
+              t-att-title="props.disabledRangeTitle">
+              <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+            </span>
+          </div>
+          <div class="ms-2 d-flex align-items-center">
+            <CogWheelMenu t-if="hasMenu(range_index)" items="getRowMenuItems(range_index)"/>
+            <button
+              class="border-0 bg-transparent fw-bold o-remove-selection o-button-icon pe-0"
+              t-if="ranges.length > 1"
+              t-on-click="() => this.removeInput(range.id)">
+              <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
+            </button>
+          </div>
         </div>
-        <button
-          class="border-0 bg-transparent fw-bold o-remove-selection o-button-icon pe-0"
-          t-if="ranges.length > 1"
-          t-on-click="() => this.removeInput(range.id)">
-          <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
-        </button>
+        <div>
+          <t t-if="props.getRowExtensions">
+            <t t-set="extensions" t-value="getRowExtensions(range_index)"/>
+            <t t-if="extensions.length">
+              <div
+                class="o-selection-extension ms-4 d-flex align-items-top"
+                t-foreach="extensions"
+                t-as="extension"
+                t-key="extension.key"
+                t-att-title="extension.title">
+                <div class="mb-2 me-2 mt-2">
+                  <t t-call="{{extension.icon}}"/>
+                </div>
+                <SelectionInput
+                  ranges="extension.ranges"
+                  hasSingleRange="extension.hasSingleRange"
+                  isInvalid="extension.isInvalid"
+                  onSelectionChanged="extension.onSelectionChanged"
+                  onSelectionConfirmed="extension.onSelectionConfirmed"
+                  onSelectionRemoved="extension.onSelectionRemoved"
+                  class="'mt-0'"
+                />
+              </div>
+            </t>
+          </t>
+        </div>
       </div>
       <div class="d-flex flex-row w-100 o-selection-input">
         <button class="o-button o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">

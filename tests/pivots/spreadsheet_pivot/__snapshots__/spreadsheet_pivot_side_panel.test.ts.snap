@@ -126,26 +126,36 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               </div>
               
               <div
-                class="o-selection"
+                class="o-selection w-100"
               >
                 <div
-                  class="o-selection-input d-flex flex-row"
+                  class="o-selection-input"
                 >
-                  
                   <div
-                    class="position-relative w-100"
+                    class="d-flex"
                   >
-                    <input
-                      class="o-input mb-2"
-                      placeholder="e.g. A1:A2"
-                      spellcheck="false"
-                      style=""
-                      type="text"
-                    />
                     
-                    
+                    <div
+                      class="position-relative w-100"
+                    >
+                      <input
+                        class="o-input mb-2"
+                        placeholder="e.g. A1:A2"
+                        spellcheck="false"
+                        style=""
+                        type="text"
+                      />
+                      
+                      
+                    </div>
+                    <div
+                      class="ms-2 d-flex align-items-center"
+                    >
+                      
+                      
+                    </div>
                   </div>
-                  
+                  <div />
                 </div>
                 
                 
@@ -363,38 +373,48 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
               </div>
               
               <div
-                class="o-selection"
+                class="o-selection w-100"
               >
                 <div
-                  class="o-selection-input d-flex flex-row"
+                  class="o-selection-input"
                 >
-                  
                   <div
-                    class="position-relative w-100"
+                    class="d-flex"
                   >
-                    <input
-                      class="o-input mb-2 o-focused o-invalid border-danger position-relative"
-                      placeholder="e.g. A1:A2"
-                      spellcheck="false"
-                      style=""
-                      type="text"
-                    />
-                    <span
-                      class="input-icon text-danger position-absolute d-flex align-items-center"
-                      title="This range is invalid"
+                    
+                    <div
+                      class="position-relative w-100"
                     >
-                      <div
-                        class="o-icon"
+                      <input
+                        class="o-input mb-2 o-focused o-invalid border-danger position-relative"
+                        placeholder="e.g. A1:A2"
+                        spellcheck="false"
+                        style=""
+                        type="text"
+                      />
+                      <span
+                        class="input-icon text-danger position-absolute d-flex align-items-center"
+                        title="This range is invalid"
                       >
-                        <i
-                          class="fa fa-exclamation-circle"
-                        />
-                      </div>
-                    </span>
-                    
-                    
+                        <div
+                          class="o-icon"
+                        >
+                          <i
+                            class="fa fa-exclamation-circle"
+                          />
+                        </div>
+                      </span>
+                      
+                      
+                    </div>
+                    <div
+                      class="ms-2 d-flex align-items-center"
+                    >
+                      
+                      
+                    </div>
                   </div>
-                  
+                  <div />
                 </div>
                 
                 

@@ -19,7 +19,11 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../src/types";
-import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
+import {
+  PieChartRuntime,
+  ScatterChartDefinition,
+  TrendConfiguration,
+} from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
@@ -1805,6 +1809,75 @@ describe("charts", () => {
       { dataRange: "D3:E3" },
       { dataRange: "D4:E4" },
     ]);
+  });
+
+  describe("Scatter chart", () => {
+    test("Can add point label range for a data series", async () => {
+      setGrid(model, { B1: "10", C1: "Alpha", B2: "20", C2: "Beta" });
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "B1:B2" }],
+          type: "scatter",
+        },
+        chartId,
+        sheetId
+      );
+
+      await mountChartSidePanel(chartId);
+
+      let definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointLabelRange).toBeUndefined();
+      expect(document.querySelectorAll(".o-selection-extension")).toHaveLength(0);
+
+      const cogWheel = fixture.querySelector(
+        ".o-data-series .os-cog-wheel-menu-icon"
+      ) as HTMLElement;
+      await simulateClick(cogWheel);
+
+      const addMenuItem = fixture.querySelector(".o-menu-item[title='Add labels']");
+      await simulateClick(addMenuItem!);
+
+      const nestedInput = fixture.querySelector(".o-selection-extension input");
+      expect(document.querySelectorAll(".o-selection-extension").length).toBeGreaterThan(0);
+      expect(nestedInput).not.toBeNull();
+      await setInputValueAndTrigger(nestedInput!, "C2:C3");
+      await simulateClick(".o-selection-extension .o-selection-ok");
+
+      definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointLabelRange).toBe("C2:C3");
+    });
+
+    test("Can remove point label range for a data series", async () => {
+      setGrid(model, { B1: "10", C1: "Alpha", B2: "20", C2: "Beta" });
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "B1:B2", pointLabelRange: "C1:C2" }],
+          type: "scatter",
+        },
+        chartId,
+        sheetId
+      );
+
+      await mountChartSidePanel(chartId);
+
+      let definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointLabelRange).toBe("C1:C2");
+      const nestedInput = fixture.querySelector(".o-selection-extension input") as HTMLInputElement;
+      expect(nestedInput.value).toBe("C1:C2");
+
+      const cogWheel = fixture.querySelector(
+        ".o-data-series .os-cog-wheel-menu-icon"
+      ) as HTMLElement;
+      await simulateClick(cogWheel);
+      const removeMenuItem = fixture.querySelector(".o-menu-item[title='Remove labels']");
+      await simulateClick(removeMenuItem!);
+
+      definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointLabelRange).toBeUndefined();
+      expect(fixture.querySelector(".o-selection-extension")).toBeNull();
+    });
   });
 
   test.each<ChartType>(["bar", "line", "waterfall", "radar"])(

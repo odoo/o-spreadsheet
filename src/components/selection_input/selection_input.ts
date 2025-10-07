@@ -1,10 +1,12 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { ActionSpec } from "../../actions/action";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import { CogWheelMenu } from "../side_panel/components/cog_wheel_menu/cog_wheel_menu";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
 
 interface Props {
@@ -20,6 +22,8 @@ interface Props {
   colors?: Color[];
   disabledRanges?: boolean[];
   disabledRangeTitle?: string;
+  getRowMenuItems?: (index: number) => ActionSpec[] | undefined;
+  getRowExtensions?: (index: number) => SelectionInputRowExtension[] | undefined;
 }
 
 type SelectionRangeEditMode = "select-range" | "text-edit";
@@ -34,6 +38,18 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isValidRange: boolean;
   color?: Color;
   disabled?: boolean;
+}
+
+export interface SelectionInputRowExtension {
+  key: string;
+  title?: string;
+  icon?: string;
+  ranges: string[];
+  hasSingleRange?: boolean;
+  isInvalid?: boolean;
+  onSelectionChanged?: (ranges: string[]) => void;
+  onSelectionConfirmed?: () => void;
+  onSelectionRemoved?: (index: number) => void;
 }
 /**
  * This component can be used when the user needs to input some
@@ -58,7 +74,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     colors: { type: Array, optional: true, default: [] },
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
+    getRowMenuItems: { type: Function, optional: true },
+    getRowExtensions: { type: Function, optional: true },
   };
+  static components = { CogWheelMenu, SelectionInput };
   private state: State = useState({
     isMissing: false,
     mode: "select-range",
@@ -90,6 +109,18 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   get hasDisabledRanges(): boolean {
     return this.store.disabledRanges.some(Boolean);
+  }
+
+  getRowMenuItems(index: number): ActionSpec[] {
+    return this.props.getRowMenuItems?.(index) || [];
+  }
+
+  hasMenu(index: number): boolean {
+    return this.getRowMenuItems(index).length > 0;
+  }
+
+  getRowExtensions(index: number): SelectionInputRowExtension[] {
+    return this.props.getRowExtensions?.(index) || [];
   }
 
   setup() {
