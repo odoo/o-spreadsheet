@@ -1,3 +1,4 @@
+export * from "@odoo/o-spreadsheet-engine/plugins/core/range";
 export * from "./borders";
 export * from "./cell";
 export * from "./chart";
@@ -8,6 +9,5 @@ export * from "./header_size";
 export * from "./header_visibility";
 export * from "./image";
 export * from "./merge";
-export * from "./range";
 export * from "./sheet";
 export * from "./tables";

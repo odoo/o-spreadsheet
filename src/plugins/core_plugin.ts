@@ -1,4 +1,5 @@
 import { BasePlugin, CoreGetters, StateObserver } from "@odoo/o-spreadsheet-engine";
+import { RangeAdapter } from "@odoo/o-spreadsheet-engine/plugins/core/range";
 import { ModelConfig } from "../model";
 import {
   AdaptSheetName,
@@ -12,7 +13,6 @@ import {
   UID,
   WorkbookData,
 } from "../types";
-import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;

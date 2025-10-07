@@ -1,23 +1,5 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
-import {
-  Command,
-  CommandHandler,
-  CommandResult,
-  CoreCommand,
-} from "@odoo/o-spreadsheet-engine/types/commands";
-import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  ApplyRangeChangeResult,
-  Dimension,
-  RangeProvider,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "@odoo/o-spreadsheet-engine/types/misc";
-import { Range, RangeData, RangeStringOptions } from "@odoo/o-spreadsheet-engine/types/range";
-import { compile } from "../../formulas";
+import { compile } from "../../formulas/compiler";
+import { rangeReference, splitReference } from "../../helpers";
 import {
   createInvalidRange,
   createRange,
@@ -27,13 +9,25 @@ import {
   getRangeString,
   isFullColRange,
   isFullRowRange,
-  isZoneValid,
   orderRange,
-  rangeReference,
-  recomputeZones,
-  splitReference,
-  unionUnboundedZones,
-} from "../../helpers/index";
+} from "../../helpers/range";
+import { recomputeZones } from "../../helpers/recompute_zones";
+
+import { isZoneValid, unionUnboundedZones } from "../../helpers/zones";
+import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
+import { CoreGetters } from "../../types/coreGetters";
+import { CellErrorType } from "../../types/errors";
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  ApplyRangeChangeResult,
+  Dimension,
+  RangeProvider,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "../../types/misc";
+import { Range, RangeData, RangeStringOptions } from "../../types/range";
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;

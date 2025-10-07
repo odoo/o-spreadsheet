@@ -5,6 +5,7 @@ import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
 import { EventBus } from "@odoo/o-spreadsheet-engine/helpers/event_bus";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
+import { RangeAdapter } from "@odoo/o-spreadsheet-engine/plugins/core/range";
 import { GeoChartRegion } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import {
   StateUpdateMessage,
@@ -21,7 +22,6 @@ import {
   load,
   repairInitialMessages,
 } from "./migrations/data";
-import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
 import {
