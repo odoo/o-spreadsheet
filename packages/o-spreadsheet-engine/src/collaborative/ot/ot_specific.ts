@@ -1,10 +1,11 @@
-import { getAddHeaderStartIndex, overlap, range } from "../../../../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../../../../src/helpers/table_presets";
-import { otRegistry } from "../../../../../src/registries/ot_registry";
+import { getAddHeaderStartIndex, range } from "../../helpers/misc2";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/sheet";
+import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
+import { overlap } from "../../helpers/zones";
+import { otRegistry } from "../../registries/ot_registry";
 import { HeaderIndex, Zone } from "../../types/base";
 import {
   AddColumnsRowsCommand,

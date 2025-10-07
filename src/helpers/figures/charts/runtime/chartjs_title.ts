@@ -1,9 +1,9 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { chartMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { ChartWithDataSetDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { TitleOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
-import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
   definition: ChartWithDataSetDefinition,

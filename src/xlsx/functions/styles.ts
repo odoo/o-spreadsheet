@@ -9,8 +9,8 @@ import {
   XMLAttributes,
   XMLString,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { FIRST_NUMFMT_ID } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { isObjectEmptyRecursive } from "../../helpers";
-import { FIRST_NUMFMT_ID } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 

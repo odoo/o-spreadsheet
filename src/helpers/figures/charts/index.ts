@@ -1,6 +1,6 @@
 export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 export * from "./bar_chart";
-export * from "./chart_common";
 export * from "./chart_factory";
 export * from "./chart_ui_common";
 export * from "./gauge_chart";

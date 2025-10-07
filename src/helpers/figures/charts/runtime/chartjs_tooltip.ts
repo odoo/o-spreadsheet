@@ -1,4 +1,9 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { setColorAlpha } from "@odoo/o-spreadsheet-engine/helpers/color";
+import {
+  formatChartDatasetValue,
+  isTrendLineAxis,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { formatOrHumanizeValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
   BarChartDefinition,
@@ -17,9 +22,7 @@ import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/t
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CellValue } from "../../../../types";
-import { setColorAlpha } from "../../../color";
 import { isNumber } from "../../../numbers";
-import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
 import { GHOST_SUNBURST_VALUE } from "./chartjs_dataset";
 

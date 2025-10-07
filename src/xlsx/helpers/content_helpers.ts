@@ -12,6 +12,13 @@ import {
   XLSXWorksheet,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import {
+  EXCEL_DEFAULT_COL_WIDTH,
+  EXCEL_DEFAULT_ROW_HEIGHT,
+  FIRST_NUMFMT_ID,
+  HEIGHT_FACTOR,
+  WIDTH_FACTOR,
+} from "@odoo/o-spreadsheet-engine/xlsx/constants";
+import {
   getCanonicalRepresentation,
   isSheetNameEqual,
   splitReference,
@@ -24,13 +31,6 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
-import {
-  EXCEL_DEFAULT_COL_WIDTH,
-  EXCEL_DEFAULT_ROW_HEIGHT,
-  FIRST_NUMFMT_ID,
-  HEIGHT_FACTOR,
-  WIDTH_FACTOR,
-} from "../constants";
 import {
   V_ALIGNMENT_EXPORT_CONVERSION_MAP,
   XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,

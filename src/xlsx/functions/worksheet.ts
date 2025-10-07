@@ -4,6 +4,7 @@ import { withHttps } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import { HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
 import { XLSXStructure, XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { XLSX_RELATION_TYPE } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import {
   isInside,
   isMarkdownLink,
@@ -16,7 +17,6 @@ import {
   toZone,
 } from "../../helpers";
 import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
-import { XLSX_RELATION_TYPE } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import {
   addRelsToFile,

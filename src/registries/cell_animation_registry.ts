@@ -1,6 +1,6 @@
+import { getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Box, Rect, RenderingBox } from "@odoo/o-spreadsheet-engine/types/rendering";
-import { getColorScale } from "../helpers/color";
 interface CellAnimationItem {
   id: string;
   easingFn: keyof typeof EASING_FN;

@@ -1,9 +1,13 @@
 import { Point } from "chart.js";
-import { isNumber, parseDateTime, range } from "../../../../src/helpers";
-import { _t } from "../../../../src/translation";
-import { Arg, Locale, Matrix, isMatrix } from "../../../../src/types";
-import { EvaluationError } from "../../../../src/types/errors";
 import { DEFAULT_WINDOW_SIZE } from "../constants";
+import { isNumber } from "../helpers";
+import { parseDateTime } from "../helpers/dates";
+import { range } from "../helpers/misc2";
+import { _t } from "../translation";
+import { Matrix } from "../types/base";
+import { EvaluationError } from "../types/errors";
+import { Locale } from "../types/locale";
+import { Arg, isMatrix } from "../types/misc";
 import { assert, assertNotZero } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {

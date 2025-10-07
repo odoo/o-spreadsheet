@@ -1,4 +1,4 @@
-import { ZoneBorderData } from "../../../../src/plugins/core";
+import { ZoneBorderData } from "../plugins/core/borders";
 import { CellValue, Format } from "./base";
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";

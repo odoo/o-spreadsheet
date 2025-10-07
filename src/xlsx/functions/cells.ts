@@ -7,11 +7,14 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import { XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import {
+  FORCE_DEFAULT_ARGS_FUNCTIONS,
+  NON_RETROCOMPATIBLE_FUNCTIONS,
+} from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { AST, ASTFuncall, ASTString, convertAstNodes, parse } from "../../formulas/parser";
 import { formatValue, isNumber } from "../../helpers";
 import { CellValue, Format } from "../../types";
-import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
 import { DEFAULT_LOCALE } from "./../../types/locale";

@@ -5,6 +5,15 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
+import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
+  chartFontColor,
+  formatTickValue,
+  getDefinedAxis,
+  truncateLabel,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isDefined, range, removeFalsyAttributes } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
@@ -30,15 +39,6 @@ import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
-import { getColorScale } from "../../../color";
-import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
-  chartFontColor,
-  formatTickValue,
-  getDefinedAxis,
-  truncateLabel,
-} from "../chart_common";
 
 type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
 type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;

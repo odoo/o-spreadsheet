@@ -1,7 +1,7 @@
 import { XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { NAMESPACE } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { range, toXC, toZone, zoneToDimension } from "../../helpers";
 import { ExcelFilterData, ExcelSheetData, ExcelTableData } from "../../types";
-import { NAMESPACE } from "../constants";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 
 export function createTable(

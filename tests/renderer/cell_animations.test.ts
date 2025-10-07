@@ -1,3 +1,4 @@
+import { ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -5,7 +6,6 @@ import {
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Box, GridRenderingContext, Model } from "../../src";
-import { ICONS } from "../../src/components/icons/icons";
 import { toZone } from "../../src/helpers";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";

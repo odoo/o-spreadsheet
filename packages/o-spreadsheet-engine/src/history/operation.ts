@@ -1,4 +1,4 @@
-import { lazy } from "../../../../src/helpers";
+import { lazy } from "../helpers/misc2";
 import { Transformation } from "../types/history2";
 import { Lazy, UID } from "../types/misc";
 

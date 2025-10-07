@@ -1,9 +1,9 @@
 import { Model } from "../../../../src";
-import { Get } from "../../../../src/store_engine";
 import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
+import { Get } from "./store_engine";
 import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
 export interface EditTextOptions {

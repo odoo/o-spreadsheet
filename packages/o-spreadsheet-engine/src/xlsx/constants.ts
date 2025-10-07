@@ -1,5 +1,5 @@
-import { ExcelIconSet } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { IconSetType } from "../components/icons/icons";
+import { ExcelIconSet } from "../types/xlsx";
 
 /** In XLSX color format (no #)  */
 export const AUTO_COLOR = "000000";

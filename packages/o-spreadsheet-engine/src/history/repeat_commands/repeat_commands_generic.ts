@@ -1,5 +1,6 @@
-import { deepCopy } from "../../../../../src/helpers";
-import { Command, Getters } from "../../../../../src/types";
+import { Getters } from "../../../../../src";
+import { deepCopy } from "../../helpers/misc2";
+import { Command } from "../../types/commands";
 
 export const genericRepeatsTransforms = [
   repeatSheetDependantCommand,

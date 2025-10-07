@@ -1,5 +1,5 @@
-import { expandZoneOnInsertion, reduceZoneOnDeletion } from "../../../../../src/helpers";
-import { CoreCommand } from "../../../../../src/types";
+import { expandZoneOnInsertion, reduceZoneOnDeletion } from "../../helpers/zones";
+import { CoreCommand } from "../../types/commands";
 import { UnboundedZone, Zone } from "../../types/misc";
 import { RangeData } from "../../types/range";
 

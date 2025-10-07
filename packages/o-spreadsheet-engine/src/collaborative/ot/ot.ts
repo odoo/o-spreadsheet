@@ -1,33 +1,29 @@
+import { specificRangeTransformRegistry } from "../../../../../src/registries/srt_registry";
+import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc2";
+import { getRangeAdapter, rangeAdapterRegistry } from "../../helpers/range";
 import {
-  getAddHeaderStartIndex,
-  getRangeAdapter,
-  isDefined,
-  isInside,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
-  rangeAdapterRegistry,
-} from "../../../../../src/helpers";
-import { otRegistry } from "../../../../../src/registries/ot_registry";
-import { specificRangeTransformRegistry } from "../../../../../src/registries/srt_registry";
+} from "../../helpers/sheet";
+import { isInside } from "../../helpers/zones";
+import { otRegistry } from "../../registries/ot_registry";
+import { HeaderIndex, Zone } from "../../types/base";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CoreCommand,
+  HeadersDependentCommand,
   PositionDependentCommand,
+  RangesDependentCommand,
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
-  isPositionDependent,
-  isSheetDependent,
-  isTargetDependent,
-} from "../../../../../src/types";
-import { HeaderIndex, Zone } from "../../types/base";
-import {
-  HeadersDependentCommand,
-  RangesDependentCommand,
   ZoneDependentCommand,
   isHeadersDependant,
+  isPositionDependent,
   isRangeDependant,
+  isSheetDependent,
+  isTargetDependent,
   isZoneDependent,
 } from "../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";

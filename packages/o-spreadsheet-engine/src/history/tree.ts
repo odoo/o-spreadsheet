@@ -1,5 +1,4 @@
-import { linkNext } from "../../../../src/helpers";
-
+import { linkNext } from "../helpers/misc2";
 import { UID } from "../types/base";
 import { OperationSequenceNode, Transformation, TransformationFactory } from "../types/history2";
 import { Branch } from "./branch";

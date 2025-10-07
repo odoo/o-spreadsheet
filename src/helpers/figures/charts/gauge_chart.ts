@@ -4,6 +4,14 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import {
+  adaptChartRange,
+  duplicateLabelRangeInDuplicatedSheet,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import {
+  adaptFormulaStringRanges,
+  adaptStringRange,
+} from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -28,10 +36,8 @@ import {
   Validation,
 } from "../../../types";
 import { Validator } from "../../../types/validator";
-import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 import { rangeReference } from "../../references";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (

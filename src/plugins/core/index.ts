@@ -1,6 +1,6 @@
+export * from "@odoo/o-spreadsheet-engine/plugins/core/borders";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/cell";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/range";
-export * from "./borders";
 export * from "./chart";
 export * from "./conditional_format";
 export * from "./data_validation";

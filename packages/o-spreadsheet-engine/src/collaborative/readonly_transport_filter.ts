@@ -2,8 +2,8 @@ import {
   CollaborationMessage,
   NewMessageCallback,
   TransportService,
-} from "src/types/collaborative/transport_service";
-import { UID } from "../../../../src/types";
+} from "../types/collaborative/transport_service";
+import { UID } from "../types/misc";
 
 export class ReadonlyTransportFilter implements TransportService<CollaborationMessage> {
   constructor(private transportService: TransportService<CollaborationMessage>) {}

@@ -1,4 +1,4 @@
-import { CoreCommand } from "../../../../../src/types";
+import { CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { ClientId } from "./session";
 

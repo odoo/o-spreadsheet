@@ -1,13 +1,11 @@
-import { concat } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import {
-  createInvalidRange,
-  createRangeFromXc,
-  getRangeString,
-} from "@odoo/o-spreadsheet-engine/helpers/range";
-import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
-import { rangeTokenize } from "../formulas";
-import { Range, RangeAdapter, UID } from "../types";
+import { rangeTokenize } from "../formulas/range_tokenizer";
+import { UID } from "../types/base";
+import { RangeAdapter } from "../types/misc";
+import { Range } from "../types/range";
+import { concat } from "./misc2";
+import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
+import { isSheetNameEqual } from "./sheet";
 
 export function adaptFormulaStringRanges(
   defaultSheetId: string,

@@ -1,4 +1,5 @@
-import { Transformation, TransformationFactory, UID } from "../../../../src/types";
+import { Transformation, TransformationFactory } from "../types/history2";
+import { UID } from "../types/misc";
 import { Operation } from "./operation";
 
 /**

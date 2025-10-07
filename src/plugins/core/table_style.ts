@@ -1,12 +1,12 @@
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { getUniqueText, toHex } from "../../helpers";
 import {
   DEFAULT_TABLE_CONFIG,
   TABLE_PRESETS,
   TABLE_STYLES_TEMPLATES,
   buildTableStyle as buildCustomTableStyle,
-} from "../../helpers/table_presets";
+} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { getUniqueText, toHex } from "../../helpers";
 import {
   CommandResult,
   CoreCommand,

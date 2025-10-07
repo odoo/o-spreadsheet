@@ -136,6 +136,8 @@ import {
   pivotTimeAdapterRegistry,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { inverseCommandRegistry } from "@odoo/o-spreadsheet-engine/registries/inverse_command_registry";
+import { otRegistry } from "@odoo/o-spreadsheet-engine/registries/ot_registry";
 import { errorTypes } from "@odoo/o-spreadsheet-engine/types/errors";
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
@@ -187,7 +189,6 @@ import { chartComponentRegistry } from "./registries/chart_component_registry";
 import { chartSubtypeRegistry } from "./registries/chart_types";
 import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
-import { inverseCommandRegistry } from "./registries/inverse_command_registry";
 import {
   cellMenuRegistry,
   colMenuRegistry,
@@ -196,7 +197,6 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "./registries/menus";
-import { otRegistry } from "./registries/ot_registry";
 import {
   genericRepeat,
   repeatCommandTransformRegistry,
@@ -475,7 +475,7 @@ export const stores = {
   GridRenderer,
 };
 
-export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
+export { getCaretDownSvg, getCaretUpSvg } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 
 export type { StoreConstructor, StoreParams } from "./store_engine";
 

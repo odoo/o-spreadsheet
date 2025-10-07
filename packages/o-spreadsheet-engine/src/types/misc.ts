@@ -5,7 +5,7 @@ import type { Validation as EngineValidation } from "./validator";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-import { Token } from "../../../../src/formulas";
+import { Token } from "../formulas/tokenizer";
 import { Format } from "./format";
 import { Range } from "./range";
 

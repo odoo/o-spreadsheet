@@ -1,6 +1,6 @@
 import { transformDefinition } from "../../../../../src/helpers/figures/charts";
-import { adaptFormulaStringRanges, adaptStringRange } from "../../../../../src/helpers/formulas";
 import { specificRangeTransformRegistry } from "../../../../../src/registries/srt_registry";
+import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
 import { deepCopy } from "../../helpers/misc2";
 import {
   AddConditionalFormatCommand,

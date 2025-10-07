@@ -1,6 +1,9 @@
+import {
+  TABLE_STYLES_TEMPLATES,
+  buildTableStyle,
+} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { isColorValid } from "../../../helpers";
-import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import {
   Color,
   SpreadsheetChildEnv,

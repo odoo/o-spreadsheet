@@ -5,6 +5,7 @@ import {
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { chartMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import {
   BaselineArrowDirection,
   ScorecardChartRuntime,
@@ -12,7 +13,6 @@ import {
 import { Color } from "chart.js";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
 import { getDefaultContextFont } from "../../text_helper";
-import { chartMutedFontColor } from "./chart_common";
 
 /* Padding at the border of the chart */
 const BOTTOM_PADDING_RATIO = 0.05;

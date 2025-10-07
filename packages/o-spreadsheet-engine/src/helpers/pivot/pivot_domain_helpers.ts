@@ -1,4 +1,3 @@
-import { Pivot } from "../../../../../src";
 import { CellValue } from "../../types/cells";
 import {
   DimensionTree,
@@ -8,6 +7,7 @@ import {
   PivotNode,
   PREVIOUS_VALUE,
 } from "../../types/pivot";
+import { Pivot } from "../../types/pivot_runtime";
 import { clip, deepCopy, deepEquals } from "../misc2";
 
 export function getDomainOfParentRow(pivot: Pivot, domain: PivotDomain): PivotDomain {

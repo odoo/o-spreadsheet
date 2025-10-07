@@ -1,5 +1,5 @@
 import { XLSXColorScheme, XLSXTheme } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { AUTO_COLOR } from "../constants";
+import { AUTO_COLOR } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 /**

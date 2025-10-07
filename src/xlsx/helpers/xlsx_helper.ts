@@ -4,7 +4,7 @@ import {
   XLSXImportFile,
   XLSXXmlDocuments,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { CONTENT_TYPES_FILE } from "../constants";
+import { CONTENT_TYPES_FILE } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 
 /**
  * Return all the xmls converted to XLSXImportFile corresponding to the given content type.

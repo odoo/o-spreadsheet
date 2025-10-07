@@ -1,4 +1,3 @@
-import { toExcelDataset, toExcelLabelRange } from "../../../../../../src/helpers/figures/charts";
 import { UID } from "../../../types/base";
 import {
   ChartCreationContext,
@@ -15,6 +14,7 @@ import { CellErrorType } from "../../../types/errors";
 import { AdaptSheetName, ApplyRangeChange, RangeAdapter } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
+import { toExcelDataset, toExcelLabelRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.

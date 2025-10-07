@@ -8,15 +8,15 @@ import {
   TitleDesign,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { XMLAttributes, XMLString, XlsxHexColor } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { ColorGenerator, largeMax, lightenColor, range } from "../../helpers";
-import { chartMutedFontColor } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData } from "../../types";
 import {
   DEFAULT_DOUGHNUT_CHART_HOLE_SIZE,
   DRAWING_NS_A,
   DRAWING_NS_C,
   RELATIONSHIP_NSR,
-} from "../constants";
+} from "@odoo/o-spreadsheet-engine/xlsx/constants";
+import { ColorGenerator, largeMax, lightenColor, range } from "../../helpers";
+import { chartMutedFontColor } from "../../helpers/figures/charts";
+import { Color, ExcelWorkbookData, FigureData } from "../../types";
 import { toXlsxHexColor } from "../helpers/colors";
 import { convertDotValueToEMU, getRangeSize } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";

@@ -1,4 +1,4 @@
-import { _t } from "../../../../src/translation";
+import { _t } from "../translation";
 
 type UnitTransformation = {
   transform: (number) => number;

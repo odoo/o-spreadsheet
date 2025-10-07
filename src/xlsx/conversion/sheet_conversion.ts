@@ -7,6 +7,12 @@ import {
   XLSXWorksheet,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import {
+  EXCEL_DEFAULT_COL_WIDTH,
+  EXCEL_DEFAULT_ROW_HEIGHT,
+  EXCEL_IMPORT_DEFAULT_NUMBER_OF_COLS,
+  EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS,
+} from "@odoo/o-spreadsheet-engine/xlsx/constants";
+import {
   buildSheetLink,
   largeMax,
   markdownLink,
@@ -16,12 +22,6 @@ import {
   toXC,
 } from "../../helpers";
 import { Dimension, HeaderData, HeaderGroup, SheetData } from "../../types";
-import {
-  EXCEL_DEFAULT_COL_WIDTH,
-  EXCEL_DEFAULT_ROW_HEIGHT,
-  EXCEL_IMPORT_DEFAULT_NUMBER_OF_COLS,
-  EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS,
-} from "../constants";
 import { convertHeightFromExcel, convertWidthFromExcel } from "../helpers/content_helpers";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertConditionalFormats } from "./cf_conversion";

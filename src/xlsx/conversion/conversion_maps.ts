@@ -1,3 +1,4 @@
+import { IconSetType } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import {
@@ -13,7 +14,6 @@ import {
   XLSXHorizontalAlignment,
   XLSXVerticalAlignment,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { IconSetType } from "../../components/icons/icons";
 import {
   Align,
   BorderStyle,

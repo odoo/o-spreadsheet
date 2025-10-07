@@ -1,4 +1,5 @@
-import { Arg, Locale } from "../../../../src/types";
+import { Locale } from "../types/locale";
+import { Arg } from "../types/misc";
 import { isDataNonEmpty, reduceAny, reduceNumbers } from "./helpers";
 
 export function sum(values: Arg[], locale: Locale): number {

@@ -1,5 +1,8 @@
+import {
+  isTrendLineAxis,
+  truncateLabel,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { ChartConfiguration } from "chart.js";
-import { isTrendLineAxis, truncateLabel } from "../chart_common";
 
 export function generateMasterChartConfig(
   chartJsConfig: ChartConfiguration<any>

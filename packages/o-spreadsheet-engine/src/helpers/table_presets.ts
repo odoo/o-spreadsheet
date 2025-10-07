@@ -1,11 +1,7 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import {
-  TableConfig,
-  TableStyle,
-  TableStyleTemplateName,
-} from "@odoo/o-spreadsheet-engine/types/table";
-import { darkenColor, lightenColor } from ".";
-import { Color } from "../types";
+import { _t } from "../translation";
+import { Color } from "../types/misc";
+import { TableConfig, TableStyle, TableStyleTemplateName } from "../types/table";
+import { darkenColor, lightenColor } from "./color";
 
 export const TABLE_STYLE_CATEGORIES = {
   light: _t("Light"),

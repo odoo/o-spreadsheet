@@ -4,6 +4,7 @@ import {
   PIVOT_MAX_NUMBER_OF_CELLS,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/helpers/pivot/get_pivot_too_big_error_message";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   ClipboardMIMEType,
@@ -23,7 +24,6 @@ import {
   largeMin,
   numberToLetters,
 } from "../helpers/index";
-import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";

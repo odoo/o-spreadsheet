@@ -1,19 +1,5 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "@odoo/o-spreadsheet-engine/constants";
-import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { isDefined, largeMax } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import {
-  createRange,
-  duplicateRangeInDuplicatedSheet,
-} from "@odoo/o-spreadsheet-engine/helpers/range";
-import {
-  getZoneArea,
-  isFullRow,
-  toUnboundedZone,
-  zoneToDimension,
-  zoneToXc,
-} from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
   ChartWithDataSetDefinition,
@@ -23,27 +9,30 @@ import {
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
   GenericDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
+} from "../../../types/chart";
+import { CommandResult } from "../../../types/commands";
+import { CoreGetters } from "../../../types/coreGetters";
+import { CellErrorType } from "../../../types/errors";
+import { LocaleFormat } from "../../../types/format";
+import { Locale } from "../../../types/locale";
 import {
   ApplyRangeChange,
   Color,
-  CommandResult,
-  DOMCoordinates,
-  DOMDimension,
-  Getters,
-  Locale,
-  LocaleFormat,
-  Range,
   RangeAdapter,
   UID,
   UnboundedZone,
   Zone,
-} from "../../../types";
+} from "../../../types/misc";
+import { Range } from "../../../types/range";
+import { DOMCoordinates, DOMDimension } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
+import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
+import { isDefined, largeMax } from "../../misc2";
+import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
+import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -424,7 +413,7 @@ export function shouldRemoveFirstLabel(
 }
 
 export function getChartPositionAtCenterOfViewport(
-  getters: Getters,
+  getters: CoreGetters,
   chartSize: DOMDimension
 ): DOMCoordinates {
   const { x, y } = getters.getMainViewportCoordinates();

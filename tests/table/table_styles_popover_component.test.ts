@@ -1,9 +1,9 @@
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import {
   TableStylesPopover,
   TableStylesPopoverProps,
 } from "../../src/components/tables/table_styles_popover/table_styles_popover";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";

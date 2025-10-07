@@ -4,6 +4,7 @@ import {
   CHART_TITLE_FONT_SIZE,
   DEFAULT_FONT,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { chartMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { clip } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { GaugeAnimatedRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Color, PixelPosition, Rect } from "../../../types";
@@ -13,7 +14,6 @@ import {
   getDefaultContextFont,
   getFontSizeMatchingWidth,
 } from "../../text_helper";
-import { chartMutedFontColor } from "./chart_common";
 
 export const GAUGE_PADDING_SIDE = 30;
 export const GAUGE_PADDING_TOP = 10;

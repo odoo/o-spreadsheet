@@ -8,15 +8,15 @@ import {
   XMLAttributes,
   XMLString,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
-import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   ARRAY_FORMULA_URI,
   CONTENT_TYPES,
   NAMESPACE,
   RELATIONSHIP_NSR,
   XLSX_RELATION_TYPE,
-} from "./constants";
+} from "@odoo/o-spreadsheet-engine/xlsx/constants";
+import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
+import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";

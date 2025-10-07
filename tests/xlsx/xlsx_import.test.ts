@@ -1,3 +1,5 @@
+import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
@@ -6,7 +8,6 @@ import { ScatterChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/s
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { SheetData, WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import { XLSXSharedFormula } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { ICON_SETS } from "../../src/components/icons/icons";
 import {
   buildSheetLink,
   formatValue,
@@ -14,7 +15,6 @@ import {
   markdownLink,
   toZone,
 } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import {

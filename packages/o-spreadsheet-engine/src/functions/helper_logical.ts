@@ -1,4 +1,4 @@
-import { Arg } from "../../../../src/types";
+import { Arg } from "../types/misc";
 import { conditionalVisitBoolean } from "./helpers";
 
 export function boolAnd(args: Arg[]) {

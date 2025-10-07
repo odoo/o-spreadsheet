@@ -8,6 +8,7 @@ import {
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
@@ -45,7 +46,6 @@ import {
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isNumber } from "../../../numbers";
-import { shouldRemoveFirstLabel } from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,

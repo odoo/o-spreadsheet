@@ -1,8 +1,8 @@
+import { toHex } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { GridRenderingContext, Highlight, Rect } from "../types";
-import { toHex } from "./color";
 
 import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { setColorAlpha } from "./color";
+import { setColorAlpha } from "@odoo/o-spreadsheet-engine/helpers/color";
 
 export function drawHighlight(
   renderingContext: GridRenderingContext,

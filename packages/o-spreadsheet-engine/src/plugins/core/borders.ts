@@ -1,39 +1,27 @@
-import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
+import { Color } from "chart.js";
+import { PositionMap } from "../../helpers/cells/position_map";
+import { getItemId } from "../../helpers/data_normalization";
+import { deepCopy, deepEquals, removeFalsyAttributes } from "../../helpers/misc2";
+import { recomputeZones } from "../../helpers/recompute_zones";
 import {
   adjacent,
-  overlap,
-  splitIfAdjacent,
-  zoneToXc,
-} from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import {
-  deepCopy,
-  deepEquals,
-  getItemId,
   intersection,
+  overlap,
   positionToZone,
-  recomputeZones,
-  removeFalsyAttributes,
+  splitIfAdjacent,
   toZone,
-} from "../../helpers/index";
+  zoneToXc,
+} from "../../helpers/zones";
+import { CellPosition, HeaderIndex, UID, Zone } from "../../types/base";
 import {
-  ApplyRangeChange,
-  Border,
-  BorderData,
-  BorderDescr,
-  CellPosition,
-  Color,
   CommandResult,
   CoreCommand,
-  ExcelWorkbookData,
-  HeaderIndex,
   SetBorderCommand,
   SetZoneBordersCommand,
-  UID,
-  UnboundedZone,
-  WorkbookData,
-  Zone,
-} from "../../types/index";
+} from "../../types/commands";
+import { ApplyRangeChange, Border, BorderData, BorderDescr, UnboundedZone } from "../../types/misc";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 export type ZoneBorderData = {
   top?: BorderDescr;

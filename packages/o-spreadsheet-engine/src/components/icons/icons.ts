@@ -5,10 +5,10 @@ import {
   GRAY_300,
   GRAY_900,
   TEXT_BODY_MUTED,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
-import { isDefined } from "../../helpers";
-import { Style } from "../../types";
+} from "../../constants";
+import { isDefined } from "../../helpers/misc2";
+import { ImageSVG } from "../../types/image";
+import { Style } from "../../types/misc";
 
 export type IconSetType = keyof typeof ICON_SETS;
 

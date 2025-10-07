@@ -11,8 +11,8 @@ import {
   XLSXXmlDocuments,
   XMLString,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { CONTENT_TYPES } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { removeFalsyAttributes } from "../helpers";
-import { CONTENT_TYPES } from "./constants";
 import {
   convertBorders,
   convertFormats,

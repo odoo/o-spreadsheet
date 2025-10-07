@@ -1,3 +1,4 @@
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import {
   areZonesContinuous,
   deepCopy,
@@ -14,7 +15,6 @@ import {
   zoneToXc,
 } from "../../helpers";
 import { createFilter } from "../../helpers/table_helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import {
   ApplyRangeChange,
   CellPosition,

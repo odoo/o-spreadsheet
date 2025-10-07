@@ -20,8 +20,11 @@ import {
   XLSXTheme,
   XLSXWorksheet,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import {
+  EXCEL_DEFAULT_COL_WIDTH,
+  EXCEL_DEFAULT_ROW_HEIGHT,
+} from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { positions, toXC, toZone } from "../../helpers";
-import { EXCEL_DEFAULT_COL_WIDTH, EXCEL_DEFAULT_ROW_HEIGHT } from "../constants";
 import { CELL_TYPE_CONVERSION_MAP } from "../conversion";
 import { getRelativePath } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";

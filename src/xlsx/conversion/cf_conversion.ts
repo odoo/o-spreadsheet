@@ -1,9 +1,9 @@
+import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   ExcelIconSet,
   XLSXConditionalFormat,
   XLSXDxf,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { ICON_SETS } from "../../components/icons/icons";
 import { tokenize } from "../../formulas";
 import {
   ColorScaleMidPointThreshold,

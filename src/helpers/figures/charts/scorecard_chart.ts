@@ -7,7 +7,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import {
+  adaptChartRange,
+  duplicateLabelRangeInDuplicatedSheet,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import { adaptStringRange } from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext, TitleDesign } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -30,11 +35,9 @@ import {
   UID,
 } from "../../../types";
 import { Validator } from "../../../types/validator";
-import { adaptStringRange } from "../../formulas";
 import { isNumber } from "../../numbers";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(

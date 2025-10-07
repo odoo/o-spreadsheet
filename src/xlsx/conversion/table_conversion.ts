@@ -1,3 +1,7 @@
+import {
+  DEFAULT_TABLE_CONFIG,
+  TABLE_PRESETS,
+} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import { SheetData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import {
@@ -7,7 +11,6 @@ import {
   XLSXWorksheet,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { isSheetNameEqual, toCartesian, toZone, zoneToXc } from "../../helpers";
-import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
 import { TableConfig, WorkbookData } from "../../types";
 
 /**

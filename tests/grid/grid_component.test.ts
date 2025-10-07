@@ -1,3 +1,4 @@
+import { getDataFilterIcon } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -15,7 +16,6 @@ import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
-import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";

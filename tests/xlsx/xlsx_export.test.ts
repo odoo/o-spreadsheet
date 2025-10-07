@@ -1,9 +1,9 @@
 import { NOW, TODAY } from "@odoo/o-spreadsheet-engine/functions/module_date";
 import { RAND, RANDARRAY, RANDBETWEEN } from "@odoo/o-spreadsheet-engine/functions/module_math";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { XLSXExportXMLFile, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { arg } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { CustomizedDataSet, Dimension } from "../../src/types";
 import { hexaToInt } from "../../src/xlsx/conversion";

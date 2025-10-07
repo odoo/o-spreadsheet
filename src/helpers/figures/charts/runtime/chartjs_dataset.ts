@@ -7,6 +7,21 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  ColorGenerator,
+  colorToRGBA,
+  getColorScale,
+  lightenColor,
+  relativeLuminance,
+  rgbaToHex,
+  setColorAlpha,
+} from "@odoo/o-spreadsheet-engine/helpers/color";
+import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
+  getPieColors,
+  isTrendLineAxis,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isDefined, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -43,21 +58,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
-import {
-  ColorGenerator,
-  colorToRGBA,
-  getColorScale,
-  lightenColor,
-  relativeLuminance,
-  rgbaToHex,
-  setColorAlpha,
-} from "../../../color";
-import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
-  getPieColors,
-  isTrendLineAxis,
-} from "../chart_common";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 

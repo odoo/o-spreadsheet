@@ -1,11 +1,11 @@
 import { MASTER_CHART_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
-import { useRef } from "@odoo/owl";
-import { Chart, ChartConfiguration } from "chart.js/auto";
-import { clip } from "../../../../../helpers";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
-} from "../../../../../helpers/figures/charts/chart_common";
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { useRef } from "@odoo/owl";
+import { Chart, ChartConfiguration } from "chart.js/auto";
+import { clip } from "../../../../../helpers";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
 import { FullScreenChartStore } from "../../../../full_screen_chart/full_screen_chart_store";

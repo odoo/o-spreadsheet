@@ -1,10 +1,11 @@
+import { ICON_SETS, IconSetType } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   ExcelIconSet,
   XLSXDxf,
   XMLAttributes,
   XMLString,
 } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { ICON_SETS, IconSetType } from "../../components/icons/icons";
+import { XLSX_ICONSET_MAP } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { colorNumberToHex } from "../../helpers";
 import {
   CellIsRule,
@@ -18,7 +19,6 @@ import {
   IconThreshold,
   ThresholdType,
 } from "../../types";
-import { XLSX_ICONSET_MAP } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { convertOperator, pushElement } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";

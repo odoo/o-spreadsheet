@@ -1,3 +1,4 @@
+import { ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useRef } from "@odoo/owl";
 import { colorNumberToHex } from "../../../../helpers";
@@ -5,7 +6,6 @@ import { criterionEvaluatorRegistry } from "../../../../registries/criterion_reg
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
-import { ICONS } from "../../../icons/icons";
 import { CfTerms } from "../../../translations_terms";
 
 interface Props {

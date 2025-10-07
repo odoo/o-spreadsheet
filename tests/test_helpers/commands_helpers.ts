@@ -4,6 +4,7 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import {
   colorToNumber,
   isInside,
@@ -11,7 +12,6 @@ import {
   toCartesian,
   toZone,
 } from "../../src/helpers/index";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import {
   AnchorZone,
@@ -43,6 +43,7 @@ import {
 } from "../../src/types";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
+import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
@@ -59,7 +60,6 @@ import {
   CriterionFilter,
   TableConfig,
 } from "@odoo/o-spreadsheet-engine/types/table";
-import { ICON_SETS } from "../../src/components/icons/icons";
 
 /**
  * Dispatch an UNDO to the model

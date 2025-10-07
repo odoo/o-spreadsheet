@@ -1,7 +1,7 @@
 import { XLSXColor } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { AUTO_COLOR } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { colorToRGBA, hslaToRGBA, rgbaToHex, rgbaToHSLA } from "../../helpers";
 import { Color } from "../../types";
-import { AUTO_COLOR } from "../constants";
 import { XLSX_INDEXED_COLORS } from "./conversion_maps";
 
 /**

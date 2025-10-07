@@ -1,3 +1,4 @@
+import { ICONS, ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -33,7 +34,6 @@ import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
-import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { CfTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";

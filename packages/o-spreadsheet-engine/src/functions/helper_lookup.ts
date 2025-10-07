@@ -1,18 +1,9 @@
-import { isZoneInside, positionToZone, zoneToXc } from "../../../../src/helpers";
-import { _t } from "../../../../src/translation";
-import {
-  EvalContext,
-  FunctionResultObject,
-  Getters,
-  Maybe,
-  Range,
-  UID,
-} from "../../../../src/types";
-import {
-  CircularDependencyError,
-  EvaluationError,
-  InvalidReferenceError,
-} from "../../../../src/types/errors";
+import { Getters } from "../../../../src";
+import { isZoneInside, positionToZone, zoneToXc } from "../helpers/zones";
+import { _t } from "../translation";
+import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
+import { EvalContext } from "../types/functions";
+import { FunctionResultObject, Maybe, UID } from "../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 
 /**

@@ -1,12 +1,6 @@
-import { _t } from "../../../../src/translation";
-import {
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Matrix,
-  isMatrix,
-} from "../../../../src/types";
-import { DivisionByZeroError, EvaluationError } from "../../../../src/types/errors";
+import { _t } from "../translation";
+import { DivisionByZeroError, EvaluationError } from "../types/errors";
+import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types/misc";
 
 export function assert(condition: boolean, message: string): asserts condition {
   if (!condition) {

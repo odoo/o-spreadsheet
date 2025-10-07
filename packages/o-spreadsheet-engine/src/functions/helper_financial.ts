@@ -1,5 +1,5 @@
-import { _t } from "../../../../src/translation";
-import { Locale } from "../../../../src/types";
+import { _t } from "../translation";
+import { Locale } from "../types/locale";
 import { toJsDate } from "./helpers";
 
 export const expectCashFlowsAndDatesHaveSameDimension = _t(
