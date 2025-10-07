@@ -24,15 +24,19 @@ import { getPivotTooBigErrorMessage } from "../../../../../packages/o-spreadshee
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;
 
-  private updatesAreDeferred: boolean;
+  private _updatesAreDeferred: boolean;
   private draft: PivotCoreDefinition | null = null;
   private notification = this.get(NotificationStore);
   private alreadyNotified = false;
   private alreadyNotifiedForPivotSize = false;
 
-  constructor(get: Get, private pivotId: UID) {
+  constructor(
+    get: Get,
+    private pivotId: UID,
+    private updateMode: "neverDefer" | "canDefer" = "canDefer"
+  ) {
     super(get);
-    this.updatesAreDeferred =
+    this._updatesAreDeferred =
       this.getters.getPivotCoreDefinition(this.pivotId).deferUpdates ?? false;
   }
 
@@ -43,6 +47,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
           this.getters.getPivot(this.pivotId).init();
         }
     }
+  }
+
+  get updatesAreDeferred() {
+    return this.updateMode === "neverDefer" ? false : this._updatesAreDeferred;
   }
 
   get fields() {
@@ -131,7 +139,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   reset(pivotId: UID) {
     this.pivotId = pivotId;
-    this.updatesAreDeferred = true;
+    this._updatesAreDeferred = true;
     this.draft = null;
   }
 
@@ -142,7 +150,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     } else {
       this.update({ deferUpdates: shouldDefer });
     }
-    this.updatesAreDeferred = shouldDefer;
+    this._updatesAreDeferred = shouldDefer;
   }
 
   applyUpdate() {
