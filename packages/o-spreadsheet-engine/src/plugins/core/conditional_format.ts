@@ -1,30 +1,30 @@
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { compile } from "../../formulas/compiler";
-import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
+import { deepEquals } from "../../helpers/misc2";
+import { recomputeZones } from "../../helpers/recompute_zones";
+import { isInside, toUnboundedZone } from "../../helpers/zones";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { UID, Zone } from "../../types/base";
 import {
   AddConditionalFormatCommand,
-  ApplyRangeChange,
   CancelledReason,
+  Command,
+  CommandResult,
+  CoreCommand,
+} from "../../types/commands";
+import {
   CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  Command,
-  CommandResult,
   ConditionalFormat,
   ConditionalFormatInternal,
-  CoreCommand,
-  ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
-  RangeData,
-  UID,
-  UnboundedZone,
-  Validation,
-  WorkbookData,
-  Zone,
-} from "../../types";
+} from "../../types/conditional_formatting";
+import { ApplyRangeChange, UnboundedZone, Validation } from "../../types/misc";
+import { RangeData } from "../../types/range";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants

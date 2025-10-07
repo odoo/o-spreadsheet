@@ -1,8 +1,8 @@
+import { ConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/conditional_format";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toHex, toZone } from "../../src/helpers";
-import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import {
   CellIsRule,
   CommandResult,

@@ -1,6 +1,7 @@
 import { CarouselPlugin } from "../../../../src/plugins/core/carousel";
 import { HeaderGroupingPlugin } from "../../../../src/plugins/core/header_grouping";
 import { SettingsPlugin } from "../../../../src/plugins/core/settings";
+import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 
