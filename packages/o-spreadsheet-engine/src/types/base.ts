@@ -57,11 +57,3 @@ export type FormulaToExecute = (
   getSymbolValue: GetSymbolValue,
   ctx: Record<string, unknown>
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
-
-export interface CompiledFormula {
-  execute: FormulaToExecute;
-  tokens: unknown[];
-  dependencies: string[];
-  isBadExpression: boolean;
-  normalizedFormula: string;
-}
