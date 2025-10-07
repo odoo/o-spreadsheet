@@ -220,7 +220,7 @@ export class BarChart extends AbstractChart {
   }
 }
 
-export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
+export function createBarChartRuntime(chart: BarChart, getters: CoreGetters): BarChartRuntime {
   const definition = chart.getDefinition();
   const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
 

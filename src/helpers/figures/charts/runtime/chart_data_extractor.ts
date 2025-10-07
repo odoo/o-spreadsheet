@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import {
   evaluatePolynomial,
   expM,
@@ -50,7 +51,7 @@ export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
   dataSets: DataSet[],
   labelRange: Range | undefined,
-  getters: Getters
+  getters: CoreGetters
 ): ChartRuntimeGenerationArgs {
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   let labels = labelValues.formattedValues;
@@ -661,7 +662,7 @@ function fixEmptyLabelsForDateCharts(
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
+export function getData(getters: CoreGetters, ds: DataSet): (CellValue | undefined)[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
@@ -816,7 +817,7 @@ export function getChartLabelFormat(
 }
 
 function getChartLabelValues(
-  getters: Getters,
+  getters: CoreGetters,
   dataSets: DataSet[],
   labelRange?: Range
 ): LabelValues {
@@ -862,7 +863,7 @@ function getChartLabelValues(
  * found in the dataset ranges that isn't a date format.
  */
 function getChartDatasetFormat(
-  getters: Getters,
+  getters: CoreGetters,
   allDataSets: DataSet[],
   axis: "left" | "right"
 ): Format | undefined {
@@ -875,7 +876,7 @@ function getChartDatasetFormat(
   return undefined;
 }
 
-function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+function getChartDatasetValues(getters: CoreGetters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
     let label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
@@ -920,7 +921,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
  * 2024    Q1    W1    100
  * 2024    Q1    W2    200
  */
-function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+function getHierarchicalDatasetValues(getters: CoreGetters, dataSets: DataSet[]): DatasetValues[] {
   dataSets = dataSets.filter(
     (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
   );
@@ -974,7 +975,7 @@ export function makeDatasetsCumulative(
 
 export function getTopPaddingForDashboard(
   definition: GenericDefinition<PieChartDefinition | LineChartDefinition | BarChartDefinition>,
-  getters: Getters
+  getters: CoreGetters
 ) {
   const { title, legendPosition } = definition;
   const hasTitleOrLegendTop = (title && title.text) || legendPosition === "top";

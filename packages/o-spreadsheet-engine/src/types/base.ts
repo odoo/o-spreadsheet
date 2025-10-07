@@ -17,8 +17,6 @@ export interface Zone {
   bottom: HeaderIndex;
 }
 
-export type Range = unknown;
-
 export type CellValue = string | number | boolean | null;
 
 export type Format = string & Alias;
