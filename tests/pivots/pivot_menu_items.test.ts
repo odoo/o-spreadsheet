@@ -1,4 +1,5 @@
 import { PIVOT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/constants";
+import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/helpers/pivot/get_pivot_too_big_error_message";
 import {
   Model,
   PivotCustomGroup,
@@ -7,7 +8,6 @@ import {
   SpreadsheetPivotTable,
 } from "../../src";
 import { Action } from "../../src/actions/action";
-import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
 import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries/menus";
 import {

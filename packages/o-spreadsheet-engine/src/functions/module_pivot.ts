@@ -1,24 +1,20 @@
-import { PIVOT_MAX_NUMBER_OF_CELLS } from "@odoo/o-spreadsheet-engine/constants";
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
+import { range } from "../helpers/misc2";
+import { getPivotTooBigErrorMessage } from "../helpers/pivot/get_pivot_too_big_error_message";
+import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
+import { _t } from "../translation";
+import { CellErrorType, EvaluationError } from "../types/errors";
+import { AddFunctionDescription } from "../types/functions";
+import { FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { PivotVisibilityOptions } from "../types/pivot";
+import { arg } from "./arguments";
 import {
   addPivotDependencies,
   assertDomainLength,
   assertMeasureExist,
   getPivotId,
-} from "@odoo/o-spreadsheet-engine/functions/helper_lookup";
-import { toBoolean, toNumber, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { getPivotTooBigErrorMessage } from "../components/translations_terms";
-import { range } from "../helpers/index";
-import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
-import {
-  AddFunctionDescription,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  PivotVisibilityOptions,
-} from "../types";
+} from "./helper_lookup";
+import { toBoolean, toNumber, toString } from "./helpers";
 
 //--------------------------------------------------------------------------
 // Pivot functions

@@ -3,6 +3,7 @@ import {
   DEFAULT_FIGURE_WIDTH,
   PIVOT_MAX_NUMBER_OF_CELLS,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/helpers/pivot/get_pivot_too_big_error_message";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   ClipboardMIMEType,
@@ -10,7 +11,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { CellPopoverStore } from "../components/popover";
-import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";

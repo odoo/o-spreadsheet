@@ -1,4 +1,5 @@
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 import {
   DimensionTree,
   PivotDimension,
@@ -6,7 +7,6 @@ import {
   PivotTableRow,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
-import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 
 export type FieldName = string;

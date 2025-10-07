@@ -1,5 +1,5 @@
+import { pivotTimeAdapter } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
 import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { pivotTimeAdapter } from "../../../src/helpers/pivot/pivot_time_adapter";
 import {
   createDate,
   resetMapValueDimensionDate,

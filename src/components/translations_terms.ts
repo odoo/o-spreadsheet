@@ -1,7 +1,6 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { GeoChartColorScale } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { formatValue } from "../helpers";
-import { CommandResult, Locale } from "../types/index";
+import { CommandResult } from "../types/index";
 
 export const CfTerms = {
   Errors: {
@@ -265,14 +264,3 @@ export const measureDisplayTerms = {
     ),
   },
 };
-
-export function getPivotTooBigErrorMessage(numberOfCells: number, locale: Locale): string {
-  const formattedNumber = formatValue(numberOfCells, {
-    format: "0,00",
-    locale: locale,
-  });
-  return _t(
-    "Oops—this pivot table is quite large (%s cells). Try simplifying it using the side panel.",
-    formattedNumber
-  );
-}

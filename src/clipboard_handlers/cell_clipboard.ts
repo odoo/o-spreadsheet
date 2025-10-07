@@ -1,7 +1,7 @@
 import { canonicalizeNumberValue } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { createPivotFormula } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { deepEquals, formatValue, isZoneInside } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
-import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import {
   CellPosition,
   ClipboardCell,

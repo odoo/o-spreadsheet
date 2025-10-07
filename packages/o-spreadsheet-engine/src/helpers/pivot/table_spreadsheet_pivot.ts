@@ -1,4 +1,5 @@
-import { deepEquals, lazy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { FunctionResultObject } from "../../types/base";
+import { Lazy } from "../../types/misc";
 import {
   DimensionTree,
   DimensionTreeNode,
@@ -9,8 +10,8 @@ import {
   PivotTableColumn,
   PivotTableRow,
   PivotVisibilityOptions,
-} from "@odoo/o-spreadsheet-engine/types/pivot";
-import { FunctionResultObject, Lazy } from "../../types";
+} from "../../types/pivot";
+import { deepEquals, lazy } from "../misc2";
 import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 

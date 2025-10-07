@@ -1,4 +1,5 @@
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { generatePivotArgs } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { Component, useState } from "@odoo/owl";
 import {
   FunctionResultObject,
@@ -8,7 +9,6 @@ import {
   UID,
 } from "../..";
 import { formatValue } from "../../helpers";
-import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
 interface PivotDialogColumn {

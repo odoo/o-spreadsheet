@@ -120,6 +120,22 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import {
+  areDomainArgsFieldsValid,
+  createCustomFields,
+  createPivotFormula,
+  getMaxObjectId,
+  isDateOrDatetimeField,
+  parseDimension,
+  pivotNormalizationValueRegistry,
+  pivotToFunctionValueRegistry,
+  toFunctionPivotValue,
+  toNormalizedPivotValue,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import {
+  pivotTimeAdapter,
+  pivotTimeAdapterRegistry,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
+import {
   chartRegistry,
   chartSubtypeRegistry,
 } from "@odoo/o-spreadsheet-engine/registries/chart_types";
@@ -149,22 +165,9 @@ import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
-import {
-  areDomainArgsFieldsValid,
-  createCustomFields,
-  createPivotFormula,
-  getMaxObjectId,
-  isDateOrDatetimeField,
-  parseDimension,
-  pivotNormalizationValueRegistry,
-  pivotToFunctionValueRegistry,
-  toFunctionPivotValue,
-  toNormalizedPivotValue,
-} from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
 import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
-import { pivotTimeAdapter, pivotTimeAdapterRegistry } from "./helpers/pivot/pivot_time_adapter";
 import {
   createEmptyExcelSheet,
   createEmptySheet,
@@ -498,8 +501,7 @@ export const constants = {
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
 
-export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
-export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
+export { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 
 export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 export type { EnrichedToken } from "./formulas/composer_tokenizer";

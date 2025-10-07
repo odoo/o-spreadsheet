@@ -1,3 +1,9 @@
+import {
+  AGGREGATORS,
+  getFieldDisplayName,
+  isDateOrDatetimeField,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   Aggregator,
@@ -11,12 +17,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
-import {
-  AGGREGATORS,
-  getFieldDisplayName,
-  isDateOrDatetimeField,
-} from "../../../../helpers/pivot/pivot_helpers";
-import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
 import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";

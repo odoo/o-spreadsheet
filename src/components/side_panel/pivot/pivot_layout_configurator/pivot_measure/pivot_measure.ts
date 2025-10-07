@@ -1,8 +1,8 @@
 import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 import { Component } from "@odoo/owl";
 import { Token, compile } from "../../../../../formulas";
 import { unquote } from "../../../../../helpers";
-import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { Color, PivotMeasure } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";

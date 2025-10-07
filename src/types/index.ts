@@ -28,6 +28,7 @@ export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
 export * from "@odoo/o-spreadsheet-engine/types/history2";
 export * from "@odoo/o-spreadsheet-engine/types/misc";
 export * from "@odoo/o-spreadsheet-engine/types/pivot";
+export * from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
 export * from "@odoo/o-spreadsheet-engine/types/range";
 export {
   BorderDescrWithOpacity,
@@ -51,7 +52,6 @@ export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
 export * from "./autofill";
 export * from "./getters";
 export * from "./locale";
-export * from "./pivot_runtime";
 export * from "./rendering";
 
 declare global {

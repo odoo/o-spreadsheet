@@ -1,8 +1,11 @@
+import {
+  createPivotFormula,
+  getMaxObjectId,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 import { PivotCoreDefinition, PivotCoreMeasure } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
-import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
   ApplyRangeChange,
   CellPosition,

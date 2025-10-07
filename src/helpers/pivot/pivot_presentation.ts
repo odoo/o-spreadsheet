@@ -9,19 +9,6 @@ import {
   transpose2dPOJO,
 } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
-  CellValue,
-  DimensionTree,
-  Getters,
-  isMatrix,
-  NEXT_VALUE,
-  PivotDomain,
-  PivotMeasure,
-  PivotMeasureDisplay,
-  PivotValueCell,
-  PREVIOUS_VALUE,
-  SortDirection,
-} from "../../types";
-import {
   domainToColRowDomain,
   domainToString,
   getDimensionDomain,
@@ -35,10 +22,27 @@ import {
   isDomainIsInPivot,
   isFieldInDomain,
   replaceFieldValueInDomain,
-} from "./pivot_domain_helpers";
-import { AGGREGATORS_FN, isSortedColumnValid, toNormalizedPivotValue } from "./pivot_helpers";
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
+import {
+  AGGREGATORS_FN,
+  isSortedColumnValid,
+  toNormalizedPivotValue,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
+import {
+  CellValue,
+  DimensionTree,
+  Getters,
+  isMatrix,
+  NEXT_VALUE,
+  PivotDomain,
+  PivotMeasure,
+  PivotMeasureDisplay,
+  PivotValueCell,
+  PREVIOUS_VALUE,
+  SortDirection,
+} from "../../types";
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
-import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
 const PERCENT_FORMAT = "0.00%";
 
 type CacheForMeasureAndField<T> = { [measureId: string]: { [field: string]: T } };

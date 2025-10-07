@@ -1,4 +1,5 @@
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "@odoo/o-spreadsheet-engine/constants";
+import { isDateOrDatetimeField } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   PivotCoreDefinition,
@@ -12,13 +13,13 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
-import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { Get } from "../../../../store_engine";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { Command, UID } from "../../../../types";
-import { getPivotTooBigErrorMessage } from "../../../translations_terms";
+
+import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/helpers/pivot/get_pivot_too_big_error_message";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;

@@ -1,11 +1,6 @@
-import { boolAnd, boolOr } from "@odoo/o-spreadsheet-engine/functions/helper_logical";
-import { countUnique, sum } from "@odoo/o-spreadsheet-engine/functions/helper_math";
-import {
-  average,
-  countAny,
-  max,
-  min,
-} from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
+import { boolAnd, boolOr } from "../../functions/helper_logical";
+import { countUnique, sum } from "../../functions/helper_math";
+import { average, countAny, max, min } from "../../functions/helper_statistical";
 import {
   inferFormat,
   isEvaluationError,
@@ -13,11 +8,13 @@ import {
   toNumber,
   toString,
   toValue,
-} from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { getUniqueText, isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
+} from "../../functions/helpers";
+import { Registry } from "../../registries/registry";
+import { _t } from "../../translation";
+import { CellValue } from "../../types/base";
+import { EvaluationError } from "../../types/errors";
+import { DEFAULT_LOCALE, Locale } from "../../types/locale";
+import { FunctionResultObject, Matrix, Maybe } from "../../types/misc";
 import {
   Granularity,
   PivotCoreDefinition,
@@ -29,16 +26,9 @@ import {
   PivotFields,
   PivotSortedColumn,
   PivotTableCell,
-} from "@odoo/o-spreadsheet-engine/types/pivot";
-import {
-  CellValue,
-  DEFAULT_LOCALE,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  Pivot,
-} from "../../types";
+} from "../../types/pivot";
+import { Pivot } from "../../types/pivot_runtime";
+import { getUniqueText, isDefined } from "../misc2";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 

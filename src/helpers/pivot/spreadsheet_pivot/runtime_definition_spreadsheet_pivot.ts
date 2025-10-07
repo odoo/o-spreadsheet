@@ -3,7 +3,8 @@ import {
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Getters, Range } from "../../../types";
-import { PivotRuntimeDefinition } from "../pivot_runtime_definition";
+
+import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 
 export class SpreadsheetPivotRuntimeDefinition extends PivotRuntimeDefinition {
   readonly range?: Range;

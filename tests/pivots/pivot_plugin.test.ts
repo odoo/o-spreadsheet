@@ -1,7 +1,7 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
+import { EMPTY_PIVOT_CELL } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 import { CommandResult, Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
