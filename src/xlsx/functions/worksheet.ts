@@ -1,4 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
+import { withHttps } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import { HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
 import { XLSXStructure, XMLAttributes, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
@@ -13,8 +15,6 @@ import {
   toXC,
   toZone,
 } from "../../helpers";
-import { PositionMap } from "../../helpers/cells/position_map";
-import { withHttps } from "../../helpers/links";
 import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
 import { XLSX_RELATION_TYPE } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";

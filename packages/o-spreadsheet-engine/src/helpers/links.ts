@@ -1,13 +1,11 @@
-import {
-  isMarkdownLink,
-  isSheetUrl,
-  isWebLink,
-  parseMarkdownLink,
-  parseSheetUrl,
-} from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CellValue, CommandResult, Getters, Link, SpreadsheetChildEnv } from "../types";
+import { Registry } from "../registries/registry";
+import { _t } from "../translation";
+import { CellValue } from "../types/base";
+import { CommandResult } from "../types/commands";
+import { CoreGetters } from "../types/coreGetters";
+import { SpreadsheetChildEnv } from "../types/env";
+import { Link } from "../types/misc";
+import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc2";
 
 /**
  * Add the `https` prefix to the url if it's missing
@@ -29,7 +27,7 @@ export interface LinkSpec {
    * - a simple web link displays the raw url
    * - a link to a sheet displays the sheet name
    */
-  readonly urlRepresentation: (url: string, getters: Getters) => string;
+  readonly urlRepresentation: (url: string, getters: CoreGetters) => string;
   readonly open: (url: string, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
   readonly sequence: number;
 }
@@ -94,7 +92,7 @@ function findMatchingSpec(url: string): LinkSpec {
   );
 }
 
-export function urlRepresentation(link: Link, getters: Getters): string {
+export function urlRepresentation(link: Link, getters: CoreGetters): string {
   return findMatchingSpec(link.url).urlRepresentation(link.url, getters);
 }
 

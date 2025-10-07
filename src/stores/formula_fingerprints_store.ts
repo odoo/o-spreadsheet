@@ -1,3 +1,4 @@
+import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 import {
   AlternatingColorGenerator,
   isFullColRange,
@@ -5,7 +6,6 @@ import {
   reorderZone,
   setColorAlpha,
 } from "../helpers";
-import { PositionMap } from "../helpers/cells/position_map";
 import {
   Cell,
   CellPosition,

@@ -1,7 +1,7 @@
 import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { openLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { Component } from "@odoo/owl";
 import { toXC } from "../../../helpers";
-import { openLink, urlRepresentation } from "../../../helpers/links";
 import { Store, useStore } from "../../../store_engine";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";

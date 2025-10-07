@@ -21,6 +21,7 @@ import {
   toNumber,
   toString,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { openLink, urlRegistry, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { ComposerFocusStore } from "./components/composer/composer_focus_store";
@@ -107,7 +108,6 @@ import {
   union,
   unquote,
 } from "./helpers/index";
-import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,

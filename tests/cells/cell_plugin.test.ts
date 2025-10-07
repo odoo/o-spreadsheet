@@ -1,7 +1,7 @@
 import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { CoreCommand, CorePlugin, Model } from "../../src";
 import { buildSheetLink, toZone } from "../../src/helpers";
-import { urlRepresentation } from "../../src/helpers/links";
 import { corePluginRegistry } from "../../src/plugins";
 import { CellValueType, CommandResult, UID } from "../../src/types";
 import {

@@ -1,30 +1,28 @@
-import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
+import { isEvaluationError, toString } from "../../functions/helpers";
+import { CellPosition, FunctionResultObject } from "../../types/base";
+import {
+  BooleanCell,
+  Cell,
+  CellValue,
+  CellValueType,
+  EmptyCell,
+  ErrorCell,
+  EvaluatedCell,
+  LiteralCell,
+  NumberCell,
+} from "../../types/cells";
+import { LocaleFormat } from "../../types/format";
+import { DEFAULT_LOCALE, Locale } from "../../types/locale";
+import { parseDateTime } from "../dates";
 import {
   detectDateFormat,
   detectNumberFormat,
   formatValue,
   isDateTimeFormat,
   isTextFormat,
-} from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { isBoolean, memoize } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import {
-  BooleanCell,
-  Cell,
-  CellPosition,
-  CellValue,
-  CellValueType,
-  DEFAULT_LOCALE,
-  EmptyCell,
-  ErrorCell,
-  EvaluatedCell,
-  FunctionResultObject,
-  LiteralCell,
-  Locale,
-  LocaleFormat,
-  NumberCell,
-} from "../../types";
+} from "../format/format";
 import { detectLink } from "../links";
+import { isBoolean, memoize } from "../misc2";
 import { isNumber, parseNumber } from "../numbers";
 
 export function evaluateLiteral(

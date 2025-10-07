@@ -1,10 +1,10 @@
+import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 import {
   adjacent,
   overlap,
   splitIfAdjacent,
   zoneToXc,
 } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { PositionMap } from "../../helpers/cells/position_map";
 import {
   deepCopy,
   deepEquals,

@@ -1,6 +1,6 @@
 import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 import { Border, CellPosition, Style, UID, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
-import { PositionMap } from "../../helpers/cells/position_map";
 import { isObjectEmptyRecursive, positionToZone, removeFalsyAttributes } from "../../helpers/index";
 import {
   Command,

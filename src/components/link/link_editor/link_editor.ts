@@ -1,7 +1,7 @@
+import { detectLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
-import { detectLink, urlRepresentation } from "../../../helpers/links";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { Link, Position, Rect, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";

@@ -1,4 +1,5 @@
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { detectLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { localizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -19,7 +20,6 @@ import {
   jsDateToRoundNumber,
   valueToDateNumber,
 } from "../helpers";
-import { detectLink } from "../helpers/links";
 import { rangeReference } from "../helpers/references";
 import {
   CellValue,

@@ -1,4 +1,5 @@
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { UIPlugin } from "../../src";
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
@@ -7,7 +8,6 @@ import {
   getClipboardDataPositions,
   parseOSClipboardContent,
 } from "../../src/helpers/clipboard/clipboard_helpers";
-import { urlRepresentation } from "../../src/helpers/links";
 import { Model } from "../../src/model";
 import { featurePluginRegistry } from "../../src/plugins";
 import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful";

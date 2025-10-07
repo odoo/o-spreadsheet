@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../..";
+import { CellPosition, UID } from "../../types/base";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};

@@ -1,8 +1,8 @@
+import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ComponentConstructor } from "@odoo/owl";
 import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
-import { openLink } from "../helpers/links";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { CellPosition, Getters, SortDirection, SpreadsheetChildEnv } from "../types";
 

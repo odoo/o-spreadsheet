@@ -1,5 +1,5 @@
+import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 import { positionToZone } from "../../../helpers";
-import { PositionMap } from "../../../helpers/cells/position_map";
 import { CellPosition, UID, Zone } from "../../../types";
 import { SpreadsheetRTree } from "./r_tree";
 
