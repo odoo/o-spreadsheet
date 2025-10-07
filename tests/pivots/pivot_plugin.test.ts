@@ -399,6 +399,31 @@ describe("Pivot plugin", () => {
     });
   });
 
+  test("getPivotCellFromPosition handles both the pivot style and the function arguments", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [{ fieldName: "Customer" }],
+      rows: [{ fieldName: "Price" }],
+      measures: [{ id: "testCount", fieldName: "__count", aggregator: "sum" }],
+    });
+    const D1 = toCellPosition(model.getters.getActiveSheetId(), "D1");
+
+    setCellContent(model, "C1", "=PIVOT(1)");
+    expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
+
+    updatePivot(model, "1", { style: { displayColumnHeaders: false } });
+    expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "MEASURE_HEADER" });
+
+    setCellContent(model, "C1", "=PIVOT(1,,,TRUE)");
+    expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
+  });
+
   test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
     const model = new Model();
     addPivot(model, "A1:A2", {}, "pivot1");

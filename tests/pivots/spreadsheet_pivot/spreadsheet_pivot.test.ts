@@ -855,6 +855,104 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("Pivot style is applied to the result of PIVOT formula.", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+      A4: "1995-04-14", B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [],
+      columns: [{ fieldName: "Date", granularity: "day" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:H2")).toEqual([
+      ["Pivot",      "14 Apr 1995", "28 Nov 2024", "28 Dec 2024", "Total", ""],
+      ["",           "Price",       "Price",       "Price",      "Price", ""],
+    ]);
+
+    updatePivot(model, "1", { style: { numberOfColumns: 1 } });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
+      ["Pivot",      "14 Apr 1995", ""],
+      ["",           "Price",       ""],
+    ]);
+
+    updatePivot(model, "1", { style: { displayColumnHeaders: false } });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:H2")).toEqual([
+      ["Pivot",      "Price",       "Price",       "Price",      "Price", ""],
+      ["Total",      "30",          "20",          "10",         "60",    ""],
+    ]);
+
+    updatePivot(model, "1", { style: { numberOfColumns: 2, displayMeasuresRow: false } });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:F2")).toEqual([
+      ["Pivot",      "14 Apr 1995", "28 Nov 2024", ""],
+      ["Total",      "30",          "20",         ""],
+    ]);
+
+    updatePivot(model, "1", {
+      rows: [{ fieldName: "Date", granularity: "day" }],
+      columns: [],
+      style: { displayTotals: false },
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D6")).toEqual([
+      ["Pivot",          "Total"],
+      ["",               "Price"],
+      ["14 Apr 1995",    "30"],
+      ["28 Nov 2024",    "20"],
+      ["28 Dec 2024",    "10"],
+      ["",               ""],
+    ]);
+
+    updatePivot(model, "1", { style: { numberOfRows: 2 } });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D5")).toEqual([
+      ["Pivot",          "Total"],
+      ["",               "Price"],
+      ["14 Apr 1995",    "30"],
+      ["28 Nov 2024",    "20"],
+      ["",               ""],
+    ]);
+  });
+
+  test("Pivot style is overridden by the arguments of the pivot formula", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+      A4: "1995-04-14", B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [],
+      columns: [{ fieldName: "Date", granularity: "day" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+      style: { numberOfColumns: 1 },
+    });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
+      ["Pivot",      "14 Apr 1995", "",],
+      ["",           "Price",       "",],
+    ]);
+
+    setCellContent(model, "C1", "=PIVOT(1,,,,3)");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:G2")).toEqual([
+      ["Pivot",      "14 Apr 1995", "28 Nov 2024", "28 Dec 2024", "",],
+      ["",           "Price",       "Price",       "Price",      "",],
+    ]);
+  });
+
   test("PIVOT row headers are indented relative to the groupBy depth.", () => {
     // prettier-ignore
     const grid = {

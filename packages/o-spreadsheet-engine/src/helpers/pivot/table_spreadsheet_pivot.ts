@@ -5,14 +5,14 @@ import {
   PivotCollapsedDomains,
   PivotDomain,
   PivotSortedColumn,
+  PivotStyle,
   PivotTableCell,
   PivotTableColumn,
   PivotTableRow,
-  PivotVisibilityOptions,
 } from "../../types/pivot";
 import { deepEquals, lazy } from "../misc";
 import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
-import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
+import { DEFAULT_PIVOT_STYLE, parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 
 interface CollapsiblePivotTableColumn extends PivotTableColumn {
   collapsedHeader?: boolean;
@@ -157,29 +157,23 @@ export class SpreadsheetPivotTable {
     return this.columns.at(-1)?.length || 0;
   }
 
-  private getSkippedRows(visibilityOptions: PivotVisibilityOptions) {
+  private getSkippedRows(pivotStyle: Required<PivotStyle>) {
     const skippedRows: Set<number> = new Set();
-    if (!visibilityOptions.displayColumnHeaders) {
+    if (!pivotStyle.displayColumnHeaders) {
       for (let i = 0; i < this.columns.length - 1; i++) {
         skippedRows.add(i);
       }
     }
-    if (!visibilityOptions.displayMeasuresRow) {
+    if (!pivotStyle.displayMeasuresRow) {
       skippedRows.add(this.columns.length - 1);
     }
     return skippedRows;
   }
 
-  getPivotCells(
-    visibilityOptions: PivotVisibilityOptions = {
-      displayColumnHeaders: true,
-      displayTotals: true,
-      displayMeasuresRow: true,
-    }
-  ): PivotTableCell[][] {
-    const key = JSON.stringify(visibilityOptions);
+  getPivotCells(pivotStyle: Required<PivotStyle> = DEFAULT_PIVOT_STYLE): PivotTableCell[][] {
+    const key = JSON.stringify(pivotStyle);
     if (!this.pivotCells[key]) {
-      const { displayTotals } = visibilityOptions;
+      const { displayTotals } = pivotStyle;
       const numberOfDataRows = this.rows.length;
       const numberOfDataColumns = this.getNumberOfDataColumns();
       let pivotHeight = this.columns.length + numberOfDataRows;
@@ -191,7 +185,7 @@ export class SpreadsheetPivotTable {
         pivotWidth -= this.measures.length;
       }
       const domainArray: PivotTableCell[][] = [];
-      const skippedRows = this.getSkippedRows(visibilityOptions);
+      const skippedRows = this.getSkippedRows(pivotStyle);
       for (let col = 0; col < pivotWidth; col++) {
         domainArray.push([]);
         for (let row = 0; row < pivotHeight; row++) {

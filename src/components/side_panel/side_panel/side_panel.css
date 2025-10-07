@@ -89,6 +89,26 @@
         margin-left: -5px;
       }
     }
+
+    .o-sidePanel-tab {
+      padding: 8px 0px;
+      cursor: pointer;
+      border-right: 1px solid var(--os-gray-300);
+
+      &.inactive {
+        color: var(--os-text-body);
+        background-color: var(--os-gray-100);
+        border-bottom: 1px solid var(--os-gray-300);
+      }
+
+      &:not(.inactive) {
+        color: var(--os-button-active-text-color);
+        border-bottom: 1px solid #fff;
+      }
+    }
+    .o-sidePanel-tab:last-child {
+      border-right: none;
+    }
   }
 
   .o-fw-bold {

@@ -1,15 +1,20 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
-import { UID } from "../../../../types";
+import { Pixel, UID } from "../../../../types";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { Section } from "../../components/section/section";
 import { PivotLayoutConfigurator } from "../pivot_layout_configurator/pivot_layout_configurator";
+import { PivotDesignPanel } from "./pivot_design_panel/pivot_design_panel";
 
 interface Props {
   pivotId: UID;
   onCloseSidePanel: () => void;
+}
+
+interface State {
+  panel: "configuration" | "design";
 }
 
 export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
@@ -21,6 +26,14 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
   static components = {
     PivotLayoutConfigurator,
     Section,
+    PivotDesignPanel,
+  };
+
+  state = useState<State>({ panel: "configuration" });
+  private panelContentRef = useRef<HTMLElement>("panelContent");
+  private scrollPositions: Record<"configuration" | "design", Pixel> = {
+    configuration: 0,
+    design: 0,
   };
 
   setup() {
@@ -37,5 +50,13 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
 
   get highlights() {
     return getPivotHighlights(this.env.model.getters, this.props.pivotId);
+  }
+
+  switchPanel(panel: "configuration" | "design") {
+    const el = this.panelContentRef.el as HTMLElement;
+    if (el) {
+      this.scrollPositions[this.state.panel] = el.scrollTop;
+    }
+    this.state.panel = panel;
   }
 }

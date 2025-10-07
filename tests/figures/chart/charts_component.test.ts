@@ -1116,11 +1116,11 @@ describe("charts", () => {
     const chartPanel = fixture.querySelector(".o-panel-content")!;
     chartPanel.scrollTop = 100;
 
-    const configTab = fixture.querySelector(".o-panel-element.inactive")!;
+    const configTab = fixture.querySelector(".o-sidePanel-tab.inactive")!;
     await click(configTab);
     expect(chartPanel.scrollTop).toBe(0);
 
-    const designTab = fixture.querySelector(".o-panel-element.inactive")!;
+    const designTab = fixture.querySelector(".o-sidePanel-tab.inactive")!;
     await click(designTab);
     expect(chartPanel.scrollTop).toBe(100);
   });
