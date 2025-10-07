@@ -1,3 +1,10 @@
+import {
+  NEXT_VALUE,
+  PivotMeasureDisplay,
+  PREVIOUS_VALUE,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { CellErrorType } from "../../../src";
+import { setCellContent } from "../../test_helpers";
 import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { getFormattedGrid, getGrid } from "../../test_helpers/helpers";
 import {

@@ -1,5 +1,11 @@
-import { toZone } from "../../../src/helpers";
-import { setCellContent, setFormat } from "../../test_helpers/commands_helpers";
+import { UID } from "@odoo/o-spreadsheet-engine";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/env";
+import { PivotCoreMeasure, PREVIOUS_VALUE } from "@odoo/o-spreadsheet-engine/types/pivot";
+import { Model } from "../../../src";
+
+import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
+import { setCellContent, setFormat } from "../../test_helpers";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponent, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { addPivot, removePivot, updatePivot } from "../../test_helpers/pivot_helpers";
