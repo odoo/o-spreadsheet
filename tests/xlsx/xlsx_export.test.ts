@@ -1,7 +1,7 @@
 import { NOW, TODAY } from "@odoo/o-spreadsheet-engine/functions/module_date";
 import { RAND, RANDARRAY, RANDBETWEEN } from "@odoo/o-spreadsheet-engine/functions/module_math";
 import { XLSXExportXMLFile, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { arg, functionRegistry } from "../../src/functions";
+import { arg } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
@@ -10,6 +10,7 @@ import { hexaToInt } from "../../src/xlsx/conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import {
   createChart,
   createGaugeChart,

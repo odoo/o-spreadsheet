@@ -1,4 +1,5 @@
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -6,7 +7,6 @@ import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
-import { functionRegistry } from "../../../functions";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,

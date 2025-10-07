@@ -1,10 +1,10 @@
 import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { functionRegistry } from "../../../functions/index";
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";

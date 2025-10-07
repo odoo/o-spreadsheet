@@ -3,9 +3,9 @@ import {
   DEFAULT_REVISION_ID,
   MESSAGE_VERSION,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { CollaborationMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model, UIPlugin } from "../../src";
-import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { featurePluginRegistry } from "../../src/plugins";

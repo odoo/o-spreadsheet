@@ -10,9 +10,10 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { arg, functionRegistry } from "../../src/functions";
+import { arg } from "../../src/functions";
 import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";

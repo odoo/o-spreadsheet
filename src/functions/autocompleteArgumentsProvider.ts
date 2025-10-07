@@ -83,3 +83,6 @@ export function insertTokenAtArgStartingPosition(
   this.composer.changeComposerCursorSelection(start, end);
   this.composer.replaceComposerCursorSelection(value);
 }
+
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
+functionRegistry.getAll().forEach((x) => createAutocompleteArgumentsProvider(x.name, x.args));

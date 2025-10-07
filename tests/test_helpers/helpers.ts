@@ -1,4 +1,5 @@
 import { BasePlugin } from "@odoo/o-spreadsheet-engine";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
@@ -15,7 +16,6 @@ import { ComposerFocusStore } from "../../src/components/composer/composer_focus
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
-import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,

@@ -72,7 +72,7 @@ import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_sec
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import { getFunctionsFromTokens } from "./formulas";
-import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
+import { FunctionRegistry, arg } from "./functions/index";
 import {
   ColorGenerator,
   UuidGenerator,
@@ -118,8 +118,8 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import {
-  chartComponentRegistry,
   chartRegistry,
   chartSubtypeRegistry,
 } from "@odoo/o-spreadsheet-engine/registries/chart_types";
@@ -183,6 +183,7 @@ import { autofillModifiersRegistry } from "./registries/autofill_modifiers";
 import { autofillRulesRegistry } from "./registries/autofill_rules";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
+import { chartComponentRegistry } from "./registries/chart_component_registry";
 import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "./registries/inverse_command_registry";

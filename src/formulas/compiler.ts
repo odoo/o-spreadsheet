@@ -10,7 +10,8 @@ import {
 import type { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import type { CompiledFormula, FormulaToExecute } from "@odoo/o-spreadsheet-engine/types/misc";
-import { functionRegistry } from "../functions/index";
+
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 
 //TODO When the getters will be moved to o-spreadsheet-engine, we will be able
 // to remove this file and directly use the one from o-spreadsheet-engine

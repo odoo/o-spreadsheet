@@ -1,6 +1,6 @@
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { Model } from "../../src";
 import { AggregateStatisticsStore } from "../../src/components/bottom_bar/bottom_bar_statistic/aggregate_statistics_store";
-import { functionRegistry } from "../../src/functions";
 import {
   activateSheet,
   addCellToSelection,

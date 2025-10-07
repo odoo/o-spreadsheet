@@ -4,12 +4,12 @@ import {
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model, Spreadsheet, setDefaultSheetViewSize } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
-import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types";

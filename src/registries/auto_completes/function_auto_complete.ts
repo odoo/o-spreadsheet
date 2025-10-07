@@ -1,6 +1,6 @@
 import { COMPOSER_ASSISTANT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { getHtmlContentFromPattern } from "../../components/helpers/html_content_helpers";
-import { functionRegistry } from "../../functions";
 import { isFormula } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
