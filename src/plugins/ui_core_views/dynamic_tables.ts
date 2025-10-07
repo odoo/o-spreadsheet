@@ -9,6 +9,7 @@ import {
   zoneToXc,
 } from "../../helpers";
 import { createFilter } from "../../helpers/table_helpers";
+import { CellErrorType } from "../../types/errors";
 import {
   CellPosition,
   Command,
@@ -170,7 +171,10 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
 
     const parentSpreadingCell = this.getters.getArrayFormulaSpreadingOn(topLeft);
     if (!parentSpreadingCell) {
-      return false;
+      const evaluatedCell = this.getters.getEvaluatedCell(topLeft);
+      return (
+        evaluatedCell.value === CellErrorType.SpilledBlocked && !evaluatedCell.errorOriginPosition
+      );
     } else if (deepEquals(parentSpreadingCell, topLeft) && getZoneArea(unionZone) === 1) {
       return true;
     }
