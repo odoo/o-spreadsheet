@@ -1,4 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { AnchorOffset } from "@odoo/o-spreadsheet-engine/types/figure";
 import { clip } from "../../helpers/index";
 import {
@@ -15,7 +16,6 @@ import {
   UpdateFigureCommand,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };

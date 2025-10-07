@@ -3,6 +3,7 @@ import {
   getMaxObjectId,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { PivotCoreDefinition, PivotCoreMeasure } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
@@ -18,7 +19,6 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
-import { CorePlugin } from "../core_plugin";
 
 interface Pivot {
   definition: PivotCoreDefinition;

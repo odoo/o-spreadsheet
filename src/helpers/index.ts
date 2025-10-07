@@ -1,4 +1,5 @@
 export * from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+export * from "@odoo/o-spreadsheet-engine/helpers/data_normalization";
 export * from "@odoo/o-spreadsheet-engine/helpers/dates";
 export * from "@odoo/o-spreadsheet-engine/helpers/format/format";
 export * from "@odoo/o-spreadsheet-engine/helpers/misc2";
@@ -8,7 +9,6 @@ export * from "@odoo/o-spreadsheet-engine/helpers/sheet";
 export * from "@odoo/o-spreadsheet-engine/helpers/zones";
 export * from "./color";
 export * from "./criterion_helpers";
-export * from "./data_normalization";
 export * from "./edge_scrolling";
 export * from "./numbers";
 export * from "./references";

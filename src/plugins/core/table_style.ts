@@ -1,3 +1,4 @@
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { getUniqueText, toHex } from "../../helpers";
 import {
@@ -13,7 +14,6 @@ import {
   TableStyleData,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 interface TableStylesState {
   readonly styles: { [styleId: string]: TableStyle };

@@ -4,6 +4,7 @@ import {
   FIGURE_ID_SPLITTER,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -27,7 +28,6 @@ import {
   UpdateChartCommand,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 interface FigureChart {
   figureId: UID;

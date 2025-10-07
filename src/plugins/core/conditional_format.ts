@@ -1,3 +1,4 @@
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { compile } from "../../formulas/compiler";
 import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
@@ -24,7 +25,6 @@ import {
   WorkbookData,
   Zone,
 } from "../../types";
-import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants

@@ -1,8 +1,10 @@
 import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
@@ -27,9 +29,8 @@ import {
   zoneToXc,
 } from "../../src/helpers/index";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
-import { Model, ModelExternalConfig } from "../../src/model";
+import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
-import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { SheetUIPlugin } from "../../src/plugins/ui_feature";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";

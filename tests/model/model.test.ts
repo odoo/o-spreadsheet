@@ -1,7 +1,8 @@
 import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
 import { toZone } from "../../src/helpers";
-import { Model, ModelConfig } from "../../src/model";
+import { Model } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/index";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";

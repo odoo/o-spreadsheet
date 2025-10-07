@@ -1,18 +1,13 @@
-import { BasePlugin, CoreGetters, StateObserver } from "@odoo/o-spreadsheet-engine";
-import { RangeAdapter } from "@odoo/o-spreadsheet-engine/plugins/core/range";
-import { ModelConfig } from "../model";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  CommandResult,
-  CoreCommand,
-  CoreCommandDispatcher,
-  ExcelWorkbookData,
-  HistoryChange,
-  RangeProvider,
-  UID,
-  WorkbookData,
-} from "../types";
+import { RangeAdapter } from "../plugins/core/range";
+import { StateObserver } from "../state_observer";
+import { UID } from "../types/base";
+import { CommandResult, CoreCommand, CoreCommandDispatcher } from "../types/commands";
+import { CoreGetters } from "../types/coreGetters";
+import { HistoryChange } from "../types/history2";
+import { AdaptSheetName, ApplyRangeChange, RangeProvider } from "../types/misc";
+import { ModelConfig } from "../types/model";
+import { ExcelWorkbookData, WorkbookData } from "../types/workbook_data";
+import { BasePlugin } from "./base_plugin";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;

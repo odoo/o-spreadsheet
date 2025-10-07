@@ -1,3 +1,4 @@
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   ConsecutiveIndexes,
   Dimension,
@@ -13,7 +14,6 @@ import {
   range,
 } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
-import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
   static getters = [

@@ -1,3 +1,4 @@
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   clip,
   createRange,
@@ -33,7 +34,6 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 // type SheetMergeCellMap = Record<string, number | undefined>;
 type SheetMergeCellMap = Record<number, Record<number, number | undefined> | undefined>;

@@ -5,6 +5,7 @@ import {
   splitIfAdjacent,
   zoneToXc,
 } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   deepCopy,
   deepEquals,
@@ -33,7 +34,6 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 export type ZoneBorderData = {
   top?: BorderDescr;

@@ -11,6 +11,7 @@ import {
   CircularDependencyError,
   SplillBlockedError,
 } from "@odoo/o-spreadsheet-engine/types/errors";
+import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { compile } from "../../../formulas";
 import {
   aggregatePositionsToZones,
@@ -21,7 +22,6 @@ import {
   union,
 } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
-import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import {
   CellPosition,

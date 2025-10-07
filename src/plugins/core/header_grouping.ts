@@ -1,3 +1,4 @@
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { Dimension, HeaderGroup, HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
 import {
   deepCopy,
@@ -9,7 +10,6 @@ import {
 } from "../../helpers";
 import { CommandResult, CoreCommand, ExcelWorkbookData, UID, WorkbookData } from "../../types";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
-import { CorePlugin } from "./../core_plugin";
 
 interface State {
   groups: Record<UID, Record<Dimension, HeaderGroup[]>>;

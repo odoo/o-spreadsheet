@@ -1,4 +1,5 @@
 import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
+import { CorePlugin, CorePluginConfig } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { deepCopy, isDefined } from "../../helpers";
@@ -14,7 +15,6 @@ import {
   UID,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin, CorePluginConfig } from "../core_plugin";
 
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;

@@ -1,8 +1,8 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError, InvalidReferenceError } from "@odoo/o-spreadsheet-engine/types/errors";
+import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { getFullReference, intersection, isZoneValid, toXC, zoneToXc } from "../../../helpers";
-import { ModelConfig } from "../../../model";
 import {
   CellPosition,
   EnsureRange,

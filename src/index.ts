@@ -231,6 +231,7 @@ export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
 export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
 export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 export { findCellInNewZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
+export { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 export { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 export { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
 export {
@@ -260,7 +261,6 @@ export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
 export { load } from "./migrations/data";
 export { Model } from "./model";
-export { CorePlugin } from "./plugins/core_plugin";
 export { CoreViewPlugin } from "./plugins/core_view_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { setTranslationMethod } from "./translation";

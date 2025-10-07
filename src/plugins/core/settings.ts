@@ -1,4 +1,5 @@
 import { getDateTimeFormat, isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   CommandResult,
   CoreCommand,
@@ -7,7 +8,6 @@ import {
   Locale,
   WorkbookData,
 } from "../../types";
-import { CorePlugin } from "./../core_plugin";
 
 export class SettingsPlugin extends CorePlugin {
   static getters = ["getLocale"] as const;

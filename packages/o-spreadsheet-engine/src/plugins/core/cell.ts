@@ -1,52 +1,47 @@
-import { DEFAULT_STYLE } from "@odoo/o-spreadsheet-engine/constants";
-import { isEvaluationError, toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
-import { Token, compile } from "../../formulas";
-import { compileTokens } from "../../formulas/compiler";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
-import { parseLiteral } from "../../helpers/cells";
+import { DEFAULT_STYLE } from "../../constants";
+import { compile, compileTokens } from "../../formulas/compiler";
+import { Token } from "../../formulas/tokenizer";
+import { isEvaluationError, toString } from "../../functions/helpers";
+import { PositionMap } from "../../helpers/cells/position_map";
 import {
   getItemId,
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
+import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc2";
+
+import { toCartesian, toXC } from "../../helpers/coordinates";
+import { CorePlugin } from "../core_plugin";
+
+import { recomputeZones } from "../../helpers/recompute_zones";
+import { isInside } from "../../helpers/zones";
+import { CellPosition, CompiledFormula, Format, HeaderIndex, UID, Zone } from "../../types/base";
+import { Cell, FormulaCell, LiteralCell } from "../../types/cells";
 import {
-  concat,
-  detectDateFormat,
-  detectNumberFormat,
-  isInside,
-  range,
-  replaceNewLines,
-  toCartesian,
-  toXC,
-} from "../../helpers/index";
-import {
-  AdaptSheetName,
   AddColumnsRowsCommand,
-  ApplyRangeChange,
-  Cell,
-  CellPosition,
   ClearCellCommand,
   CommandResult,
-  CompiledFormula,
   CoreCommand,
-  ExcelWorkbookData,
-  Format,
-  FormulaCell,
-  HeaderIndex,
-  LiteralCell,
   PositionDependentCommand,
-  Range,
-  RangeCompiledFormula,
-  RangePart,
-  Style,
-  UID,
   UpdateCellCommand,
+} from "../../types/commands";
+
+import { parseLiteral } from "../../helpers/cells/cell_evaluation";
+import {
+  detectDateFormat,
+  detectNumberFormat,
+  isExcelCompatible,
+  isTextFormat,
+} from "../../helpers/format/format";
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  RangeCompiledFormula,
+  Style,
   UpdateCellData,
-  WorkbookData,
-  Zone,
-} from "../../types/index";
-import { CorePlugin } from "../core_plugin";
+} from "../../types/misc";
+import { RangePart } from "../../types/range";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined

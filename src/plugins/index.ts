@@ -1,3 +1,4 @@
+import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   BordersPlugin,
@@ -19,7 +20,6 @@ import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
 import { TableStylePlugin } from "./core/table_style";
-import { CorePluginConstructor } from "./core_plugin";
 import { CoreViewPluginConstructor } from "./core_view_plugin";
 import {
   CustomColorsPlugin,

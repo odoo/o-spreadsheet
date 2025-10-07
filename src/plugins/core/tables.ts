@@ -38,7 +38,7 @@ import {
   Zone,
 } from "../../types/index";
 
-import { CorePlugin } from "../core_plugin";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;

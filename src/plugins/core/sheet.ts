@@ -1,5 +1,6 @@
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "@odoo/o-spreadsheet-engine/constants";
 import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
+import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   createDefaultRows,
   deepCopy,
@@ -41,7 +42,6 @@ import {
   Zone,
   ZoneDimension,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;
