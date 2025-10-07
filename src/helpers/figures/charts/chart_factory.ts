@@ -1,6 +1,6 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_types";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { ChartDefinition, ChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
 import { CommandResult, RangeAdapter, UID } from "../../../types";

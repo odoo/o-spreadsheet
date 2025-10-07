@@ -1,7 +1,7 @@
-import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_types";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { CarouselItem } from "@odoo/o-spreadsheet-engine/types/figure";
+import { chartSubtypeRegistry } from "../registries/chart_types";
 import { Getters } from "../types";
 
 export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {

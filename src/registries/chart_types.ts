@@ -1,4 +1,24 @@
-import { Getters } from "../../../../src";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  BarChartDefinition,
+  ChartDefinition,
+  ChartType,
+  FunnelChartDefinition,
+  GaugeChartDefinition,
+  LineChartDefinition,
+  PieChartDefinition,
+  PyramidChartDefinition,
+  ScatterChartDefinition,
+  ScorecardChartDefinition,
+  SunburstChartDefinition,
+  WaterfallChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import {
   BarChart,
   createBarChartRuntime,
@@ -12,97 +32,23 @@ import {
   PieChart,
   ScorecardChart,
   WaterfallChart,
-} from "../../../../src/helpers/figures/charts";
-import {
-  ComboChart,
-  createComboChartRuntime,
-} from "../../../../src/helpers/figures/charts/combo_chart";
-import {
-  createFunnelChartRuntime,
-  FunnelChart,
-} from "../../../../src/helpers/figures/charts/funnel_chart";
-import { createGeoChartRuntime, GeoChart } from "../../../../src/helpers/figures/charts/geo_chart";
-import {
-  createPyramidChartRuntime,
-  PyramidChart,
-} from "../../../../src/helpers/figures/charts/pyramid_chart";
-import {
-  createRadarChartRuntime,
-  RadarChart,
-} from "../../../../src/helpers/figures/charts/radar_chart";
-import {
-  createScatterChartRuntime,
-  ScatterChart,
-} from "../../../../src/helpers/figures/charts/scatter_chart";
+} from "../helpers/figures/charts";
+import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
+import { createFunnelChartRuntime, FunnelChart } from "../helpers/figures/charts/funnel_chart";
+import { createGeoChartRuntime, GeoChart } from "../helpers/figures/charts/geo_chart";
+import { createPyramidChartRuntime, PyramidChart } from "../helpers/figures/charts/pyramid_chart";
+import { createRadarChartRuntime, RadarChart } from "../helpers/figures/charts/radar_chart";
+import { createScatterChartRuntime, ScatterChart } from "../helpers/figures/charts/scatter_chart";
 import {
   createSunburstChartRuntime,
   SunburstChart,
-} from "../../../../src/helpers/figures/charts/sunburst_chart";
-import {
-  createTreeMapChartRuntime,
-  TreeMapChart,
-} from "../../../../src/helpers/figures/charts/tree_map_chart";
-import { Validator } from "../../../../src/types/validator";
-import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
-import { _t } from "../translation";
-import {
-  BarChartDefinition,
-  ChartCreationContext,
-  ChartDefinition,
-  ChartRuntime,
-  ChartType,
-  FunnelChartDefinition,
-  GaugeChartDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  PyramidChartDefinition,
-  ScatterChartDefinition,
-  ScorecardChartDefinition,
-  SunburstChartDefinition,
-  WaterfallChartDefinition,
-} from "../types/chart";
-import { ComboChartDefinition } from "../types/chart/combo_chart";
-import { GeoChartDefinition } from "../types/chart/geo_chart";
-import { RadarChartDefinition } from "../types/chart/radar_chart";
-import { TreeMapChartDefinition } from "../types/chart/tree_map_chart";
-import { CommandResult } from "../types/commands";
-import { CoreGetters } from "../types/coreGetters";
-import { RangeAdapter, UID } from "../types/misc";
-import { Registry } from "./registry";
+} from "../helpers/figures/charts/sunburst_chart";
+import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
 
 //------------------------------------------------------------------------------
 // Chart Registry
 //------------------------------------------------------------------------------
 
-/**
- * Instantiate a chart object based on a definition
- */
-export interface ChartBuilder {
-  /**
-   * Check if this factory should be used
-   */
-  match: (type: ChartType) => boolean;
-  createChart: (definition: ChartDefinition, sheetId: UID, getters: CoreGetters) => AbstractChart;
-  getChartRuntime: (chart: AbstractChart, getters: Getters) => ChartRuntime;
-  validateChartDefinition(
-    validator: Validator,
-    definition: ChartDefinition
-  ): CommandResult | CommandResult[];
-  transformDefinition(
-    chartSheetId: UID,
-    definition: ChartDefinition,
-    applyRange: RangeAdapter
-  ): ChartDefinition;
-  getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
-  sequence: number;
-  dataSeriesLimit?: number;
-}
-
-/**
- * This registry is intended to map a cell content (raw string) to
- * an instance of a cell.
- */
-export const chartRegistry = new Registry<ChartBuilder>();
 chartRegistry.add("bar", {
   match: (type) => type === "bar",
   createChart: (definition, sheetId, getters) =>

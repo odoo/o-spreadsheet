@@ -1,9 +1,9 @@
+import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import {
   ChartSubtypeProperties,
   chartCategories,
   chartSubtypeRegistry,
-} from "@odoo/o-spreadsheet-engine/registries/chart_types";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+} from "../../../../registries/chart_types";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";

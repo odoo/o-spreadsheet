@@ -13,6 +13,7 @@ import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/coreGetters";
 import { CellErrorType } from "../../../types/errors";
 import { AdaptSheetName, ApplyRangeChange, RangeAdapter } from "../../../types/misc";
+import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 
 /**
@@ -38,7 +39,7 @@ export abstract class AbstractChart {
    * called from allowDispatch function
    */
   static validateChartDefinition(
-    validator: Validator,
+    validator: Validator<CommandResult>,
     definition: ChartDefinition
   ): CommandResult | CommandResult[] {
     throw new Error("This method should be implemented by sub class");

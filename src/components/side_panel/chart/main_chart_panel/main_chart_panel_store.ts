@@ -1,8 +1,6 @@
-import {
-  chartRegistry,
-  chartSubtypeRegistry,
-} from "@odoo/o-spreadsheet-engine/registries/chart_types";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { deepEquals } from "../../../../helpers";
+import { chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { SpreadsheetStore } from "../../../../stores";
 import { ChartCreationContext, ChartDefinition, UID } from "../../../../types";
 

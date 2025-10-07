@@ -1,4 +1,4 @@
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_types";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Component, useState } from "@odoo/owl";
 import {
