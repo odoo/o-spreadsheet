@@ -60,7 +60,7 @@ export async function openChartDesignSidePanel(
   if (!fixture.querySelector(".o-chart")) {
     await openChartConfigSidePanel(model, env, chartId);
   }
-  await simulateClick(".o-panel-element.inactive");
+  await simulateClick(".o-sidePanel-tab.inactive");
 }
 
 export function getColorPickerValue(fixture: HTMLElement, selector: string) {

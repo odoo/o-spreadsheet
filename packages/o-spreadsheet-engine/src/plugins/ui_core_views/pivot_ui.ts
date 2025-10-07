@@ -1,13 +1,13 @@
 import { astToFormula } from "../../formulas/formula_formatter";
 import { Token } from "../../formulas/tokenizer";
 import { toScalar } from "../../functions/helper_matrices";
-import { toBoolean } from "../../functions/helpers";
 import { deepEquals, getUniqueText } from "../../helpers/misc";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
+import { getPivotStyleFromFnArgs } from "../../helpers/pivot/pivot_helpers";
 import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
@@ -21,7 +21,7 @@ import {
   UpdatePivotCommand,
 } from "../../types/commands";
 import { CellPosition, FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
-import { PivotCoreMeasure, PivotTableCell, PivotVisibilityOptions } from "../../types/pivot";
+import { PivotCoreMeasure, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 import { UIPluginConfig } from "../ui_plugin";
@@ -219,20 +219,16 @@ export class PivotUIPlugin extends CoreViewPlugin {
       return EMPTY_PIVOT_CELL;
     }
     if (functionName === "PIVOT") {
-      const includeTotal = toScalar(args[2]);
-      const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
-      const includeColumnHeaders = toScalar(args[3]);
-      const includeMeasures = toScalar(args[5]);
-      const shouldIncludeMeasures =
-        includeMeasures === undefined ? true : toBoolean(includeMeasures);
-      const shouldIncludeColumnHeaders =
-        includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
-      const visibilityOptions: PivotVisibilityOptions = {
-        displayColumnHeaders: shouldIncludeColumnHeaders,
-        displayTotals: shouldIncludeTotal,
-        displayMeasuresRow: shouldIncludeMeasures,
-      };
-      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(visibilityOptions);
+      const pivotStyle = getPivotStyleFromFnArgs(
+        this.getters.getPivotCoreDefinition(pivotId),
+        toScalar(args[1]),
+        toScalar(args[2]),
+        toScalar(args[3]),
+        toScalar(args[4]),
+        toScalar(args[5]),
+        this.getters.getLocale()
+      );
+      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
       return pivotCells[pivotCol][pivotRow];

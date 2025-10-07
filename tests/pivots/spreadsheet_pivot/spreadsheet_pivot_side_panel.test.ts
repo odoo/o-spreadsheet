@@ -3,6 +3,7 @@ import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/sprea
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { getPivotTooBigErrorMessage } from "../../../packages/o-spreadsheet-engine/src/components/translations_terms";
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
+import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { toXC, toZone } from "../../../src/helpers";
 import { topbarMenuRegistry } from "../../../src/registries/menus";
 import { NotificationStore } from "../../../src/stores/notification_store";
@@ -25,7 +26,7 @@ import { getCellText, getCoreTable, getEvaluatedCell } from "../../test_helpers/
 import {
   doAction,
   editStandaloneComposer,
-  mountSpreadsheet,
+  mountComponentWithPortalTarget,
   nextTick,
   setGrid,
 } from "../../test_helpers/helpers";
@@ -40,7 +41,9 @@ describe("Spreadsheet pivot side panel", () => {
 
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ env, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
+    ({ env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {
+      env: { notifyUser },
+    }));
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product", C1: "Amount",

@@ -1,19 +1,19 @@
 <templates>
   <t t-name="o-spreadsheet-ChartPanel">
     <div class="o-chart d-flex flex-column h-100" t-if="chartId">
-      <div class="o-panel">
+      <div class="o-panel d-flex">
         <div
-          class="o-panel-element o-panel-configuration"
+          class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
           t-att-class="store.panel !== 'configuration' ? 'inactive' : ''"
           t-on-click="switchPanel.bind(this, 'configuration')">
-          <i class="fa fa-sliders"/>
+          <i class="fa fa-sliders me-1"/>
           Configuration
         </div>
         <div
-          class="o-panel-element o-panel-design"
+          class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center"
           t-att-class="store.panel !== 'design' ? 'inactive' : ''"
           t-on-click="switchPanel.bind(this, 'design')">
-          <i class="fa fa-paint-brush"/>
+          <i class="fa fa-paint-brush me-1"/>
           Design
         </div>
       </div>
