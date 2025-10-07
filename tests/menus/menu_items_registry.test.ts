@@ -1674,6 +1674,29 @@ describe("Menu Item actions", () => {
         });
       });
 
+      test("Insert -> Table creates a dynamic table if it's called on a #SPILL! error", () => {
+        setCellContent(model, "A1", "=MUNIT(500)");
+        setSelection(model, ["A1"]);
+        expect(getEvaluatedCell(model, "A1")?.value).toBe("#SPILL!");
+        doAction(insertTablePath, env);
+        expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1") },
+          type: "dynamic",
+        });
+      });
+
+      test("Insert -> Table do not creates a dynamic table if it's called on cell referencing a #SPILL! error", () => {
+        setCellContent(model, "A1", "=A3");
+        setCellContent(model, "A3", "=MUNIT(500)");
+        expect(getEvaluatedCell(model, "A1")?.value).toBe("#SPILL!");
+        setSelection(model, ["A1"]);
+        doAction(insertTablePath, env);
+        expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1") },
+          type: "static",
+        });
+      });
+
       test("Edit -> Table (topbar)", () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
         createTable(model, "A1:A5");
