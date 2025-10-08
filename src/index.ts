@@ -22,13 +22,6 @@ import {
   toString,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { openLink, urlRegistry, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
-import {
-  getFirstPivotFunction,
-  getNumberOfPivotFunctions,
-  insertTokenAfterArgSeparator,
-  insertTokenAfterLeftParenthesis,
-  makeFieldProposal,
-} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { ComposerFocusStore } from "./components/composer/composer_focus_store";
@@ -115,6 +108,13 @@ import {
   union,
   unquote,
 } from "./helpers/index";
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+  insertTokenAfterArgSeparator,
+  insertTokenAfterLeftParenthesis,
+  makeFieldProposal,
+} from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
