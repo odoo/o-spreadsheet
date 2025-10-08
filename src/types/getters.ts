@@ -1,8 +1,8 @@
 import { CoreGetters, PluginGetters } from "@odoo/o-spreadsheet-engine";
 import { TableStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/table_style";
+import { CellIconPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_icon_plugin";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
-import { CellIconPlugin } from "../plugins/ui_core_views/cell_icon_plugin";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
 import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";

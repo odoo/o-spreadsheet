@@ -1,12 +1,13 @@
-import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+import { isDefined } from "../../helpers/misc2";
 import {
   GridIcon,
   IconsOfCell,
   iconsOnCellRegistry,
-} from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
-import { Align, CellPosition } from "@odoo/o-spreadsheet-engine/types/misc";
-import { isDefined } from "../../helpers/index";
-import { Command, Rect } from "../../types";
+} from "../../registries/icons_on_cell_registry";
+import { Command } from "../../types/commands";
+import { Align, CellPosition } from "../../types/misc";
+import { Rect } from "../../types/rendering";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 export class CellIconPlugin extends CoreViewPlugin {
   static getters = ["doesCellHaveGridIcon", "getCellIcons", "getCellIconRect"] as const;
