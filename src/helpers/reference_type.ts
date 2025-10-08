@@ -1,7 +1,10 @@
 // Helper file for the reference types in Xcs (the $ symbol, eg. A$1)
+import {
+  composerTokenize,
+  EnrichedToken,
+} from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { loopThroughReferenceType } from "@odoo/o-spreadsheet-engine/helpers/references";
 import { Locale } from "@odoo/o-spreadsheet-engine/types/locale";
-import { composerTokenize, EnrichedToken } from "../formulas/composer_tokenizer";
 
 /**
  * Return the cycled reference if any (A1 -> $A$1 -> A$1 -> $A1 -> A1)

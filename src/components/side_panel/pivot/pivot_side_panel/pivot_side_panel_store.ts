@@ -1,4 +1,5 @@
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "@odoo/o-spreadsheet-engine/constants";
+import { getFirstPivotFunction } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { isDateOrDatetimeField } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -13,7 +14,6 @@ import {
   PivotMeasure,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { deepCopy, deepEquals } from "../../../../helpers";
-import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
 import { Get } from "../../../../store_engine";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";

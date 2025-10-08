@@ -3,10 +3,10 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
-import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {

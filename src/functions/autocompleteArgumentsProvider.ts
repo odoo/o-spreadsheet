@@ -1,6 +1,6 @@
 import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
-import { EnrichedToken } from "../formulas/composer_tokenizer";
 import { AutoCompleteProposal, autoCompleteProviders } from "../registries/auto_completes";
 import { ArgDefinition } from "../types";
 

@@ -1,4 +1,4 @@
-import { composerTokenize } from "../../src/formulas/composer_tokenizer";
+import { composerTokenize } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { DEFAULT_LOCALE } from "../../src/types/locale";
 
 describe("composerTokenizer", () => {

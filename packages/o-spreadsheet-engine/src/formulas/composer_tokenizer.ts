@@ -1,7 +1,8 @@
-import { Color, Locale } from "../types";
-import { Token } from "./index";
+import { Locale } from "../types/locale";
+import { Color } from "../types/misc";
 import { AST, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
+import { Token } from "./tokenizer";
 
 interface FunctionContext {
   /**

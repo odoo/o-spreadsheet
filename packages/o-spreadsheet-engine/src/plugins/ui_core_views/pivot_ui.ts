@@ -1,38 +1,29 @@
-import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { toBoolean } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
-import withPivotPresentationLayer from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_presentation";
-import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
-import { resetMapValueDimensionDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { EMPTY_PIVOT_CELL } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
-import {
-  CoreViewPlugin,
-  CoreViewPluginConfig,
-} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { Pivot } from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
-import { Token } from "../../formulas";
-import { deepEquals, getUniqueText } from "../../helpers";
+import { astToFormula } from "../../formulas/formula_formatter";
+import { Token } from "../../formulas/tokenizer";
+import { toScalar } from "../../functions/helper_matrices";
+import { toBoolean } from "../../functions/helpers";
+import { deepEquals, getUniqueText } from "../../helpers/misc2";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
+import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
+import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
+import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
+import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
+import { _t } from "../../translation";
 import {
   AddPivotCommand,
-  CellPosition,
   Command,
   CoreCommand,
-  FunctionResultObject,
-  PivotCoreMeasure,
-  PivotTableCell,
-  PivotVisibilityOptions,
-  SortDirection,
-  UID,
-  UpdatePivotCommand,
   invalidateEvaluationCommands,
-  isMatrix,
-} from "../../types";
+  UpdatePivotCommand,
+} from "../../types/commands";
+import { CellPosition, FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
+import { PivotCoreMeasure, PivotTableCell, PivotVisibilityOptions } from "../../types/pivot";
+import { Pivot } from "../../types/pivot_runtime";
+import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT", "REMOVE_PIVOT"];
 

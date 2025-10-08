@@ -22,6 +22,13 @@ import {
   toString,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { openLink, urlRegistry, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+  insertTokenAfterArgSeparator,
+  insertTokenAfterLeftParenthesis,
+  makeFieldProposal,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { ComposerFocusStore } from "./components/composer/composer_focus_store";
@@ -108,13 +115,6 @@ import {
   union,
   unquote,
 } from "./helpers/index";
-import {
-  getFirstPivotFunction,
-  getNumberOfPivotFunctions,
-  insertTokenAfterArgSeparator,
-  insertTokenAfterLeftParenthesis,
-  makeFieldProposal,
-} from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
@@ -137,6 +137,7 @@ import {
   pivotTimeAdapter,
   pivotTimeAdapterRegistry,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
+import { UNDO_REDO_PIVOT_COMMANDS } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/pivot_ui";
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "@odoo/o-spreadsheet-engine/registries/inverse_command_registry";
@@ -180,7 +181,6 @@ import {
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
-import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/ui_core_views/pivot_ui";
 import { autoCompleteProviders } from "./registries/auto_completes";
 import { autofillModifiersRegistry } from "./registries/autofill_modifiers";
 import { autofillRulesRegistry } from "./registries/autofill_rules";
@@ -501,8 +501,8 @@ export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
 
 export { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 
+export type { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";
 export type { Token } from "./formulas/tokenizer";
 export type * from "./types";
