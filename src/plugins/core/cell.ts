@@ -639,7 +639,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       (typeof parsedValue === "number"
         ? detectDateFormat(content, locale) || detectNumberFormat(content)
         : undefined);
-    if (!isTextFormat(format) && !isEvaluationError(content)) {
+    if (!isTextFormat(format) && !content.startsWith("'") && !isEvaluationError(content)) {
       content = toString(parsedValue);
     }
     return {

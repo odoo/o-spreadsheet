@@ -569,6 +569,12 @@ describe("edition", () => {
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
+  test("leading single quote is not removed when editing a cell with text format", () => {
+    setCellContent(model, "A1", "'123");
+    expect(getCellText(model, "A1")).toBe("123");
+    expect(composerStore.currentContent).toBe("'123");
+  });
+
   test("type a number in a cell with a percentage", () => {
     setCellContent(model, "A1", "2%");
     composerStore.startEdition("1");

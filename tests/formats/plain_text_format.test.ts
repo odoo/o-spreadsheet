@@ -32,6 +32,21 @@ describe("Plain text format", () => {
     }
   );
 
+  test.each([
+    ["hello", "hello"],
+    ["'5", "5"],
+    ["'=5", "=5"],
+    ["'9.15", "9.15"],
+    ["'TRUE", "TRUE"],
+    ["'false", "false"],
+    ["'12/20/2015", "12/20/2015"],
+    ["'=SUM(3, 5)", "=SUM(3, 5)"],
+  ])("use single quote to input plain text in a cell", (cellContent, expectedValue) => {
+    setCellContent(model, "A1", cellContent);
+    expect(getEvaluatedCell(model, "A1").value).toBe(expectedValue);
+    expect(getCell(model, "A1")?.content).toBe(cellContent);
+  });
+
   test("Set more complex text format to a cell", () => {
     setCellContent(model, "A1", "89");
     setFormat(model, "A1", "@ $");
