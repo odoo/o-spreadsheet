@@ -15,6 +15,7 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
 
   state = useState<State>({
     numberOfValues: Math.max(this.props.criterion.values.length, 2),
+    focusedValueIndex: this.props.autofocus ? 0 : undefined,
   });
 
   setup() {
