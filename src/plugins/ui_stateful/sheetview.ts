@@ -1,9 +1,9 @@
 import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
+import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
 import { HeaderDimensions, PixelPosition } from "@odoo/o-spreadsheet-engine/types/misc";
 import { clip, findCellInNewZone, isDefined, positionToZone, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
-import { SelectionEvent } from "../../types/event_stream";
 import { FigureUI } from "../../types/figureUI";
 import {
   AnchorOffset,

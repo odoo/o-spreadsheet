@@ -1,3 +1,7 @@
+import {
+  SelectionEvent,
+  SelectionEventOptions,
+} from "@odoo/o-spreadsheet-engine/types/event_stream";
 import { CellPosition, Dimension, HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
 import {
   deepCopy,
@@ -19,7 +23,6 @@ import {
   SelectionStep,
   Zone,
 } from "../types";
-import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];

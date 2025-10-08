@@ -7,8 +7,8 @@
  * - compiler (getting an executable function representing a formula)
  */
 
+export * from "@odoo/o-spreadsheet-engine/formulas/helpers";
 export { compile } from "./compiler";
-export * from "./helpers";
 export { parse } from "./parser";
 export { rangeTokenize } from "./range_tokenizer";
 export { Token, tokenize } from "./tokenizer";

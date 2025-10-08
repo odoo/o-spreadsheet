@@ -33,11 +33,11 @@ import {
   isExcelCompatible,
   isTextFormat,
 } from "../../helpers/format/format";
+import { Format } from "../../types/format";
 import {
   AdaptSheetName,
   ApplyRangeChange,
   CompiledFormula,
-  Format,
   RangeCompiledFormula,
   Style,
   UpdateCellData,

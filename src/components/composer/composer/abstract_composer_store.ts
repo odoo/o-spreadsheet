@@ -4,6 +4,7 @@ import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/f
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
+import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
@@ -50,7 +51,6 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import { SelectionEvent } from "../../../types/event_stream";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 
 export interface ComposerSelection {

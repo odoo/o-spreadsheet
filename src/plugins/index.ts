@@ -5,6 +5,7 @@ import { SettingsPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/settings
 import { SpreadsheetPivotCorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/spreadsheet_pivot";
 import { TableStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/table_style";
 import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { CoreViewPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   BordersPlugin,
@@ -20,7 +21,6 @@ import {
   SheetPlugin,
   TablePlugin,
 } from "./core";
-import { CoreViewPluginConstructor } from "./core_view_plugin";
 import {
   CustomColorsPlugin,
   EvaluationChartPlugin,

@@ -1,4 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
@@ -12,7 +13,6 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
   AnchorZone,
