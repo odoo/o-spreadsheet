@@ -1,19 +1,21 @@
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { EvaluationError, InvalidReferenceError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
-import { getFullReference, intersection, isZoneValid, toXC, zoneToXc } from "../../../helpers";
+import { Getters } from "../../../../../../src";
+import { functionRegistry } from "../../../functions/functionRegistry";
+import { getFullReference } from "../../../helpers";
+import { toXC } from "../../../helpers/coordinates";
+import { intersection, isZoneValid, zoneToXc } from "../../../helpers/zones";
+import { _t } from "../../../translation";
+import { EvaluatedCell } from "../../../types/cells";
+import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
+import { EvalContext } from "../../../types/functions";
 import {
   CellPosition,
   EnsureRange,
-  EvalContext,
-  EvaluatedCell,
   FunctionResultObject,
-  Getters,
   Matrix,
-  Range,
   ReferenceDenormalizer,
-} from "../../../types";
+} from "../../../types/misc";
+import { ModelConfig } from "../../../types/model";
+import { Range } from "../../../types/range";
 
 export type CompilationParameters = {
   referenceDenormalizer: ReferenceDenormalizer;

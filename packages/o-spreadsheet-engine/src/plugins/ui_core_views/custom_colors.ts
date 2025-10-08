@@ -1,19 +1,19 @@
-import { COLOR_PICKER_DEFAULTS } from "@odoo/o-spreadsheet-engine/constants";
-import {
-  CoreViewPlugin,
-  CoreViewPluginConfig,
-} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+import { COLOR_PICKER_DEFAULTS } from "../../constants";
 import {
   colorNumberToHex,
   colorToRGBA,
   isColorValid,
-  isDefined,
   rgba,
   rgbaToHex,
   rgbaToHSLA,
   toHex,
-} from "../../helpers";
-import { Color, Command, Immutable, RGBA, TableElementStyle, UID } from "../../types";
+} from "../../helpers/color";
+import { isDefined } from "../../helpers/misc2";
+import { Cell } from "../../types/cells";
+import { Command } from "../../types/commands";
+import { Color, Immutable, RGBA, UID } from "../../types/misc";
+import { TableElementStyle } from "../../types/table";
+import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 
 const chartColorRegex = /"(#[0-9a-fA-F]{6})"/g;
 
@@ -132,7 +132,7 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
   }
 
   private getColorsFromCells(sheetId: UID): Color[] {
-    const cells = Object.values(this.getters.getCells(sheetId));
+    const cells: Cell[] = Object.values(this.getters.getCells(sheetId));
     const colors: Set<Color> = new Set();
     for (const cell of cells) {
       if (cell.style?.textColor) {

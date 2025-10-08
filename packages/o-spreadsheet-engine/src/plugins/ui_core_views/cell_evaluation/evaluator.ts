@@ -1,48 +1,46 @@
-import {
-  handleError,
-  implementationErrorMessage,
-} from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
-import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
-import { onIterationEndEvaluationRegistry } from "@odoo/o-spreadsheet-engine/registries/evaluation_registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { compile } from "../../../formulas/compiler";
+
+import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
+
+import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   BadExpressionError,
   CellErrorType,
   CircularDependencyError,
   SplillBlockedError,
-} from "@odoo/o-spreadsheet-engine/types/errors";
-import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
-import { compile } from "../../../formulas";
-import {
-  aggregatePositionsToZones,
-  excludeTopLeft,
-  lazy,
-  positionToZone,
-  toXC,
-  union,
-} from "../../../helpers";
-import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
-import {
-  CellPosition,
-  CellValueType,
-  EvaluatedCell,
-  FormulaCell,
-  FunctionResultObject,
-  GetSymbolValue,
-  Getters,
-  Matrix,
-  Range,
-  RangeCompiledFormula,
-  UID,
-  Zone,
-  isMatrix,
-} from "../../../types";
-import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
+} from "../../../types/errors";
+import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
+
+import { Getters } from "../../../../../../src";
+import { handleError, implementationErrorMessage } from "../../../functions/createComputeFunction";
+import { matrixMap } from "../../../functions/helpers";
+import { PositionMap } from "../../../helpers/cells/position_map";
+import { toXC } from "../../../helpers/coordinates";
+import { lazy } from "../../../helpers/misc2";
+import {
+  aggregatePositionsToZones,
+  excludeTopLeft,
+  positionToZone,
+  union,
+} from "../../../helpers/zones";
+import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
+import { _t } from "../../../translation";
+import {
+  CellPosition,
+  FunctionResultObject,
+  GetSymbolValue,
+  isMatrix,
+  Matrix,
+  RangeCompiledFormula,
+  UID,
+  Zone,
+} from "../../../types/misc";
+import { ModelConfig } from "../../../types/model";
+import { Range } from "../../../types/range";
 
 const MAX_ITERATION = 30;
 const ERROR_CYCLE_CELL = Object.freeze(

@@ -1,4 +1,4 @@
-import { PositionSet } from "../../src/plugins/ui_core_views/cell_evaluation/position_set";
+import { PositionSet } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation/position_set";
 
 describe("PositionSet", () => {
   test("add and delete position in the edge corners", () => {

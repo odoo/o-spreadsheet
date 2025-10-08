@@ -1,12 +1,13 @@
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
+import { toNumber } from "../../../functions/helpers";
+import { CellValue, EvaluatedCell } from "../../../types/cells";
+import { DEFAULT_LOCALE } from "../../../types/locale";
 import {
   DimensionTree,
   PivotDimension,
   PivotTableColumn,
   PivotTableRow,
-} from "@odoo/o-spreadsheet-engine/types/pivot";
-import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
+} from "../../../types/pivot";
+import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 
 export type FieldName = string;

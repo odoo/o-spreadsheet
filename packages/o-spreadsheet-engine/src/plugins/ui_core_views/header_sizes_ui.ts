@@ -1,23 +1,17 @@
-import { DEFAULT_CELL_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
-import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import {
-  CellPosition,
-  Dimension,
-  HeaderIndex,
-  Immutable,
-  Pixel,
-  UID,
-} from "@odoo/o-spreadsheet-engine/types/misc";
+import { getDefaultCellHeight } from "../../../../../src/helpers";
+import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
   deepCopy,
   getAddHeaderStartIndex,
-  getDefaultCellHeight,
   insertItemsAtIndex,
-  positions,
   range,
   removeIndexesFromArray,
-} from "../../helpers";
-import { AnchorOffset, Command } from "../../types";
+} from "../../helpers/misc2";
+import { positions } from "../../helpers/zones";
+import { Command } from "../../types/commands";
+import { AnchorOffset } from "../../types/figure";
+import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {
   tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>>;

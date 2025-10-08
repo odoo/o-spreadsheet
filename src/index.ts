@@ -132,6 +132,7 @@ import {
   toFunctionPivotValue,
   toNormalizedPivotValue,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
 import {
   pivotTimeAdapter,
   pivotTimeAdapterRegistry,
@@ -166,7 +167,6 @@ import { TextInput } from "./components/text_input/text_input";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
-import { pivotRegistry } from "./helpers/pivot/pivot_registry";
 import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
 import {
   createEmptyExcelSheet,

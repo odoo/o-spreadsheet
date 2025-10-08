@@ -7,6 +7,8 @@ import { TableStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/table_
 import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { CoreViewPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { CellIconPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_icon_plugin";
+import { DynamicTablesPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/dynamic_tables";
+import { HeaderSizeUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/header_sizes_ui";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   BordersPlugin,
@@ -29,8 +31,6 @@ import {
   EvaluationDataValidationPlugin,
   EvaluationPlugin,
 } from "./ui_core_views";
-import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
-import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import {
   AutofillPlugin,

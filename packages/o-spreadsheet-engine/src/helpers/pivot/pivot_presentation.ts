@@ -1,13 +1,22 @@
-import { transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 
-import { CellErrorType, FunctionResultObject, NotAvailableError } from "@odoo/o-spreadsheet-engine";
-import { handleError } from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
+import { Getters } from "../../../../../src";
+import { handleError } from "../../functions/createComputeFunction";
+import { transposeMatrix } from "../../functions/helpers";
+import { _t } from "../../translation";
+import { CellValue } from "../../types/cells";
+import { CellErrorType, NotAvailableError } from "../../types/errors";
+import { FunctionResultObject, isMatrix, SortDirection } from "../../types/misc";
 import {
-  deepEquals,
-  removeDuplicates,
-  transpose2dPOJO,
-} from "@odoo/o-spreadsheet-engine/helpers/misc2";
+  DimensionTree,
+  NEXT_VALUE,
+  PivotDomain,
+  PivotMeasure,
+  PivotMeasureDisplay,
+  PivotValueCell,
+  PREVIOUS_VALUE,
+} from "../../types/pivot";
+import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc2";
 import {
   domainToColRowDomain,
   domainToString,
@@ -22,27 +31,10 @@ import {
   isDomainIsInPivot,
   isFieldInDomain,
   replaceFieldValueInDomain,
-} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
-import {
-  AGGREGATORS_FN,
-  isSortedColumnValid,
-  toNormalizedPivotValue,
-} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
-import {
-  CellValue,
-  DimensionTree,
-  Getters,
-  isMatrix,
-  NEXT_VALUE,
-  PivotDomain,
-  PivotMeasure,
-  PivotMeasureDisplay,
-  PivotValueCell,
-  PREVIOUS_VALUE,
-  SortDirection,
-} from "../../types";
-import { PivotParams, PivotUIConstructor } from "./pivot_registry";
+} from "./pivot_domain_helpers";
+import { AGGREGATORS_FN, isSortedColumnValid, toNormalizedPivotValue } from "./pivot_helpers";
+import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
+
 const PERCENT_FORMAT = "0.00%";
 
 type CacheForMeasureAndField<T> = { [measureId: string]: { [field: string]: T } };

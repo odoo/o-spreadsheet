@@ -2,6 +2,9 @@ import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_format
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toBoolean } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
+import withPivotPresentationLayer from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_presentation";
+import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
+import { resetMapValueDimensionDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { EMPTY_PIVOT_CELL } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 import {
   CoreViewPlugin,
@@ -15,9 +18,6 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
-import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
-import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
-import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import {
   AddPivotCommand,
   CellPosition,

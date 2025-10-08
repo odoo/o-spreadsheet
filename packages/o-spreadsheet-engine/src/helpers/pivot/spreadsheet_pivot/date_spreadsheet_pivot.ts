@@ -1,7 +1,8 @@
-import { toJsDate, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { toNormalizedPivotValue } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { CellValue, Locale } from "../../../types";
+import { toJsDate, toNumber } from "../../../functions/helpers";
+import { CellValue } from "../../../types/cells";
+import { Locale } from "../../../types/locale";
+import { PivotDimension } from "../../../types/pivot";
+import { toNormalizedPivotValue } from "../pivot_helpers";
 
 const NULL_SYMBOL = Symbol("NULL");
 

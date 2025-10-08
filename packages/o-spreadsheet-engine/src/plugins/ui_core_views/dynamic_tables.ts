@@ -1,29 +1,19 @@
-import { createFilter } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
-import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+import { deepEquals } from "../../helpers/misc2";
+import { createFilter } from "../../helpers/table_helpers";
 import {
   areZonesContinuous,
-  deepEquals,
   getZoneArea,
   isInside,
   overlap,
   toZone,
   union,
   zoneToXc,
-} from "../../helpers";
-import {
-  CellPosition,
-  Command,
-  CoreTable,
-  DynamicTable,
-  ExcelWorkbookData,
-  Filter,
-  FilterId,
-  Table,
-  TableId,
-  UID,
-  Zone,
-  invalidateEvaluationCommands,
-} from "../../types/index";
+} from "../../helpers/zones";
+import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
+import { CoreTable, DynamicTable, Filter, Table } from "../../types/table";
+import { ExcelWorkbookData } from "../../types/workbook_data";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 export class DynamicTablesPlugin extends CoreViewPlugin {
   static getters = [

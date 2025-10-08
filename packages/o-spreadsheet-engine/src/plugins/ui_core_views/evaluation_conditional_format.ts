@@ -1,38 +1,29 @@
-import {
-  isMultipleElementMatrix,
-  toScalar,
-} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { clip, largeMax, largeMin, lazy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
+import { compile } from "../../formulas/compiler";
+import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
+import { percentile } from "../../helpers";
+import { parseLiteral } from "../../helpers/cells/cell_evaluation";
+import { colorNumberToHex, getColorScale } from "../../helpers/color";
+import { clip, largeMax, largeMin, lazy } from "../../helpers/misc2";
+import { isInside } from "../../helpers/zones";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
 import {
   CoreViewCommand,
+  invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
-} from "@odoo/o-spreadsheet-engine/types/commands";
-import { compile } from "../../formulas";
-import { parseLiteral } from "../../helpers/cells";
-import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
+} from "../../types/commands";
 import {
   CellIsRule,
-  CellPosition,
-  CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  DEFAULT_LOCALE,
-  DataBarFill,
   DataBarRule,
-  EvaluatedCell,
-  HeaderIndex,
   IconSetRule,
   IconThreshold,
-  Lazy,
-  NumberCell,
-  Style,
-  UID,
-  Zone,
-  invalidateCFEvaluationCommands,
-} from "../../types/index";
+} from "../../types/conditional_formatting";
+import { DEFAULT_LOCALE } from "../../types/locale";
+import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };

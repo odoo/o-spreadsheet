@@ -1,20 +1,10 @@
-import { handleError } from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
-import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
-import { formatValue, isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { deepEquals, isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import {
-  AGGREGATORS_FN,
-  areDomainArgsFieldsValid,
-  createCustomFields,
-  getUniquePivotFieldName,
-  parseDimension,
-  toNormalizedPivotValue,
-} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { pivotTimeAdapter } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
-import { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
+import { Getters } from "../../../../../../src";
+import { handleError } from "../../../functions/createComputeFunction";
+import { toString } from "../../../functions/helpers";
+import { _t } from "../../../translation";
+import { CellValueType, EvaluatedCell } from "../../../types/cells";
+import { CellErrorType, EvaluationError } from "../../../types/errors";
+import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
 import {
   Granularity,
   PivotDimension,
@@ -24,20 +14,23 @@ import {
   PivotNode,
   SpreadsheetPivotCoreDefinition,
   TechnicalName,
-} from "@odoo/o-spreadsheet-engine/types/pivot";
-import { InitPivotParams, Pivot } from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
+} from "../../../types/pivot";
+import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
+import { Range } from "../../../types/range";
+import { toXC } from "../../coordinates";
+import { formatValue, isDateTimeFormat } from "../../format/format";
+import { deepEquals, isDefined } from "../../misc2";
 import {
-  CellValueType,
-  EvaluatedCell,
-  FunctionResultObject,
-  Getters,
-  Maybe,
-  Range,
-  UID,
-  ValueAndLabel,
-  Zone,
-} from "../../../types";
+  AGGREGATORS_FN,
+  areDomainArgsFieldsValid,
+  createCustomFields,
+  getUniquePivotFieldName,
+  parseDimension,
+  toNormalizedPivotValue,
+} from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
+import { pivotTimeAdapter } from "../pivot_time_adapter";
+import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import {
   DataEntries,
   dataEntriesToSpreadsheetPivotTable,

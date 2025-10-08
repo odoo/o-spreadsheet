@@ -1,4 +1,4 @@
-import { CellPosition } from "../../../types";
+import { CellPosition } from "../../../types/misc";
 
 type Bit = 0 | 1;
 

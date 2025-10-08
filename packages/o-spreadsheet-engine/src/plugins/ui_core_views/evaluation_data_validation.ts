@@ -1,35 +1,25 @@
-import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { GRAY_200 } from "@odoo/o-spreadsheet-engine/constants";
+import { DVTerms } from "../../components/translations_terms";
+import { GRAY_200 } from "../../constants";
+import { compile } from "../../formulas/compiler";
+import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
+import { parseLiteral } from "../../helpers/cells/cell_evaluation";
+import { chipTextColor } from "../../helpers/color";
+import { lazy } from "../../helpers/misc2";
+import { getCellPositionsInRanges } from "../../helpers/range";
+import { isInside, positions } from "../../helpers/zones";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { _t } from "../../translation";
+import { CellValue, CellValueType } from "../../types/cells";
+import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import {
-  isMultipleElementMatrix,
-  toScalar,
-} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import {
-  CoreViewCommand,
-  invalidateEvaluationCommands,
-} from "@odoo/o-spreadsheet-engine/types/commands";
-import { compile } from "../../formulas";
-import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } from "../../helpers";
-import { parseLiteral } from "../../helpers/cells";
-import {
-  CellPosition,
-  CellValue,
-  CellValueType,
-  DEFAULT_LOCALE,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
-  EvaluatedCriterion,
-  HeaderIndex,
-  Lazy,
-  Matrix,
-  Offset,
-  Style,
-  UID,
-} from "../../types";
+} from "../../types/data_validation";
+import { EvaluatedCriterion } from "../../types/generic_criterion";
+import { DEFAULT_LOCALE } from "../../types/locale";
+import { CellPosition, HeaderIndex, Lazy, Matrix, Offset, Style, UID } from "../../types/misc";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 interface InvalidValidationResult {
   readonly isValid: false;

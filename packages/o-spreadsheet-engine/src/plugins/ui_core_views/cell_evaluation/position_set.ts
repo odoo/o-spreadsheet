@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../../../types";
+import { CellPosition, UID } from "../../../types/misc";
 import { BinaryGrid } from "./binary_grid";
 
 export type SheetSizes = Record<UID, { rows: number; cols: number }>;

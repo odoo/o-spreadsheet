@@ -1,35 +1,30 @@
-import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isExportableToExcel } from "../../../formulas/helpers";
+import { matrixMap } from "../../../functions/helpers";
+import { toXC } from "../../../helpers/coordinates";
+import { getItemId } from "../../../helpers/data_normalization";
+import { positions } from "../../../helpers/zones";
+import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
-  CoreViewPlugin,
-  CoreViewPluginConfig,
-} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import {
+  Command,
   CoreViewCommand,
+  invalidateDependenciesCommands,
   invalidateEvaluationCommands,
-} from "@odoo/o-spreadsheet-engine/types/commands";
-import { isExportableToExcel } from "../../../formulas/index";
-import { getItemId, positions, toXC } from "../../../helpers/index";
+} from "../../../types/commands";
+import { Format, FormattedValue } from "../../../types/format";
 import {
   CellPosition,
-  CellValue,
-  CellValueType,
-  Command,
-  EvaluatedCell,
-  ExcelWorkbookData,
-  Format,
-  FormattedValue,
-  FormulaCell,
   FunctionResultObject,
   GetSymbolValue,
+  isMatrix,
   Matrix,
-  Range,
   RangeCompiledFormula,
   UID,
   Zone,
-  invalidateDependenciesCommands,
-  isMatrix,
-} from "../../../types/index";
-import { FormulaCellWithDependencies } from "../../core";
+} from "../../../types/misc";
+import { Range } from "../../../types/range";
+import { ExcelWorkbookData } from "../../../types/workbook_data";
+import { FormulaCellWithDependencies } from "../../core/cell";
+import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
 
 //#region

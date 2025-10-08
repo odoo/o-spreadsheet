@@ -1,9 +1,10 @@
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
+import { CellValue } from "../types/cells";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/coreGetters";
-import { SpreadsheetChildEnv } from "../types/env";
-import { CellValue, Link } from "../types/misc";
+import { Link } from "../types/misc";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc2";
 
 /**

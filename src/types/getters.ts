@@ -1,13 +1,13 @@
 import { CoreGetters, PluginGetters } from "@odoo/o-spreadsheet-engine";
 import { TableStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/table_style";
+import { EvaluationPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation";
 import { CellIconPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_icon_plugin";
+import { CustomColorsPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/custom_colors";
+import { DynamicTablesPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/dynamic_tables";
+import { EvaluationConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/evaluation_conditional_format";
+import { HeaderSizeUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/header_sizes_ui";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
-import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
-import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
-import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
-import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
-import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
 import { GeoFeaturePlugin } from "../plugins/ui_feature";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
