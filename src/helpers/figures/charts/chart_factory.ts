@@ -3,7 +3,7 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { ChartDefinition, ChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
-import { CommandResult, RangeAdapter, UID } from "../../../types";
+import { CommandResult, UID } from "../../../types";
 import { Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
 import { generateMasterChartConfig } from "./runtime/chart_zoom";
@@ -58,20 +58,4 @@ export function validateChartDefinition(
     throw new Error("Unknown chart type.");
   }
   return validators.validateChartDefinition(validator, definition);
-}
-
-/**
- * Get a new chart definition transformed with the executed command. This
- * functions will be called during operational transform process
- */
-export function transformDefinition(
-  chartSheetId: UID,
-  definition: ChartDefinition,
-  applyrange: RangeAdapter
-): ChartDefinition {
-  const transformation = chartRegistry.getAll().find((factory) => factory.match(definition.type));
-  if (!transformation) {
-    throw new Error("Unknown chart type.");
-  }
-  return transformation.transformDefinition(chartSheetId, definition, applyrange);
 }

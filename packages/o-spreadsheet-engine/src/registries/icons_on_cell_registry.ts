@@ -1,5 +1,4 @@
 import { Getters } from "../../../../src";
-import { CellPopoverStore } from "../../../../src/components/popover";
 import {
   CHECKBOX_CHECKED,
   CHECKBOX_UNCHECKED,
@@ -7,7 +6,6 @@ import {
   getCaretDownSvg,
   getCaretUpSvg,
   getChipSvg,
-  getDataFilterIcon,
   getHoveredCaretDownSvg,
   getHoveredChipSvg,
   getPivotIconSvg,
@@ -20,7 +18,6 @@ import {
   PIVOT_COLLAPSE_ICON_SIZE,
   PIVOT_INDENT,
 } from "../constants";
-import { relativeLuminance } from "../helpers/color";
 import { deepEquals } from "../helpers/misc2";
 import { computeTextFontSizeInPixels } from "../helpers/text_helper";
 import { ImageSVG } from "../types/image";
@@ -118,40 +115,6 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
         env.startCellEdition();
       },
       type: "data_validation_list_icon",
-    };
-  }
-  return undefined;
-});
-
-iconsOnCellRegistry.add("filter_icon", (getters, position) => {
-  const hasIcon = getters.isFilterHeader(position);
-  if (hasIcon) {
-    const isFilterActive = getters.isFilterActive(position);
-    const cellStyle = getters.getCellComputedStyle(position);
-    const isHighContrast = relativeLuminance(cellStyle.fillColor || "#fff") < 0.45;
-    return {
-      type: "filter_icon",
-      svg: getDataFilterIcon(isFilterActive, isHighContrast, false),
-      hoverSvg: getDataFilterIcon(isFilterActive, isHighContrast, true),
-      priority: 3,
-      horizontalAlign: "right",
-      size: GRID_ICON_EDGE_LENGTH,
-      margin: GRID_ICON_MARGIN,
-      position,
-      onClick: (position, env) => {
-        const cellPopovers = env.getStore(CellPopoverStore);
-        const activePopover = cellPopovers.persistentCellPopover;
-        if (
-          activePopover.isOpen &&
-          activePopover.col === position.col &&
-          activePopover.row === position.row &&
-          activePopover.type === "FilterMenu"
-        ) {
-          cellPopovers.close();
-          return;
-        }
-        cellPopovers.open(position, "FilterMenu");
-      },
     };
   }
   return undefined;

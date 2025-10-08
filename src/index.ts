@@ -109,8 +109,6 @@ import {
   unquote,
 } from "./helpers/index";
 import {
-  getFirstPivotFunction,
-  getNumberOfPivotFunctions,
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
@@ -316,6 +314,12 @@ export const registries = {
   migrationStepRegistry,
   chartJsExtensionRegistry,
 };
+
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
+
 export const helpers = {
   arg,
   isEvaluationError,
