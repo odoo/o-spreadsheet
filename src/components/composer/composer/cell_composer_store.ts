@@ -239,6 +239,9 @@ export class CellComposerStore extends AbstractComposerStore {
     if (spreader) {
       return { text: "" };
     }
+    if (cell?.content.startsWith("'")) {
+      return { text: cell.content };
+    }
     const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
     switch (type) {
       case CellValueType.empty:
