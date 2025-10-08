@@ -1,33 +1,34 @@
 import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  HeaderIndex,
+  PixelPosition,
+  UID,
+} from "@odoo/o-spreadsheet-engine";
+import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
   FIGURE_ID_SPLITTER,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import {
   ChartCreationContext,
   ChartDefinition,
   ChartType,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { deepEquals } from "../../helpers";
-import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
   Command,
   CommandResult,
   CoreCommand,
   CreateChartCommand,
   DeleteChartCommand,
-  DOMDimension,
-  FigureData,
-  HeaderIndex,
-  PixelPosition,
-  UID,
   UpdateChartCommand,
-  WorkbookData,
-} from "../../types/index";
+} from "@odoo/o-spreadsheet-engine/types/commands";
+import { DOMDimension } from "@odoo/o-spreadsheet-engine/types/rendering";
+import { FigureData, WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 
 interface FigureChart {
   figureId: UID;

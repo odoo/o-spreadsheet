@@ -4,6 +4,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
 import { FigurePlugin } from "../plugins/core/figures";
+import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";

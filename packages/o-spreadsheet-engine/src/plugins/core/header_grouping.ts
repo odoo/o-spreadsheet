@@ -1,15 +1,13 @@
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { Dimension, HeaderGroup, HeaderIndex, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
-import { getSheetDataHeader } from "@odoo/o-spreadsheet-engine/xlsx/helpers/misc";
+import { deepCopy, getAddHeaderStartIndex, isConsecutive, range } from "../../helpers/misc2";
 import {
-  deepCopy,
-  getAddHeaderStartIndex,
-  isConsecutive,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
-  range,
-} from "../../helpers";
-import { CommandResult, CoreCommand, ExcelWorkbookData, UID, WorkbookData } from "../../types";
+} from "../../helpers/sheet";
+import { CommandResult, CoreCommand } from "../../types/commands";
+import { Dimension, HeaderGroup, HeaderIndex, UID, Zone } from "../../types/misc";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { getSheetDataHeader } from "../../xlsx/helpers/misc";
+import { CorePlugin } from "../core_plugin";
 
 interface State {
   groups: Record<UID, Record<Dimension, HeaderGroup[]>>;
