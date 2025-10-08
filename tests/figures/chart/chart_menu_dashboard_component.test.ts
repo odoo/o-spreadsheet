@@ -2,8 +2,9 @@ import { Model } from "../../../src";
 import { CHART_PADDING_TOP } from "../../../src/constants";
 import { LineChartDefinition } from "../../../src/types/chart";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
-import { click, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import { click, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockChart();
 
@@ -65,6 +66,9 @@ describe("chart menu for dashboard", () => {
   });
 
   test("Can open menu to copy/download chart in dashboard mode", async () => {
+    extendMockGetBoundingClientRect({
+      "fa-ellipsis-v": () => ({ x: 100, y: 100, width: 20, height: 20 }),
+    });
     createChart(model, { type: "bar" }, chartId);
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
@@ -74,6 +78,8 @@ describe("chart menu for dashboard", () => {
     expect(".o-menu-item").toHaveCount(0);
 
     await click(fixture, ".o-figure .fa-ellipsis-v");
+    expect(getElStyle(".o-popover", "top")).toBe("100px");
+    expect(getElStyle(".o-popover", "left")).toBe("120px");
     const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")].map(
       (item) => item.dataset.name
     );
