@@ -154,6 +154,7 @@ function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData
     return data;
   }
   const figureIds = new Set();
+  const chartIds = new Set();
   const uuidGenerator = new UuidGenerator();
   for (const sheet of data.sheets || []) {
     for (const figure of sheet.figures || []) {
@@ -161,6 +162,13 @@ function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData
         figure.id += uuidGenerator.smallUuid();
       }
       figureIds.add(figure.id);
+
+      if (figure.tag === "chart") {
+        if (chartIds.has(figure.data?.chartId)) {
+          figure.data.chartId += uuidGenerator.smallUuid();
+        }
+        chartIds.add(figure.data?.chartId);
+      }
     }
   }
 
