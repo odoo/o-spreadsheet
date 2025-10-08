@@ -7,6 +7,7 @@ import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
+import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
@@ -118,7 +119,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   openContextMenu(ev: MouseEvent) {
     this.menuState.isOpen = true;
-    this.menuState.anchorRect = { x: ev.clientX, y: ev.clientY, width: 0, height: 0 };
+    this.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     this.menuState.menuItems = getChartMenuActions(this.props.figureUI.id, () => {}, this.env);
   }
 
