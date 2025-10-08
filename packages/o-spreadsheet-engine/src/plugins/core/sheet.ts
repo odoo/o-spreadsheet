@@ -1,47 +1,48 @@
-import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "@odoo/o-spreadsheet-engine/constants";
-import { isSheetNameEqual } from "@odoo/o-spreadsheet-engine/helpers/sheet";
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
+import { isColorValid } from "../../helpers/color";
+import { toCartesian } from "../../helpers/coordinates";
 import {
-  createDefaultRows,
   deepCopy,
-  getDuplicateSheetName,
-  getNextSheetName,
   getUnquotedSheetName,
   groupConsecutive,
   includesAll,
-  isColorValid,
   isDefined,
-  isZoneInside,
-  isZoneValid,
   largeMax,
   largeMin,
   range,
-  toCartesian,
-} from "../../helpers/index";
+} from "../../helpers/misc2";
 import {
-  Cell,
-  CellPosition,
+  createDefaultRows,
+  getDuplicateSheetName,
+  getNextSheetName,
+  isSheetNameEqual,
+} from "../../helpers/sheet";
+import { isZoneInside, isZoneValid } from "../../helpers/zones";
+import { Cell } from "../../types/cells";
+import {
   Command,
   CommandResult,
   CoreCommand,
   CreateSheetCommand,
-  Dimension,
-  ExcelWorkbookData,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  RenameSheetCommand,
+  UpdateCellPositionCommand,
+} from "../../types/commands";
+import {
+  CellPosition,
+  Dimension,
   HeaderIndex,
   PaneDivision,
-  RenameSheetCommand,
   Row,
   Sheet,
-  SheetData,
   UID,
   UnboundedZone,
-  UpdateCellPositionCommand,
-  WorkbookData,
   Zone,
   ZoneDimension,
-} from "../../types/index";
+} from "../../types/misc";
+import { ExcelWorkbookData, SheetData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;

@@ -1,20 +1,13 @@
-import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
-import { CorePlugin, CorePluginConfig } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
-import { Image } from "@odoo/o-spreadsheet-engine/types/image";
-import { deepCopy, isDefined } from "../../helpers";
-import {
-  CommandResult,
-  CoreCommand,
-  DOMDimension,
-  ExcelWorkbookData,
-  FigureData,
-  FigureSize,
-  HeaderIndex,
-  PixelPosition,
-  UID,
-  WorkbookData,
-} from "../../types/index";
+import { FIGURE_ID_SPLITTER } from "../../constants";
+import { deepCopy, isDefined } from "../../helpers/misc2";
+import { CommandResult, CoreCommand } from "../../types/commands";
+import { FigureSize } from "../../types/figure";
+import { FileStore } from "../../types/files";
+import { Image } from "../../types/image";
+import { HeaderIndex, PixelPosition, UID } from "../../types/misc";
+import { DOMDimension } from "../../types/rendering";
+import { ExcelWorkbookData, FigureData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin, CorePluginConfig } from "../core_plugin";
 
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;

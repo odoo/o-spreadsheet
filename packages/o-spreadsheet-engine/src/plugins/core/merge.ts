@@ -1,41 +1,29 @@
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { getFullReference, splitReference } from "../../helpers";
+import { toXC } from "../../helpers/coordinates";
+import { clip, deepEquals, isDefined } from "../../helpers/misc2";
+import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import {
-  clip,
-  createRange,
-  deepEquals,
   doesAnyZoneCrossFrozenPane,
-  getFullReference,
-  isDefined,
   isEqual,
-  isFullColRange,
-  isFullRowRange,
   overlap,
   positions,
-  splitReference,
-  toXC,
   toZone,
   union,
   zoneToDimension,
   zoneToXc,
-} from "../../helpers/index";
+} from "../../helpers/zones";
 import {
   AddMergeCommand,
-  ApplyRangeChange,
-  CellPosition,
   CommandResult,
   CoreCommand,
-  ExcelWorkbookData,
-  HeaderIndex,
-  Merge,
-  Range,
   TargetDependentCommand,
-  UID,
   UpdateCellCommand,
-  WorkbookData,
-  Zone,
-} from "../../types/index";
+} from "../../types/commands";
+import { ApplyRangeChange, CellPosition, HeaderIndex, Merge, UID, Zone } from "../../types/misc";
+import { Range } from "../../types/range";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
-// type SheetMergeCellMap = Record<string, number | undefined>;
 type SheetMergeCellMap = Record<number, Record<number, number | undefined> | undefined>;
 
 interface MergeState {

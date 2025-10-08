@@ -1,12 +1,9 @@
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { isZoneValid } from "../../helpers";
-import {
-  ApplyRangeChange,
-  CommandResult,
-  CoreCommand,
-  PivotCoreDefinition,
-  Range,
-} from "../../types";
+import { isZoneValid } from "../../helpers/zones";
+import { CommandResult, CoreCommand } from "../../types/commands";
+import { ApplyRangeChange } from "../../types/misc";
+import { PivotCoreDefinition } from "../../types/pivot";
+import { Range } from "../../types/range";
+import { CorePlugin } from "../core_plugin";
 
 function adaptPivotRange(
   range: Range | undefined,

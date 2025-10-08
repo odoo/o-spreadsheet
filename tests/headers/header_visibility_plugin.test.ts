@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { HeaderSizePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/header_size";
 import { CommandResult, Model } from "../../src";
 import { numberToLetters, toZone } from "../../src/helpers";
-import { HeaderSizePlugin } from "../../src/plugins/core/header_size";
 import {
   addColumns,
   addRows,

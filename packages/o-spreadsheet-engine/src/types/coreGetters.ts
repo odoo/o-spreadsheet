@@ -1,9 +1,16 @@
-import { CarouselPlugin } from "../../../../src/plugins/core/carousel";
-import { HeaderGroupingPlugin } from "../../../../src/plugins/core/header_grouping";
-import { SettingsPlugin } from "../../../../src/plugins/core/settings";
+import { BordersPlugin } from "../plugins/core/borders";
+import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
+import { DataValidationPlugin } from "../plugins/core/data_validation";
+import { FigurePlugin } from "../plugins/core/figures";
+import { HeaderSizePlugin } from "../plugins/core/header_size";
+import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
+import { ImagePlugin } from "../plugins/core/image";
+import { MergePlugin } from "../plugins/core/merge";
 import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
+import { SettingsPlugin } from "../plugins/core/settings";
+import { SheetPlugin } from "../plugins/core/sheet";
 
 /**
  * Union of all getter names of a plugin.
