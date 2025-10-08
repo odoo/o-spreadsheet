@@ -6,6 +6,7 @@ import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
+import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
@@ -46,7 +47,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   openContextMenu(ev: MouseEvent) {
     this.menuState.isOpen = true;
-    this.menuState.anchorRect = { x: ev.clientX, y: ev.clientY, width: 0, height: 0 };
+    this.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
     this.menuState.menuItems = getChartMenuActions(figureId, () => {}, this.env);
   }
