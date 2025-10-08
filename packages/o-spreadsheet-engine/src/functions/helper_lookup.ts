@@ -5,6 +5,7 @@ import { CircularDependencyError, EvaluationError, InvalidReferenceError } from 
 import { EvalContext } from "../types/functions";
 import { FunctionResultObject, Maybe, UID } from "../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
+import { Range } from "../types/range";
 
 /**
  * Get the pivot ID from the formula pivot ID.

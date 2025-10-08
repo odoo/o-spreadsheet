@@ -1,5 +1,5 @@
+import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import { parse, tokenize } from "../../src";
-import { astToFormula } from "../../src/formulas/formula_formatter";
 import { CellErrorType } from "../../src/types/errors";
 
 describe("parser", () => {

@@ -1,3 +1,4 @@
+import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toBoolean } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
@@ -5,7 +6,6 @@ import { EMPTY_PIVOT_CELL } from "@odoo/o-spreadsheet-engine/helpers/pivot/table
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Pivot } from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
 import { Token } from "../../formulas";
-import { astToFormula } from "../../formulas/formula_formatter";
 import { deepEquals, getUniqueText } from "../../helpers";
 import {
   getFirstPivotFunction,

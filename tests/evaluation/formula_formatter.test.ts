@@ -1,5 +1,5 @@
+import { prettify } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import { parse } from "../../src";
-import { prettify } from "../../src/formulas/formula_formatter";
 
 function prettifyContent(content: string): string {
   return prettify(parse(content));

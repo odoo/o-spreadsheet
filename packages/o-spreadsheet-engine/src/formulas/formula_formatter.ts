@@ -1,5 +1,5 @@
-import { memoize } from "../helpers";
-import { AST, ASTOperation, ASTUnaryOperation, OP_PRIORITY } from "./parser";
+import { AST, ASTOperation, ASTUnaryOperation, OP_PRIORITY } from "../formulas/parser";
+import { memoize } from "../helpers/misc";
 
 const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
 
