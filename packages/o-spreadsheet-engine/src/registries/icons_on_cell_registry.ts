@@ -1,3 +1,6 @@
+import { Getters } from "../../../../src";
+import { CellPopoverStore } from "../../../../src/components/popover";
+import { computeTextFontSizeInPixels } from "../../../../src/helpers";
 import {
   CHECKBOX_CHECKED,
   CHECKBOX_UNCHECKED,
@@ -10,20 +13,20 @@ import {
   getHoveredChipSvg,
   getPivotIconSvg,
   ICONS,
-} from "@odoo/o-spreadsheet-engine/components/icons/icons";
+} from "../components/icons/icons";
 import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CF_ICON_MARGIN,
   PIVOT_COLLAPSE_ICON_SIZE,
   PIVOT_INDENT,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { ImageSVG } from "@odoo/o-spreadsheet-engine/types/image";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
-import { CellPopoverStore } from "../components/popover";
-import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
-import { Align, CellPosition, Getters } from "../types";
+} from "../constants";
+import { relativeLuminance } from "../helpers/color";
+import { deepEquals } from "../helpers/misc2";
+import { ImageSVG } from "../types/image";
+import { Align, CellPosition } from "../types/misc";
+import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
+import { Registry } from "./registry";
 
 export type IconsOfCell = Record<Exclude<Align, undefined>, GridIcon | undefined>;
 

@@ -1,4 +1,4 @@
-import { GridIcon } from "../../../../src/registries/icons_on_cell_registry";
+import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
 import { Alias, Align, BorderDescr, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
 

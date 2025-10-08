@@ -137,6 +137,7 @@ import {
   pivotTimeAdapterRegistry,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "@odoo/o-spreadsheet-engine/registries/inverse_command_registry";
 import { otRegistry } from "@odoo/o-spreadsheet-engine/registries/ot_registry";
 import { errorTypes } from "@odoo/o-spreadsheet-engine/types/errors";
@@ -188,7 +189,6 @@ import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
 import { chartComponentRegistry } from "./registries/chart_component_registry";
 import { chartSubtypeRegistry } from "./registries/chart_types";
 import { figureRegistry } from "./registries/figures_registry";
-import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
 import {
   cellMenuRegistry,
   colMenuRegistry,
