@@ -3,8 +3,8 @@ import { PivotCoreMeasure, PREVIOUS_VALUE } from "@odoo/o-spreadsheet-engine/typ
 import { Model } from "../../../src";
 
 import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponent, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";

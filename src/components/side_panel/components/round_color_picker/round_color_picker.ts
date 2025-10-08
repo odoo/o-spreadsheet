@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { Rect } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";

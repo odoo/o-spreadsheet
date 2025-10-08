@@ -3,9 +3,9 @@ import {
   TreeMapChartDefinition,
   TreeMapColorScaleOptions,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { DispatchResult, UID } from "../../../../..";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 interface Props {

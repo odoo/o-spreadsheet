@@ -1,7 +1,7 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { PivotCustomGroupedField } from "../../../src/types";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
 import { setCellContent } from "../../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";

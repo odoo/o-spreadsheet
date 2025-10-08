@@ -1,10 +1,10 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { ChartConfiguration } from "chart.js";
 import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
 import {
   addNewChartToCarousel,
   createCarousel,

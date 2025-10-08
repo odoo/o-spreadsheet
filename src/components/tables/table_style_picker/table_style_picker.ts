@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Table } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, useState } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 import {

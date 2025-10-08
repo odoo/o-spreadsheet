@@ -1,11 +1,11 @@
 import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { openLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { toXC } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
 import { EvaluatedCell, Link, Position } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 

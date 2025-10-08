@@ -1,3 +1,4 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
@@ -5,7 +6,6 @@ import { StandaloneComposer } from "../../src/components/composer/standalone_com
 import { zoneToXc } from "../../src/helpers";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { createSheet, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, getTextNodes, keyDown, simulateClick } from "../test_helpers/dom_helper";

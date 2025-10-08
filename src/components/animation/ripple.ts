@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
 import { Rect } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 

@@ -3,6 +3,7 @@ import {
   TableHeaderMoveErrorMessage,
 } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useRef, useState } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import {
@@ -13,7 +14,6 @@ import {
   Pixel,
   Ref,
 } from "../../types/index";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { ContextMenuType } from "../grid/grid";
 import { cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";

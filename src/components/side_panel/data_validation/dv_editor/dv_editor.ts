@@ -1,6 +1,7 @@
 import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
@@ -17,7 +18,6 @@ import {
   DataValidationRuleData,
   availableDataValidationOperators,
 } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";

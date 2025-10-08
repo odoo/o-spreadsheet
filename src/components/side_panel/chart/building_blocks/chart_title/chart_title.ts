@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { TitleDesign } from "../../../../../types";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Section } from "../../../components/section/section";
 import { TextStyler } from "../text_styler/text_styler";
 

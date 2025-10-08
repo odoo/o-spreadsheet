@@ -1,5 +1,5 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { ValidationMessages } from "../../../../validation_messages/validation_messages";
 import { Section } from "../../../components/section/section";
 

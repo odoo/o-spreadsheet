@@ -8,6 +8,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { cellPositions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import {
   CellPosition,
   CellValue,
@@ -22,7 +23,6 @@ import {
 } from "../..";
 import { ActionSpec } from "../../actions/action";
 import { CellValueType } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { pivotRegistry } from "./pivot_registry";
 
 export const pivotProperties: ActionSpec = {

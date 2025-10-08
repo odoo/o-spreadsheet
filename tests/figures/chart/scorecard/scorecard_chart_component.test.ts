@@ -6,6 +6,7 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { getContextFontSize } from "../../../../src/helpers";
@@ -15,7 +16,6 @@ import {
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
 import { Pixel, UID } from "../../../../src/types";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheetChildEnv";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click } from "../../../test_helpers";
 import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";

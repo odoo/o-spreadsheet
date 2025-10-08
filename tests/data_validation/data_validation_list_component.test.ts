@@ -5,11 +5,11 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { toZone } from "../../src/helpers";
 import { IsValueInListCriterion, UID } from "../../src/types";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   addDataValidation,
   createTableWithFilter,

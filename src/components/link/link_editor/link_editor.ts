@@ -1,11 +1,11 @@
 import { detectLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { Link, Position, Rect } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 

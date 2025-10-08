@@ -1,8 +1,8 @@
 import { GenericDefinition, PieChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { Component } from "@odoo/owl";
 import { DispatchResult, UID } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";

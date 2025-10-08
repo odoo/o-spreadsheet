@@ -12,6 +12,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
@@ -27,7 +28,6 @@ import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { Align, ClipboardMIMEType } from "../../src/types";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";

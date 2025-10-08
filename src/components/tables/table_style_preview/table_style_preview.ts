@@ -1,9 +1,9 @@
 import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { deepEquals } from "../../../helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { drawPreviewTable } from "./table_canvas_helpers";
 

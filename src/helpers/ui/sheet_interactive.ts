@@ -1,7 +1,7 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { CommandResult, UID } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 
 export function interactiveRenameSheet(
   env: SpreadsheetChildEnv,

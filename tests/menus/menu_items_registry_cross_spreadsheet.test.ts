@@ -2,8 +2,8 @@ import { selectCell, setCellContent, setStyle } from "../test_helpers/commands_h
 import { getCell } from "../test_helpers/getters_helpers";
 import { doAction, makeTestEnv } from "../test_helpers/helpers";
 
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../src";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste from Edit menu", async () => {

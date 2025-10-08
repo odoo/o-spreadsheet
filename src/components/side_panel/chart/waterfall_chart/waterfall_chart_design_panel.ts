@@ -5,10 +5,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { Color, DispatchResult, GenericDefinition, UID } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

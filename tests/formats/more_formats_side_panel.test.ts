@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../src";
 import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/more_formats";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { setFormat } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";

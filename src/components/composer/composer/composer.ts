@@ -5,6 +5,7 @@ import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers
 import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
@@ -17,7 +18,6 @@ import {
   FunctionDescription,
   Rect,
 } from "../../../types/index";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";

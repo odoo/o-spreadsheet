@@ -5,6 +5,7 @@ import {
   getDefaultSheetViewSize,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model, Spreadsheet, setDefaultSheetViewSize } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
@@ -12,7 +13,6 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import {
   addDataValidation,

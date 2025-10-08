@@ -1,9 +1,9 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Dimension } from "@odoo/o-spreadsheet-engine/types/misc";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { numberToLetters } from "../helpers";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
-import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 

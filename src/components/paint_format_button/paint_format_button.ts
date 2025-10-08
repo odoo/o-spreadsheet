@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { PaintFormatStore } from "./paint_format_store";
 
 interface Props {

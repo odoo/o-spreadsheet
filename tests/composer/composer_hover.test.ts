@@ -1,7 +1,7 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getElStyle, keyDown, triggerMouseEvent } from "../test_helpers/dom_helper";

@@ -16,7 +16,12 @@ import {
   CoreViewPluginConstructor,
 } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
-import { Mode, ModelConfig, ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
+import {
+  IModel,
+  Mode,
+  ModelConfig,
+  ModelExternalConfig,
+} from "@odoo/o-spreadsheet-engine/types/model";
 import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { getXLSX } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
@@ -66,7 +71,7 @@ const enum Status {
   Finalizing,
 }
 
-export class Model extends EventBus<any> implements CommandDispatcher {
+export class Model extends EventBus<any> implements CommandDispatcher, IModel {
   private corePlugins: CorePlugin[] = [];
 
   private statefulUIPlugins: UIPlugin[] = [];

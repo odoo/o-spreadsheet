@@ -1,9 +1,9 @@
 import { DEFAULT_STYLE } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { Align, ChartStyle, Color, VerticalAlign } from "../../../../../types";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";

@@ -1,9 +1,9 @@
 import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { DataValidationCriterionType } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 
 interface Props {

@@ -14,9 +14,9 @@ import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helper
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 
 function getTable(model: Model, sheetId: UID): Table {
   return model.getters.getTables(sheetId)[0];

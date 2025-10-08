@@ -3,6 +3,7 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import {
   Component,
   onWillUnmount,
@@ -14,7 +15,6 @@ import {
 import { Action } from "../../actions/action";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
   getOpenedMenus,

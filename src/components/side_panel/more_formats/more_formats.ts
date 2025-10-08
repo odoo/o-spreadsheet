@@ -18,7 +18,7 @@ import {
   formatNumberTime,
 } from "../../../actions/format_actions";
 
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 
 interface Props {
   onCloseSidePanel: () => void;

@@ -6,6 +6,7 @@ import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_p
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
 import {
@@ -77,7 +78,6 @@ import {
   UID,
   Zone,
 } from "../../src/types";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";

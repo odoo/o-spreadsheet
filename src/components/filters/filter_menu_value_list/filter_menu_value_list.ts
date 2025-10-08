@@ -1,8 +1,8 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Position } from "../../../types";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 
 interface Props {

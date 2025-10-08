@@ -1,5 +1,6 @@
 import { COMPOSER_ASSISTANT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { PivotField } from "@odoo/o-spreadsheet-engine/types/pivot";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { fuzzyLookup } from "../../../../../helpers";
 import {
@@ -7,7 +8,6 @@ import {
   AutoCompleteProvider,
 } from "../../../../../registries/auto_completes";
 import { Store, useLocalStore } from "../../../../../store_engine";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
 import { useAutofocus } from "../../../../helpers/autofocus_hook";

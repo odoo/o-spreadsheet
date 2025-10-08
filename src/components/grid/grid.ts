@@ -7,6 +7,7 @@ import {
 import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import {
   Component,
   onMounted,
@@ -56,7 +57,6 @@ import {
   Ref,
   Table,
 } from "../../types/index";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";

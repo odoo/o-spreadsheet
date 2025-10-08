@@ -5,11 +5,11 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { HeaderIndex, Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { colors, toHex, toZone } from "../../src/helpers";
 import { Store } from "../../src/store_engine";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   activateSheet,
   copy,

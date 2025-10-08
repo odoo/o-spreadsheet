@@ -1,13 +1,13 @@
-import { Locale } from "@odoo/o-spreadsheet-engine";
-import { ClipboardInterface } from "@odoo/o-spreadsheet-engine/types/clipboard/clipboard_interface";
-import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
-import { ImageProviderInterface } from "@odoo/o-spreadsheet-engine/types/files";
-import { Get } from "@odoo/o-spreadsheet-engine/types/store_engine";
-import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
-import { Model } from "../model";
+import { ClipboardInterface } from "./clipboard/clipboard_interface";
+import { Currency } from "./currency";
+import { ImageProviderInterface } from "./files";
+import { Locale } from "./locale";
+import { IModel } from "./model";
+import { Get } from "./store_engine";
+import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
 export interface SpreadsheetChildEnv extends NotificationStoreMethods {
-  model: Model;
+  model: IModel;
   imageProvider?: ImageProviderInterface;
   isDashboard: () => boolean;
   openSidePanel: (panel: string, panelProps?: any) => void;

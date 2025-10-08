@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { ChartWithDataSetDefinition, DispatchResult, UID } from "../../../../../types";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 
 interface Props {

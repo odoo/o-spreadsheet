@@ -1,7 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { DispatchResult } from "@odoo/o-spreadsheet-engine/types/commands";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { CommandResult } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 
 export const SplitToColumnsInteractiveContent = {
   SplitIsDestructive: _t("This will overwrite data in the subsequent columns. Split anyway?"),

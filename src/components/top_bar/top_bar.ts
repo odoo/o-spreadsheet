@@ -1,4 +1,5 @@
 import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import {
   Component,
   onWillStart,
@@ -16,7 +17,6 @@ import { topbarComponentRegistry } from "../../registries/topbar_component_regis
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, Pixel } from "../../types/index";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";

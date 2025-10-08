@@ -4,6 +4,7 @@ import {
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
 import {
   Component,
@@ -24,7 +25,6 @@ import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";

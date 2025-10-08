@@ -11,6 +11,7 @@ import {
   ClipboardPasteOptions,
 } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { CellPopoverStore } from "../components/popover";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
@@ -27,7 +28,6 @@ import {
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { Dimension, Format, Style } from "../types/index";
-import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------

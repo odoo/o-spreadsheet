@@ -1,8 +1,8 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";

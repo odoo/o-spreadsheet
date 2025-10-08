@@ -1,6 +1,6 @@
 import { SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, xml } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 

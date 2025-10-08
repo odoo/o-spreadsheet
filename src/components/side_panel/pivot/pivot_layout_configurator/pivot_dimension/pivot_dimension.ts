@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { PivotCoreDimension, PivotCoreMeasure } from "../../../../..";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { TextInput } from "../../../../text_input/text_input";
 import { CogWheelMenu } from "../../../components/cog_wheel_menu/cog_wheel_menu";
 

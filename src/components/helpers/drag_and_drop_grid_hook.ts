@@ -1,7 +1,7 @@
 import { HeaderIndex, Pixel } from "@odoo/o-spreadsheet-engine/types/misc";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { onWillUnmount, useEffect } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 

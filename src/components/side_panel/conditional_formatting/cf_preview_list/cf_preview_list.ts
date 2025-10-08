@@ -1,8 +1,8 @@
 import { ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { deepEquals } from "../../../../helpers";
 import { ConditionalFormat, UID } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { ConditionalFormatPreview } from "../cf_preview/cf_preview";

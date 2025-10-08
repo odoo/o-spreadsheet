@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { clip, debounce } from "../../../../../helpers";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheetChildEnv";
 import { Section } from "../../../components/section/section";
 
 interface Props {

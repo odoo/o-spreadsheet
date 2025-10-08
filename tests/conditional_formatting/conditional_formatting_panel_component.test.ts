@@ -1,4 +1,5 @@
 import { ConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/conditional_format";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
@@ -9,7 +10,6 @@ import {
   ConditionalFormattingOperatorValues,
   UID,
 } from "../../src/types";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
 import {
   activateSheet,
   copy,

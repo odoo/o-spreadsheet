@@ -1,6 +1,6 @@
 import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../types/spreadsheetChildEnv";
 import { Highlight, HighlightProps } from "../highlight/highlight/highlight";
 
 export class Selection extends Component<{}, SpreadsheetChildEnv> {

@@ -4,7 +4,7 @@ import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } fr
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { getTableTopLeft } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";
 import { ValidationMessages } from "../../validation_messages/validation_messages";

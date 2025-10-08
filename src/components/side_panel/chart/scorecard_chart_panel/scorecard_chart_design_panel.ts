@@ -5,9 +5,9 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { Color, DispatchResult, TitleDesign, UID } from "../../../../types/index";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

@@ -1,11 +1,11 @@
 import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { ComponentConstructor } from "@odoo/owl";
 import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { CellPosition, Getters, SortDirection } from "../types";
-import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
 
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;

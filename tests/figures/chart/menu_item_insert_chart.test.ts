@@ -7,9 +7,9 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Model } from "../../../src";
 import { zoneToXc } from "../../../src/helpers";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
 import {
   addColumns,
   addRows,

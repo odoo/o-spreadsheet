@@ -16,11 +16,11 @@ import {
   PivotField,
   PivotMeasure,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { SortDirection, UID } from "../../../../types";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";

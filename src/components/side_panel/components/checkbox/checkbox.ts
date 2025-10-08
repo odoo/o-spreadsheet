@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 
 // FIXME Encoding version used in css
 // const CHECK_SVG = /*xml*/ `

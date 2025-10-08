@@ -1,8 +1,8 @@
 import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { PivotCoreMeasure, UID } from "../../../..";
 import { Store, useLocalStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";

@@ -1,6 +1,10 @@
+import { Getters } from "../../../../src";
+import { SelectionStreamProcessor } from "../../../../src/selection_stream/selection_stream_processor";
+import { UuidGenerator } from "../helpers";
 import { GeoChartRegion } from "./chart/geo_chart";
 import { Client, ClientPosition } from "./collaborative/session";
 import { TransportService } from "./collaborative/transport_service";
+import { CommandDispatcher } from "./commands";
 import { Currency } from "./currency";
 import { InformationNotification } from "./env";
 import { FileStore } from "./files";
@@ -68,4 +72,12 @@ export interface ModelExternalConfig {
     /**  Convert the name of a geographical feature (eg. France) to the id of the corresponding feature in the TopoJSON */
     geoFeatureNameToId: (region: string, territory: string) => string | undefined;
   };
+}
+
+export interface IModel extends CommandDispatcher {
+  config: ModelConfig;
+  uuidGenerator: UuidGenerator;
+  selection: SelectionStreamProcessor;
+  getters: Getters;
+  canDispatch: CommandDispatcher["dispatch"];
 }

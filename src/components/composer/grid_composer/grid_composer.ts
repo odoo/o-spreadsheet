@@ -1,4 +1,5 @@
 import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import {
   deepEquals,
@@ -10,7 +11,6 @@ import {
 } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, ComposerFocusType, DOMDimension, Rect } from "../../../types/index";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheetChildEnv";
 import { getTextDecoration } from "../../helpers";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { CellComposerStore } from "../composer/cell_composer_store";
