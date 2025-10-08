@@ -30,6 +30,7 @@ import {
   ScatterChartDefinition,
   ScatterChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import {
   ApplyRangeChange,
@@ -41,7 +42,6 @@ import {
   UID,
 } from "../../../types";
 import { Validator } from "../../../types/validator";
-import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,

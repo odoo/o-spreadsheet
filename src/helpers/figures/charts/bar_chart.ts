@@ -30,9 +30,9 @@ import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_ch
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
+import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import { Validator } from "../../../types/validator";
-import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,

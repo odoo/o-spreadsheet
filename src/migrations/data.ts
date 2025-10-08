@@ -1,6 +1,7 @@
 import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
 import { isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { XlsxReader } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_reader";
 import { UuidGenerator, getDuplicateSheetName, getNextSheetName } from "../helpers/index";
 import {
   CoreCommand,
@@ -11,7 +12,6 @@ import {
   UID,
   WorkbookData,
 } from "../types/index";
-import { XlsxReader } from "../xlsx/xlsx_reader";
 import { migrationStepRegistry } from "./migration_steps";
 
 /**

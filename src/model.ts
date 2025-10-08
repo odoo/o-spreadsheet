@@ -15,6 +15,7 @@ import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborati
 import { Mode, ModelConfig, ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { getXLSX } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
 import { markRaw } from "@odoo/owl";
 import { deepCopy, lazy, UuidGenerator } from "./helpers/index";
 import {
@@ -54,7 +55,6 @@ import {
   LocalCommand,
   UID,
 } from "./types/index";
-import { getXLSX } from "./xlsx/xlsx_writer";
 
 const enum Status {
   Ready,

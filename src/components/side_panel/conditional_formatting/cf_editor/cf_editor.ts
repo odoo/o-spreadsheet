@@ -4,6 +4,7 @@ import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/c
 import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
@@ -30,7 +31,6 @@ import {
   availableConditionalFormatOperators,
 } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheetChildEnv";
-import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";

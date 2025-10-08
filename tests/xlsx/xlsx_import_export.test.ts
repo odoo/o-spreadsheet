@@ -1,3 +1,4 @@
+import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
 import { Model } from "../../src";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import {
@@ -8,7 +9,6 @@ import {
   VerticalAlign,
   Wrapping,
 } from "../../src/types";
-import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import {
   createChart,
   createImage,

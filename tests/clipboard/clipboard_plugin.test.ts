@@ -1,6 +1,7 @@
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { parseXML, xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { UIPlugin } from "../../src";
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
 import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
@@ -19,7 +20,6 @@ import {
   DEFAULT_LOCALE,
   DEFAULT_LOCALES,
 } from "../../src/types/index";
-import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
 import { MockClipboardData } from "../test_helpers/clipboard";
 import {

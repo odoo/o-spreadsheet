@@ -7,6 +7,11 @@ import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
+import {
+  fixLengthySheetNames,
+  purgeSingleRowTables,
+} from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
@@ -73,8 +78,6 @@ import {
   Zone,
 } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheetChildEnv";
-import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
-import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";

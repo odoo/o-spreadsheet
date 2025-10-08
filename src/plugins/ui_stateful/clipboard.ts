@@ -9,6 +9,7 @@ import {
   OSClipboardContent,
 } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { FileStore } from "@odoo/o-spreadsheet-engine/types/files";
+import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
@@ -34,7 +35,6 @@ import {
   UID,
   Zone,
 } from "../../types/index";
-import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB

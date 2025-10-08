@@ -10,6 +10,7 @@ import {
   BarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
@@ -25,7 +26,6 @@ import {
   UID,
 } from "../../../src/types";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheetChildEnv";
-import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
   openChartConfigSidePanel,
