@@ -3,6 +3,10 @@ import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toBoolean } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
 import { EMPTY_PIVOT_CELL } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
+import {
+  CoreViewPlugin,
+  CoreViewPluginConfig,
+} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Pivot } from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
 import { Token } from "../../formulas";
@@ -29,7 +33,6 @@ import {
   invalidateEvaluationCommands,
   isMatrix,
 } from "../../types";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT", "REMOVE_PIVOT"];
 

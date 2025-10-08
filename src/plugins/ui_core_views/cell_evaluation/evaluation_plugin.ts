@@ -1,5 +1,9 @@
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import {
+  CoreViewPlugin,
+  CoreViewPluginConfig,
+} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+import {
   CoreViewCommand,
   invalidateEvaluationCommands,
 } from "@odoo/o-spreadsheet-engine/types/commands";
@@ -26,7 +30,6 @@ import {
   isMatrix,
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
 
 //#region

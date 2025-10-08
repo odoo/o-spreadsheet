@@ -11,6 +11,10 @@ import {
   CorePluginConfig,
   CorePluginConstructor,
 } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import {
+  CoreViewPluginConfig,
+  CoreViewPluginConstructor,
+} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Mode, ModelConfig, ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
@@ -24,7 +28,6 @@ import {
   load,
   repairInitialMessages,
 } from "./migrations/data";
-import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
@@ -404,10 +407,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return {
       getters: this.getters,
       stateObserver: this.state,
-      selection: this.selection,
-      moveClient: this.session.move.bind(this.session),
       custom: this.config.custom,
-      uiActions: this.config,
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],

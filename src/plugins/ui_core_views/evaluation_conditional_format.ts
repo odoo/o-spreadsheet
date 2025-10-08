@@ -3,6 +3,7 @@ import {
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { clip, largeMax, largeMin, lazy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
+import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import {
   CoreViewCommand,
@@ -32,7 +33,6 @@ import {
   Zone,
   invalidateCFEvaluationCommands,
 } from "../../types/index";
-import { CoreViewPlugin } from "../core_view_plugin";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };

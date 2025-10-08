@@ -4,6 +4,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/createComputeFunction";
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
+import { onIterationEndEvaluationRegistry } from "@odoo/o-spreadsheet-engine/registries/evaluation_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BadExpressionError,
@@ -22,7 +23,6 @@ import {
   union,
 } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
-import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import {
   CellPosition,
   CellValueType,

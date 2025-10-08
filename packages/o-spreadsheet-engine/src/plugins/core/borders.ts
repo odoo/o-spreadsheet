@@ -1,4 +1,3 @@
-import { Color } from "chart.js";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { deepCopy, deepEquals, removeFalsyAttributes } from "../../helpers/misc2";
@@ -24,6 +23,7 @@ import {
   BorderData,
   BorderDescr,
   CellPosition,
+  Color,
   HeaderIndex,
   UID,
   UnboundedZone,

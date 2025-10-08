@@ -4,6 +4,7 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
@@ -29,7 +30,6 @@ import {
   Style,
   UID,
 } from "../../types";
-import { CoreViewPlugin } from "../core_view_plugin";
 
 interface InvalidValidationResult {
   readonly isValid: false;

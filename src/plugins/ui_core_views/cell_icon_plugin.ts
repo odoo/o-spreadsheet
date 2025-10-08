@@ -1,3 +1,4 @@
+import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import { Align, CellPosition } from "@odoo/o-spreadsheet-engine/types/misc";
 import { isDefined } from "../../helpers/index";
 import {
@@ -6,7 +7,6 @@ import {
   iconsOnCellRegistry,
 } from "../../registries/icons_on_cell_registry";
 import { Command, Rect } from "../../types";
-import { CoreViewPlugin } from "../core_view_plugin";
 
 export class CellIconPlugin extends CoreViewPlugin {
   static getters = ["doesCellHaveGridIcon", "getCellIcons", "getCellIconRect"] as const;

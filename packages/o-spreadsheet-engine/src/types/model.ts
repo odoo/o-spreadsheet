@@ -1,3 +1,12 @@
+import { GeoChartRegion } from "./chart/geo_chart";
+import { Client, ClientPosition } from "./collaborative/session";
+import { TransportService } from "./collaborative/transport_service";
+import { Currency } from "./currency";
+import { InformationNotification } from "./env";
+import { FileStore } from "./files";
+import { Locale } from "./locale";
+import { Color } from "./misc";
+
 /**
  * Model
  *

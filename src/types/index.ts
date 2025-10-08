@@ -27,6 +27,7 @@ export * from "@odoo/o-spreadsheet-engine/types/functions";
 export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
 export * from "@odoo/o-spreadsheet-engine/types/history2";
 export * from "@odoo/o-spreadsheet-engine/types/misc";
+export { Color } from "@odoo/o-spreadsheet-engine/types/misc";
 export * from "@odoo/o-spreadsheet-engine/types/pivot";
 export * from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
 export * from "@odoo/o-spreadsheet-engine/types/range";

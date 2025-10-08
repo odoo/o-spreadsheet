@@ -1,4 +1,5 @@
 import { DEFAULT_CELL_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
+import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 import {
   CellPosition,
   Dimension,
@@ -17,7 +18,6 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { AnchorOffset, Command } from "../../types";
-import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {
   tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>>;

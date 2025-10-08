@@ -1,5 +1,9 @@
 import { COLOR_PICKER_DEFAULTS } from "@odoo/o-spreadsheet-engine/constants";
 import {
+  CoreViewPlugin,
+  CoreViewPluginConfig,
+} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+import {
   colorNumberToHex,
   colorToRGBA,
   isColorValid,
@@ -10,7 +14,6 @@ import {
   toHex,
 } from "../../helpers";
 import { Color, Command, Immutable, RGBA, TableElementStyle, UID } from "../../types";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 
 const chartColorRegex = /"(#[0-9a-fA-F]{6})"/g;
 
