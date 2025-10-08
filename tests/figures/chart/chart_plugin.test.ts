@@ -804,6 +804,30 @@ describe("datasource tests", function () {
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedChartId);
   });
 
+  test("Cannot have duplicate chart id at model creation", () => {
+    const figure = { id: "figureId", tag: "chart", width: 400, height: 300, x: 100, y: 100 };
+    const model = new Model({
+      version: 7,
+      sheets: [
+        {
+          id: "sh1",
+          figures: [
+            { ...figure, data: { type: "line", dataSets: [], labelRange: "A1:A2" } },
+            { ...figure, data: { type: "line", dataSets: [], labelRange: "A1:A2" } },
+          ],
+        },
+      ],
+    });
+
+    const figures = model.getters.getFigures("sh1");
+    expect(figures).toHaveLength(2);
+    expect(figures[0].id).not.toEqual(figures[1].id);
+
+    const chartIds = model.getters.getChartIds("sh1");
+    expect(chartIds).toHaveLength(2);
+    expect(chartIds[0]).not.toEqual(chartIds[1]);
+  });
+
   test("reject updates that target a inexistent chart", () => {
     createChart(
       model,
