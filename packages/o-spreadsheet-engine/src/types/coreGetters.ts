@@ -72,7 +72,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof CellPlugin> &
   PluginGetters<typeof MergePlugin> &
   PluginGetters<typeof BordersPlugin> &
-  PluginGetters<typeof ChartPlugin> &
+  // PluginGetters<typeof ChartPlugin> &    // TODO: split chart mess
   PluginGetters<typeof ImagePlugin> &
   PluginGetters<typeof CarouselPlugin> &
   PluginGetters<typeof FigurePlugin> &

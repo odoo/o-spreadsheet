@@ -14,6 +14,10 @@ import {
 import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { adaptStringRange } from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import {
+  clipTextWithEllipsis,
+  drawDecoratedText,
+} from "@odoo/o-spreadsheet-engine/helpers/text_helper";
 import { ChartCreationContext, TitleDesign } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   BaselineArrowDirection,
@@ -37,7 +41,6 @@ import {
 import { Validator } from "../../../types/validator";
 import { isNumber } from "../../numbers";
 import { rangeReference } from "../../references";
-import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(

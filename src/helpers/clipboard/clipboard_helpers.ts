@@ -1,7 +1,7 @@
 import { mergeOverlappingZones, positions, union } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
+import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
   ClipboardCellData,
   ClipboardMIMEType,

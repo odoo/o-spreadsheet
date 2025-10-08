@@ -6,13 +6,13 @@ import {
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { chartMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { getDefaultContextFont } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
 import {
   BaselineArrowDirection,
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Color } from "chart.js";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
-import { getDefaultContextFont } from "../../text_helper";
 
 /* Padding at the border of the chart */
 const BOTTOM_PADDING_RATIO = 0.05;

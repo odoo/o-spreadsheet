@@ -1,4 +1,3 @@
-import { getDefaultCellHeight } from "../../../../../src/helpers";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
   deepCopy,
@@ -7,6 +6,7 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers/misc2";
+import { getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Command } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";

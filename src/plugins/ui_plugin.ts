@@ -1,7 +1,7 @@
 import { BasePlugin, StateObserver } from "@odoo/o-spreadsheet-engine";
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
-import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
+import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
 import {
   ClientPosition,
   Color,

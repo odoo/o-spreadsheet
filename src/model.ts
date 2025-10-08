@@ -22,6 +22,7 @@ import {
   ModelConfig,
   ModelExternalConfig,
 } from "@odoo/o-spreadsheet-engine/types/model";
+import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
 import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { getXLSX } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
@@ -40,10 +41,7 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/index";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
-import {
-  SelectionStreamProcessor,
-  SelectionStreamProcessorImpl,
-} from "./selection_stream/selection_stream_processor";
+import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import {
   canExecuteInReadonly,

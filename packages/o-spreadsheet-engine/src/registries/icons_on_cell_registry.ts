@@ -1,6 +1,5 @@
 import { Getters } from "../../../../src";
 import { CellPopoverStore } from "../../../../src/components/popover";
-import { computeTextFontSizeInPixels } from "../../../../src/helpers";
 import {
   CHECKBOX_CHECKED,
   CHECKBOX_UNCHECKED,
@@ -23,6 +22,7 @@ import {
 } from "../constants";
 import { relativeLuminance } from "../helpers/color";
 import { deepEquals } from "../helpers/misc2";
+import { computeTextFontSizeInPixels } from "../helpers/text_helper";
 import { ImageSVG } from "../types/image";
 import { Align, CellPosition } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
