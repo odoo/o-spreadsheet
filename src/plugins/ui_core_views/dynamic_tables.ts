@@ -1,3 +1,4 @@
+import { createFilter } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import {
   areZonesContinuous,
   deepEquals,
@@ -8,7 +9,6 @@ import {
   union,
   zoneToXc,
 } from "../../helpers";
-import { createFilter } from "../../helpers/table_helpers";
 import {
   CellPosition,
   Command,

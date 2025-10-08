@@ -1,5 +1,5 @@
 import { CoreGetters, PluginGetters } from "@odoo/o-spreadsheet-engine";
-import { TableStylePlugin } from "../plugins/core/table_style";
+import { TableStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/table_style";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CellIconPlugin } from "../plugins/ui_core_views/cell_icon_plugin";

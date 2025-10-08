@@ -1,44 +1,36 @@
-import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { deepCopy, deepEquals, isDefined, range } from "../../helpers/misc2";
+import { createFilter } from "../../helpers/table_helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import {
   areZonesContinuous,
-  deepCopy,
-  deepEquals,
   intersection,
-  isDefined,
   isInside,
   isZoneInside,
   overlap,
   positionToZone,
-  range,
   zoneToDimension,
   zoneToTopLeft,
   zoneToXc,
-} from "../../helpers";
-import { createFilter } from "../../helpers/table_helpers";
+} from "../../helpers/zones";
 import {
-  ApplyRangeChange,
-  CellPosition,
   CommandResult,
   CoreCommand,
+  UpdateCellCommand,
+  UpdateTableCommand,
+} from "../../types/commands";
+import { ApplyRangeChange, CellPosition, TableId, UID, Zone } from "../../types/misc";
+import { Range } from "../../types/range";
+import {
   CoreTable,
   CoreTableType,
   DynamicTable,
-  ExcelWorkbookData,
   Filter,
-  Range,
   StaticTable,
   Table,
   TableConfig,
-  TableData,
-  TableId,
-  UID,
-  UpdateCellCommand,
-  UpdateTableCommand,
-  WorkbookData,
-  Zone,
-} from "../../types/index";
-
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+} from "../../types/table";
+import { ExcelWorkbookData, TableData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;

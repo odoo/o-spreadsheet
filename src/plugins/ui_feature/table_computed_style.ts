@@ -1,6 +1,6 @@
 import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
+import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { lazy } from "../../helpers";
-import { getComputedTableStyle } from "../../helpers/table_helpers";
 import {
   Border,
   CellPosition,

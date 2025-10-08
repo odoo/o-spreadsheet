@@ -9,5 +9,5 @@ export * from "@odoo/o-spreadsheet-engine/plugins/core/image";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/merge";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/range";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/sheet";
+export * from "@odoo/o-spreadsheet-engine/plugins/core/tables";
 export * from "./chart";
-export * from "./tables";

@@ -1,19 +1,16 @@
+import { toHex } from "../../helpers/color";
+import { getUniqueText } from "../../helpers/misc2";
 import {
   DEFAULT_TABLE_CONFIG,
   TABLE_PRESETS,
   TABLE_STYLES_TEMPLATES,
   buildTableStyle as buildCustomTableStyle,
-} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { getUniqueText, toHex } from "../../helpers";
-import {
-  CommandResult,
-  CoreCommand,
-  TableStyle,
-  TableStyleData,
-  WorkbookData,
-} from "../../types/index";
+} from "../../helpers/table_presets";
+import { _t } from "../../translation";
+import { CommandResult, CoreCommand } from "../../types/commands";
+import { TableStyle } from "../../types/table";
+import { TableStyleData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 interface TableStylesState {
   readonly styles: { [styleId: string]: TableStyle };

@@ -11,6 +11,7 @@ import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { TablePlugin } from "../plugins/core/tables";
 
 /**
  * Union of all getter names of a plugin.

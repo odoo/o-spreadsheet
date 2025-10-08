@@ -1,5 +1,5 @@
+import { getTableContentZone } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { isInside } from "../../helpers";
-import { getTableContentZone } from "../../helpers/table_helpers";
 import { CellPosition, CellValueType, Command, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
