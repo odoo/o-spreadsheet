@@ -1,6 +1,5 @@
-import { HeaderIndex } from "./base";
 import { TitleDesign } from "./chart";
-import { Pixel, PixelPosition, UID } from "./misc";
+import { HeaderIndex, Pixel, PixelPosition, UID } from "./misc";
 
 export interface FigureInfo {
   id: UID;

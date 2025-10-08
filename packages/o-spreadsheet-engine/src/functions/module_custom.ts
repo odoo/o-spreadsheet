@@ -1,8 +1,7 @@
 import { formatLargeNumber } from "../helpers/format/format";
 import { _t } from "../translation";
-import { FunctionResultObject, Maybe } from "../types/base";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultNumber } from "../types/misc";
+import { FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 

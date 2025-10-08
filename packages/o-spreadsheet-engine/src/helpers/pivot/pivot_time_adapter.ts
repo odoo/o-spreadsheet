@@ -1,9 +1,9 @@
 import { toJsDate, toNumber } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { CellValue } from "../../types/base";
 import { EvaluationError } from "../../types/errors";
 import { DEFAULT_LOCALE } from "../../types/locale";
+import { CellValue } from "../../types/misc";
 import { Granularity, PivotTimeAdapter, PivotTimeAdapterNotNull } from "../../types/pivot";
 import { DAYS, formatValue, MONTHS } from "../format/format";
 

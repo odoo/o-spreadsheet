@@ -1,5 +1,4 @@
-import { HeaderIndex } from "../types/base";
-import { Position } from "../types/misc";
+import { HeaderIndex, Position } from "../types/misc";
 import { RangePart } from "../types/range";
 import { TokenizingChars } from "./misc";
 

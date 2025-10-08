@@ -6,11 +6,10 @@ import {
 } from "../helpers/dates";
 import { range } from "../helpers/misc2";
 import { _t } from "../translation";
-import { FunctionResultObject, Matrix, Maybe } from "../types/base";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import { Arg } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, assert } from "./helper_assert";
 import {

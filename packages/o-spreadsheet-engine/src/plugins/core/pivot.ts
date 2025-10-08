@@ -2,9 +2,10 @@ import { compile } from "../../formulas/compiler";
 import { deepCopy, deepEquals } from "../../helpers/misc2";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { CellPosition, CellValue, UID } from "../../types/base";
 import { CommandResult, CoreCommand } from "../../types/commands";
+import { CellPosition, UID } from "../../types/misc";
 
+import { CellValue } from "../../types/cells";
 import { ApplyRangeChange, Position, RangeCompiledFormula } from "../../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";

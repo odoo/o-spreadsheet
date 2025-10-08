@@ -1,6 +1,6 @@
 import { linkNext } from "../helpers/misc2";
-import { UID } from "../types/base";
 import { OperationSequenceNode, Transformation, TransformationFactory } from "../types/history2";
+import { UID } from "../types/misc";
 import { Branch } from "./branch";
 import { Operation } from "./operation";
 import { OperationSequence } from "./operation_sequence";

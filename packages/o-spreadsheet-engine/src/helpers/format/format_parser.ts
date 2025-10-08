@@ -1,4 +1,4 @@
-import { Format } from "../../types/base";
+import { Format } from "../../types/misc";
 import { isDefined } from "../misc2";
 import {
   CharToken,

@@ -15,7 +15,6 @@ import { CorePlugin } from "../core_plugin";
 
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside } from "../../helpers/zones";
-import { CellPosition, Format, HeaderIndex, UID, Zone } from "../../types/base";
 import { Cell, FormulaCell, LiteralCell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
@@ -25,6 +24,7 @@ import {
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
+import { CellPosition, HeaderIndex, UID } from "../../types/misc";
 
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
@@ -37,9 +37,11 @@ import {
   AdaptSheetName,
   ApplyRangeChange,
   CompiledFormula,
+  Format,
   RangeCompiledFormula,
   Style,
   UpdateCellData,
+  Zone,
 } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";

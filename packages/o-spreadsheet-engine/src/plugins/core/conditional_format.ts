@@ -3,7 +3,6 @@ import { deepEquals } from "../../helpers/misc2";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, toUnboundedZone } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import { UID, Zone } from "../../types/base";
 import {
   AddConditionalFormatCommand,
   CancelledReason,
@@ -21,7 +20,7 @@ import {
   IconSetRule,
   IconThreshold,
 } from "../../types/conditional_formatting";
-import { ApplyRangeChange, UnboundedZone, Validation } from "../../types/misc";
+import { ApplyRangeChange, UID, UnboundedZone, Validation, Zone } from "../../types/misc";
 import { RangeData } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";

@@ -7,7 +7,6 @@ import {
 import { isInside } from "../../helpers/zones";
 import { otRegistry } from "../../registries/ot_registry";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
-import { HeaderIndex, Zone } from "../../types/base";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -26,6 +25,7 @@ import {
   isTargetDependent,
   isZoneDependent,
 } from "../../types/commands";
+import { HeaderIndex, Zone } from "../../types/misc";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
 import "./srt_specific";

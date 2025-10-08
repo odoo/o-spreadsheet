@@ -1,6 +1,6 @@
 import { _t } from "../translation";
-import { FunctionResultObject, Maybe } from "../types/base";
 import { AddFunctionDescription } from "../types/functions";
+import { FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 

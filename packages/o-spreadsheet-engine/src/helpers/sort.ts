@@ -1,5 +1,5 @@
-import { SortDirection } from "../types/base";
 import { CellValue, CellValueType, EvaluatedCell } from "../types/cells";
+import { SortDirection } from "../types/misc";
 
 type CellWithIndex = { index: number; type: CellValueType; value: any };
 

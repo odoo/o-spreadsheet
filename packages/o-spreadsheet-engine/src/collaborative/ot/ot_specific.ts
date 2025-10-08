@@ -6,7 +6,6 @@ import {
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import { overlap } from "../../helpers/zones";
 import { otRegistry } from "../../registries/ot_registry";
-import { HeaderIndex, Zone } from "../../types/base";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -37,6 +36,7 @@ import {
   UpdatePivotCommand,
   UpdateTableCommand,
 } from "../../types/commands";
+import { HeaderIndex, Zone } from "../../types/misc";
 import { transformRangeData, transformZone } from "./ot_helpers";
 
 /*

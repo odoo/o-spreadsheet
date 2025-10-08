@@ -2,9 +2,9 @@ import { transformAll } from "../collaborative/ot/ot";
 import { Revision } from "../collaborative/revisions";
 import { inverseCommand } from "../helpers/inverse_command";
 import { StateObserver } from "../state_observer";
-import { UID } from "../types/base";
 import { CoreCommand } from "../types/commands";
 import { HistoryChange } from "../types/history2";
+import { UID } from "../types/misc";
 import { SelectiveHistory } from "./selective_history";
 
 export function buildRevisionLog(args: {

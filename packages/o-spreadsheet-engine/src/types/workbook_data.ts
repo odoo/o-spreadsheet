@@ -1,13 +1,14 @@
 import { ZoneBorderData } from "../plugins/core/borders";
-import { CellValue, Format } from "./base";
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { DataValidationRule } from "./data_validation";
 import { Image } from "./image";
 import { Locale } from "./locale";
 import {
+  CellValue,
   Color,
   Dimension,
+  Format,
   HeaderGroup,
   HeaderIndex,
   PaneDivision,

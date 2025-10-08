@@ -1,8 +1,8 @@
-import { Alias, Format, UID } from "./base";
 import { ExcelChartDefinition } from "./chart";
 import { ExcelFigureSize } from "./figure";
+import { Format } from "./format";
 import { ExcelImage } from "./image";
-import { PaneDivision } from "./misc";
+import { Alias, PaneDivision, UID } from "./misc";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.

@@ -1,10 +1,9 @@
 import { RangeAdapter } from "../plugins/core/range";
 import { StateObserver } from "../state_observer";
-import { UID } from "../types/base";
 import { CommandResult, CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/coreGetters";
 import { HistoryChange } from "../types/history2";
-import { AdaptSheetName, ApplyRangeChange, RangeProvider } from "../types/misc";
+import { AdaptSheetName, ApplyRangeChange, RangeProvider, UID } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { ExcelWorkbookData, WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";

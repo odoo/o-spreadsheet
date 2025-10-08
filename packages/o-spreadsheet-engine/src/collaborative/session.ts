@@ -23,9 +23,8 @@ import {
 } from "../types/collaborative/transport_service";
 import { Command, CoreCommand } from "../types/commands";
 
-import { UID } from "../types/base";
 import { HistoryChange } from "../types/history2";
-import { Lazy } from "../types/misc";
+import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";

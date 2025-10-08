@@ -1,5 +1,4 @@
-import { FunctionResultObject } from "../../types/base";
-import { Lazy } from "../../types/misc";
+import { FunctionResultObject, Lazy } from "../../types/misc";
 import {
   DimensionTree,
   DimensionTreeNode,

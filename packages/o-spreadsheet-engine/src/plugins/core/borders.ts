@@ -12,14 +12,23 @@ import {
   toZone,
   zoneToXc,
 } from "../../helpers/zones";
-import { CellPosition, HeaderIndex, UID, Zone } from "../../types/base";
 import {
   CommandResult,
   CoreCommand,
   SetBorderCommand,
   SetZoneBordersCommand,
 } from "../../types/commands";
-import { ApplyRangeChange, Border, BorderData, BorderDescr, UnboundedZone } from "../../types/misc";
+import {
+  ApplyRangeChange,
+  Border,
+  BorderData,
+  BorderDescr,
+  CellPosition,
+  HeaderIndex,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 

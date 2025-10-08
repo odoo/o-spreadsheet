@@ -15,10 +15,9 @@ import {
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import { FunctionResultObject, Maybe } from "../types/base";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultNumber } from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { assert } from "./helper_assert";
 import { DAY_COUNT_CONVENTION_OPTIONS } from "./helper_financial";

@@ -1,6 +1,5 @@
 import { rangeTokenize } from "../formulas/range_tokenizer";
-import { UID } from "../types/base";
-import { RangeAdapter } from "../types/misc";
+import { RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { concat } from "./misc2";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";

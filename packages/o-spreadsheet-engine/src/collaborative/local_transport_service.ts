@@ -1,9 +1,9 @@
-import { UID } from "../types/base";
 import {
   CollaborationMessage,
   NewMessageCallback,
   TransportService,
 } from "../types/collaborative/transport_service";
+import { UID } from "../types/misc";
 
 export class LocalTransportService implements TransportService<CollaborationMessage> {
   private listeners: { id: UID; callback: NewMessageCallback }[] = [];

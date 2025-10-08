@@ -1,5 +1,4 @@
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { CellPosition, FunctionResultObject } from "../../types/base";
 import {
   BooleanCell,
   Cell,
@@ -13,6 +12,7 @@ import {
 } from "../../types/cells";
 import { LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
+import { CellPosition, FunctionResultObject } from "../../types/misc";
 import { parseDateTime } from "../dates";
 import {
   detectDateFormat,

@@ -1,3 +1,4 @@
+import { Format } from "./format";
 import {
   Border,
   BorderData,
@@ -15,7 +16,6 @@ import {
   Zone,
 } from "./misc";
 
-import { Format } from "./base";
 import { ChartDefinition } from "./chart";
 
 import { ConditionalFormat } from "./conditional_formatting";

@@ -22,7 +22,6 @@ import { localizeContent } from "../helpers/locale";
 import { isNumberBetween } from "../helpers/misc2";
 import { rangeReference } from "../helpers/references";
 import { _t } from "../translation";
-import { CellValue } from "../types/base";
 import {
   DateIsAfterCriterion,
   DateIsBeforeCriterion,
@@ -40,7 +39,7 @@ import {
   GenericCriterionType,
 } from "../types/generic_criterion";
 import { DEFAULT_LOCALE, Locale } from "../types/locale";
-import { UID } from "../types/misc";
+import { CellValue, UID } from "../types/misc";
 import { Registry } from "./registry";
 
 export type CriterionEvaluator = {

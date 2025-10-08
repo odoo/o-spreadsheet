@@ -1,7 +1,5 @@
 import { CellValue, EvaluatedCell } from "./cells";
 
-import type { CommandResult } from "./commands";
-import type { Validation as EngineValidation } from "./validator";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
@@ -316,8 +314,6 @@ export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) => void;
 }
 
-export type Validation<T> = EngineValidation<T, CommandResult>;
-
 export type Increment = 1 | -1 | 0;
 
 export interface Ref<T> {
@@ -418,4 +414,11 @@ export type SortDirection = "asc" | "desc";
 export interface ValueAndLabel<T = string> {
   value: T;
   label: string;
+}
+
+export interface Zone {
+  left: HeaderIndex;
+  right: HeaderIndex;
+  top: HeaderIndex;
+  bottom: HeaderIndex;
 }

@@ -3,7 +3,6 @@ import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/
 import { memoize } from "../helpers/misc2";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { CellValue } from "../types/base";
 import {
   CellErrorType,
   ErrorValue,
@@ -15,6 +14,7 @@ import { LookupCaches } from "../types/functions";
 import { Locale } from "../types/locale";
 import {
   Arg,
+  CellValue,
   FunctionResultNumber,
   FunctionResultObject,
   Matrix,

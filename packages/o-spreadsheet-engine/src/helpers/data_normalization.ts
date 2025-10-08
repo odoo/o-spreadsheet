@@ -1,5 +1,4 @@
-import { UID } from "../types/base";
-import { Position } from "../types/misc";
+import { Position, UID } from "../types/misc";
 import { recomputeZones } from "./recompute_zones";
 import { positionToZone, toZone, zoneToXc } from "./zones";
 

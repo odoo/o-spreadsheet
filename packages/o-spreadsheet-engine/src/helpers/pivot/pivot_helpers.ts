@@ -11,10 +11,9 @@ import {
 } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { CellValue } from "../../types/base";
 import { EvaluationError } from "../../types/errors";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
-import { FunctionResultObject, Matrix, Maybe } from "../../types/misc";
+import { CellValue, FunctionResultObject, Matrix, Maybe } from "../../types/misc";
 import {
   Granularity,
   PivotCoreDefinition,

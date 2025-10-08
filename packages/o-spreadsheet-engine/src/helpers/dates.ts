@@ -2,8 +2,8 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
-import { CellValue, Format } from "../types/base";
 import { Locale } from "../types/locale";
+import { CellValue, Format } from "../types/misc";
 import { isDefined, whiteSpaceCharacters } from "./misc2";
 
 /**

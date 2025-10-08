@@ -1,8 +1,8 @@
 import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
-import { CompiledFormula, FormulaToExecute } from "../types/base";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
+import { CompiledFormula, FormulaToExecute } from "../types/misc";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";

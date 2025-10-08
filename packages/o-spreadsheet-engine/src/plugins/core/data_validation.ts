@@ -1,28 +1,21 @@
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
-import { compile } from "../../formulas";
-import {
-  deepCopy,
-  duplicateRangeInDuplicatedSheet,
-  getCellPositionsInRanges,
-  isInside,
-  recomputeZones,
-  toXC,
-} from "../../helpers";
+import { compile } from "../../formulas/compiler";
+import { toXC } from "../../helpers/coordinates";
+import { deepCopy } from "../../helpers/misc2";
+import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
+import { recomputeZones } from "../../helpers/recompute_zones";
+import { isInside } from "../../helpers/zones";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddDataValidationCommand,
-  ApplyRangeChange,
-  CellPosition,
   Command,
   CommandResult,
   CoreCommand,
-  DataValidationRule,
-  ExcelWorkbookData,
-  Range,
-  Style,
-  UID,
-  WorkbookData,
-} from "../../types";
+} from "../../types/commands";
+import { DataValidationRule } from "../../types/data_validation";
+import { ApplyRangeChange, CellPosition, Style, UID } from "../../types/misc";
+import { Range } from "../../types/range";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 interface DataValidationState {
   readonly rules: { [sheet: string]: DataValidationRule[] };
