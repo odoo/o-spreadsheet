@@ -29,6 +29,7 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -146,25 +147,46 @@ export class TreeMapChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      newSheetId
+    );
     return new TreeMapChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): TreeMapChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
       sheetId
     );
     return new TreeMapChart(definition, sheetId, this.getters);
   }
   getDefinition(): TreeMapChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(this.dataSets, this.labelRange, this.title);
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
     targetSheetId?: UID
   ): TreeMapChartDefinition {
     const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
@@ -179,7 +201,7 @@ export class TreeMapChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       showValues: this.showValues,
       showHeaders: this.showHeaders,
       headerDesign: this.headerDesign,
@@ -195,16 +217,19 @@ export class TreeMapChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): TreeMapChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      undefined,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(dataSets, labelRange, chartTitle);
     return new TreeMapChart(definition, this.sheetId, this.getters);
   }
 }
@@ -226,7 +251,7 @@ export function createTreeMapChartRuntime(
       ...CHART_COMMON_OPTIONS,
       layout: getChartLayout(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: { display: false },
         tooltip: getTreeMapChartTooltip(definition, chartData),
       },
