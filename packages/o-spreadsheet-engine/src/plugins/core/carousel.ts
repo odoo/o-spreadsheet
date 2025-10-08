@@ -1,14 +1,9 @@
-import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
-import { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import {
-  Carousel,
-  CarouselItem,
-  CommandResult,
-  CoreCommand,
-  UID,
-  UpdateCarouselCommand,
-  WorkbookData,
-} from "../../types/index";
+import { FIGURE_ID_SPLITTER } from "../../constants";
+import { CommandResult, CoreCommand, UpdateCarouselCommand } from "../../types/commands";
+import { Carousel, CarouselItem } from "../../types/figure";
+import { UID } from "../../types/misc";
+import { WorkbookData } from "../../types/workbook_data";
+import { CorePlugin } from "../core_plugin";
 
 interface CarouselState {
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined>;

@@ -1,3 +1,4 @@
+import { CarouselPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/carousel";
 import { PivotCorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/pivot";
 import { SettingsPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/settings";
 import { SpreadsheetPivotCorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/spreadsheet_pivot";
@@ -18,7 +19,6 @@ import {
   SheetPlugin,
   TablePlugin,
 } from "./core";
-import { CarouselPlugin } from "./core/carousel";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { CoreViewPluginConstructor } from "./core_view_plugin";
 import {

@@ -1,4 +1,5 @@
 import { BordersPlugin } from "../plugins/core/borders";
+import { CarouselPlugin } from "../plugins/core/carousel";
 import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
