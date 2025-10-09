@@ -1,4 +1,4 @@
-import { toNumber } from "../../functions/helpers";
+import { toNumber, tryToNumber } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { Currency } from "../../types/currency";
@@ -708,14 +708,18 @@ function _roundFormat<T extends InternalFormat>(internalFormat: T): T {
 }
 
 export function humanizeNumber({ value, format }: FunctionResultObject, locale: Locale): string {
-  const numberFormat = formatLargeNumber(
-    {
-      value,
-      format,
-    },
-    undefined,
-    locale
-  );
+  const numberValue = tryToNumber(value, locale);
+  if (numberValue === undefined) {
+    return "";
+  }
+  let numberFormat: Format | undefined = format;
+  if (Math.abs(numberValue) < 1000) {
+    const hasDecimal = numberValue % 1 !== 0;
+    numberFormat = !format && hasDecimal ? "0.####" : format;
+  } else {
+    numberFormat = formatLargeNumber({ value, format }, undefined, locale);
+  }
+
   return formatValue(value, { format: numberFormat, locale });
 }
 
