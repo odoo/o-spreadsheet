@@ -13,6 +13,7 @@ import { SidePanelCollapsible } from "../../components/collapsible/side_panel_co
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category_color";
@@ -51,6 +52,7 @@ export class TreeMapChartDesignPanel extends Component<Props, SpreadsheetChildEn
     BadgeSelection,
     TreeMapCategoryColors,
     TreeMapColorScale,
+    ChartHumanizeNumbers,
   };
   static props = {
     chartId: String,
