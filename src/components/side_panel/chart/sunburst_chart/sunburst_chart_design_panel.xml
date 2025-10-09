@@ -3,6 +3,9 @@
     <GeneralDesignEditor t-props="props">
       <t t-set-slot="general-extension">
         <ChartLegend t-props="props"/>
+        <Section class="'pt-0'" title.translate="Number formatting">
+          <ChartHumanizeNumbers t-props="props"/>
+        </Section>
       </t>
     </GeneralDesignEditor>
 

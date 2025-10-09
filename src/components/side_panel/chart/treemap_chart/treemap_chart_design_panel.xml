@@ -69,6 +69,9 @@
             hasVerticalAlign="true"
           />
         </Section>
+        <Section class="'pt-0'" title.translate="Number formatting">
+          <ChartHumanizeNumbers t-props="props"/>
+        </Section>
       </t>
     </SidePanelCollapsible>
   </t>

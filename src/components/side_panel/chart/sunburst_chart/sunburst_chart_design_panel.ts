@@ -13,6 +13,7 @@ import { SidePanelCollapsible } from "../../components/collapsible/side_panel_co
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
@@ -37,6 +38,7 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
     RoundColorPicker,
     ChartLegend,
     PieHoleSize,
+    ChartHumanizeNumbers,
   };
   static props = {
     chartId: String,
