@@ -1,5 +1,31 @@
 <templates>
   <t t-name="o-spreadsheet-PivotSidePanel">
-    <t t-component="sidePanelEditor" t-props="props"/>
+    <div class="d-flex flex-column h-100">
+      <div class="o-panel d-flex">
+        <div
+          class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
+          t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
+          t-on-click="switchPanel.bind(this, 'configuration')">
+          <i class="fa fa-sliders me-1"/>
+          Configuration
+        </div>
+        <div
+          class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center"
+          t-att-class="state.panel !== 'design' ? 'inactive' : ''"
+          t-on-click="switchPanel.bind(this, 'design')">
+          <i class="fa fa-paint-brush me-1"/>
+          Design
+        </div>
+      </div>
+
+      <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
+        <div class="h-100" t-att-class="{ 'd-none': state.panel !== 'configuration' }">
+          <t t-component="sidePanelEditor" t-props="props"/>
+        </div>
+        <div t-att-class="state.panel !== 'design' ? 'd-none' : ''">
+          <PivotDesignPanel pivotId="props.pivotId"/>
+        </div>
+      </div>
+    </div>
   </t>
 </templates>

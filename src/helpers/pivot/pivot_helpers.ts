@@ -33,11 +33,20 @@ import {
   PivotField,
   PivotFields,
   PivotSortedColumn,
+  PivotStyle,
   PivotTableCell,
 } from "../../types/pivot";
 import { deepEquals, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
+
+export const DEFAULT_PIVOT_STYLE: Required<PivotStyle> = {
+  displayTotals: true,
+  displayColumnHeaders: true,
+  displayMeasuresRow: true,
+  numberOfRows: Number.MAX_VALUE,
+  numberOfColumns: Number.MAX_VALUE,
+};
 
 const AGGREGATOR_NAMES = {
   count: _t("Count"),
@@ -451,4 +460,40 @@ export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChil
     pivotId,
     pivot: { ...definition, collapsedDomains: newDomains },
   });
+}
+
+export function getPivotStyleFromFnArgs(
+  definition: PivotCoreDefinition,
+  rowCountArg: Maybe<FunctionResultObject | CellValue>,
+  includeTotalArg: Maybe<FunctionResultObject | CellValue>,
+  includeColumnHeadersArg: Maybe<FunctionResultObject | CellValue>,
+  columnCountArg: Maybe<FunctionResultObject | CellValue>,
+  includeMeasuresRowArg: Maybe<FunctionResultObject | CellValue>,
+  locale: Locale
+): Required<PivotStyle> {
+  const style = definition.style;
+
+  const numberOfRows =
+    rowCountArg !== undefined
+      ? toNumber(rowCountArg, locale)
+      : style?.numberOfRows ?? DEFAULT_PIVOT_STYLE.numberOfRows;
+  const numberOfColumns =
+    columnCountArg !== undefined
+      ? toNumber(columnCountArg, locale)
+      : style?.numberOfColumns ?? DEFAULT_PIVOT_STYLE.numberOfColumns;
+
+  const displayTotals =
+    includeTotalArg !== undefined
+      ? toBoolean(includeTotalArg)
+      : style?.displayTotals ?? DEFAULT_PIVOT_STYLE.displayTotals;
+  const displayColumnHeaders =
+    includeColumnHeadersArg !== undefined
+      ? toBoolean(includeColumnHeadersArg)
+      : style?.displayColumnHeaders ?? DEFAULT_PIVOT_STYLE.displayColumnHeaders;
+  const displayMeasuresRow =
+    includeMeasuresRowArg !== undefined
+      ? toBoolean(includeMeasuresRowArg)
+      : style?.displayMeasuresRow ?? DEFAULT_PIVOT_STYLE.displayMeasuresRow;
+
+  return { numberOfRows, numberOfColumns, displayTotals, displayColumnHeaders, displayMeasuresRow };
 }
