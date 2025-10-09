@@ -160,7 +160,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         assistantStyle["max-height"] = `${availableSpaceAbove - CLOSE_ICON_RADIUS}px`;
         // render top
         // We compensate 2 px of margin on the assistant style + 1px for design reasons
-        assistantStyle.transform = `translate(0, calc(-100% - ${cellHeight + 3}px))`;
+        assistantStyle.top = `-3px`;
+        assistantStyle.transform = `translate(0, -100%)`;
       }
       if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
         // render left
