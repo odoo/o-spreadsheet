@@ -1840,6 +1840,20 @@ describe("charts", () => {
     }
   );
 
+  test.each<ChartType>(["bar", "line", "waterfall", "treemap", "sunburst"])(
+    "humanizeNumbers checkbox updates the chart",
+    async (type: ChartType) => {
+      createTestChart(type);
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect(model.getters.getChartDefinition(chartId).humanize).toBe(true);
+
+      await simulateClick("input[name='humanizeNumbers']");
+      expect(model.getters.getChartDefinition(chartId).humanize).toBe(false);
+    }
+  );
+
   describe("aggregate", () => {
     test.each(["bar", "pie", "line", "scatter", "combo"] as const)(
       "aggregate checkbox is checked for string-count charts",

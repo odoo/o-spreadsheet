@@ -15,6 +15,9 @@
             className="'mb-2'"
           />
         </Section>
+        <Section class="'pt-0'" title.translate="Number formatting">
+          <ChartHumanizeNumbers t-props="props"/>
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SeriesWithAxisDesignEditor t-props="props"/>
