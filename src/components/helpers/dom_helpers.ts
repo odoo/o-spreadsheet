@@ -17,8 +17,7 @@ export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event):
 export function gridOverlayPosition() {
   const spreadsheetElement = document.querySelector(".o-grid-overlay");
   if (spreadsheetElement) {
-    const { top, left } = spreadsheetElement.getBoundingClientRect();
-    return { top, left };
+    return spreadsheetElement.getBoundingClientRect();
   }
   throw new Error("Can't find spreadsheet position");
 }

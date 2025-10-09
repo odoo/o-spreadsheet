@@ -4,6 +4,7 @@ import { SpreadsheetChildEnv } from "../../types/env";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
+import { applyZoomLevel } from "./zoom";
 
 export type DnDDirection = "all" | "vertical" | "horizontal";
 
@@ -42,9 +43,10 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     if (timeOutId) {
       return;
     }
-    const sheetId = getters.getActiveSheetId();
 
+    const sheetId = getters.getActiveSheetId();
     const position = gridOverlayPosition();
+    const oMouseEvent = applyZoomLevel(env, currentEv, position);
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     const { top, left, bottom, right } = getters.getActiveMainViewport();
     let { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
@@ -52,7 +54,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;
 
-    const x = currentEv.clientX - position.left;
+    const x = oMouseEvent.clientX - position.left;
     let colIndex = getters.getColIndex(x);
 
     if (scrollDirection !== "vertical") {
@@ -82,7 +84,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
       }
     }
 
-    const y = currentEv.clientY - position.top;
+    const y = oMouseEvent.clientY - position.top;
     let rowIndex = getters.getRowIndex(y);
 
     if (scrollDirection !== "horizontal") {
@@ -125,7 +127,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
         pointerMoveHandler(currentEv);
       }, Math.round(timeoutDelay));
     }
-    previousEvClientPosition = { clientX: currentEv.clientX, clientY: currentEv.clientY };
+    previousEvClientPosition = { clientX: oMouseEvent.clientX, clientY: oMouseEvent.clientY };
   };
 
   const pointerUpHandler = () => {

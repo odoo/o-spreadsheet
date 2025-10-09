@@ -153,6 +153,28 @@ exports[`TopBar component can set cell format 1`] = `
                 
                 
               </span>
+              <div>
+                <span
+                  class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                  title="Zoom"
+                >
+                  <span
+                    style=""
+                  >
+                    <div
+                      class="o-icon"
+                    >
+                      <i
+                        class="fa fa-search"
+                      />
+                    </div>
+                  </span>
+                  
+                  
+                </span>
+                
+                
+              </div>
               
               
               <div
@@ -1289,6 +1311,28 @@ exports[`TopBar component simple rendering 1`] = `
             
             
           </span>
+          <div>
+            <span
+              class="o-menu-item-button o-hoverable-button o-toolbar-button"
+              title="Zoom"
+            >
+              <span
+                style=""
+              >
+                <div
+                  class="o-icon"
+                >
+                  <i
+                    class="fa fa-search"
+                  />
+                </div>
+              </span>
+              
+              
+            </span>
+            
+            
+          </div>
           
           
           <div

@@ -15,6 +15,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
+import { applyZoomLevel, OMouseEvent } from "../helpers/zoom";
 import { MergeErrorMessage, TableHeaderMoveErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
@@ -70,11 +71,11 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
-  abstract _getEvOffset(ev: MouseEvent): Pixel;
+  abstract _getEvOffset(oMouseEvent: OMouseEvent<MouseEvent>): Pixel;
 
   abstract _getViewportOffset(): Pixel;
 
-  abstract _getClientPosition(ev: MouseEvent): Pixel;
+  abstract _getClientPosition(oMouseEvent: OMouseEvent<MouseEvent>): Pixel;
 
   abstract _getElementIndex(position: Pixel): HeaderIndex;
 
@@ -110,8 +111,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.composerFocusStore = useStore(ComposerFocusStore);
   }
 
-  _computeHandleDisplay(ev: MouseEvent) {
-    const position = this._getEvOffset(ev);
+  _computeHandleDisplay(oMouseEvent: OMouseEvent<MouseEvent>) {
+    const position = this._getEvOffset(oMouseEvent);
 
     const elementIndex = this._getElementIndex(position);
     if (elementIndex < 0) {
@@ -132,8 +133,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     }
   }
 
-  _computeGrabDisplay(ev: MouseEvent) {
-    const index = this._getElementIndex(this._getEvOffset(ev));
+  _computeGrabDisplay(oMouseEvent: OMouseEvent<MouseEvent>) {
+    const index = this._getElementIndex(this._getEvOffset(oMouseEvent));
     const activeElements = this._getActiveElements();
     const selectedZoneStart = this._getSelectedZoneStart();
     const selectedZoneEnd = this._getSelectedZoneEnd();
@@ -150,11 +151,12 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (this.env.isMobile()) {
       return;
     }
+    const oMouseEvent = applyZoomLevel(this.env, ev);
     if (this.state.isResizing || this.state.isMoving || this.state.isSelecting) {
       return;
     }
-    this._computeHandleDisplay(ev);
-    this._computeGrabDisplay(ev);
+    this._computeHandleDisplay(oMouseEvent);
+    this._computeGrabDisplay(oMouseEvent);
   }
 
   onMouseLeave() {
@@ -163,17 +165,19 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   onDblClick(ev: MouseEvent) {
+    const oMouseEvent = applyZoomLevel(this.env, ev);
     this._fitElementSize(this.state.activeElement);
     this.state.isResizing = false;
-    this._computeHandleDisplay(ev);
-    this._computeGrabDisplay(ev);
+    this._computeHandleDisplay(oMouseEvent);
+    this._computeGrabDisplay(oMouseEvent);
   }
 
   onMouseDown(ev: MouseEvent) {
     this.state.isResizing = true;
     this.state.delta = 0;
+    const oMouseEvent = applyZoomLevel(this.env, ev);
 
-    const initialPosition = this._getClientPosition(ev);
+    const initialPosition = this._getClientPosition(oMouseEvent);
     const styleValue = this.state.draggerLinePosition;
     const size = this._getElementSize(this.state.activeElement);
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
@@ -185,7 +189,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      this.state.delta = this._getClientPosition(ev) - initialPosition;
+      this.state.delta = this._getClientPosition(applyZoomLevel(this.env, ev)) - initialPosition;
       this.state.draggerLinePosition = styleValue + this.state.delta;
       if (this.state.draggerLinePosition < minSize) {
         this.state.draggerLinePosition = minSize;
@@ -207,7 +211,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       // not main button, probably a context menu
       return;
     }
-    const index = this._getElementIndex(this._getEvOffset(ev));
+    const oMouseEvent = applyZoomLevel(this.env, ev);
+    const index = this._getElementIndex(this._getEvOffset(oMouseEvent));
     this._selectElement(index, false);
   }
 
@@ -219,7 +224,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       // not main button, probably a context menu
       return;
     }
-    const index = this._getElementIndex(this._getEvOffset(ev));
+    const oMouseEvent = applyZoomLevel(this.env, ev);
+    const index = this._getElementIndex(this._getEvOffset(oMouseEvent));
     if (index < 0) {
       return;
     }
@@ -242,6 +248,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   private startMovement(ev: PointerEvent) {
     this.state.waitingForMove = false;
     this.state.isMoving = true;
+    const oMouseEvent = applyZoomLevel(this.env, ev);
     const startDimensions = this._getDimensionsInViewport(this._getSelectedZoneStart());
     const endDimensions = this._getDimensionsInViewport(this._getSelectedZoneEnd());
     const defaultPosition = startDimensions.start;
@@ -276,9 +283,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       if (this.state.base !== this._getSelectedZoneStart()) {
         this._moveElements();
       }
-      this._computeGrabDisplay(ev);
+      const oMouseEvent = applyZoomLevel(this.env, ev);
+      this._computeGrabDisplay(oMouseEvent);
     };
-    this.dragNDropGrid.start(ev, mouseMoveMovement, mouseUpMovement);
+    this.dragNDropGrid.start(oMouseEvent, mouseMoveMovement, mouseUpMovement);
   }
 
   private startSelection(ev: PointerEvent, index: HeaderIndex) {
@@ -292,6 +300,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       this._selectElement(index, isCtrlKey(ev));
     }
     this.lastSelectedElementIndex = index;
+    const oMouseEvent = applyZoomLevel(this.env, ev);
 
     const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
       const newIndex = this._getType() === "COL" ? col : row;
@@ -303,9 +312,9 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     const mouseUpSelect = () => {
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
-      this._computeGrabDisplay(ev);
+      this._computeGrabDisplay(oMouseEvent);
     };
-    this.dragNDropGrid.start(ev, mouseMoveSelect, mouseUpSelect);
+    this.dragNDropGrid.start(oMouseEvent, mouseMoveSelect, mouseUpSelect);
   }
 
   onMouseUp(ev: MouseEvent) {
@@ -314,7 +323,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   onContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const index = this._getElementIndex(this._getEvOffset(ev));
+    const index = this._getElementIndex(this._getEvOffset(applyZoomLevel(this.env, ev)));
     if (index < 0) return;
     if (!this._getActiveElements().has(index)) {
       this._selectElement(index, false);
@@ -346,16 +355,16 @@ export class ColResizer extends AbstractResizer {
     return this.env.model.getters.getActiveSheetId();
   }
 
-  _getEvOffset(ev: MouseEvent): Pixel {
-    return ev.offsetX;
+  _getEvOffset(oMouseEvent: OMouseEvent<MouseEvent>): Pixel {
+    return oMouseEvent.offsetX;
   }
 
   _getViewportOffset(): Pixel {
     return this.env.model.getters.getActiveMainViewport().left;
   }
 
-  _getClientPosition(ev: MouseEvent): Pixel {
-    return ev.clientX;
+  _getClientPosition(oMouseEvent: OMouseEvent<MouseEvent>): Pixel {
+    return oMouseEvent.clientX;
   }
 
   _getElementIndex(position: Pixel): HeaderIndex {
@@ -519,16 +528,16 @@ export class RowResizer extends AbstractResizer {
     return this.env.model.getters.getActiveSheetId();
   }
 
-  _getEvOffset(ev: MouseEvent): Pixel {
-    return ev.offsetY;
+  _getEvOffset(oMouseEvent: OMouseEvent<MouseEvent>): Pixel {
+    return oMouseEvent.offsetY;
   }
 
   _getViewportOffset(): Pixel {
     return this.env.model.getters.getActiveMainViewport().top;
   }
 
-  _getClientPosition(ev: MouseEvent): Pixel {
-    return ev.clientY;
+  _getClientPosition(oMouseEvent: OMouseEvent<MouseEvent>): Pixel {
+    return oMouseEvent.clientY;
   }
 
   _getElementIndex(position: Pixel): HeaderIndex {

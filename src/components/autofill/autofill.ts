@@ -1,8 +1,9 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { clip } from "../../helpers";
-import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import { HeaderIndex, Pixel, SpreadsheetChildEnv } from "../../types";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
+import { applyZoomLevel } from "../helpers/zoom";
 
 // -----------------------------------------------------------------------------
 // Autofill
@@ -14,12 +15,13 @@ interface Props {
 }
 
 interface Position {
-  top: HeaderIndex;
-  left: HeaderIndex;
+  top: Pixel;
+  left: Pixel;
 }
 
 interface State {
   position: Position;
+  nextValuePosition: Position;
   handler: boolean;
 }
 
@@ -31,6 +33,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   };
   state: State = useState({
     position: { left: 0, top: 0 },
+    nextValuePosition: { left: 0, top: 0 },
     handler: false,
   });
 
@@ -53,7 +56,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get styleNextValue() {
-    const { left, top } = this.state.position;
+    const { left, top } = this.state.nextValuePosition;
     return cssPropertiesToCss({
       top: `${top + 5}px`,
       left: `${left + 15}px`,
@@ -70,12 +73,17 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
-
+    const oMouseEvent = applyZoomLevel(this.env, ev);
+    const zoom = this.env.model.getters.getViewportZoomLevel();
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {
       left: ev.clientX - this.props.position.left,
       top: ev.clientY - this.props.position.top,
+    };
+    const nextValueStart = {
+      left: ev.clientX / zoom - this.props.position.left,
+      top: ev.clientY / zoom - this.props.position.top,
     };
     const onMouseUp = () => {
       this.state.handler = false;
@@ -88,6 +96,10 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         left: ev.clientX - start.left,
         top: ev.clientY - start.top,
       };
+      this.state.nextValuePosition = {
+        left: ev.clientX / zoom - nextValueStart.left,
+        top: ev.clientY / zoom - nextValueStart.top,
+      };
       if (lastCol !== col || lastRow !== row) {
         const activeSheetId = this.env.model.getters.getActiveSheetId();
         const numberOfCols = this.env.model.getters.getNumberCols(activeSheetId);
@@ -99,7 +111,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         }
       }
     };
-    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(oMouseEvent, onMouseMove, onMouseUp);
   }
 
   onDblClick() {
