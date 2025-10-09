@@ -1,4 +1,6 @@
 import { Component } from "@odoo/owl";
+import { formatLargeNumber, formatValue } from "../../../../../helpers";
+import { _t } from "../../../../../translation";
 import {
   ChartWithDataSetDefinition,
   DispatchResult,
@@ -25,4 +27,11 @@ export class ChartHumanizeNumbers extends Component<Props, SpreadsheetChildEnv> 
     updateChart: Function,
     canUpdateChart: Function,
   };
+
+  get title() {
+    const locale = this.env.model.getters.getLocale();
+    const format = formatLargeNumber({ value: 1234567 }, undefined, locale);
+    const value = formatValue(1234567, { format, locale });
+    return _t("E.g. 1234567 -> %(value)s", { value });
+  }
 }

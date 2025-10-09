@@ -5,7 +5,6 @@ import {
   ZoomableChartDefinition,
 } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
-import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
@@ -28,7 +27,6 @@ export class GenericZoomableChartDesignPanel<
   static components = {
     ...ChartWithAxisDesignPanel.components,
     Checkbox,
-    ChartHumanizeNumbers,
   };
 
   onToggleZoom(zoomable: boolean) {
