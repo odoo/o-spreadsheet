@@ -26,7 +26,7 @@ describe("Data validation preview", () => {
   let parent: Component;
   let env: SpreadsheetChildEnv;
 
-  async function mountDataValidationPreview(ruleData: DataValidationRuleData, onClick = () => {}) {
+  async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
     model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const rule = {
@@ -35,7 +35,7 @@ describe("Data validation preview", () => {
       ranges: ruleData.ranges.map((range) => model.getters.getRangeFromSheetXC(sheetId, range)),
     };
     ({ fixture, model, parent, env } = await mountComponent(DataValidationPreview, {
-      props: { rule, onClick },
+      props: { rule },
     }));
   }
 
@@ -55,18 +55,11 @@ describe("Data validation preview", () => {
     expect(displayedRange.textContent).toBe("A1, A2");
   });
 
-  test("onClick callback is triggered", async () => {
-    const onClick = jest.fn();
-    await mountDataValidationPreview(testDataValidationRule, onClick);
-    click(fixture, ".o-dv-preview");
-    expect(onClick).toHaveBeenCalled();
-  });
-
   test("Can delete rule from preview", async () => {
     await mountDataValidationPreview(testDataValidationRule);
     const spyDispatch = spyModelDispatch(model);
     const sheetId = model.getters.getActiveSheetId();
-    click(fixture, ".o-dv-preview-delete");
+    click(fixture, ".o-dv-delete-button");
     expect(spyDispatch).toHaveBeenCalledWith("REMOVE_DATA_VALIDATION_RULE", {
       id: "1",
       sheetId,

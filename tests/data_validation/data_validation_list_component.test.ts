@@ -34,7 +34,6 @@ import {
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-import { mountDataValidationPanel } from "./data_validation_generics_side_panel_component.test";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -54,8 +53,9 @@ describe("Edit criterion in side panel", () => {
         values: ["ok", "hello", "okay"],
         displayStyle: "arrow",
       });
-      ({ fixture } = await mountDataValidationPanel(model));
-      await click(fixture, ".o-dv-preview");
+      ({ fixture, env } = await mountSpreadsheet({ model }));
+      env.openSidePanel("DataValidationEditor", { id: "id" });
+      await nextTick();
     });
 
     test("Side panel is correctly pre-filled for isValueInList criterion", () => {
@@ -70,12 +70,12 @@ describe("Edit criterion in side panel", () => {
     });
 
     test("Side panel is correctly pre-filled for composer criterion", async () => {
-      addDataValidation(model, "A1", "id", {
+      addDataValidation(model, "A1", "dv1", {
         type: "containsText",
         values: ["hola"],
       });
-      ({ fixture } = await mountDataValidationPanel(model));
-      await click(fixture, ".o-dv-preview");
+      env.openSidePanel("DataValidationEditor", { id: "dv1" });
+      await nextTick();
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-input .o-composer");
       expect(inputs).toHaveLength(1);
       expect(inputs[0].innerText).toBe("hola");
@@ -174,11 +174,8 @@ describe("Edit criterion in side panel", () => {
         values: ["B1:B5"],
         displayStyle: "arrow",
       });
-      ({ fixture } = await mountDataValidationPanel(model));
-      await click(fixture, ".o-dv-preview");
-      // TODO: nextTick needed because the SelectionInput component is bugged without it (changing the input tries to
-      // update the range at id 0 but, the first range has id 1 in the SelectionInput plugin). Probably worth investigating
-      // in another task
+      ({ fixture, env } = await mountSpreadsheet({ model }));
+      env.openSidePanel("DataValidationEditor", { id: "id" });
       await nextTick();
     });
 
@@ -192,12 +189,12 @@ describe("Edit criterion in side panel", () => {
       expect(displayStyleInput?.value).toBe("arrow");
     });
 
-    test("Can change the range", async () => {
+    test("Can change the range", () => {
       const rangeInput = fixture.querySelector<HTMLInputElement>(
         ".o-dv-settings .o-selection-input input"
       )!;
       setInputValueAndTrigger(rangeInput, "B1:B9");
-      await click(fixture, ".o-dv-save");
+      click(fixture, ".o-dv-save");
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["B1:B9"]);
     });
 

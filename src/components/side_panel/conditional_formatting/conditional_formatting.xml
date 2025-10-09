@@ -1,21 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingPanel">
-    <div class="o-cf h-100">
-      <t t-if="state.mode === 'list'">
-        <ConditionalFormatPreviewList
-          conditionalFormats="conditionalFormats"
-          onPreviewClick.bind="editConditionalFormat"
-          onAddConditionalFormat.bind="addConditionalFormat"
-        />
+    <div class="o-cf h-100 overflow-auto" t-ref="cfList">
+      <t t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
+        <div class="o-cf-preview-container" t-att-style="getPreviewDivStyle(cf)">
+          <ConditionalFormattingPreview
+            conditionalFormat="cf"
+            class="dragAndDrop.draggedItemId === cf.id ? 'o-cf-dragging' : ''"
+            onMouseDown="(ev) => this.onPreviewMouseDown(cf, ev)"
+          />
+        </div>
       </t>
-      <t t-if="state.mode === 'edit'">
-        <ConditionalFormattingEditor
-          editedCf="editedCF"
-          onExit.bind="switchToList"
-          onCancel.bind="cancelEdition"
-          isNewCf="originalEditedCf === undefined"
-        />
-      </t>
+      <div class="o-button-link p-4 o-cf-add float-end" t-on-click="addConditionalFormat">
+        + Add another rule
+      </div>
     </div>
   </t>
 </templates>

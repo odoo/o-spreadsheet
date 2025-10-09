@@ -16,6 +16,7 @@ import {
   largeMax,
   largeMin,
   numberToLetters,
+  zoneToXc,
 } from "../helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
@@ -23,7 +24,7 @@ import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
-import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
+import { ConditionalFormat, Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------
@@ -554,7 +555,44 @@ export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(
 // Side panel
 //------------------------------------------------------------------------------
 export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
-  env.openSidePanel("ConditionalFormatting", { selection: env.model.getters.getSelectedZones() });
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zones = env.model.getters.getSelectedZones();
+  const createNewCf = () => {
+    const cf: Omit<ConditionalFormat, "ranges"> = {
+      id: env.model.uuidGenerator.smallUuid(),
+      rule: {
+        type: "CellIsRule",
+        operator: "isNotEmpty",
+        style: { fillColor: "#b6d7a8" },
+        values: [],
+      },
+    };
+    const result = env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf,
+      ranges: zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone)),
+      sheetId,
+    });
+    if (result.isSuccessful) {
+      const ranges = zones.map((zone) =>
+        zoneToXc(env.model.getters.getUnboundedZone(sheetId, zone))
+      );
+      env.openSidePanel("ConditionalFormattingEditor", { cf: { ...cf, ranges }, isNewCf: true });
+    }
+  };
+
+  // TODO: add manage rule in (sleection/sheet) feature like excel does
+  const rules = env.model.getters.getConditionalFormats(sheetId);
+  const ruleIds = Array.from(env.model.getters.getRulesSelection(sheetId, zones));
+  if (ruleIds.length === 1) {
+    return env.openSidePanel("ConditionalFormattingEditor", {
+      cf: rules.find((r) => r.id === ruleIds[0]),
+      isNewCf: false,
+    });
+  }
+  if (ruleIds.length > 1) {
+    return env.openSidePanel("ConditionalFormatting");
+  }
+  return createNewCf();
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
