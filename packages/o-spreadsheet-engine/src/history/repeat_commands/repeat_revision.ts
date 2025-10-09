@@ -1,4 +1,3 @@
-import { Getters } from "../../../../../src";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
@@ -7,6 +6,7 @@ import {
 } from "../../../../../src/registries/repeat_commands_registry";
 import { Revision } from "../../collaborative/revisions";
 import { Command, CoreCommand, isCoreCommand } from "../../types/commands";
+import { Getters } from "../../types/getters";
 
 export function canRepeatRevision(revision: Revision | undefined): boolean {
   if (!revision || !revision.rootCommand || typeof revision.rootCommand !== "object") {

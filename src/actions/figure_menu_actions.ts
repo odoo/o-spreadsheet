@@ -1,3 +1,4 @@
+import { getMaxFigureSize } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
 import { deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
@@ -5,7 +6,6 @@ import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
-import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { Action, ActionSpec, createActions } from "./action";
 
 export function getChartMenuActions(

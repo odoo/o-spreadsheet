@@ -1,5 +1,5 @@
+import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { CommandResult, Model, UID } from "../../../src";
-import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../../src/helpers/carousel_helpers";
 import {
   addChartFigureToCarousel,
   addNewChartToCarousel,

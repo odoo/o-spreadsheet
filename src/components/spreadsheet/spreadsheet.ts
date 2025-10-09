@@ -1,3 +1,4 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import {
   GROUP_LAYER_WIDTH,
   MAXIMAL_FREEZABLE_RATIO,
@@ -32,7 +33,6 @@ import { unregisterChartJsExtensions } from "../figures/chart/chartJs/chart_js_e
 import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
-import { cssPropertiesToCss } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";

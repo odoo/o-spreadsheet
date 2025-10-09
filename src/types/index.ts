@@ -11,6 +11,7 @@
 import * as Chart from "chart.js";
 import * as ChartGeo from "chartjs-chart-geo";
 
+export * from "@odoo/o-spreadsheet-engine/types/autofill";
 export * from "@odoo/o-spreadsheet-engine/types/cells";
 export * from "@odoo/o-spreadsheet-engine/types/chart/chart";
 export * from "@odoo/o-spreadsheet-engine/types/clipboard";
@@ -25,6 +26,7 @@ export * from "@odoo/o-spreadsheet-engine/types/figure";
 export * from "@odoo/o-spreadsheet-engine/types/format";
 export * from "@odoo/o-spreadsheet-engine/types/functions";
 export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
+export * from "@odoo/o-spreadsheet-engine/types/getters";
 export * from "@odoo/o-spreadsheet-engine/types/history2";
 export * from "@odoo/o-spreadsheet-engine/types/misc";
 export { Color } from "@odoo/o-spreadsheet-engine/types/misc";
@@ -48,12 +50,10 @@ export {
   SheetDOMScrollInfo,
   Viewport,
 } from "@odoo/o-spreadsheet-engine/types/rendering";
+export * from "@odoo/o-spreadsheet-engine/types/rendering2";
 export * from "@odoo/o-spreadsheet-engine/types/table";
 export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
-export * from "./autofill";
-export * from "./getters";
 export * from "./locale";
-export * from "./rendering";
 
 declare global {
   interface Window {

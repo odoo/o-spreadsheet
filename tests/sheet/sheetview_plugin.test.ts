@@ -5,12 +5,12 @@ import {
   MESSAGE_VERSION,
   getDefaultSheetViewSize,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { SheetViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/sheetview";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { CommandResult } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";
 import {
   activateSheet,

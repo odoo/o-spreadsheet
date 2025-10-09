@@ -3,6 +3,7 @@ import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionR
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { MergePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/merge";
 import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { UIPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
@@ -38,7 +39,6 @@ import {
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui_feature";
-import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus";
 import {

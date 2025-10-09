@@ -1,8 +1,8 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, useState, xml } from "@odoo/owl";
 import { clip } from "../../helpers";
 import { HeaderIndex } from "../../types";
-import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 
 // -----------------------------------------------------------------------------

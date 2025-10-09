@@ -1,4 +1,4 @@
-import { Getters } from "../../../../../../src";
+import { Getters } from "../../../types/getters";
 import { PivotFields, SpreadsheetPivotCoreDefinition } from "../../../types/pivot";
 import { Range } from "../../../types/range";
 import { PivotRuntimeDefinition } from "../pivot_runtime_definition";

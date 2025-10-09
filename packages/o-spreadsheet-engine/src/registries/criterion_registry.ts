@@ -1,4 +1,3 @@
-import { Getters } from "../../../../src";
 import { DVTerms } from "../components/translations_terms";
 import { tryToNumber } from "../functions/helpers";
 import {
@@ -39,6 +38,7 @@ import {
   GenericCriterion,
   GenericCriterionType,
 } from "../types/generic_criterion";
+import { Getters } from "../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../types/locale";
 import { UID } from "../types/misc";
 import { Registry } from "./registry";

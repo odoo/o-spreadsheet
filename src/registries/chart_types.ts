@@ -1,10 +1,8 @@
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
-  ChartDefinition,
-  ChartType,
   FunnelChartDefinition,
   GaugeChartDefinition,
   LineChartDefinition,
@@ -193,34 +191,6 @@ chartRegistry.add("treemap", {
   sequence: 100,
 });
 
-type ChartUICategory = keyof typeof chartCategories;
-
-export const chartCategories = {
-  line: _t("Line"),
-  column: _t("Column"),
-  bar: _t("Bar"),
-  area: _t("Area"),
-  pie: _t("Pie"),
-  hierarchical: _t("Hierarchical"),
-  misc: _t("Miscellaneous"),
-};
-
-export interface ChartSubtypeProperties {
-  /** Type shown in the chart side panel */
-  chartSubtype: string;
-  /** Translated name of the displayType */
-  displayName: string;
-  /** Type of the chart in the model */
-  chartType: ChartType;
-  /** Match the chart type with a chart display type. Optional if chartType === displayType  */
-  matcher?: (definition: ChartDefinition) => boolean;
-  /** Additional definition options to create a chart of type displayType */
-  subtypeDefinition?: Partial<ChartDefinition>;
-  category: ChartUICategory;
-  preview: string;
-}
-
-export const chartSubtypeRegistry = new Registry<ChartSubtypeProperties>();
 chartSubtypeRegistry
   .add("line", {
     matcher: (definition) =>

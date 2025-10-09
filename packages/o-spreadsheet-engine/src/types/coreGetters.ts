@@ -1,6 +1,7 @@
 import { BordersPlugin } from "../plugins/core/borders";
 import { CarouselPlugin } from "../plugins/core/carousel";
 import { CellPlugin } from "../plugins/core/cell";
+import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
 import { FigurePlugin } from "../plugins/core/figures";
@@ -72,7 +73,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof CellPlugin> &
   PluginGetters<typeof MergePlugin> &
   PluginGetters<typeof BordersPlugin> &
-  // PluginGetters<typeof ChartPlugin> &    // TODO: split chart mess
+  PluginGetters<typeof ChartPlugin> &
   PluginGetters<typeof ImagePlugin> &
   PluginGetters<typeof CarouselPlugin> &
   PluginGetters<typeof FigurePlugin> &

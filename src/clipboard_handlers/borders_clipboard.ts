@@ -1,5 +1,6 @@
+import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
+import { splitZoneForPaste } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { deepEquals, groupConsecutive } from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { ZoneBorder, ZoneBorderData } from "../plugins/core";
 import {
   BorderDescr,
@@ -10,7 +11,6 @@ import {
   HeaderIndex,
   UID,
 } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 type ClipboardContent = {
   borders: ZoneBorder[];

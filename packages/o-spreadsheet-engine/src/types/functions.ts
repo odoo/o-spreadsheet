@@ -1,5 +1,5 @@
-import { Getters } from "../../../../src/types/getters";
 import { CellValue } from "./cells";
+import { Getters } from "./getters";
 import { Locale } from "./locale";
 import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
 import { Range } from "./range";

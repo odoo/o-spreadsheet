@@ -1,14 +1,14 @@
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
-import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { parseXML, xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
-import { UIPlugin } from "../../src";
-import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
-import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import {
   getClipboardDataPositions,
   parseOSClipboardContent,
-} from "../../src/helpers/clipboard/clipboard_helpers";
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
+import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
+import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { parseXML, xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
+import { UIPlugin } from "../../src";
+import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { featurePluginRegistry } from "../../src/plugins";
 import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful";

@@ -4,6 +4,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
@@ -25,7 +26,6 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";

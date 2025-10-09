@@ -1,7 +1,7 @@
+import { FigureUI } from "@odoo/o-spreadsheet-engine/types/figureUI";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
 import { CSSProperties, UID } from "../../../types";
-import { FigureUI } from "../../../types/figureUI";
 
 interface Props {
   figureUI: FigureUI;

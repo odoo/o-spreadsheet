@@ -1,4 +1,3 @@
-import { Getters } from "../../../../../src";
 import { UuidGenerator } from "../../helpers";
 import { deepCopy, range } from "../../helpers/misc2";
 import {
@@ -20,6 +19,7 @@ import {
   SortCommand,
   UnGroupHeadersCommand,
 } from "../../types/commands";
+import { Getters } from "../../types/getters";
 import {
   repeatPositionDependantCommand,
   repeatSheetDependantCommand,

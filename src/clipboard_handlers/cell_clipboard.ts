@@ -1,7 +1,8 @@
+import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
+import { getPasteZones } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { canonicalizeNumberValue } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { createPivotFormula } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { deepEquals, formatValue, isZoneInside } from "../helpers";
-import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import {
   CellPosition,
   ClipboardCell,
@@ -14,7 +15,6 @@ import {
   UID,
   Zone,
 } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {
   cells: ClipboardCell[][];

@@ -1,3 +1,4 @@
+import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
 import { isDefined } from "../helpers";
 import {
   CellPosition,
@@ -9,7 +10,6 @@ import {
   Merge,
   UID,
 } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {
   sheetId: UID;

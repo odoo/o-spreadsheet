@@ -1,4 +1,3 @@
-import { Getters } from "../../../../../../src";
 import { functionRegistry } from "../../../functions/functionRegistry";
 import { getFullReference } from "../../../helpers";
 import { toXC } from "../../../helpers/coordinates";
@@ -7,6 +6,7 @@ import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 import { EvalContext } from "../../../types/functions";
+import { Getters } from "../../../types/getters";
 import {
   CellPosition,
   EnsureRange,

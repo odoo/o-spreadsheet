@@ -1,4 +1,3 @@
-import { Getters } from "../../../../src";
 import { UuidGenerator } from "../helpers";
 import { GeoChartRegion } from "./chart/geo_chart";
 import { Client, ClientPosition } from "./collaborative/session";
@@ -7,6 +6,7 @@ import { CommandDispatcher } from "./commands";
 import { Currency } from "./currency";
 import { InformationNotification } from "./env";
 import { FileStore } from "./files";
+import { Getters } from "./getters";
 import { Locale } from "./locale";
 import { Color } from "./misc";
 import { SelectionStreamProcessor } from "./selection_stream_processor";

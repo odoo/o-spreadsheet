@@ -1,4 +1,4 @@
-import { Getters } from "../../../../src/types";
+import { Getters } from "../types/getters";
 import { Registry } from "./registry";
 
 /**

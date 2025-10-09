@@ -1,11 +1,11 @@
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 
-import { Getters } from "../../../../../src";
 import { handleError } from "../../functions/createComputeFunction";
 import { transposeMatrix } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
+import { Getters } from "../../types/getters";
 import { FunctionResultObject, isMatrix, SortDirection } from "../../types/misc";
 import {
   DimensionTree,

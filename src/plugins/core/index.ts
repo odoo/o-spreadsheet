@@ -1,5 +1,6 @@
 export * from "@odoo/o-spreadsheet-engine/plugins/core/borders";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/cell";
+export * from "@odoo/o-spreadsheet-engine/plugins/core/chart";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/conditional_format";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/data_validation";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/figures";
@@ -10,4 +11,3 @@ export * from "@odoo/o-spreadsheet-engine/plugins/core/merge";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/range";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/sheet";
 export * from "@odoo/o-spreadsheet-engine/plugins/core/tables";
-export * from "./chart";

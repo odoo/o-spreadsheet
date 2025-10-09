@@ -15,6 +15,11 @@ import {
   CoreViewPluginConfig,
   CoreViewPluginConstructor,
 } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+import {
+  UIPlugin,
+  UIPluginConfig,
+  UIPluginConstructor,
+} from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import {
   IModel,
@@ -40,7 +45,6 @@ import {
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
-import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import {

@@ -15,7 +15,6 @@ import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
-import { Getters } from "../../../../../../src";
 import { handleError, implementationErrorMessage } from "../../../functions/createComputeFunction";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
@@ -29,6 +28,7 @@ import {
 } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
+import { Getters } from "../../../types/getters";
 import {
   CellPosition,
   FunctionResultObject,

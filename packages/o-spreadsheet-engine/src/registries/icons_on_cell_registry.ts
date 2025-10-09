@@ -1,4 +1,3 @@
-import { Getters } from "../../../../src";
 import {
   CHECKBOX_CHECKED,
   CHECKBOX_UNCHECKED,
@@ -20,6 +19,7 @@ import {
 } from "../constants";
 import { deepEquals } from "../helpers/misc2";
 import { computeTextFontSizeInPixels } from "../helpers/text_helper";
+import { Getters } from "../types/getters";
 import { ImageSVG } from "../types/image";
 import { Align, CellPosition } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";

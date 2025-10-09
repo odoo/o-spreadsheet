@@ -1,6 +1,6 @@
-import { Getters } from "../../../../../src";
 import { Registry } from "../../registry";
 import { CoreGetters } from "../../types/coreGetters";
+import { Getters } from "../../types/getters";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";

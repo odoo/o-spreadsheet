@@ -1,3 +1,4 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import {
   MergeErrorMessage,
   TableHeaderMoveErrorMessage,
@@ -15,7 +16,6 @@ import {
   Ref,
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
-import { cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";

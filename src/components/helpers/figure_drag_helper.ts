@@ -1,6 +1,6 @@
+import { FigureUI } from "@odoo/o-spreadsheet-engine/types/figureUI";
 import { clip } from "../../helpers";
 import { PixelPosition, SheetDOMScrollInfo } from "../../types";
-import { FigureUI } from "../../types/figureUI";
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,

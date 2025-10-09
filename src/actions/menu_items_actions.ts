@@ -3,6 +3,11 @@ import {
   DEFAULT_FIGURE_WIDTH,
   PIVOT_MAX_NUMBER_OF_CELLS,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  centerFigurePosition,
+  getMaxFigureSize,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
 import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/helpers/pivot/get_pivot_too_big_error_message";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -13,9 +18,7 @@ import {
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { CellPopoverStore } from "../components/popover";
-import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
-import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
 import {
   areZonesContinuous,
   getZoneArea,

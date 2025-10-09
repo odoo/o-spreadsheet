@@ -10,6 +10,20 @@ import { CellIconPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views
 import { DynamicTablesPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/dynamic_tables";
 import { HeaderSizeUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/pivot_ui";
+import { CellComputedStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/cell_computed_style";
+import { CheckboxTogglePlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/checkbox_toggle";
+import { DataValidationInsertionPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/datavalidation_insertion";
+import { DynamicTranslate } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/dynamic_translate";
+import { HistoryPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/local_history";
+import { PivotPresencePlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/pivot_presence_plugin";
+import { SplitToColumnsPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/split_to_columns";
+import { SubtotalEvaluationPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/subtotal_evaluation";
+import { TableAutofillPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/table_autofill";
+import { TableComputedStylePlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/table_computed_style";
+import { TableResizeUI } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/table_resize_ui";
+import { UIPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
+import { CarouselUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/carousel_ui";
+import { HeaderPositionsUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/header_positions";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import {
   BordersPlugin,
@@ -45,26 +59,12 @@ import {
   SortPlugin,
   UIOptionsPlugin,
 } from "./ui_feature";
-import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
-import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
-import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
-import { DynamicTranslate } from "./ui_feature/dynamic_translate";
-import { HistoryPlugin } from "./ui_feature/local_history";
-import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
-import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
-import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
-import { TableAutofillPlugin } from "./ui_feature/table_autofill";
-import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
-import { TableResizeUI } from "./ui_feature/table_resize_ui";
-import { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
   FilterEvaluationPlugin,
   GridSelectionPlugin,
   SheetViewPlugin,
 } from "./ui_stateful";
-import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
-import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)

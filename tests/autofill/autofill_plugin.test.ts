@@ -33,8 +33,8 @@ import {
 } from "../test_helpers/helpers";
 
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
+import { AutofillPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/autofill";
 import { Model } from "../../src";
-import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 import { DIRECTION } from "../../src/types/index";
 
 let autoFill: AutofillPlugin;

@@ -1,6 +1,5 @@
+import { ScrollDirection } from "@odoo/o-spreadsheet-engine/types/scrollDirection";
 import { Pixel } from "../types";
-
-export type ScrollDirection = "horizontal" | "vertical";
 
 export class ScrollBar {
   private direction: ScrollDirection;

@@ -1,8 +1,8 @@
-import { Getters } from "../../../../src";
 import { Session } from "../collaborative/session";
 import { StateObserver } from "../state_observer";
 import { Command, CommandResult, CoreCommand } from "../types/commands";
 import { Currency } from "../types/currency";
+import { Getters } from "../types/getters";
 import { HistoryChange } from "../types/history2";
 import { Color } from "../types/misc";
 import { ModelConfig } from "../types/model";

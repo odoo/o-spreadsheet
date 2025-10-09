@@ -1,9 +1,9 @@
-import { Getters } from "../../../../../../src";
 import { handleError } from "../../../functions/createComputeFunction";
 import { toString } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
+import { Getters } from "../../../types/getters";
 import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
 import {
   Granularity,

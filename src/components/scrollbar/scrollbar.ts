@@ -1,7 +1,8 @@
+import { ScrollDirection } from "@odoo/o-spreadsheet-engine/types/scrollDirection";
 import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
-import { ScrollBar as ScrollBarElement, ScrollDirection } from "../scrollbar";
+import { ScrollBar as ScrollBarElement } from "../scrollbar";
 
 interface Props {
   width: Pixel;

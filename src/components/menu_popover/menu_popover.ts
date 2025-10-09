@@ -1,3 +1,4 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import {
   DESKTOP_MENU_ITEM_HEIGHT,
   MENU_VERTICAL_PADDING,
@@ -15,7 +16,6 @@ import {
 import { Action } from "../../actions/action";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { cssPropertiesToCss } from "../helpers/css";
 import {
   getOpenedMenus,
   getRefBoundingRect,
