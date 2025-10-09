@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-GaugeChartDesignPanel">
     <GeneralDesignEditor t-props="props">
       <t t-set-slot="general-extension">
-        <Section class="'pt-1'" title.translate="Number formatting">
+        <Section class="'pt-0'" title.translate="Number formatting">
           <ChartHumanizeNumbers t-props="props"/>
         </Section>
       </t>
