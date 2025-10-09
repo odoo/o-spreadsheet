@@ -578,6 +578,9 @@ test.each([
     const model = new Model();
     setCellContent(model, "A1", literal);
     expect(getCell(model, "A1")).toMatchObject({ content: value, format: format });
+    expect(
+      model.getters.getCellFormat({ sheetId: model.getters.getActiveSheetId(), col: 0, row: 0 })
+    ).toBe(format);
     const exportedData = model.exportData();
     expect(exportedData.sheets[0].cells.A1).toBe(value);
     expect(exportedData.sheets[0].formats.A1).toBe(1);

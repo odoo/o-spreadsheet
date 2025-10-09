@@ -4,6 +4,7 @@ import {
   Color,
   CoreCommand,
   ExcelWorkbookData,
+  Format,
   UID,
   UnboundedZone,
   WorkbookData,
@@ -13,6 +14,7 @@ import {
   deepEquals,
   getItemId,
   intersection,
+  isExcelCompatible,
   isInside,
   positionToZone,
   recomputeZones,
@@ -40,8 +42,14 @@ export type ZoneStyle = {
   style: Style;
 };
 
+export type ZoneFormat = {
+  zone: UnboundedZone;
+  format: Format;
+};
+
 interface StylePluginState {
   readonly styles: Record<UID, ZoneStyle[] | undefined>;
+  readonly formats: Record<UID, ZoneFormat[] | undefined>;
 }
 
 export class StylePlugin extends CorePlugin<StylePluginState> implements StylePluginState {
@@ -49,10 +57,14 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     "getCellStyle",
     "getCellStyleInZone",
     "getZoneStyles",
+    "getCellFormat",
+    "getCellFormatInZone",
+    "getZoneFormats",
     "getStyleColors",
   ] as const;
 
   readonly styles: Record<UID, ZoneStyle[] | undefined> = {};
+  readonly formats: Record<UID, ZoneFormat[] | undefined> = {};
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -69,6 +81,13 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
             this.clearStyle(cmd.sheetId, cmd.target);
           }
         }
+        if ("format" in cmd) {
+          if (cmd.format) {
+            this.setFormats(cmd.sheetId, cmd.target, cmd.format);
+          } else {
+            this.clearFormat(cmd.sheetId, cmd.target);
+          }
+        }
         break;
       case "CLEAR_FORMATTING":
         this.clearStyle(cmd.sheetId, cmd.target);
@@ -81,13 +100,16 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
             this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
           }
         }
+        if ("format" in cmd) {
+          if (cmd.format) {
+            this.setFormats(cmd.sheetId, [positionToZone(cmd)], cmd.format);
+          } else {
+            this.clearFormat(cmd.sheetId, [positionToZone(cmd)]);
+          }
+        }
         break;
       case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnn(cmd);
-        } else {
-          this.handleAddRows(cmd);
-        }
+        this.handleAddColRow(cmd);
         break;
       case "CLEAR_CELL":
         this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
@@ -97,6 +119,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         break;
       case "DELETE_SHEET":
         this.history.update("styles", cmd.sheetId, undefined);
+        this.history.update("formats", cmd.sheetId, undefined);
         break;
     }
   }
@@ -117,56 +140,40 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       }
     }
     this.history.update("styles", sheetId, newStyles);
-  }
 
-  private handleAddColumnn(cmd: AddColumnsRowsCommand) {
-    const styles = this.styles[cmd.sheetId] ?? [];
-    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
-      const style = styles[styleIdx];
-      if (style.zone.left - cmd.quantity === cmd.base && cmd.position === "before") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "left",
-          style.zone.left - cmd.quantity
-        );
-      } else if (style.zone.right === cmd.base && cmd.position === "after") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "right",
-          style.zone.right + cmd.quantity
-        );
+    const newFormats: ZoneFormat[] = [];
+    for (const format of this.formats[sheetId] ?? []) {
+      const change = applyChange(this.getters.getRangeFromZone(sheetId, format.zone));
+      switch (change.changeType) {
+        case "RESIZE":
+        case "CHANGE":
+        case "MOVE":
+          newFormats.push({ format: format.format, zone: change.range.unboundedZone });
+          break;
+        case "NONE":
+          newFormats.push(format);
+          break;
       }
     }
+    this.history.update("formats", sheetId, newFormats);
   }
 
-  private handleAddRows(cmd: AddColumnsRowsCommand) {
-    const styles = this.styles[cmd.sheetId] ?? [];
-    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
-      const style = styles[styleIdx];
-      if (style.zone.top - cmd.quantity === cmd.base && cmd.position === "before") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "top",
-          style.zone.top - cmd.quantity
-        );
-      } else if (style.zone.bottom === cmd.base && cmd.position === "after") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "bottom",
-          style.zone.bottom + cmd.quantity
-        );
+  private handleAddColRow(cmd: AddColumnsRowsCommand) {
+    const start = cmd.dimension === "COL" ? "left" : "top";
+    const end = cmd.dimension === "COL" ? "right" : "bottom";
+    const sheetId = cmd.sheetId;
+    for (const [name, values] of [
+      ["styles", this.styles],
+      ["formats", this.formats],
+    ] as const) {
+      const sheetValues = values[sheetId] ?? [];
+      for (let idx = 0; idx < sheetValues.length; idx++) {
+        const value = sheetValues[idx];
+        if (value.zone[start] - cmd.quantity === cmd.base && cmd.position === "before") {
+          this.history.update(name, sheetId, idx, "zone", start, value.zone[start] - cmd.quantity);
+        } else if (value.zone[end] === cmd.base && cmd.position === "after") {
+          this.history.update(name, sheetId, idx, "zone", end, value.zone[end] + cmd.quantity);
+        }
       }
     }
   }
@@ -189,6 +196,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     this.setStyle(sheetId, zone, this.getCellStyle({ sheetId, col: zone.left, row: zone.top }), {
       force: true,
     });
+    this.setFormat(sheetId, zone, this.getCellFormat({ sheetId, col: zone.left, row: zone.top }));
   }
 
   private setStyles(
@@ -253,6 +261,34 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     this.setStyles(sheetId, zones, undefined, { force: true });
   }
 
+  private setFormats(sheetId: UID, zones: Zone[], format: Format | undefined) {
+    for (const zone of zones) {
+      this.setFormat(sheetId, zone, format);
+    }
+  }
+
+  private setFormat(sheetId: UID, zone: Zone, format: Format | undefined) {
+    zone = this.getters.expandZone(sheetId, zone);
+    const formats: ZoneFormat[] = [];
+    if (format) formats.push({ zone, format });
+    for (const existingFormat of this.formats[sheetId] ?? []) {
+      const inter = intersection(existingFormat.zone, zone);
+      if (!inter) {
+        formats.push(existingFormat);
+        continue;
+      }
+
+      for (const updatedBorderZone of recomputeZones([existingFormat.zone], [inter])) {
+        formats.push({ zone: updatedBorderZone, format: existingFormat.format });
+      }
+    }
+
+    this.history.update("formats", sheetId, formats);
+  }
+
+  private clearFormat(sheetId: UID, zones: Zone[]) {
+    this.setFormats(sheetId, zones, undefined);
+  }
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
@@ -262,6 +298,13 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       return isInside(cellPosition.col, cellPosition.row, zoneStyle.zone);
     });
     return style?.style;
+  }
+
+  getCellFormat(cellPosition: CellPosition): Format | undefined {
+    const style = this.formats[cellPosition.sheetId]?.find((zoneStyle) => {
+      return isInside(cellPosition.col, cellPosition.row, zoneStyle.zone);
+    });
+    return style?.format;
   }
 
   getCellStyleInZone(sheetId: UID, zone: Zone): PositionMap<Style> {
@@ -285,6 +328,29 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       if (inter) styles.push({ zone: inter, style: style.style });
     }
     return styles;
+  }
+
+  getCellFormatInZone(sheetId: UID, zone: Zone): PositionMap<Format> {
+    const formats = new PositionMap<Format>();
+    for (const { zone: z, format } of this.formats[sheetId] ?? []) {
+      const inter = intersection(z, zone);
+      if (!inter) continue;
+      for (let col = inter.left; col <= inter.right; col++) {
+        for (let row = inter.top; row <= inter.bottom; row++) {
+          formats.set({ sheetId, col, row }, format);
+        }
+      }
+    }
+    return formats;
+  }
+
+  getZoneFormats(sheetId: UID, zone: Zone): ZoneFormat[] {
+    const formats: ZoneFormat[] = [];
+    for (const format of this.formats[sheetId] ?? []) {
+      const inter = intersection(format.zone, zone);
+      if (inter) formats.push({ zone: inter, format: format.format });
+    }
+    return formats;
   }
 
   getStyleColors(sheetId: UID): Color[] {
@@ -312,11 +378,19 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           this.setStyle(sheet.id, toZone(zoneXc), data.styles[styleId]);
         }
       }
-      for (const sheetData of data.sheets) {
-        if (sheetData.merges) {
-          for (const merge of sheetData.merges) {
-            this.onMerge(sheetData.id, toZone(merge));
-          }
+    }
+    if (Object.keys(data.formats || {}).length) {
+      for (const sheet of data.sheets) {
+        for (const zoneXc in sheet.formats) {
+          const formatId = sheet.formats[zoneXc];
+          this.setFormat(sheet.id, toZone(zoneXc), data.formats[formatId]);
+        }
+      }
+    }
+    for (const sheetData of data.sheets) {
+      if (sheetData.merges) {
+        for (const merge of sheetData.merges) {
+          this.onMerge(sheetData.id, toZone(merge));
         }
       }
     }
@@ -324,16 +398,39 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
 
   export(data: WorkbookData) {
     const styles: { [styleId: number]: Style } = {};
+    const formats: { [styleId: number]: Format } = {};
     for (const sheet of data.sheets) {
       sheet.styles = {};
       for (const style of this.styles[sheet.id] ?? []) {
         sheet.styles[zoneToXc(style.zone)] = getItemId(style.style, styles);
       }
+      sheet.formats = {};
+      for (const format of this.formats[sheet.id] ?? []) {
+        sheet.formats[zoneToXc(format.zone)] = getItemId(format.format, formats);
+      }
     }
     data.styles = styles;
+    data.formats = formats;
   }
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
+    const incompatibleIds: number[] = [];
+    for (const formatId in data.formats || []) {
+      if (!isExcelCompatible(data.formats[formatId])) {
+        incompatibleIds.push(Number(formatId));
+        delete data.formats[formatId];
+      }
+    }
+    if (incompatibleIds.length) {
+      for (const sheet of data.sheets) {
+        for (const zoneXc in sheet.formats) {
+          const formatId = sheet.formats[zoneXc];
+          if (formatId && incompatibleIds.includes(formatId)) {
+            delete sheet.formats[zoneXc];
+          }
+        }
+      }
+    }
   }
 }
