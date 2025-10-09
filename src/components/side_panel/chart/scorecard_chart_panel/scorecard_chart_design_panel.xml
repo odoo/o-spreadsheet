@@ -4,7 +4,7 @@
     <t t-set="color_down">Color Down</t>
     <GeneralDesignEditor t-props="props" defaultChartTitleFontSize="defaultScorecardTitleFontSize">
       <t t-set-slot="general-extension">
-        <Section class="'pt-1'" title.translate="Number formatting">
+        <Section class="'pt-0'" title.translate="Number formatting">
           <ChartHumanizeNumbers t-props="props"/>
         </Section>
       </t>
