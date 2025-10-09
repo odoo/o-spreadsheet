@@ -1,7 +1,12 @@
 import { Model } from "../../src";
 import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellFormat,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 let model: Model;
@@ -104,7 +109,7 @@ describe("Plain text format", () => {
     const exported = model.exportData();
 
     const importedModel = new Model(exported);
-    expect(getCell(importedModel, "A1")?.format).toBe("@");
+    expect(getCellFormat(importedModel, "A1")).toBe("@");
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });
 

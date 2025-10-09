@@ -3,7 +3,7 @@ import { Model } from "../../src";
 import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/more_formats";
 import { setFormat } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCellFormat } from "../test_helpers/getters_helpers";
 import { mountComponent } from "../test_helpers/helpers";
 
 describe("more formats side panel component", () => {
@@ -24,7 +24,7 @@ describe("more formats side panel component", () => {
     const button = fixture.querySelector('div[data-name="Full week day and month"]');
     expect(fixture.querySelectorAll(".check-icon svg")).toHaveLength(0);
     await simulateClick(button);
-    expect(getCell(model, "A1")?.format).toEqual("dddd d mmmm yyyy");
+    expect(getCellFormat(model, "A1")).toEqual("dddd d mmmm yyyy");
     expect(fixture.querySelectorAll(".check-icon svg")).toHaveLength(1);
     expect(button?.querySelector(".check-icon svg")).toBeTruthy();
   });
