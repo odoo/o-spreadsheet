@@ -1293,6 +1293,22 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C3")).toBe("45.10%");
   });
 
+  test("paste as value works with both no core format and empty string core format", () => {
+    const model = new Model();
+    setCellContent(model, "D4", "=DATE(2024,6,5)");
+
+    copy(model, "D4");
+    paste(model, "E4", "asValue");
+    expect(getCell(model, "E4")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+
+    setFormat(model, "D4", ""); // An empty string format is equivalent to no format
+    expect(getCellContent(model, "D4")).toBe("6/5/2024");
+
+    copy(model, "D4");
+    paste(model, "E5", "asValue");
+    expect(getCell(model, "E5")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+  });
+
   test("can copy a formula and paste as value", () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(1+2)");
