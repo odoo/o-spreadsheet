@@ -1,5 +1,6 @@
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
@@ -1343,6 +1344,29 @@ describe("charts", () => {
       { dataRange: "B2:B4", backgroundColor: "#FF0000", label: "MyLabel", yAxisId: "y1" },
       { dataRange: "C2:C4", yAxisId: "y1" },
     ]);
+  });
+
+  test("Deleting the second chart after selecting it closes the side panel", async () => {
+    createTestChart("basicChart", chartId);
+    createTestChart("basicChart", "secondChartId");
+    await mountSpreadsheet();
+    await openChartConfigSidePanel(model, env, chartId);
+    const store = env.getStore(SidePanelStore);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const figures = model.getters.getFigures(sheetId);
+    expect(store.panelProps.figureId).toBe(figures[0].id);
+    expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
+
+    model.dispatch("SELECT_FIGURE", { id: figures[1].id });
+    await nextTick();
+    expect(store.panelProps.figureId).toBe(figures[1].id);
+    expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
+
+    model.dispatch("DELETE_FIGURE", { sheetId, id: figures[1].id });
+    await nextTick();
+    expect(store.isOpen).toBeFalsy();
+    expect(fixture.querySelector(".o-sidePanel")).toBeNull();
   });
 
   describe("Scorecard specific tests", () => {
