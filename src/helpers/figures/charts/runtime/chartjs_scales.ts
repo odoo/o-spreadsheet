@@ -46,8 +46,8 @@ type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;
 export function getBarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
-  let scales: ChartScales = {};
+): DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> {
+  let scales: DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> = {};
   const { trendDataSetsValues: trendDatasets, locale, axisFormats } = args;
   const options = { stacked: definition.stacked, locale: locale };
   if (definition.horizontal) {
@@ -86,12 +86,12 @@ export function getBarChartScales(
 export function getLineChartScales(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): DeepPartial<ScaleChartOptions<"line">["scales"]> {
   const { locale, axisType, trendDataSetsValues: trendDatasets, labels, axisFormats } = args;
   const labelFormat = axisFormats?.x;
   const stacked = definition.stacked;
 
-  let scales: ChartScales = {
+  let scales: DeepPartial<ScaleChartOptions<"line">["scales"]> = {
     x: getChartAxis(definition, "bottom", "labels", { locale }),
     y: getChartAxis(definition, "left", "values", { locale, stacked, format: axisFormats?.y }),
     y1: getChartAxis(definition, "right", "values", { locale, stacked, format: axisFormats?.y1 }),
