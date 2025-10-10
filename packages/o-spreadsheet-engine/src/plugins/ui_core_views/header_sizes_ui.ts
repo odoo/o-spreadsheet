@@ -6,8 +6,9 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers/misc2";
-import { getDefaultCellHeight } from "../../helpers/text_helper";
+import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
+import { Canvas2DContext } from "../../types/canvas";
 import { Command } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
@@ -26,8 +27,7 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
   static getters = ["getRowSize", "getHeaderSize", "getMaxAnchorOffset"] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
-
-  private ctx = document.createElement("canvas").getContext("2d")!;
+  ctx: Canvas2DContext = getCanvas();
 
   beforeHandle(cmd: Command) {
     switch (cmd.type) {

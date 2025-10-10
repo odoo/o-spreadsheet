@@ -3,11 +3,12 @@
   "version": "19.1.0-alpha.3",
   "type": "module",
   "scripts": {
-    "build": "npm-run-all build:js bundle:iife",
+    "build": "npm-run-all build:js bundle:cjs",
     "build:watch": "npm-run-all --parallel build:js:watch bundle:iife:watch",
     "build:js": "tsc --module es6 --incremental",
     "build:js:watch": "npm run build:js -- --watch",
     "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:cjs": "rollup -c -m -- --format cjs",
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:iife:watch": "npm run bundle:iife -- --watch",
     "dist": "tsc --module es6 --declaration --declarationDir ../../dist/types/packages/o-spreadsheet-engine/ && rollup -c",
@@ -17,7 +18,8 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "rbush": "^3.0.1"
+    "rbush": "^3.0.1",
+    "canvas": "3.2.0"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",

@@ -11,6 +11,7 @@ import { groupConsecutive, largeMax, range } from "../../helpers/misc2";
 import {
   computeTextLinesHeight,
   computeTextWidth,
+  getCanvas,
   getCellContentHeight,
   splitTextToWidth,
 } from "../../helpers/text_helper";
@@ -39,7 +40,7 @@ export class SheetUIPlugin extends UIPlugin {
     "computeTextYCoordinate",
   ] as const;
 
-  private ctx = document.createElement("canvas").getContext("2d")!;
+  private ctx = getCanvas();
 
   // ---------------------------------------------------------------------------
   // Command Handling

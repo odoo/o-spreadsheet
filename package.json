@@ -133,6 +133,7 @@
     "bootstrap": "^5.3.3",
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1",
+    "canvas": "3.2.0",
     "@odoo/o-spreadsheet-engine": "*"
   },
   "jest": {
