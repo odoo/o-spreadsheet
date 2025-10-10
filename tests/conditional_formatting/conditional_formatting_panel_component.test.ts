@@ -2,6 +2,7 @@ import { ConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/core
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toHex, toZone } from "../../src/helpers";
 import {
@@ -1579,5 +1580,27 @@ describe("Integration tests", () => {
     await nextTick();
     expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
     expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+  });
+
+  test("CF standalone composer becomes inactive on sheet change", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
+      ranges: toRangesData(sheetId, "A1:A2"),
+      sheetId,
+    });
+    createSheet(model, { sheetId: "42" });
+    const zone = toZone("A1:A2");
+    parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
+    await nextTick();
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=", {
+      confirm: false,
+    });
+    const composerFocusStore = parent.env.getStore(ComposerFocusStore);
+    expect(composerFocusStore.activeComposer.id).toBe("standaloneComposer");
+    expect(composerFocusStore.activeComposer.editionMode).toBe("selecting");
+    activateSheet(model, "42");
+    await nextTick();
+    expect(composerFocusStore.activeComposer.editionMode).toBe("inactive");
   });
 });
