@@ -1,5 +1,5 @@
+import { tokenize } from "@odoo/o-spreadsheet-engine";
 import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
-import { tokenize } from "../../src/formulas";
 import { DEFAULT_LOCALE } from "../../src/types";
 
 describe("tokenizer", () => {

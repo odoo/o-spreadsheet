@@ -14,11 +14,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Model } from "../src";
 import { toZone } from "../src/helpers";
+
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
-} from "../src/registries/repeat_commands_registry";
+} from "../packages/o-spreadsheet-engine/src/registries/repeat_transform_registry";
 import { CoreCommand, Dimension, UID } from "../src/types";
 import {
   activateSheet,

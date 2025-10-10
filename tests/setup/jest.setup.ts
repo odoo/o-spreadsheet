@@ -20,6 +20,17 @@ import "./polyfill";
 import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
 import { patchSessionMove } from "./session_debounce_mock";
+// import { MockCanvasRenderingContext2D } from "./canvas.mock";
+// import * as textHelpers from "@odoo/o-spreadsheet-engine/helpers/text_helper";
+
+// Mock getCanvas for all imports
+jest.mock("@odoo/o-spreadsheet-engine/helpers/text_helper", () => {
+  const actual = jest.requireActual("@odoo/o-spreadsheet-engine/helpers/text_helper");
+  return {
+    ...actual,
+    getCanvas: () => new (require("./canvas.mock").MockCanvasRenderingContext2D)(),
+  };
+});
 
 window.Chart = Object.assign(Chart.Chart, Chart);
 

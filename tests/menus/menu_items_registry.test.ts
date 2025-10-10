@@ -1,5 +1,5 @@
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { UID } from "../../src/types";
+import { DEFAULT_LOCALES, UID } from "../../src/types";
 import {
   copy,
   createDynamicTable,
@@ -58,7 +58,6 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../../src/registries/menus";
-import { DEFAULT_LOCALES } from "../../src/types/locale";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const TEST_CURRENCY: Partial<Currency> = {

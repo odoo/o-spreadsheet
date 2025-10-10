@@ -1,9 +1,10 @@
-import { _t, FunctionRegistry } from "../index";
 import { AddFunctionDescription, ComputeFunction, FunctionDescription } from "../types/functions";
 import { FunctionResultObject, Matrix } from "../types/misc";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { createComputeFunction } from "./createComputeFunction";
 
+import { _t } from "../translation";
+import { FunctionRegistry } from "./function_registry";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";

@@ -521,7 +521,7 @@ export type { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer
 export type { AST, ASTFuncall } from "@odoo/o-spreadsheet-engine/formulas/parser";
 export type { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-export type * from "./types";
+export * from "./types";
 
 export { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
 export { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
