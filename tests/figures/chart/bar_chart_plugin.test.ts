@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
@@ -263,5 +264,21 @@ describe("bar chart", () => {
       { text: "serie_1", fillStyle: "#f00", pointStyle: "rect" },
       { text: "Trend line for serie…", strokeStyle: "#f0f", pointStyle: "line" },
     ]);
+  });
+
+  test("Bar spacing is adapted to the number of datasets", () => {
+    const model = createModelFromGrid({ A2: "2", B2: "3" });
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
+
+    let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
+    expect(config.data.datasets[0].barPercentage).toEqual(0.9);
+    expect(config.data.datasets[0].categoryPercentage).toEqual(1);
+
+    updateChart(model, "chartId", { dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] });
+    runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    config = runtime.chartJsConfig as ChartConfiguration<"bar">;
+    expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, 0.9]);
+    expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, 0.8]);
   });
 });

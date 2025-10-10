@@ -828,8 +828,11 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       "datasets": [
         {
           "backgroundColor": "#4EA7F2",
+          "barPercentage": 0.9,
           "borderColor": "#FFFFFF",
+          "borderRadius": 2,
           "borderWidth": 1,
+          "categoryPercentage": 1,
           "data": [
             30,
           ],
@@ -951,8 +954,11 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       "datasets": [
         {
           "backgroundColor": "#4EA7F2",
+          "barPercentage": 0.9,
           "borderColor": "#FFFFFF",
+          "borderRadius": 2,
           "borderWidth": 1,
+          "categoryPercentage": 1,
           "data": [
             30,
           ],
