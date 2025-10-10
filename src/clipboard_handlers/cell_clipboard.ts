@@ -237,7 +237,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
-    const originFormat = origin?.format ?? origin.evaluatedCell.format;
+    const originFormat = origin?.format || origin.evaluatedCell.format;
 
     if (clipboardOption?.pasteOption === "asValue") {
       this.dispatch("UPDATE_CELL", {
