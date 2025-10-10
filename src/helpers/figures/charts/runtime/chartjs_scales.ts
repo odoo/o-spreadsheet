@@ -148,7 +148,7 @@ export function getLineChartScales(
 export function getScatterChartScales(
   definition: GenericDefinition<ScatterChartDefinition>,
   args: ChartRuntimeGenerationArgs
-) {
+): DeepPartial<ScaleChartOptions<"line">["scales"]> {
   const lineScales = getLineChartScales(definition, args);
   return {
     ...lineScales,
