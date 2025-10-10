@@ -28,32 +28,15 @@ export * from "@odoo/o-spreadsheet-engine/types/functions";
 export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
 export * from "@odoo/o-spreadsheet-engine/types/getters";
 export * from "@odoo/o-spreadsheet-engine/types/history2";
+export * from "@odoo/o-spreadsheet-engine/types/locale";
 export * from "@odoo/o-spreadsheet-engine/types/misc";
-export { Color } from "@odoo/o-spreadsheet-engine/types/misc";
 export * from "@odoo/o-spreadsheet-engine/types/pivot";
 export * from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
 export * from "@odoo/o-spreadsheet-engine/types/range";
-export {
-  BorderDescrWithOpacity,
-  Box,
-  BoxTextContent,
-  DOMCoordinates,
-  DOMDimension,
-  GridRenderingContext,
-  Image,
-  LAYERS,
-  LayerName,
-  Rect,
-  RenderingBorder,
-  RenderingBox,
-  RenderingGridIcon,
-  SheetDOMScrollInfo,
-  Viewport,
-} from "@odoo/o-spreadsheet-engine/types/rendering";
+export * from "@odoo/o-spreadsheet-engine/types/rendering";
 export * from "@odoo/o-spreadsheet-engine/types/rendering2";
 export * from "@odoo/o-spreadsheet-engine/types/table";
 export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
-export * from "./locale";
 
 declare global {
   interface Window {

@@ -1,4 +1,4 @@
-/*export * from "@odoo/o-spreadsheet-engine/helpers/color";
+export * from "@odoo/o-spreadsheet-engine/helpers/color";
 export * from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 export * from "@odoo/o-spreadsheet-engine/helpers/criterion_helpers";
 export * from "@odoo/o-spreadsheet-engine/helpers/data_normalization";
@@ -15,4 +15,3 @@ export * from "./numbers";
 export * from "./references";
 export * from "./search";
 export * from "./uuid";
-*/

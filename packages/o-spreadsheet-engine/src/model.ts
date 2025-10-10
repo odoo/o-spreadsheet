@@ -382,7 +382,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupCorePluginConfig(): CorePluginConfig {
     return {
-      getters: this.getters,
+      getters: this.coreGetters,
       stateObserver: this.state,
       range: this.range,
       dispatch: this.dispatchFromCorePlugin,

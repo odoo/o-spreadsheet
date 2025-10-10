@@ -10,7 +10,6 @@ import {
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/coreGetters";
 import { CellErrorType } from "../../../types/errors";
-import { Getters } from "../../../types/getters";
 import { AdaptSheetName, ApplyRangeChange, RangeAdapter, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
@@ -24,10 +23,10 @@ export abstract class AbstractChart {
   readonly sheetId: UID;
   readonly title: TitleDesign;
   abstract readonly type: ChartType;
-  protected readonly getters: Getters;
+  protected readonly getters: CoreGetters;
   readonly humanize: boolean;
 
-  constructor(definition: ChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;

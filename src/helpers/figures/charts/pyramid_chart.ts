@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -64,7 +65,7 @@ export class PyramidChart extends AbstractChart {
   readonly stacked = true;
   readonly showValues?: boolean;
 
-  constructor(definition: PyramidChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,

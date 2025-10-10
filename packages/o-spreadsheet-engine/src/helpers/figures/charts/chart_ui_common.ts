@@ -29,8 +29,7 @@ export async function chartToImageUrl(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const ChartCtor = (globalThis as any).Chart();
-    const chart = new ChartCtor(canvas, config as ChartConfiguration);
+    const chart = new (globalThis as any).Chart(canvas, config as ChartConfiguration);
     try {
       imageUrl = await canvasToObjectUrl(canvas);
     } finally {
@@ -59,8 +58,7 @@ export async function chartToImageFile(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const ChartCtor = (globalThis as any).Chart();
-    const chart = new ChartCtor(canvas, config as ChartConfiguration);
+    const chart = new (globalThis as any).Chart(canvas, config as ChartConfiguration);
     try {
       chartBlob = await canvasToBlob(canvas);
     } finally {

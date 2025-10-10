@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -181,7 +182,7 @@ export class ScorecardChart extends AbstractChart {
   readonly humanize: boolean;
   readonly type = "scorecard";
 
-  constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
     this.keyDescr = definition.keyDescr;

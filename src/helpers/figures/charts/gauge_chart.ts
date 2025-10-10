@@ -1,4 +1,4 @@
-import { BasePlugin } from "@odoo/o-spreadsheet-engine";
+import { BasePlugin, CoreGetters } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -139,7 +139,7 @@ export class GaugeChart extends AbstractChart {
   readonly background?: Color;
   readonly type = "gauge";
 
-  constructor(definition: GaugeChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataRange = createValidRange(this.getters, this.sheetId, definition.dataRange);
     this.sectionRule = definition.sectionRule;

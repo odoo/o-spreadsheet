@@ -1,6 +1,6 @@
 import { StateObserver } from "../state_observer";
 import { CommandResult, CoreCommand, CoreCommandDispatcher } from "../types/commands";
-import { Getters } from "../types/getters";
+import { CoreGetters } from "../types/coreGetters";
 import { HistoryChange } from "../types/history2";
 import { AdaptSheetName, ApplyRangeChange, RangeProvider, UID } from "../types/misc";
 import { ModelConfig } from "../types/model";
@@ -9,7 +9,7 @@ import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
-  readonly getters: Getters;
+  readonly getters: CoreGetters;
   readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
@@ -33,7 +33,7 @@ export class CorePlugin<State = any>
   extends BasePlugin<State, CoreCommand, CommandResult, HistoryChange, ExcelWorkbookData>
   implements RangeProvider
 {
-  protected getters: Getters;
+  protected getters: CoreGetters;
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 

@@ -1,3 +1,9 @@
+import {
+  AST,
+  iterateAstNodes,
+  parseTokens,
+  POSTFIX_UNARY_OPERATORS,
+} from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import {
   composerTokenize,
@@ -9,8 +15,6 @@ import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/lo
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
-import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
-import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,

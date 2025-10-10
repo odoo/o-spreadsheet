@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { chartRegistry } from "../../../registries/chart_registry";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
+import { CoreGetters } from "../../../types/coreGetters";
 import { Getters } from "../../../types/getters";
 import { UID } from "../../../types/misc";
 import { Validator } from "../../../types/validator";
@@ -11,7 +12,7 @@ import { generateMasterChartConfig } from "./runtime/chart_zoom";
 /**
  * Create a function used to create a Chart based on the definition
  */
-export function chartFactory(getters: Getters) {
+export function chartFactory(getters: CoreGetters) {
   const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   function createChart(figureId: UID, definition: ChartDefinition, sheetId: UID): AbstractChart {
     const builder = builders.find((builder) => builder.match(definition.type));

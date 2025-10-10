@@ -1,3 +1,4 @@
+import { parseTokens } from "@odoo/o-spreadsheet-engine";
 import { prettify } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import {
   isMultipleElementMatrix,
@@ -6,7 +7,6 @@ import {
 import { getDateTimeFormat, localizeFormula } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { parseTokens } from "../../../formulas/parser";
 import { parseLiteral } from "../../../helpers/cells";
 import {
   formatValue,

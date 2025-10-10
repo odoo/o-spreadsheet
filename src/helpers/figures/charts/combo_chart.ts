@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -64,7 +65,7 @@ export class ComboChart extends AbstractChart {
   readonly hideDataMarkers?: boolean;
   readonly zoomable?: boolean;
 
-  constructor(definition: ComboChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,

@@ -1,7 +1,7 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component } from "@odoo/owl";
-import { Token } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { Color, ComposerFocusType, UID } from "../../../types/index";

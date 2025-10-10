@@ -14,6 +14,7 @@ import {
   PIVOT_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { getFunctionsFromTokens } from "@odoo/o-spreadsheet-engine/formulas/helpers";
 import {
   isEvaluationError,
   toBoolean,
@@ -71,7 +72,6 @@ import { PivotSidePanelStore } from "./components/side_panel/pivot/pivot_side_pa
 import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_section/pivot_title_section";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
-import { getFunctionsFromTokens } from "./formulas";
 import {
   ColorGenerator,
   UuidGenerator,
@@ -145,7 +145,7 @@ import {
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
-} from "@odoo/o-spreadsheet-engine/plugins";
+} from "@odoo/o-spreadsheet-engine/plugins/index";
 import { UNDO_REDO_PIVOT_COMMANDS } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/pivot_ui";
 import { autofillModifiersRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_modifiers";
 import { autofillRulesRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_rules";
@@ -153,6 +153,10 @@ import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_regis
 import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "@odoo/o-spreadsheet-engine/registries/inverse_command_registry";
 import { otRegistry } from "@odoo/o-spreadsheet-engine/registries/ot_registry";
+import {
+  repeatCommandTransformRegistry,
+  repeatLocalCommandTransformRegistry,
+} from "@odoo/o-spreadsheet-engine/registries/repeat_transform_registry";
 import { errorTypes } from "@odoo/o-spreadsheet-engine/types/errors";
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
@@ -193,11 +197,9 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "./registries/menus";
-import {
-  genericRepeat,
-  repeatCommandTransformRegistry,
-  repeatLocalCommandTransformRegistry,
-} from "./registries/repeat_commands_registry";
+import { genericRepeat } from "./registries/repeat_commands_registry";
+
+import { DEFAULT_LOCALE } from "@odoo/o-spreadsheet-engine/types/locale";
 import { sidePanelRegistry } from "./registries/side_panel_registry";
 import { topbarComponentRegistry } from "./registries/topbar_component_registry";
 import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
@@ -210,7 +212,6 @@ import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
 import { AddFunctionDescription, isMatrix } from "./types";
-import { DEFAULT_LOCALE } from "./types/locale";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -224,7 +225,19 @@ export { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/
 export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
 export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
 export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+export {
+  compile,
+  compileTokens,
+  functionCache,
+} from "@odoo/o-spreadsheet-engine/formulas/compiler";
 export { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
+export {
+  convertAstNodes,
+  iterateAstNodes,
+  parse,
+  parseTokens,
+} from "@odoo/o-spreadsheet-engine/formulas/parser";
+export { tokenize } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 export { findCellInNewZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
 export { load } from "@odoo/o-spreadsheet-engine/migrations/data";
 export { Model } from "@odoo/o-spreadsheet-engine/model";
@@ -253,9 +266,6 @@ export {
 } from "@odoo/o-spreadsheet-engine/types/commands";
 export { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 export { Spreadsheet } from "./components/index";
-export { compile, compileTokens, functionCache } from "./formulas/compiler";
-export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
-export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
@@ -312,6 +322,8 @@ export const registries = {
   migrationStepRegistry,
   chartJsExtensionRegistry,
 };
+
+export { dummy } from "./registries/chart_types";
 
 import {
   getFirstPivotFunction,
@@ -506,9 +518,9 @@ export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
 export { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
 
 export type { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
+export type { AST, ASTFuncall } from "@odoo/o-spreadsheet-engine/formulas/parser";
+export type { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-export type { AST, ASTFuncall } from "./formulas/parser";
-export type { Token } from "./formulas/tokenizer";
 export type * from "./types";
 
 export { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";

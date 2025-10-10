@@ -1,7 +1,7 @@
-import { setXcToFixedReferenceType } from "@odoo/o-spreadsheet-engine";
+import { rangeTokenize, setXcToFixedReferenceType } from "@odoo/o-spreadsheet-engine";
 import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
+import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 import { localizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { Token, rangeTokenize } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Get } from "../../../store_engine";
 import { Color, UID, UnboundedZone, Zone } from "../../../types";

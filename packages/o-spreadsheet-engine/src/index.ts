@@ -43,3 +43,4 @@ export * from "./types/history";
 export * from "./types/locale";
 export * from "./types/misc";
 export * from "./types/validator";
+export const __info__ = {};

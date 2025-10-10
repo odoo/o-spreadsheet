@@ -5,9 +5,9 @@ const { execSync } = require("child_process");
 
 function outro() {
   return `
-//__info__.version = "${BUILD_INFOS.version}";
-//__info__.date = "${BUILD_INFOS.date}";
-//__info__.hash = "${BUILD_INFOS.hash}";
+__info__.version = "${BUILD_INFOS.version}";
+__info__.date = "${BUILD_INFOS.date}";
+__info__.hash = "${BUILD_INFOS.hash}";
 `;
 }
 

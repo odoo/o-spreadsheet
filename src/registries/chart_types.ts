@@ -46,6 +46,7 @@ import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/char
 //------------------------------------------------------------------------------
 // Chart Registry
 //------------------------------------------------------------------------------
+export const dummy = 0;
 
 chartRegistry.add("bar", {
   match: (type) => type === "bar",

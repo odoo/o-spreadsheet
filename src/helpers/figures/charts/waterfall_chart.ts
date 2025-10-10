@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -68,7 +69,7 @@ export class WaterfallChart extends AbstractChart {
   readonly showValues?: boolean;
   readonly zoomable?: boolean;
 
-  constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,

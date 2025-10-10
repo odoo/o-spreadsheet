@@ -1,3 +1,4 @@
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -66,7 +67,7 @@ export class LineChart extends AbstractChart {
   readonly hideDataMarkers?: boolean;
   readonly zoomable?: boolean;
 
-  constructor(definition: LineChartDefinition, sheetId: UID, getters: Getters) {
+  constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,

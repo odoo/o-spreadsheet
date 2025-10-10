@@ -17,6 +17,7 @@ const {
   onWillUnmount,
   useExternalListener,
   onError,
+  markRaw,
 } = owl;
 
 const { Spreadsheet, Model } = o_spreadsheet;
@@ -275,6 +276,7 @@ class Demo extends Component {
       },
       this.stateUpdateMessages
     );
+    markRaw(this.model);
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;
     this.model.joinSession();
