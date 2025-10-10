@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -13,6 +12,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   BarChartDefinition,
@@ -28,12 +28,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
+import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import { Validator } from "../../../types/validator";
-import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
   getBarChartDatasets,
@@ -60,7 +60,7 @@ export class BarChart extends AbstractChart {
   readonly showValues?: boolean;
   readonly zoomable?: boolean;
 
-  constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: BarChartDefinition, sheetId: UID, getters: Getters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -220,7 +220,7 @@ export class BarChart extends AbstractChart {
   }
 }
 
-export function createBarChartRuntime(chart: BarChart, getters: CoreGetters): BarChartRuntime {
+export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
   const definition = chart.getDefinition();
   const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
 

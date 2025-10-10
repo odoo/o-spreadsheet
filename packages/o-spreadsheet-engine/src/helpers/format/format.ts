@@ -1,10 +1,11 @@
 import { toNumber } from "../../functions/helpers";
 import { _t } from "../../translation";
+import { CellValue } from "../../types/cells";
 import { Currency } from "../../types/currency";
 import { EvaluationError } from "../../types/errors";
-import { FormattedValue, LocaleFormat } from "../../types/format";
+import { Format, FormattedValue, LocaleFormat } from "../../types/format";
 import { Locale } from "../../types/locale";
-import { CellValue, Format, FunctionResultObject, Maybe } from "../../types/misc";
+import { FunctionResultObject, Maybe } from "../../types/misc";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {
   escapeRegExp,

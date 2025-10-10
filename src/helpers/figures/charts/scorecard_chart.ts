@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -156,12 +155,17 @@ function checkBaseline(definition: ScorecardChartDefinition): CommandResult {
     : CommandResult.Success;
 }
 
-const arrowDownPath = new window.Path2D(
-  "M8.6 4.8a.5.5 0 0 1 0 .75l-3.9 3.9a.5 .5 0 0 1 -.75 0l-3.8 -3.9a.5 .5 0 0 1 0 -.75l.4-.4a.5.5 0 0 1 .75 0l2.3 2.4v-5.7c0-.25.25-.5.5-.5h.6c.25 0 .5.25.5.5v5.8l2.3 -2.4a.5.5 0 0 1 .75 0z"
-);
-const arrowUpPath = new window.Path2D(
-  "M8.7 5.5a.5.5 0 0 0 0-.75l-3.8-4a.5.5 0 0 0-.75 0l-3.8 4a.5.5 0 0 0 0 .75l.4.4a.5.5 0 0 0 .75 0l2.3-2.4v5.8c0 .25.25.5.5.5h.6c.25 0 .5-.25.5-.5v-5.8l2.2 2.4a.5.5 0 0 0 .75 0z"
-);
+const Path2DConstructor = globalThis.Path2D;
+const arrowDownPath =
+  Path2DConstructor &&
+  new Path2DConstructor(
+    "M8.6 4.8a.5.5 0 0 1 0 .75l-3.9 3.9a.5 .5 0 0 1 -.75 0l-3.8 -3.9a.5 .5 0 0 1 0 -.75l.4-.4a.5.5 0 0 1 .75 0l2.3 2.4v-5.7c0-.25.25-.5.5-.5h.6c.25 0 .5.25.5.5v5.8l2.3 -2.4a.5.5 0 0 1 .75 0z"
+  );
+const arrowUpPath =
+  Path2DConstructor &&
+  new Path2DConstructor(
+    "M8.7 5.5a.5.5 0 0 0 0-.75l-3.8-4a.5.5 0 0 0-.75 0l-3.8 4a.5.5 0 0 0 0 .75l.4.4a.5.5 0 0 0 .75 0l2.3-2.4v5.8c0 .25.25.5.5.5h.6c.25 0 .5-.25.5-.5v-5.8l2.2 2.4a.5.5 0 0 0 .75 0z"
+  );
 
 export class ScorecardChart extends AbstractChart {
   readonly keyValue?: Range;
@@ -177,7 +181,7 @@ export class ScorecardChart extends AbstractChart {
   readonly humanize: boolean;
   readonly type = "scorecard";
 
-  constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: Getters) {
     super(definition, sheetId, getters);
     this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
     this.keyDescr = definition.keyDescr;
@@ -305,9 +309,17 @@ export class ScorecardChart extends AbstractChart {
   }
 }
 
-export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext("2d")!;
-  const dpr = window.devicePixelRatio || 1;
+type Canvas2DContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+
+export function drawScoreChart(
+  structure: ScorecardChartConfig,
+  canvas: HTMLCanvasElement | OffscreenCanvas
+) {
+  const ctx = canvas.getContext("2d") as Canvas2DContext;
+  if (!ctx) {
+    throw new Error("Unable to retrieve 2D context from canvas");
+  }
+  const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
 
   canvas.width = dpr * structure.canvas.width;
   canvas.height = dpr * structure.canvas.height;
@@ -342,7 +354,7 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     );
   }
 
-  if (structure.baselineArrow && structure.baselineArrow.style.size > 0) {
+  if (structure.baselineArrow && structure.baselineArrow.style.size > 0 && Path2DConstructor) {
     ctx.save();
     ctx.fillStyle = structure.baselineArrow.style.color;
     ctx.translate(structure.baselineArrow.position.x, structure.baselineArrow.position.y);
@@ -351,11 +363,11 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     ctx.scale(ratio, ratio);
     switch (structure.baselineArrow.direction) {
       case "down": {
-        ctx.fill(arrowDownPath);
+        ctx.fill(arrowDownPath!);
         break;
       }
       case "up": {
-        ctx.fill(arrowUpPath);
+        ctx.fill(arrowUpPath!);
         break;
       }
     }

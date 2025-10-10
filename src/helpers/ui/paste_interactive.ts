@@ -1,7 +1,7 @@
 import { RemoveDuplicateTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
-import { getCurrentVersion } from "../../migrations/data";
 import {
   ClipboardPasteOptions,
   CommandResult,

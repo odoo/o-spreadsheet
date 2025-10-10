@@ -1,10 +1,10 @@
+import { Revision } from "../../collaborative/revisions";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommand,
   repeatLocalCommandTransformRegistry,
-} from "../../../../../src/registries/repeat_commands_registry";
-import { Revision } from "../../collaborative/revisions";
+} from "../../registries/repeat_transform_registry";
 import { Command, CoreCommand, isCoreCommand } from "../../types/commands";
 import { Getters } from "../../types/getters";
 

@@ -3,9 +3,9 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { Model } from "../../src/model";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import {
   clickCell,

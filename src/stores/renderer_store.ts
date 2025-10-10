@@ -1,4 +1,4 @@
-import { Model } from "../model";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { Get } from "../store_engine";
 import { GridRenderingContext, LayerName, OrderedLayers } from "../types";
 import { ModelStore } from "./model_store";

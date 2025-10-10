@@ -6,11 +6,11 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { Component, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import { toXC } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {

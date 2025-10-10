@@ -5,9 +5,9 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import {
   createTableWithFilter,

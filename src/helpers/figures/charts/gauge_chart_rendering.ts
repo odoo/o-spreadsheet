@@ -12,8 +12,9 @@ import {
   getDefaultContextFont,
   getFontSizeMatchingWidth,
 } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
+import { Canvas2DContext, CanvasSurface } from "@odoo/o-spreadsheet-engine/types/canvas";
 import { GaugeAnimatedRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
-import { Color, PixelPosition, Rect } from "../../../types";
+import { Color, DOMDimension, PixelPosition, Rect } from "../../../types";
 
 export const GAUGE_PADDING_SIDE = 30;
 export const GAUGE_PADDING_TOP = 10;
@@ -70,20 +71,39 @@ interface Segment {
   end: PixelPosition;
 }
 
-export function drawGaugeChart(canvas: HTMLCanvasElement, runtime: GaugeAnimatedRuntime) {
-  const canvasBoundingRect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = dpr * canvasBoundingRect.width;
-  canvas.height = dpr * canvasBoundingRect.height;
-  const ctx = canvas.getContext("2d")!;
+export function drawGaugeChart(
+  canvas: CanvasSurface,
+  runtime: GaugeAnimatedRuntime,
+  dimensions?: DOMDimension
+) {
+  const size = dimensions ?? getCanvasSize(canvas);
+  const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
+  canvas.width = size.width * dpr;
+  canvas.height = size.height * dpr;
+  const ctx = canvas.getContext("2d") as Canvas2DContext;
+  if (!ctx) {
+    throw new Error("Unable to retrieve 2D context from canvas");
+  }
   ctx.scale(dpr, dpr);
 
-  const config = getGaugeRenderingConfig(canvasBoundingRect, runtime, ctx);
-  drawBackground(ctx, config);
-  drawGauge(ctx, config);
-  drawInflectionValues(ctx, config);
-  drawLabels(ctx, config);
-  drawTitle(ctx, config);
+  const config = getGaugeRenderingConfig(
+    { ...size, x: 0, y: 0 },
+    runtime,
+    ctx as CanvasRenderingContext2D
+  );
+  drawBackground(ctx as CanvasRenderingContext2D, config);
+  drawGauge(ctx as CanvasRenderingContext2D, config);
+  drawInflectionValues(ctx as CanvasRenderingContext2D, config);
+  drawLabels(ctx as CanvasRenderingContext2D, config);
+  drawTitle(ctx as CanvasRenderingContext2D, config);
+}
+
+function getCanvasSize(canvas: CanvasSurface): DOMDimension {
+  if (canvas instanceof HTMLCanvasElement) {
+    const rect = canvas.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }
+  return { width: canvas.width, height: canvas.height };
 }
 
 function drawGauge(ctx: CanvasRenderingContext2D, config: RenderingParams) {

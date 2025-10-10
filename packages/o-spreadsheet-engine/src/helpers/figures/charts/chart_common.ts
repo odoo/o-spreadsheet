@@ -14,6 +14,7 @@ import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/coreGetters";
 import { CellErrorType } from "../../../types/errors";
 import { LocaleFormat } from "../../../types/format";
+import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import {
   ApplyRangeChange,
@@ -413,7 +414,7 @@ export function shouldRemoveFirstLabel(
 }
 
 export function getChartPositionAtCenterOfViewport(
-  getters: CoreGetters,
+  getters: Getters,
   chartSize: DOMDimension
 ): DOMCoordinates {
   const { x, y } = getters.getMainViewportCoordinates();

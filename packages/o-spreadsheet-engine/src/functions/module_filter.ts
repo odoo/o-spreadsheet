@@ -1,19 +1,11 @@
 import { range } from "../helpers/misc2";
 import { cellsSortingCriterion } from "../helpers/sort";
 import { _t } from "../translation";
-import { CellValueType } from "../types/cells";
+import { CellValue, CellValueType } from "../types/cells";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import {
-  Arg,
-  CellValue,
-  FunctionResultObject,
-  isMatrix,
-  Matrix,
-  Maybe,
-  SortDirection,
-} from "../types/misc";
+import { Arg, FunctionResultObject, isMatrix, Matrix, Maybe, SortDirection } from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";

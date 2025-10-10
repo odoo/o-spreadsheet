@@ -1,11 +1,8 @@
-import {
-  ClientId,
-  Command,
-  CoreCommand,
-  HistoryChange,
-  RevisionData,
-  UID,
-} from "../../../../src/types";
+import { RevisionData } from "../types/collaborative/revisions";
+import { ClientId } from "../types/collaborative/session";
+import { Command, CoreCommand } from "../types/commands";
+import { HistoryChange } from "../types/history2";
+import { UID } from "../types/misc";
 
 export class Revision implements RevisionData {
   public readonly id: UID;

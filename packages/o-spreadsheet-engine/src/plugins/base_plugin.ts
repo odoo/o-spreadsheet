@@ -39,7 +39,7 @@ export class BasePlugin<
    * In some cases, we need to export evaluated value, which is available from
    * UI plugin only.
    */
-  exportForExcel(_data: ExcelData) {}
+  exportForExcel(_data: ExcelData): void | Promise<void> {}
 
   // ---------------------------------------------------------------------------
   // Command handling

@@ -1,15 +1,15 @@
-import { UuidGenerator } from "../helpers";
+// import { UuidGenerator } from "../helpers";
 import { GeoChartRegion } from "./chart/geo_chart";
 import { Client, ClientPosition } from "./collaborative/session";
 import { TransportService } from "./collaborative/transport_service";
-import { CommandDispatcher } from "./commands";
+// import { CommandDispatcher } from "./commands";
 import { Currency } from "./currency";
 import { InformationNotification } from "./env";
 import { FileStore } from "./files";
-import { Getters } from "./getters";
+// import { Getters } from "./getters";
 import { Locale } from "./locale";
 import { Color } from "./misc";
-import { SelectionStreamProcessor } from "./selection_stream_processor";
+// import { SelectionStreamProcessor } from "./selection_stream_processor";
 
 /**
  * Model
@@ -74,10 +74,11 @@ export interface ModelExternalConfig {
   };
 }
 
-export interface IModel extends CommandDispatcher {
-  config: ModelConfig;
-  uuidGenerator: UuidGenerator;
-  selection: SelectionStreamProcessor;
-  getters: Getters;
-  canDispatch: CommandDispatcher["dispatch"];
-}
+// export interface IModel extends CommandDispatcher, EventBus {
+//   drawLayer: () => void;
+//   config: ModelConfig;
+//   uuidGenerator: UuidGenerator;
+//   selection: SelectionStreamProcessor;
+//   getters: Getters;
+//   canDispatch: CommandDispatcher["dispatch"];
+// }

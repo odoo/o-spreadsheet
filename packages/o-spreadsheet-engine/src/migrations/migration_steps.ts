@@ -1,14 +1,16 @@
-import {
-  BACKGROUND_CHART_COLOR,
-  FORMULA_REF_IDENTIFIER,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
-import { getMaxObjectId } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { overlap, toZone, zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { getItemId, getUniqueText, sanitizeSheetName } from "../helpers";
-import { CustomizedDataSet, DEFAULT_LOCALE, Format, WorkbookData, Zone } from "../types";
+import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
+import { toXC } from "../helpers/coordinates";
+import { getItemId } from "../helpers/data_normalization";
+import { getUniqueText, sanitizeSheetName } from "../helpers/misc2";
+import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
+import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
+import { overlap, toZone, zoneToXc } from "../helpers/zones";
+import { Registry } from "../registry";
+import { CustomizedDataSet } from "../types/chart";
+import { Format } from "../types/format";
+import { DEFAULT_LOCALE } from "../types/locale";
+import { Zone } from "../types/misc";
+import { WorkbookData } from "../types/workbook_data";
 import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";
 

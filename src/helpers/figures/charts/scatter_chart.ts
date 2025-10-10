@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -15,6 +14,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
@@ -42,7 +42,6 @@ import {
   UID,
 } from "../../../types";
 import { Validator } from "../../../types/validator";
-import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,
   getChartTitle,
@@ -68,7 +67,7 @@ export class ScatterChart extends AbstractChart {
   readonly showValues?: boolean;
   readonly zoomable?: boolean;
 
-  constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: ScatterChartDefinition, sheetId: UID, getters: Getters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,

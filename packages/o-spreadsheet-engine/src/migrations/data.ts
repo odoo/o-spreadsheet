@@ -1,17 +1,13 @@
-import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
-import { isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
-import { XlsxReader } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_reader";
-import { UuidGenerator, getDuplicateSheetName, getNextSheetName } from "../helpers/index";
-import {
-  CoreCommand,
-  DEFAULT_LOCALE,
-  ExcelSheetData,
-  ExcelWorkbookData,
-  SheetData,
-  UID,
-  WorkbookData,
-} from "../types/index";
+import { DEFAULT_REVISION_ID } from "../constants";
+import { UuidGenerator } from "../helpers";
+import { isValidLocale } from "../helpers/locale";
+import { getDuplicateSheetName, getNextSheetName } from "../helpers/sheet";
+import { StateUpdateMessage } from "../types/collaborative/transport_service";
+import { CoreCommand } from "../types/commands";
+import { DEFAULT_LOCALE } from "../types/locale";
+import { UID } from "../types/misc";
+import { ExcelSheetData, ExcelWorkbookData, SheetData, WorkbookData } from "../types/workbook_data";
+import { XlsxReader } from "../xlsx/xlsx_reader";
 import { migrationStepRegistry } from "./migration_steps";
 
 /**

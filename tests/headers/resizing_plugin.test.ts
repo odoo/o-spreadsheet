@@ -4,8 +4,8 @@ import {
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_VERTICAL,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { Cell, CommandResult, Sheet, Wrapping } from "../../src/types";
 import {
   activateSheet,

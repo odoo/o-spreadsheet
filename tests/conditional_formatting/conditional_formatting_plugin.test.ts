@@ -1,8 +1,8 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import {
   ConditionalFormat,
   ConditionalFormatRule,
 } from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
-import { Model } from "../../src/model";
 import { CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src/types";
 import {
   activateSheet,

@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -10,6 +9,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   FunnelChartColors,
@@ -36,7 +36,6 @@ import {
   UID,
 } from "../../../types";
 import { Validator } from "../../../types/validator";
-import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,
   getChartTitle,
@@ -62,7 +61,7 @@ export class FunnelChart extends AbstractChart {
   readonly funnelColors?: FunnelChartColors;
   readonly cumulative?: boolean;
 
-  constructor(definition: FunnelChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: FunnelChartDefinition, sheetId: UID, getters: Getters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,

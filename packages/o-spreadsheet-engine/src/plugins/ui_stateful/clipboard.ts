@@ -1,6 +1,5 @@
-import { convertImageToPng } from "../../../../../src/components/helpers/dom_helpers";
-import { getCurrentVersion } from "../../../../../src/migrations/data";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import { convertImageToPng } from "../../components/helpers/convert_image_to_png";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers/css";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { UuidGenerator } from "../../helpers";
@@ -12,6 +11,7 @@ import {
 } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { isZoneValid } from "../../helpers/zones";
+import { getCurrentVersion } from "../../migrations/data";
 import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
 import { _t } from "../../translation";
 import {

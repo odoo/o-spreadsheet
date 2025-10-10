@@ -1,4 +1,4 @@
-type Alias = {} & {};
+import { Alias } from "./misc";
 
 export type LocaleCode = string & Alias;
 

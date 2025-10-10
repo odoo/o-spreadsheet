@@ -1,6 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import { CellErrorType } from "../../src/types/errors";
 import {

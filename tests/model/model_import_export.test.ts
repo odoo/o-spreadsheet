@@ -6,9 +6,9 @@ import {
   FORBIDDEN_SHEETNAME_CHARS,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { CellIsRule, Model } from "../../src";
 import { toCartesian, toZone } from "../../src/helpers";
-import { getCurrentVersion } from "../../src/migrations/data";
 import {
   BorderDescr,
   ColorScaleRule,

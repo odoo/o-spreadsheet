@@ -11,6 +11,8 @@ import { Cell } from "../types/cells";
 import { Pixel, PixelPosition, Style } from "../types/misc";
 import { isMarkdownLink, parseMarkdownLink } from "./misc2";
 
+import { Canvas2DContext } from "../types/canvas";
+
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
 }
@@ -19,7 +21,7 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
  * Get the default height of the cell given its style.
  */
 export function getDefaultCellHeight(
-  ctx: CanvasRenderingContext2D,
+  ctx: Canvas2DContext,
   cell: Cell | undefined,
   colSize: number
 ) {
@@ -31,7 +33,7 @@ export function getDefaultCellHeight(
 }
 
 export function getCellContentHeight(
-  ctx: CanvasRenderingContext2D,
+  ctx: Canvas2DContext,
   content: string,
   style: Style | undefined,
   colSize: number
@@ -55,7 +57,7 @@ export function getDefaultContextFont(
 const textWidthCache: Record<string, Record<string, number>> = {};
 
 export function computeTextWidth(
-  context: CanvasRenderingContext2D,
+  context: Canvas2DContext,
   text: string,
   style: Style,
   fontUnit: "px" | "pt" = "pt"
@@ -64,11 +66,7 @@ export function computeTextWidth(
   return computeCachedTextWidth(context, text, font);
 }
 
-export function computeCachedTextWidth(
-  context: CanvasRenderingContext2D,
-  text: string,
-  font: string
-) {
+export function computeCachedTextWidth(context: Canvas2DContext, text: string, font: string) {
   if (!textWidthCache[font]) {
     textWidthCache[font] = {};
   }
@@ -84,7 +82,7 @@ export function computeCachedTextWidth(
 const textDimensionsCache: Record<string, Record<string, { width: number; height: number }>> = {};
 
 export function computeTextDimension(
-  context: CanvasRenderingContext2D,
+  context: Canvas2DContext,
   text: string,
   style: Style,
   fontUnit: "px" | "pt" = "pt"
@@ -98,7 +96,7 @@ export function computeTextDimension(
 }
 
 function computeCachedTextDimension(
-  context: CanvasRenderingContext2D,
+  context: Canvas2DContext,
   text: string
 ): { width: number; height: number } {
   const font = context.font;
@@ -131,7 +129,7 @@ export function computeTextFontSizeInPixels(style?: Style): number {
 }
 
 function splitWordToSpecificWidth(
-  ctx: CanvasRenderingContext2D,
+  ctx: Canvas2DContext,
   word: string,
   width: number,
   style: Style
@@ -161,7 +159,7 @@ function splitWordToSpecificWidth(
  * line if it contains NEWLINE characters, or if it's longer than the given width.
  */
 export function splitTextToWidth(
-  ctx: CanvasRenderingContext2D,
+  ctx: Canvas2DContext,
   text: string,
   style: Style | undefined,
   width: number | undefined
@@ -280,11 +278,7 @@ export function getContextFontSize(font: string): Pixel {
 }
 
 // Inspired from https://stackoverflow.com/a/10511598
-export function clipTextWithEllipsis(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number
-) {
+export function clipTextWithEllipsis(ctx: Canvas2DContext, text: string, maxWidth: number) {
   let width = computeCachedTextWidth(ctx, text, ctx.font);
   if (width <= maxWidth) {
     return text;
@@ -303,7 +297,7 @@ export function clipTextWithEllipsis(
 }
 
 export function drawDecoratedText(
-  context: CanvasRenderingContext2D,
+  context: Canvas2DContext,
   text: string,
   position: PixelPosition,
   underline: boolean | undefined = false,
@@ -365,7 +359,7 @@ export function drawDecoratedText(
 }
 
 export function sliceTextToFitWidth(
-  context: CanvasRenderingContext2D,
+  context: Canvas2DContext,
   width: number,
   text: string,
   style: Style,

@@ -1,7 +1,7 @@
 import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
-import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {

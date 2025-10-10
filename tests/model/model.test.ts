@@ -1,10 +1,10 @@
 import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { corePluginRegistry, featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
 import { toZone } from "../../src/helpers";
-import { Model } from "../../src/model";
-import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/index";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";

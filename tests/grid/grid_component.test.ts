@@ -12,6 +12,8 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { createEmptyWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { Spreadsheet, TransportService } from "../../src";
@@ -21,8 +23,6 @@ import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
-import { createEmptyWorkbookData } from "../../src/migrations/data";
-import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";

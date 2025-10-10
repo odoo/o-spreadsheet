@@ -1,38 +1,11 @@
-import { BasePlugin, CoreGetters, StateObserver } from "@odoo/o-spreadsheet-engine";
-import { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/local_transport_service";
-import { ReadonlyTransportFilter } from "@odoo/o-spreadsheet-engine/collaborative/readonly_transport_filter";
-import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
-import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
-import { EventBus } from "@odoo/o-spreadsheet-engine/helpers/event_bus";
-import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
-import { RangeAdapter } from "@odoo/o-spreadsheet-engine/plugins/core/range";
-import {
-  CorePlugin,
-  CorePluginConfig,
-  CorePluginConstructor,
-} from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
-import {
-  CoreViewPluginConfig,
-  CoreViewPluginConstructor,
-} from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import {
-  UIPlugin,
-  UIPluginConfig,
-  UIPluginConstructor,
-} from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
-import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
-import {
-  IModel,
-  Mode,
-  ModelConfig,
-  ModelExternalConfig,
-} from "@odoo/o-spreadsheet-engine/types/model";
-import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
-import { WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
-import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { getXLSX } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
-import { markRaw } from "@odoo/owl";
-import { deepCopy, lazy, UuidGenerator } from "./helpers/index";
+import { LocalTransportService } from "./collaborative/local_transport_service";
+import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
+import { Session } from "./collaborative/session";
+import { DEFAULT_REVISION_ID } from "./constants";
+import { UuidGenerator } from "./helpers";
+import { EventBus } from "./helpers/event_bus";
+import { deepCopy, lazy } from "./helpers/misc2";
+import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
   createEmptyWorkbookData,
@@ -44,9 +17,16 @@ import {
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
-} from "./plugins/index";
+} from "./plugins";
+import { BasePlugin } from "./plugins/base_plugin";
+import { RangeAdapter } from "./plugins/core/range";
+import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
+import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
+import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
+import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
+import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
   canExecuteInReadonly,
   Command,
@@ -55,16 +35,21 @@ import {
   CommandResult,
   CommandTypes,
   CoreCommand,
-  DEFAULT_LOCALES,
   DispatchResult,
-  Getters,
-  GridRenderingContext,
-  HistoryChange,
   isCoreCommand,
-  LayerName,
   LocalCommand,
-  UID,
-} from "./types/index";
+} from "./types/commands";
+import { CoreGetters } from "./types/coreGetters";
+import { Getters } from "./types/getters";
+import { HistoryChange } from "./types/history2";
+import { DEFAULT_LOCALES } from "./types/locale";
+import { UID } from "./types/misc";
+import { Mode, ModelConfig, ModelExternalConfig } from "./types/model";
+import { GridRenderingContext, LayerName } from "./types/rendering";
+import { SelectionStreamProcessor } from "./types/selection_stream_processor";
+import { WorkbookData } from "./types/workbook_data";
+import { XLSXExport } from "./types/xlsx";
+import { getXLSX } from "./xlsx/xlsx_writer";
 
 const enum Status {
   Ready,
@@ -73,7 +58,7 @@ const enum Status {
   Finalizing,
 }
 
-export class Model extends EventBus<any> implements CommandDispatcher, IModel {
+export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
   private statefulUIPlugins: UIPlugin[] = [];
@@ -240,9 +225,6 @@ export class Model extends EventBus<any> implements CommandDispatcher, IModel {
       this.garbageCollectExternalResources();
       console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
-    // mark all models as "raw", so they will not be turned into reactive objects
-    // by owl, since we do not rely on reactivity
-    markRaw(this);
     console.debug("Model created in", performance.now() - start, "ms");
     console.debug("######");
   }
@@ -400,7 +382,7 @@ export class Model extends EventBus<any> implements CommandDispatcher, IModel {
 
   private setupCorePluginConfig(): CorePluginConfig {
     return {
-      getters: this.coreGetters,
+      getters: this.getters,
       stateObserver: this.state,
       range: this.range,
       dispatch: this.dispatchFromCorePlugin,
@@ -647,12 +629,12 @@ export class Model extends EventBus<any> implements CommandDispatcher, IModel {
    * This prove to be necessary if the client did not trigger that evaluation in the first place
    * (e.g. open a document with several sheet and click on download before visiting each sheet)
    */
-  exportXLSX(): XLSXExport {
+  async exportXLSX(): Promise<XLSXExport> {
     this.dispatch("EVALUATE_CELLS");
     let data = createEmptyExcelWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof BasePlugin) {
-        handler.exportForExcel(data);
+        await handler.exportForExcel(data);
       }
     }
     data = deepCopy(data);

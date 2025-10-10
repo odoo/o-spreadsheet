@@ -13,9 +13,9 @@ import {
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { arg } from "../../src/functions";
 import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
 import {
   createSheet,

@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CommandResult } from "../../src";
 import { numberToLetters, range } from "../../src/helpers";
-import { Model } from "../../src/model";
 import {
   activateSheet,
   addColumns,

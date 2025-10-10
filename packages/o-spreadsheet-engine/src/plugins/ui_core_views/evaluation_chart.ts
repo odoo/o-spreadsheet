@@ -1,14 +1,18 @@
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
-import { ChartRuntime, ExcelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { chartFontColor } from "../../helpers/figures/charts/chart_common";
+import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory";
+import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
+import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
-} from "@odoo/o-spreadsheet-engine/types/commands";
-import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
+} from "../../types/commands";
+import { Color, UID } from "../../types/misc";
+import { Range } from "../../types/range";
+import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 interface EvaluationChartStyle {
   background: Color;
@@ -92,7 +96,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     };
   }
 
-  exportForExcel(data: ExcelWorkbookData) {
+  async exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
       if (!sheet.images) {
         sheet.images = [];
@@ -122,7 +126,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
           }
           const type = this.getters.getChartType(chartId);
           const runtime = this.getters.getChartRuntime(chartId);
-          const img = chartToImageUrl(runtime, figure, type);
+          const img = await chartToImageUrl(runtime, figure, type);
           if (img) {
             sheet.images.push({
               ...figure,

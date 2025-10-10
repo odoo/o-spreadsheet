@@ -66,7 +66,10 @@ export class GeoFeaturePlugin extends UIPlugin {
     }
     // TopoJSON
     if (json.type === "Topology") {
-      const features = window.ChartGeo.topojson.feature(json, Object.values(json.objects)[0]);
+      const features = (globalThis as any).ChartGeo.topojson.feature(
+        json,
+        Object.values(json.objects)[0]
+      );
       return features.type === "FeatureCollection" ? features.features : [features];
     }
     // GeoJSON

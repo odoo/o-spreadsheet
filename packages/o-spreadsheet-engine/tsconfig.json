@@ -4,5 +4,6 @@
     "outDir": "build/js/o-spreadsheet-engine/src",
     "preserveWatchOutput": true
   },
-  "include": ["src"]
+  "include": ["./src"],
+  "exclude": ["../../src/*"]
 }

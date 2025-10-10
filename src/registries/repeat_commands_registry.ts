@@ -1,3 +1,4 @@
+import { deepCopy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   genericRepeatsTransforms,
   repeatZoneDependantCommand,
@@ -15,28 +16,12 @@ import {
   repeatPasteCommand,
   repeatSortCellsCommand,
 } from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_commands_specific";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { Command, LocalCommand } from "@odoo/o-spreadsheet-engine/types/commands";
-import { deepCopy } from "../helpers";
-import { CoreCommand, Getters } from "../types";
-
-type RepeatTransform = (getters: Getters, cmd: CoreCommand) => CoreCommand | undefined;
-
-type LocalRepeatTransform = (
-  getters: Getters,
-  cmd: LocalCommand,
-  childCommands: readonly CoreCommand[]
-) => CoreCommand[] | LocalCommand | undefined;
-
-/**
- *  Registry containing all the command that can be repeated on redo, and function to transform them
- *  to the current state of the model.
- *
- * If the transform function is undefined, the command will be transformed using generic transformations.
- * (change the sheetId, the row, the col, the target, the ranges, to the current active sheet & selection)
- *
- */
-export const repeatCommandTransformRegistry = new Registry<RepeatTransform>();
+import {
+  repeatCommandTransformRegistry,
+  repeatLocalCommandTransformRegistry,
+} from "@odoo/o-spreadsheet-engine/registries/repeat_transform_registry";
+import { Command } from "@odoo/o-spreadsheet-engine/types/commands";
+import { Getters } from "../types";
 
 repeatCommandTransformRegistry.add("UPDATE_CELL", genericRepeat);
 repeatCommandTransformRegistry.add("CLEAR_CELL", genericRepeat);
@@ -70,7 +55,6 @@ repeatCommandTransformRegistry.add("UNGROUP_HEADERS", repeatGroupHeadersCommand)
 repeatCommandTransformRegistry.add("UNFOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
 repeatCommandTransformRegistry.add("FOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
 
-export const repeatLocalCommandTransformRegistry = new Registry<LocalRepeatTransform>();
 repeatLocalCommandTransformRegistry.add("PASTE", repeatPasteCommand);
 repeatLocalCommandTransformRegistry.add("INSERT_CELL", repeatInsertOrDeleteCellCommand);
 repeatLocalCommandTransformRegistry.add("DELETE_CELL", repeatInsertOrDeleteCellCommand);
@@ -89,35 +73,4 @@ export function genericRepeat<T extends Command>(getters: Getters, command: T): 
   }
 
   return transformedCommand;
-}
-
-export function repeatCoreCommand(
-  getters: Getters,
-  command: CoreCommand | undefined
-): CoreCommand | undefined {
-  if (!command) {
-    return undefined;
-  }
-
-  const isRepeatable = repeatCommandTransformRegistry.contains(command.type);
-  if (!isRepeatable) {
-    return undefined;
-  }
-
-  const transform = repeatCommandTransformRegistry.get(command.type);
-  return transform(getters, command);
-}
-
-export function repeatLocalCommand(
-  getters: Getters,
-  command: LocalCommand,
-  childCommands: readonly CoreCommand[]
-): CoreCommand[] | LocalCommand | undefined {
-  const isRepeatable = repeatLocalCommandTransformRegistry.contains(command.type);
-  if (!isRepeatable) {
-    return undefined;
-  }
-
-  const repeatTransform = repeatLocalCommandTransformRegistry.get(command.type);
-  return repeatTransform(getters, command, childCommands);
 }

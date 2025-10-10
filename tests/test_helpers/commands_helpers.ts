@@ -5,6 +5,7 @@ import {
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import {
   colorToNumber,
   isInside,
@@ -12,7 +13,6 @@ import {
   toCartesian,
   toZone,
 } from "../../src/helpers/index";
-import { Model } from "../../src/model";
 import {
   AnchorZone,
   Border,

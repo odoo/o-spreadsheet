@@ -134,6 +134,18 @@ import {
   pivotTimeAdapter,
   pivotTimeAdapterRegistry,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
+import {
+  createEmptyExcelSheet,
+  createEmptySheet,
+  createEmptyWorkbookData,
+} from "@odoo/o-spreadsheet-engine/migrations/data";
+import { migrationStepRegistry } from "@odoo/o-spreadsheet-engine/migrations/migration_steps";
+import {
+  corePluginRegistry,
+  coreViewsPluginRegistry,
+  featurePluginRegistry,
+  statefulUIPluginRegistry,
+} from "@odoo/o-spreadsheet-engine/plugins";
 import { UNDO_REDO_PIVOT_COMMANDS } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/pivot_ui";
 import { autofillModifiersRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_modifiers";
 import { autofillRulesRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_rules";
@@ -168,18 +180,6 @@ import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
-import {
-  createEmptyExcelSheet,
-  createEmptySheet,
-  createEmptyWorkbookData,
-} from "./migrations/data";
-import { migrationStepRegistry } from "./migrations/migration_steps";
-import {
-  corePluginRegistry,
-  coreViewsPluginRegistry,
-  featurePluginRegistry,
-  statefulUIPluginRegistry,
-} from "./plugins/index";
 import { autoCompleteProviders } from "./registries/auto_completes";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
@@ -226,6 +226,8 @@ export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborativ
 export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 export { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 export { findCellInNewZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
+export { load } from "@odoo/o-spreadsheet-engine/migrations/data";
+export { Model } from "@odoo/o-spreadsheet-engine/model";
 export { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 export { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
 export { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
@@ -255,8 +257,6 @@ export { compile, compileTokens, functionCache } from "./formulas/compiler";
 export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
-export { load } from "./migrations/data";
-export { Model } from "./model";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
 

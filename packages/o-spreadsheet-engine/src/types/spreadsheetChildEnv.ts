@@ -1,13 +1,13 @@
+import { Model } from "../model";
 import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
-import { IModel } from "./model";
 import { Get } from "./store_engine";
 import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
 export interface SpreadsheetChildEnv extends NotificationStoreMethods {
-  model: IModel;
+  model: Model;
   imageProvider?: ImageProviderInterface;
   isDashboard: () => boolean;
   openSidePanel: (panel: string, panelProps?: any) => void;

@@ -237,9 +237,15 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
       }
       const chartType = env.model.getters.getChartType(chartId);
       const runtime = env.model.getters.getChartRuntime(chartId);
-      const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
+      const imageUrl = await chartToImageUrl(runtime, figure, chartType);
+      if (!imageUrl) {
+        return;
+      }
       const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
-      const blob = await chartToImageFile(runtime, figure, chartType)!;
+      const blob = await chartToImageFile(runtime, figure, chartType);
+      if (!blob) {
+        return;
+      }
 
       env.clipboard.write({
         "text/html": innerHTML,
@@ -265,7 +271,10 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
       }
       const chartType = env.model.getters.getChartType(chartId);
       const runtime = env.model.getters.getChartRuntime(chartId);
-      const url = chartToImageUrl(runtime, figure, chartType)!;
+      const url = await chartToImageUrl(runtime, figure, chartType);
+      if (!url) {
+        return;
+      }
       downloadFile(url, "chart");
     },
     isReadonlyAllowed: true,

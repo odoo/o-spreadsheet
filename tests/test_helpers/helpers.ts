@@ -1,6 +1,8 @@
 import { BasePlugin } from "@odoo/o-spreadsheet-engine";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
 import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { createEmptyExcelWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { MergePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/merge";
 import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
 import { UIPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
@@ -36,8 +38,6 @@ import {
   toZone,
   zoneToXc,
 } from "../../src/helpers/index";
-import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
-import { Model } from "../../src/model";
 import { SheetUIPlugin } from "../../src/plugins/ui_feature";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus";
@@ -869,12 +869,12 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
   };
 }
 
-export function getExportedExcelData(model: Model): ExcelWorkbookData {
+export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
   model.dispatch("EVALUATE_CELLS");
   let data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
-      handler.exportForExcel(data);
+      await handler.exportForExcel(data);
     }
   }
   data = fixLengthySheetNames(data);

@@ -1,11 +1,11 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import {
   getCanonicalSymbolName,
   numberToLetters,
   toUnboundedZone,
   toZone,
 } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
   activateSheet,

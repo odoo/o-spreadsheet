@@ -1,33 +1,21 @@
-import {
-  EventStream,
-  StreamCallbacks,
-} from "@odoo/o-spreadsheet-engine/selection_stream/event_stream";
-import {
-  SelectionEvent,
-  SelectionEventOptions,
-} from "@odoo/o-spreadsheet-engine/types/event_stream";
-import { CellPosition, Dimension, HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
-import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
-import {
-  deepCopy,
-  deepEquals,
-  isEqual,
-  isInside,
-  positionToZone,
-  reorderZone,
-  union,
-} from "../helpers";
+import { deepCopy, deepEquals } from "../helpers/misc2";
+import { isEqual, isInside, positionToZone, reorderZone, union } from "../helpers/zones";
+import { CellValueType } from "../types/cells";
+import { CommandResult, DispatchResult } from "../types/commands";
+import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
+import { Getters } from "../types/getters";
 import {
   AnchorZone,
-  CellValueType,
-  CommandResult,
+  CellPosition,
+  Dimension,
   Direction,
-  DispatchResult,
-  Getters,
+  HeaderIndex,
   Position,
   SelectionStep,
   Zone,
-} from "../types";
+} from "../types/misc";
+import { SelectionStreamProcessor } from "../types/selection_stream_processor";
+import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
 

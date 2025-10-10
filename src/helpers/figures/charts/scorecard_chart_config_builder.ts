@@ -75,15 +75,30 @@ export function getScorecardConfiguration(
 }
 
 class ScorecardChartConfigBuilder {
-  private context: CanvasRenderingContext2D;
+  private context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   private width: number;
   private height: number;
 
   constructor({ width, height }: DOMDimension, readonly runtime: ScorecardChartRuntime) {
-    const canvas = document.createElement("canvas");
-    this.width = canvas.width = width;
-    this.height = canvas.height = height;
-    this.context = canvas.getContext("2d")!;
+    this.width = width;
+    this.height = height;
+    if (typeof OffscreenCanvas !== "undefined") {
+      const canvas = new OffscreenCanvas(width, height);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("Unable to create scorecard measurement context");
+      }
+      this.context = ctx;
+    } else {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("Unable to create scorecard measurement context");
+      }
+      this.context = ctx;
+    }
   }
 
   computeDesign(): ScorecardChartConfig {

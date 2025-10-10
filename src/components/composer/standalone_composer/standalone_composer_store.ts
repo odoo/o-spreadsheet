@@ -1,4 +1,4 @@
-import { setXcToFixedReferenceType } from "@odoo/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src";
+import { setXcToFixedReferenceType } from "@odoo/o-spreadsheet-engine";
 import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { localizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { Token, rangeTokenize } from "../../../formulas";
