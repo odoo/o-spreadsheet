@@ -93,6 +93,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.highlightStore.register(this);
     this.onDispose(() => {
       this.highlightStore.unRegister(this);
+      this._cancelEdition();
     });
   }
   protected abstract confirmEdition(content: string): void;
