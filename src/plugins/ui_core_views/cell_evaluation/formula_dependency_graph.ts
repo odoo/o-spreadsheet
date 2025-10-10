@@ -1,9 +1,9 @@
 import { positionToZone } from "../../../helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
-import { recomputeZones } from "../../../helpers/recompute_zones";
-import { CellPosition, UID, Zone } from "../../../types";
-import { PositionSet } from "./position_set";
-import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
+import { BoundedRange, CellPosition } from "../../../types";
+import { DependenciesRTree } from "./dependencies_r_tree";
+import { RTreeBoundingBox, RTreeItem } from "./r_tree";
+import { RangeSet } from "./range_set";
 
 /**
  * Implementation of a dependency Graph.
@@ -13,14 +13,11 @@ import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
  * It uses an R-Tree data structure to efficiently find dependent cells.
  */
 export class FormulaDependencyGraph {
-  private readonly dependencies: PositionMap<RTreeItem<CellPosition>[]> = new PositionMap();
-  private readonly rTree: SpreadsheetRTree<CellPosition>;
+  private readonly dependencies: PositionMap<RTreeItem<BoundedRange>[]> = new PositionMap();
+  private readonly rTree: DependenciesRTree;
 
-  constructor(
-    private readonly createEmptyPositionSet: () => PositionSet,
-    data: RTreeItem<CellPosition>[] = []
-  ) {
-    this.rTree = new SpreadsheetRTree(data);
+  constructor(data: RTreeItem<BoundedRange>[] = []) {
+    this.rTree = new DependenciesRTree(data);
   }
 
   removeAllDependencies(formulaPosition: CellPosition) {
@@ -36,7 +33,10 @@ export class FormulaDependencyGraph {
 
   addDependencies(formulaPosition: CellPosition, dependencies: RTreeBoundingBox[]): void {
     const rTreeItems = dependencies.map(({ sheetId, zone }) => ({
-      data: formulaPosition,
+      data: {
+        sheetId: formulaPosition.sheetId,
+        zone: positionToZone(formulaPosition),
+      },
       boundingBox: {
         zone,
         sheetId,
@@ -54,48 +54,21 @@ export class FormulaDependencyGraph {
   }
 
   /**
-   * Return all the cells that depend on the provided ranges,
-   * in the correct order they should be evaluated.
-   * This is called a topological ordering (excluding cycles)
+   * Return all the cells that depend on the provided ranges.
    */
-  getCellsDependingOn(ranges: RTreeBoundingBox[], ignore: PositionSet): PositionSet {
-    const visited = this.createEmptyPositionSet();
-    const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
+  getCellsDependingOn(ranges: Iterable<BoundedRange>, visited = new RangeSet()): RangeSet {
+    visited = visited.copy();
+    const queue: BoundedRange[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.add({ sheetId, col, row });
-        }
-      }
-
-      const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
-      const nextInQueue: Record<UID, Zone[]> = {};
-      for (const position of impactedPositions) {
-        if (!visited.has(position) && !ignore.has(position)) {
-          if (!nextInQueue[position.sheetId]) {
-            nextInQueue[position.sheetId] = [];
-          }
-          nextInQueue[position.sheetId].push(positionToZone(position));
-        }
-      }
-      for (const sheetId in nextInQueue) {
-        const zones = recomputeZones(nextInQueue[sheetId], []);
-        queue.push(...zones.map((zone) => ({ sheetId, zone })));
-      }
+      visited.add(range);
+      const impactedRanges = this.rTree.search(range);
+      queue.push(...impactedRanges.difference(visited));
     }
 
     // remove initial ranges
     for (const range of ranges) {
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.delete({ sheetId, col, row });
-        }
-      }
+      visited.delete(range);
     }
     return visited;
   }
