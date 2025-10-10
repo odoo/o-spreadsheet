@@ -1,20 +1,19 @@
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Model } from "../../../src";
-import { ZoomableChartStore } from "../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
-import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { CreateFigureCommand, UID } from "../../../src/types";
-import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
-import { createChart, setCellContent } from "../../test_helpers/commands_helpers";
-import { TEST_CHART_DATA } from "../../test_helpers/constants";
-import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import { CreateFigureCommand, Model, UID } from "../../../../src";
+import { ZoomableChartStore } from "../../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
+import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";
+import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
+import { TEST_CHART_DATA } from "../../../test_helpers/constants";
+import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../../test_helpers/dom_helper";
 import {
   mockChart,
   mountComponentWithPortalTarget,
   mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
-} from "../../test_helpers/helpers";
-import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+} from "../../../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../../../test_helpers/mock_helpers";
 
 extendMockGetBoundingClientRect({
   "o-master-chart-canvas": () => ({ top: 0, left: 0, width: 100, height: 50 }),
