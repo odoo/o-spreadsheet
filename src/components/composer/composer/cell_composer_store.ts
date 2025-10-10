@@ -83,7 +83,7 @@ export class CellComposerStore extends AbstractComposerStore {
         break;
       case "ACTIVATE_SHEET":
         if (!this._currentContent.startsWith("=")) {
-          this._cancelEdition();
+          this.deactivateComposer();
           this.resetContent();
         }
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {

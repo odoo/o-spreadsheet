@@ -69,6 +69,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     "stopEdition",
     "stopComposerRangeSelection",
     "cancelEdition",
+    "deactivateComposer",
     "cycleReferences",
     "toggleEditionMode",
     "changeComposerCursorSelection",
@@ -165,6 +166,15 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   cancelEdition() {
     this.resetContent();
     this.cancelEditionAndActivateSheet();
+  }
+
+  deactivateComposer() {
+    if (this.editionMode === "inactive") {
+      return;
+    }
+    this.editionMode = "inactive";
+    this.model.selection.release(this);
+    this.colorIndexByRange = {};
   }
 
   setCurrentContent(content: string, selection?: ComposerSelection) {
@@ -367,7 +377,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (this.editionMode === "inactive") {
       return;
     }
-    this._cancelEdition();
+    this.deactivateComposer();
     const sheetId = this.getters.getActiveSheetId();
     if (sheetId !== this.sheetId) {
       this.model.dispatch("ACTIVATE_SHEET", {
@@ -375,15 +385,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         sheetIdTo: this.sheetId,
       });
     }
-  }
-
-  protected _cancelEdition() {
-    if (this.editionMode === "inactive") {
-      return;
-    }
-    this.editionMode = "inactive";
-    this.model.selection.release(this);
-    this.colorIndexByRange = {};
   }
 
   /**
