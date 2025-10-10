@@ -42,6 +42,7 @@ css/* scss */ `
       .o-button {
         height: 19px;
         width: 19px;
+        box-sizing: content-box;
         .o-icon {
           height: 14px;
           width: 14px;
