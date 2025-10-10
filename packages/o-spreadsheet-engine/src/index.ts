@@ -29,6 +29,7 @@ export { POSTFIX_UNARY_OPERATORS, tokenize } from "./formulas/tokenizer";
 export type { Token } from "./formulas/tokenizer";
 export { FunctionRegistry } from "./functions/function_registry";
 export * from "./helpers";
+export { Model } from "./model";
 export { BasePlugin } from "./plugins/base_plugin";
 export { Registry } from "./registry";
 export { StateObserver, type StateObserverChange } from "./state_observer";
