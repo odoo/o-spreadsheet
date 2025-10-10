@@ -368,6 +368,46 @@ export const formatWrappingClip: ActionSpec = {
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
 
+export const formatRotate: ActionSpec = {
+  name: _t("Rotation"),
+  icon: (env) => getWrapModeIcon(env), // ADRM TODO
+};
+
+export const formatRotationNone: ActionSpec = {
+  name: _t("No rotation"),
+  execute: (env) => ACTIONS.setStyle(env, { rotation: undefined }),
+  isActive: (env) => getRotation(env) === 0,
+  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+};
+
+export const formatRotationTiltUp: ActionSpec = {
+  name: _t("Tilt up"),
+  execute: (env) => ACTIONS.setStyle(env, { rotation: 45 }),
+  isActive: (env) => getRotation(env) === 45,
+  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+};
+
+export const formatRotationTiltDown: ActionSpec = {
+  name: _t("Tilt down"),
+  execute: (env) => ACTIONS.setStyle(env, { rotation: -45 }),
+  isActive: (env) => getRotation(env) === -45,
+  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+};
+
+export const formatRotationRotateUp: ActionSpec = {
+  name: _t("Rotate up"),
+  execute: (env) => ACTIONS.setStyle(env, { rotation: 90 }),
+  isActive: (env) => Math.abs(getRotation(env)) === 90,
+  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+};
+
+export const formatRotationRotateDown: ActionSpec = {
+  name: _t("Rotate down"),
+  execute: (env) => ACTIONS.setStyle(env, { rotation: -90 }),
+  isActive: (env) => Math.abs(getRotation(env)) === -90,
+  icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+};
+
 export const textColor: ActionSpec = {
   name: _t("Text Color"),
   icon: "o-spreadsheet-Icon.TEXT_COLOR",
@@ -454,6 +494,11 @@ function getWrappingMode(env: SpreadsheetChildEnv): Wrapping {
     return style.wrapping;
   }
   return DEFAULT_WRAPPING_MODE;
+}
+
+function getRotation(env: SpreadsheetChildEnv): number {
+  const style = env.model.getters.getCurrentStyle();
+  return style.rotation || 0;
 }
 
 function getHorizontalAlignmentIcon(env: SpreadsheetChildEnv) {

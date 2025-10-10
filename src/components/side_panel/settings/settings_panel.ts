@@ -83,4 +83,23 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
 
     return this.loadedLocales;
   }
+
+  get rotation() {
+    const position = this.env.model.getters.getActivePosition();
+    const style = this.env.model.getters.getCellStyle(position);
+    return style.rotation || 0;
+  }
+
+  onRotationChange(value: string) {
+    const rotation = parseInt(value, 10);
+    if (isNaN(rotation)) {
+      return;
+    }
+    const position = this.env.model.getters.getActivePosition();
+    const style = this.env.model.getters.getCellStyle(position);
+    this.env.model.dispatch("UPDATE_CELL", {
+      ...position,
+      style: { ...style, rotation },
+    });
+  }
 }

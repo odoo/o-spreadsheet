@@ -36,6 +36,15 @@
         <t t-set="message">Those settings affect all users.</t>
         <ValidationMessages messages="[message]" msgType="'info'"/>
       </Section>
+
+      <Section class="'pt-0'" title.translate="Test rotate">
+        <input
+          type="number"
+          class="o-input"
+          t-on-change="(ev) => this.onRotationChange(ev.target.value)"
+          t-att-value="rotation"
+        />
+      </Section>
     </div>
   </t>
 </templates>

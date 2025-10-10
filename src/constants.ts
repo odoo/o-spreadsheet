@@ -173,6 +173,7 @@ export const DEFAULT_STYLE = {
   fontSize: 10,
   fillColor: "",
   textColor: "",
+  rotation: 0,
 } satisfies Required<Style>;
 
 export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;

@@ -390,11 +390,18 @@ export class GridRenderer extends SpreadsheetStore {
         }
         const x = box.content.x;
         let y = box.content.y;
-        // use the horizontal and the vertical start points to:
-        // fill text / fill strikethrough / fill underline
-        for (const brokenLine of box.content.textLines) {
-          drawDecoratedText(ctx, brokenLine, { x, y }, style.underline, style.strikethrough);
-          y += MIN_CELL_TEXT_MARGIN + box.content.fontSizePx;
+        // ctx.fillStyle = "#f00";
+        // ctx.fillRect(box.content.x, box.content.y, box.content.width, 3);
+
+        if (box.style.rotation) {
+          this.drawRotatedText(box, ctx);
+        } else {
+          // use the horizontal and the vertical start points to:
+          // fill text / fill strikethrough / fill underline
+          for (const brokenLine of box.content.textLines) {
+            drawDecoratedText(ctx, brokenLine, { x, y }, style.underline, style.strikethrough);
+            y += MIN_CELL_TEXT_MARGIN + box.content.fontSizePx;
+          }
         }
 
         if (box.clipRect) {
@@ -403,6 +410,44 @@ export class GridRenderer extends SpreadsheetStore {
         ctx.globalAlpha = 1;
       }
     }
+  }
+
+  // ADRM TODO: make this a helper ? Or maybe move it inside the box creation, since this is where
+  // we compute the text x/y
+  private drawRotatedText(box: Box, ctx: CanvasRenderingContext2D) {
+    const style = box.style;
+    if (!box.content || !style.rotation) {
+      return;
+    }
+    let x = 0;
+    let y = 0;
+
+    const angle = style.rotation * (Math.PI / 180);
+    const lineHeight = MIN_CELL_TEXT_MARGIN + box.content.fontSizePx;
+
+    // TODO
+    // Doesn't work for align other than left
+    // Doesn't work for angles not (-90 < angle < 0)
+    // Doesn't work when there is a CF icon
+    // For vertical text (angle = -90), the space between the start of cell is too big
+    // Is kinda ok for long text, ugly for small texts
+    ctx.save();
+    ctx.translate(
+      box.x + lineHeight * Math.sin(-angle),
+      box.y + box.height - lineHeight * Math.cos(angle) - MIN_CELL_TEXT_MARGIN
+    );
+    x = 0;
+    y = 0;
+    console.log({ x, y });
+    ctx.rotate(angle);
+
+    for (const brokenLine of box.content.textLines) {
+      drawDecoratedText(ctx, brokenLine, { x, y }, style.underline, style.strikethrough);
+      y += lineHeight;
+      x += lineHeight / Math.abs(Math.tan(angle));
+    }
+
+    ctx.restore();
   }
 
   private drawIcon(renderingContext: GridRenderingContext, boxes: Box[]) {

@@ -120,6 +120,7 @@ export interface Style {
   fillColor?: Color;
   textColor?: Color;
   fontSize?: number; // in pt, not in px!
+  rotation?: number;
 }
 
 export interface DataBarFill {
