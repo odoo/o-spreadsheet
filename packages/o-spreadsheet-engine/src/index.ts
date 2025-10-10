@@ -28,6 +28,7 @@ export { rangeTokenize } from "./formulas/range_tokenizer";
 export { POSTFIX_UNARY_OPERATORS, tokenize } from "./formulas/tokenizer";
 export type { Token } from "./formulas/tokenizer";
 export { FunctionRegistry } from "./functions/function_registry";
+export { categories } from "./functions/functionRegistry";
 export * from "./helpers";
 export { Model } from "./model";
 export { BasePlugin } from "./plugins/base_plugin";

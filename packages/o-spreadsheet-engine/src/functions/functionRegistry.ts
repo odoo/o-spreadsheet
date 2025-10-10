@@ -55,7 +55,7 @@ export const functionRegistry = new SpreadsheetFunctionRegistry();
 
 type Functions = { [functionName: string]: AddFunctionDescription };
 type Category = { name: string; functions: Functions };
-const categories: Category[] = [
+export const categories: Category[] = [
   { name: _t("Array"), functions: array },
   { name: _t("Database"), functions: database },
   { name: _t("Date"), functions: date },

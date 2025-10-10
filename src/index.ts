@@ -493,8 +493,10 @@ export const stores = {
 
 export { getCaretDownSvg, getCaretUpSvg } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 
+export { categories } from "@odoo/o-spreadsheet-engine/functions/functionRegistry";
+export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+export { createAutocompleteArgumentsProvider } from "./functions/autocompleteArgumentsProvider";
 export type { StoreConstructor, StoreParams } from "./store_engine";
-
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
   return {
@@ -520,7 +522,6 @@ export { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/
 export type { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "@odoo/o-spreadsheet-engine/formulas/parser";
 export type { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
-export type { FunctionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 export * from "./types";
 
 export { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";

@@ -1,4 +1,4 @@
-import { _t } from "..";
+import { _t } from "../translation";
 import { GeoChartColorScale } from "../types/chart/geo_chart";
 import { CommandResult } from "../types/commands";
 

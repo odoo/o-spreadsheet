@@ -1,58 +1,16 @@
+import { argTargeting } from "../functions/arguments";
+import { functionRegistry } from "../functions/functionRegistry";
 import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { CompiledFormula, FormulaToExecute } from "../types/misc";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
-import { parseTokens } from "./parser";
+import { ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 import { Token } from "./tokenizer";
 
-interface ArgDefinitionLike {
-  type?: string[];
-}
-
-interface FunctionDescriptionLike {
-  args: ArgDefinitionLike[];
-  minArgRequired: number;
-  maxArgPossible: number;
-  nbrArgRepeating: number;
-  nbrArgOptional: number;
-}
-
-interface FunctionRegistryLike {
-  content: Record<string, FunctionDescriptionLike>;
-}
-
-type ArgTargetingFn = (
-  fn: FunctionDescriptionLike,
-  argCount: number
-) => (argIndex: number) => number | undefined;
-
-let functionRegistryProvider: (() => FunctionRegistryLike) | null = null;
-let argTargetingImpl: ArgTargetingFn | null = null;
-
-export function setFunctionRegistryProvider(provider: () => FunctionRegistryLike) {
-  functionRegistryProvider = provider;
-}
-
-export function setArgTargetingImplementation(fn: ArgTargetingFn) {
-  argTargetingImpl = fn;
-}
-
-function getFunctionRegistry(): FunctionRegistryLike {
-  if (!functionRegistryProvider) {
-    throw new Error("Function registry provider has not been set.");
-  }
-  return functionRegistryProvider();
-}
-
-function getArgTargeting(): ArgTargetingFn {
-  if (!argTargetingImpl) {
-    throw new Error("argTargeting implementation has not been set.");
-  }
-  return argTargetingImpl;
-}
+const functions = functionRegistry.content;
 
 export const OPERATOR_MAP = {
   "=": "EQ",
@@ -109,10 +67,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 }
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
-  const registry = getFunctionRegistry();
-  const functions = registry.content;
-  const argTargeting = getArgTargeting();
-
   const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
@@ -147,30 +101,29 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     // @ts-ignore - constructed function
     functionCache[cacheKey] = baseFunction;
 
-    function compileFunctionArgs(astFuncall: any): FunctionCode[] {
-      const { args } = astFuncall;
-      const functionName = astFuncall.value.toUpperCase();
+    function compileFunctionArgs(ast: ASTFuncall): FunctionCode[] {
+      const { args } = ast;
+      const functionName = ast.value.toUpperCase();
       const functionDefinition = functions[functionName];
 
       if (!functionDefinition) {
-        throw new UnknownFunctionError(_t('Unknown function: "%s"', astFuncall.value));
+        throw new UnknownFunctionError(_t('Unknown function: "%s"', ast.value));
       }
 
-      assertEnoughArgs(args, functionDefinition, functionName);
+      assertEnoughArgs(ast);
 
       const compiledArgs: FunctionCode[] = [];
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
-        const argIndex = argToFocus(i) ?? -1;
-        const argDefinition =
-          functionDefinition.args[argIndex] ??
-          functionDefinition.args[i] ??
-          ({} as ArgDefinitionLike);
+        const argDefinition = functionDefinition.args[argToFocus(i) ?? -1];
         const currentArg = args[i];
-        const argTypes = argDefinition?.type || [];
+        const argTypes = argDefinition.type || [];
+
+        // detect when an argument need to be evaluated as a meta argument
         const isMeta = argTypes.includes("META") || argTypes.includes("RANGE<META>");
-        const hasRange = argTypes.some((t: string) => isRangeType(t));
+        const hasRange = argTypes.some((t) => isRangeType(t));
+
         compiledArgs.push(compileAST(currentArg, isMeta, hasRange));
       }
 
@@ -299,12 +252,13 @@ function formulaArguments(tokens: Token[]) {
   return { dependencies, literalValues, symbols };
 }
 
-function assertEnoughArgs(
-  args: any[],
-  functionDefinition: FunctionDescriptionLike,
-  functionName: string
-) {
-  const nbrArgSupplied = args.length;
+/**
+ * Check if arguments are supplied in the correct quantities
+ */
+function assertEnoughArgs(ast: ASTFuncall) {
+  const nbrArgSupplied = ast.args.length;
+  const functionName = ast.value.toUpperCase();
+  const functionDefinition = functions[functionName];
   const { nbrArgRepeating, minArgRequired } = functionDefinition;
 
   if (nbrArgSupplied < minArgRequired) {
