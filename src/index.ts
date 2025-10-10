@@ -189,6 +189,7 @@ import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
 import { chartComponentRegistry } from "./registries/chart_component_registry";
 import { figureRegistry } from "./registries/figures_registry";
+import "./registries/interactive_icon_on_cell_registry";
 import {
   cellMenuRegistry,
   colMenuRegistry,
@@ -323,7 +324,7 @@ export const registries = {
   chartJsExtensionRegistry,
 };
 
-export { dummy } from "./registries/chart_types";
+import "./registries/chart_types";
 
 import {
   getFirstPivotFunction,
@@ -331,6 +332,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
+import "./clipboard_handlers";
 
 export const helpers = {
   arg,
