@@ -1,4 +1,9 @@
-import { ComboChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  ComboChartDataSet,
+  ComboChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
@@ -142,5 +147,27 @@ describe("combo chart", () => {
         datasetIndex: 1,
       },
     ]);
+  });
+
+  test("Bar spacing is adapted to the number of bar datasets", () => {
+    const model = createModelFromGrid({ A2: "2", B2: "3", C2: "4" });
+
+    let dataSets: ComboChartDataSet[] = [
+      { dataRange: "A1:A3", type: "bar" },
+      { dataRange: "B1:B3", type: "line" },
+    ];
+    createChart(model, { type: "combo", dataSets }, "chartId");
+
+    let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
+    expect(config.data.datasets[0].barPercentage).toEqual(0.9);
+    expect(config.data.datasets[0].categoryPercentage).toEqual(1);
+
+    dataSets = [...dataSets, { dataRange: "C1:C3", type: "bar" }];
+    updateChart(model, "chartId", { dataSets });
+    runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    config = runtime.chartJsConfig as ChartConfiguration<"bar">;
+    expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, undefined, 0.9]); // undefined for line dataset
+    expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, undefined, 0.8]);
   });
 });
