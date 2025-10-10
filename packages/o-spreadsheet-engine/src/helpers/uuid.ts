@@ -13,7 +13,7 @@ export class UuidGenerator {
    *
    */
   smallUuid(): string {
-    if (window.crypto) {
+    if (global.crypto) {
       return "10000000-1000".replace(/[01]/g, (c) => {
         const n = Number(c);
         return (n ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (n / 4)))).toString(16);
@@ -33,7 +33,7 @@ export class UuidGenerator {
    * This method should be used when you need to avoid collisions at all costs, like the id of a revision.
    */
   uuidv4(): string {
-    if (window.crypto) {
+    if (global.crypto) {
       return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => {
         const n = Number(c);
         return (n ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (n / 4)))).toString(16);
