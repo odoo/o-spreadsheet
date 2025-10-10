@@ -12,8 +12,7 @@ export function generateMasterChartConfig(
         .filter((ds) => !isTrendLineAxis(ds["xAxisID"]))
         .map((ds) => ({
           ...ds,
-          pointRadius: 0,
-          showLine: true,
+          pointRadius: ds.showLine === false ? 2 : 0, // Show points only for scatter plots
         })),
     },
     options: {

@@ -14,7 +14,7 @@ export interface LineChartDefinition extends CommonChartDefinition {
 }
 
 export type LineChartRuntime = {
-  chartJsConfig: ChartConfiguration;
-  masterChartConfig?: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"line">;
+  masterChartConfig?: ChartConfiguration<"line">;
   background: Color;
 };
