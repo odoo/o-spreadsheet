@@ -129,7 +129,16 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P1", "P2", "P3"],
+      datasets: [
+        { label: "first column dataset", data: [10, 11, 12] },
+        { label: "second column dataset", data: [20, 19, 18] },
+      ],
+    });
+    expect(runtime).toMatchSnapshot();
   });
 
   test("create chart with rectangle dataset", () => {
@@ -148,7 +157,15 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P1", "P2", "P3"],
+      datasets: [
+        { label: "first column dataset", data: [10, 11, 12] },
+        { label: "second column dataset", data: [20, 19, 18] },
+      ],
+    });
   });
 
   test("create chart with column datasets without series title", () => {
@@ -169,7 +186,15 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P1", "P2", "P3"],
+      datasets: [
+        { label: "Series 1", data: [10, 11, 12] },
+        { label: "Series 2", data: [20, 19, 18] },
+      ],
+    });
   });
 
   test("create chart with column datasets with category title", () => {
@@ -182,8 +207,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(getChartConfiguration(model, "1")["data"].labels).toEqual(["P1", "P2", "P3"]);
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P1", "P2", "P3"],
+      datasets: [
+        { label: "first column dataset", data: [10, 11, 12] },
+        { label: "second column dataset", data: [20, 19, 18] },
+      ],
+    });
   });
 
   test("create chart with row datasets", () => {
@@ -202,7 +234,15 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P4", "P5", "P6"],
+      datasets: [
+        { label: "first row dataset", data: [30, 31, 32] },
+        { label: "second row dataset", data: [40, 41, 42] },
+      ],
+    });
   });
 
   test("create chart with full rows/columns datasets", () => {
@@ -238,7 +278,15 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P4", "P5", "P6"],
+      datasets: [
+        { label: "Series 1", data: [30, 31, 32] },
+        { label: "Series 2", data: [40, 41, 42] },
+      ],
+    });
   });
 
   test("create chart with row datasets with category title", () => {
@@ -251,8 +299,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(getChartConfiguration(model, "1").data?.labels).toEqual(["P4", "P5", "P6"]);
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P4", "P5", "P6"],
+      datasets: [
+        { label: "first row dataset", data: [30, 31, 32] },
+        { label: "second row dataset", data: [40, 41, 42] },
+      ],
+    });
   });
 
   test("create chart with only the dataset title (no data)", () => {
@@ -274,7 +329,6 @@ describe("datasource tests", function () {
     });
     expect(data.datasets.length).toEqual(1);
     expect(data.datasets[0].hidden).toBeTruthy();
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with a dataset of one cell (no title)", () => {
@@ -295,7 +349,12 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["P4"],
+      datasets: [{ label: "Series 1", data: [30] }],
+    });
   });
 
   test("create chart dataset of one cell referencing an empty cell", () => {
@@ -433,7 +492,10 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+
+    const runtime = model.getters.getChartRuntime("1") as BarChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.x?.stacked).toBe(true);
+    expect(runtime).toMatchSnapshot();
   });
 
   test("ranges in definition change automatically", () => {
@@ -2836,7 +2898,7 @@ describe("Linear/Time charts", () => {
     expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: "1" }]);
   });
 
-  test("snapshot test of chartJS configuration for linear chart", () => {
+  test("ChartJS configuration for linear chart", () => {
     createChart(
       model,
       {
@@ -2848,11 +2910,24 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    const chart = model.getters.getChartRuntime(chartId)!;
-    expect(chart).toMatchSnapshot();
+    const runtime = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.x?.type).toEqual("linear");
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["20", "19", "18", "17"],
+      datasets: [
+        {
+          data: [
+            { x: "20", y: 10 },
+            { x: "19", y: 11 },
+            { x: "18", y: 12 },
+            { x: "17", y: 13 },
+          ],
+        },
+      ],
+    });
   });
 
-  test("snapshot test of chartJS configuration for date chart", () => {
+  test("ChartJS configuration for date chart", () => {
     setFormat(model, "C2:C5", "m/d/yyyy");
     createChart(
       model,
@@ -2865,8 +2940,29 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    const chart = model.getters.getChartRuntime(chartId)!;
-    expect(chart).toMatchSnapshot();
+    const runtime = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.x).toMatchObject({
+      type: "time",
+      time: {
+        displayFormats: { day: "M/d/yyyy" },
+        parser: "M/d/yyyy",
+        tooltipFormat: "M/d/yyyy",
+        unit: "day",
+      },
+    });
+    expect(runtime.chartJsConfig.data).toMatchObject({
+      labels: ["1/19/1900", "1/18/1900", "1/17/1900", "1/16/1900"],
+      datasets: [
+        {
+          data: [
+            { x: "1/19/1900", y: 10 },
+            { x: "1/18/1900", y: 11 },
+            { x: "1/17/1900", y: 12 },
+            { x: "1/16/1900", y: 13 },
+          ],
+        },
+      ],
+    });
   });
 
   test("font color is white with a dark background color", () => {
@@ -2880,7 +2976,10 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    expect(model.getters.getChartRuntime(chartId)).toMatchSnapshot();
+    const runtime = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    expect(runtime.chartJsConfig.options?.plugins?.legend?.labels?.color).toBe("#FFFFFF");
+    expect(runtime.chartJsConfig.options?.scales?.x?.ticks?.color).toBe("#FFFFFF");
+    expect(runtime.chartJsConfig.options?.scales?.y?.ticks?.color).toBe("#FFFFFF");
   });
 
   test("Displays date labels correctly when 'Use row X as labels' is checked", () => {
