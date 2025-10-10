@@ -85,6 +85,9 @@ export function getBarChartDatasets(
       backgroundColor,
       yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
       xAxisID: "x",
+      barPercentage: 0.9,
+      categoryPercentage: dataSetsValues.length > 1 ? 0.8 : 1,
+      borderRadius: 2,
     };
     dataSets.push(dataset);
 
@@ -250,6 +253,9 @@ export function getComboChartDatasets(
   const dataSets: ChartDataset<"bar" | "line">[] = [];
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   const trendDatasets: ChartDataset<"line">[] = [];
+  const barDatasets = dataSetsValues.filter(
+    (_, i) => (definition.dataSets?.[i].type ?? "line") === "bar"
+  );
 
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden } = dataSetsValues[index];
@@ -271,6 +277,11 @@ export function getComboChartDatasets(
       order: type === "bar" ? dataSetsValues.length + index : index,
       pointRadius: definition.hideDataMarkers ? 0 : LINE_DATA_POINT_RADIUS,
     };
+    if (dataset.type === "bar") {
+      dataset.barPercentage = 0.9;
+      dataset.categoryPercentage = barDatasets.length > 1 ? 0.8 : 1;
+      dataset.borderRadius = 2;
+    }
     dataSets.push(dataset);
 
     const trendConfig = definition.dataSets?.[index].trend;
