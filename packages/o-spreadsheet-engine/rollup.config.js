@@ -16,7 +16,7 @@ function getConfigForFormat(format, minified = false) {
   return {
     file: minified
       ? `../../dist/o-spreadsheet-engine.${format}.min.js`
-      : `../../dist/o-spreadsheet-engine.${format}.js`,
+      : `../../dist/o-spreadsheet-engine.${format}${format !== "cjs" ? ".js" : ""}`,
     format,
     name: "o_spreadsheet_engine",
     extend: true,
@@ -43,7 +43,9 @@ export default (commandLineArgs) => {
           extend: true,
           outro,
           banner: bundle.jsBanner(),
-          file: `build/o-spreadsheet-engine.${commandLineArgs.format}.js`,
+          file: `build/o-spreadsheet-engine.${commandLineArgs.format}${
+            commandLineArgs.format !== "cjs" ? ".js" : ""
+          }`,
           format: commandLineArgs.format,
         },
       ],
