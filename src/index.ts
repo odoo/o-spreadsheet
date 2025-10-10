@@ -184,6 +184,7 @@ import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
+import "./plugins";
 import { autoCompleteProviders } from "./registries/auto_completes";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
