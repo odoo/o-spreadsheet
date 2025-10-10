@@ -13,11 +13,12 @@ import {
   SunburstChartRawData,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { setColorAlpha } from "../../../color";
-import { formatOrHumanizeValue } from "../../../format/format";
+import { formatOrHumanizeValue, humanizeNumber } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
@@ -52,6 +53,28 @@ export function getBarChartTooltip(
           definition.humanize
         )(yLabel, axisId);
         return yLabelStr;
+      },
+    },
+  };
+}
+
+export function getCalendarChartTooltip(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats } = args;
+  return {
+    enabled: false,
+    filter: (tooltipItem) => tooltipItem.dataset.values[tooltipItem.dataIndex] !== undefined,
+    external: customTooltipHandler,
+    callbacks: {
+      title: (_) => "",
+      beforeLabel: (tooltipItem) => {
+        return `${tooltipItem.dataset?.label}, ${tooltipItem.label}`;
+      },
+      label: function (tooltipItem) {
+        const yLabel = tooltipItem.dataset.values[tooltipItem.dataIndex];
+        return humanizeNumber({ value: yLabel, format: axisFormats?.y }, locale);
       },
     },
   };
