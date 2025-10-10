@@ -5,8 +5,6 @@ export {
   compile,
   compileTokens,
   functionCache,
-  setArgTargetingImplementation,
-  setFunctionRegistryProvider,
 } from "./formulas/compiler";
 export {
   OP_PRIORITY,
