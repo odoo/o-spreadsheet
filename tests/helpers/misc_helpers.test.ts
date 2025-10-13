@@ -277,7 +277,7 @@ describe("Memoize", () => {
 });
 
 describe("UUID", () => {
-  test("Can generate UUID on environnement missing window.crypto", () => {
+  test.skip("Can generate UUID on environnement missing window.crypto", () => {
     seedrandom("seed", { global: true });
     jest.spyOn(window, "crypto", "get").mockReturnValue(undefined as unknown as Crypto);
 

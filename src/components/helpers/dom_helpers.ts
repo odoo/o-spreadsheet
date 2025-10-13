@@ -1,5 +1,4 @@
 import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
-
 import { Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
 
 const macRegex = /Mac/i;

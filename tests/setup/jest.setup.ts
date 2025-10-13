@@ -2,6 +2,8 @@
  * This file will be run before each test file
  */
 // @ts-ignore
+import "../../src/registries/chart_types";
+
 import {
   HEADER_HEIGHT,
   HEADER_WIDTH,

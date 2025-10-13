@@ -117,8 +117,10 @@ async function canvasToBlob(canvas: RenderingSurface): Promise<Blob | null> {
 
 async function canvasToObjectUrl(canvas: RenderingSurface): Promise<string | undefined> {
   const blob = await canvasToBlob(canvas);
-  if (!blob || !URL || !URL.createObjectURL) {
+  if (!blob) {
     return undefined;
   }
+  if (!URL.createObjectURL)
+    throw new Error("URL.createObjectURL is not supported in this environment");
   return URL.createObjectURL(blob);
 }
