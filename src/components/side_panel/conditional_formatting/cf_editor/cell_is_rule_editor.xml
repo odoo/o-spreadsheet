@@ -29,6 +29,7 @@
         t-key="state.rules.cellIs.operator"
         criterion="genericCriterion"
         onCriterionChanged.bind="onRuleValuesChanged"
+        autofocus="this.state.hasEditedCf"
       />
 
       <div class="o-section-subtitle pt-3">Formatting style</div>

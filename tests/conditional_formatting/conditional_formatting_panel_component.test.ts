@@ -240,7 +240,9 @@ describe("UI of conditional formats", () => {
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
+      expect(".o-composer").not.toHaveClass("active");
       await changeRuleOperatorType(fixture, "beginsWithText");
+      expect(".o-composer").toHaveClass("active");
       editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
       await click(fixture, selectors.ruleEditor.editor.bold);
