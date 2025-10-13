@@ -1,7 +1,6 @@
 import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
-  Cell,
   CellPosition,
   CellValue,
   CellValueType,
@@ -16,13 +15,7 @@ import {
   NumberCell,
 } from "../../types";
 import { parseDateTime } from "../dates";
-import {
-  detectDateFormat,
-  detectNumberFormat,
-  formatValue,
-  isDateTimeFormat,
-  isTextFormat,
-} from "../format/format";
+import { formatValue, isDateTimeFormat, isTextFormat } from "../format/format";
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
@@ -37,7 +30,7 @@ export function evaluateLiteral(
       ? literalCell.content
       : literalCell.parsedValue;
   const functionResult = { value, format: localeFormat.format, origin: position };
-  return createEvaluatedCell(functionResult, localeFormat.locale);
+  return createEvaluatedCell(functionResult, localeFormat);
 }
 
 export function parseLiteral(content: string, locale: Locale): CellValue {
@@ -65,28 +58,22 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
 
 export function createEvaluatedCell(
   functionResult: FunctionResultObject,
-  locale: Locale = DEFAULT_LOCALE,
-  cell?: Cell,
+  locale: LocaleFormat = { locale: DEFAULT_LOCALE },
   origin?: CellPosition
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
   if (!link) {
-    const evaluateCell = _createEvaluatedCell(functionResult, locale, cell);
+    const evaluateCell = _createEvaluatedCell(functionResult, locale);
     return addOrigin(evaluateCell, functionResult.origin ?? origin);
   }
-  const value = parseLiteral(link.label, locale);
-  const format =
-    functionResult.format ||
-    (typeof value === "number"
-      ? detectDateFormat(link.label, locale) || detectNumberFormat(link.label)
-      : undefined);
+  const value = parseLiteral(link.label, locale.locale);
   const linkPayload = {
     value,
-    format,
+    format: locale.format,
   };
   return addOrigin(
     {
-      ..._createEvaluatedCell(linkPayload, locale, cell),
+      ..._createEvaluatedCell(linkPayload, locale),
       link,
     },
     functionResult.origin ?? origin
@@ -95,11 +82,11 @@ export function createEvaluatedCell(
 
 function _createEvaluatedCell(
   functionResult: FunctionResultObject,
-  locale: Locale,
-  cell?: Cell
+  localeFormat: LocaleFormat
 ): EvaluatedCell {
   let { value, format, message } = functionResult;
-  format = cell?.format || format;
+  format = localeFormat.format || format;
+  const locale = localeFormat.locale;
 
   const formattedValue = formatValue(value, { format, locale });
   if (isEvaluationError(value)) {
@@ -154,7 +141,7 @@ function numberCell(value: number, format: string | undefined, formattedValue: s
   };
 }
 
-const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyCell {
+export const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyCell {
   return {
     value: null,
     format,

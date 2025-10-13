@@ -9,7 +9,7 @@ import {
   toXC,
   union,
 } from "../../../helpers";
-import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
+import { createEvaluatedCell, emptyCell, evaluateLiteral } from "../../../helpers/cells";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
@@ -68,7 +68,7 @@ export class Evaluator {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluatedCells.get(position) || EMPTY_CELL;
+    return this.evaluatedCells.get(position) || emptyCell(this.getters.getCellFormat(position));
   }
 
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
@@ -331,9 +331,10 @@ export class Evaluator {
     if (cell === undefined) {
       return EMPTY_CELL;
     }
+    const format = this.getters.getCellFormat(position);
 
     const cellId = cell.id;
-    const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
+    const localeFormat = { format: format, locale: this.getters.getLocale() };
     try {
       if (this.cellsBeingComputed.has(cellId)) {
         return ERROR_CYCLE_CELL;
@@ -372,8 +373,7 @@ export class Evaluator {
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(formulaReturn),
-        this.getters.getLocale(),
-        cellData,
+        { locale: this.getters.getLocale() },
         formulaPosition
       );
       if (evaluatedCell.type === CellValueType.error) {
@@ -403,11 +403,9 @@ export class Evaluator {
       this.spreadValues(formulaPosition, formulaReturn)
     );
     this.invalidatePositionsDependingOnSpread(formulaPosition.sheetId, resultZone);
-    return createEvaluatedCell(
-      nullValueToZeroValue(formulaReturn[0][0]),
-      this.getters.getLocale(),
-      cellData
-    );
+    return createEvaluatedCell(nullValueToZeroValue(formulaReturn[0][0]), {
+      locale: this.getters.getLocale(),
+    });
   }
 
   private invalidatePositionsDependingOnSpread(sheetId: UID, resultZone: Zone) {
@@ -497,11 +495,9 @@ export class Evaluator {
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const cell = this.getters.getCell(position);
       const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(matrixResult[i][j]),
-        this.getters.getLocale(),
-        cell,
+        { locale: this.getters.getLocale() },
         position
       );
       if (evaluatedCell.type === CellValueType.error) {

@@ -5,6 +5,7 @@ import {
   CoreCommand,
   ExcelWorkbookData,
   Format,
+  Locale,
   UID,
   UnboundedZone,
   WorkbookData,
@@ -12,6 +13,8 @@ import {
 } from "../..";
 import {
   deepEquals,
+  detectDateFormat,
+  detectNumberFormat,
   getItemId,
   intersection,
   isExcelCompatible,
@@ -21,6 +24,7 @@ import {
   toZone,
   zoneToXc,
 } from "../../helpers";
+import { parseLiteral } from "../../helpers/cells";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { CellPosition, Style } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -106,6 +110,16 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           } else {
             this.clearFormat(cmd.sheetId, [positionToZone(cmd)]);
           }
+        } else if ("content" in cmd && cmd.content) {
+          const locale = this.getters.getLocale();
+          const parsedValue = parseLiteral(cmd.content, locale);
+          const format =
+            typeof parsedValue === "number"
+              ? detectDateFormat(cmd.content, locale) || detectNumberFormat(cmd.content)
+              : undefined;
+          if (format) {
+            this.setFormats(cmd.sheetId, [positionToZone(cmd)], format);
+          }
         }
         break;
       case "ADD_COLUMNS_ROWS":
@@ -121,6 +135,8 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         this.history.update("styles", cmd.sheetId, undefined);
         this.history.update("formats", cmd.sheetId, undefined);
         break;
+      case "UPDATE_LOCALE":
+        this.updateLocale(this.getters.getLocale(), cmd.locale);
     }
   }
 
@@ -289,6 +305,24 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   private clearFormat(sheetId: UID, zones: Zone[]) {
     this.setFormats(sheetId, zones, undefined);
   }
+
+  private updateLocale(oldLocale: Locale, newLocale: Locale) {
+    for (const sheetId of this.getters.getSheetIds()) {
+      if (!this.formats[sheetId]) continue;
+      for (let formatId = 0; formatId < this.formats[sheetId].length; formatId++) {
+        if (cell.format === oldLocale.dateFormat) {
+          formatToApply = newLocale.dateFormat;
+        }
+        if (cell.format === oldLocale.timeFormat) {
+          formatToApply = newLocale.timeFormat;
+        }
+        if (cell.format === getDateTimeFormat(oldLocale)) {
+          formatToApply = getDateTimeFormat(newLocale);
+        }
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
