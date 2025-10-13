@@ -13,6 +13,7 @@
       criterion="state.criterion"
       onCriterionChanged.bind="onCriterionChanged"
       disableFormulas="true"
+      autofocus="true"
     />
   </t>
 </templates>
