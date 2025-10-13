@@ -71,8 +71,6 @@ import {
 } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
-jest.mock("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common");
-
 extendMockGetBoundingClientRect({
   "o-popover": () => ({ height: 0, width: 0 }),
   "o-figure-menu-item": () => ({ top: 500, left: 500 }),

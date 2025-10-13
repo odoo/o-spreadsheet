@@ -2,7 +2,6 @@
  * This file will be run before each test file
  */
 // @ts-ignore
-import "../../src/registries/chart_types";
 
 import {
   HEADER_HEIGHT,
@@ -32,6 +31,13 @@ jest.mock("@odoo/o-spreadsheet-engine/helpers/text_helper", () => {
   return {
     ...actual,
     getCanvas: () => new (require("./canvas.mock").MockCanvasRenderingContext2D)(),
+  };
+});
+
+jest.mock("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common", () => {
+  return {
+    ...jest.requireActual("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common"),
+    chartToImageUrl: () => "data:image/png;base64,randomDataThatIsActuallyABase64Image",
   };
 });
 
@@ -92,6 +98,13 @@ beforeEach(() => {
       setTimeout(() => callback(blob), 0);
     });
   patchSessionMove();
+  /** this is the magic shit
+   * ensures that we properly load every files from the library but
+   * this needs to happen after we mock the said files. Otherwise,
+   * the functions that should be mocked will already have been imported
+   * and linked to other functions, making them un-mockable
+   */
+  require("../../src");
 });
 
 beforeEach(() => {

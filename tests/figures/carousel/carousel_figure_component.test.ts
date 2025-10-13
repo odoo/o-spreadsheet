@@ -355,13 +355,13 @@ describe("Carousel figure component", () => {
       });
     });
 
-    test("Can download the carousel chart as image", () => {
+    test("Can download the carousel chart as image", async () => {
       createCarousel(model, { items: [] }, "carouselId");
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "download");
       action?.execute?.(env);
-
+      await nextTick();
       expect(downloadFile).toHaveBeenCalled();
     });
 

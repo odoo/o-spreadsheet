@@ -52,17 +52,17 @@ import {
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
+const constantsMocks = jest.requireMock("@odoo/o-spreadsheet-engine/constants");
+jest.mock("@odoo/o-spreadsheet-engine/constants", () => ({
+  ...jest.requireActual("@odoo/o-spreadsheet-engine/constants"),
+}));
+
 jest.mock("../../src/components/helpers/dom_helpers", () => {
   return {
     ...jest.requireActual("../../src/components/helpers/dom_helpers"),
     downloadFile: jest.fn(),
   };
 });
-
-const constantsMocks = jest.requireMock("@odoo/o-spreadsheet-engine/constants");
-jest.mock("@odoo/o-spreadsheet-engine/constants", () => ({
-  ...jest.requireActual("@odoo/o-spreadsheet-engine/constants"),
-}));
 
 beforeEach(() => {
   constantsMocks.DRAG_THRESHOLD = 0; // mock drag threshold to 0 for easier testing of snap

@@ -45,11 +45,16 @@ import {
   standardizeColor,
 } from "../test_helpers/xlsx";
 
+let reader: XlsxReader;
+
 describe("Import xlsx data", () => {
   let convertedData: WorkbookData;
   beforeAll(async () => {
     const demo_xlsx = await getTextXlsxFiles();
-    const reader = new XlsxReader(demo_xlsx);
+    reader = new XlsxReader(demo_xlsx);
+  });
+
+  beforeEach(() => {
     convertedData = reader.convertXlsx();
   });
 
