@@ -1,6 +1,7 @@
 /**
  * This file will be run before each test file
  */
+// @ts-ignore
 import {
   HEADER_HEIGHT,
   HEADER_WIDTH,

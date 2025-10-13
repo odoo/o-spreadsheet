@@ -16,14 +16,14 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
 }
 
-export function getCanvas(): Canvas2DContext {
+export function getCanvas(width: number = 100, height: number = 100): Canvas2DContext {
   if (typeof window === "undefined" && typeof process !== "undefined" && process.versions?.node) {
     // Node.js environment
     const { createCanvas } = require("canvas");
-    return createCanvas(100, 100).getContext("2d");
+    return createCanvas(width, height).getContext("2d");
   }
   // Browser environment
-  return new OffscreenCanvas(100, 100).getContext("2d") as unknown as Canvas2DContext;
+  return new OffscreenCanvas(width, height).getContext("2d") as unknown as Canvas2DContext;
 }
 /**
  * Get the default height of the cell given its style.
