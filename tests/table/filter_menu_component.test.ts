@@ -444,6 +444,7 @@ describe("Filter menu component", () => {
 
       await simulateClick(".o-filter-criterion-type");
       await simulateClick(".o-menu-item[data-name='containsText']");
+      expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input input"));
       await setInputValueAndTrigger(".o-dv-input input", "hello");
       await simulateClick(".o-filter-menu-confirm");
 

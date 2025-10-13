@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, onMounted } from "@odoo/owl";
 import { Token } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -20,6 +20,7 @@ interface Props {
   title?: string;
   class?: string;
   invalid?: boolean;
+  autofocus?: boolean;
   getContextualColoredSymbolToken?: (token: Token) => Color;
 }
 
@@ -35,6 +36,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     title: { type: String, optional: true },
     class: { type: String, optional: true },
     invalid: { type: Boolean, optional: true },
+    autofocus: { type: Boolean, optional: true },
     getContextualColoredSymbolToken: { type: Function, optional: true },
   };
   static components = { Composer };
@@ -68,6 +70,12 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
       setCurrentContent: this.standaloneComposerStore.setCurrentContent,
       stopEdition: this.standaloneComposerStore.stopEdition,
     };
+    onMounted(() => {
+      if (this.props.autofocus && this.focus === "inactive") {
+        this.composerFocusStore.focusComposer(this.composerInterface, {});
+        this.composerFocusStore.activeComposer.editionMode;
+      }
+    });
   }
 
   get focus(): ComposerFocusType {
