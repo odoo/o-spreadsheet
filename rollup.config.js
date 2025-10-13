@@ -9,6 +9,12 @@ import { bundle } from "./tools/bundle.cjs";
 
 const outro = bundle.outro();
 
+const EXTENSION = {
+  esm: "esm.js", //TODO Change it to mjs
+  cjs: "cjs",
+  iife: "iife.js",
+};
+
 /**
  * Get the rollup config based on the arguments
  * @param {"esm" | "cjs" | "iife"} format format of the bundle
@@ -16,8 +22,9 @@ const outro = bundle.outro();
  * @param {boolean} minified should it be minified
  */
 function getConfigForFormat(format, minified = false) {
+  const extension = EXTENSION[format];
   return {
-    file: minified ? `dist/o_spreadsheet.${format}.min.js` : `dist/o_spreadsheet.${format}.js`,
+    file: minified ? `dist/o_spreadsheet.min.${extension}` : `dist/o_spreadsheet.${extension}`,
     format,
     name: "o_spreadsheet",
     extend: true,
@@ -56,6 +63,7 @@ export default (commandLineArgs) => {
   let config = {};
 
   if (commandLineArgs.format) {
+    const extension = EXTENSION[commandLineArgs.format];
     // Only build one version to improve speed
     config = {
       input: "build/js/src/index.js",
@@ -67,7 +75,7 @@ export default (commandLineArgs) => {
           outro,
           banner: bundle.jsBanner(),
           globals: { "@odoo/owl": "owl" },
-          file: `build/o_spreadsheet.${commandLineArgs.format}.js`,
+          file: `build/o_spreadsheet.${extension}`,
           format: commandLineArgs.format,
         },
       ],

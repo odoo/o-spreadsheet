@@ -6,6 +6,12 @@ import { bundle } from "../../tools/bundle.cjs";
 
 const outro = bundle.outro();
 
+const EXTENSION = {
+  esm: "esm.js", //TODO Change it to mjs
+  cjs: "cjs",
+  iife: "iife.js",
+};
+
 /**
  * Get the rollup config based on the arguments
  * @param {"esm" | "cjs" | "iife"} format format of the bundle
@@ -13,10 +19,11 @@ const outro = bundle.outro();
  * @param {boolean} minified should it be minified
  */
 function getConfigForFormat(format, minified = false) {
+  const extension = EXTENSION[format];
   return {
     file: minified
-      ? `../../dist/o-spreadsheet-engine.${format}.min.js`
-      : `../../dist/o-spreadsheet-engine.${format}${format !== "cjs" ? ".js" : ""}`,
+      ? `../../dist/o-spreadsheet-engine.min.${extension}`
+      : `../../dist/o-spreadsheet-engine.${extension}`,
     format,
     name: "o_spreadsheet_engine",
     extend: true,
@@ -33,6 +40,7 @@ export default (commandLineArgs) => {
   let config = {};
 
   if (commandLineArgs.format) {
+    const extension = EXTENSION[commandLineArgs.format];
     // Only build one version to improve speed
     config = {
       input: "build/js/o-spreadsheet-engine/src/index.js",
@@ -43,9 +51,7 @@ export default (commandLineArgs) => {
           extend: true,
           outro,
           banner: bundle.jsBanner(),
-          file: `build/o-spreadsheet-engine.${commandLineArgs.format}${
-            commandLineArgs.format !== "cjs" ? ".js" : ""
-          }`,
+          file: `build/o-spreadsheet-engine.${extension}`,
           format: commandLineArgs.format,
         },
       ],
