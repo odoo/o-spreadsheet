@@ -14,6 +14,7 @@ import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import {
   ScatterChartDefinition,
   ScatterChartRuntime,
+  ScatterPointSizeMode,
   ScatterShowValuesMode,
 } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
@@ -97,6 +98,7 @@ export interface DatasetValues {
   readonly data: any[];
   readonly hidden?: boolean;
   readonly pointLabels?: (string | undefined)[];
+  readonly pointSizes?: (number | undefined)[];
 }
 
 export interface DatasetDesign {
@@ -142,6 +144,9 @@ export type CustomizedDataSet = {
   readonly dataRange: string;
   readonly trend?: TrendConfiguration;
   readonly pointLabelRange?: string;
+  readonly pointSizeMode?: ScatterPointSizeMode;
+  readonly pointSize?: number;
+  readonly pointSizeRange?: string;
 } & DatasetDesign;
 
 export type AxisType = "category" | "linear" | "time";
@@ -156,6 +161,9 @@ export interface DataSet {
   readonly customLabel?: string;
   readonly trend?: TrendConfiguration;
   readonly pointLabelRange?: Range;
+  readonly pointSizeMode?: ScatterPointSizeMode;
+  readonly pointSize?: number;
+  readonly pointSizeRange?: Range;
 }
 export interface ExcelChartDataset {
   readonly label?: { text?: string } | { reference?: string };

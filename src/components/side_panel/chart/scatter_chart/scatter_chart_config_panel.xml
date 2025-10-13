@@ -11,7 +11,7 @@
         datasetOrientation="datasetOrientation"
         onFlipAxis.bind="setDatasetOrientation"
         getRangeMenuItems.bind="getDataSeriesMenuItems"
-        getRangeExtensions.bind="getPointLabelRangeExtensions"
+        getRangeExtensions.bind="getRangeExtensions"
       />
       <ChartLabelRange
         range="this.getLabelRange()"

@@ -21,7 +21,37 @@
         </Section>
       </t>
     </GeneralDesignEditor>
-    <SeriesWithAxisDesignEditor t-props="props"/>
+    <SeriesWithAxisDesignEditor t-props="props">
+      <t t-set-slot="general-extension" t-slot-scope="scope">
+        <t t-set="index" t-value="scope.index"/>
+        <Section class="'pt-0 px-0'" title="chartTerms.PointSizesTitle">
+          <RadioSelection
+            choices="pointSizeModes"
+            selectedValue="getPointSizeMode(index)"
+            name="'point-size-mode'"
+            onChange="(value) => this.onPointSizeModeChanged(index, value)"
+          />
+          <div class="mt-2" t-if="getPointSizeMode(index) === 'fixed'">
+            <span class="o-section-subtitle">
+              <t t-esc="chartTerms.PointSizeValueLabel"/>
+            </span>
+            <input
+              class="o-input w-100"
+              type="number"
+              t-att-min="pointSizeMin"
+              t-att-max="pointSizeMax"
+              t-att-value="getPointSizeValue(index)"
+              t-on-change="(ev) => this.onPointSizeValueChanged(index, ev)"
+            />
+          </div>
+          <div
+            class="o-text-muted mt-2"
+            t-if="getPointSizeMode(index) === 'range' and !hasPointSizeRange(index)">
+            <t t-esc="chartTerms.PointSizeRangeHelper"/>
+          </div>
+        </Section>
+      </t>
+    </SeriesWithAxisDesignEditor>
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor

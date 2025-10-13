@@ -1,5 +1,6 @@
 import { Point } from "chart.js";
 import { CommandResult, Model } from "../../../src";
+import { SCATTER_MAX_POINT_RADIUS, SCATTER_MIN_POINT_RADIUS } from "../../../src/constants";
 import { ChartDefinition } from "../../../src/types";
 import {
   BarChartDefinition,
@@ -2383,6 +2384,107 @@ describe("Chart design configuration", () => {
     const plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
     const datasetMeta = { index: 0, yAxisID: "y" };
     expect(plugin.callback(20, datasetMeta, 1)).toBe("");
+  });
+
+  test("scatter chart datasets use point size range", () => {
+    setGrid(model, {
+      A1: "X",
+      A2: "1",
+      A3: "2",
+      B1: "Dataset 1",
+      B2: "10",
+      B3: "20",
+      D1: "1",
+      D2: "3",
+    });
+
+    createChart(
+      model,
+      {
+        labelRange: "Sheet1!A2:A3",
+        dataSets: [
+          {
+            dataRange: "Sheet1!B1:B3",
+            pointSizeRange: "Sheet1!D1:D2",
+            pointSizeMode: "range",
+          },
+        ],
+        type: "scatter",
+        dataSetsHaveTitle: true,
+      },
+      "1"
+    );
+
+    const dataset = getChartConfiguration(model, "1").data.datasets?.[0];
+    expect(dataset?.pointRadius).toEqual([SCATTER_MIN_POINT_RADIUS, SCATTER_MAX_POINT_RADIUS]);
+    expect(dataset?.pointHoverRadius).toEqual([SCATTER_MIN_POINT_RADIUS, SCATTER_MAX_POINT_RADIUS]);
+  });
+
+  test("scatter chart datasets use point size from data values", () => {
+    setGrid(model, {
+      A1: "X",
+      A2: "1",
+      A3: "2",
+      A4: "3",
+      B1: "Dataset 1",
+      B2: "10",
+      B3: "20",
+      B4: "30",
+    });
+
+    createChart(
+      model,
+      {
+        labelRange: "Sheet1!A2:A4",
+        dataSets: [
+          {
+            dataRange: "Sheet1!B1:B4",
+            pointSizeMode: "value",
+          },
+        ],
+        type: "scatter",
+        dataSetsHaveTitle: true,
+      },
+      "1"
+    );
+
+    const dataset = getChartConfiguration(model, "1").data.datasets?.[0];
+    expect(dataset?.pointRadius?.[0]).toBe(SCATTER_MIN_POINT_RADIUS);
+    expect(dataset?.pointRadius?.[2]).toBe(SCATTER_MAX_POINT_RADIUS);
+    expect(dataset?.pointRadius?.[1]).toBeCloseTo(
+      SCATTER_MIN_POINT_RADIUS + (SCATTER_MAX_POINT_RADIUS - SCATTER_MIN_POINT_RADIUS) / 2
+    );
+  });
+
+  test("scatter chart datasets use fixed point size", () => {
+    setGrid(model, { B1: "10", B2: "20" });
+    createChart(
+      model,
+      {
+        dataSets: [
+          {
+            dataRange: "Sheet1!B1:B2",
+            pointSizeMode: "fixed",
+            pointSize: 7,
+          },
+        ],
+        type: "scatter",
+        dataSetsHaveTitle: true,
+      },
+      "1"
+    );
+
+    const dataset = getChartConfiguration(model, "1").data.datasets?.[0];
+    if (Array.isArray(dataset?.pointRadius)) {
+      expect(dataset?.pointRadius?.every((value: number) => value === 7)).toBe(true);
+    } else {
+      expect(dataset?.pointRadius).toBe(7);
+    }
+    if (Array.isArray(dataset?.pointHoverRadius)) {
+      expect(dataset?.pointHoverRadius?.every((value: number) => value === 7)).toBe(true);
+    } else {
+      expect(dataset?.pointHoverRadius).toBe(7);
+    }
   });
 
   test("scatter chart trend line tooltip label", () => {

@@ -1876,6 +1876,71 @@ describe("charts", () => {
       expect(definition.dataSets[0].pointLabelRange).toBeUndefined();
       expect(fixture.querySelector(".o-selection-extension")).toBeNull();
     });
+
+    test("Can add point size range for a data series", async () => {
+      setGrid(model, { B1: "10", B2: "20", D1: "1", D2: "3" });
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "B1:B2" }],
+          type: "scatter",
+        },
+        chartId,
+        sheetId
+      );
+
+      await mountChartSidePanel(chartId);
+
+      let definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointSizeRange).toBeUndefined();
+
+      const cogWheel = fixture.querySelector(
+        ".o-data-series .os-cog-wheel-menu-icon"
+      ) as HTMLElement;
+      await simulateClick(cogWheel);
+
+      const addMenuItem = fixture.querySelector(".o-menu-item[title='Add point size range']");
+      await simulateClick(addMenuItem!);
+
+      const nestedInput = fixture.querySelector(".o-selection-extension input");
+      expect(nestedInput).not.toBeNull();
+      await setInputValueAndTrigger(nestedInput as HTMLInputElement, "D1:D2");
+      await simulateClick(".o-selection-extension .o-selection-ok");
+
+      definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointSizeRange).toBe("D1:D2");
+      expect(definition.dataSets[0].pointSizeMode).toBe("range");
+    });
+
+    test("Can remove point size range for a data series", async () => {
+      setGrid(model, { B1: "10", B2: "20", D1: "1", D2: "3" });
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "B1:B2", pointSizeRange: "D1:D2", pointSizeMode: "range" }],
+          type: "scatter",
+        },
+        chartId,
+        sheetId
+      );
+
+      await mountChartSidePanel(chartId);
+
+      let definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointSizeRange).toBe("D1:D2");
+      const nestedInput = fixture.querySelector(".o-selection-extension input") as HTMLInputElement;
+      expect(nestedInput.value).toBe("D1:D2");
+
+      const removeButton = fixture.querySelector(
+        ".o-selection-extension .o-remove-extension"
+      ) as HTMLElement;
+      await simulateClick(removeButton);
+
+      definition = model.getters.getChartDefinition(chartId) as ScatterChartDefinition;
+      expect(definition.dataSets[0].pointSizeRange).toBeUndefined();
+      expect(definition.dataSets[0].pointSizeMode).toBe("fixed");
+      expect(fixture.querySelector(".o-selection-extension")).toBeNull();
+    });
   });
 
   test.each<ChartType>(["bar", "line", "waterfall", "radar"])(

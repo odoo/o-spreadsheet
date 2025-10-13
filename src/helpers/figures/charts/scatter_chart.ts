@@ -142,6 +142,9 @@ export class ScatterChart extends AbstractChart {
         pointLabelRange: dataSet.pointLabelRange
           ? this.getters.getRangeString(dataSet.pointLabelRange, targetSheetId || this.sheetId)
           : undefined,
+        pointSizeRange: dataSet.pointSizeRange
+          ? this.getters.getRangeString(dataSet.pointSizeRange, targetSheetId || this.sheetId)
+          : undefined,
       });
     }
     return {
@@ -172,6 +175,9 @@ export class ScatterChart extends AbstractChart {
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
         pointLabelRange: dataSet.pointLabelRange
           ? this.getters.getRangeString(dataSet.pointLabelRange, this.sheetId)
+          : undefined,
+        pointSizeRange: dataSet.pointSizeRange
+          ? this.getters.getRangeString(dataSet.pointSizeRange, this.sheetId)
           : undefined,
       });
     }
