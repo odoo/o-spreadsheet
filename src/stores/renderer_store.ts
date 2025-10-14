@@ -1,6 +1,10 @@
 import { Model } from "@odoo/o-spreadsheet-engine/model";
+import {
+  GridRenderingContext,
+  LayerName,
+  OrderedLayers,
+} from "@odoo/o-spreadsheet-engine/types/rendering";
 import { Get } from "../store_engine";
-import { GridRenderingContext, LayerName, OrderedLayers } from "../types";
 import { ModelStore } from "./model_store";
 
 export interface Renderer {

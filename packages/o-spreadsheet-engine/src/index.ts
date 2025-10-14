@@ -41,5 +41,6 @@ export { Format } from "./types/format";
 export * from "./types/history";
 export * from "./types/locale";
 export * from "./types/misc";
+export * from "./types/rendering";
 export * from "./types/validator";
 export const __info__ = {};
