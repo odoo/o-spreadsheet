@@ -22,9 +22,7 @@ import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
-interface Props {
-  onFigureDeleted: () => void;
-}
+interface Props {}
 
 interface Container {
   type: ContainerType;
@@ -127,9 +125,7 @@ css/*SCSS*/ `
  */
 export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
-  static props = {
-    onFigureDeleted: Function,
-  };
+  static props = {};
   static components = { FigureComponent };
 
   dnd = useState<DndState>({
