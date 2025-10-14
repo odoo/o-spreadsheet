@@ -8,6 +8,7 @@ export interface FunctionCode {
    */
   assignResultToVariable(): FunctionCode;
 }
+
 export class FunctionCodeBuilder {
   private code: string = "";
 
@@ -63,6 +64,10 @@ export class Scope {
   }
 }
 
+/**
+ * Takes a list of strings that might be single or multiline
+ * and maps them in a list of single line strings.
+ */
 function splitLines(str: string): string[] {
   return str
     .split("\n")
