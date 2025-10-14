@@ -24,7 +24,7 @@ import { UID } from "../types";
 
 export interface FigureContent {
   Component: any;
-  menuBuilder: (figureId: UID, onFigureDeleted: () => void, env: SpreadsheetChildEnv) => Action[];
+  menuBuilder: (figureId: UID, env: SpreadsheetChildEnv) => Action[];
   SidePanelComponent?: string;
   keepRatio?: boolean;
   minFigSize?: number;

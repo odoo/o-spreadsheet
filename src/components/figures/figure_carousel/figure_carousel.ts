@@ -24,7 +24,6 @@ import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboar
 
 interface Props {
   figureUI: FigureUI;
-  onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
   openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
@@ -34,7 +33,6 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselFigure";
   static props = {
     figureUI: Object,
-    onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },
