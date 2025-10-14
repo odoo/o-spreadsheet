@@ -231,8 +231,8 @@ export function triggerMouseEvent(
     bubbles: true,
     ...extra,
   });
-  (ev as any).offsetX = offsetX;
-  (ev as any).offsetY = offsetY;
+  // (ev as any).offsetX = offsetX; // newer version of JSDOM do not allow to write on those values
+  // (ev as any).offsetY = offsetY;
   const target = getTarget(selector);
   target.dispatchEvent(ev);
   return ev;

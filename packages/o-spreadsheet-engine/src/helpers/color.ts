@@ -204,6 +204,11 @@ export function colorToRGBA(color: Color): RGBA {
   return { a, r, g, b };
 }
 
+export function hexToRGBString(color: String) {
+  const { r, g, b, a } = colorToRGBA(color as Color);
+  return a === 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 /**
  * HSLA to RGBA.
  *

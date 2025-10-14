@@ -10,6 +10,7 @@ import { Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { Figure, Pixel, Position, UID } from "../../src/types";
 
+import { hexToRGBString } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { ClipboardMIMEType } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { FigureComponent } from "../../src/components/figures/figure/figure";
@@ -693,8 +694,9 @@ describe("figures", () => {
     test("Border for figure", async () => {
       createFigure(model);
       await nextTick();
+
       expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `1px solid ${FIGURE_BORDER_COLOR}`
+        `1px solid ${hexToRGBString(FIGURE_BORDER_COLOR)}`
       );
     });
 
@@ -703,7 +705,7 @@ describe("figures", () => {
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `2px solid ${SELECTION_BORDER_COLOR}`
+        `2px solid ${hexToRGBString(SELECTION_BORDER_COLOR)}`
       );
     });
 
@@ -711,7 +713,7 @@ describe("figures", () => {
       createImage(model, { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `0px solid ${FIGURE_BORDER_COLOR}`
+        `0px solid ${hexToRGBString(FIGURE_BORDER_COLOR)}`
       );
     });
 
@@ -720,7 +722,7 @@ describe("figures", () => {
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border-top")).toEqual(
-        `2px solid ${SELECTION_BORDER_COLOR}`
+        `2px solid ${hexToRGBString(SELECTION_BORDER_COLOR)}`
       );
     });
 
