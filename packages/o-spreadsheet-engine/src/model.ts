@@ -94,7 +94,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private coreViewPluginConfig: CoreViewPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
-  private state;
+  private state: StateObserver;
 
   readonly selection: SelectionStreamProcessor;
 
