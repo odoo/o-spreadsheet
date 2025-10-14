@@ -81,7 +81,7 @@ export default (commandLineArgs) => {
       ],
       plugins,
       watch: {
-        include: ["src/**", "./packages/o-spreadsheet-engine/src/**"],
+        include: ["src/**", "./packages/o-spreadsheet-engine/build/**"],
       },
     };
   } else {
