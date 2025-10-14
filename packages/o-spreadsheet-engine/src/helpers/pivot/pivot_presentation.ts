@@ -1,6 +1,6 @@
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 
-import { handleError } from "../../functions/createComputeFunction";
+import { handleError } from "../../functions/create_compute_function";
 import { transposeMatrix } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";

@@ -9,13 +9,42 @@ import { DEFAULT_LOCALE } from "../types/locale";
 import { Token, tokenize } from "./tokenizer";
 
 enum State {
+  /**
+   * Initial state.
+   * Expecting any reference for the left part of a range
+   * e.g. "A1", "1", "A", "Sheet1!A1", "Sheet1!A"
+   */
   LeftRef,
+  /**
+   * Expecting any reference for the right part of a range
+   * e.g. "A1", "1", "A", "Sheet1!A1", "Sheet1!A"
+   */
   RightRef,
+  /**
+   * Expecting the separator without any constraint on the right part
+   */
   Separator,
+  /**
+   * Expecting the separator for a full column range
+   */
   FullColumnSeparator,
+  /**
+   * Expecting the separator for a full row range
+   */
   FullRowSeparator,
+  /**
+   * Expecting the right part of a full column range
+   * e.g. "1", "A1"
+   */
   RightColumnRef,
+  /**
+   * Expecting the right part of a full row range
+   * e.g. "A", "A1"
+   */
   RightRowRef,
+  /**
+   * Final state. A range has been matched
+   */
   Found,
 }
 
@@ -81,10 +110,16 @@ const machine: Machine = {
   [State.Found]: {},
 };
 
+/**
+ * Check if the list of tokens starts with a sequence of tokens representing
+ * a range.
+ * If a range is found, the sequence is removed from the list and is returned
+ * as a single token.
+ */
 function matchReference(tokens: Token[]): Token | null {
   let head = 0;
   let transitions = machine[State.LeftRef];
-  let matchedTokens = "";
+  let matchedTokens: string = "";
   while (transitions !== undefined) {
     const token = tokens[head++];
     if (!token) {
@@ -111,6 +146,12 @@ function matchReference(tokens: Token[]): Token | null {
   return null;
 }
 
+/**
+ * Take the result of the tokenizer and transform it to be usable in the
+ * manipulations of range
+ *
+ * @param formula
+ */
 export function rangeTokenize(formula: string, locale = DEFAULT_LOCALE): Token[] {
   const tokens = tokenize(formula, locale);
   const result: Token[] = [];

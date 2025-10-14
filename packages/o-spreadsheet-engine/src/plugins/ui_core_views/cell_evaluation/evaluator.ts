@@ -15,7 +15,10 @@ import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
-import { handleError, implementationErrorMessage } from "../../../functions/createComputeFunction";
+import {
+  handleError,
+  implementationErrorMessage,
+} from "../../../functions/create_compute_function";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";

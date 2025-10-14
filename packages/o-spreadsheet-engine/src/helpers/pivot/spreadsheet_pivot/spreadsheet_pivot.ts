@@ -1,4 +1,4 @@
-import { handleError } from "../../../functions/createComputeFunction";
+import { handleError } from "../../../functions/create_compute_function";
 import { toString } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";

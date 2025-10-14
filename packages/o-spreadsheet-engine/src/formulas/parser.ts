@@ -37,6 +37,9 @@ export class TokenList {
   }
 }
 
+// -----------------------------------------------------------------------------
+// PARSER
+// -----------------------------------------------------------------------------
 interface ASTBase {
   debug?: boolean;
   tokenStartIndex: number;
@@ -67,7 +70,7 @@ export interface ASTUnaryOperation extends ASTBase {
   type: "UNARY_OPERATION";
   value: any;
   operand: AST;
-  postfix?: boolean;
+  postfix?: boolean; // needed to rebuild string from ast
 }
 
 export interface ASTOperation extends ASTBase {
@@ -120,6 +123,13 @@ export const OP_PRIORITY = {
   "=": 10,
 };
 
+/**
+ * Parse the next operand in an arithmetic expression.
+ * e.g.
+ *  for 1+2*3, the next operand is 1
+ *  for (1+2)*3, the next operand is (1+2)
+ *  for SUM(1,2)+3, the next operand is SUM(1,2)
+ */
 function parseOperand(tokens: TokenList): AST {
   const current = tokens.shift();
   if (!current) {
@@ -269,6 +279,8 @@ function parseExpression(tokens: TokenList, parentPriority = 0): AST {
     throw new BadExpressionError();
   }
   let left = parseOperand(tokens);
+  // as long as we have operators with higher priority than the parent one,
+  // continue parsing the expression because it is a child sub-expression
   while (
     tokens.current?.type === "OPERATOR" &&
     OP_PRIORITY[tokens.current.value] > parentPriority
@@ -299,6 +311,9 @@ function parseExpression(tokens: TokenList, parentPriority = 0): AST {
   return left;
 }
 
+/**
+ * Parse an expression (as a string) into an AST.
+ */
 export function parse(str: string): AST {
   return parseTokens(rangeTokenize(str));
 }
@@ -321,6 +336,19 @@ export function parseTokens(tokens: Token[]): AST {
   return result;
 }
 
+/**
+ * Allows to visit all nodes of an AST and apply a mapping function
+ * to nodes of a specific type.
+ * Useful if you want to convert some part of a formula.
+ *
+ * @example
+ * convertAstNodes(ast, "FUNCALL", convertFormulaToExcel)
+ *
+ * function convertFormulaToExcel(ast: ASTFuncall) {
+ *   // ...
+ *   return modifiedAst
+ * }
+ */
 export function convertAstNodes<T extends AST["type"]>(
   ast: AST,
   type: T,

@@ -10,6 +10,23 @@ import { DEFAULT_LOCALE, type Locale } from "../types/locale";
 
 import { NEWLINE } from "../constants";
 
+/**
+ * Tokenizer
+ *
+ * A tokenizer is a piece of code whose job is to transform a string into a list
+ * of "tokens". For example, "(12+" is converted into:
+ *   [{type: "LEFT_PAREN", value: "("},
+ *    {type: "NUMBER", value: "12"},
+ *    {type: "OPERATOR", value: "+"}]
+ *
+ * As the example shows, a tokenizer does not care about the meaning behind those
+ * tokens. It only cares about the structure.
+ *
+ * The tokenizer is usually the first step in a compilation pipeline.  Also, it
+ * is useful for the composer, which needs to be able to work with incomplete
+ * formulas.
+ */
+
 export const POSTFIX_UNARY_OPERATORS = ["%"];
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
 
@@ -32,7 +49,7 @@ export interface Token {
   readonly value: string;
 }
 
-export function tokenize(str: string, locale: Locale = DEFAULT_LOCALE): Token[] {
+export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
   str = replaceNewLines(str);
   const chars = new TokenizingChars(str);
   const result: Token[] = [];
@@ -138,11 +155,30 @@ function tokenizeString(chars: TokenizingChars): Token | null {
   return null;
 }
 
+/**
+  - \p{L} is for any letter (from any language)
+  - \p{N} is for any number
+  - the u flag at the end is for unicode, which enables the `\p{...}` syntax
+ */
 const unicodeSymbolCharRegexp = /\p{L}|\p{N}|_|\.|!|\$/u;
 const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
 
+/**
+ * A "Symbol" is just basically any word-like element that can appear in a
+ * formula, which is not a string. So:
+ *   A1
+ *   SUM
+ *   CEILING.MATH
+ *   A$1
+ *   Sheet2!A2
+ *   'Sheet 2'!A2
+ *
+ * are examples of symbols
+ */
 function tokenizeSymbol(chars: TokenizingChars): Token | null {
   let result: string = "";
+  // there are two main cases to manage: either something which starts with
+  // a ', like 'Sheet 2'A2, or a word-like element.
   if (chars.current === "'") {
     let lastChar = chars.shift();
     result += lastChar;

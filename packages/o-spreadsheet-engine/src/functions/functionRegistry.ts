@@ -1,7 +1,7 @@
 import { AddFunctionDescription, ComputeFunction, FunctionDescription } from "../types/functions";
 import { FunctionResultObject, Matrix } from "../types/misc";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
-import { createComputeFunction } from "./createComputeFunction";
+import { createComputeFunction } from "./create_compute_function";
 
 import { _t } from "../translation";
 import { FunctionRegistry } from "./function_registry";
@@ -18,7 +18,6 @@ import * as lookup from "./module_lookup";
 import * as math from "./module_math";
 import * as operators from "./module_operators";
 import * as parser from "./module_parser";
-import * as pivots from "./module_pivot";
 import * as statistical from "./module_statistical";
 import * as text from "./module_text";
 import * as web from "./module_web";
@@ -62,7 +61,7 @@ export const categories: Category[] = [
   { name: _t("Filter"), functions: filter },
   { name: _t("Financial"), functions: financial },
   { name: _t("Info"), functions: info },
-  { name: _t("Lookup"), functions: { ...lookup, ...pivots } },
+  { name: _t("Lookup"), functions: lookup },
   { name: _t("Logical"), functions: logical },
   { name: _t("Math"), functions: math },
   { name: _t("Misc"), functions: misc },
