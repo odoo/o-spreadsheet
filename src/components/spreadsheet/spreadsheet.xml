@@ -3,6 +3,7 @@
     <div
       class="o-spreadsheet h-100 w-100"
       t-on-keydown="(ev) => !env.isDashboard() and this.onKeydown(ev)"
+      t-ref="spreadsheet"
       t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard/>

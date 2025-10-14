@@ -3,7 +3,6 @@ import { Figure, SpreadsheetChildEnv, UID } from "../../../types";
 
 interface Props {
   figure: Figure;
-  onFigureDeleted: () => void;
 }
 
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -25,5 +24,4 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
 
 ImageFigure.props = {
   figure: Object,
-  onFigureDeleted: Function,
 };

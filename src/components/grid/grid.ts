@@ -2,7 +2,6 @@ import {
   Component,
   onMounted,
   useChildSubEnv,
-  useEffect,
   useExternalListener,
   useRef,
   useState,
@@ -154,10 +153,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing("canvas", this.env.model, () =>
       this.env.model.getters.getSheetViewDimensionWithHeaders()
-    );
-    useEffect(
-      () => this.focusDefaultElement(),
-      () => [this.env.model.getters.getActiveSheetId()]
     );
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);

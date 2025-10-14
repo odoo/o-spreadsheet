@@ -20,9 +20,7 @@ css/* scss */ `
   }
 `;
 
-interface Props {
-  focusGrid: () => void;
-}
+interface Props {}
 
 export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridAddRowsFooter";
@@ -55,7 +53,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
 
   onKeydown(ev: KeyboardEvent) {
     if (ev.key.toUpperCase() === "ESCAPE") {
-      this.props.focusGrid();
+      this.focusDefaultElement();
     } else if (ev.key.toUpperCase() === "ENTER") {
       this.onConfirm();
     }
@@ -82,7 +80,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
       quantity,
       dimension: "ROW",
     });
-    this.props.focusGrid();
+    this.focusDefaultElement();
 
     // After adding new rows, scroll down to the new last row
     const { scrollX } = this.env.model.getters.getActiveSheetDOMScrollInfo();
@@ -100,10 +98,14 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
     if (this.inputRef.el !== document.activeElement || ev.target === this.inputRef.el) {
       return;
     }
-    this.props.focusGrid();
+    this.focusDefaultElement();
+  }
+
+  private focusDefaultElement() {
+    if (document.activeElement === this.inputRef.el) {
+      this.env.focusableElement.focus();
+    }
   }
 }
 
-GridAddRowsFooter.props = {
-  focusGrid: Function,
-};
+GridAddRowsFooter.props = {};

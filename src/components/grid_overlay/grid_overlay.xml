@@ -8,12 +8,11 @@
       t-on-mousedown="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
-      <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
+      <FiguresContainer/>
       <DataValidationOverlay/>
       <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"
-        focusGrid="props.onFigureDeleted"
       />
     </div>
   </t>
