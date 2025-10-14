@@ -23,7 +23,6 @@
               t-component="figureComponent"
               figureUI="figureUI"
               isFullScreen="true"
-              onFigureDeleted="() => {}"
               t-key="figureUI.id"
             />
           </t>

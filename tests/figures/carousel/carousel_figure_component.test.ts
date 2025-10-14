@@ -276,14 +276,8 @@ describe("Carousel figure component", () => {
     let env: SpreadsheetChildEnv;
     let openSidePanel: jest.Mock;
 
-    function getCarouselMenuItem(
-      figureId: UID,
-      actionId: string,
-      onFigureDeleted: () => void = () => {}
-    ) {
-      return getCarouselMenuActions(figureId, onFigureDeleted, env).find(
-        (action) => action.id === actionId
-      );
+    function getCarouselMenuItem(figureId: UID, actionId: string) {
+      return getCarouselMenuActions(figureId, env).find((action) => action.id === actionId);
     }
 
     beforeEach(() => {
@@ -311,11 +305,9 @@ describe("Carousel figure component", () => {
     test("Can delete the figure", () => {
       createCarousel(model, { items: [] }, "carouselId");
 
-      const onFigureDeleted = jest.fn();
-      const action = getCarouselMenuItem("carouselId", "delete", onFigureDeleted);
+      const action = getCarouselMenuItem("carouselId", "delete");
       action?.execute?.(env);
       expect(model.getters.getFigures(sheetId)).toHaveLength(0);
-      expect(onFigureDeleted).toHaveBeenCalled();
     });
 
     test("Can delete a carousel item", () => {
