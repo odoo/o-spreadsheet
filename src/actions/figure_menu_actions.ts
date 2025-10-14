@@ -7,11 +7,7 @@ import { SpreadsheetChildEnv } from "../types";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";
 import { Action, ActionSpec, createActions } from "./action";
 
-export function getChartMenuActions(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): Action[] {
+export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
   const menuItemSpecs: ActionSpec[] = [
     {
       id: "edit",
@@ -63,18 +59,14 @@ export function getChartMenuActions(
       },
       isReadonlyAllowed: true,
     },
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
     env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
   );
 }
 
-export function getImageMenuActions(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): Action[] {
+export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
   const menuItemSpecs: ActionSpec[] = [
     getCopyMenuItem(figureId, env, _t("Image copied to clipboard")),
     getCutMenuItem(figureId, env),
@@ -120,7 +112,7 @@ export function getImageMenuActions(
       },
       icon: "o-spreadsheet-Icon.DOWNLOAD",
     },
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs);
 }
@@ -163,11 +155,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   };
 }
 
-function getDeleteMenuItem(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): ActionSpec {
+function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   return {
     id: "delete",
     name: _t("Delete"),
@@ -177,7 +165,6 @@ function getDeleteMenuItem(
         sheetId: env.model.getters.getActiveSheetId(),
         figureId,
       });
-      onFigureDeleted();
     },
     icon: "o-spreadsheet-Icon.TRASH",
   };
