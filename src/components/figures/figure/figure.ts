@@ -115,7 +115,6 @@ css/*SCSS*/ `
 interface Props {
   figure: Figure;
   style: string;
-  onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
 }
@@ -124,7 +123,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static components = { Menu };
   static defaultProps = {
-    onFigureDeleted: () => {},
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
@@ -209,7 +207,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     );
 
     onWillUnmount(() => {
-      this.props.onFigureDeleted();
+      this.onFigureDeleted();
     });
   }
 
@@ -231,7 +229,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           sheetId: this.env.model.getters.getActiveSheetId(),
           id: figure.id,
         });
-        this.props.onFigureDeleted();
+        this.onFigureDeleted();
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -296,14 +294,19 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.position = position;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figure.tag)
-      .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
+      .menuBuilder(this.props.figure.id, this.onFigureDeleted.bind(this), this.env);
+  }
+
+  private onFigureDeleted() {
+    if (document.activeElement === this.figureRef.el) {
+      this.env.focusableElement.focus();
+    }
   }
 }
 
 FigureComponent.props = {
   figure: Object,
   style: { type: String, optional: true },
-  onFigureDeleted: { type: Function, optional: true },
   onMouseDown: { type: Function, optional: true },
   onClickAnchor: { type: Function, optional: true },
 };
