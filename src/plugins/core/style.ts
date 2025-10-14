@@ -26,6 +26,7 @@ import {
 } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { PositionMap } from "../../helpers/cells/position_map";
+import { getDateTimeFormat } from "../../helpers/locale";
 import { CellPosition, Style } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
@@ -310,14 +311,13 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     for (const sheetId of this.getters.getSheetIds()) {
       if (!this.formats[sheetId]) continue;
       for (let formatId = 0; formatId < this.formats[sheetId].length; formatId++) {
-        if (cell.format === oldLocale.dateFormat) {
-          formatToApply = newLocale.dateFormat;
-        }
-        if (cell.format === oldLocale.timeFormat) {
-          formatToApply = newLocale.timeFormat;
-        }
-        if (cell.format === getDateTimeFormat(oldLocale)) {
-          formatToApply = getDateTimeFormat(newLocale);
+        const format = this.formats[sheetId][formatId].format;
+        if (format === oldLocale.dateFormat) {
+          this.history.update("formats", sheetId, formatId, "format", newLocale.dateFormat);
+        } else if (format === oldLocale.timeFormat) {
+          this.history.update("formats", sheetId, formatId, "format", newLocale.timeFormat);
+        } else if (format === getDateTimeFormat(oldLocale)) {
+          this.history.update("formats", sheetId, formatId, "format", getDateTimeFormat(newLocale));
         }
       }
     }

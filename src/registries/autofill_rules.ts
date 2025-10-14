@@ -24,6 +24,8 @@ export interface AutofillRule {
   sequence: number;
 }
 
+// TODOOOO FIX the format in this file
+
 export interface CalendarDateInterval {
   years: number;
   months: number;
@@ -53,9 +55,7 @@ function getGroup(
       found = true;
     }
     const cellValue =
-      x === undefined || x.isFormula
-        ? undefined
-        : evaluateLiteral(x, { locale: DEFAULT_LOCALE, format: x.format });
+      x === undefined || x.isFormula ? undefined : evaluateLiteral(x, { locale: DEFAULT_LOCALE });
     if (cellValue && filter(cellValue)) {
       group.push(cellValue);
     } else {
@@ -175,9 +175,7 @@ function calculateDateIncrementBasedOnGroup(group: number[]) {
 autofillRulesRegistry
   .add("simple_value_copy", {
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return (
-        cells.length === 1 && !cell.isFormula && !(cell.format && isDateTimeFormat(cell.format))
-      );
+      return cells.length === 1 && !cell.isFormula;
     },
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
@@ -246,9 +244,7 @@ autofillRulesRegistry
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
       return (
         !cell.isFormula &&
-        evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number &&
-        !!cell.format &&
-        isDateTimeFormat(cell.format)
+        evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number
       );
     },
     generateRule: (cell: LiteralCell, cells: (Cell | undefined)[]) => {

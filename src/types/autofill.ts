@@ -8,7 +8,7 @@
  *  - Formula: update the formula, with the same behavior than paste
  */
 
-import { Getters } from ".";
+import { Format, Getters } from ".";
 import { Cell } from "./cells";
 import { Border, DIRECTION, Style, UID, UpdateCellData } from "./misc";
 
@@ -69,6 +69,7 @@ export interface AutofillData {
   sheetId: UID;
   border?: Border;
   style?: Style;
+  format?: Format;
 }
 
 export interface AutofillResult {
