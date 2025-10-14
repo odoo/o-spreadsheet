@@ -1,7 +1,10 @@
 import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
-import { AutoCompleteProposal, autoCompleteProviders } from "../registries/auto_completes";
+import {
+  AutoCompleteProposal,
+  autoCompleteProviders,
+} from "../registries/auto_completes/auto_complete_registry";
 import { ArgDefinition } from "../types";
 
 export function createAutocompleteArgumentsProvider(formulaName: string, args: ArgDefinition[]) {

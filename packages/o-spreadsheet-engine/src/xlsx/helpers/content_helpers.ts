@@ -34,7 +34,7 @@ import {
   XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,
   XLSX_DV_DECIMAL_OPERATOR_MAPPING,
   XLSX_FORMAT_MAP,
-} from "../conversion";
+} from "../conversion/conversion_maps";
 
 /**
  * Convert the conditional formatting o-spreadsheet operator to
