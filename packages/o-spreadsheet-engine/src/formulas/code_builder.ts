@@ -1,10 +1,15 @@
+/**
+ * Block of code that produces a value.
+ */
 export interface FunctionCode {
   readonly returnExpression: string;
+  /**
+   * Return the same function code but with the return expression assigned to a variable.
+   */
   assignResultToVariable(): FunctionCode;
 }
-
 export class FunctionCodeBuilder {
-  private code = "";
+  private code: string = "";
 
   constructor(private scope: Scope = new Scope()) {}
 

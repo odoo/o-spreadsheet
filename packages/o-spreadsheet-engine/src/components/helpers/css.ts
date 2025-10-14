@@ -6,6 +6,7 @@
  * css tag is executed. In owl 1, the css was added as soon as a Component was
  * created for the first time.
  */
+
 import { CSSProperties, Style } from "../../types/misc";
 
 export function getTextDecoration({
