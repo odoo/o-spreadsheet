@@ -97,6 +97,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
       defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultStatic: true,
     };
   }
 
