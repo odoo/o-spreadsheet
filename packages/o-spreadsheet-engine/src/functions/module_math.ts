@@ -1,6 +1,6 @@
 import { splitReference } from "../helpers";
-import { isSubtotalCell } from "../helpers/is_subtotal_cell";
 import { toZone } from "../helpers/zones";
+import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
 import { EvaluatedCell } from "../types/cells";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";

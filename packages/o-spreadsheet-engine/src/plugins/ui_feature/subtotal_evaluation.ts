@@ -1,4 +1,4 @@
-import { isSubtotalCell } from "../../helpers/is_subtotal_cell";
+import { Cell } from "../../types/cells";
 import { Command, invalidSubtotalFormulasCommands } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
@@ -36,4 +36,13 @@ export class SubtotalEvaluationPlugin extends UIPlugin {
       this.dispatch("EVALUATE_CELLS", { cellIds: Array.from(this.subtotalCells) });
     }
   }
+}
+
+export function isSubtotalCell(cell: Cell): boolean {
+  return (
+    cell.isFormula &&
+    cell.compiledFormula.tokens.some(
+      (t) => t.type === "SYMBOL" && t.value.toUpperCase() === "SUBTOTAL"
+    )
+  );
 }
