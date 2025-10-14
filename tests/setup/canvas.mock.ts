@@ -38,7 +38,21 @@ const patch = {
 };
 
 /* js-ignore */
-Object.assign(HTMLCanvasElement.prototype, patch);
+Object.assign(globalThis.HTMLCanvasElement.prototype, patch);
+// @ts-ignore
+globalThis.OffscreenCanvas = class OffscreenCanvas {
+  width: number;
+  height: number;
+  constructor(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+  }
+  getContext = patch.getContext;
+  convertToBlob = async () => {
+    return new Blob([], { type: "image/png" });
+  };
+  toDataURL = patch.toDataURL;
+};
 
 if (!window.Path2D) {
   window.Path2D = class Path2D {

@@ -17,11 +17,6 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
 }
 
 export function getCanvas(width: number = 100, height: number = 100): Canvas2DContext {
-  if (typeof window === "undefined" && typeof process !== "undefined" && process.versions?.node) {
-    // Node.js environment
-    const { createCanvas } = require("canvas");
-    return createCanvas(width, height).getContext("2d");
-  }
   // Browser environment
   return new OffscreenCanvas(width, height).getContext("2d") as unknown as Canvas2DContext;
 }

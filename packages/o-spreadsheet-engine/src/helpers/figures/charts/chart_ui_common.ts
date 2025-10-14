@@ -1,4 +1,3 @@
-import { Canvas as NodeCanvas } from "canvas";
 import { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartRuntime, ChartType } from "../../../types/chart";
 import { Figure } from "../../../types/figure";
@@ -93,29 +92,18 @@ const backgroundColorChartJSPlugin = {
   },
 };
 
-export type RenderingSurface = OffscreenCanvas | HTMLCanvasElement | NodeCanvas;
-
-function createRenderingSurface(width: number, height: number): RenderingSurface {
-  if (typeof OffscreenCanvas === "undefined") {
-    const { createCanvas } = require("canvas");
-    return createCanvas(width, height);
-  }
+function createRenderingSurface(width: number, height: number): OffscreenCanvas {
   return new OffscreenCanvas(width, height);
 }
 
-async function canvasToBlob(canvas: RenderingSurface): Promise<Blob | null> {
+async function canvasToBlob(canvas: OffscreenCanvas): Promise<Blob | null> {
   if ("convertToBlob" in canvas) {
-    return (canvas as OffscreenCanvas).convertToBlob({ type: "image/png" });
-  }
-  if ("toBuffer" in canvas) {
-    // Node.js canvas
-    const buffer = (canvas as NodeCanvas).toBuffer("image/png");
-    return new Blob([buffer], { type: "image/png" });
+    return canvas.convertToBlob({ type: "image/png" });
   }
   return new Promise((resolve) => (canvas as HTMLCanvasElement).toBlob(resolve, "image/png"));
 }
 
-async function canvasToObjectUrl(canvas: RenderingSurface): Promise<string | undefined> {
+async function canvasToObjectUrl(canvas: OffscreenCanvas): Promise<string | undefined> {
   const blob = await canvasToBlob(canvas);
   if (!blob) {
     return undefined;
