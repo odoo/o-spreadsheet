@@ -6,6 +6,8 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
+import { Store, useStore } from "../../../store_engine";
+import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
   CSSProperties,
   DOMCoordinates,
@@ -115,7 +117,6 @@ css/*SCSS*/ `
 interface Props {
   figure: Figure;
   style: string;
-  onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
 }
@@ -125,17 +126,16 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figure: Object,
     style: { type: String, optional: true },
-    onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
   };
   static components = { Menu };
   static defaultProps = {
-    onFigureDeleted: () => {},
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
 
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   private figureRef = useRef("figure");
@@ -196,6 +196,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     const borderWidth = figureRegistry.get(this.props.figure.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
@@ -216,7 +217,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     );
 
     onWillUnmount(() => {
-      this.props.onFigureDeleted();
+      this.onFigureDeleted();
     });
   }
 
@@ -239,7 +240,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           sheetId: this.env.model.getters.getActiveSheetId(),
           id: figure.id,
         });
-        this.props.onFigureDeleted();
+        this.onFigureDeleted();
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -304,6 +305,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.position = position;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figure.tag)
-      .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
+      .menuBuilder(this.props.figure.id, this.onFigureDeleted.bind(this), this.env);
+  }
+
+  private onFigureDeleted() {
+    if (document.activeElement === this.figureRef.el) {
+      this.DOMFocusableElementStore.focus();
+    }
   }
 }
