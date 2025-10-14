@@ -14,6 +14,7 @@ function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<
 
 /**
  * Escapes a string to use as a literal string in a RegExp.
+ * @url https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
  */
 export function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -533,6 +534,50 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
 }
 
 /**
+ * Get a Regex for the find & replace that matches the given search string and options.
+ */
+export function getSearchRegex(searchStr: string, searchOptions: SearchOptions): RegExp {
+  let searchValue = escapeRegExp(searchStr);
+  const flags = !searchOptions.matchCase ? "i" : "";
+  if (searchOptions.exactMatch) {
+    searchValue = `^${searchValue}$`;
+  }
+  return RegExp(searchValue, flags);
+}
+
+/**
+ * Alternative to Math.max that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMax(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.max(...array);
+
+  let max: number = -Infinity;
+  while (len--) {
+    max = array[len] > max ? array[len] : max;
+  }
+  return max;
+}
+
+/**
+ * Alternative to Math.min that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMin(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.min(...array);
+
+  let min: number = +Infinity;
+  while (len--) {
+    min = array[len] < min ? array[len] : min;
+  }
+  return min;
+}
+
+/**
  * Creates a version of the function that's memoized on the value of its first argument, if any.
  */
 export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
@@ -589,50 +634,6 @@ export class TokenizingChars {
     }
     return true;
   }
-}
-
-/**
- * Get a Regex for the find & replace that matches the given search string and options.
- */
-export function getSearchRegex(searchStr: string, searchOptions: SearchOptions): RegExp {
-  let searchValue = escapeRegExp(searchStr);
-  const flags = !searchOptions.matchCase ? "i" : "";
-  if (searchOptions.exactMatch) {
-    searchValue = `^${searchValue}$`;
-  }
-  return RegExp(searchValue, flags);
-}
-
-/**
- * Alternative to Math.max that works with large arrays.
- * Typically useful for arrays bigger than 100k elements.
- */
-export function largeMax(array: number[]) {
-  let len = array.length;
-
-  if (len < 100_000) return Math.max(...array);
-
-  let max: number = -Infinity;
-  while (len--) {
-    max = array[len] > max ? array[len] : max;
-  }
-  return max;
-}
-
-/**
- * Alternative to Math.min that works with large arrays.
- * Typically useful for arrays bigger than 100k elements.
- */
-export function largeMin(array: number[]) {
-  let len = array.length;
-
-  if (len < 100_000) return Math.min(...array);
-
-  let min: number = +Infinity;
-  while (len--) {
-    min = array[len] < min ? array[len] : min;
-  }
-  return min;
 }
 
 /**
