@@ -1,4 +1,4 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -38,7 +38,6 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { Validator } from "../../../types/validator";
 import { isNumber } from "../../numbers";
 import { rangeReference } from "../../references";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";

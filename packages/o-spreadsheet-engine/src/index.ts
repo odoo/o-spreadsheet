@@ -31,7 +31,7 @@ export * from "./helpers";
 export { Model } from "./model";
 export { BasePlugin } from "./plugins/base_plugin";
 export { Registry } from "./registry";
-export { StateObserver, type StateObserverChange } from "./state_observer";
+export { StateObserver } from "./state_observer";
 export * from "./translation";
 export { CellValue } from "./types/cells";
 export { SpreadsheetClipboardData } from "./types/clipboard";

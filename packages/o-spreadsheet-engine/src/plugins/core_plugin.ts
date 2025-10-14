@@ -1,16 +1,14 @@
-import { StateObserver } from "../state_observer";
-import { CommandResult, CoreCommand, CoreCommandDispatcher } from "../types/commands";
+import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/coreGetters";
-import { HistoryChange } from "../types/history2";
 import { AdaptSheetName, ApplyRangeChange, RangeProvider, UID } from "../types/misc";
 import { ModelConfig } from "../types/model";
-import { ExcelWorkbookData, WorkbookData } from "../types/workbook_data";
+import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
-  readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
+  readonly stateObserver;
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
@@ -30,7 +28,7 @@ export interface CorePluginConstructor {
  * They should not be concerned about UI parts or transient state.
  */
 export class CorePlugin<State = any>
-  extends BasePlugin<State, CoreCommand, CommandResult, HistoryChange, ExcelWorkbookData>
+  extends BasePlugin<State, CoreCommand>
   implements RangeProvider
 {
   protected getters: CoreGetters;
@@ -38,7 +36,7 @@ export class CorePlugin<State = any>
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
-    super(stateObserver, CommandResult.Success);
+    super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;

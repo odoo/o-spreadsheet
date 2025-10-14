@@ -51,7 +51,7 @@ export function chartRuntimeFactory(getters: Getters) {
  * Validate the chart definition given in arguments
  */
 export function validateChartDefinition(
-  validator: Validator<CommandResult>,
+  validator: Validator,
   definition: ChartDefinition
 ): CommandResult | CommandResult[] {
   const validators = chartRegistry.getAll().find((validator) => validator.match(definition.type));

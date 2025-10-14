@@ -9,7 +9,7 @@ import { SelectiveHistory } from "./selective_history";
 
 export function buildRevisionLog(args: {
   initialRevisionId: UID;
-  recordChanges: StateObserver<CoreCommand, HistoryChange>["recordChanges"];
+  recordChanges: StateObserver["recordChanges"];
   dispatch: (command: CoreCommand) => void;
 }) {
   return new SelectiveHistory<Revision>({

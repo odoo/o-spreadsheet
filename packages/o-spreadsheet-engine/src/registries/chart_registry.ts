@@ -18,7 +18,7 @@ export interface ChartBuilder {
   createChart: (definition: ChartDefinition, sheetId: UID, getters: CoreGetters) => AbstractChart;
   getChartRuntime: (chart: AbstractChart, getters: Getters) => ChartRuntime;
   validateChartDefinition(
-    validator: Validator<CommandResult>,
+    validator: Validator,
     definition: ChartDefinition
   ): CommandResult | CommandResult[];
   transformDefinition(

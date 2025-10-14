@@ -1,22 +1,19 @@
 import { Session } from "../collaborative/session";
-import { StateObserver } from "../state_observer";
 import { ClientPosition } from "../types/collaborative/session";
-import { Command, CommandDispatcher, CommandResult, CoreCommand } from "../types/commands";
+import { Command, CommandDispatcher } from "../types/commands";
 import { Currency } from "../types/currency";
 import { Getters } from "../types/getters";
-import { HistoryChange } from "../types/history2";
 import { Color } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { GridRenderingContext, LayerName } from "../types/rendering";
 import { SelectionStreamProcessor } from "../types/selection_stream_processor";
-import { ExcelWorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
 
 export type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
 
 export interface UIPluginConfig {
   readonly getters: Getters;
-  readonly stateObserver: StateObserver<CoreCommand, HistoryChange>;
+  readonly stateObserver;
   readonly dispatch: CommandDispatcher["dispatch"];
   readonly canDispatch: CommandDispatcher["dispatch"];
   readonly selection: SelectionStreamProcessor;
@@ -39,13 +36,7 @@ export interface UIPluginConstructor {
  * UI plugins handle any transient data required to display a spreadsheet.
  * They can draw on the grid canvas.
  */
-export class UIPlugin<State = any> extends BasePlugin<
-  State,
-  Command,
-  CommandResult,
-  HistoryChange,
-  ExcelWorkbookData
-> {
+export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   static layers: Readonly<LayerName[]> = [];
 
   protected getters: Getters;
@@ -62,7 +53,7 @@ export class UIPlugin<State = any> extends BasePlugin<
     uiActions,
     selection,
   }: UIPluginConfig) {
-    super(stateObserver, CommandResult.Success);
+    super(stateObserver);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;

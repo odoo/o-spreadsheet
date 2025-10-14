@@ -1,6 +1,9 @@
-import { StateObserver, type StateObserverChange } from "../state_observer";
+import { StateObserver } from "../state_observer";
+import { CommandHandler, CommandResult } from "../types/commands";
 import type { WorkbookHistory } from "../types/history";
-import type { Validation, Validator } from "../types/validator";
+import { Validation } from "../types/misc";
+import type { Validator } from "../types/validator";
+import { ExcelWorkbookData } from "../types/workbook_data";
 
 /**
  * BasePlugin
@@ -13,21 +16,12 @@ import type { Validation, Validator } from "../types/validator";
  * There are two kinds of plugins: core plugins handling persistent data
  * and UI plugins handling transient data.
  */
-export class BasePlugin<
-  State = unknown,
-  Command = unknown,
-  Result = unknown,
-  Change extends StateObserverChange = StateObserverChange,
-  ExcelData = unknown
-> implements Validator<Result>
-{
+export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Validator {
   static getters: readonly string[] = [];
 
   protected history: WorkbookHistory<State>;
-  protected readonly successResult: Result;
 
-  constructor(stateObserver: StateObserver<Command, Change>, successResult: Result) {
-    this.successResult = successResult;
+  constructor(stateObserver: StateObserver) {
     this.history = Object.assign(Object.create(stateObserver), {
       update: stateObserver.addChange.bind(stateObserver, this),
       selectCell: () => {},
@@ -39,7 +33,7 @@ export class BasePlugin<
    * In some cases, we need to export evaluated value, which is available from
    * UI plugin only.
    */
-  exportForExcel(_data: ExcelData): void | Promise<void> {}
+  exportForExcel(data: ExcelWorkbookData): void | Promise<void> {}
 
   // ---------------------------------------------------------------------------
   // Command handling
@@ -52,8 +46,8 @@ export class BasePlugin<
    *
    * There should not be any side effects in this method.
    */
-  allowDispatch(_command: Command): Result | Result[] {
-    return this.successResult;
+  allowDispatch(command: C): CommandResult | CommandResult[] {
+    return CommandResult.Success;
   }
 
   /**
@@ -61,13 +55,13 @@ export class BasePlugin<
    * command is handled in another plugin. This should only be used if it is not
    * possible to do the work in the handle method.
    */
-  beforeHandle(_command: Command): void {}
+  beforeHandle(command: C): void {}
 
   /**
    * This is the standard place to handle any command. Most of the plugin
    * command handling work should take place here.
    */
-  handle(_command: Command): void {}
+  handle(command: C): void {}
 
   /**
    * Sometimes, it is useful to perform some work after a command (and all its
@@ -80,19 +74,9 @@ export class BasePlugin<
    * Combine multiple validation functions into a single function
    * returning the list of results of every validation.
    */
-  batchValidations<T>(...validations: Validation<T, Result>[]): Validation<T, Result> {
-    return (toValidate: T) => {
-      const outcomes: Result[] = [];
-      for (const validation of validations) {
-        const result = validation.call(this, toValidate);
-        if (Array.isArray(result)) {
-          outcomes.push(...result);
-        } else {
-          outcomes.push(result);
-        }
-      }
-      return outcomes;
-    };
+  batchValidations<T>(...validations: Validation<T>[]): Validation<T> {
+    return (toValidate: T) =>
+      validations.map((validation) => validation.call(this, toValidate)).flat();
   }
 
   /**
@@ -100,26 +84,26 @@ export class BasePlugin<
    * the other. As soon as one validation fails, it stops and the cancelled reason
    * is returned.
    */
-  chainValidations<T>(...validations: Validation<T, Result>[]): Validation<T, Result> {
+  chainValidations<T>(...validations: Validation<T>[]): Validation<T> {
     return (toValidate: T) => {
       for (const validation of validations) {
-        let results = validation.call(this, toValidate);
+        let results: CommandResult | CommandResult[] = validation.call(this, toValidate);
         if (!Array.isArray(results)) {
           results = [results];
         }
-        const cancelledReasons = results.filter((result) => result !== this.successResult);
+        const cancelledReasons = results.filter((result) => result !== CommandResult.Success);
         if (cancelledReasons.length) {
           return cancelledReasons;
         }
       }
-      return this.successResult;
+      return CommandResult.Success;
     };
   }
 
   checkValidations<T>(
     command: T,
-    ...validations: Validation<NoInfer<T>, Result>[]
-  ): Result | Result[] {
+    ...validations: Validation<NoInfer<T>>[]
+  ): CommandResult | CommandResult[] {
     return this.batchValidations(...validations)(command);
   }
 }

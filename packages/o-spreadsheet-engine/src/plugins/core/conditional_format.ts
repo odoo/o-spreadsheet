@@ -20,9 +20,8 @@ import {
   IconSetRule,
   IconThreshold,
 } from "../../types/conditional_formatting";
-import { ApplyRangeChange, UID, UnboundedZone, Zone } from "../../types/misc";
+import { ApplyRangeChange, UID, UnboundedZone, Validation, Zone } from "../../types/misc";
 import { RangeData } from "../../types/range";
-import { Validation } from "../../types/validator";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
@@ -559,7 +558,7 @@ export class ConditionalFormatPlugin
     return CommandResult.Success;
   }
 
-  private checkThresholds(check: ThresholdValidation): Validation<ColorScaleRule, CommandResult> {
+  private checkThresholds(check: ThresholdValidation): Validation<ColorScaleRule> {
     return this.batchValidations(
       (rule) => check(rule.minimum, "min"),
       (rule) => check(rule.maximum, "max"),
@@ -567,9 +566,7 @@ export class ConditionalFormatPlugin
     );
   }
 
-  private checkInflectionPoints(
-    check: InflectionPointValidation
-  ): Validation<IconSetRule, CommandResult> {
+  private checkInflectionPoints(check: InflectionPointValidation): Validation<IconSetRule> {
     return this.batchValidations(
       (rule) => check(rule.lowerInflectionPoint, "lowerInflectionPoint"),
       (rule) => check(rule.upperInflectionPoint, "upperInflectionPoint")

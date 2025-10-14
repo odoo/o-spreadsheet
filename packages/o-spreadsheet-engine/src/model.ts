@@ -41,7 +41,6 @@ import {
 } from "./types/commands";
 import { CoreGetters } from "./types/coreGetters";
 import { Getters } from "./types/getters";
-import { HistoryChange } from "./types/history2";
 import { DEFAULT_LOCALES } from "./types/locale";
 import { UID } from "./types/misc";
 import { Mode, ModelConfig, ModelExternalConfig } from "./types/model";
@@ -95,7 +94,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private coreViewPluginConfig: CoreViewPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
-  private state: StateObserver<CoreCommand, HistoryChange>;
+  private state;
 
   readonly selection: SelectionStreamProcessor;
 
@@ -134,7 +133,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     const workbookData = load(data, verboseImport);
 
-    this.state = new StateObserver<CoreCommand, HistoryChange>();
+    this.state = new StateObserver();
 
     this.uuidGenerator = uuidGenerator;
 

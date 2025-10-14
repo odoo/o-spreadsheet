@@ -4,6 +4,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 // MISC
 // -----------------------------------------------------------------------------
 import { Token } from "../formulas/tokenizer";
+import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
 
@@ -313,6 +314,8 @@ export type ConsecutiveIndexes = HeaderIndex[];
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) => void;
 }
+
+export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
 
 export type Increment = 1 | -1 | 0;
 

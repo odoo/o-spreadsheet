@@ -1,4 +1,4 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -34,7 +34,6 @@ import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
-import { Validator } from "../../../types/validator";
 import {
   getBarChartData,
   getBarChartDatasets,
