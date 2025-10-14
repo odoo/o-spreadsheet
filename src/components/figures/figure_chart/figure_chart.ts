@@ -7,7 +7,6 @@ interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the
   // style by hand in the useEffect()
   figureUI: FigureUI;
-  onFigureDeleted: () => void;
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
   openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
@@ -17,7 +16,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static props = {
     figureUI: Object,
-    onFigureDeleted: Function,
     editFigureStyle: { type: Function, optional: true },
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },

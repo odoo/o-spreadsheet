@@ -154,7 +154,6 @@ interface Props {
   onGridResized: (dimension: Rect) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
-  onFigureDeleted: () => void;
   getGridSize: () => { width: number; height: number };
 }
 
@@ -165,7 +164,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onCellClicked: { type: Function, optional: true },
     onCellRightClicked: { type: Function, optional: true },
     onGridResized: { type: Function, optional: true },
-    onFigureDeleted: { type: Function, optional: true },
     onGridMoved: Function,
     gridOverlayDimensions: String,
     slots: { type: Object, optional: true },
@@ -180,7 +178,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onCellClicked: () => {},
     onCellRightClicked: () => {},
     onGridResized: () => {},
-    onFigureDeleted: () => {},
   };
   private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
   private cellPopovers!: Store<CellPopoverStore>;

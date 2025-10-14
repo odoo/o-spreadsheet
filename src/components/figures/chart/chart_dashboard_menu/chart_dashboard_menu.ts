@@ -49,7 +49,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
-    this.menuState.menuItems = getChartMenuActions(figureId, () => {}, this.env);
+    this.menuState.menuItems = getChartMenuActions(figureId, this.env);
   }
 
   get fullScreenMenuItem(): MenuItem | undefined {

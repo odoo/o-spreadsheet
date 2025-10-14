@@ -16,7 +16,6 @@
         <t
           t-component="figureRegistry.get(props.figureUI.tag).Component"
           t-key="props.figureUI.id"
-          onFigureDeleted="props.onFigureDeleted"
           figureUI="props.figureUI"
           editFigureStyle.bind="editWrapperStyle"
           openContextMenu.bind="openContextMenu"

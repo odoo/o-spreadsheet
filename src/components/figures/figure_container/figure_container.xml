@@ -11,7 +11,6 @@
             t-att-style="container.inverseViewportStyle">
             <t t-foreach="container.figures" t-as="figureUI" t-key="figureUI.id">
               <FigureComponent
-                onFigureDeleted="this.props.onFigureDeleted"
                 figureUI="figureUI"
                 style="getFigureStyle(figureUI)"
                 class="getFigureClass(figureUI)"
