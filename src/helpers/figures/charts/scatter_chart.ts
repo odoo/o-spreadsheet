@@ -20,7 +20,11 @@ import {
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
-import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
+import {
+  ScatterChartDefinition,
+  ScatterChartRuntime,
+  ScatterShowValuesMode,
+} from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";
@@ -63,6 +67,7 @@ export class ScatterChart extends AbstractChart {
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly showValuesMode?: ScatterShowValuesMode;
   readonly zoomable?: boolean;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -82,6 +87,7 @@ export class ScatterChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.showValuesMode = definition.showValuesMode;
     this.zoomable = definition.zoomable;
   }
 
@@ -113,6 +119,7 @@ export class ScatterChart extends AbstractChart {
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      showValuesMode: context.showValuesMode,
       zoomable: context.zoomable,
       humanize: context.humanize,
     };
@@ -132,6 +139,9 @@ export class ScatterChart extends AbstractChart {
       ranges.push({
         ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+        pointLabelRange: dataSet.pointLabelRange
+          ? this.getters.getRangeString(dataSet.pointLabelRange, targetSheetId || this.sheetId)
+          : undefined,
       });
     }
     return {
@@ -148,6 +158,7 @@ export class ScatterChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      showValuesMode: this.showValuesMode,
       zoomable: this.zoomable,
       humanize: this.humanize,
     };
@@ -159,6 +170,9 @@ export class ScatterChart extends AbstractChart {
       range.push({
         ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
+        pointLabelRange: dataSet.pointLabelRange
+          ? this.getters.getRangeString(dataSet.pointLabelRange, this.sheetId)
+          : undefined,
       });
     }
     return {

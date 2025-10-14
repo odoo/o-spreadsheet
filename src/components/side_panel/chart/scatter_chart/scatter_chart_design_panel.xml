@@ -1,0 +1,36 @@
+<templates>
+  <t t-name="o-spreadsheet-ScatterChartDesignPanel">
+    <GeneralDesignEditor t-props="props">
+      <t t-set-slot="general-extension">
+        <ChartLegend t-props="props"/>
+        <Section class="'pt-0'" title.translate="Values">
+          <ChartShowValues
+            t-props="props"
+            onModeChanged.bind="onShowValuesModeChanged"
+            modes="showValuesModes"
+          />
+        </Section>
+        <Section class="'pt-0'" title.translate="Zoom">
+          <Checkbox
+            name="'zoomable'"
+            label.translate="Show slicer"
+            value="props.definition.zoomable"
+            onChange.bind="onToggleZoom"
+            className="'mb-2'"
+          />
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SeriesWithAxisDesignEditor t-props="props"/>
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
+      <t t-set-slot="content">
+        <AxisDesignEditor
+          axesList="axesList"
+          chartId="props.chartId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

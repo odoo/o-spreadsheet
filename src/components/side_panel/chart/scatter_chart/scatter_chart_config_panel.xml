@@ -10,6 +10,8 @@
         canChangeDatasetOrientation="canChangeDatasetOrientation"
         datasetOrientation="datasetOrientation"
         onFlipAxis.bind="setDatasetOrientation"
+        getRangeMenuItems.bind="getDataSeriesMenuItems"
+        getRangeExtensions.bind="getPointLabelRangeExtensions"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
