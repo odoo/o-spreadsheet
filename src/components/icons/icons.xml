@@ -611,6 +611,11 @@
       <i class="fa fa-trash"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.CLOSE">
+    <div class="o-icon">
+      <i class="fa fa-times"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.REFRESH">
     <div class="o-icon">
       <i class="fa fa-refresh"/>
