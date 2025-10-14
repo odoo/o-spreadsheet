@@ -1,4 +1,4 @@
-import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
@@ -112,7 +112,6 @@ css/*SCSS*/ `
 interface Props {
   figureUI: FigureUI;
   style: string;
-  onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
 }
@@ -122,13 +121,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figureUI: Object,
     style: { type: String, optional: true },
-    onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
   };
   static components = { MenuPopover };
   static defaultProps = {
-    onFigureDeleted: () => {},
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
@@ -214,10 +211,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         this.figureRef.el,
       ]
     );
-
-    onWillUnmount(() => {
-      this.props.onFigureDeleted();
-    });
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -246,7 +239,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           sheetId: this.env.model.getters.getActiveSheetId(),
           figureId: this.props.figureUI.id,
         });
-        this.props.onFigureDeleted();
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -337,6 +329,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.props.onFigureDeleted, this.env);
+      .menuBuilder(this.props.figureUI.id, this.env);
   }
 }
