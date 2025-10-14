@@ -8,7 +8,6 @@ import {
   centerFigurePosition,
   getMaxFigureSize,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
-import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/helpers/pivot/get_pivot_too_big_error_message";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
@@ -17,6 +16,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
+import { getPivotTooBigErrorMessage } from "../../packages/o-spreadsheet-engine/src/components/translations_terms";
 import { CellPopoverStore } from "../components/popover";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import {

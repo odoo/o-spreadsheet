@@ -4,7 +4,7 @@ import { ChartDefinition, ChartRuntime } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/coreGetters";
 import { Getters } from "../../../types/getters";
-import { UID } from "../../../types/misc";
+import { RangeAdapter, UID } from "../../../types/misc";
 import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
 import { generateMasterChartConfig } from "./runtime/chart_zoom";
@@ -59,4 +59,20 @@ export function validateChartDefinition(
     throw new Error("Unknown chart type.");
   }
   return validators.validateChartDefinition(validator, definition);
+}
+
+/**
+ * Get a new chart definition transformed with the executed command. This
+ * functions will be called during operational transform process
+ */
+export function transformDefinition(
+  chartSheetId: UID,
+  definition: ChartDefinition,
+  applyrange: RangeAdapter
+): ChartDefinition {
+  const transformation = chartRegistry.getAll().find((factory) => factory.match(definition.type));
+  if (!transformation) {
+    throw new Error("Unknown chart type.");
+  }
+  return transformation.transformDefinition(chartSheetId, definition, applyrange);
 }

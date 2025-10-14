@@ -1,8 +1,8 @@
+import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
 import { toXC } from "../helpers/coordinates";
 import { range } from "../helpers/misc2";
-import { getPivotTooBigErrorMessage } from "../helpers/pivot/get_pivot_too_big_error_message";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
@@ -781,120 +781,6 @@ export const XLOOKUP = {
 } satisfies AddFunctionDescription;
 
 //--------------------------------------------------------------------------
-// OFFSET
-//--------------------------------------------------------------------------
-
-export const OFFSET = {
-  description: _t(
-    "Returns a range reference shifted by a specified number of rows and columns from a starting cell reference."
-  ),
-  args: [
-    arg(
-      "cell_reference (meta, range<meta>)",
-      _t("The starting point from which to count the offset rows and columns.")
-    ),
-    arg("offset_rows (number)", _t("The number of rows to offset by.")),
-    arg("offset_columns (number)", _t("The number of columns to offset by.")),
-    arg(
-      "height (number, default='height of cell_reference')",
-      _t("The number of rows of the range to return starting at the offset target.")
-    ),
-    arg(
-      "width (number, default='width of cell_reference')",
-      _t("The number of columns of the range to return starting at the offset target.")
-    ),
-  ],
-  compute: function (
-    cellReference: Matrix<{ value: string }>,
-    offsetRows: Maybe<FunctionResultObject>,
-    offsetColumns: Maybe<FunctionResultObject>,
-    height: Maybe<FunctionResultObject>,
-    width: Maybe<FunctionResultObject>
-  ) {
-    if (isEvaluationError(cellReference[0][0].value)) {
-      return cellReference[0][0];
-    }
-
-    const ref0 = cellReference[0][0].value;
-    if (!ref0) {
-      return new EvaluationError(
-        "In this context, the function OFFSET needs to have a cell or range in parameter."
-      );
-    }
-    const zone = toZone(ref0);
-
-    let offsetHeight = cellReference[0].length;
-    let offsetWidth = cellReference.length;
-
-    if (height) {
-      const _height = toNumber(height, this.locale);
-      if (_height < 1) {
-        return new EvaluationError(
-          _t("Height value is %(_height)s. It should be greater than or equal to 1.", { _height })
-        );
-      }
-      offsetHeight = _height;
-    }
-
-    if (width) {
-      const _width = toNumber(width, this.locale);
-      if (_width < 1) {
-        return new EvaluationError(
-          _t("Width value is %(_width)s. It should be greater than or equal to 1.", { _width })
-        );
-      }
-      offsetWidth = _width;
-    }
-
-    const { sheetName } = splitReference(ref0);
-
-    const sheetId =
-      (sheetName && this.getters.getSheetIdByName(sheetName)) || this.getters.getActiveSheetId();
-
-    const _offsetRows = toNumber(offsetRows, this.locale);
-    const _offsetColumns = toNumber(offsetColumns, this.locale);
-
-    const originPosition = this.__originCellPosition;
-    if (originPosition) {
-      this.updateDependencies?.(originPosition);
-    }
-
-    const startingCol = zone.left + _offsetColumns;
-    const startingRow = zone.top + _offsetRows;
-
-    if (startingCol < 0 || startingRow < 0) {
-      return new InvalidReferenceError(_t("OFFSET evaluates to an out of bounds range."));
-    }
-
-    const dependencyZone: Zone = {
-      left: startingCol,
-      top: startingRow,
-      right: startingCol + offsetWidth - 1,
-      bottom: startingRow + offsetHeight - 1,
-    };
-
-    const range = this.getters.getRangeFromZone(sheetId, dependencyZone);
-    if (range.invalidXc || range.invalidSheetName) {
-      return new InvalidReferenceError();
-    }
-    if (originPosition) {
-      this.addDependencies?.(originPosition, [range]);
-    }
-
-    return generateMatrix(
-      offsetWidth,
-      offsetHeight,
-      (col: number, row: number): FunctionResultObject =>
-        this.getters.getEvaluatedCell({
-          sheetId,
-          col: startingCol + col,
-          row: startingRow + row,
-        })
-    );
-  },
-} satisfies AddFunctionDescription;
-
-//--------------------------------------------------------------------------
 // Pivot functions
 //--------------------------------------------------------------------------
 
@@ -1096,5 +982,119 @@ export const PIVOT = {
       result[0][0] = { value: pivotTitle };
     }
     return result;
+  },
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// OFFSET
+//--------------------------------------------------------------------------
+
+export const OFFSET = {
+  description: _t(
+    "Returns a range reference shifted by a specified number of rows and columns from a starting cell reference."
+  ),
+  args: [
+    arg(
+      "cell_reference (meta, range<meta>)",
+      _t("The starting point from which to count the offset rows and columns.")
+    ),
+    arg("offset_rows (number)", _t("The number of rows to offset by.")),
+    arg("offset_columns (number)", _t("The number of columns to offset by.")),
+    arg(
+      "height (number, default='height of cell_reference')",
+      _t("The number of rows of the range to return starting at the offset target.")
+    ),
+    arg(
+      "width (number, default='width of cell_reference')",
+      _t("The number of columns of the range to return starting at the offset target.")
+    ),
+  ],
+  compute: function (
+    cellReference: Matrix<{ value: string }>,
+    offsetRows: Maybe<FunctionResultObject>,
+    offsetColumns: Maybe<FunctionResultObject>,
+    height: Maybe<FunctionResultObject>,
+    width: Maybe<FunctionResultObject>
+  ) {
+    if (isEvaluationError(cellReference[0][0].value)) {
+      return cellReference[0][0];
+    }
+
+    const ref0 = cellReference[0][0].value;
+    if (!ref0) {
+      return new EvaluationError(
+        "In this context, the function OFFSET needs to have a cell or range in parameter."
+      );
+    }
+    const zone = toZone(ref0);
+
+    let offsetHeight = cellReference[0].length;
+    let offsetWidth = cellReference.length;
+
+    if (height) {
+      const _height = toNumber(height, this.locale);
+      if (_height < 1) {
+        return new EvaluationError(
+          _t("Height value is %(_height)s. It should be greater than or equal to 1.", { _height })
+        );
+      }
+      offsetHeight = _height;
+    }
+
+    if (width) {
+      const _width = toNumber(width, this.locale);
+      if (_width < 1) {
+        return new EvaluationError(
+          _t("Width value is %(_width)s. It should be greater than or equal to 1.", { _width })
+        );
+      }
+      offsetWidth = _width;
+    }
+
+    const { sheetName } = splitReference(ref0);
+
+    const sheetId =
+      (sheetName && this.getters.getSheetIdByName(sheetName)) || this.getters.getActiveSheetId();
+
+    const _offsetRows = toNumber(offsetRows, this.locale);
+    const _offsetColumns = toNumber(offsetColumns, this.locale);
+
+    const originPosition = this.__originCellPosition;
+    if (originPosition) {
+      this.updateDependencies?.(originPosition);
+    }
+
+    const startingCol = zone.left + _offsetColumns;
+    const startingRow = zone.top + _offsetRows;
+
+    if (startingCol < 0 || startingRow < 0) {
+      return new InvalidReferenceError(_t("OFFSET evaluates to an out of bounds range."));
+    }
+
+    const dependencyZone: Zone = {
+      left: startingCol,
+      top: startingRow,
+      right: startingCol + offsetWidth - 1,
+      bottom: startingRow + offsetHeight - 1,
+    };
+
+    const range = this.getters.getRangeFromZone(sheetId, dependencyZone);
+    if (range.invalidXc || range.invalidSheetName) {
+      return new InvalidReferenceError();
+    }
+    if (originPosition) {
+      this.addDependencies?.(originPosition, [range]);
+    }
+
+    return generateMatrix(
+      offsetWidth,
+      offsetHeight,
+      (col: number, row: number): FunctionResultObject =>
+        this.getters.getEvaluatedCell({
+          sheetId,
+          col: startingCol + col,
+          row: startingRow + row,
+        })
+    );
   },
 } satisfies AddFunctionDescription;
