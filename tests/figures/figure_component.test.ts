@@ -711,6 +711,23 @@ describe("figures", () => {
     expect(bottomRightContainerStyle.height).toEqual(`${height - 2 * DEFAULT_CELL_HEIGHT}px`);
   });
 
+  test("Deleting a figure does not change the DOM focus if the figure was not focused", async () => {
+    createFigure(model);
+    await nextTick();
+    env.openSidePanel("FindAndReplace");
+    await nextTick();
+
+    const panelInput = fixture.querySelector<HTMLElement>(".o-sidePanel input");
+    panelInput?.focus();
+    expect(document.activeElement).toBe(panelInput);
+
+    const figureId = model.getters.getFigures(sheetId)[0].id;
+    model.dispatch("DELETE_FIGURE", { sheetId, id: figureId });
+    await nextTick();
+
+    expect(document.activeElement).toBe(panelInput);
+  });
+
   describe("Figure drag & drop snap", () => {
     describe("Move figure", () => {
       test.each([

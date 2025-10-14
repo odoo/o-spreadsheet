@@ -1,4 +1,4 @@
-import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
@@ -113,7 +113,6 @@ css/*SCSS*/ `
 interface Props {
   figure: Figure;
   style: string;
-  onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
 }
@@ -123,13 +122,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figure: Object,
     style: { type: String, optional: true },
-    onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
   };
   static components = { Menu };
   static defaultProps = {
-    onFigureDeleted: () => {},
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
@@ -212,10 +209,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
     );
-
-    onWillUnmount(() => {
-      this.props.onFigureDeleted();
-    });
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -237,7 +230,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           sheetId: this.env.model.getters.getActiveSheetId(),
           id: figure.id,
         });
-        this.props.onFigureDeleted();
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -302,6 +294,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.position = position;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figure.tag)
-      .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
+      .menuBuilder(this.props.figure.id, this.env);
   }
 }
