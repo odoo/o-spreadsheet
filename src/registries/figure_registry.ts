@@ -19,7 +19,7 @@ import { Registry } from "./registry";
 
 export interface FigureContent {
   Component: any;
-  menuBuilder: (figureId: UID, onFigureDeleted: () => void, env: SpreadsheetChildEnv) => Action[];
+  menuBuilder: (figureId: UID, env: SpreadsheetChildEnv) => Action[];
   SidePanelComponent?: string;
   keepRatio?: boolean;
   minFigSize?: number;
@@ -42,7 +42,7 @@ figureRegistry.add("image", {
 
 function getChartMenu(
   figureId: UID,
-  onFigureDeleted: () => void,
+
   env: SpreadsheetChildEnv
 ): Action[] {
   const menuItemSpecs: ActionSpec[] = [
@@ -58,14 +58,14 @@ function getChartMenu(
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs);
 }
 
 function getImageMenuRegistry(
   figureId: UID,
-  onFigureDeleted: () => void,
+
   env: SpreadsheetChildEnv
 ): Action[] {
   const menuItemSpecs: ActionSpec[] = [
@@ -94,7 +94,7 @@ function getImageMenuRegistry(
       },
       icon: "o-spreadsheet-Icon.REFRESH",
     },
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs);
 }
@@ -131,7 +131,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
 
 function getDeleteMenuItem(
   figureId: UID,
-  onFigureDeleted: () => void,
+
   env: SpreadsheetChildEnv
 ): ActionSpec {
   return {
@@ -143,7 +143,6 @@ function getDeleteMenuItem(
         sheetId: env.model.getters.getActiveSheetId(),
         id: figureId,
       });
-      onFigureDeleted();
     },
     icon: "o-spreadsheet-Icon.TRASH",
   };
