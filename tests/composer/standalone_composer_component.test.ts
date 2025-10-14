@@ -63,7 +63,7 @@ describe("Spreadsheet integrations tests", () => {
     composerFocusStore = env.getStore(ComposerFocusStore);
   });
 
-  test.skip("Can edit a standalone composer", async () => {
+  test("Can edit a standalone composer", async () => {
     await openSidePanelWithComposer({ composerContent: "Hello world" });
     expect(composerEl.textContent).toBe("Hello world");
     const textNode = getTextNodes(composerEl)[0];
@@ -76,7 +76,6 @@ describe("Spreadsheet integrations tests", () => {
       fromScratch: false,
       confirm: false,
     });
-    // editStandaloneComposer does a click on composerEL that removes the selections in the newer jsdom
     expect(composerEl.textContent).toBe("Hello world new text !");
     await keyDown({ key: "Enter" });
     expect(onConfirm).toHaveBeenCalledWith("Hello world new text !");
