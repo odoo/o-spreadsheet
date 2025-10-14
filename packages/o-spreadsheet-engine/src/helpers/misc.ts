@@ -495,6 +495,22 @@ export function isConsecutive(iterable: Iterable<number>): boolean {
 }
 
 /**
+ * Creates a version of the function that's memoized on the value of its first argument, if any.
+ */
+export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
+  const cache = new Map<any, U>();
+  const funcName = func.name ? func.name + " (memoized)" : "memoized";
+  return {
+    [funcName](...args: T) {
+      if (!cache.has(args[0])) {
+        cache.set(args[0], func(...args));
+      }
+      return cache.get(args[0])!;
+    },
+  }[funcName];
+}
+
+/**
  * Removes the specified indexes from the array.
  * Sparse (empty) elements are transformed to undefined (unless their index is explicitly removed).
  */
@@ -575,22 +591,6 @@ export function largeMin(array: number[]) {
     min = array[len] < min ? array[len] : min;
   }
   return min;
-}
-
-/**
- * Creates a version of the function that's memoized on the value of its first argument, if any.
- */
-export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
-  const cache = new Map<any, U>();
-  const funcName = func.name ? func.name + " (memoized)" : "memoized";
-  return {
-    [funcName](...args: T) {
-      if (!cache.has(args[0])) {
-        cache.set(args[0], func(...args));
-      }
-      return cache.get(args[0])!;
-    },
-  }[funcName];
 }
 
 export class TokenizingChars {
