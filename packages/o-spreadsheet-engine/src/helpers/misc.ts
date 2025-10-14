@@ -13,6 +13,13 @@ function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<
 }
 
 /**
+ * Escapes a string to use as a literal string in a RegExp.
+ */
+export function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
  * Deep copy arrays, plain objects and primitive values.
  * Throws an error for other types such as class instances.
  * Sparse arrays remain sparse.
@@ -62,6 +69,36 @@ function isPlainObject(obj: unknown): boolean {
     // obj.constructor can be undefined when there's no prototype (`Object.create(null, {})`)
     (obj?.constructor === Object || obj?.constructor === undefined)
   );
+}
+
+/**
+ * Sanitize the name of a sheet, by eventually removing quotes.
+ */
+export function getUnquotedSheetName(sheetName: string): string {
+  return unquote(sheetName, "'");
+}
+
+/**
+ * Remove quotes from a quoted string.
+ */
+export function unquote(string: string, quoteChar: "'" | '"' = '"'): string {
+  if (string.startsWith(quoteChar)) {
+    string = string.slice(1);
+  }
+  if (string.endsWith(quoteChar)) {
+    string = string.slice(0, -1);
+  }
+  return string;
+}
+
+/**
+ * Add quotes around the sheet name or any symbol name if it contains at least one non alphanumeric character.
+ */
+export function getCanonicalSymbolName(symbolName: string): string {
+  if (symbolName.match(/\w/g)?.length !== symbolName.length) {
+    symbolName = `'${symbolName}'`;
+  }
+  return symbolName;
 }
 
 /** Replace the excel-excluded characters of a sheetName */
@@ -409,6 +446,41 @@ export function removeFalsyAttributes<T extends Object | undefined | null>(obj: 
 }
 
 /**
+ * Equivalent to "\s" in regexp, minus the new lines characters
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes
+ */
+const specialWhiteSpaceSpecialCharacters = [
+  "\t",
+  "\f",
+  "\v",
+  String.fromCharCode(parseInt("00a0", 16)),
+  String.fromCharCode(parseInt("1680", 16)),
+  String.fromCharCode(parseInt("2000", 16)),
+  String.fromCharCode(parseInt("200a", 16)),
+  String.fromCharCode(parseInt("2028", 16)),
+  String.fromCharCode(parseInt("2029", 16)),
+  String.fromCharCode(parseInt("202f", 16)),
+  String.fromCharCode(parseInt("205f", 16)),
+  String.fromCharCode(parseInt("3000", 16)),
+  String.fromCharCode(parseInt("feff", 16)),
+];
+export const specialWhiteSpaceRegexp = new RegExp(
+  specialWhiteSpaceSpecialCharacters.join("|"),
+  "g"
+);
+const newLineRegexp = /(\r\n|\r)/g;
+export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
+
+/**
+ * Replace all different newlines characters by \n.
+ */
+export function replaceNewLines(text: string | undefined): string {
+  if (!text) return "";
+  return text.replace(newLineRegexp, NEWLINE);
+}
+
+/**
  * Determine if the numbers are consecutive.
  */
 export function isConsecutive(iterable: Iterable<number>): boolean {
@@ -458,73 +530,6 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
     return isNumberBetween(value, max, min);
   }
   return value >= min && value <= max;
-}
-
-/**
- * Escapes a string to use as a literal string in a RegExp.
- */
-export function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/**
- * Remove quotes from a quoted string.
- */
-export function unquote(string: string, quoteChar: "'" | '"' = '"'): string {
-  if (string.startsWith(quoteChar)) {
-    string = string.slice(1);
-  }
-  if (string.endsWith(quoteChar)) {
-    string = string.slice(0, -1);
-  }
-  return string;
-}
-
-/**
- * Sanitize the name of a sheet, by eventually removing quotes.
- */
-export function getUnquotedSheetName(sheetName: string): string {
-  return unquote(sheetName, "'");
-}
-
-/**
- * Add quotes around the sheet name or any symbol name if it contains at least one non alphanumeric character.
- */
-export function getCanonicalSymbolName(symbolName: string): string {
-  if (symbolName.match(/\w/g)?.length !== symbolName.length) {
-    symbolName = `'${symbolName}'`;
-  }
-  return symbolName;
-}
-
-const specialWhiteSpaceSpecialCharacters = [
-  "\t",
-  "\f",
-  "\v",
-  String.fromCharCode(parseInt("00a0", 16)),
-  String.fromCharCode(parseInt("1680", 16)),
-  String.fromCharCode(parseInt("2000", 16)),
-  String.fromCharCode(parseInt("200a", 16)),
-  String.fromCharCode(parseInt("2028", 16)),
-  String.fromCharCode(parseInt("2029", 16)),
-  String.fromCharCode(parseInt("202f", 16)),
-  String.fromCharCode(parseInt("205f", 16)),
-  String.fromCharCode(parseInt("3000", 16)),
-  String.fromCharCode(parseInt("feff", 16)),
-];
-export const specialWhiteSpaceRegexp = new RegExp(
-  specialWhiteSpaceSpecialCharacters.join("|"),
-  "g"
-);
-const newLineRegexp = /(\r\n|\r)/g;
-export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
-
-/**
- * Replace all different newlines characters by \n.
- */
-export function replaceNewLines(text: string | undefined): string {
-  if (!text) return "";
-  return text.replace(newLineRegexp, NEWLINE);
 }
 
 /**
