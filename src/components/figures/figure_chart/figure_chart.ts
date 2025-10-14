@@ -18,14 +18,12 @@ interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the
   // style by hand in the useEffect()
   figure: Figure;
-  onFigureDeleted: () => void;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static props = {
     figure: Object,
-    onFigureDeleted: Function,
   };
   static components = {};
 
