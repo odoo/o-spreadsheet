@@ -7,11 +7,7 @@ import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { Action, ActionSpec, createActions } from "./action";
 
-export function getChartMenuActions(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): Action[] {
+export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
   const chartId = env.model.getters.getChartIdFromFigureId(figureId);
   if (!chartId) {
     return [];
@@ -31,18 +27,14 @@ export function getChartMenuActions(
     getCutMenuItem(figureId, env),
     getCopyAsImageMenuItem(figureId, env),
     getDownloadChartMenuItem(figureId, env),
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
     env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
   );
 }
 
-export function getImageMenuActions(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): Action[] {
+export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
   const menuItemSpecs: ActionSpec[] = [
     getCopyMenuItem(figureId, env, _t("Image copied to clipboard")),
     getCutMenuItem(figureId, env),
@@ -86,16 +78,12 @@ export function getImageMenuActions(
       },
       icon: "o-spreadsheet-Icon.DOWNLOAD",
     },
-    getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs);
 }
 
-export function getCarouselMenuActions(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): Action[] {
+export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
   const isChartSelected = (env: SpreadsheetChildEnv) =>
     env.model.getters.getSelectedCarouselItem(figureId)?.type === "chart";
   const menuItemSpecs: ActionSpec[] = [
@@ -115,7 +103,7 @@ export function getCarouselMenuActions(
     },
     { ...getCutMenuItem(figureId, env), name: _t("Cut carousel") },
     {
-      ...getDeleteMenuItem(figureId, onFigureDeleted, env),
+      ...getDeleteMenuItem(figureId, env),
       name: _t("Delete carousel"),
       separator: true,
     },
@@ -290,11 +278,7 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
   };
 }
 
-function getDeleteMenuItem(
-  figureId: UID,
-  onFigureDeleted: () => void,
-  env: SpreadsheetChildEnv
-): ActionSpec {
+function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   return {
     id: "delete",
     name: _t("Delete"),
@@ -303,7 +287,6 @@ function getDeleteMenuItem(
         sheetId: env.model.getters.getActiveSheetId(),
         figureId,
       });
-      onFigureDeleted();
     },
     icon: "o-spreadsheet-Icon.TRASH",
   };

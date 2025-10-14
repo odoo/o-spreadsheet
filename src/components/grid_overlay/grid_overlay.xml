@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-GridOverlay">
     <div class="position-absolute" t-att-style="style">
-      <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
+      <FiguresContainer/>
     </div>
     <div
       t-ref="gridOverlay"
@@ -16,7 +16,6 @@
       <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"
-        focusGrid="props.onFigureDeleted"
       />
       <t t-slot="default"/>
     </div>

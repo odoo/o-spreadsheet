@@ -1,6 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
@@ -36,7 +36,6 @@ interface Props {
   figureUI: FigureUI;
   style: string;
   class: string;
-  onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
 }
@@ -47,13 +46,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     style: { type: String, optional: true },
     class: { type: String, optional: true },
-    onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
   };
   static components = { MenuPopover };
   static defaultProps = {
-    onFigureDeleted: () => {},
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
@@ -137,10 +134,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         this.figureRef.el,
       ]
     );
-
-    onWillUnmount(() => {
-      this.props.onFigureDeleted();
-    });
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -169,7 +162,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           sheetId: this.env.model.getters.getActiveSheetId(),
           figureId: this.props.figureUI.id,
         });
-        this.props.onFigureDeleted();
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -266,7 +258,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.props.onFigureDeleted, this.env);
+      .menuBuilder(this.props.figureUI.id, this.env);
   }
 
   editWrapperStyle(properties: CSSProperties) {

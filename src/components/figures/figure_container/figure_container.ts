@@ -19,9 +19,7 @@ import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
-interface Props {
-  onFigureDeleted: () => void;
-}
+interface Props {}
 
 interface Container {
   type: ContainerType;
@@ -106,9 +104,7 @@ interface DndState {
  */
 export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
-  static props = {
-    onFigureDeleted: Function,
-  };
+  static props = {};
   static components = { FigureComponent };
 
   dnd = useState<DndState>({
@@ -364,7 +360,6 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
           carouselFigureId: this.dnd.overlappingCarousel.id,
           chartFigureId: figureUI.id,
         });
-        this.props.onFigureDeleted();
       }
 
       this.dnd.draggedFigure = undefined;
