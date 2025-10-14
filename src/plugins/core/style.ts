@@ -96,6 +96,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         break;
       case "CLEAR_FORMATTING":
         this.clearStyle(cmd.sheetId, cmd.target);
+        this.clearFormat(cmd.sheetId, cmd.target);
         break;
       case "UPDATE_CELL":
         if ("style" in cmd) {
@@ -111,7 +112,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           } else {
             this.clearFormat(cmd.sheetId, [positionToZone(cmd)]);
           }
-        } else if ("content" in cmd && cmd.content) {
+        } else if ("content" in cmd && cmd.content && !cmd.content.startsWith("=")) {
           const locale = this.getters.getLocale();
           const parsedValue = parseLiteral(cmd.content, locale);
           const format =

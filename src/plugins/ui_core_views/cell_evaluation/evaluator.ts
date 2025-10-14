@@ -9,7 +9,7 @@ import {
   toXC,
   union,
 } from "../../../helpers";
-import { createEvaluatedCell, emptyCell, evaluateLiteral } from "../../../helpers/cells";
+import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
@@ -68,7 +68,7 @@ export class Evaluator {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluatedCells.get(position) || emptyCell(this.getters.getCellFormat(position));
+    return this.evaluatedCells.get(position) || EMPTY_CELL;
   }
 
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {

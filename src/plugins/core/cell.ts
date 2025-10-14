@@ -16,7 +16,6 @@ import {
   CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
-  Format,
   FormulaCell,
   HeaderIndex,
   LiteralCell,
@@ -102,14 +101,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "SET_FORMATTING":
-        if ("format" in cmd && cmd.format !== undefined) {
-          this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
-        }
-        break;
-      case "CLEAR_FORMATTING":
-        this.clearFormatting(cmd.sheetId, cmd.target);
-        break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
           this.handleAddColumnsRows(cmd, this.copyColumnFormat.bind(this));
@@ -157,42 +148,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
               row,
             });
           }
-        }
-      }
-    }
-  }
-
-  /**
-   * Set a format to all the cells in a zone
-   */
-  private setFormatter(sheetId: UID, zones: Zone[], format: Format) {
-    for (const zone of recomputeZones(zones)) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            format,
-          });
-        }
-      }
-    }
-  }
-
-  /**
-   * Clear the styles and format of zones
-   */
-  private clearFormatting(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            format: "",
-          });
         }
       }
     }

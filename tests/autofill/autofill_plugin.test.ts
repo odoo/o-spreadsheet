@@ -18,6 +18,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getMerges,
@@ -144,7 +145,7 @@ describe("Autofill", () => {
     autofill("A1", "A2");
     expect(getCellStyle(model, "A2")).toEqual(style);
     expect(getBorder(model, "A2")).toEqual(border);
-    expect(getCell(model, "A2")?.format).toBe("m/d/yyyy");
+    expect(getCellFormat(model, "A2")).toBe("m/d/yyyy");
   });
 
   test("Autofill a date displays a date in the composer", () => {
@@ -692,7 +693,7 @@ describe("Autofill", () => {
       const cell = getCell(model, "A2")!;
       expect(getCellStyle(model, "A2")).toBeUndefined();
       expect(getBorder(model, "A2")).toBeNull();
-      expect(cell.format).toBeUndefined();
+      expect(getCellFormat(model, "A2")).toBeUndefined();
       expect(cell["content"]).toBe("1");
     });
   });
