@@ -1,4 +1,4 @@
-import { deepCopy } from "../../helpers/misc2";
+import { deepCopy } from "../../helpers/misc";
 import { Command, invalidateEvaluationCommands } from "../../types/commands";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";

@@ -1,4 +1,4 @@
-import { groupConsecutive } from "../helpers/misc2";
+import { groupConsecutive } from "../helpers/misc";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,

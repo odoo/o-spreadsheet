@@ -1,7 +1,7 @@
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { toXC } from "../../helpers/coordinates";
-import { deepCopy, getUniqueText, range } from "../../helpers/misc2";
+import { deepCopy, getUniqueText, range } from "../../helpers/misc";
 import { toLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";

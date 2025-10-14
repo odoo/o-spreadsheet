@@ -1,5 +1,5 @@
 import { toXC } from "../../helpers/coordinates";
-import { range } from "../../helpers/misc2";
+import { range } from "../../helpers/misc";
 import { toZone, zoneToDimension } from "../../helpers/zones";
 import { ExcelFilterData, ExcelSheetData, ExcelTableData } from "../../types/workbook_data";
 import { XMLAttributes, XMLString } from "../../types/xlsx";

@@ -1,4 +1,4 @@
-import { isBoolean } from "../../helpers/misc2";
+import { isBoolean } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
 import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";

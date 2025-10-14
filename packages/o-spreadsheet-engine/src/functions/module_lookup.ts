@@ -2,7 +2,7 @@ import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
 import { toXC } from "../helpers/coordinates";
-import { range } from "../helpers/misc2";
+import { range } from "../helpers/misc";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";

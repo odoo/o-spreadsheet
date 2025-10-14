@@ -4,7 +4,7 @@ import { toXC } from "../../helpers/coordinates";
 import { iterateItemIdsPositions } from "../../helpers/data_normalization";
 import { isTextFormat } from "../../helpers/format/format";
 import { withHttps } from "../../helpers/links";
-import { isMarkdownLink, isSheetUrl, parseMarkdownLink, parseSheetUrl } from "../../helpers/misc2";
+import { isMarkdownLink, isSheetUrl, parseMarkdownLink, parseSheetUrl } from "../../helpers/misc";
 import { isInside, toZone } from "../../helpers/zones";
 import { CellErrorType } from "../../types/errors";
 import { HeaderIndex } from "../../types/misc";

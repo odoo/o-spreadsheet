@@ -1,4 +1,4 @@
-import { markdownLink } from "../helpers/misc2";
+import { markdownLink } from "../helpers/misc";
 import { _t } from "../translation";
 import { AddFunctionDescription } from "../types/functions";
 import { FunctionResultObject, Maybe } from "../types/misc";

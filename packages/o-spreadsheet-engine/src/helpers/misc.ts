@@ -1,4 +1,464 @@
-import { NEWLINE } from "../constants";
+//------------------------------------------------------------------------------
+// Miscellaneous
+//------------------------------------------------------------------------------
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
+import { ChartStyle } from "../types/chart";
+import { SearchOptions } from "../types/find_and_replace";
+import { Cloneable, ConsecutiveIndexes, DebouncedFunction, Lazy, Style, UID } from "../types/misc";
+
+const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
+
+function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<T> {
+  return "clone" in obj && obj.clone instanceof Function;
+}
+
+/**
+ * Deep copy arrays, plain objects and primitive values.
+ * Throws an error for other types such as class instances.
+ * Sparse arrays remain sparse.
+ */
+export function deepCopy<T>(obj: T): T {
+  switch (typeof obj) {
+    case "object": {
+      if (obj === null) {
+        return obj;
+      } else if (isCloneable(obj)) {
+        return obj.clone();
+      } else if (!(isPlainObject(obj) || obj instanceof Array)) {
+        throw new Error("Unsupported type: only objects and arrays are supported");
+      }
+      const result: any = Array.isArray(obj) ? new Array(obj.length) : {};
+      if (Array.isArray(obj)) {
+        for (let i = 0, len = obj.length; i < len; i++) {
+          if (i in obj) {
+            result[i] = deepCopy(obj[i]);
+          }
+        }
+      } else {
+        for (const key in obj) {
+          result[key] = deepCopy(obj[key]);
+        }
+      }
+      return result;
+    }
+    case "number":
+    case "string":
+    case "boolean":
+    case "function":
+    case "undefined":
+      return obj;
+    default:
+      throw new Error(`Unsupported type: ${typeof obj}`);
+  }
+}
+
+/**
+ * Check if the object is a plain old javascript object.
+ */
+function isPlainObject(obj: unknown): boolean {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    // obj.constructor can be undefined when there's no prototype (`Object.create(null, {})`)
+    (obj?.constructor === Object || obj?.constructor === undefined)
+  );
+}
+
+/** Replace the excel-excluded characters of a sheetName */
+export function sanitizeSheetName(sheetName: string, replacementChar: string = " "): string {
+  return sheetName.replace(sanitizeSheetNameRegex, replacementChar);
+}
+
+export function clip(val: number, min: number, max: number): number {
+  return val < min ? min : val > max ? max : val;
+}
+
+/**
+ * Create a range from start (included) to end (excluded).
+ * range(10, 13) => [10, 11, 12]
+ * range(2, 8, 2) => [2, 4, 6]
+ */
+export function range(start: number, end: number, step = 1) {
+  if (end <= start && step > 0) {
+    return [];
+  }
+  if (step === 0) {
+    throw new Error("range() step must not be zero");
+  }
+  const length = Math.ceil(Math.abs((end - start) / step));
+  const array: number[] = Array(length);
+  for (let i = 0; i < length; i++) {
+    array[i] = start + i * step;
+  }
+  return array;
+}
+
+/**
+ * Groups consecutive numbers.
+ * The input array is assumed to be sorted
+ * @param numbers
+ */
+export function groupConsecutive(numbers: number[]): ConsecutiveIndexes[] {
+  return numbers.reduce((groups, currentRow, index, rows) => {
+    if (Math.abs(currentRow - rows[index - 1]) === 1) {
+      const lastGroup = groups[groups.length - 1];
+      lastGroup.push(currentRow);
+    } else {
+      groups.push([currentRow]);
+    }
+    return groups;
+  }, [] as ConsecutiveIndexes[]);
+}
+
+/**
+ * Create one generator from two generators by linking
+ * each item of the first generator to the next item of
+ * the second generator.
+ *
+ * Let's say generator G1 yields A, B, C and generator G2 yields X, Y, Z.
+ * The resulting generator of `linkNext(G1, G2)` will yield A', B', C'
+ * where `A' = A & {next: Y}`, `B' = B & {next: Z}` and `C' = C & {next: undefined}`
+ * @param generator
+ * @param nextGenerator
+ */
+export function* linkNext<T>(
+  generator: Generator<T>,
+  nextGenerator: Generator<T>
+): Generator<T & { next?: T }> {
+  nextGenerator.next();
+  for (const item of generator) {
+    const nextItem = nextGenerator.next();
+    yield {
+      ...item,
+      next: nextItem.done ? undefined : nextItem.value,
+    };
+  }
+}
+
+export function isBoolean(str: string): boolean {
+  const upperCased = str.toUpperCase();
+  return upperCased === "TRUE" || upperCased === "FALSE";
+}
+
+const MARKDOWN_LINK_REGEX = /^\[(.+)\]\((.+)\)$/;
+//link must start with http or https
+//https://stackoverflow.com/a/3809435/4760614
+const WEB_LINK_REGEX =
+  /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
+
+export function isMarkdownLink(str: string): boolean {
+  return MARKDOWN_LINK_REGEX.test(str);
+}
+
+/**
+ * Check if the string is a web link.
+ * e.g. http://odoo.com
+ */
+export function isWebLink(str: string): boolean {
+  return WEB_LINK_REGEX.test(str);
+}
+
+/**
+ * Build a markdown link from a label and an url
+ */
+export function markdownLink(label: string, url: string): string {
+  return `[${label}](${url})`;
+}
+
+export function parseMarkdownLink(str: string): { url: string; label: string } {
+  const matches = str.match(MARKDOWN_LINK_REGEX) || [];
+  const label = matches[1];
+  const url = matches[2];
+  if (!label || !url) {
+    throw new Error(`Could not parse markdown link ${str}.`);
+  }
+  return {
+    label,
+    url,
+  };
+}
+
+const O_SPREADSHEET_LINK_PREFIX = "o-spreadsheet://";
+
+export function isSheetUrl(url: string) {
+  return url.startsWith(O_SPREADSHEET_LINK_PREFIX);
+}
+
+export function buildSheetLink(sheetId: UID) {
+  return `${O_SPREADSHEET_LINK_PREFIX}${sheetId}`;
+}
+
+/**
+ * Parse a sheet link and return the sheet id
+ */
+export function parseSheetUrl(sheetLink: string) {
+  if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
+    return sheetLink.slice(O_SPREADSHEET_LINK_PREFIX.length);
+  }
+  throw new Error(`${sheetLink} is not a valid sheet link`);
+}
+
+/**
+ * This helper function can be used as a type guard when filtering arrays.
+ * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)
+ */
+export function isDefined<T>(argument: T | undefined): argument is T {
+  return argument !== undefined;
+}
+
+export function isNotNull<T>(argument: T | null): argument is T {
+  return argument !== null;
+}
+
+/**
+ * Check if all the values of an object, and all the values of the objects inside of it, are undefined.
+ */
+export function isObjectEmptyRecursive<T extends object>(argument: T | undefined): boolean {
+  if (argument === undefined) return true;
+  return Object.values(argument).every((value) =>
+    typeof value === "object" ? isObjectEmptyRecursive(value) : !value
+  );
+}
+
+/**
+ * Returns a function, that, as long as it continues to be invoked, will not
+ * be triggered. The function will be called after it stops being called for
+ * N milliseconds. If `immediate` is passed, trigger the function on the
+ * leading edge, instead of the trailing.
+ *
+ * Also decorate the argument function with two methods: stopDebounce and isDebouncePending.
+ *
+ * Inspired by https://davidwalsh.name/javascript-debounce-function
+ */
+export function debounce<T extends (...args: any) => void>(
+  func: T,
+  wait: number,
+  immediate?: boolean
+): DebouncedFunction<T> {
+  let timeout: any | undefined = undefined;
+  const debounced = function (this: any): void {
+    const context = this;
+    const args = Array.from(arguments);
+    function later() {
+      timeout = undefined;
+      if (!immediate) {
+        func.apply(context, args);
+      }
+    }
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) {
+      func.apply(context, args);
+    }
+  };
+  debounced.isDebouncePending = () => timeout !== undefined;
+  debounced.stopDebounce = () => {
+    clearTimeout(timeout);
+  };
+  return debounced as DebouncedFunction<T>;
+}
+
+/**
+ * Creates a batched version of a callback so that all calls to it in the same
+ * microtick will only call the original callback once.
+ *
+ * @param callback the callback to batch
+ * @returns a batched version of the original callback
+ *
+ * Copied from odoo/owl repo.
+ */
+export function batched(callback: () => void): () => void {
+  let scheduled = false;
+  return async (...args) => {
+    if (!scheduled) {
+      scheduled = true;
+      await Promise.resolve();
+      scheduled = false;
+      callback(...args);
+    }
+  };
+}
+
+/*
+ * Concatenate an array of strings.
+ */
+export function concat(chars: string[]): string {
+  // ~40% faster than chars.join("")
+  let output = "";
+  for (let i = 0, len = chars.length; i < len; i++) {
+    output += chars[i];
+  }
+  return output;
+}
+
+/**
+ * Lazy value computed by the provided function.
+ */
+export function lazy<T>(fn: (() => T) | T): Lazy<T> {
+  let isMemoized = false;
+  let memo: T | undefined;
+  const lazyValue = () => {
+    if (!isMemoized) {
+      memo = fn instanceof Function ? fn() : fn;
+      isMemoized = true;
+    }
+    return memo!;
+  };
+  lazyValue.map = (callback) => lazy(() => callback(lazyValue()));
+  return lazyValue as Lazy<T>;
+}
+
+/**
+ * Find the next defined value after the given index in an array of strings. If there is no defined value
+ * after the index, return the closest defined value before the index. Return an empty string if no
+ * defined value was found.
+ *
+ */
+export function findNextDefinedValue(arr: string[], index: number): string {
+  let value = arr.slice(index).find((val) => val);
+  if (!value) {
+    value = arr
+      .slice(0, index)
+      .reverse()
+      .find((val) => val);
+  }
+  return value || "";
+}
+
+/** Get index of first header added by an ADD_COLUMNS_ROWS command */
+export function getAddHeaderStartIndex(position: "before" | "after", base: number): number {
+  return position === "after" ? base + 1 : base;
+}
+
+/**
+ * Compares n objects.
+ */
+
+export function deepEquals(...o: any[]): boolean {
+  if (o.length <= 1) return true;
+  for (let index = 1; index < o.length; index++) {
+    if (!_deepEquals(o[0], o[index])) return false;
+  }
+  return true;
+}
+
+function _deepEquals(o1: any, o2: any): boolean {
+  if (o1 === o2) return true;
+  if ((o1 && !o2) || (o2 && !o1)) return false;
+  if (typeof o1 !== typeof o2) return false;
+  if (typeof o1 !== "object") return false;
+
+  // Objects can have different keys if the values are undefined
+  for (const key in o2) {
+    if (!(key in o1) && o2[key] !== undefined) {
+      return false;
+    }
+  }
+
+  for (const key in o1) {
+    if (typeof o1[key] !== typeof o2[key]) return false;
+    if (typeof o1[key] === "object") {
+      if (!_deepEquals(o1[key], o2[key])) return false;
+    } else {
+      if (o1[key] !== o2[key]) return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Compares two arrays.
+ * For performance reasons, this function is to be preferred
+ * to 'deepEquals' in the case we know that the inputs are arrays.
+ */
+export function deepEqualsArray(arr1: unknown[], arr2: unknown[]): boolean {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  for (let i = 0; i < arr1.length; i++) {
+    if (!deepEquals(arr1[i], arr2[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Check if the given array contains all the values of the other array.
+ * It makes the assumption that both array do not contain duplicates.
+ */
+export function includesAll<T>(arr: T[], values: T[]): boolean {
+  if (arr.length < values.length) {
+    return false;
+  }
+
+  const set = new Set(arr);
+  return values.every((value) => set.has(value));
+}
+
+/**
+ * Return an object with all the keys in the object that have a falsy value removed.
+ */
+export function removeFalsyAttributes<T extends Object | undefined | null>(obj: T): T {
+  if (!obj) return obj;
+  const cleanObject = { ...obj };
+  Object.keys(cleanObject).forEach((key) => !cleanObject[key] && delete cleanObject[key]);
+  return cleanObject;
+}
+
+/**
+ * Determine if the numbers are consecutive.
+ */
+export function isConsecutive(iterable: Iterable<number>): boolean {
+  const array = Array.from(iterable).sort((a, b) => a - b); // sort numerically rather than lexicographically
+  for (let i = 1; i < array.length; i++) {
+    if (array[i] - array[i - 1] !== 1) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Removes the specified indexes from the array.
+ * Sparse (empty) elements are transformed to undefined (unless their index is explicitly removed).
+ */
+export function removeIndexesFromArray<T>(array: readonly T[], indexes: number[]): T[] {
+  const toRemove = new Set(indexes);
+  const newArray: T[] = [];
+  for (let i = 0; i < array.length; i++) {
+    if (!toRemove.has(i)) {
+      newArray.push(array[i]);
+    }
+  }
+  return newArray;
+}
+
+export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: number): T[] {
+  const newArray = [...array];
+  newArray.splice(index, 0, ...items);
+  return newArray;
+}
+
+export function replaceItemAtIndex<T>(array: readonly T[], newItem: T, index: number): T[] {
+  const newArray = [...array];
+  newArray[index] = newItem;
+  return newArray;
+}
+
+export function trimContent(content: string): string {
+  const contentLines = content.split("\n");
+  return contentLines.map((line) => line.replace(/\s+/g, " ").trim()).join("\n");
+}
+
+export function isNumberBetween(value: number, min: number, max: number): boolean {
+  if (min > max) {
+    return isNumberBetween(value, max, min);
+  }
+  return value >= min && value <= max;
+}
 
 /**
  * Escapes a string to use as a literal string in a RegExp.
@@ -52,13 +512,11 @@ const specialWhiteSpaceSpecialCharacters = [
   String.fromCharCode(parseInt("3000", 16)),
   String.fromCharCode(parseInt("feff", 16)),
 ];
-
 export const specialWhiteSpaceRegexp = new RegExp(
   specialWhiteSpaceSpecialCharacters.join("|"),
   "g"
 );
 const newLineRegexp = /(\r\n|\r)/g;
-
 export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
 
 /**
@@ -126,4 +584,121 @@ export class TokenizingChars {
     }
     return true;
   }
+}
+
+/**
+ * Get a Regex for the find & replace that matches the given search string and options.
+ */
+export function getSearchRegex(searchStr: string, searchOptions: SearchOptions): RegExp {
+  let searchValue = escapeRegExp(searchStr);
+  const flags = !searchOptions.matchCase ? "i" : "";
+  if (searchOptions.exactMatch) {
+    searchValue = `^${searchValue}$`;
+  }
+  return RegExp(searchValue, flags);
+}
+
+/**
+ * Alternative to Math.max that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMax(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.max(...array);
+
+  let max: number = -Infinity;
+  while (len--) {
+    max = array[len] > max ? array[len] : max;
+  }
+  return max;
+}
+
+/**
+ * Alternative to Math.min that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMin(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.min(...array);
+
+  let min: number = +Infinity;
+  while (len--) {
+    min = array[len] < min ? array[len] : min;
+  }
+  return min;
+}
+
+/**
+ * Remove duplicates from an array.
+ *
+ * @param array The array to remove duplicates from.
+ * @param cb A callback to get an element value.
+ */
+export function removeDuplicates<T>(array: T[], cb: (a: T) => any = (a) => a): T[] {
+  const set = new Set();
+  return array.filter((item) => {
+    const key = cb(item);
+    if (set.has(key)) {
+      return false;
+    }
+    set.add(key);
+    return true;
+  });
+}
+
+/**
+ * Similar to transposing and array, but with POJOs instead of arrays. Useful, for example, when manipulating
+ * a POJO grid[col][row] and you want to transpose it to grid[row][col].
+ *
+ * The resulting object is created such as result[key1][key2] = pojo[key2][key1]
+ */
+export function transpose2dPOJO<T>(
+  pojo: Record<string, Record<string, T>>
+): Record<string, Record<string, T>> {
+  const result: Record<string, Record<string, T>> = {};
+  for (const key in pojo) {
+    for (const subKey in pojo[key]) {
+      if (!result[subKey]) {
+        result[subKey] = {};
+      }
+      result[subKey][key] = pojo[key][subKey];
+    }
+  }
+  return result;
+}
+
+export function getUniqueText(
+  text: string,
+  texts: string[],
+  options: {
+    compute?: (text: string, increment: number) => string;
+    start?: number;
+    computeFirstOne?: boolean;
+  } = {}
+): string {
+  const compute = options.compute ?? ((text, i) => `${text} (${i})`);
+  const computeFirstOne = options.computeFirstOne ?? false;
+  let i = options.start ?? 1;
+  let newText = computeFirstOne ? compute(text, i) : text;
+  while (texts.includes(newText)) {
+    newText = compute(text, i++);
+  }
+  return newText;
+}
+
+export function isFormula(content: string): boolean {
+  return content.startsWith("=") || content.startsWith("+");
+}
+
+// TODO: we should make make ChartStyle be the same as Style sometime ...
+export function chartStyleToCellStyle(style: ChartStyle): Style {
+  return {
+    bold: style.bold,
+    italic: style.italic,
+    fontSize: style.fontSize,
+    textColor: style.color,
+    align: style.align,
+  };
 }

@@ -14,7 +14,7 @@ import {
   range,
   removeIndexesFromArray,
   replaceItemAtIndex,
-} from "../misc2";
+} from "../misc";
 import {
   DateInternalFormat,
   InternalFormat,

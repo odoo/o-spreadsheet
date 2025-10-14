@@ -1,5 +1,5 @@
 import { UuidGenerator } from "../../helpers";
-import { deepCopy, range } from "../../helpers/misc2";
+import { deepCopy, range } from "../../helpers/misc";
 import {
   AddColumnsRowsCommand,
   AutoresizeColumnsCommand,

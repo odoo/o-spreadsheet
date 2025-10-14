@@ -1,4 +1,4 @@
-import { deepCopy, getAddHeaderStartIndex, isConsecutive, range } from "../../helpers/misc2";
+import { deepCopy, getAddHeaderStartIndex, isConsecutive, range } from "../../helpers/misc";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,

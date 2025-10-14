@@ -1,7 +1,7 @@
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { clip, deepCopy, range } from "../../helpers/misc2";
+import { clip, deepCopy, range } from "../../helpers/misc";
 import {
   isEqual,
   positionToZone,

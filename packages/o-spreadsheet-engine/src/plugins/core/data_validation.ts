@@ -1,6 +1,6 @@
 import { compile } from "../../formulas/compiler";
 import { toXC } from "../../helpers/coordinates";
-import { deepCopy } from "../../helpers/misc2";
+import { deepCopy } from "../../helpers/misc";
 import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside } from "../../helpers/zones";

@@ -7,7 +7,7 @@ import {
 } from "../../constants";
 import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
-import { groupConsecutive, largeMax, range } from "../../helpers/misc2";
+import { groupConsecutive, largeMax, range } from "../../helpers/misc";
 import {
   computeTextLinesHeight,
   computeTextWidth,

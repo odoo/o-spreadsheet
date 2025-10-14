@@ -2,7 +2,7 @@ import { astToFormula } from "../../formulas/formula_formatter";
 import { Token } from "../../formulas/tokenizer";
 import { toScalar } from "../../functions/helper_matrices";
 import { toBoolean } from "../../functions/helpers";
-import { deepEquals, getUniqueText } from "../../helpers/misc2";
+import { deepEquals, getUniqueText } from "../../helpers/misc";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,

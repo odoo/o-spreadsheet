@@ -10,7 +10,6 @@ import {
 import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
@@ -34,6 +33,11 @@ import {
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { Point } from "chart.js";
+import {
+  deepCopy,
+  findNextDefinedValue,
+  range,
+} from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import {
   CellValue,
   DEFAULT_LOCALE,

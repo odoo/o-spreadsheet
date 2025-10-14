@@ -10,7 +10,7 @@ import {
   largeMax,
   largeMin,
   range,
-} from "../../helpers/misc2";
+} from "../../helpers/misc";
 import {
   createDefaultRows,
   getDuplicateSheetName,

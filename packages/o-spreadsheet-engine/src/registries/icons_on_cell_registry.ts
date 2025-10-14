@@ -17,7 +17,7 @@ import {
   PIVOT_COLLAPSE_ICON_SIZE,
   PIVOT_INDENT,
 } from "../constants";
-import { deepEquals } from "../helpers/misc2";
+import { deepEquals } from "../helpers/misc";
 import { computeTextFontSizeInPixels } from "../helpers/text_helper";
 import { Getters } from "../types/getters";
 import { ImageSVG } from "../types/image";

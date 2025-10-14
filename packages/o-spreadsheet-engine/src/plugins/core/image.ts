@@ -1,5 +1,5 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
-import { deepCopy, isDefined } from "../../helpers/misc2";
+import { deepCopy, isDefined } from "../../helpers/misc";
 import { CommandResult, CoreCommand } from "../../types/commands";
 import { FigureSize } from "../../types/figure";
 import { FileStore } from "../../types/files";

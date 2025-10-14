@@ -1,4 +1,4 @@
-import { range } from "../../helpers/misc2";
+import { range } from "../../helpers/misc";
 import { CellPosition, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { UIPlugin } from "../ui_plugin";

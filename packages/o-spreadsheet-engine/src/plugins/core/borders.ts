@@ -1,6 +1,6 @@
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
-import { deepCopy, deepEquals, removeFalsyAttributes } from "../../helpers/misc2";
+import { deepCopy, deepEquals, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import {
   adjacent,

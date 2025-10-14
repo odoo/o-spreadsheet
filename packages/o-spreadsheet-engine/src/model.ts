@@ -4,7 +4,7 @@ import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
-import { deepCopy, lazy } from "./helpers/misc2";
+import { deepCopy, lazy } from "./helpers/misc";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,

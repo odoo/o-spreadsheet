@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { escapeRegExp, getUniqueText } from "../helpers/misc2";
+import { escapeRegExp, getUniqueText } from "../helpers/misc";
 import { toZone, zoneToDimension } from "../helpers/zones";
 import { ExcelSheetData, ExcelWorkbookData } from "../types/workbook_data";
 import {

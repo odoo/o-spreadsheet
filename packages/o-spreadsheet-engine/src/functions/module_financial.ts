@@ -4,7 +4,7 @@ import {
   isLastDayOfMonth,
   jsDateToRoundNumber,
 } from "../helpers/dates";
-import { range } from "../helpers/misc2";
+import { range } from "../helpers/misc";
 import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";

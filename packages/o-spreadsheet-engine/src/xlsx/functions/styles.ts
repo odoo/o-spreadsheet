@@ -1,4 +1,4 @@
-import { isObjectEmptyRecursive } from "../../helpers/misc2";
+import { isObjectEmptyRecursive } from "../../helpers/misc";
 import {
   XLSXBorder,
   XLSXBorderDescr,

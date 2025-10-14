@@ -22,7 +22,7 @@ import {
   isTextFormat,
 } from "../format/format";
 import { detectLink } from "../links";
-import { isBoolean, memoize } from "../misc2";
+import { isBoolean, memoize } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
 
 export function evaluateLiteral(

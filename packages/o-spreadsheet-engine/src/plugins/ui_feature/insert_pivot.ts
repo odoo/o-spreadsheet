@@ -1,5 +1,5 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
-import { getUniqueText, sanitizeSheetName } from "../../helpers/misc2";
+import { getUniqueText, sanitizeSheetName } from "../../helpers/misc";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea, positionToZone } from "../../helpers/zones";

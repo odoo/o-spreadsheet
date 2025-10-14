@@ -1,6 +1,6 @@
 import { NEWLINE } from "../../constants";
 import { canonicalizeNumberContent } from "../../helpers/locale";
-import { range } from "../../helpers/misc2";
+import { range } from "../../helpers/misc";
 import { CellValueType } from "../../types/cells";
 import { Command, CommandResult, SplitTextIntoColumnsCommand } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";

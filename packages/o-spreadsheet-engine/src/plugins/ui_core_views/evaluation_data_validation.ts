@@ -4,7 +4,7 @@ import { compile } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { chipTextColor } from "../../helpers/color";
-import { lazy } from "../../helpers/misc2";
+import { lazy } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
 import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";

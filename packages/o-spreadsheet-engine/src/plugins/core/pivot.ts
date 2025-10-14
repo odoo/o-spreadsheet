@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/compiler";
-import { deepCopy, deepEquals } from "../../helpers/misc2";
+import { deepCopy, deepEquals } from "../../helpers/misc";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { CommandResult, CoreCommand } from "../../types/commands";

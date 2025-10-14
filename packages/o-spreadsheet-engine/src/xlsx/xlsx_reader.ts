@@ -1,5 +1,5 @@
 import { DEFAULT_REVISION_ID } from "../constants";
-import { removeFalsyAttributes } from "../helpers/misc2";
+import { removeFalsyAttributes } from "../helpers/misc";
 import { _t } from "../translation";
 import { WorkbookData } from "../types/workbook_data";
 import {

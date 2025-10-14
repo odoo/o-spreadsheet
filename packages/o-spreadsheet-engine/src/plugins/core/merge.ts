@@ -1,6 +1,6 @@
 import { getFullReference, splitReference } from "../../helpers";
 import { toXC } from "../../helpers/coordinates";
-import { clip, deepEquals, isDefined } from "../../helpers/misc2";
+import { clip, deepEquals, isDefined } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import {
   doesAnyZoneCrossFrozenPane,

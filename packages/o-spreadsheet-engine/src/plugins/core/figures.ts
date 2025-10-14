@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "../../constants";
-import { clip } from "../../helpers/misc2";
+import { clip } from "../../helpers/misc";
 import {
   CommandResult,
   CoreCommand,

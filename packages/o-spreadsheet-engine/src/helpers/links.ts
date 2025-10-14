@@ -5,7 +5,7 @@ import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/coreGetters";
 import { Link } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheetChildEnv";
-import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc2";
+import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
 
 /**
  * Add the `https` prefix to the url if it's missing

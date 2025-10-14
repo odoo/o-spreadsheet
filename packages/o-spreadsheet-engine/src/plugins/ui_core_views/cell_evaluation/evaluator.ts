@@ -22,7 +22,7 @@ import {
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
-import { lazy } from "../../../helpers/misc2";
+import { lazy } from "../../../helpers/misc";
 import {
   aggregatePositionsToZones,
   excludeTopLeft,

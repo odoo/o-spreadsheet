@@ -1,7 +1,7 @@
 import { getDefaultSheetViewSize } from "../../constants";
 import { scrollDelay } from "../../helpers/edge_scrolling";
 import { InternalViewport } from "../../helpers/internal_viewport";
-import { clip, isDefined, range } from "../../helpers/misc2";
+import { clip, isDefined, range } from "../../helpers/misc";
 import { findCellInNewZone, positionToZone } from "../../helpers/zones";
 import {
   Command,

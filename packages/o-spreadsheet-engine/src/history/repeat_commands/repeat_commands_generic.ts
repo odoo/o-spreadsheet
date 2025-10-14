@@ -1,4 +1,4 @@
-import { deepCopy } from "../../helpers/misc2";
+import { deepCopy } from "../../helpers/misc";
 import { Command } from "../../types/commands";
 import { Getters } from "../../types/getters";
 

@@ -5,7 +5,7 @@ import {
   largeMax,
   largeMin,
   range,
-} from "../../helpers/misc2";
+} from "../../helpers/misc";
 import { Command, CommandResult } from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";

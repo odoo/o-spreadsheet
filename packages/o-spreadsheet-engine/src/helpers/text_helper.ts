@@ -10,7 +10,7 @@ import {
 import { Canvas2DContext } from "../types/canvas";
 import { Cell } from "../types/cells";
 import { Pixel, PixelPosition, Style } from "../types/misc";
-import { isMarkdownLink, parseMarkdownLink } from "./misc2";
+import { isMarkdownLink, parseMarkdownLink } from "./misc";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;

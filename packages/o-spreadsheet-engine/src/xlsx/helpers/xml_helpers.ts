@@ -3,7 +3,7 @@
 // -------------------------------------
 
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { concat } from "../../helpers/misc2";
+import { concat } from "../../helpers/misc";
 import { BorderDescr } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import {

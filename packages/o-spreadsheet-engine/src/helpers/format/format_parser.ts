@@ -1,5 +1,5 @@
 import { Format } from "../../types/format";
-import { isDefined } from "../misc2";
+import { isDefined } from "../misc";
 import {
   CharToken,
   DatePartToken,

@@ -28,7 +28,7 @@ import {
   PivotTableCell,
 } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
-import { getUniqueText, isDefined } from "../misc2";
+import { getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 

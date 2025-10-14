@@ -8,7 +8,7 @@ import {
   rgbaToHSLA,
   toHex,
 } from "../../helpers/color";
-import { isDefined } from "../../helpers/misc2";
+import { isDefined } from "../../helpers/misc";
 import { Cell } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";

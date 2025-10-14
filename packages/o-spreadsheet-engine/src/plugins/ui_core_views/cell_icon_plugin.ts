@@ -1,4 +1,4 @@
-import { isDefined } from "../../helpers/misc2";
+import { isDefined } from "../../helpers/misc";
 import {
   GridIcon,
   IconsOfCell,

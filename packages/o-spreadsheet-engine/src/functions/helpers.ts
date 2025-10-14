@@ -1,6 +1,6 @@
 // HELPERS
 import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
-import { memoize } from "../helpers/misc2";
+import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";

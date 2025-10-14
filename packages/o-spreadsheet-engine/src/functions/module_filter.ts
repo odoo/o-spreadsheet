@@ -1,4 +1,4 @@
-import { range } from "../helpers/misc2";
+import { range } from "../helpers/misc";
 import { cellsSortingCriterion } from "../helpers/sort";
 import { _t } from "../translation";
 import { CellValue, CellValueType } from "../types/cells";

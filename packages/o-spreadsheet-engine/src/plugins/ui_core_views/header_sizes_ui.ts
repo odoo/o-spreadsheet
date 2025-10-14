@@ -5,7 +5,7 @@ import {
   insertItemsAtIndex,
   range,
   removeIndexesFromArray,
-} from "../../helpers/misc2";
+} from "../../helpers/misc";
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";

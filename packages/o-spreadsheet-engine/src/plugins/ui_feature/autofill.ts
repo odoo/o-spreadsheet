@@ -1,5 +1,5 @@
 import { toCartesian, toXC } from "../../helpers/coordinates";
-import { clip } from "../../helpers/misc2";
+import { clip } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";

@@ -1,7 +1,7 @@
 import { rangeTokenize } from "../formulas/range_tokenizer";
 import { RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
-import { concat } from "./misc2";
+import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
 import { isSheetNameEqual } from "./sheet";

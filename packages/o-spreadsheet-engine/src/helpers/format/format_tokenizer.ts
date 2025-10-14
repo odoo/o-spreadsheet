@@ -1,4 +1,4 @@
-import { TokenizingChars } from "../misc2";
+import { TokenizingChars } from "../misc";
 
 export interface DigitToken {
   type: "DIGIT";

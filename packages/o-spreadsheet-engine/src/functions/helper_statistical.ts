@@ -2,7 +2,7 @@ import { Point } from "chart.js";
 import { DEFAULT_WINDOW_SIZE } from "../constants";
 import { isNumber } from "../helpers";
 import { parseDateTime } from "../helpers/dates";
-import { range } from "../helpers/misc2";
+import { range } from "../helpers/misc";
 import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { Locale } from "../types/locale";

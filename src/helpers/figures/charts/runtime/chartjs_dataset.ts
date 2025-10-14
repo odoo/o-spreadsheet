@@ -23,7 +23,6 @@ import {
   isTrendLineAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { isDefined, range } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
@@ -57,6 +56,7 @@ import {
   TreeMapGroupColor,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
+import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";

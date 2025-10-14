@@ -21,7 +21,7 @@ import {
 } from "../types/misc";
 import { Range, RangePart, RangeStringOptions } from "../types/range";
 import { numberToLetters } from "./coordinates";
-import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc2";
+import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
 import { isSheetNameEqual } from "./sheet";
 import {

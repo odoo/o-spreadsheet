@@ -1,5 +1,5 @@
 import { toHex } from "../../helpers/color";
-import { getUniqueText } from "../../helpers/misc2";
+import { getUniqueText } from "../../helpers/misc";
 import {
   DEFAULT_TABLE_CONFIG,
   TABLE_PRESETS,

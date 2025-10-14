@@ -3,7 +3,7 @@ import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matric
 import { percentile } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { colorNumberToHex, getColorScale } from "../../helpers/color";
-import { clip, largeMax, largeMin, lazy } from "../../helpers/misc2";
+import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";

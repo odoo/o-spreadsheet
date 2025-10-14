@@ -1,6 +1,6 @@
 import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
-import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc2";
+import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { positionToZone } from "../../helpers/zones";
 import {
   Command,

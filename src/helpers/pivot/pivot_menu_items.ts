@@ -1,4 +1,3 @@
-import { deepCopy } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
 import {
   addDimensionToPivotDefinition,
@@ -22,6 +21,7 @@ import {
   PivotHeaderCell,
   SortDirection,
 } from "../..";
+import { deepCopy } from "../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { ActionSpec } from "../../actions/action";
 import { CellValueType } from "../../types";
 

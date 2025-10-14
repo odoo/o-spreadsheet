@@ -19,7 +19,7 @@ import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { Range } from "../../../types/range";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
-import { deepEquals, isDefined } from "../../misc2";
+import { deepEquals, isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,

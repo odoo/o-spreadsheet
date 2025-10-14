@@ -1,4 +1,4 @@
-import { deepCopy, deepEquals, isDefined, range } from "../../helpers/misc2";
+import { deepCopy, deepEquals, isDefined, range } from "../../helpers/misc";
 import { createFilter } from "../../helpers/table_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import {

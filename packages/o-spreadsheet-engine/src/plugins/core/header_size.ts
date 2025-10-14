@@ -4,7 +4,7 @@ import {
   getAddHeaderStartIndex,
   range,
   removeIndexesFromArray,
-} from "../../helpers/misc2";
+} from "../../helpers/misc";
 import { Command } from "../../types/commands";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";

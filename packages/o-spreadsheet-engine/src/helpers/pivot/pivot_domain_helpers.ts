@@ -8,7 +8,7 @@ import {
   PREVIOUS_VALUE,
 } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
-import { clip, deepCopy, deepEquals } from "../misc2";
+import { clip, deepCopy, deepEquals } from "../misc";
 
 export function getDomainOfParentRow(pivot: Pivot, domain: PivotDomain): PivotDomain {
   const { colDomain, rowDomain } = domainToColRowDomain(pivot, domain);

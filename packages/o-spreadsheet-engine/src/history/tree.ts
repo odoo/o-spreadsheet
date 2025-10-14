@@ -1,4 +1,4 @@
-import { linkNext } from "../helpers/misc2";
+import { linkNext } from "../helpers/misc";
 import { OperationSequenceNode, Transformation, TransformationFactory } from "../types/history2";
 import { UID } from "../types/misc";
 import { Branch } from "./branch";

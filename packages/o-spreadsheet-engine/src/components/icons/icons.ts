@@ -6,7 +6,7 @@ import {
   GRAY_900,
   TEXT_BODY_MUTED,
 } from "../../constants";
-import { isDefined } from "../../helpers/misc2";
+import { isDefined } from "../../helpers/misc";
 import { ImageSVG } from "../../types/image";
 import { Style } from "../../types/misc";
 

@@ -1,6 +1,6 @@
 import { AnchorOffset, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
-import { deepCopy } from "../../misc2";
+import { deepCopy } from "../../misc";
 
 export function centerFigurePosition(getters: Getters, size: FigureSize): AnchorOffset {
   const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();

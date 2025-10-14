@@ -16,7 +16,7 @@ import {
   numberToLetters,
   toXC,
 } from "./coordinates";
-import { TokenizingChars, range } from "./misc2";
+import { TokenizingChars, range } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 
 /**

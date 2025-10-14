@@ -1,6 +1,6 @@
 import { Color, HSLA, RGBA } from "../types/misc";
 
-import { concat } from "./misc2";
+import { concat } from "./misc";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;
 const HEX_MATCH = /^#([A-F\d]{2}){3,4}$/;

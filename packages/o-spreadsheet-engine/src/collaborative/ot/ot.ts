@@ -1,4 +1,4 @@
-import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc2";
+import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc";
 import { getRangeAdapter, rangeAdapterRegistry } from "../../helpers/range";
 import {
   moveHeaderIndexesOnHeaderAddition,

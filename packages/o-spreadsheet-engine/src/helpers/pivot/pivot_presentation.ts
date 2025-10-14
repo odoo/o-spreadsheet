@@ -16,7 +16,7 @@ import {
   PivotValueCell,
   PREVIOUS_VALUE,
 } from "../../types/pivot";
-import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc2";
+import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc";
 import {
   domainToColRowDomain,
   domainToString,

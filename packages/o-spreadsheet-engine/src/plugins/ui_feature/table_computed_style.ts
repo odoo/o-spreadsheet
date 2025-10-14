@@ -1,5 +1,5 @@
 import { PositionMap } from "../../helpers/cells/position_map";
-import { lazy } from "../../helpers/misc2";
+import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
 import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
 import { Border, CellPosition, Lazy, Style, TableId, UID, Zone } from "../../types/misc";

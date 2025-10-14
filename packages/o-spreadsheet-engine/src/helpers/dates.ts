@@ -5,7 +5,7 @@
 import { CellValue } from "../types/cells";
 import { Format } from "../types/format";
 import { Locale } from "../types/locale";
-import { isDefined, whiteSpaceCharacters } from "./misc2";
+import { isDefined, whiteSpaceCharacters } from "./misc";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:

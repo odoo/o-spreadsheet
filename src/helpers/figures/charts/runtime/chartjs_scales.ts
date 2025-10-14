@@ -15,7 +15,6 @@ import {
   truncateLabel,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { isDefined, range, removeFalsyAttributes } from "@odoo/o-spreadsheet-engine/helpers/misc2";
 import {
   AxisDesign,
   BarChartDefinition,
@@ -37,6 +36,11 @@ import {
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
+import {
+  isDefined,
+  range,
+  removeFalsyAttributes,
+} from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 

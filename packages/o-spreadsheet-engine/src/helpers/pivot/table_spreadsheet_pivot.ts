@@ -10,7 +10,7 @@ import {
   PivotTableRow,
   PivotVisibilityOptions,
 } from "../../types/pivot";
-import { deepEquals, lazy } from "../misc2";
+import { deepEquals, lazy } from "../misc";
 import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 

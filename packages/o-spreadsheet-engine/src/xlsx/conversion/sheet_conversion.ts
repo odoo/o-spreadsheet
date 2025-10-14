@@ -1,6 +1,6 @@
 import { replaceNewLines, splitReference } from "../../helpers";
 import { toCartesian, toXC } from "../../helpers/coordinates";
-import { buildSheetLink, largeMax, markdownLink } from "../../helpers/misc2";
+import { buildSheetLink, largeMax, markdownLink } from "../../helpers/misc";
 import { Dimension, HeaderGroup } from "../../types/misc";
 import { HeaderData, SheetData } from "../../types/workbook_data";
 import {

@@ -1,4 +1,4 @@
-import { deepEquals, range } from "../../helpers/misc2";
+import { deepEquals, range } from "../../helpers/misc";
 import { sortCells } from "../../helpers/sort";
 import { isInside, overlap, positions, zoneToDimension } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";

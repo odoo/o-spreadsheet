@@ -1,5 +1,5 @@
 import { isDateTimeFormat } from "../../helpers/format/format";
-import { groupConsecutive, largeMax, largeMin, range } from "../../helpers/misc2";
+import { groupConsecutive, largeMax, largeMin, range } from "../../helpers/misc";
 import { isInside, isOneDimensional, positions, union, zoneToDimension } from "../../helpers/zones";
 import { CellValueType, EvaluatedCell } from "../../types/cells";
 import { Command } from "../../types/commands";

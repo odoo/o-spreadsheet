@@ -1,4 +1,4 @@
-import { deepCopy, deepEquals } from "../helpers/misc2";
+import { deepCopy, deepEquals } from "../helpers/misc";
 import { isEqual, isInside, positionToZone, reorderZone, union } from "../helpers/zones";
 import { CellValueType } from "../types/cells";
 import { CommandResult, DispatchResult } from "../types/commands";

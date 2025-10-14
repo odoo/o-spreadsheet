@@ -1,7 +1,7 @@
 import { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartRuntime, ChartType } from "../../../types/chart";
 import { Figure } from "../../../types/figure";
-import { deepCopy } from "../../misc2";
+import { deepCopy } from "../../misc";
 
 export const CHART_COMMON_OPTIONS = {
   // https://www.chartjs.org/docs/latest/general/responsive.html

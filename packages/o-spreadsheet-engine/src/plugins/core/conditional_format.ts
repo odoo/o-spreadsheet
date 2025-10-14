@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/compiler";
-import { deepEquals } from "../../helpers/misc2";
+import { deepEquals } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, toUnboundedZone } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";

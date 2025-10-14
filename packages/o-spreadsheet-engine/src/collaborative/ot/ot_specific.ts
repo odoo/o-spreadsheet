@@ -1,4 +1,4 @@
-import { getAddHeaderStartIndex, range } from "../../helpers/misc2";
+import { getAddHeaderStartIndex, range } from "../../helpers/misc";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,

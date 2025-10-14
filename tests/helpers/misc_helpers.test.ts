@@ -1,3 +1,4 @@
+import seedrandom from "seedrandom";
 import {
   getUniqueText,
   groupConsecutive,
@@ -5,8 +6,7 @@ import {
   lazy,
   memoize,
   range,
-} from "@odoo/o-spreadsheet-engine/helpers/misc2";
-import seedrandom from "seedrandom";
+} from "../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { DateTime, deepCopy, deepEquals, UuidGenerator } from "../../src/helpers";
 
 describe("Misc", () => {

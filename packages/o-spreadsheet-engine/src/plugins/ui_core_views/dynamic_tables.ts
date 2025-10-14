@@ -1,4 +1,4 @@
-import { deepEquals } from "../../helpers/misc2";
+import { deepEquals } from "../../helpers/misc";
 import { createFilter } from "../../helpers/table_helpers";
 import {
   areZonesContinuous,

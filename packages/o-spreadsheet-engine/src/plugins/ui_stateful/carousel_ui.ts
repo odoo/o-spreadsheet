@@ -1,7 +1,7 @@
 import { UuidGenerator } from "../../helpers";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
-import { deepEquals } from "../../helpers/misc2";
+import { deepEquals } from "../../helpers/misc";
 import { Command, CommandResult, LocalCommand } from "../../types/commands";
 import { Carousel, CarouselItem } from "../../types/figure";
 import { UID } from "../../types/misc";

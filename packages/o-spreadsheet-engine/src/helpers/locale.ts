@@ -10,7 +10,7 @@ import { DEFAULT_LOCALE, Locale } from "../types/locale";
 import { isDateTime } from "./dates";
 
 import { formatValue, getDecimalNumberRegex } from "./format/format";
-import { deepCopy, isFormula } from "./misc2";
+import { deepCopy, isFormula } from "./misc";
 import { isNumber } from "./numbers";
 
 export function isValidLocale(locale: any): locale is Locale {
