@@ -13,6 +13,7 @@ import { Token } from "./tokenizer";
 const functions = functionRegistry.content;
 
 export const OPERATOR_MAP = {
+  // export for test
   "=": "EQ",
   "+": "ADD",
   "-": "MINUS",
@@ -43,8 +44,15 @@ type InternalCompiledFormula = CompiledFormula & {
   symbols: string[];
 };
 
+// this cache contains all compiled function code, grouped by "structure". For
+// example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
+// structural function.
+// It is only exported for testing purposes
 export const functionCache: Record<string, FormulaToExecute> = {};
 
+// -----------------------------------------------------------------------------
+// COMPILER
+// -----------------------------------------------------------------------------
 export function compile(formula: string): CompiledFormula {
   const tokens = rangeTokenize(formula);
   return compileTokens(tokens);
@@ -57,7 +65,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
     return {
       tokens,
       dependencies: [],
-      execute() {
+      execute: function () {
         return error;
       },
       isBadExpression: true,
@@ -83,24 +91,31 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     if (ast.type === "EMPTY") {
       throw new BadExpressionError(_t("Invalid formula"));
     }
-
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
     code.append(`// ${cacheKey}`);
     code.append(compiledAST);
     code.append(`return ${compiledAST.returnExpression};`);
     const baseFunction = new Function(
-      "deps",
-      "ref",
-      "range",
+      "deps", // the dependencies in the current formula
+      "ref", // a function to access a certain dependency at a given index
+      "range", // same as above, but guarantee that the result is in the form of a range
       "getSymbolValue",
       "ctx",
       code.toString()
     );
 
-    // @ts-ignore - constructed function
+    // @ts-ignore
     functionCache[cacheKey] = baseFunction;
 
+    /**
+     * This function compile the function arguments. It is mostly straightforward,
+     * except that there is a non trivial transformation in one situation:
+     *
+     * If a function argument is asking for a range, and get a cell, we transform
+     * the cell value into a range. This allow the grid model to differentiate
+     * between a cell value and a non cell value.
+     */
     function compileFunctionArgs(ast: ASTFuncall): FunctionCode[] {
       const { args } = ast;
       const functionName = ast.value.toUpperCase();
@@ -113,6 +128,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       assertEnoughArgs(ast);
 
       const compiledArgs: FunctionCode[] = [];
+
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
@@ -130,60 +146,72 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       return compiledArgs;
     }
 
+    /**
+     * This function compiles all the information extracted by the parser into an
+     * executable code for the evaluation of the cells content. It uses a cache to
+     * not reevaluate identical code structures.
+     *
+     * The function is sensitive to parameter “isMeta”. This
+     * parameter may vary when compiling function arguments:
+     * isMeta: In some cases the function arguments expects information on the
+     * cell/range other than the associated value(s). For example the COLUMN
+     * function needs to receive as argument the coordinates of a cell rather
+     * than its value. For this we have meta arguments.
+     */
     function compileAST(ast: any, isMeta = false, hasRange = false): FunctionCode {
-      const codeBuilder = new FunctionCodeBuilder(scope);
+      const code = new FunctionCodeBuilder(scope);
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
           throw new BadExpressionError(_t("Argument must be a reference to a cell or range."));
         }
       }
       if (ast.debug) {
-        codeBuilder.append("debugger;");
-        codeBuilder.append(`ctx["debug"] = true;`);
+        code.append("debugger;");
+        code.append(`ctx["debug"] = true;`);
       }
       switch (ast.type) {
         case "BOOLEAN":
-          return codeBuilder.return(`{ value: ${ast.value} }`);
+          return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
-          return codeBuilder.return(`this.literalValues.numbers[${numberCount++}]`);
+          return code.return(`this.literalValues.numbers[${numberCount++}]`);
         case "STRING":
-          return codeBuilder.return(`this.literalValues.strings[${stringCount++}]`);
+          return code.return(`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
-          return codeBuilder.return(
+          return code.return(
             `${ast.value.includes(":") || hasRange ? "range" : "ref"}(deps[${dependencyCount++}], ${
               isMeta ? "true" : "false"
             })`
           );
         case "FUNCALL": {
           const args = compileFunctionArgs(ast).map((argCode) => argCode.assignResultToVariable());
-          codeBuilder.append(...args);
+          code.append(...args);
           const fnName = ast.value.toUpperCase();
-          return codeBuilder.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+          return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
         }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value as keyof typeof UNARY_OPERATOR_MAP];
           const operand = compileAST(ast.operand, false, false).assignResultToVariable();
-          codeBuilder.append(operand);
-          return codeBuilder.return(`ctx['${fnName}'](${operand.returnExpression})`);
+          code.append(operand);
+          return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
           const fnName = OPERATOR_MAP[ast.value as keyof typeof OPERATOR_MAP];
           const left = compileAST(ast.left, false, false).assignResultToVariable();
           const right = compileAST(ast.right, false, false).assignResultToVariable();
-          codeBuilder.append(left);
-          codeBuilder.append(right);
-          return codeBuilder.return(
+          code.append(left);
+          code.append(right);
+          return code.return(
             `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );
         }
         case "SYMBOL": {
           const symbolIndex = symbols.indexOf(ast.value);
-          return codeBuilder.return(`getSymbolValue(this.symbols[${symbolIndex}])`);
+          return code.return(`getSymbolValue(this.symbols[${symbolIndex}])`);
         }
         case "EMPTY":
-          return codeBuilder.return("undefined");
+          return code.return("undefined");
         default:
-          return codeBuilder.return("undefined");
+          return code.return("undefined");
       }
     }
   }
@@ -200,6 +228,15 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   return compiledFormula;
 }
 
+/**
+ * Compute a cache key for the formula.
+ * References, numbers and strings are replaced with placeholders because
+ * the compiled formula does not depend on their actual value.
+ * Both `=A1+1+"2"` and `=A2+2+"3"` are compiled to the exact same function.
+ * Spaces are also ignored to compute the cache key.
+ *
+ * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|C|+|C|+SUM(|N|,|N|,|S|)`
+ */
 function compilationCacheKey(tokens: Token[]): string {
   let cacheKey = "";
   for (const token of tokens) {
@@ -212,17 +249,26 @@ function compilationCacheKey(tokens: Token[]): string {
         break;
       case "REFERENCE":
       case "INVALID_REFERENCE":
-        cacheKey += token.value.includes(":") ? "|R|" : "|C|";
+        if (token.value.includes(":")) {
+          cacheKey += "|R|";
+        } else {
+          cacheKey += "|C|";
+        }
         break;
       case "SPACE":
+        // ignore spaces
         break;
       default:
         cacheKey += token.value;
+        break;
     }
   }
   return cacheKey;
 }
 
+/**
+ * Return formula arguments which are references, strings and numbers.
+ */
 function formulaArguments(tokens: Token[]) {
   const literalValues: LiteralValues = {
     numbers: [],
@@ -237,19 +283,25 @@ function formulaArguments(tokens: Token[]) {
         dependencies.push(token.value);
         break;
       case "STRING":
-        literalValues.strings.push({ value: unquote(token.value) });
+        const value = unquote(token.value);
+        literalValues.strings.push({ value });
         break;
-      case "NUMBER":
-        literalValues.numbers.push({ value: parseNumber(token.value, DEFAULT_LOCALE) });
+      case "NUMBER": {
+        const value = parseNumber(token.value, DEFAULT_LOCALE);
+        literalValues.numbers.push({ value });
         break;
-      case "SYMBOL":
+      }
+      case "SYMBOL": {
+        // function name symbols are also included here
         symbols.push(unquote(token.value, "'"));
-        break;
-      default:
-        break;
+      }
     }
   }
-  return { dependencies, literalValues, symbols };
+  return {
+    dependencies,
+    literalValues,
+    symbols,
+  };
 }
 
 /**
@@ -264,10 +316,12 @@ function assertEnoughArgs(ast: ASTFuncall) {
   if (nbrArgSupplied < minArgRequired) {
     throw new BadExpressionError(
       _t(
-        "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
-        functionName,
-        minArgRequired,
-        nbrArgSupplied
+        "Invalid number of arguments for the %(functionName)s function. Expected %(minArgRequired)s minimum, but got %(nbrArgSupplied)s instead.",
+        {
+          functionName,
+          minArgRequired,
+          nbrArgSupplied,
+        }
       )
     );
   }
@@ -275,10 +329,12 @@ function assertEnoughArgs(ast: ASTFuncall) {
   if (nbrArgSupplied > functionDefinition.maxArgPossible) {
     throw new BadExpressionError(
       _t(
-        "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
-        functionName,
-        functionDefinition.maxArgPossible,
-        nbrArgSupplied
+        "Invalid number of arguments for the %(functionName)s function. Expected %(maxArgPossible)s maximum, but got %(nbrArgSupplied)s instead.",
+        {
+          functionName,
+          maxArgPossible: functionDefinition.maxArgPossible,
+          nbrArgSupplied,
+        }
       )
     );
   }
@@ -292,11 +348,13 @@ function assertEnoughArgs(ast: ASTFuncall) {
     if (nbrValueRemaining > 0) {
       throw new BadExpressionError(
         _t(
-          "Invalid number of arguments for the %s function. Repeatable arguments should be supplied in groups of %s, with up to %s optional. Got %s too many.",
-          functionName,
-          nbrArgRepeating,
-          functionDefinition.nbrArgOptional,
-          nbrValueRemaining
+          "Invalid number of arguments for the %(functionName)s function. Repeatable arguments should be supplied in groups of %(nbrArgRepeating)s, with up to %(nbrArgOptional)s optional. Got %(nbrValueRemaining)s too many.",
+          {
+            functionName,
+            nbrArgRepeating,
+            nbrArgOptional: functionDefinition.nbrArgOptional,
+            nbrValueRemaining,
+          }
         )
       );
     }
