@@ -1,6 +1,7 @@
 import { createEmptyStructure } from "./helpers";
 import { CoreCommand } from "./types/commands";
-import { HistoryChange } from "./types/history2";
+
+import { HistoryChange } from "./types/history";
 
 type HistoryPath = [any, ...(number | string)[]];
 

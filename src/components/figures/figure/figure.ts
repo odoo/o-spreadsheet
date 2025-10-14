@@ -1,12 +1,12 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { FIGURE_BORDER_COLOR, SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { FigureUI } from "@odoo/o-spreadsheet-engine/types/figureUI";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheetChildEnv";
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
   CSSProperties,
+  FigureUI,
   Pixel,
   Rect,
   ResizeDirection,

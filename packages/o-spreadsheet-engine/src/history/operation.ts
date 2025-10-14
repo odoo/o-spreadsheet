@@ -1,5 +1,5 @@
 import { lazy } from "../helpers/misc";
-import { Transformation } from "../types/history2";
+import { Transformation } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 
 /**

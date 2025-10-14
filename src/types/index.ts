@@ -11,6 +11,13 @@
 import * as Chart from "chart.js";
 import * as ChartGeo from "chartjs-chart-geo";
 
+export {
+  CreateRevisionOptions,
+  HistoryChange,
+  OperationSequenceNode,
+  Transformation,
+  TransformationFactory,
+} from "@odoo/o-spreadsheet-engine";
 export * from "@odoo/o-spreadsheet-engine/types/autofill";
 export * from "@odoo/o-spreadsheet-engine/types/cells";
 export * from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -27,7 +34,7 @@ export * from "@odoo/o-spreadsheet-engine/types/format";
 export * from "@odoo/o-spreadsheet-engine/types/functions";
 export * from "@odoo/o-spreadsheet-engine/types/generic_criterion";
 export * from "@odoo/o-spreadsheet-engine/types/getters";
-export * from "@odoo/o-spreadsheet-engine/types/history2";
+export * from "@odoo/o-spreadsheet-engine/types/history";
 export * from "@odoo/o-spreadsheet-engine/types/locale";
 export * from "@odoo/o-spreadsheet-engine/types/misc";
 export * from "@odoo/o-spreadsheet-engine/types/pivot";

@@ -23,7 +23,7 @@ import {
 } from "../types/collaborative/transport_service";
 import { Command, CoreCommand } from "../types/commands";
 
-import { HistoryChange } from "../types/history2";
+import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
 import { transformAll } from "./ot/ot";

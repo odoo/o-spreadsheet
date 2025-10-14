@@ -1,7 +1,7 @@
 import { RevisionData } from "../types/collaborative/revisions";
 import { ClientId } from "../types/collaborative/session";
 import { Command, CoreCommand } from "../types/commands";
-import { HistoryChange } from "../types/history2";
+import { HistoryChange } from "../types/history";
 import { UID } from "../types/misc";
 
 export class Revision implements RevisionData {

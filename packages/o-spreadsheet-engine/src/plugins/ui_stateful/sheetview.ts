@@ -12,8 +12,7 @@ import {
   SetViewportOffsetCommand,
 } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream";
-import { AnchorOffset, Figure } from "../../types/figure";
-import { FigureUI } from "../../types/figureUI";
+import { AnchorOffset, Figure, FigureUI } from "../../types/figure";
 import {
   CellPosition,
   Dimension,

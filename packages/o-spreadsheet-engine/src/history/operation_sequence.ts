@@ -1,4 +1,4 @@
-import { OperationSequenceNode } from "../types/history2";
+import { OperationSequenceNode } from "../types/history";
 import { UID } from "../types/misc";
 
 /**
