@@ -41,7 +41,6 @@ export * from "@odoo/o-spreadsheet-engine/types/pivot";
 export * from "@odoo/o-spreadsheet-engine/types/pivot_runtime";
 export * from "@odoo/o-spreadsheet-engine/types/range";
 export * from "@odoo/o-spreadsheet-engine/types/rendering";
-export * from "@odoo/o-spreadsheet-engine/types/rendering2";
 export * from "@odoo/o-spreadsheet-engine/types/table";
 export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
 

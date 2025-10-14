@@ -27,11 +27,12 @@ import {
 import {
   DOMCoordinates,
   DOMDimension,
+  EdgeScrollInfo,
   Rect,
+  ScrollDirection,
   SheetDOMScrollInfo,
   Viewport,
 } from "../../types/rendering";
-import { EdgeScrollInfo, ScrollDirection } from "../../types/rendering2";
 import { UIPlugin } from "../ui_plugin";
 
 type SheetViewports = {
