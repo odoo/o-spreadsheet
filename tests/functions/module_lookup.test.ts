@@ -1,5 +1,5 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { range } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
   getCellContent,

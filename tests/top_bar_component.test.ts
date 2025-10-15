@@ -1,14 +1,15 @@
+import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
-import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
-import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../src/types";
+import { ConditionalFormat, Currency, Pixel, Style } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {

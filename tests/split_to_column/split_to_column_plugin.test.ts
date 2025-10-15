@@ -1,5 +1,5 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { toZone } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { CommandResult, DEFAULT_LOCALE, UID } from "../../src/types";
 import {
   merge,

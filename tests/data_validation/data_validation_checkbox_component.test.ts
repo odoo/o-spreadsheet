@@ -1,5 +1,8 @@
+import {
+  CHECKBOX_CHECKED,
+  CHECKBOX_UNCHECKED,
+} from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { Model } from "../../src";
-import { CHECKBOX_CHECKED, CHECKBOX_UNCHECKED } from "../../src/components/icons/icons";
 import {
   addDataValidation,
   createTableWithFilter,

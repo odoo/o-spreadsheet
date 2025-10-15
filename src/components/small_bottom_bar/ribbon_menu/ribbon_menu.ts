@@ -1,8 +1,8 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, useExternalListener, useRef, useState } from "@odoo/owl";
 import { Action } from "../../../actions/action";
 import { topbarMenuRegistry } from "../../../registries/menus";
-import { _t } from "../../../translation";
-import { SpreadsheetChildEnv } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { Menu, MenuProps } from "../../menu/menu";
 

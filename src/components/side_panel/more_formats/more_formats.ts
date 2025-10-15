@@ -17,7 +17,8 @@ import {
   formatNumberShortWeekDay,
   formatNumberTime,
 } from "../../../actions/format_actions";
-import { SpreadsheetChildEnv } from "../../../types";
+
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
 interface Props {
   onCloseSidePanel: () => void;

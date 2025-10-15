@@ -1,17 +1,17 @@
-import { CommandResult } from "../../src";
-import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
   MESSAGE_VERSION,
   getDefaultSheetViewSize,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { SheetViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/sheetview";
+import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { CommandResult } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
-import { Model } from "../../src/model";
-import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";
-import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,
   addColumns,

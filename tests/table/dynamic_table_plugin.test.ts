@@ -225,11 +225,11 @@ describe("Dynamic tables", () => {
       expect(getTables(model, sheetId)).toMatchObject([{ zone: "A1:B2" }]);
     });
 
-    test("Dynamic tables are transformed into static tables when exporting for excel", () => {
+    test("Dynamic tables are transformed into static tables when exporting for excel", async () => {
       setCellContent(model, "A1", "=MUNIT(3)");
       createDynamicTable(model, "A1");
 
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1:C3" }]);
     });
   });

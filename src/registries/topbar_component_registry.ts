@@ -1,7 +1,7 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { UuidGenerator } from "../helpers";
 import { UID } from "../types";
-import { SpreadsheetChildEnv } from "../types/env";
-import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
 // Topbar Component Registry

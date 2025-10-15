@@ -1,6 +1,6 @@
+import { FileStore, ImageProviderInterface } from "@odoo/o-spreadsheet-engine/types/files";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { FigureSize } from "../../src/types";
-import { FileStore, ImageProviderInterface } from "../../src/types/files";
-import { Image } from "../../src/types/image";
 
 export class ImageProvider implements ImageProviderInterface {
   private path = "https://sorrygooglesheet.com/icon-picture";

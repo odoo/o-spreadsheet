@@ -1,23 +1,20 @@
-import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
-import {
-  deepEquals,
-  positions,
-  range,
-  recomputeZones,
-  trimContent,
-  zoneToDimension,
-} from "../../helpers";
-import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { _t } from "../../translation";
+import { getClipboardDataPositions } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
+import { positions, zoneToDimension } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   Command,
   CommandResult,
-  HeaderIndex,
   RemoveDuplicatesCommand,
-  UID,
-  Zone,
-} from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+} from "@odoo/o-spreadsheet-engine/types/commands";
+import { HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
+import {
+  deepEquals,
+  range,
+  trimContent,
+} from "../../../packages/o-spreadsheet-engine/src/helpers/misc";
+import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 
 export class DataCleanupPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------

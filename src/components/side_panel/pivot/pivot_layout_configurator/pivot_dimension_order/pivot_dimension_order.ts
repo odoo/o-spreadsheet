@@ -1,6 +1,7 @@
+import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../../types";
-import { PivotDimension } from "../../../../../types/pivot";
+
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
 interface Props {
   dimension: PivotDimension;

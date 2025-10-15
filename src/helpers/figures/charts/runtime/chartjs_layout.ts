@@ -1,10 +1,14 @@
-import { ChartOptions } from "chart.js";
-import { CHART_PADDING, CHART_PADDING_BOTTOM, CHART_PADDING_TOP } from "../../../../constants";
+import {
+  CHART_PADDING,
+  CHART_PADDING_BOTTOM,
+  CHART_PADDING_TOP,
+} from "@odoo/o-spreadsheet-engine/constants";
 import {
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
   GenericDefinition,
-} from "../../../../types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartOptions } from "chart.js";
 
 type ChartLayout = ChartOptions["layout"];
 

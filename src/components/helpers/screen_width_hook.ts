@@ -1,4 +1,4 @@
-import { MOBILE_WIDTH_BREAKPOINT } from "../../constants";
+import { MOBILE_WIDTH_BREAKPOINT } from "@odoo/o-spreadsheet-engine/constants";
 import { useSpreadsheetRect } from "./position_hook";
 
 export function useScreenWidth() {

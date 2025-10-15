@@ -1,13 +1,20 @@
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
   GRAY_300,
-} from "../../../../constants";
-import { LocaleFormat } from "../../../../types";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
+import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
+  chartFontColor,
+  formatTickValue,
+  getDefinedAxis,
+  truncateLabel,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
   AxisDesign,
   BarChartDefinition,
@@ -20,25 +27,22 @@ import {
   PyramidChartDefinition,
   ScatterChartDefinition,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
-} from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
-import { getChartTimeOptions } from "../../../chart_date";
-import { getColorScale } from "../../../color";
-import { formatValue, humanizeNumber } from "../../../format/format";
-import { isDefined, range, removeFalsyAttributes } from "../../../misc";
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
-  chartFontColor,
-  formatTickValue,
-  getDefinedAxis,
-  truncateLabel,
-} from "../chart_common";
+  isDefined,
+  range,
+  removeFalsyAttributes,
+} from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
+import { LocaleFormat } from "../../../../types";
+import { getChartTimeOptions } from "../../../chart_date";
 
 type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
 type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;

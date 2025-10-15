@@ -1,8 +1,9 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { EditionMode, SpreadsheetChildEnv } from "../../src/types";
+import { EditionMode } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
   click,

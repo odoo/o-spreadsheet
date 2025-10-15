@@ -1,8 +1,9 @@
+import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
-import { CellPosition, Color, SortDirection, SpreadsheetChildEnv, Style } from "../../../types";
+import { CellPosition, Color, SortDirection, Style } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 

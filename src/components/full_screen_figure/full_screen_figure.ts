@@ -1,7 +1,7 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
-import { SpreadsheetChildEnv } from "../../types";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
 import { ChartFigure } from "../figures/figure_chart/figure_chart";
 import { useSpreadsheetRect } from "../helpers/position_hook";

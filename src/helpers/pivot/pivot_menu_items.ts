@@ -1,3 +1,17 @@
+import { deepCopy, deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
+import {
+  addDimensionToPivotDefinition,
+  getCustomFieldWithParentField,
+  getUniquePivotGroupName,
+  removePivotGroupsContainingValues,
+  togglePivotCollapse,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
+import { cellPositions } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { CellValueType } from "@odoo/o-spreadsheet-engine/types/cells";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   CellPosition,
   CellValue,
@@ -10,23 +24,9 @@ import {
   PivotFields,
   PivotHeaderCell,
   SortDirection,
-  SpreadsheetChildEnv,
   UID,
 } from "../..";
 import { ActionSpec } from "../../actions/action";
-import { _t } from "../../translation";
-import { CellValueType } from "../../types";
-import { deepCopy, deepEquals } from "../misc";
-import { cellPositions } from "../zones";
-import { domainToColRowDomain } from "./pivot_domain_helpers";
-import {
-  addDimensionToPivotDefinition,
-  getCustomFieldWithParentField,
-  getUniquePivotGroupName,
-  removePivotGroupsContainingValues,
-  togglePivotCollapse,
-} from "./pivot_helpers";
-import { pivotRegistry } from "./pivot_registry";
 
 export const pivotProperties: ActionSpec = {
   name: _t("See pivot properties"),

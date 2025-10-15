@@ -1,8 +1,8 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetStore } from "../../../stores";
 import { NotificationStore } from "../../../stores/notification_store";
 import { ScreenWidthStore } from "../../../stores/screen_width_store";
-import { _t } from "../../../translation";
 
 export interface SidePanelComponentProps {
   onCloseSidePanel?: () => void;

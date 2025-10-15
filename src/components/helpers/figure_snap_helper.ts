@@ -1,5 +1,5 @@
+import { FIGURE_BORDER_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { FigureUI, Getters, Pixel, PixelPosition, UID } from "../../types";
-import { FIGURE_BORDER_WIDTH } from "./../../constants";
 
 const SNAP_MARGIN: Pixel = 5;
 

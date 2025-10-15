@@ -1,10 +1,10 @@
-import { PivotDomain, PivotSortedColumn } from "../../src";
-import { isDomainIsInPivot } from "../../src/helpers/pivot/pivot_domain_helpers";
+import { isDomainIsInPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
 import {
   isSortedColumnValid,
   toFunctionPivotValue,
   toNormalizedPivotValue,
-} from "../../src/helpers/pivot/pivot_helpers";
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { PivotDomain, PivotSortedColumn } from "../../src";
 import { createModelFromGrid } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 

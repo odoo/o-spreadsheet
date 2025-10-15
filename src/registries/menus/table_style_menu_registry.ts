@@ -1,6 +1,6 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Action, createActions } from "../../actions/action";
-import { _t } from "../../translation";
-import { SpreadsheetChildEnv } from "./../../types/env";
 
 export function createTableStyleContextMenuActions(
   env: SpreadsheetChildEnv,

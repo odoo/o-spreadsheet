@@ -1,3 +1,5 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Action } from "../actions/action";
 import {
   getCarouselMenuActions,
@@ -7,8 +9,7 @@ import {
 import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
-import { SpreadsheetChildEnv, UID } from "../types";
-import { Registry } from "./registry";
+import { UID } from "../types";
 
 //------------------------------------------------------------------------------
 // Figure Registry

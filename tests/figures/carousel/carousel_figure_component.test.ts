@@ -1,9 +1,10 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { ChartConfiguration } from "chart.js";
-import { Model, SpreadsheetChildEnv, UID } from "../../../src";
+import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
-import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   addNewChartToCarousel,
   createCarousel,
@@ -369,13 +370,13 @@ describe("Carousel figure component", () => {
       });
     });
 
-    test("Can download the carousel chart as image", () => {
+    test("Can download the carousel chart as image", async () => {
       createCarousel(model, { items: [] }, "carouselId");
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "download");
       action?.execute?.(env);
-
+      await nextTick();
       expect(downloadFile).toHaveBeenCalled();
     });
 

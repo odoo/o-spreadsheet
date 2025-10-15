@@ -1,5 +1,5 @@
+import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../../src";
-import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import {
   createImage,
   createSheet,

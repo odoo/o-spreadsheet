@@ -1,5 +1,5 @@
-import { NEWLINE } from "../../src/constants";
-import { rangeTokenize } from "../../src/formulas";
+import { rangeTokenize } from "@odoo/o-spreadsheet-engine";
+import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 
 describe("rangeTokenizer", () => {
   test.each(["A1:A2", "a1:a2", "A1:a2", "a1:A2"])("only range", (xc) => {

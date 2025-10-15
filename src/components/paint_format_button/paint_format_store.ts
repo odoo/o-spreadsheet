@@ -1,12 +1,12 @@
-import { clipboardHandlersRegistries } from "../../clipboard_handlers";
-import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { SELECTION_BORDER_COLOR } from "../../constants";
+import { ClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_clipboard_handler";
+import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   applyClipboardHandlersPaste,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
   selectPastedZone,
-} from "../../helpers/clipboard/clipboard_helpers";
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";

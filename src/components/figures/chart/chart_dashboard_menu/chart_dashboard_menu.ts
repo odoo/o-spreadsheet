@@ -1,10 +1,11 @@
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
-import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { _t } from "../../../../translation";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { UID } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";

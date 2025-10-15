@@ -1,3 +1,4 @@
+import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
 import { Model } from "../../src";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import {
@@ -8,7 +9,6 @@ import {
   VerticalAlign,
   Wrapping,
 } from "../../src/types";
-import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import {
   createChart,
   createImage,
@@ -44,8 +44,8 @@ import { toRangesData } from "../test_helpers/helpers";
  */
 
 /** */
-function exportToXlsxThenImport(model: Model) {
-  const exported = model.exportXLSX();
+async function exportToXlsxThenImport(model: Model) {
+  const exported = await model.exportXLSX();
   const dataToImport = {};
   for (const file of exported.files) {
     if (isXLSXExportXMLFile(file)) {
@@ -68,44 +68,44 @@ describe("Export data to xlsx then import it", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("Sheet Name", () => {
+  test("Sheet Name", async () => {
     renameSheet(model, sheetId, "Renamed");
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const newSheetId = importedModel.getters.getSheetIdByName("Renamed")!;
     expect(newSheetId).toBeTruthy();
   });
 
-  test("Hidden sheet", () => {
+  test("Hidden sheet", async () => {
     hideSheet(model, sheetId);
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getSheet(sheetId)).toBeTruthy();
   });
 
-  test("Column size", () => {
+  test("Column size", async () => {
     resizeColumns(model, ["A"], 50);
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getColDimensions(sheetId, 0).size).toBeBetween(49.5, 50.5);
   });
 
-  test("row size", () => {
+  test("row size", async () => {
     resizeRows(model, [0], 50);
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getRowDimensions(sheetId, 0).size).toEqual(50);
   });
 
-  test("Hidden col/row", () => {
+  test("Hidden col/row", async () => {
     hideColumns(model, ["A"]);
     hideRows(model, [0]);
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.isColHidden(sheetId, 0)).toBeTruthy();
     expect(importedModel.getters.isRowHidden(sheetId, 0)).toBeTruthy();
   });
 
-  test("Cell content", () => {
+  test("Cell content", async () => {
     setCellContent(model, "A1", "0");
     setCellContent(model, "A2", "=A1");
     setCellContent(model, "A3", "text");
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(getCell(importedModel, "A1")!.content).toEqual("0");
     expect(getCell(importedModel, "A2")!.content).toEqual("=A1");
     expect(getCell(importedModel, "A3")!.content).toEqual("text");
@@ -119,13 +119,13 @@ describe("Export data to xlsx then import it", () => {
     { verticalAlign: "top" as VerticalAlign },
     { fillColor: "#151515" },
     { wrapping: "wrap" as Wrapping },
-  ])("Cell style %s", (style: Style) => {
+  ])("Cell style %s", async (style: Style) => {
     setStyle(model, "A1", style);
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(getCell(importedModel, "A1")!.style).toMatchObject(style);
   });
 
-  test("Cell border", () => {
+  test("Cell border", async () => {
     const descr: BorderDescr = { style: "thin", color: "#000000" };
     const border = { bottom: descr, top: descr, left: descr, right: descr };
     model.dispatch("SET_BORDER", {
@@ -134,24 +134,24 @@ describe("Export data to xlsx then import it", () => {
       row: 0,
       border,
     });
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(getBorder(importedModel, "A1")).toEqual(border);
   });
 
   test.each(["0.00%", "#,##0.00", "m/d/yyyy", "m/d/yyyy hh:mm:ss", "#,##0.00 [$€]"])(
     "Cell format %s",
-    (format: string) => {
+    async (format: string) => {
       setFormat(model, "A1", format);
-      const importedModel = exportToXlsxThenImport(model);
+      const importedModel = await exportToXlsxThenImport(model);
       expect(importedModel.getters.getEvaluatedCell({ sheetId, col: 0, row: 0 }).format).toEqual(
         format
       );
     }
   );
 
-  test("merges", () => {
+  test("merges", async () => {
     merge(model, "A1:B5");
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getMerges(sheetId)).toMatchObject([toZone("A1:B5")]);
   });
 
@@ -201,7 +201,7 @@ describe("Export data to xlsx then import it", () => {
         lower: "arrowBad",
       },
     },
-  ])("Conditional formats %s", (rule: ConditionalFormatRule) => {
+  ])("Conditional formats %s", async (rule: ConditionalFormatRule) => {
     const cf = {
       id: "1",
       rule,
@@ -211,7 +211,7 @@ describe("Export data to xlsx then import it", () => {
       ranges: toRangesData(sheetId, "A1:A3"),
       sheetId,
     });
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getRulesByCell(sheetId, 0, 0).values().next().value).toMatchObject(
       cf
     );
@@ -252,7 +252,7 @@ describe("Export data to xlsx then import it", () => {
       ranges: ["D1:D3"],
       isBlocking: false,
     },
-  ])("Data validation rules %s", (dv: any) => {
+  ])("Data validation rules %s", async (dv: any) => {
     const rule = {
       id: "1",
       criterion: dv.criterion,
@@ -263,7 +263,7 @@ describe("Export data to xlsx then import it", () => {
       ranges: toRangesData(sheetId, dv.ranges[0]),
       sheetId,
     });
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const sheetRules = importedModel.getters.getDataValidationRules(sheetId).map((rule) => ({
       ...rule,
       ranges: rule.ranges.map((rule) => importedModel.getters.getRangeString(rule, sheetId)),
@@ -271,7 +271,7 @@ describe("Export data to xlsx then import it", () => {
     expect(sheetRules).toMatchObject([dv]);
   });
 
-  test("figure", () => {
+  test("figure", async () => {
     createChart(
       model,
       {
@@ -282,7 +282,7 @@ describe("Export data to xlsx then import it", () => {
       "1"
     );
     const figure = model.getters.getFigures(sheetId)[0];
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const importedFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(importedFigure.height).toEqual(figure.height);
     expect(importedFigure.width).toBeBetween(figure.width - 1, figure.width + 1);
@@ -395,20 +395,20 @@ describe("Export data to xlsx then import it", () => {
       fillArea: false,
       showValues: false,
     },
-  ])("Charts %s", (chartDef: any) => {
+  ])("Charts %s", async (chartDef: any) => {
     createChart(model, chartDef, "1");
     chartDef = model.getters.getChartDefinition("1");
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const newChartId = importedModel.getters.getChartIds(sheetId)[0];
     const newChart = importedModel.getters.getChartDefinition(newChartId);
     expect(newChart).toMatchObject(chartDef);
   });
 
-  test("hyperlinks", () => {
+  test("hyperlinks", async () => {
     createSheet(model, { sheetId: "42", name: "she!et2" });
     const sheetLink = buildSheetLink("42");
     setCellContent(model, "A1", `[my label](${sheetLink})`);
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const cell = getEvaluatedCell(importedModel, "A1");
     const newSheetId = importedModel.getters.getSheetIdByName("she!et2");
     const sheetLink2 = buildSheetLink(newSheetId!);
@@ -416,7 +416,7 @@ describe("Export data to xlsx then import it", () => {
     expect(cell.link?.url).toBe(sheetLink2);
   });
 
-  test("Image", () => {
+  test("Image", async () => {
     createImage(model, {
       figureId: "1",
       size: {
@@ -425,7 +425,7 @@ describe("Export data to xlsx then import it", () => {
       },
     });
     const imageDefinition = model.getters.getImage("1");
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
 
     const newFigure = importedModel.getters.getFigures(sheetId)[0];
     const newImage = importedModel.getters.getImage(newFigure.id);
@@ -439,7 +439,7 @@ describe("Export data to xlsx then import it", () => {
     { offset: { x: 10, y: 10 }, col: 10, row: 10 },
     { offset: { x: 0, y: 10 }, col: 5, row: 0 },
     { offset: { x: 10, y: 0 }, col: 0, row: 5 },
-  ])("Figure Position", (position) => {
+  ])("Figure Position", async (position) => {
     createImage(model, {
       figureId: "1",
       size: {
@@ -450,7 +450,7 @@ describe("Export data to xlsx then import it", () => {
     });
 
     const figure = model.getters.getFigures(sheetId)[0];
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const newFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(newFigure).toMatchObject(figure);
   });
@@ -460,7 +460,7 @@ describe("Export data to xlsx then import it", () => {
     { offset: { x: 10, y: 10 }, col: 10, row: 10 },
     { offset: { x: 0, y: 10 }, col: 5, row: 0 },
     { offset: { x: 10, y: 0 }, col: 0, row: 5 },
-  ])("Figure Position with custom row length", (position) => {
+  ])("Figure Position with custom row length", async (position) => {
     createChart(
       model,
       {
@@ -481,7 +481,7 @@ describe("Export data to xlsx then import it", () => {
     );
     resizeRows(model, [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60], 100);
     const figure = model.getters.getFigures(sheetId)[0];
-    const importedModel = exportToXlsxThenImport(model);
+    const importedModel = await exportToXlsxThenImport(model);
     const newFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(newFigure.height).toBe(figure.height);
   });

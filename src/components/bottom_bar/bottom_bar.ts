@@ -1,8 +1,9 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { _t } from "../../translation";
-import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";

@@ -1,6 +1,7 @@
-import { tokenColors } from "../../constants";
-import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { insertTokenAtArgStartingPosition } from "../../functions";
+import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { insertTokenAtArgStartingPosition } from "../../functions/autocomplete_arguments_provider";
 import { MONTHS, isDefined, range } from "../../helpers";
 import {
   extractFormulaIdFromToken,
@@ -8,7 +9,6 @@ import {
   makeMeasureProposal,
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "../../helpers/pivot/pivot_positional_formula_registry";
-import { _t } from "../../translation";
 import { Granularity, PivotDimension } from "../../types";
 import { autoCompleteProviders } from "./auto_complete_registry";
 

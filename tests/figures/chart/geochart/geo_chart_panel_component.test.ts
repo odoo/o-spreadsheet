@@ -1,6 +1,7 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
 import {
   changeRoundColorPickerColor,
   createGeoChart,

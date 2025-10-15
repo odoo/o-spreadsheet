@@ -1,7 +1,8 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
 import { Spreadsheet } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { range, zoneToXc } from "../../src/helpers";
-import { Mode, Model } from "../../src/model";
 import {
   activateSheet,
   createSheet,

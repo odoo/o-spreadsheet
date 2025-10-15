@@ -1,5 +1,5 @@
-import { composerTokenize } from "../../src/formulas/composer_tokenizer";
-import { DEFAULT_LOCALE } from "../../src/types/locale";
+import { DEFAULT_LOCALE } from "@odoo/o-spreadsheet-engine";
+import { composerTokenize } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 
 describe("composerTokenizer", () => {
   describe.each(["A1:B1", "A:A", "1:1", "A1:A", "B3:4"])("tokenise ranges", (xc) => {

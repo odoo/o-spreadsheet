@@ -32,9 +32,9 @@ import {
   toRangesData,
 } from "../test_helpers/helpers";
 
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { AutofillPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/autofill";
 import { Model } from "../../src";
-import { functionRegistry } from "../../src/functions";
-import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 import { DIRECTION } from "../../src/types/index";
 
 let autoFill: AutofillPlugin;

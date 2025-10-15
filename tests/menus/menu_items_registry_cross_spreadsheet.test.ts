@@ -1,8 +1,8 @@
-import { SpreadsheetChildEnv } from "../../src/types";
 import { selectCell, setCellContent, setStyle } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { doAction, makeTestEnv } from "../test_helpers/helpers";
 
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../src";
 
 describe("cross spreadsheet copy/paste", () => {

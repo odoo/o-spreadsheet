@@ -1,6 +1,6 @@
+import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { StandaloneComposerStore } from "../../../src/components/composer/standalone_composer/standalone_composer_store";
-import { PIVOT_TOKEN_COLOR } from "../../../src/constants";
 import { createMeasureAutoComplete } from "../../../src/registries/auto_completes/pivot_dimension_auto_complete";
 import { createModelFromGrid, nextTick } from "../../test_helpers/helpers";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";

@@ -2,12 +2,12 @@ import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { CellPosition, Color, Command, Highlight } from "../../../types";
 
-import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { NotificationStore } from "../../../stores/notification_store";
-import { _t } from "../../../translation";
-import { SearchOptions } from "../../../types/find_and_replace";
 
 const FIND_AND_REPLACE_HIGHLIGHT_COLOR: Color = "#8B008B";
 

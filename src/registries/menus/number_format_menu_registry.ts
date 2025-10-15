@@ -1,9 +1,10 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { ActionSpec, createActions } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { isDateTimeFormat, memoize } from "../../helpers";
-import { _t } from "../../translation";
-import { Format, SpreadsheetChildEnv } from "../../types";
-import { Registry } from "../registry";
+import { Format } from "../../types";
 
 export const numberFormatMenuRegistry = new Registry<ACTION_FORMAT.NumberFormatActionSpec>();
 

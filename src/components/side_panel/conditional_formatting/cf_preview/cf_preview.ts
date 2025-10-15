@@ -1,12 +1,13 @@
+import { ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef } from "@odoo/owl";
-import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers";
-import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
+import { ConditionalFormat, Highlight } from "../../../../types";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
-import { ICONS } from "../../../icons/icons";
-import { CfTerms } from "../../../translations_terms";
 
 interface Props {
   conditionalFormat: ConditionalFormat;

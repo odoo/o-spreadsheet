@@ -1,9 +1,13 @@
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  isEvaluationError,
+  toBoolean,
+  toNumber,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Model } from "../../src";
-import { toScalar } from "../../src/functions/helper_matrices";
-import { isEvaluationError, toBoolean, toNumber } from "../../src/functions/helpers";
-import { arg, functionRegistry } from "../../src/functions/index";
-import { Arg, DEFAULT_LOCALE } from "../../src/types";
-import { CellErrorType, EvaluationError } from "../../src/types/errors";
+import { Arg, CellErrorType, DEFAULT_LOCALE, EvaluationError } from "../../src/types";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { addToRegistry, evaluateCell } from "../test_helpers/helpers";

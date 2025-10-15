@@ -1,15 +1,9 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { ComponentConstructor, markRaw } from "@odoo/owl";
 import { positionToZone, toXC } from "../../helpers";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import {
-  CellPosition,
-  Command,
-  Rect,
-  SpreadsheetChildEnv,
-  UID,
-  invalidateEvaluationCommands,
-} from "../../types";
+import { CellPosition, Command, Rect, UID, invalidateEvaluationCommands } from "../../types";
 
 export interface ClickableCell {
   coordinates: Rect;

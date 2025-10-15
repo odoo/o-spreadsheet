@@ -1,14 +1,14 @@
-import { ChartMeta } from "chart.js";
-import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
-import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
+import { formatChartDatasetValue } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import {
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
   SunburstChartDefaults,
   SunburstChartDefinition,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { formatChartDatasetValue } from "../chart_common";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartMeta } from "chart.js";
+import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 
 export function getChartShowValues(
   definition: ChartWithDataSetDefinition,

@@ -1,12 +1,12 @@
-import { Model } from "../../src";
-import { HeaderGroupContainer } from "../../src/components/header_group/header_group_container";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GROUP_LAYER_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "../../src";
+import { HeaderGroupContainer } from "../../src/components/header_group/header_group_container";
 import { Dimension, UID } from "../../src/types";
 import {
   foldHeaderGroup,

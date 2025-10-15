@@ -1,5 +1,6 @@
+import { DEFAULT_WINDOW_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
@@ -7,7 +8,6 @@ import {
   ChartWithDataSetDefinition,
   Color,
   DispatchResult,
-  SpreadsheetChildEnv,
   TrendConfiguration,
   UID,
 } from "../../../../../types";

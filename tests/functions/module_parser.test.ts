@@ -1,4 +1,4 @@
-import { UNITS_ALIASES, UNIT_PREFIXES } from "../../src/functions/helper_parser";
+import { UNITS_ALIASES, UNIT_PREFIXES } from "@odoo/o-spreadsheet-engine/functions/helper_parser";
 import { evaluateCell } from "../test_helpers/helpers";
 
 describe("CONVERT formula", () => {

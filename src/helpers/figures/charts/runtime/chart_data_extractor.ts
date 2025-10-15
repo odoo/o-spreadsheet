@@ -1,5 +1,4 @@
-import { Point } from "chart.js";
-import { ChartTerms } from "../../../../components/translations_terms";
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   evaluatePolynomial,
   expM,
@@ -7,17 +6,14 @@ import {
   logM,
   polynomialRegression,
   predictLinearValues,
-} from "../../../../functions/helper_statistical";
-import { isEvaluationError, toNumber } from "../../../../functions/helpers";
-import {
-  CellValue,
-  DEFAULT_LOCALE,
-  Format,
-  GenericDefinition,
-  Getters,
-  Locale,
-  Range,
-} from "../../../../types";
+} from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
+import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import { isNumber } from "@odoo/o-spreadsheet-engine/helpers/numbers";
+import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
+import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
   AxisType,
   BarChartDefinition,
@@ -31,20 +27,24 @@ import {
   PyramidChartDefinition,
   SunburstChartDefinition,
   TrendConfiguration,
-} from "../../../../types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
-} from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
-import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { Point } from "chart.js";
+import {
+  CellValue,
+  DEFAULT_LOCALE,
+  Format,
+  GenericDefinition,
+  Getters,
+  Locale,
+  Range,
+} from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
-import { isDateTimeFormat } from "../../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../../misc";
-import { isNumber } from "../../../numbers";
-import { recomputeZones } from "../../../recompute_zones";
-import { positions } from "../../../zones";
-import { shouldRemoveFirstLabel } from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,

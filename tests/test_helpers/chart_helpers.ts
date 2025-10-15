@@ -1,5 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
-import { ChartCreationContext, ChartJSRuntime, Model, SpreadsheetChildEnv, UID } from "../../src";
+import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";

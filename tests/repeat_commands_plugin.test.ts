@@ -1,12 +1,4 @@
-import { Model } from "../src";
-import { DEFAULT_CELL_HEIGHT } from "../src/constants";
-import { toZone } from "../src/helpers";
-import {
-  repeatCommandTransformRegistry,
-  repeatCoreCommand,
-  repeatLocalCommandTransformRegistry,
-} from "../src/registries/repeat_commands_registry";
-import { CoreCommand, Dimension, UID } from "../src/types";
+import { DEFAULT_CELL_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,
@@ -19,7 +11,16 @@ import {
   ResizeColumnsRowsCommand,
   SheetDependentCommand,
   UnGroupHeadersCommand,
-} from "../src/types/commands";
+} from "@odoo/o-spreadsheet-engine/types/commands";
+import { Model } from "../src";
+import { toZone } from "../src/helpers";
+
+import {
+  repeatCommandTransformRegistry,
+  repeatCoreCommand,
+  repeatLocalCommandTransformRegistry,
+} from "../packages/o-spreadsheet-engine/src/registries/repeat_transform_registry";
+import { CoreCommand, Dimension, UID } from "../src/types";
 import {
   activateSheet,
   copy,

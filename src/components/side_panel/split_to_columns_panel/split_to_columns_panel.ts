@@ -1,10 +1,11 @@
+import { SplitToColumnsTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, useEffect, useState } from "@odoo/owl";
-import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { useStore } from "../../../store_engine";
-import { _t } from "../../../translation";
-import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
-import { SplitToColumnsTerms } from "../../translations_terms";
+import { CommandResult } from "../../../types/index";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";

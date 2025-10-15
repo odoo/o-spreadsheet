@@ -1,6 +1,9 @@
+import {
+  PivotMeasureDisplay,
+  SpreadsheetPivotCoreDefinition,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { DispatchResult, Model, UID } from "../../src";
 import { deepCopy, toZone } from "../../src/helpers";
-import { PivotMeasureDisplay, SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
 import { pivotModelData } from "../pivots/pivot_data";
 import { setCellContent } from "./commands_helpers";
 import { createModelFromGrid } from "./helpers";

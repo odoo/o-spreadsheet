@@ -1,4 +1,5 @@
-import { Model, SpreadsheetChildEnv, SpreadsheetPivotCoreDefinition } from "../../src";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";

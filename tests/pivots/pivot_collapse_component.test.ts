@@ -1,4 +1,4 @@
-import { getPivotIconSvg } from "../../src/components/icons/icons";
+import { getPivotIconSvg } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { clickGridIcon } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, mountSpreadsheet } from "../test_helpers/helpers";

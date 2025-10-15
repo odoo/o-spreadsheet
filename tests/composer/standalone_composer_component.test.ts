@@ -1,5 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
-import { Model, SpreadsheetChildEnv } from "../../src";
+import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { StandaloneComposer } from "../../src/components/composer/standalone_composer/standalone_composer";
 import { zoneToXc } from "../../src/helpers";

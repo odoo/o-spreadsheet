@@ -1,6 +1,6 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { onWillUnmount, useState } from "@odoo/owl";
 import { CSSProperties, Pixel, UID } from "../../types";
-import { cssPropertiesToCss } from "./css";
 import { startDnd } from "./drag_and_drop";
 
 type Direction = "horizontal" | "vertical";

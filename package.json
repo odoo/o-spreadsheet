@@ -15,31 +15,41 @@
   "engines": {
     "node": ">=22.0.0"
   },
+  "workspaces": [
+    "packages/o-spreadsheet-engine"
+  ],
   "scripts": {
-    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
-    "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
-    "server": "node tools/server/main.cjs",
-    "build:js": "tsc --module es6 --incremental",
-    "bundle:iife": "rollup -c -m -- --format iife",
-    "bundle:esm": "rollup -c -m -- --format esm",
-    "bundle:xml": "node tools/bundle_xml/main.cjs",
-    "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
-    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist && node tools/bundle_css/main.cjs --out dist",
-    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
-    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
-    "test:watch": "jest --watch",
+    "prepare": "husky install",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check && eslint",
-    "prepare": "husky install",
-    "watch": "npm-run-all -p watch:*",
-    "watch:bundle": "npm run bundle:iife -- --watch",
-    "watch:ts": "npm run build:js -- --watch",
-    "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
-    "watch:css": "node tools/bundle_css/watch_css_files.cjs",
-    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
+    "lint": "eslint --fix",
+    "dev": "npm-run-all --print-label prebuild build:dev --parallel build:watch:engine build:watch server serve-static",
+    "prebuild": "npm run build --workspaces --if-present",
+    "build:dev": "npm-run-all build:js bundle:iife  \"bundle:xml -- --outDir build\" \"bundle:css -- --out build\"",
+    "build": "npm-run-all build:js bundle:esm bundle:iife \"bundle:xml -- --outDir build\" \"bundle:css -- --out build\"",
+    "build:watch": "npm-run-all  --parallel build:js:watch bundle:iife:watch bundle:xml:watch bundle:css:watch",
+    "build:watch:engine": "npm run build:watch --workspace=@odoo/o-spreadsheet-engine",
+    "build:js": "tsc --module es6 --incremental",
+    "build:js:watch": "npm run build:js -- --watch",
+    "bundle:cjs": "rollup -c -m -- --format cjs",
+    "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:iife": "rollup -c -m -- --format iife",
+    "bundle:iife:watch": "npm run bundle:iife -- --watch",
+    "bundle:dev": "rollup -c -m -- --format dev",
+    "bundle:xml": "node tools/bundle_xml/main.cjs",
+    "bundle:xml:watch": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "bundle:css": "node tools/bundle_css/main.cjs",
+    "bundle:css:watch": "node tools/bundle_css/watch_css_files.cjs",
+    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,demo",
+    "server": "node tools/server/main.cjs",
+    "predist": "npm run dist --workspaces --if-present",
+    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c",
+    "postdist": " npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist",
+    "pretest": "npm run test --workspaces --if-present",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
+    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_css/main.cjs --out build",
-    "lint": "eslint --fix"
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -62,10 +72,11 @@
   "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
+    "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "@swc/jest": "0.2.36",
     "@swc/core": "1.6.7",
+    "@swc/jest": "0.2.36",
     "@types/jest": "^27.0.1",
     "@types/node": "^20.17.24",
     "@types/rbush": "^3.0.3",
@@ -80,7 +91,6 @@
     "express-form-data": "^2.0.19",
     "express-ws": "^4.0.0",
     "file-saver": "^2.0.5",
-    "fs": "^0.0.1-security",
     "glob": "^11.0.1",
     "husky": "^7.0.4",
     "jest": "^29.5.0",
@@ -122,6 +132,7 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
+    "@odoo/o-spreadsheet-engine": "*",
     "@odoo/owl": "2.5.1",
     "bootstrap": "^5.3.3",
     "font-awesome": "^4.7.0",
@@ -136,6 +147,10 @@
       "^.+\\.ts?$": [
         "@swc/jest"
       ]
+    },
+    "moduleNameMapper": {
+      "^@odoo/o-spreadsheet-engine$": "<rootDir>/packages/o-spreadsheet-engine/src",
+      "^@odoo/o-spreadsheet-engine/(.*)$": "<rootDir>/packages/o-spreadsheet-engine/src/$1"
     },
     "verbose": false,
     "testEnvironment": "jsdom",

@@ -1,4 +1,3 @@
-import { ChartDataset, Point } from "chart.js";
 import {
   BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -7,9 +6,24 @@ import {
   COLOR_TRANSPARENT,
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
-} from "../../../../constants";
-import { _t } from "../../../../translation";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+} from "@odoo/o-spreadsheet-engine/constants";
+import {
+  ColorGenerator,
+  colorToRGBA,
+  getColorScale,
+  lightenColor,
+  relativeLuminance,
+  rgbaToHex,
+  setColorAlpha,
+} from "@odoo/o-spreadsheet-engine/helpers/color";
+import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
+  getPieColors,
+  isTrendLineAxis,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
@@ -26,13 +40,13 @@ import {
   TitleDesign,
   TrendConfiguration,
   WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
-} from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
@@ -40,24 +54,10 @@ import {
   TreeMapColorScaleOptions,
   TreeMapDataset,
   TreeMapGroupColor,
-} from "../../../../types/chart/tree_map_chart";
-import {
-  ColorGenerator,
-  colorToRGBA,
-  getColorScale,
-  lightenColor,
-  relativeLuminance,
-  rgbaToHex,
-  setColorAlpha,
-} from "../../../color";
-import { formatValue } from "../../../format/format";
-import { isDefined, range } from "../../../misc";
-import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
-  getPieColors,
-  isTrendLineAxis,
-} from "../chart_common";
+} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { ChartDataset, Point } from "chart.js";
+import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
+import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 

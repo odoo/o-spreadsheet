@@ -19,3 +19,6 @@ Object.groupBy ??= function (values, keyFinder) {
     return a;
   }, {});
 };
+
+// @ts-ignore
+Uint8Array.prototype.toBase64 ??= () => "randomDataThatIsActuallyABase64Image";

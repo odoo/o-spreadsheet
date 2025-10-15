@@ -1,3 +1,4 @@
+import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
 import { UuidGenerator, deepEquals, positionToZone } from "../helpers";
 import {
   CellPosition,
@@ -10,7 +11,6 @@ import {
   UID,
   Zone,
 } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardConditionalFormat {
   position: CellPosition;

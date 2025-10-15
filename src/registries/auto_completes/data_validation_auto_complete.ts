@@ -1,4 +1,4 @@
-import { GRAY_200 } from "../../constants";
+import { GRAY_200 } from "@odoo/o-spreadsheet-engine/constants";
 import { chipTextColor, isFormula } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 

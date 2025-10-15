@@ -1,6 +1,6 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
+import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { Model, Spreadsheet } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { SearchOptions } from "../../src/types/find_and_replace";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,

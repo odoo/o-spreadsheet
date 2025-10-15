@@ -1,20 +1,21 @@
-import { Model } from "../../../../src";
-import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-} from "../../../../src/constants";
-import { getContextFontSize } from "../../../../src/helpers";
-import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
+} from "@odoo/o-spreadsheet-engine/constants";
 import {
   ScorecardChartConfig,
   getScorecardConfiguration,
-} from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
-import { Pixel, SpreadsheetChildEnv, UID } from "../../../../src/types";
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
-} from "../../../../src/types/chart/scorecard_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model } from "../../../../src";
+import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { getContextFontSize } from "../../../../src/helpers";
+import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
+import { Pixel, UID } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click } from "../../../test_helpers";
 import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";

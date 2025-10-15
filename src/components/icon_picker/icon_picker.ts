@@ -1,6 +1,6 @@
+import { ICONS, ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../types/env";
-import { ICONS, ICON_SETS } from "../icons/icons";
 
 interface Props {
   onIconPicked: (icon: string) => void;

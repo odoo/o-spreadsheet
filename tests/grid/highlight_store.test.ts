@@ -1,4 +1,8 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HIGHLIGHT_COLOR } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  HIGHLIGHT_COLOR,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { Highlight, UID } from "../../src/types";
 

@@ -1,14 +1,14 @@
-import { Model, UID } from "../../../../src";
-import { COLOR_TRANSPARENT } from "../../../../src/constants";
-import { ColorGenerator } from "../../../../src/helpers";
-import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
-import { SunburstChart } from "../../../../src/helpers/figures/charts/sunburst_chart";
+import { COLOR_TRANSPARENT } from "@odoo/o-spreadsheet-engine/constants";
 import {
   ChartCreationContext,
   SunburstChartJSDataset,
   SunburstChartRawData,
   SunburstChartRuntime,
-} from "../../../../src/types/chart";
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { Model, UID } from "../../../../src";
+import { ColorGenerator } from "../../../../src/helpers";
+import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
+import { SunburstChart } from "../../../../src/helpers/figures/charts/sunburst_chart";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   createSunburstChart,

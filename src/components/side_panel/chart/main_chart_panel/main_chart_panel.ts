@@ -1,14 +1,8 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { Store, useLocalStore } from "../../../../store_engine";
-import {
-  ChartDefinition,
-  ChartType,
-  Pixel,
-  Ref,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+import { ChartDefinition, ChartType, Pixel, Ref, UID } from "../../../../types/index";
 import { Section } from "../../components/section/section";
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
 import { MainChartPanelStore } from "./main_chart_panel_store";

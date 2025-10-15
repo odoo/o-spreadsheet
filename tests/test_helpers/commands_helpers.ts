@@ -3,7 +3,9 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import {
   colorToNumber,
   isInside,
@@ -11,8 +13,6 @@ import {
   toCartesian,
   toZone,
 } from "../../src/helpers/index";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { Model } from "../../src/model";
 import {
   AnchorZone,
   Border,
@@ -43,19 +43,23 @@ import {
 } from "../../src/types";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
-import { ICON_SETS } from "../../src/components/icons/icons";
-import { SunburstChartDefinition } from "../../src/types/chart";
-import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
-import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
-import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
-import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
-import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
-import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
-import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
-import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
-import { Image } from "../../src/types/image";
-import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
-import { CarouselItem, FigureSize } from "./../../src/types/figure";
+import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
+import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
+import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
+import { CarouselItem, FigureSize } from "@odoo/o-spreadsheet-engine/types/figure";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import {
+  CoreTableType,
+  CriterionFilter,
+  TableConfig,
+} from "@odoo/o-spreadsheet-engine/types/table";
 
 /**
  * Dispatch an UNDO to the model

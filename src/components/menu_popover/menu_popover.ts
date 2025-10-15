@@ -1,3 +1,10 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import {
+  DESKTOP_MENU_ITEM_HEIGHT,
+  MENU_VERTICAL_PADDING,
+  MENU_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   Component,
   onWillUnmount,
@@ -7,10 +14,8 @@ import {
   useState,
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
-import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { cssPropertiesToCss } from "../helpers/css";
 import {
   getOpenedMenus,
   getRefBoundingRect,

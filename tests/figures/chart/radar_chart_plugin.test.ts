@@ -1,6 +1,6 @@
+import { RadarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { ChartCreationContext, Model } from "../../../src";
 import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
-import { RadarChartRuntime } from "../../../src/types/chart/radar_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,

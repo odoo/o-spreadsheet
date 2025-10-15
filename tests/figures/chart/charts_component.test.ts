@@ -1,12 +1,20 @@
-import { App } from "@odoo/owl";
-import { CommandResult, Model, Spreadsheet } from "../../../src";
-import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { ChartTerms } from "../../../src/components/translations_terms";
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   BACKGROUND_CHART_COLOR,
   DEBOUNCE_TIME,
   LINE_DATA_POINT_RADIUS,
-} from "../../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { PieChartRuntime, TrendConfiguration } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  BarChartDefinition,
+  BarChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
+import { App } from "@odoo/owl";
+import { CommandResult, Model, Spreadsheet } from "../../../src";
+import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
@@ -16,13 +24,8 @@ import {
   ChartType,
   ChartWithDataSetDefinition,
   CreateFigureCommand,
-  SpreadsheetChildEnv,
   UID,
 } from "../../../src/types";
-import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
-import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
-import { LineChartDefinition } from "../../../src/types/chart/line_chart";
-import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
   openChartConfigSidePanel,

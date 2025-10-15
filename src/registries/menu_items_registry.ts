@@ -1,5 +1,5 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Action, ActionBuilder, ActionSpec, createActions } from "../actions/action";
-import { Registry } from "./registry";
 
 /**
  * The class Registry is extended in order to add the function addChild

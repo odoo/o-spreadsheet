@@ -1,3 +1,13 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import {
+  GROUP_LAYER_WIDTH,
+  MAXIMAL_FREEZABLE_RATIO,
+  SCROLLBAR_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
 import {
   Component,
   onMounted,
@@ -9,22 +19,13 @@ import {
   useRef,
   useSubEnv,
 } from "@odoo/owl";
-import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO, SCROLLBAR_WIDTH } from "../../constants";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
-import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
-import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
+import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
-import { _t } from "../../translation";
-import {
-  CSSProperties,
-  HeaderGroup,
-  InformationNotification,
-  Pixel,
-  SpreadsheetChildEnv,
-} from "../../types";
+import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -32,7 +33,6 @@ import { unregisterChartJsExtensions } from "../figures/chart/chartJs/chart_js_e
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
-import { cssPropertiesToCss } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";

@@ -1,18 +1,19 @@
-import { Component, useState } from "@odoo/owl";
-import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
-import { tryToNumber } from "../../../../functions/helpers";
-import { deepCopy } from "../../../../helpers/index";
-import { _t } from "../../../../translation";
-import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
-  Color,
-  CommandResult,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  GaugeChartDefinition,
+  SectionRule,
+} from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component, useState } from "@odoo/owl";
+import { deepCopy } from "../../../../helpers/index";
+import { Color, CommandResult, DispatchResult, UID } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";

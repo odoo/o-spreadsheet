@@ -1,5 +1,5 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
-import { _t } from "../../../../translation";
 import { DateCriterionValue, GenericDateCriterion } from "../../../../types";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";

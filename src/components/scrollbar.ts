@@ -1,6 +1,5 @@
 import { Pixel } from "../types";
-
-export type ScrollDirection = "horizontal" | "vertical";
+import { ScrollDirection } from "../types/scroll_direction";
 
 export class ScrollBar {
   private direction: ScrollDirection;

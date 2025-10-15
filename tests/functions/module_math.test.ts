@@ -1,5 +1,5 @@
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Model } from "../../src";
-import { toNumber } from "../../src/functions/helpers";
 import { DEFAULT_LOCALE } from "../../src/types";
 import {
   createTableWithFilter,

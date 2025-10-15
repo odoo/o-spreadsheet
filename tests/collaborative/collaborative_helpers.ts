@@ -1,5 +1,5 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { deepCopy } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 interface CollaborativeEnv {
   network: MockTransportService;

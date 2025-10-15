@@ -1,19 +1,14 @@
-import { Component } from "@odoo/owl";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
-} from "../../../../constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component } from "@odoo/owl";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
-import { _t } from "../../../../translation";
-import {
-  Color,
-  DispatchResult,
-  GenericDefinition,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types";
-import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { Color, DispatchResult, GenericDefinition, UID } from "../../../../types";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

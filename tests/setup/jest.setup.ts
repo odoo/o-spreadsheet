@@ -1,10 +1,16 @@
 /**
  * This file will be run before each test file
  */
+// @ts-ignore
+
+import {
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  setDefaultSheetViewSize,
+} from "@odoo/o-spreadsheet-engine/constants";
+import "@odoo/o-spreadsheet-engine/types/chart/chartjs_tree_map_type";
 import { App } from "@odoo/owl";
 import * as Chart from "chart.js";
-import { HEADER_HEIGHT, HEADER_WIDTH, setDefaultSheetViewSize } from "../../src/constants";
-import "../../src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import {
   extendMockGetBoundingClientRect,
@@ -16,6 +22,22 @@ import "./polyfill";
 import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
 import { patchSessionMove } from "./session_debounce_mock";
+
+// Mock getCanvas for all imports
+jest.mock("@odoo/o-spreadsheet-engine/helpers/text_helper", () => {
+  const actual = jest.requireActual("@odoo/o-spreadsheet-engine/helpers/text_helper");
+  return {
+    ...actual,
+    getCanvas: () => new (require("./canvas.mock").MockCanvasRenderingContext2D)(),
+  };
+});
+
+jest.mock("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common", () => {
+  return {
+    ...jest.requireActual("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common"),
+    chartToImageUrl: () => "data:image/png;base64,randomDataThatIsActuallyABase64Image",
+  };
+});
 
 window.Chart = Object.assign(Chart.Chart, Chart);
 
@@ -88,6 +110,13 @@ beforeEach(() => {
       setTimeout(() => callback(blob), 0);
     });
   patchSessionMove();
+  /** this is the magic shit
+   * ensures that we properly load every files from the library but
+   * this needs to happen after we mock the said files. Otherwise,
+   * the functions that should be mocked will already have been imported
+   * and linked to other functions, making them un-mockable
+   */
+  require("../../src");
 });
 
 beforeEach(() => {

@@ -1,13 +1,8 @@
-import {
-  Model,
-  PivotCustomGroup,
-  SortDirection,
-  SpreadsheetChildEnv,
-  SpreadsheetPivotTable,
-} from "../../src";
+import { PIVOT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { getPivotTooBigErrorMessage } from "../../packages/o-spreadsheet-engine/src/components/translations_terms";
+import { Model, PivotCustomGroup, SortDirection, SpreadsheetPivotTable } from "../../src";
 import { Action } from "../../src/actions/action";
-import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
-import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries/menus";
 import {

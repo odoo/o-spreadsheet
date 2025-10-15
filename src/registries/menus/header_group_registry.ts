@@ -1,7 +1,7 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Action, createActions } from "../../actions/action";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
-import { _t } from "../../translation";
 import { Dimension, UID } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 

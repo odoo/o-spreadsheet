@@ -1,6 +1,6 @@
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { LineChart } from "../../../../helpers/figures/charts";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
-import { LineChartDefinition } from "../../../../types/chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class LineConfigPanel extends GenericChartConfigPanel {

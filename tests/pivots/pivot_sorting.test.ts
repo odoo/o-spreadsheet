@@ -1,6 +1,10 @@
-import { Model, PivotSortedColumn, SpreadsheetPivotCoreDefinition } from "../../src";
-import { PREVIOUS_VALUE } from "../../src/helpers/pivot/pivot_domain_helpers";
-import { isSortedColumnValid } from "../../src/helpers/pivot/pivot_helpers";
+import { isSortedColumnValid } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import {
+  PivotSortedColumn,
+  PREVIOUS_VALUE,
+  SpreadsheetPivotCoreDefinition,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { Model } from "../../src";
 import { createModelFromGrid, getFormattedGrid, getGrid } from "../test_helpers/helpers";
 import {
   addPivot,

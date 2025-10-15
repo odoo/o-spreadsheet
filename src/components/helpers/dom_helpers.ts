@@ -1,5 +1,5 @@
-import { Ref } from "../../types/misc";
-import { Rect } from "./../../types/rendering";
+import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
+import { Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
 
 const macRegex = /Mac/i;
 
@@ -201,23 +201,6 @@ export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
  */
 export function isMiddleClickOrCtrlClick(ev: MouseEvent): boolean {
   return ev.button === 1 || (isCtrlKey(ev) && ev.button === 0);
-}
-
-export async function convertImageToPng(imageUrl: string): Promise<Blob | null> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener("load", () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = image.width;
-      canvas.height = image.height;
-
-      const ctx = canvas.getContext("2d");
-      ctx?.drawImage(image, 0, 0);
-      canvas.toBlob(resolve, "image/png");
-    });
-    image.addEventListener("error", reject);
-    image.src = imageUrl;
-  });
 }
 
 export function downloadFile(dataUrl: string, fileName: string) {

@@ -1,8 +1,9 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
-import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
-import { cssPropertiesToCss } from "../../helpers/css";
+import { CSSProperties, ComposerFocusType } from "../../../types/index";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";

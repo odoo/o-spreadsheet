@@ -1,5 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { ComponentConstructor } from "@odoo/owl";
-import { PropsOf, SpreadsheetChildEnv } from "..";
+import { PropsOf } from "../types/props_of";
 
 type ToolBarItem<C extends ComponentConstructor = ComponentConstructor> = {
   component: C;

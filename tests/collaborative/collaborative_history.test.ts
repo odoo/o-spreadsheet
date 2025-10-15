@@ -1,10 +1,10 @@
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model } from "../../src";
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { pivotRegistry } from "../../src/helpers/pivot/pivot_registry";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
-import { LineChartDefinition } from "../../src/types/chart/line_chart";
-import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,

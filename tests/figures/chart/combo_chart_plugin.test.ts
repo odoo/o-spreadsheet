@@ -1,5 +1,5 @@
+import { ComboChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { ChartCreationContext, Model } from "../../../src";
-import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,

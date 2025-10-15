@@ -1,7 +1,7 @@
+import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
 import { Model } from "../../src";
 import { CustomCurrencyPanel } from "../../src/components/side_panel/custom_currency/custom_currency";
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
-import { Currency } from "../../src/types/currency";
 import { setSelection, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";

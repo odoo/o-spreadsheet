@@ -1,4 +1,4 @@
-import { ComputedTableStyle } from "../../../types/table";
+import { ComputedTableStyle } from "@odoo/o-spreadsheet-engine/types/table";
 
 export function drawPreviewTable(
   ctx: CanvasRenderingContext2D,

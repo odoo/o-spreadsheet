@@ -1,3 +1,22 @@
+import { BasePlugin, _t } from "@odoo/o-spreadsheet-engine";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { createEmptyExcelWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { MergePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/merge";
+import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+import { SheetUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/ui_sheet";
+import { UIPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
+import {
+  fixLengthySheetNames,
+  purgeSingleRowTables,
+} from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
@@ -10,8 +29,6 @@ import { ComposerFocusStore } from "../../src/components/composer/composer_focus
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
-import { matrixMap } from "../../src/functions/helpers";
-import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,
@@ -22,16 +39,8 @@ import {
   toZone,
   zoneToXc,
 } from "../../src/helpers/index";
-import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
-import { Model, ModelExternalConfig } from "../../src/model";
-import { BasePlugin } from "../../src/plugins/base_plugin";
-import { MergePlugin } from "../../src/plugins/core/merge";
-import { CorePluginConstructor } from "../../src/plugins/core_plugin";
-import { SheetUIPlugin } from "../../src/plugins/ui_feature";
-import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus";
-import { Registry } from "../../src/registries/registry";
 import {
   DependencyContainer,
   Store,
@@ -44,7 +53,6 @@ import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_s
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
-import { _t } from "../../src/translation";
 import {
   CellPosition,
   CellValue,
@@ -65,15 +73,10 @@ import {
   Matrix,
   OrderedLayers,
   RangeData,
-  SpreadsheetChildEnv,
   Style,
   UID,
   Zone,
 } from "../../src/types";
-import { Image } from "../../src/types/image";
-import { XLSXExport } from "../../src/types/xlsx";
-import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
-import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
@@ -865,12 +868,12 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
   };
 }
 
-export function getExportedExcelData(model: Model): ExcelWorkbookData {
+export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
   model.dispatch("EVALUATE_CELLS");
   let data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
-      handler.exportForExcel(data);
+      await handler.exportForExcel(data);
     }
   }
   data = fixLengthySheetNames(data);

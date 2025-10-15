@@ -1,8 +1,8 @@
-import { Command, UID } from "../../../../..";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
-} from "../../../../../helpers/figures/charts/chart_common";
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { Command, UID } from "../../../../..";
 import { SpreadsheetStore } from "../../../../../stores";
 
 const TREND_LINE_AXES_IDS = [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID] as const;

@@ -1,15 +1,20 @@
-import { UIPlugin } from "../../src";
-import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
-import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
-import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   getClipboardDataPositions,
   parseOSClipboardContent,
-} from "../../src/helpers/clipboard/clipboard_helpers";
-import { urlRepresentation } from "../../src/helpers/links";
-import { Model } from "../../src/model";
-import { featurePluginRegistry } from "../../src/plugins";
-import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful";
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
+import {
+  ClipboardPlugin,
+  MAX_FILE_SIZE,
+} from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
+import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
+import { XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { parseXML, xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
+import { UIPlugin } from "../../src";
+import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
@@ -18,8 +23,6 @@ import {
   DEFAULT_LOCALE,
   DEFAULT_LOCALES,
 } from "../../src/types/index";
-import { XMLString } from "../../src/types/xlsx";
-import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
 import { MockClipboardData } from "../test_helpers/clipboard";
 import {
