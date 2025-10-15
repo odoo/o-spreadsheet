@@ -137,7 +137,7 @@ export function getRangeString(
   let sheetName: string = "";
   if (prefixSheet) {
     if (range.invalidSheetName) {
-      sheetName = range.invalidSheetName;
+      sheetName = getCanonicalSymbolName(range.invalidSheetName);
     } else {
       sheetName = getCanonicalSymbolName(getSheetName(range.sheetId));
     }
