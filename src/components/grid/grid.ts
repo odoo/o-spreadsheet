@@ -40,10 +40,10 @@ import {
   CellValueType,
   Client,
   ClipboardMIMEType,
-  DOMCoordinates,
-  DOMDimension,
   Dimension,
   Direction,
+  DOMCoordinates,
+  DOMDimension,
   GridClickModifiers,
   HeaderIndex,
   Pixel,
@@ -67,7 +67,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
-import { ZoomedMouseEvent } from "../helpers/zoom";
+import { getZoomedRect, ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
@@ -168,7 +168,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
 
-    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
+    useChildSubEnv({
+      getPopoverContainerRect: () =>
+        getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
+    });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);

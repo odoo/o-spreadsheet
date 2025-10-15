@@ -3,6 +3,7 @@ import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_cha
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
+import { getZoomedRect } from "../../../helpers/zoom";
 
 interface Props {
   chartId: UID;
@@ -36,7 +37,11 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 
   private createChart() {
     const canvas = this.canvas.el as HTMLCanvasElement;
-    const config = getScorecardConfiguration(canvas.getBoundingClientRect(), this.runtime);
+    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const config = getScorecardConfiguration(
+      getZoomedRect(1 / zoom, canvas.getBoundingClientRect()),
+      this.runtime
+    );
     drawScoreChart(config, canvas);
   }
 }

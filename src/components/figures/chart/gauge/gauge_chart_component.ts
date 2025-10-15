@@ -67,7 +67,8 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   drawGaugeWithAnimation() {
-    drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue: 0 });
+    const zoom = this.env.model.getters.getViewportZoomLevel();
+    drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue: 0 }, { zoom });
 
     const gaugeValue = this.runtime.gaugeValue?.value || 0;
     const upperBound = this.runtime.maxValue.value;
@@ -78,7 +79,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const lowerBound = this.runtime.minValue.value;
     const animation = new Animation(lowerBound, finalValue, ANIMATION_DURATION, (animationValue) =>
-      drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue })
+      drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue }, { zoom })
     );
     animation.start();
     return animation;

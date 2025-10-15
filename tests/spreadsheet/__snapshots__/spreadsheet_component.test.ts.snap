@@ -158,26 +158,32 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 
               </span>
               <div>
-                <span
-                  class="o-menu-item-button o-hoverable-button o-toolbar-button"
-                  title="Zoom"
+                <div
+                  class="o-dropdown"
                 >
-                  <span
-                    style=""
+                  <div
+                    class="o-font-size-editor d-flex align-items-center o-menu-item-button o-hoverable-button o-toolbar-button"
+                    title="Zoom"
                   >
-                    <div
-                      class="o-icon"
-                    >
-                      <i
-                        class="fa fa-search-plus"
-                      />
-                    </div>
-                  </span>
+                    <input
+                      class="o-font-size o-number-input bg-transparent border-0"
+                      max="max"
+                      min="min"
+                      type="number"
+                    />
+                    %
+                    <span>
+                      <div
+                        class="o-icon fa-small"
+                      >
+                        <i
+                          class="fa fa-caret-down"
+                        />
+                      </div>
+                    </span>
+                  </div>
                   
-                  
-                </span>
-                
-                
+                </div>
               </div>
               
               
@@ -289,10 +295,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 >
                   <input
                     class="o-font-size o-number-input bg-transparent border-0"
-                    max="400"
-                    min="1"
+                    max="max"
+                    min="min"
                     type="number"
                   />
+                  
                   <span>
                     <div
                       class="o-icon fa-small"
@@ -1166,26 +1173,32 @@ exports[`components take the small screen into account 1`] = `
                 
               </span>
               <div>
-                <span
-                  class="o-menu-item-button o-hoverable-button o-toolbar-button"
-                  title="Zoom"
+                <div
+                  class="o-dropdown"
                 >
-                  <span
-                    style=""
+                  <div
+                    class="o-font-size-editor d-flex align-items-center o-menu-item-button o-hoverable-button o-toolbar-button"
+                    title="Zoom"
                   >
-                    <div
-                      class="o-icon"
-                    >
-                      <i
-                        class="fa fa-search-plus"
-                      />
-                    </div>
-                  </span>
+                    <input
+                      class="o-font-size o-number-input bg-transparent border-0"
+                      max="max"
+                      min="min"
+                      type="number"
+                    />
+                    %
+                    <span>
+                      <div
+                        class="o-icon fa-small"
+                      >
+                        <i
+                          class="fa fa-caret-down"
+                        />
+                      </div>
+                    </span>
+                  </div>
                   
-                  
-                </span>
-                
-                
+                </div>
               </div>
               
               
@@ -1297,10 +1310,11 @@ exports[`components take the small screen into account 1`] = `
                 >
                   <input
                     class="o-font-size o-number-input bg-transparent border-0"
-                    max="400"
-                    min="1"
+                    max="max"
+                    min="min"
                     type="number"
                   />
+                  
                   <span>
                     <div
                       class="o-icon fa-small"

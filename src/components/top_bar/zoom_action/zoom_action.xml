@@ -1,13 +1,12 @@
 <templates>
   <div t-name="o-spreadsheet-TopBarZoom" t-ref="buttonRef" t-on-click.stop="">
-    <ActionButton action="action" onClick.bind="toggleMenu" class="props.class"/>
-    <MenuPopover
-      t-if="isActive"
-      anchorRect="state.anchorRect"
-      menuItems="state.menuItems"
-      onClose="() => {}"
-      popoverPositioning="'bottom-left'"
-      width="90"
+    <ZoomEditor
+      currentFontSize="currentFontSize"
+      onFontSizeChanged.bind="this.setFontSize"
+      class="props.class"
+      onToggle.bind="this.onToggle"
+      onFocusInput.bind="this.onFocusInput"
+      valueIcon="'%'"
     />
   </div>
 </templates>

@@ -16,7 +16,7 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     const canvas = canvasRef.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
-    const zoom = model.getters.getViewportZoomLevel();
+    const zoom = Math.max(model.getters.getViewportZoomLevel(), 1);
     const thinLineWidth = 0.4 * dpr;
     const renderingContext = {
       ctx,

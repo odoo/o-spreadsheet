@@ -1,3 +1,4 @@
+import { getZoomedRect } from "../../../components/helpers/zoom";
 import {
   CHART_PADDING,
   CHART_PADDING_TOP,
@@ -70,7 +71,12 @@ interface Segment {
   end: PixelPosition;
 }
 
-export function drawGaugeChart(canvas: HTMLCanvasElement, runtime: GaugeAnimatedRuntime) {
+export function drawGaugeChart(
+  canvas: HTMLCanvasElement,
+  runtime: GaugeAnimatedRuntime,
+  options: { zoom?: number } = { zoom: 1 }
+) {
+  const zoom = options.zoom || 1;
   const canvasBoundingRect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   canvas.width = dpr * canvasBoundingRect.width;
@@ -78,7 +84,7 @@ export function drawGaugeChart(canvas: HTMLCanvasElement, runtime: GaugeAnimated
   const ctx = canvas.getContext("2d")!;
   ctx.scale(dpr, dpr);
 
-  const config = getGaugeRenderingConfig(canvasBoundingRect, runtime, ctx);
+  const config = getGaugeRenderingConfig(getZoomedRect(1 / zoom, canvasBoundingRect), runtime, ctx);
   drawBackground(ctx, config);
   drawGauge(ctx, config);
   drawInflectionValues(ctx, config);

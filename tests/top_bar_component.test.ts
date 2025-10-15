@@ -435,9 +435,9 @@ describe("TopBar component", () => {
 
   test("can set font size", async () => {
     const { model } = await mountParent();
-    const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
+    const fontSizeText = fixture.getElementsByClassName("o-font-size")[1]! as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
-    await click(fixture, ".o-font-size-editor");
+    await click(fontSizeText.parentElement!);
     await click(fixture, '.o-text-options [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);

@@ -8,6 +8,7 @@ import {
 } from "../../../../../helpers/figures/charts/chart_common";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
+import { withZoom } from "../../../../helpers/zoom";
 import { chartJsExtensionRegistry } from "../chart_js_extension";
 import { ChartJsComponent } from "../chartjs";
 import { ZoomableChartStore } from "./zoomable_chart_store";
@@ -399,7 +400,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   onPointerMoveInMasterChart(ev: PointerEvent) {
-    const { offsetX: x, offsetY: y } = ev;
+    const { offsetX: x, offsetY: y } = withZoom(
+      this.env,
+      ev,
+      (ev.target as HTMLElement)?.getBoundingClientRect()
+    );
     if (this.mode === undefined) {
       const target = ev.target!;
       if (!this.masterChart?.chartArea) {
