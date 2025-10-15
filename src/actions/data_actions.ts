@@ -1,6 +1,6 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { getZoneArea } from "../helpers/index";
-import { interactiveSortSelection } from "../helpers/sort";
-import { _t } from "../translation";
+import { interactiveSortSelection } from "../helpers/sort_interactive";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 

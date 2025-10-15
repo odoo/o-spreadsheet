@@ -1,6 +1,6 @@
+import { TABLE_HOVER_BACKGROUND_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Model, UID } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import { TABLE_HOVER_BACKGROUND_COLOR } from "../../src/constants";
 import { createTable, setCellContent } from "../test_helpers/commands_helpers";
 import { makeStore } from "../test_helpers/stores";
 

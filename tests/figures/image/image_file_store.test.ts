@@ -1,5 +1,5 @@
+import { createEmptyWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { Model } from "../../../src";
-import { createEmptyWorkbookData } from "../../../src/migrations/data";
 import { FileStore } from "../../__mocks__/mock_file_store";
 
 describe("image file store", () => {

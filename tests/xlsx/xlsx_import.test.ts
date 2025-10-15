@@ -1,22 +1,14 @@
-import { ICON_SETS } from "../../src/components/icons/icons";
-import {
-  buildSheetLink,
-  formatValue,
-  lettersToNumber,
-  markdownLink,
-  toZone,
-} from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
-import { BarChartDefinition } from "../../src/types/chart/bar_chart";
-import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
-import { LineChartDefinition } from "../../src/types/chart/line_chart";
-import { PieChartDefinition } from "../../src/types/chart/pie_chart";
-import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
-import { Image } from "../../src/types/image";
-import { SheetData, WorkbookData } from "../../src/types/workbook_data";
-import { XLSXSharedFormula } from "../../src/types/xlsx";
-import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
+import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
+import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { PieChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
+import { ScatterChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { SheetData, WorkbookData } from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import { XLSXSharedFormula } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion/color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,
   CF_OPERATOR_TYPE_CONVERSION_MAP,
@@ -25,12 +17,20 @@ import {
   H_ALIGNMENT_CONVERSION_MAP,
   ICON_SET_CONVERSION_MAP,
   V_ALIGNMENT_CONVERSION_MAP,
-} from "../../src/xlsx/conversion/conversion_maps";
-import { convertXlsxFormat } from "../../src/xlsx/conversion/format_conversion";
-import { adaptFormula } from "../../src/xlsx/conversion/formula_conversion";
-import { getRelativePath } from "../../src/xlsx/helpers/misc";
-import { XLSXImportWarningManager } from "../../src/xlsx/helpers/xlsx_parser_error_manager";
-import { XlsxReader } from "../../src/xlsx/xlsx_reader";
+} from "@odoo/o-spreadsheet-engine/xlsx/conversion/conversion_maps";
+import { convertXlsxFormat } from "@odoo/o-spreadsheet-engine/xlsx/conversion/format_conversion";
+import { adaptFormula } from "@odoo/o-spreadsheet-engine/xlsx/conversion/formula_conversion";
+import { getRelativePath } from "@odoo/o-spreadsheet-engine/xlsx/helpers/misc";
+import { XLSXImportWarningManager } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_parser_error_manager";
+import { XlsxReader } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_reader";
+import {
+  buildSheetLink,
+  formatValue,
+  lettersToNumber,
+  markdownLink,
+  toZone,
+} from "../../src/helpers";
+import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import { EXCEL_TEST_FILES_PATH, getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import {
   getCFBeginningAt,
@@ -45,11 +45,16 @@ import {
   standardizeColor,
 } from "../test_helpers/xlsx";
 
+let reader: XlsxReader;
+
 describe("Import xlsx data", () => {
   let convertedData: WorkbookData;
   beforeAll(async () => {
     const demo_xlsx = await getTextXlsxFiles();
-    const reader = new XlsxReader(demo_xlsx);
+    reader = new XlsxReader(demo_xlsx);
+  });
+
+  beforeEach(() => {
     convertedData = reader.convertXlsx();
   });
 

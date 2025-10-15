@@ -1,7 +1,7 @@
+import { FONT_SIZES } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { FONT_SIZES } from "../../constants";
 import { clip } from "../../helpers/index";
-import { SpreadsheetChildEnv } from "../../types/index";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 

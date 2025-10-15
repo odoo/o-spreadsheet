@@ -1,30 +1,6 @@
-import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  CoreGetters,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  DatasetDesign,
-  ExcelChartDataset,
-  ExcelChartDefinition,
-} from "../../../types/chart/chart";
-import { LegendPosition } from "../../../types/chart/common_chart";
-import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
-import { Validator } from "../../../types/validator";
-import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
-import { AbstractChart } from "./abstract_chart";
+import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
   checkDataset,
@@ -38,8 +14,34 @@ import {
   toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
-} from "./chart_common";
-import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  DatasetDesign,
+  ExcelChartDataset,
+  ExcelChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
+import {
+  ScatterChartDefinition,
+  ScatterChartRuntime,
+} from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
+import { ChartConfiguration } from "chart.js";
+import {
+  ApplyRangeChange,
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  UID,
+} from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,

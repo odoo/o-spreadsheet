@@ -1,6 +1,6 @@
+import { Dimension, HeaderIndex } from "@odoo/o-spreadsheet-engine/types/misc";
 import { CommandResult, Model } from "../../src";
 import { UID } from "../../src/types";
-import { Dimension, HeaderIndex } from "../../src/types/misc";
 import {
   addColumns,
   addRows,

@@ -1,14 +1,15 @@
+import { getFieldDisplayName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { deepCopy } from "../../../../helpers";
-import { NEXT_VALUE, PREVIOUS_VALUE } from "../../../../helpers/pivot/pivot_domain_helpers";
-import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";
-import { _t } from "../../../../translation";
 import {
+  NEXT_VALUE,
   PivotCoreDefinition,
   PivotCoreMeasure,
   PivotMeasureDisplay,
   PivotMeasureDisplayType,
+  PREVIOUS_VALUE,
   UID,
 } from "../../../../types";
 

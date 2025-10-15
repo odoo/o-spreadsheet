@@ -1,6 +1,10 @@
+import {
+  cssPropertiesToCss,
+  getElementMargins,
+} from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { Rect, SpreadsheetChildEnv } from "../../types";
-import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
+import { Rect } from "../../types";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 
 const RIPPLE_KEY_FRAMES = [

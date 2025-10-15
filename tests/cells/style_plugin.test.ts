@@ -3,9 +3,9 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
-import { Model } from "../../src/model";
 import {
   addDataValidation,
   createSheet,

@@ -1,5 +1,5 @@
+import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Model } from "../../../../src";
-import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
 import { createGeoChart, setCellContent, setFormat, updateChart } from "../../../test_helpers";
 import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
 import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/helpers";

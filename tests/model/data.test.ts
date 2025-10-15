@@ -1,5 +1,5 @@
-import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { getCurrentVersion, load } from "../../src/migrations/data";
+import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
+import { getCurrentVersion, load } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { DEFAULT_LOCALE } from "../../src/types";
 
 describe("load data", () => {

@@ -1,6 +1,6 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { DelayedHoveredCellStore } from "../../src/components/grid/delayed_hovered_cell_store";
 import { CellPopoverStore } from "../../src/components/popover";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toCartesian } from "../../src/helpers";
 import { merge, setCellContent } from "../test_helpers";
 import { makeStore } from "../test_helpers/stores";

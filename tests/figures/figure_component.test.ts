@@ -1,18 +1,19 @@
-import { Component, xml } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   FIGURE_BORDER_WIDTH,
   MENU_WIDTH,
-} from "../../src/constants";
-import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/types";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Component, xml } from "@odoo/owl";
+import { Model, Spreadsheet } from "../../src";
+import { Figure, Pixel, Position, UID } from "../../src/types";
 
+import { ClipboardMIMEType } from "@odoo/o-spreadsheet-engine/types/clipboard";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { ChartFigure } from "../../src/components/figures/figure_chart/figure_chart";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
-import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
   activateSheet,
   addColumns,
@@ -49,15 +50,17 @@ import {
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
+const constantsMocks = jest.requireMock("@odoo/o-spreadsheet-engine/constants");
+jest.mock("@odoo/o-spreadsheet-engine/constants", () => ({
+  ...jest.requireActual("@odoo/o-spreadsheet-engine/constants"),
+}));
+
 jest.mock("../../src/components/helpers/dom_helpers", () => {
   return {
     ...jest.requireActual("../../src/components/helpers/dom_helpers"),
     downloadFile: jest.fn(),
   };
 });
-
-const constantsMocks = jest.requireMock("../../src/constants");
-jest.mock("../../src/constants", () => ({ ...jest.requireActual("../../src/constants") }));
 
 beforeEach(() => {
   constantsMocks.DRAG_THRESHOLD = 0; // mock drag threshold to 0 for easier testing of snap

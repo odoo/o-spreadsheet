@@ -1,6 +1,6 @@
+import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
 import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import { TEXT_BODY_MUTED } from "../../src/constants";
 import { toCartesian } from "../../src/helpers";
 import { createTable, setStyle } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";

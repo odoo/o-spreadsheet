@@ -1,4 +1,5 @@
-import { Model, SpreadsheetChildEnv } from "../../../../src";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { createChart } from "../../../test_helpers";
 import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";

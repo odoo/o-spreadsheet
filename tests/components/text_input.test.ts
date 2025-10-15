@@ -1,5 +1,5 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../src";
 import { TextInput } from "../../src/components/text_input/text_input";
 import {
   click,

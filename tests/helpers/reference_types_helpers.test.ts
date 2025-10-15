@@ -1,8 +1,8 @@
-import { Token } from "../../src/formulas";
 import {
   loopThroughReferenceType,
   setXcToFixedReferenceType,
-} from "../../src/helpers/reference_type";
+  Token,
+} from "@odoo/o-spreadsheet-engine";
 
 function refToken(referenceString: string): Token {
   return { type: "REFERENCE", value: referenceString };

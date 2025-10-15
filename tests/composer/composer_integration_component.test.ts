@@ -1,15 +1,15 @@
-import { HeaderIndex, Model } from "../../src";
-import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   FONT_SIZES,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { HeaderIndex, Model } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { colors, toHex, toZone } from "../../src/helpers";
 import { Store } from "../../src/store_engine";
-import { SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
   copy,

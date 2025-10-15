@@ -1,6 +1,6 @@
+import { ImportedFiles } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { readFileSync } from "fs";
 import JsZip from "jszip";
-import { ImportedFiles } from "../../src/types/xlsx";
 
 export enum EXCEL_TEST_FILES_PATH {
   XLSX = "./tests/__xlsx__/xlsx_demo_data.xlsx",

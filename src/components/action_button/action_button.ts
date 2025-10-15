@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { ActionSpec, createAction } from "../../actions/action";
-import { SpreadsheetChildEnv } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
 
 interface Props {

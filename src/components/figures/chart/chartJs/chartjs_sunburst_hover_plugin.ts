@@ -1,7 +1,7 @@
+import { SunburstChartRawData } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ActiveDataPoint, ChartType, Plugin } from "chart.js";
 import { lightenColor } from "../../../../helpers";
 import { GHOST_SUNBURST_VALUE } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
-import { SunburstChartRawData } from "../../../../types/chart";
 
 export interface ChartSunburstHoverPluginOptions {
   enabled: boolean;

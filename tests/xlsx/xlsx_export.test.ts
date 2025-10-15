@@ -1,15 +1,16 @@
-import { arg, functionRegistry } from "../../src/functions";
-import { NOW, TODAY } from "../../src/functions/module_date";
-import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
+import { NOW, TODAY } from "@odoo/o-spreadsheet-engine/functions/module_date";
+import { RAND, RANDARRAY, RANDBETWEEN } from "@odoo/o-spreadsheet-engine/functions/module_math";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { XLSXExportXMLFile, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
+import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
+import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
+import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { Model } from "../../src/model";
 import { CustomizedDataSet, Dimension } from "../../src/types";
-import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
-import { hexaToInt } from "../../src/xlsx/conversion";
-import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
-import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import {
   createChart,
   createGaugeChart,
@@ -747,7 +748,7 @@ describe("Test XLSX export", () => {
       setCellFormat(model, "A1", "qq yyyy");
       setCellFormat(model, "A2", "qqqq yyyy");
 
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].formats).toEqual({});
       expect(exported.formats).toEqual({});
     });
@@ -996,7 +997,7 @@ describe("Test XLSX export", () => {
       setCellContent(model, "A1", "=1+NON.EXPORTABLE()");
       setCellContent(model, "A2", "=1+NON.EXPORTABLE(A1)");
 
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
 
       expect(exported.sheets[0].cells["A1"]).toEqual("43");
       expect(exported.sheets[0].cells["A2"]).toEqual("43");
@@ -1030,7 +1031,7 @@ describe("Test XLSX export", () => {
 
       setCellContent(model, "A1", "=NON.EXPORTABLE.ARRAY.FORMULA()");
 
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       const cells = exported.sheets[0].cells;
       const formats = exported.sheets[0].formats;
 
@@ -1262,7 +1263,7 @@ describe("Test XLSX export", () => {
         },
         "2"
       );
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].charts[0].data).toEqual(exported.sheets[0].charts[1].data);
     });
 
@@ -1339,28 +1340,30 @@ describe("Test XLSX export", () => {
       async (type) => {
         const model = new Model();
         createChart(model, { aggregated: true, type }, "1");
-        const exportedData = getExportedExcelData(model);
+        const exportedData = await getExportedExcelData(model);
         expect(exportedData.sheets[0].charts.length).toBe(1);
         expect(exportedData.sheets[0].images.length).toBe(0);
       }
     );
 
-    test("Scorecard is exported as an image", () => {
+    test("Scorecard is exported as an image", async () => {
       const model = new Model({
         sheets: chartData.sheets,
       });
       createScorecardChart(model, TEST_CHART_DATA.scorecard);
-      expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
-      expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
+      const exported = await getExportedExcelData(model);
+      expect(exported.sheets[0].charts.length).toBe(0);
+      expect(exported.sheets[0].images.length).toBe(1);
     });
 
-    test("Gauge Chart is exported as an image", () => {
+    test("Gauge Chart is exported as an image", async () => {
       const model = new Model({
         sheets: chartData.sheets,
       });
       createGaugeChart(model, TEST_CHART_DATA.gauge);
-      expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
-      expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
+      const exported = await getExportedExcelData(model);
+      expect(exported.sheets[0].charts.length).toBe(0);
+      expect(exported.sheets[0].images.length).toBe(1);
     });
 
     test("stacked bar chart", async () => {
@@ -1681,12 +1684,12 @@ describe("Test XLSX export", () => {
   });
 
   describe("Export data filters", () => {
-    test("Table headers formula are replaced with their evaluated formatted value", () => {
+    test("Table headers formula are replaced with their evaluated formatted value", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:A4");
       setCellContent(model, "A1", "=DATE(1,1,1)");
       setCellContent(model, "A2", "=DATE(1,1,1)");
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].cells["A1"]).toEqual("1/1/1901");
       expect(exported.sheets[0].cellValues["A1"]).toEqual("1/1/1901");
 
@@ -1694,12 +1697,12 @@ describe("Test XLSX export", () => {
       expect(exported.sheets[0].cellValues["A2"]).toEqual(367);
     });
 
-    test("Table headers are replaced by unique value", () => {
+    test("Table headers are replaced by unique value", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].cells["A1"]).toEqual("Hello");
       expect(exported.sheets[0].cellValues["A1"]).toEqual("Hello");
 
@@ -1707,11 +1710,11 @@ describe("Test XLSX export", () => {
       expect(exported.sheets[0].cellValues["B1"]).toEqual("Hello2");
     });
 
-    test("Table headers are replaced by unique formatted value even if table has no filters", () => {
+    test("Table headers are replaced by unique formatted value even if table has no filters", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:A4", { ...DEFAULT_TABLE_CONFIG, hasFilters: false });
       setCellContent(model, "A1", "=DATE(1,1,1)");
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].cells["A1"]).toEqual("1/1/1901");
     });
 
@@ -1753,64 +1756,64 @@ describe("Test XLSX export", () => {
       expect(tableFile).toMatchSnapshot();
     });
 
-    test("Filtered values are exported and rows are hidden", () => {
+    test("Filtered values are exported and rows are hidden", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "A3", "Konnichiwa");
       setCellContent(model, "A4", '=CONCAT("Bon", "jour")');
       updateFilter(model, "A1", ["Konnichiwa"]);
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       // Filtered values are the values that are displayed in xlsx, not the values that are hidden
       expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual(["Hello", "Bonjour"]);
       expect(exported.sheets[0].rows[2].isHidden).toBeTruthy();
     });
 
-    test("Empty filters aren't exported", () => {
+    test("Empty filters aren't exported", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "B2", "Hello");
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables[0].filters).toHaveLength(0);
     });
 
-    test("Tables with only one row are not exported", () => {
+    test("Tables with only one row are not exported", async () => {
       const model = new Model();
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
       createTableWithFilter(model, "A1:B1");
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables).toHaveLength(0);
     });
 
-    test("Filtered values are not duplicated", () => {
+    test("Filtered values are not duplicated", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "Konnichiwa");
       setCellContent(model, "A3", "Konnichiwa");
       setCellContent(model, "A4", "5");
       updateFilter(model, "A1", ["5"]);
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual(["Konnichiwa"]);
     });
 
-    test("Empty cells are not added to displayedValues", () => {
+    test("Empty cells are not added to displayedValues", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual([]);
     });
 
-    test("Formulas evaluated to empty string are not added to displayedValues", () => {
+    test("Formulas evaluated to empty string are not added to displayedValues", async () => {
       const model = new Model();
       createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
       setCellContent(model, "A3", '=""');
-      const exported = getExportedExcelData(model);
+      const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual([]);
       expect(exported.sheets[0].tables[0].filters[0].displayBlanks).toEqual(true);
     });
@@ -1865,7 +1868,7 @@ describe("Test XLSX export", () => {
       groupHeaders(model, dim, 0, 2);
       foldHeaderGroup(model, dim, 0, 2);
 
-      const xlsxExport = getExportedExcelData(model);
+      const xlsxExport = await getExportedExcelData(model);
       const headers = dim === "COL" ? xlsxExport.sheets[0].cols : xlsxExport.sheets[0].rows;
       expect(headers).toMatchObject({
         0: { isHidden: true, outlineLevel: 1 },
@@ -1882,7 +1885,7 @@ describe("Test XLSX export", () => {
       groupHeaders(model, dim, 1, 3);
       foldHeaderGroup(model, dim, 1, 3);
 
-      const xlsxExport = getExportedExcelData(model);
+      const xlsxExport = await getExportedExcelData(model);
       const headers = dim === "COL" ? xlsxExport.sheets[0].cols : xlsxExport.sheets[0].rows;
       expect(headers).toMatchObject({
         0: { isHidden: false, outlineLevel: 1 },
@@ -1897,7 +1900,7 @@ describe("Test XLSX export", () => {
     });
   });
 
-  test("Sheet names longer than 31 characters are sliced in the Excel Export", () => {
+  test("Sheet names longer than 31 characters are sliced in the Excel Export", async () => {
     const model = new Model();
     const longSheetName = "a".repeat(40);
     const longSheetNameWithSpaces = "Hey " + "a".repeat(40);
@@ -1912,7 +1915,7 @@ describe("Test XLSX export", () => {
 
     const fixedSheetName = "a".repeat(31);
     const fixedSheetNameWithSpaces = "Hey " + "a".repeat(27);
-    const exportedData = getExportedExcelData(model);
+    const exportedData = await getExportedExcelData(model);
     expect(exportedData.sheets[1].name).toBe(fixedSheetName);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
@@ -1926,23 +1929,23 @@ describe("Test XLSX export", () => {
     });
   });
 
-  test("Avoid duplicated sheet names in excel export if multiple sliced names are the same", () => {
+  test("Avoid duplicated sheet names in excel export if multiple sliced names are the same", async () => {
     const model = new Model();
     createSheet(model, { name: "a".repeat(40) });
     createSheet(model, { name: "a".repeat(41) });
     createSheet(model, { name: "a".repeat(42) });
-    const exportedExcelData = getExportedExcelData(model);
+    const exportedExcelData = await getExportedExcelData(model);
     expect(exportedExcelData.sheets[1].name).toBe("a".repeat(31));
     expect(exportedExcelData.sheets[2].name).toBe("a".repeat(30) + "1");
     expect(exportedExcelData.sheets[3].name).toBe("a".repeat(30) + "2");
   });
 
-  test("Cells whose content are the same as a too long sheet name are not changed", () => {
+  test("Cells whose content are the same as a too long sheet name are not changed", async () => {
     const model = new Model();
     const longFormula = "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16";
     createSheet(model, { name: longFormula });
     setCellContent(model, "A1", longFormula);
-    const exportedExcelData = getExportedExcelData(model);
+    const exportedExcelData = await getExportedExcelData(model);
     expect(exportedExcelData.sheets[1].name).toBe(longFormula.slice(0, 31));
     expect(exportedExcelData.sheets[0].cells["A1"]).toBe(longFormula);
     expect(exportedExcelData.sheets[0].cells["A1"]).toBe(longFormula);

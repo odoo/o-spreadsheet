@@ -1,6 +1,6 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { Section } from "../../../src/components/side_panel/components/section/section";
-import { SpreadsheetChildEnv } from "../../../src/types";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;

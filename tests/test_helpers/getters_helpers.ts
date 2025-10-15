@@ -1,6 +1,6 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { ClipboardPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
-import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import {
   Border,
   Cell,

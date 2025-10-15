@@ -1,7 +1,7 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { ActionSpec } from "../src/actions/action";
 import { ActionButton } from "../src/components/action_button/action_button";
-import { SpreadsheetChildEnv } from "../src/types";
 import { mountComponent, nextTick } from "./test_helpers/helpers";
 
 interface ParentProps {

@@ -1,6 +1,6 @@
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import { range } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CommandResult, FilterCriterionType, UID } from "../../src/types";
 import {
   addRows,

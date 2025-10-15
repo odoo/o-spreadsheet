@@ -1,11 +1,10 @@
+import { getMaxFigureSize } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { UID } from "..";
+import { deepEquals } from "../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
-import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { deepEquals } from "../helpers/misc";
-import { _t } from "../translation";
-import { SpreadsheetChildEnv } from "../types";
-import { xmlEscape } from "../xlsx/helpers/xml_helpers";
 import { Action, ActionSpec, createActions } from "./action";
 
 export function getChartMenuActions(
@@ -237,9 +236,25 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
       }
       const chartType = env.model.getters.getChartType(chartId);
       const runtime = env.model.getters.getChartRuntime(chartId);
-      const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
-      const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
-      const blob = await chartToImageFile(runtime, figure, chartType)!;
+      const blob = await chartToImageFile(runtime, figure, chartType);
+      if (!blob) {
+        return;
+      }
+
+      const image: ArrayBuffer = await new Promise((resolve) => {
+        const reader = new FileReader();
+
+        reader.addEventListener("loadend", (e) => {
+          const base64data = reader.result;
+          resolve(base64data as ArrayBuffer);
+        });
+        reader.readAsArrayBuffer(blob);
+      });
+      const imageBase = new Uint8Array(image);
+      // @ts-ignore // toBase64 added to Uint8Array in Sept 2025
+      const imageBase64 = imageBase.toBase64();
+
+      const innerHTML = `<img src="data:image/png;base64,${imageBase64}" />`;
 
       env.clipboard.write({
         "text/html": innerHTML,
@@ -265,7 +280,10 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
       }
       const chartType = env.model.getters.getChartType(chartId);
       const runtime = env.model.getters.getChartRuntime(chartId);
-      const url = chartToImageUrl(runtime, figure, chartType)!;
+      const url = await chartToImageUrl(runtime, figure, chartType);
+      if (!url) {
+        return;
+      }
       downloadFile(url, "chart");
     },
     isReadonlyAllowed: true,

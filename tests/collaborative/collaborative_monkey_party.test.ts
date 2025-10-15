@@ -1,6 +1,6 @@
+import { FunctionCodeBuilder } from "@odoo/o-spreadsheet-engine/formulas/code_builder";
 import seedrandom from "seedrandom";
 import { Model } from "../../src";
-import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
 import { deepCopy, deepEquals, range, reorderZone } from "../../src/helpers";
 import {
   Command,

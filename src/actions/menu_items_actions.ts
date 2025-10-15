@@ -1,13 +1,24 @@
-import { CellPopoverStore } from "../components/popover";
-import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
   PIVOT_MAX_NUMBER_OF_CELLS,
-} from "../constants";
-import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  centerFigurePosition,
+  getMaxFigureSize,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import {
+  ClipboardMIMEType,
+  ClipboardPasteOptions,
+} from "@odoo/o-spreadsheet-engine/types/clipboard";
+import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { getPivotTooBigErrorMessage } from "../../packages/o-spreadsheet-engine/src/components/translations_terms";
+import { CellPopoverStore } from "../components/popover";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
-import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
 import {
   areZonesContinuous,
   getZoneArea,
@@ -17,13 +28,9 @@ import {
   largeMin,
   numberToLetters,
 } from "../helpers/index";
-import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
-import { _t } from "../translation";
-import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
-import { Image } from "../types/image";
-import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
+import { Dimension, Format, Style } from "../types/index";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------

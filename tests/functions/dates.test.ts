@@ -1,4 +1,4 @@
-import { DateTime, parseDateTime } from "../../src/helpers/dates";
+import { DateTime, parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { DEFAULT_LOCALE } from "../../src/types";
 
 const CURRENT_YEAR = DateTime.now().getFullYear();

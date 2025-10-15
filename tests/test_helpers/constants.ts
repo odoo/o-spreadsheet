@@ -1,9 +1,9 @@
+import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { PivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetPivotTable } from "../../src";
-import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
-import { PivotCoreDefinition } from "../../src/types/pivot";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {

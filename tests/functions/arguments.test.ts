@@ -3,7 +3,7 @@ import {
   arg,
   argTargeting,
   validateArguments,
-} from "../../src/functions/arguments";
+} from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { AddFunctionDescription } from "../../src/types";
 
 describe("args", () => {

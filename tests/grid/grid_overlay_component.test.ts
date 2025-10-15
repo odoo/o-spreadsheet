@@ -1,5 +1,3 @@
-import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -7,10 +5,12 @@ import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
-import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types";
 import {
   deleteColumns,
   deleteRows,

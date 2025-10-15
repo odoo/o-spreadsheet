@@ -1,8 +1,8 @@
-import { functionRegistry } from "../functions";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { localizeDataValidationRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { isDefined } from "../helpers";
-import { localizeDataValidationRule } from "../helpers/locale";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
-import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 

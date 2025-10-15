@@ -1,5 +1,7 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "../../constants";
 import {
   clip,
   hexToHSLA,
@@ -11,8 +13,6 @@ import {
 } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
 import { Color, HSLA, Pixel, PixelPosition, Rect } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/env";
-import { cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { Popover, PopoverProps } from "../popover/popover";
 

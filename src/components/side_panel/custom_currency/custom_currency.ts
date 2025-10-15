@@ -1,3 +1,6 @@
+import { CustomCurrencyTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillStart, useState } from "@odoo/owl";
 import {
   createAccountingFormat,
@@ -6,9 +9,7 @@ import {
   isDefined,
 } from "../../../helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
-import { _t } from "../../../translation";
-import { Currency, Format, SpreadsheetChildEnv } from "../../../types";
-import { CustomCurrencyTerms } from "../../translations_terms";
+import { Currency, Format } from "../../../types";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 

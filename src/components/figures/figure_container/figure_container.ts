@@ -1,17 +1,10 @@
+import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
-import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
-import {
-  AnchorOffset,
-  Figure,
-  FigureUI,
-  Rect,
-  ResizeDirection,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../types/index";
+import { AnchorOffset, Figure, FigureUI, Rect, ResizeDirection, UID } from "../../../types/index";
 import { cssPropertiesToCss } from "../../helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";

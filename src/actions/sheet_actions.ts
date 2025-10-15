@@ -1,5 +1,5 @@
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { buildSheetLink, markdownLink } from "../helpers";
-import { _t } from "../translation";
 import { ActionSpec } from "./action";
 
 export const linkSheet: ActionSpec = {

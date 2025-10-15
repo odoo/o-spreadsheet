@@ -1,5 +1,5 @@
+import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { ClientPosition } from "../../src";
-import { Session } from "../../src/collaborative/session";
 
 const originalSessionMove = Session.prototype.move;
 

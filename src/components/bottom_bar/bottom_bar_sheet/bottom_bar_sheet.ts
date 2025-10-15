@@ -1,13 +1,14 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
-import { Rect, SpreadsheetChildEnv } from "../../../types";
+import { Rect } from "../../../types";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
-import { cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 
 interface Props {

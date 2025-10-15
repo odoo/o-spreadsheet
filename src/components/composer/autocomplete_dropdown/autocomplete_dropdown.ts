@@ -1,6 +1,6 @@
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
-import { cssPropertiesToCss } from "../../helpers/css";
 import { HtmlContent } from "../composer/composer";
 
 interface Props {

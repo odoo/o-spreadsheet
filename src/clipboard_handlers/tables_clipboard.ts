@@ -1,3 +1,4 @@
+import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
 import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
 import {
   Border,
@@ -14,7 +15,6 @@ import {
   UID,
   Zone,
 } from "../types";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface TableStyle {
   style?: Style;

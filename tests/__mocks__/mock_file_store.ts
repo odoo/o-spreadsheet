@@ -1,4 +1,4 @@
-import { FileStore as FileStoreInterface } from "../../src/types/files";
+import { FileStore as FileStoreInterface } from "@odoo/o-spreadsheet-engine/types/files";
 
 export class FileStore implements FileStoreInterface {
   private fileId = 0;

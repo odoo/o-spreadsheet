@@ -1,4 +1,4 @@
-import { transform } from "../../../src/collaborative/ot/ot";
+import { transform } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import { AddMergeCommand } from "../../../src/types";
 import { OT_TESTS_SINGLE_CELL_COMMANDS, TEST_COMMANDS } from "../../test_helpers/constants";

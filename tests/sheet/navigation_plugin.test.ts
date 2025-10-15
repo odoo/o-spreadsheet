@@ -1,5 +1,5 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { toCartesian, toXC } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { CommandResult, Direction, Viewport } from "../../src/types";
 import {
   hideColumns,

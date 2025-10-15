@@ -1,11 +1,11 @@
-import { CellErrorType, CommandResult, Model } from "../../../../src";
-import { deepCopy, zoneToXc } from "../../../../src/helpers";
-import { GaugeChart } from "../../../../src/helpers/figures/charts";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
   SectionRule,
-} from "../../../../src/types/chart/gauge_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
+import { CellErrorType, CommandResult, Model } from "../../../../src";
+import { deepCopy, zoneToXc } from "../../../../src/helpers";
+import { GaugeChart } from "../../../../src/helpers/figures/charts";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   activateSheet,

@@ -1,12 +1,12 @@
+import { getUniquePivotGroupName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
-import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
-import { _t } from "../../../../translation";
 import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
-  SpreadsheetChildEnv,
   UID,
 } from "../../../../types";
 import { TextInput } from "../../../text_input/text_input";

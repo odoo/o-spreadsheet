@@ -1,8 +1,9 @@
-import { Model, PivotSortedColumn, SpreadsheetChildEnv, SpreadsheetPivotTable } from "../../../src";
-import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
-import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
+import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { getPivotTooBigErrorMessage } from "../../../packages/o-spreadsheet-engine/src/components/translations_terms";
+import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
 import { toXC, toZone } from "../../../src/helpers";
-import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { topbarMenuRegistry } from "../../../src/registries/menus";
 import { NotificationStore } from "../../../src/stores/notification_store";
 import {

@@ -1,6 +1,6 @@
-import { CommandResult, Model } from "../../src";
-import { getDateTimeFormat } from "../../src/helpers/locale";
-import { DEFAULT_LOCALE, Locale } from "../../src/types/locale";
+import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { DEFAULT_LOCALE } from "@odoo/o-spreadsheet-engine/types/locale";
+import { CommandResult, Locale, Model } from "../../src";
 import {
   redo,
   setCellContent,

@@ -1,13 +1,13 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
-import { interactiveSort } from "../../../helpers/sort";
+import { interactiveSort } from "../../../helpers/sort_interactive";
 import {
   CellValueType,
   CriterionFilter,
   DataFilterValue,
   Position,
   SortDirection,
-  SpreadsheetChildEnv,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,

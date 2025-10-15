@@ -1,7 +1,7 @@
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartCreationContext, Model } from "../../../src";
-import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
-import { BarChartRuntime } from "../../../src/types/chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,

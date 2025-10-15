@@ -1,4 +1,4 @@
-import { transform } from "../../../src/collaborative/ot/ot";
+import { transform } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,

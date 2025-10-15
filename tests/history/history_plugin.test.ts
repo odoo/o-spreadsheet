@@ -1,7 +1,7 @@
-import { MAX_HISTORY_STEPS } from "../../src/constants";
-import { Model } from "../../src/model";
-import { StateObserver } from "../../src/state_observer";
-import { CommandResult, UpdateCellCommand } from "../../src/types/commands";
+import { MAX_HISTORY_STEPS } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { StateObserver } from "@odoo/o-spreadsheet-engine/state_observer";
+import { CommandResult, UpdateCellCommand } from "@odoo/o-spreadsheet-engine/types/commands";
 import {
   activateSheet,
   createSheet,

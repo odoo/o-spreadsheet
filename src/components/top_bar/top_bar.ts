@@ -1,3 +1,5 @@
+import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   Component,
   onWillStart,
@@ -9,13 +11,12 @@ import {
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
-import { DEFAULT_FONT_SIZE } from "../../constants";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
+import { Color, Pixel } from "../../types/index";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";

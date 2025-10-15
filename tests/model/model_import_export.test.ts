@@ -1,14 +1,14 @@
-import { CellIsRule, Model } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEETNAME_CHARS,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { CellIsRule, Model } from "../../src";
 import { toCartesian, toZone } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { getCurrentVersion } from "../../src/migrations/data";
 import {
   BorderDescr,
   ColorScaleRule,

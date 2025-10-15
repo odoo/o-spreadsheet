@@ -1,7 +1,8 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
+import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ColorGenerator } from "../../../../src/helpers";
-import { SunburstChartDefinition } from "../../../../src/types/chart";
 import {
   changeColorPickerWidgetColor,
   changeRoundColorPickerColor,

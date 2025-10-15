@@ -1,6 +1,6 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
 import { ErrorToolTip } from "../../src/components/error_tooltip/error_tooltip";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
   addDataValidation,
   createChart,

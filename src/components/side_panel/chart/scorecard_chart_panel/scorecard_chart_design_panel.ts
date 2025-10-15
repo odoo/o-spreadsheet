@@ -1,18 +1,13 @@
-import { Component } from "@odoo/owl";
 import {
   DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
-} from "../../../../constants";
-import { _t } from "../../../../translation";
-import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import {
-  Color,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  TitleDesign,
-  UID,
-} from "../../../../types/index";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component } from "@odoo/owl";
+import { Color, DispatchResult, TitleDesign, UID } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

@@ -1,14 +1,14 @@
-import { Model } from "../../../../src";
-import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
-import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
-import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
+import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import {
   GAUGE_DEFAULT_VALUE_FONT_SIZE,
   GAUGE_LABELS_FONT_SIZE,
   getGaugeRenderingConfig,
-} from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/gauge_chart_rendering";
+import { GaugeAnimatedRuntime, GaugeChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { Model } from "../../../../src";
+import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
+import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import { readonlyAllowedCommands, Rect } from "../../../../src/types";
-import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { createGaugeChart, setCellContent } from "../../../test_helpers/commands_helpers";
 import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";

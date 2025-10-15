@@ -1,6 +1,7 @@
+import { localizeDataValidationRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { localizeDataValidationRule } from "../../../helpers/locale";
-import { DataValidationRule, SpreadsheetChildEnv, UID } from "../../../types";
+import { DataValidationRule, UID } from "../../../types";
 import { DataValidationEditor } from "./dv_editor/dv_editor";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 

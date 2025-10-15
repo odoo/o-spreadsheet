@@ -1,15 +1,19 @@
+import { ICONS, ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
-import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
-import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import {
   criterionComponentRegistry,
   getCriterionMenuItems,
 } from "../../../../registries/criterion_component_registry";
-import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { _t } from "../../../../translation";
 import {
   CancelledReason,
   CellIsRule,
@@ -24,18 +28,14 @@ import {
   GenericCriterion,
   IconSetRule,
   IconThreshold,
-  SpreadsheetChildEnv,
   ThresholdType,
   availableConditionalFormatOperators,
 } from "../../../../types";
-import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
-import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
-import { CfTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

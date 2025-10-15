@@ -1,6 +1,6 @@
+import { PieChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartCreationContext, Model } from "../../../src";
 import { PieChart } from "../../../src/helpers/figures/charts";
-import { PieChartRuntime } from "../../../src/types/chart";
 import { createChart } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,

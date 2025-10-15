@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT } from "../../constants";
+import { DEFAULT_CELL_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { isMacOS } from "./dom_helpers";
 
 export function useWheelHandler(handler: (deltaX: number, deltaY: number) => void) {

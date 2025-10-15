@@ -1,10 +1,7 @@
+import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
+import { Granularity, PivotField, PivotMeasure } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
-import { tokenColors } from "../../constants";
-import { Token, getFunctionsFromTokens } from "../../formulas";
-import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { Granularity, PivotField, PivotMeasure } from "../../types";
-
-const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
 /**
  * Create a proposal entry for the composer autocomplete
@@ -90,19 +87,4 @@ export function extractFormulaIdFromToken(tokenAtCursor: EnrichedToken) {
     return;
   }
   return idAst.value;
-}
-
-/**
- * Get the first Pivot function description of the given formula.
- */
-export function getFirstPivotFunction(tokens: Token[]) {
-  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS)[0];
-}
-
-/**
- * Parse a spreadsheet formula and detect the number of PIVOT functions that are
- * present in the given formula.
- */
-export function getNumberOfPivotFunctions(tokens: Token[]) {
-  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
 }

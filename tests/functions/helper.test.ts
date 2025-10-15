@@ -1,5 +1,5 @@
-import { dichotomicSearch as dichotomicSearchUniteData } from "../../src/functions/helpers";
-import { isValidLocale } from "../../src/helpers/locale";
+import { dichotomicSearch as dichotomicSearchUniteData } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { CellValue, DEFAULT_LOCALE, SortDirection } from "../../src/types";
 
 function getItem(arr: any[], i: number) {

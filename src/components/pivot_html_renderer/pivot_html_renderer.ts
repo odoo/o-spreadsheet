@@ -1,14 +1,9 @@
+import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { generatePivotArgs } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import {
-  FunctionResultObject,
-  Maybe,
-  SpreadsheetChildEnv,
-  SpreadsheetPivotTable,
-  UID,
-} from "../..";
-import { toString } from "../../functions/helpers";
+import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { formatValue } from "../../helpers";
-import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
 interface PivotDialogColumn {

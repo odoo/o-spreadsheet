@@ -1,6 +1,6 @@
-import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { toCartesian, toXC, toZone } from "../../src/helpers/index";
-import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/index";
 import {
   addColumns,

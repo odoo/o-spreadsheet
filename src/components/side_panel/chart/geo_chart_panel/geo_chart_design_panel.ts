@@ -1,11 +1,11 @@
-import { LegendPosition } from "../../../../types/chart";
+import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   GeoChartColorScale,
   GeoChartCustomColorScale,
   GeoChartDefinition,
-} from "../../../../types/chart/geo_chart";
+} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Color, DispatchResult, UID } from "../../../../types/index";
-import { ChartTerms } from "../../../translations_terms";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 

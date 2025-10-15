@@ -1,6 +1,4 @@
-import { Registry } from "../registries/registry";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
-import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
+import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import { BorderClipboardHandler } from "./borders_clipboard";
 import { CarouselClipboardHandler } from "./carousel_clipboard";
 import { CellClipboardHandler } from "./cell_clipboard";
@@ -12,11 +10,6 @@ import { MergeClipboardHandler } from "./merge_clipboard";
 import { ReferenceClipboardHandler } from "./references_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
 import { TableClipboardHandler } from "./tables_clipboard";
-
-export const clipboardHandlersRegistries = {
-  figureHandlers: new Registry<typeof AbstractFigureClipboardHandler<any>>(),
-  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any, any>>(),
-};
 
 clipboardHandlersRegistries.figureHandlers
   .add("chart", ChartClipboardHandler)

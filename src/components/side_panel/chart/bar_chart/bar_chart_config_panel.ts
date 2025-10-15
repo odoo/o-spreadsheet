@@ -1,4 +1,4 @@
-import { BarChartDefinition } from "../../../../types/chart";
+import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class BarConfigPanel extends GenericChartConfigPanel {

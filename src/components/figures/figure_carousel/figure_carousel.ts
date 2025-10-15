@@ -1,19 +1,19 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
+import { DEFAULT_CAROUSEL_TITLE_STYLE } from "@odoo/o-spreadsheet-engine/constants";
+import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
-import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
-import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
-import { chartComponentRegistry } from "../../../registries/chart_types";
+import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
-import { _t } from "../../../translation";
 import {
-  CSSProperties,
   Carousel,
   CarouselItem,
+  CSSProperties,
   FigureUI,
   MenuMouseEvent,
   Rect,
-  SpreadsheetChildEnv,
 } from "../../../types";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";

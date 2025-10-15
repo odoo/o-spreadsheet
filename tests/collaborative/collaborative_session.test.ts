@@ -1,8 +1,8 @@
+import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
+import { DEBOUNCE_TIME, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
 import { Model } from "../../src";
-import { Session } from "../../src/collaborative/session";
-import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers";
-import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { unPatchSessionMove } from "../setup/session_debounce_mock";

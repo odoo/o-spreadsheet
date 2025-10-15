@@ -1,8 +1,9 @@
+import { RemoveDuplicateTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { numberToLetters, zoneToDimension } from "../../../helpers";
-import { _t } from "../../../translation";
-import { HeaderIndex, SpreadsheetChildEnv } from "../../../types/index";
-import { RemoveDuplicateTerms } from "../../translations_terms";
+import { HeaderIndex } from "../../../types/index";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";

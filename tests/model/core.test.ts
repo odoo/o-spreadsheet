@@ -1,5 +1,5 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { zoneToXc } from "../../src/helpers";
-import { Model } from "../../src/model";
 import { CommandResult, coreTypes, UID } from "../../src/types";
 import {
   activateSheet,

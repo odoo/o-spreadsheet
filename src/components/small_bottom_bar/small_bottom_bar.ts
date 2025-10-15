@@ -1,6 +1,7 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
-import { ComposerFocusType, Rect, SpreadsheetChildEnv } from "../../types";
+import { ComposerFocusType, Rect } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { CellComposerStore } from "../composer/composer/cell_composer_store";

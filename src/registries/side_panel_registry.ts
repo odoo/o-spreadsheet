@@ -1,3 +1,7 @@
+import { getTableTopLeft } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
@@ -17,10 +21,7 @@ import {
   TableStyleEditorPanel,
   TableStyleEditorPanelProps,
 } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
-import { getTableTopLeft } from "../helpers/table_helpers";
-import { _t } from "../translation";
-import { Getters, SpreadsheetChildEnv, UID } from "../types";
-import { Registry } from "./registry";
+import { Getters, UID } from "../types";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry

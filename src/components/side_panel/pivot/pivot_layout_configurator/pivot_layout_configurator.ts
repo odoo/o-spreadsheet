@@ -1,14 +1,11 @@
-import { Component, useRef } from "@odoo/owl";
-import { isDefined } from "../../../../helpers";
+import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   AGGREGATORS,
   getFieldDisplayName,
   isDateOrDatetimeField,
-} from "../../../../helpers/pivot/pivot_helpers";
-import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { Store, useStore } from "../../../../store_engine";
-import { _t } from "../../../../translation";
-import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   Aggregator,
   Granularity,
@@ -18,10 +15,14 @@ import {
   PivotDimension as PivotDimensionType,
   PivotField,
   PivotMeasure,
-} from "../../../../types/pivot";
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component, useRef } from "@odoo/owl";
+import { isDefined } from "../../../../helpers";
+import { Store, useStore } from "../../../../store_engine";
+import { SortDirection, UID } from "../../../../types";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
-import { measureDisplayTerms } from "../../../translations_terms";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";

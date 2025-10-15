@@ -1,9 +1,9 @@
-import { arg, functionRegistry } from "../../src/functions";
-import { toMatrix } from "../../src/functions/helpers";
-import { toCartesian } from "../../src/helpers/coordinates";
-import { Model } from "../../src/model";
-import { CellValueType, ErrorCell, UID } from "../../src/types";
-import { CellErrorType, EvaluationError } from "../../src/types/errors";
+import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { toMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { toCartesian } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { CellErrorType, CellValueType, ErrorCell, EvaluationError, UID } from "../../src/types";
 import {
   activateSheet,
   addColumns,

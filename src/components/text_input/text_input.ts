@@ -1,5 +1,5 @@
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useRef } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../..";
 import { isDefined } from "../../helpers";
 import { Ref } from "../../types";
 import { useAutofocus } from "../helpers/autofocus_hook";

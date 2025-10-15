@@ -1,13 +1,7 @@
-import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
-import { deepCopy, deepEquals } from "../../../../helpers";
-import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
-import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
-import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
-import { Get } from "../../../../store_engine";
-import { NotificationStore } from "../../../../stores/notification_store";
-import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
-import { _t } from "../../../../translation";
-import { Command, UID } from "../../../../types";
+import { PIVOT_MAX_NUMBER_OF_CELLS } from "@odoo/o-spreadsheet-engine/constants";
+import { isDateOrDatetimeField } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   PivotCoreDefinition,
   PivotCoreDimension,
@@ -17,8 +11,15 @@ import {
   PivotField,
   PivotFields,
   PivotMeasure,
-} from "../../../../types/pivot";
-import { getPivotTooBigErrorMessage } from "../../../translations_terms";
+} from "@odoo/o-spreadsheet-engine/types/pivot";
+import { deepCopy, deepEquals } from "../../../../helpers";
+import { Get } from "../../../../store_engine";
+import { NotificationStore } from "../../../../stores/notification_store";
+import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
+import { Command, UID } from "../../../../types";
+
+import { getFirstPivotFunction } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
+import { getPivotTooBigErrorMessage } from "../../../../../packages/o-spreadsheet-engine/src/components/translations_terms";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;

@@ -1,7 +1,7 @@
+import { TreeMapChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator, lightenColor } from "../../../../src/helpers";
 import { TreeMapChart } from "../../../../src/helpers/figures/charts/tree_map_chart";
-import { TreeMapChartRuntime } from "../../../../src/types/chart/tree_map_chart";
 import {
   createSunburstChart,
   createTreeMapChart,

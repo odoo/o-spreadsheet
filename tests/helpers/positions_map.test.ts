@@ -1,4 +1,4 @@
-import { PositionMap } from "../../src/helpers/cells/position_map";
+import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 
 describe("PositionMap", () => {
   test("set an element", () => {

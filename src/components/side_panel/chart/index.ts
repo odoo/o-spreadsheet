@@ -1,5 +1,5 @@
+import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Component } from "@odoo/owl";
-import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
 import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";

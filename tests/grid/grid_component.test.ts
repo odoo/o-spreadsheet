@@ -1,10 +1,4 @@
-import { Spreadsheet, TransportService } from "../../src";
-import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
-import { getDataFilterIcon } from "../../src/components/icons/icons";
-import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../../src/components/popover";
+import { getDataFilterIcon } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -17,16 +11,23 @@ import {
   MESSAGE_VERSION,
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
-} from "../../src/constants";
+} from "@odoo/o-spreadsheet-engine/constants";
+import { createEmptyWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { ClipboardPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
+import { Spreadsheet, TransportService } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
+import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
+import { CellPopoverStore } from "../../src/components/popover";
 import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
-import { createEmptyWorkbookData } from "../../src/migrations/data";
-import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
-import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
+import { Align, ClipboardMIMEType } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
