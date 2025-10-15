@@ -401,7 +401,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     let sheetName: string = "";
     if (prefixSheet) {
       if (rangeImpl.invalidSheetName) {
-        sheetName = rangeImpl.invalidSheetName;
+        sheetName = getCanonicalSymbolName(rangeImpl.invalidSheetName);
       } else {
         sheetName = getCanonicalSymbolName(this.getters.getSheetName(rangeImpl.sheetId));
       }
