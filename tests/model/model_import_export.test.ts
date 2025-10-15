@@ -294,7 +294,7 @@ describe("Migrations", () => {
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
-    expect(cfs[0].ranges).toEqual(["=sheetName_!A1:A2"]);
+    expect(cfs[0].ranges).toEqual(["'=sheetName_'!A1:A2"]);
     expect(rule1.minimum.value).toEqual("=sheetName_!B1");
     expect(rule1.midpoint?.value).toEqual("=sheetName_!B1");
     expect(rule1.maximum.value).toEqual("=sheetName_!B1");
@@ -305,7 +305,7 @@ describe("Migrations", () => {
     expect(rule2.upperInflectionPoint.value).toEqual("=sheetName_!B1");
 
     const rule3 = cfs[2].rule as ColorScaleRule;
-    expect(cfs[2].ranges).toEqual(["=sheetName_!A1:A2"]);
+    expect(cfs[2].ranges).toEqual(["'=sheetName_'!A1:A2"]);
     expect(rule3.minimum.value).toEqual("33");
     expect(rule3.midpoint?.value).toEqual("13");
     expect(rule3.maximum.value).toBeUndefined();
