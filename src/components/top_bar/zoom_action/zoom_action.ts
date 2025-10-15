@@ -1,58 +1,55 @@
-import { Component, useRef, useState } from "@odoo/owl";
-import { Action, createAction } from "../../../actions/action";
-import { zoomAction } from "../../../actions/view_actions";
+import { Component } from "@odoo/owl";
 import { ZOOM_VALUES } from "../../../constants";
-import { _t } from "../../../translation";
-import { Rect, SpreadsheetChildEnv } from "../../../types";
-import { ActionButton } from "../../action_button/action_button";
-import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
+import { SpreadsheetChildEnv } from "../../../types";
+import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
-import { MenuPopover } from "../../menu_popover/menu_popover";
+
+class ZoomEditor extends FontSizeEditor {
+  fontSizes = ZOOM_VALUES.map((zoom) => `${zoom}%`);
+  min = 50;
+  max = 300;
+
+  get currentValue(): string {
+    return `${this.props.currentFontSize}%`;
+  }
+}
 
 interface Props {
   class: string;
 }
 
-interface State {
-  menuItems: Action[];
-  anchorRect: Rect;
-}
-
 export class ToolBarZoom extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarZoom";
-  static components = { MenuPopover, ActionButton };
+  static components = { ZoomEditor };
   static props = { class: String };
   topBarToolStore!: ToolBarDropdownStore;
-
-  buttonRef = useRef("buttonRef");
-  state: State = useState({
-    anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-    menuItems: [],
-  });
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
   }
 
-  toggleMenu() {
+  get currentFontSize(): number {
+    const zoom = this.env.model.getters.getViewportZoomLevel() || 1;
+    return zoom * 100;
+  }
+
+  setFontSize(fontSize: number) {
+    this.env.model.dispatch("SET_ZOOM", { zoom: fontSize / 100 });
+  }
+
+  onToggle() {
     if (this.isActive) {
       this.topBarToolStore.closeDropdowns();
     } else {
-      this.state.menuItems = ZOOM_VALUES.map((zoom) => createAction(zoomAction(zoom)));
-      this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef.el!);
       this.topBarToolStore.openDropdown();
     }
   }
 
-  get isActive() {
-    return this.topBarToolStore.isActive;
+  onFocusInput() {
+    this.topBarToolStore.openDropdown();
   }
 
-  get action() {
-    return {
-      name: _t(`Zoom`),
-      icon: "o-spreadsheet-Icon.ZOOM",
-      isReadonlyAllowed: true,
-    };
+  get isActive() {
+    return this.topBarToolStore.isActive;
   }
 }

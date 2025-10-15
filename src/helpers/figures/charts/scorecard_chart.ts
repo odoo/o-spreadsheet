@@ -299,9 +299,14 @@ export class ScorecardChart extends AbstractChart {
   }
 }
 
-export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
+export function drawScoreChart(
+  structure: ScorecardChartConfig,
+  canvas: HTMLCanvasElement,
+  options: { zoom: number } = { zoom: 1 }
+) {
   const ctx = canvas.getContext("2d")!;
   const dpr = window.devicePixelRatio || 1;
+  // const zoom = options.zoom || 1;
 
   canvas.width = dpr * structure.canvas.width;
   canvas.height = dpr * structure.canvas.height;

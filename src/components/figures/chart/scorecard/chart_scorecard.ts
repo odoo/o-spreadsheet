@@ -37,6 +37,6 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   private createChart() {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const config = getScorecardConfiguration(canvas.getBoundingClientRect(), this.runtime);
-    drawScoreChart(config, canvas);
+    drawScoreChart(config, canvas, { zoom: this.env.model.getters.getViewportZoomLevel() });
   }
 }
