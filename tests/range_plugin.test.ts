@@ -551,11 +551,16 @@ describe("range plugin", () => {
       }
     );
 
+    test("invalid sheet name with special character", () => {
+      const range = m.getters.getRangeFromSheetXC("s1", "'Invalid Sheet Name'!A1");
+      expect(m.getters.getRangeString(range, "s1")).toBe("'Invalid Sheet Name'!A1");
+    });
+
     test.each([
       ["s1!!!A1:A9", "'s1!!'!A1:A9"],
       ["'s1!!'!A1:A9", "'s1!!'!A1:A9"],
-      ["s1!!!A1:s1!!!A9", "s1!!!A1:s1!!!A9"],
-      ["s1!!!A1:s1!!!A9", "s1!!!A1:s1!!!A9"],
+      ["s1!!!A1:s1!!!A9", "'s1!!!A1:s1!!'!A9"],
+      ["s1!!!A1:s1!!!A9", "'s1!!!A1:s1!!'!A9"],
     ])(
       "xc with more than one exclamation mark does not throw error",
       (rangeString, expectedString) => {
