@@ -49,7 +49,7 @@ chartSidePanelComponentRegistry
   })
   .add("scatter", {
     configuration: ScatterConfigPanel,
-    design: GenericZoomableChartDesignPanel,
+    design: ChartWithAxisDesignPanel,
   })
   .add("bar", {
     configuration: BarConfigPanel,
