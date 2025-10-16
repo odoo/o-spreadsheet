@@ -8,7 +8,7 @@ import {
 } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { getCurrentVersion } from "../../src/migrations/data";
+import { createEmptySheet, getCurrentVersion } from "../../src/migrations/data";
 import {
   BorderDescr,
   ColorScaleRule,
@@ -16,6 +16,7 @@ import {
   DEFAULT_LOCALES,
   IconSetRule,
 } from "../../src/types";
+import { BarChartDefinition } from "../../src/types/chart";
 import {
   activateSheet,
   resizeColumns,
@@ -171,8 +172,7 @@ describe("Migrations", () => {
     });
 
     const data = model.exportData();
-    expect(data.sheets[0].figures[0].data).toEqual({
-      chartId: "1",
+    expect(data.sheets[0].charts["1"].chart).toEqual({
       type: "line",
       title: { text: "demo chart" },
       labelRange: "'My sheet'!A27:A35",
@@ -183,8 +183,7 @@ describe("Migrations", () => {
       stacked: false,
       humanize: true,
     });
-    expect(data.sheets[0].figures[1].data).toEqual({
-      chartId: "2",
+    expect(data.sheets[0].charts["2"].chart).toEqual({
       type: "bar",
       title: { text: "demo chart 2" },
       labelRange: "'My sheet'!A27:A35",
@@ -195,8 +194,7 @@ describe("Migrations", () => {
       stacked: false,
       humanize: true,
     });
-    expect(data.sheets[0].figures[2].data).toEqual({
-      chartId: "3",
+    expect(data.sheets[0].charts["3"].chart).toEqual({
       type: "bar",
       title: { text: "demo chart 3" },
       labelRange: "'My sheet'!A27",
@@ -207,8 +205,7 @@ describe("Migrations", () => {
       stacked: false,
       humanize: true,
     });
-    expect(data.sheets[0].figures[3].data).toEqual({
-      chartId: "4",
+    expect(data.sheets[0].charts["4"].chart).toEqual({
       type: "bar",
       title: { text: "demo chart 4" },
       labelRange: "'My sheet'!A27",
@@ -220,6 +217,7 @@ describe("Migrations", () => {
       humanize: true,
     });
   });
+
   test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {
     const model = new Model({
       version: 7,
@@ -294,12 +292,9 @@ describe("Migrations", () => {
     const cells = data.sheets[1].cells;
     expect(cells.A1!).toBe("=sheetName_!A2");
 
-    const figures = data.sheets[1].figures;
-    expect(figures[0].data?.dataSets).toEqual([
-      { dataRange: "A1:A2" },
-      { dataRange: "'My sheet'!A1:A2" },
-    ]);
-    expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
+    const chart = data.sheets[1].charts["1"].chart as BarChartDefinition;
+    expect(chart?.dataSets).toEqual([{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }]);
+    expect(chart?.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -777,7 +772,58 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
     ],
   };
   const model = new Model(data);
-  expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
+  expect(model.exportData().sheets[0].charts["someuuid"]).toBeDefined();
+});
+
+test("migrate version 18.5.11: figure data is split between image and chart", () => {
+  const data = {
+    version: "18.4.2",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "chartId",
+            tag: "chart",
+            height: 380,
+            width: 380,
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 0 },
+            data: { type: "line", title: "demo chart", labelRange: "", dataSets: [] },
+          },
+          {
+            id: "imageId",
+            tag: "image",
+            height: 380,
+            width: 380,
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 0 },
+            data: { path: "/image/1", size: { width: 100, height: 100 }, mimetype: "image/jpeg" },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  const exportedData = model.exportData();
+  expect(exportedData.sheets[0].figures).toMatchObject([
+    { id: "chartId", tag: "chart" },
+    { id: "imageId", tag: "image" },
+  ]);
+  expect(exportedData.sheets[0].charts).toMatchObject({
+    chartId: {
+      chart: { type: "line", title: "demo chart" },
+      figureId: "chartId",
+    },
+  });
+  expect(exportedData.sheets[0].images).toMatchObject({
+    imageId: {
+      image: { path: "/image/1", size: { width: 100, height: 100 }, mimetype: "image/jpeg" },
+      figureId: "imageId",
+    },
+  });
 });
 
 describe("Import", () => {
@@ -910,9 +956,7 @@ test("complete import, then export", () => {
     revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
-        id: "someuuid",
-        colNumber: 10,
-        rowNumber: 10,
+        ...createEmptySheet("someuuid", "My sheet"),
         merges: ["A1:A2"],
         cols: {
           0: { size: 42 },
@@ -939,35 +983,16 @@ test("complete import, then export", () => {
           B1: 2,
         },
         name: "My sheet",
-        conditionalFormats: [],
-        dataValidationRules: [],
-        figures: [],
-        tables: [],
         areGridLinesVisible: true,
-        isVisible: true,
         panes: { ySplit: 1, xSplit: 5 },
         headerGroups: { COL: [], ROW: [] },
       },
       {
-        id: "someuuid_2",
-        colNumber: 10,
-        rowNumber: 10,
-        merges: [],
-        cols: {},
-        rows: {},
+        ...createEmptySheet("someuuid_2", "My sheet 2"),
         cells: {
           A1: "hello",
         },
-        styles: {},
-        formats: {},
-        borders: {},
-        name: "My sheet 2",
-        conditionalFormats: [],
-        dataValidationRules: [],
-        figures: [],
-        tables: [],
         areGridLinesVisible: false,
-        isVisible: true,
         headerGroups: { COL: [], ROW: [] },
       },
     ],
@@ -1041,19 +1066,7 @@ test("import then export (figures)", () => {
     revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
-        id: "someuuid",
-        colNumber: 10,
-        rowNumber: 10,
-        merges: [],
-        cols: {},
-        rows: {},
-        cells: {},
-        styles: {},
-        formats: {},
-        borders: {},
-        name: "My sheet",
-        conditionalFormats: [],
-        dataValidationRules: [],
+        ...createEmptySheet("someuuid", "My sheet"),
         figures: [
           {
             id: "otheruuid",
@@ -1064,9 +1077,7 @@ test("import then export (figures)", () => {
             height: 100,
           },
         ],
-        tables: [],
         areGridLinesVisible: true,
-        isVisible: true,
         headerGroups: { COL: [], ROW: [] },
       },
     ],

@@ -1,5 +1,13 @@
 import { isSheetNameEqual, toCartesian, toXC, toZone } from "../../src/helpers";
-import { Border, Color, ConditionalFormat, Style } from "../../src/types";
+import {
+  Border,
+  ChartDefinition,
+  Color,
+  ConditionalFormat,
+  Figure,
+  Style,
+  UID,
+} from "../../src/types";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../../src/constants";
 import { DataValidationRuleData, SheetData, WorkbookData } from "./../../src/types/workbook_data";
 
@@ -98,4 +106,21 @@ export function getRowPosition(row: number, sheetData: SheetData) {
     position += sheetData.rows[i]?.size || DEFAULT_CELL_HEIGHT;
   }
   return position;
+}
+
+export function getWorkbookChartWithTitle(
+  sheet: SheetData,
+  chartTitle: string
+): { chartId: UID; figureId: UID; chart: ChartDefinition; figure: Figure } {
+  const chartId = Object.keys(sheet.charts).find(
+    (id) => sheet.charts[id].chart.title.text === chartTitle
+  )!;
+  const figureId = sheet.charts[chartId].figureId;
+  const figure = sheet.figures.find((figure) => figure.id === figureId)!;
+  return {
+    chartId,
+    figureId,
+    chart: sheet.charts[chartId].chart,
+    figure,
+  };
 }

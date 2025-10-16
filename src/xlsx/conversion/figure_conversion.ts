@@ -1,23 +1,17 @@
 import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
-import {
-  getFullReference,
-  isDefined,
-  splitReference,
-  toUnboundedZone,
-  zoneToXc,
-} from "../../helpers";
+import { getFullReference, splitReference, toUnboundedZone, zoneToXc } from "../../helpers";
 import { chartRegistry } from "../../registries/chart_types";
 import {
   ChartCreationContext,
   ChartDefinition,
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
-  FigureData,
   HeaderIndex,
   PixelPosition,
+  SheetData,
   TrendConfiguration,
 } from "../../types";
-import { AnchorOffset } from "../../types/figure";
+import { AnchorOffset, Figure } from "../../types/figure";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
@@ -25,18 +19,46 @@ import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
 import { EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING } from "./conversion_maps";
 
-export function convertFigures(sheetData: XLSXWorksheet): FigureData<any>[] {
+export function convertFigures(
+  sheetData: XLSXWorksheet
+): Pick<SheetData, "figures" | "images" | "charts"> {
+  const figures: SheetData["figures"] = [];
+  const images: SheetData["images"] = {};
+  const charts: SheetData["charts"] = {};
+
   let id = 1;
-  return sheetData.figures
-    .map((figure) => convertFigure(figure, (id++).toString(), sheetData))
-    .filter(isDefined);
+  for (const xlsxFig of sheetData.figures) {
+    const figureId = (id++).toString();
+    const figure = convertFigure(xlsxFig, figureId, sheetData);
+    if (isChartData(xlsxFig.data)) {
+      const chartData = convertChartData(xlsxFig.data);
+      if (chartData) {
+        figures.push({ ...figure, tag: "chart" });
+        charts[figureId] = { figureId, chart: chartData };
+      }
+    } else if (isImageData(xlsxFig.data)) {
+      const width = convertEMUToDotValue(xlsxFig.data.size.cx);
+      const height = convertEMUToDotValue(xlsxFig.data.size.cy);
+      figures.push({ ...figure, width, height, tag: "image" });
+      images[figureId] = {
+        figureId,
+        image: {
+          path: xlsxFig.data.imageSrc,
+          mimetype: xlsxFig.data.mimetype,
+          size: { width, height },
+        },
+      };
+    }
+  }
+
+  return { figures, images, charts };
 }
 
 function convertFigure(
   figure: XLSXFigure,
   id: string,
   sheetData: XLSXWorksheet
-): FigureData<any> | undefined {
+): Omit<Figure, "tag"> {
   let col: HeaderIndex;
   let row: HeaderIndex;
   let offset: PixelPosition;
@@ -53,29 +75,7 @@ function convertFigure(
     width = x2 - x1;
     height = y2 - y1;
   }
-  const figureData = { id, col, row, offset };
-
-  if (isChartData(figure.data)) {
-    return {
-      ...figureData,
-      width,
-      height,
-      tag: "chart",
-      data: convertChartData(figure.data),
-    };
-  } else if (isImageData(figure.data)) {
-    return {
-      ...figureData,
-      width: convertEMUToDotValue(figure.data.size.cx),
-      height: convertEMUToDotValue(figure.data.size.cy),
-      tag: "image",
-      data: {
-        path: figure.data.imageSrc,
-        mimetype: figure.data.mimetype,
-      },
-    };
-  }
-  return undefined;
+  return { id, col, row, offset, width, height };
 }
 
 function isChartData(data: ExcelChartDefinition | ExcelImage): data is ExcelChartDefinition {

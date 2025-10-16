@@ -318,13 +318,18 @@ describe("image file store", () => {
         col: 0,
         row: 0,
         offset: { x: 0, y: 0 },
-        data: {
+      },
+    ];
+    data.sheets[0].images = {
+      imageId: {
+        figureId: "imageId",
+        image: {
           path: "/image/1",
           size: { width: 100, height: 100 },
           mimetype: "image/jpeg",
         },
       },
-    ];
+    };
     new Model(
       data,
       {

@@ -1,5 +1,5 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { getCurrentVersion, load } from "../../src/migrations/data";
+import { createEmptySheet, getCurrentVersion, load } from "../../src/migrations/data";
 import { DEFAULT_LOCALE } from "../../src/types";
 
 describe("load data", () => {
@@ -108,42 +108,8 @@ describe("load data", () => {
         ],
       }).sheets
     ).toEqual([
-      {
-        id: "1",
-        name: "Sheet1",
-        cells: {},
-        styles: {},
-        borders: {},
-        formats: {},
-        colNumber: 26,
-        rowNumber: 100,
-        cols: {},
-        rows: {},
-        merges: ["A1:B2"],
-        conditionalFormats: [],
-        dataValidationRules: [],
-        figures: [],
-        tables: [],
-        isVisible: true,
-      },
-      {
-        id: "asdf",
-        name: "Sheet2",
-        cells: {},
-        styles: {},
-        borders: {},
-        formats: {},
-        colNumber: 26,
-        rowNumber: 100,
-        cols: {},
-        rows: {},
-        merges: ["C3:D4"],
-        conditionalFormats: [],
-        dataValidationRules: [],
-        figures: [],
-        tables: [],
-        isVisible: true,
-      },
+      { ...createEmptySheet("1", "Sheet1"), merges: ["A1:B2"] },
+      { ...createEmptySheet("asdf", "Sheet2"), merges: ["C3:D4"] },
     ]);
   });
 
