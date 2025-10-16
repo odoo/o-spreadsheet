@@ -51,6 +51,7 @@ import {
   doubleClick,
   focusAndKeyDown,
   keyDown,
+  setCheckboxValueAndTrigger,
   setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
@@ -641,6 +642,104 @@ describe("charts", () => {
           italic: true,
         },
       },
+    });
+  });
+
+  test.each(["min", "max"])(
+    "can edit chart horizontal axis %s limit",
+    async (boundarie: string) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type: "line",
+        },
+        chartId
+      );
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      const input = fixture.querySelector(
+        `[data-testid="axis-${boundarie}-input"]`
+      ) as HTMLInputElement;
+      await setInputValueAndTrigger(input, "5");
+
+      const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      expect(definition.axesDesign?.x?.[boundarie]).toEqual(5);
+    }
+  );
+
+  test.each(["min", "max"])("can edit chart vertical axis %s limit", async (boundarie: string) => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await click(fixture, ".o-badge-selection button[data-id=y]");
+
+    const input = fixture.querySelector(
+      `[data-testid="axis-${boundarie}-input"]`
+    ) as HTMLInputElement;
+    await setInputValueAndTrigger(input, "5");
+
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.y?.[boundarie]).toEqual(5);
+  });
+
+  test.each(["x", "y"] as const)("can edit chart %s axis scale type", async (axis: string) => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await click(fixture, `.o-badge-selection button[data-id=${axis}]`);
+    await setInputValueAndTrigger('[data-testid="axis-scale-select"]', "logarithmic");
+
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.[axis]?.scaleType).toEqual("logarithmic");
+  });
+
+  test.each(["x", "y"] as const)("can toggle chart %s axis gridlines", async (axis: string) => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        axesDesign: {
+          [axis]: { grid: { major: false, minor: false } },
+        },
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await click(fixture, `.o-badge-selection button[data-id=${axis}]`);
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.[axis]?.grid).toEqual({ major: false, minor: false });
+    setCheckboxValueAndTrigger(".o-axis-grid-major input", true, "change");
+    await nextTick();
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.[axis]?.grid).toEqual({ major: true, minor: false });
+    setCheckboxValueAndTrigger(".o-axis-grid-minor input", true, "change");
+    await nextTick();
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.[axis]?.grid).toEqual({
+      major: true,
+      minor: true,
     });
   });
 
@@ -2418,9 +2517,10 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(7);
+  expect(spyRegister).toHaveBeenCalledTimes(8);
   expect(window.Chart.registry.plugins["items"].map((i) => i.id)).toMatchObject([
     "chartShowValuesPlugin",
+    "o-spreadsheet-minor-gridlines",
     "waterfallLinesPlugin",
     "funnel", // Funnel controller
     "funnel", // Funnel element
@@ -2431,11 +2531,11 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(7);
+  expect(spyRegister).toHaveBeenCalledTimes(8);
 
   app.destroy();
   await nextTick();
-  expect(spyUnregister).toHaveBeenCalledTimes(7);
+  expect(spyUnregister).toHaveBeenCalledTimes(8);
   expect(window.Chart.registry.plugins["items"]).toEqual([]);
 });
 

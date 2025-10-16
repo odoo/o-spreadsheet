@@ -127,6 +127,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#383838ff",
             "display": true,
           },
           "position": "left",
@@ -241,6 +242,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#383838ff",
             "display": true,
           },
           "position": "left",
@@ -401,6 +403,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -529,6 +532,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -681,6 +685,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -800,6 +805,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -932,6 +938,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1032,6 +1039,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1165,6 +1173,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1265,6 +1274,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1418,6 +1428,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1539,6 +1550,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1692,6 +1704,7 @@ exports[`datasource tests create chart with column datasets with category title 
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1813,6 +1826,7 @@ exports[`datasource tests create chart with column datasets with category title 
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -1966,6 +1980,7 @@ exports[`datasource tests create chart with column datasets without series title
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2087,6 +2102,7 @@ exports[`datasource tests create chart with column datasets without series title
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2222,6 +2238,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2324,6 +2341,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2477,6 +2495,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2598,6 +2617,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2751,6 +2771,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -2872,6 +2893,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -3025,6 +3047,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -3146,6 +3169,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -3299,6 +3323,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",
@@ -3420,6 +3445,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#E7E9ED",
             "display": true,
           },
           "position": "left",

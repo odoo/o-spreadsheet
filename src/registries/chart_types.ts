@@ -237,7 +237,7 @@ chartComponentRegistry.add("bar", ZoomableChartJsComponent);
 chartComponentRegistry.add("combo", ZoomableChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", GaugeChartComponent);
-chartComponentRegistry.add("scatter", ZoomableChartJsComponent);
+chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ZoomableChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);

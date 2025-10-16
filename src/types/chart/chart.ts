@@ -100,8 +100,19 @@ export interface DatasetDesign {
   readonly label?: string;
 }
 
+export type AxisScaleType = "linear" | "logarithmic";
+
+export interface AxisGridDesign {
+  readonly major?: boolean;
+  readonly minor?: boolean;
+}
+
 export interface AxisDesign {
   readonly title?: TitleDesign;
+  readonly min?: number;
+  readonly max?: number;
+  readonly scaleType?: AxisScaleType;
+  readonly grid?: AxisGridDesign;
 }
 
 export interface AxesDesign {
