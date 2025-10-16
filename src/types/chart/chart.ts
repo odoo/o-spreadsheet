@@ -11,7 +11,12 @@ import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
 import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
-import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
+import {
+  ScatterChartDefinition,
+  ScatterChartRuntime,
+  ScatterPointSizeMode,
+  ScatterShowValuesMode,
+} from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 import { SunburstChartDefinition, SunburstChartRuntime } from "./sunburst_chart";
 import {
@@ -92,6 +97,8 @@ export interface DatasetValues {
   readonly label?: string;
   readonly data: any[];
   readonly hidden?: boolean;
+  readonly pointLabels?: (string | undefined)[];
+  readonly pointSizes?: (number | undefined)[];
 }
 
 export interface DatasetDesign {
@@ -136,6 +143,10 @@ export interface TrendConfiguration {
 export type CustomizedDataSet = {
   readonly dataRange: string;
   readonly trend?: TrendConfiguration;
+  readonly pointLabelRange?: string;
+  readonly pointSizeMode?: ScatterPointSizeMode;
+  readonly pointSize?: number;
+  readonly pointSizeRange?: string;
 } & DatasetDesign;
 
 export type AxisType = "category" | "linear" | "time";
@@ -149,6 +160,10 @@ export interface DataSet {
   readonly backgroundColor?: Color;
   readonly customLabel?: string;
   readonly trend?: TrendConfiguration;
+  readonly pointLabelRange?: Range;
+  readonly pointSizeMode?: ScatterPointSizeMode;
+  readonly pointSize?: number;
+  readonly pointSizeRange?: Range;
 }
 export interface ExcelChartDataset {
   readonly label?: { text?: string } | { reference?: string };
@@ -221,6 +236,7 @@ export interface ChartCreationContext {
   readonly treemapColoringOptions?: TreeMapColoringOptions;
   readonly zoomable?: boolean;
   readonly humanize?: boolean;
+  readonly showValuesMode?: ScatterShowValuesMode;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

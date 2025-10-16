@@ -55,6 +55,7 @@ import { isDefined, range } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
+  adjustPointSizeRadius,
   getPieColors,
   isTrendLineAxis,
 } from "../chart_common";
@@ -211,9 +212,18 @@ export function getScatterChartDatasets(
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"line">[] {
   const dataSets: ChartDataset<"line">[] = getLineChartDatasets(definition, args);
-  for (const dataSet of dataSets) {
+  for (const [index, dataSet] of dataSets.entries()) {
     if (!isTrendLineAxis(dataSet.xAxisID as string)) {
       dataSet.showLine = false;
+      const pointSizes = args.dataSetsValues?.[index]?.pointSizes;
+      if (pointSizes && pointSizes.length) {
+        dataSet.pointRadius = pointSizes;
+        dataSet.pointHoverRadius = pointSizes;
+      } else if (definition.dataSets?.[index]?.pointSizeMode === "fixed") {
+        const radius = adjustPointSizeRadius(definition.dataSets?.[index]?.pointSize);
+        dataSet.pointRadius = radius;
+        dataSet.pointHoverRadius = radius;
+      }
     }
   }
   return dataSets;

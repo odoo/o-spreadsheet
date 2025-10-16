@@ -50,6 +50,24 @@ export const ChartTerms: {
   CumulativeData: _t("Cumulative data"),
   TreatLabelsAsText: _t("Treat labels as text"),
   AggregatedChart: _t("Aggregate"),
+  PointLabels: _t("Point labels"),
+  PointLabelsMenuAdd: _t("Add labels"),
+  PointLabelsMenuRemove: _t("Remove labels"),
+  PointSizesTitle: _t("Point size"),
+  PointSizeValueLabel: _t("Size"),
+  PointSizeRangeHelper: _t("Use the data series menu to select a point size range."),
+  PointSizeMenuAdd: _t("Add point size range"),
+  PointSizeMenuRemove: _t("Remove point size range"),
+  ShowValuesModeTitle: _t("Text to display"),
+  ShowValuesModes: {
+    Value: _t("Use y-value as title"),
+    Label: _t("Use label as title"),
+  },
+  PointSizeModes: {
+    Fixed: _t("Fixed size"),
+    Range: _t("Use range values"),
+    Value: _t("Use data values"),
+  },
   Errors: {
     Unexpected: _t("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)

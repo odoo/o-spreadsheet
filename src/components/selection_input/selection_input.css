@@ -27,4 +27,7 @@
       font-size: calc(100% + 4px);
     }
   }
+  .o-selection-extension {
+    margin-bottom: -10px;
+  }
 }

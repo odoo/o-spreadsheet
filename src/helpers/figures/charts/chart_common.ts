@@ -1,4 +1,10 @@
-import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import {
+  DEFAULT_WINDOW_SIZE,
+  MAX_CHAR_LABEL,
+  SCATTER_DEFAULT_POINT_RADIUS,
+  SCATTER_MAX_POINT_RADIUS,
+  SCATTER_MIN_POINT_RADIUS,
+} from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ApplyRangeChange,
@@ -73,6 +79,26 @@ export function updateChartRangesWithDataSets(
         };
       }
     }
+    if (ds.pointLabelRange) {
+      const pointLabelRange = adaptChartRange(ds.pointLabelRange, applyChange);
+      if (pointLabelRange !== ds.pointLabelRange) {
+        isStale = true;
+        ds = {
+          ...ds,
+          pointLabelRange,
+        };
+      }
+    }
+    if (ds.pointSizeRange) {
+      const pointSizeRange = adaptChartRange(ds.pointSizeRange, applyChange);
+      if (pointSizeRange !== ds.pointSizeRange) {
+        isStale = true;
+        ds = {
+          ...ds,
+          pointSizeRange,
+        };
+      }
+    }
     const dataRange = adaptChartRange(ds.dataRange, applyChange);
     if (
       dataRange === undefined ||
@@ -118,6 +144,14 @@ export function duplicateDataSetsInDuplicatedSheet(
       labelCell: ds.labelCell
         ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.labelCell)
         : undefined,
+      pointLabelRange: ds.pointLabelRange
+        ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.pointLabelRange)
+        : undefined,
+      pointSizeRange: ds.pointSizeRange
+        ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.pointSizeRange)
+        : undefined,
+      pointSizeMode: ds.pointSizeMode,
+      pointSize: ds.pointSize,
     };
   });
 }
@@ -171,6 +205,12 @@ export function createDataSets(
     if (invalidSheetName || invalidXc) {
       continue;
     }
+    const pointLabelRange = dataSet.pointLabelRange
+      ? getters.getRangeFromSheetXC(sheetId, dataSet.pointLabelRange)
+      : undefined;
+    const pointSizeRange = dataSet.pointSizeRange
+      ? getters.getRangeFromSheetXC(sheetId, dataSet.pointSizeRange)
+      : undefined;
     // It's a rectangle. We treat all columns (arbitrary) as different data series.
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       if (zone.right === undefined) {
@@ -202,6 +242,10 @@ export function createDataSets(
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
           trend: dataSet.trend,
+          pointLabelRange,
+          pointSizeRange,
+          pointSizeMode: dataSet.pointSizeMode,
+          pointSize: dataSet.pointSize,
         });
       }
     } else {
@@ -224,6 +268,10 @@ export function createDataSets(
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
         trend: dataSet.trend,
+        pointLabelRange,
+        pointSizeRange,
+        pointSizeMode: dataSet.pointSizeMode,
+        pointSize: dataSet.pointSize,
       });
     }
   }
@@ -344,6 +392,30 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
 
     if (adaptedRange !== CellErrorType.InvalidReference) {
       newDataSet.dataRange = adaptedRange;
+      if (dataSet.pointLabelRange) {
+        const adaptedPointLabelRange = adaptStringRange(
+          chartSheetId,
+          dataSet.pointLabelRange,
+          applyChange
+        );
+        if (adaptedPointLabelRange !== CellErrorType.InvalidReference) {
+          newDataSet.pointLabelRange = adaptedPointLabelRange;
+        } else {
+          delete newDataSet.pointLabelRange;
+        }
+      }
+      if (dataSet.pointSizeRange) {
+        const adaptedPointSizeRange = adaptStringRange(
+          chartSheetId,
+          dataSet.pointSizeRange,
+          applyChange
+        );
+        if (adaptedPointSizeRange !== CellErrorType.InvalidReference) {
+          newDataSet.pointSizeRange = adaptedPointSizeRange;
+        } else {
+          delete newDataSet.pointSizeRange;
+        }
+      }
       dataSets.push(newDataSet);
     }
   }
@@ -378,6 +450,20 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
     const invalidRanges =
       definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
     if (invalidRanges) {
+      return CommandResult.InvalidDataSet;
+    }
+    const invalidPointLabelRanges =
+      definition.dataSets.find(
+        (range) => range.pointLabelRange && !rangeReference.test(range.pointLabelRange)
+      ) !== undefined;
+    if (invalidPointLabelRanges) {
+      return CommandResult.InvalidDataSet;
+    }
+    const invalidPointSizeRanges =
+      definition.dataSets.find(
+        (range) => range.pointSizeRange && !rangeReference.test(range.pointSizeRange)
+      ) !== undefined;
+    if (invalidPointSizeRanges) {
       return CommandResult.InvalidDataSet;
     }
     const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
@@ -501,4 +587,12 @@ export function truncateLabel(label: string | undefined, maxLen: number = MAX_CH
 
 export function isTrendLineAxis(axisID: string) {
   return axisID === TREND_LINE_XAXIS_ID || axisID === MOVING_AVERAGE_TREND_LINE_XAXIS_ID;
+}
+
+export function adjustPointSizeRadius(size: number | undefined | null): number {
+  if (size === undefined || size === null || !isFinite(size)) {
+    return SCATTER_DEFAULT_POINT_RADIUS;
+  }
+  const absolute = Math.abs(size);
+  return Math.min(SCATTER_MAX_POINT_RADIUS, Math.max(SCATTER_MIN_POINT_RADIUS, absolute));
 }

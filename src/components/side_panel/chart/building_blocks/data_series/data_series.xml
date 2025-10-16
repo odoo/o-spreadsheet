@@ -33,6 +33,8 @@
         colors="colors"
         disabledRanges="disabledRanges"
         disabledRangeTitle.translate="Excluded due to chart limits. Drag to swap with another range."
+        getRowMenuItems="props.getRangeMenuItems"
+        getRowExtensions="props.getRangeExtensions"
       />
     </Section>
   </t>

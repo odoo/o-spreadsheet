@@ -61,7 +61,7 @@ export function getLineChartTooltip(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartTooltip {
-  const { axisType, locale, axisFormats } = args;
+  const { axisType, locale, axisFormats, dataSetsValues } = args;
   const labelFormat = axisFormats?.x;
 
   const tooltip: ChartTooltip = {
@@ -88,7 +88,16 @@ export function getLineChartTooltip(
         locale,
         definition.humanize
       );
-      return formattedX ? `(${formattedX}, ${formattedY})` : `${formattedY}`;
+      let pointLabel: string | undefined;
+      const datasetIndex = tooltipItem.datasetIndex ?? -1;
+      if (datasetIndex >= 0 && datasetIndex < (dataSetsValues?.length || 0)) {
+        pointLabel = dataSetsValues?.[datasetIndex]?.pointLabels?.[tooltipItem.dataIndex];
+      }
+      const coordinates = formattedX ? `(${formattedX}, ${formattedY})` : `${formattedY}`;
+      if (pointLabel) {
+        return `${pointLabel}: ${coordinates}`;
+      }
+      return coordinates;
     };
   } else {
     tooltip.callbacks!.label = function (tooltipItem) {
@@ -100,7 +109,12 @@ export function getLineChartTooltip(
         locale,
         definition.humanize
       )(yLabel, axisId);
-      return yLabelStr;
+      const datasetIndex = tooltipItem.datasetIndex ?? -1;
+      const pointLabel =
+        datasetIndex >= 0 && datasetIndex < (dataSetsValues?.length || 0)
+          ? dataSetsValues?.[datasetIndex]?.pointLabels?.[tooltipItem.dataIndex]
+          : undefined;
+      return pointLabel ? `${pointLabel}: ${yLabelStr}` : yLabelStr;
     };
   }
 

@@ -16,6 +16,7 @@ import { LineChartDesignPanel } from "./line_chart/line_chart_design_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
 import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
+import { ScatterChartDesignPanel } from "./scatter_chart/scatter_chart_design_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
 import { SunburstChartDesignPanel } from "./sunburst_chart/sunburst_chart_design_panel";
@@ -46,7 +47,7 @@ chartSidePanelComponentRegistry
   })
   .add("scatter", {
     configuration: ScatterConfigPanel,
-    design: GenericZoomableChartDesignPanel,
+    design: ScatterChartDesignPanel,
   })
   .add("bar", {
     configuration: BarConfigPanel,

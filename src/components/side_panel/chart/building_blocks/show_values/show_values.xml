@@ -3,8 +3,20 @@
     <Checkbox
       name="'showValues'"
       label.translate="Show values"
-      value="props.definition.showValues ?? props.defaultValue"
+      value="shouldShowValues"
       onChange="(showValues) => props.updateChart(this.props.chartId, { showValues })"
     />
+    <select
+      class="o-input"
+      t-if="shouldShowValues and shouldShowOptions"
+      t-on-change="this.onModeChanged">
+      <t t-foreach="props.modes" t-as="mode" t-key="mode.value">
+        <option
+          t-att-value="mode.value"
+          t-att-selected="mode.value === props.definition.showValuesMode"
+          t-esc="mode.label"
+        />
+      </t>
+    </select>
   </t>
 </templates>

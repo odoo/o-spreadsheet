@@ -1,6 +1,11 @@
 import { Point } from "chart.js";
 import { ChartTerms } from "../../../../components/translations_terms";
 import {
+  SCATTER_DEFAULT_POINT_RADIUS,
+  SCATTER_MAX_POINT_RADIUS,
+  SCATTER_MIN_POINT_RADIUS,
+} from "../../../../constants";
+import {
   evaluatePolynomial,
   expM,
   getMovingAverageValues,
@@ -37,14 +42,15 @@ import {
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { ScatterPointSizeMode } from "../../../../types/chart/scatter_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isDateTimeFormat } from "../../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../../misc";
+import { deepCopy, findNextDefinedValue, isDefined, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
-import { shouldRemoveFirstLabel } from "../chart_common";
+import { adjustPointSizeRadius, shouldRemoveFirstLabel } from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -652,6 +658,12 @@ function fixEmptyLabelsForDateCharts(
       newLabels[i] = findNextDefinedValue(newLabels, i);
       for (const ds of newDatasets) {
         ds.data[i] = undefined;
+        if (ds.pointLabels) {
+          ds.pointLabels[i] = undefined;
+        }
+        if (ds.pointSizes) {
+          ds.pointSizes[i] = undefined;
+        }
       }
     }
   }
@@ -672,6 +684,95 @@ export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[
     return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
   }
   return [];
+}
+
+function getPointLabels(getters: Getters, ds: DataSet): (string | undefined)[] {
+  if (!ds.pointLabelRange) {
+    return [];
+  }
+  const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
+  const zone = recomputeZones([ds.pointLabelRange.zone], labelCellZone)[0];
+  if (!zone) {
+    return [];
+  }
+  const range = getters.getRangeFromZone(ds.pointLabelRange.sheetId, zone);
+  return getters
+    .getRangeFormattedValues(range)
+    .map((value) => (value === undefined || value === null ? undefined : String(value)));
+}
+
+function getPointSizesFromRange(getters: Getters, ds: DataSet): number[] {
+  if (!ds.pointSizeRange) {
+    return [];
+  }
+  const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
+  const zone = recomputeZones([ds.pointSizeRange.zone], labelCellZone)[0];
+  if (!zone) {
+    return [];
+  }
+  const range = getters.getRangeFromZone(ds.pointSizeRange.sheetId, zone);
+  const values = getters.getRangeValues(range);
+  return normalizePointSizes(values, getters.getLocale());
+}
+
+function normalizePointSizes(_values: (CellValue | undefined)[], locale: Locale): number[] {
+  const values = _values.map((value) => {
+    if (typeof value !== "number") {
+      return undefined;
+    }
+    return Math.abs(value);
+  });
+  const definedValues = values.filter(isDefined);
+  if (!definedValues.length) {
+    return new Array(values.length).fill(SCATTER_DEFAULT_POINT_RADIUS);
+  }
+  const minValue = Math.min(...definedValues);
+  const maxValue = Math.max(...definedValues);
+  if (minValue === maxValue) {
+    const radius = adjustPointSizeRadius(minValue);
+    return values.map((value) => (value === undefined ? SCATTER_DEFAULT_POINT_RADIUS : radius));
+  }
+  return values.map((value) => {
+    if (value === undefined) {
+      return SCATTER_DEFAULT_POINT_RADIUS;
+    }
+    const ratio = (value - minValue) / (maxValue - minValue);
+    return SCATTER_MIN_POINT_RADIUS + ratio * (SCATTER_MAX_POINT_RADIUS - SCATTER_MIN_POINT_RADIUS);
+  });
+}
+
+function adjustArrayLength(data: number[], length: number): number[] {
+  if (data.length === length) {
+    return data;
+  }
+  const result: number[] = [];
+  for (let i = 0; i < length; i++) {
+    result.push(data[i] ?? SCATTER_DEFAULT_POINT_RADIUS);
+  }
+  return result;
+}
+
+function getDatasetPointSizes(
+  getters: Getters,
+  ds: DataSet,
+  data: (CellValue | undefined)[]
+): number[] | undefined {
+  const length = data.length;
+  switch (ds.pointSizeMode as ScatterPointSizeMode | undefined) {
+    case "range":
+      if (!ds.pointSizeRange) {
+        return undefined;
+      }
+      return adjustArrayLength(getPointSizesFromRange(getters, ds), length);
+    case "value":
+      return adjustArrayLength(normalizePointSizes(data, getters.getLocale()), length);
+    case "fixed": {
+      const radius = adjustPointSizeRadius(ds.pointSize);
+      return new Array(length).fill(radius);
+    }
+    default:
+      return undefined;
+  }
 }
 
 /**
@@ -699,6 +800,10 @@ function filterInvalidDataPoints(
       data: dataPointsIndexes.map((i) =>
         typeof dataset.data[i] === "number" ? dataset.data[i] : null
       ),
+      pointLabels: dataset.pointLabels
+        ? dataPointsIndexes.map((i) => dataset.pointLabels?.[i])
+        : dataset.pointLabels,
+      pointSizes: dataset.pointSizes && dataPointsIndexes.map((i) => dataset.pointSizes?.[i]),
     })),
   };
 }
@@ -735,6 +840,10 @@ function filterInvalidHierarchicalPoints(
     dataSetsValues: hierarchy.map((dataset) => ({
       ...dataset,
       data: dataPointsIndexes.map((i) => dataset.data[i]),
+      pointLabels: dataset.pointLabels
+        ? dataPointsIndexes.map((i) => dataset.pointLabels?.[i])
+        : dataset.pointLabels,
+      pointSizes: dataset.pointSizes && dataPointsIndexes.map((i) => dataset.pointSizes?.[i]),
     })),
   };
 }
@@ -762,6 +871,10 @@ function filterValuesWithDifferentSigns(values: string[], hierarchy: DatasetValu
     dataSetsValues: hierarchy.map((dataset) => ({
       ...dataset,
       data: indexesToKeep.map((i) => dataset.data[i]),
+      pointLabels: dataset.pointLabels
+        ? indexesToKeep.map((i) => dataset.pointLabels?.[i])
+        : dataset.pointLabels,
+      pointSizes: dataset.pointSizes && indexesToKeep.map((i) => dataset.pointSizes?.[i]),
     })),
   };
 }
@@ -889,6 +1002,8 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     }
 
     let data = ds.dataRange ? getData(getters, ds) : [];
+    const pointLabels = ds.pointLabelRange ? getPointLabels(getters, ds) : undefined;
+    const pointSizes = getDatasetPointSizes(getters, ds, data);
     if (
       data.every((e) => !e || (typeof e === "string" && !isEvaluationError(e))) &&
       data.filter((e) => typeof e === "string").length > 1
@@ -902,7 +1017,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     ) {
       hidden = true;
     }
-    datasetValues.push({ data, label, hidden });
+    datasetValues.push({ data, label, hidden, pointLabels, pointSizes });
   }
   return datasetValues;
 }
