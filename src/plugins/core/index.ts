@@ -1,3 +1,4 @@
+export * from "./autofill_core";
 export * from "./borders";
 export * from "./cell";
 export * from "./chart";

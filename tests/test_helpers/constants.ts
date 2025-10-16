@@ -2,7 +2,14 @@ import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
+import {
+  CoreCommand,
+  CoreCommandTypes,
+  DEFAULT_LOCALE,
+  DIRECTION,
+  Locale,
+  TableStyle,
+} from "../../src/types";
 import { PivotCoreDefinition } from "../../src/types/pivot";
 import { target, toRangesData } from "./helpers";
 
@@ -511,6 +518,25 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "DELETE_CHART",
     sheetId: "Sheet1",
     chartId: "chartId",
+  },
+  AUTOFILL_CELLS_CONTENT: {
+    type: "AUTOFILL_CELLS_CONTENT",
+    direction: DIRECTION.DOWN,
+    sheetId: "Sheet1",
+    targetZone: toZone("A2:A10"),
+    rules: [
+      {
+        origin: { col: 0, row: 0, sheetId: "Sheet1" },
+        originContent: "1",
+        rule: { type: "COPY_MODIFIER" },
+      },
+    ],
+  },
+  AUTOFILL_CELLS: {
+    type: "AUTOFILL_CELLS",
+    sheetId: "Sheet1",
+    sourceZone: toZone("A1"),
+    targetZone: toZone("A2:A10"),
   },
 };
 

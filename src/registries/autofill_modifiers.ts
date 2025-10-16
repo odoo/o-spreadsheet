@@ -1,16 +1,19 @@
+import { Token } from "../formulas";
 import { toJsDate } from "../functions/helpers";
-import { jsDateToNumber } from "../helpers";
+import { isFormula, jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format/format";
 import {
-  AutofillData,
   AutofillModifierImplementation,
+  Cell,
   CopyModifier,
+  CoreGetters,
   DIRECTION,
   FormulaModifier,
   Getters,
   IncrementModifier,
   LiteralCell,
+  UID,
 } from "../types/index";
 import { AlphanumericIncrementModifier, DateIncrementModifier } from "./../types/autofill";
 import { Registry } from "./registry";
@@ -24,41 +27,47 @@ export const autofillModifiersRegistry = new Registry<AutofillModifierImplementa
 
 autofillModifiersRegistry
   .add("ALPHANUMERIC_INCREMENT_MODIFIER", {
-    apply: (rule: AlphanumericIncrementModifier, data: AutofillData) => {
+    core: true,
+    apply: (getters: CoreGetters, rule: AlphanumericIncrementModifier) => {
       rule.current += rule.increment;
       let value = Math.abs(rule.current).toString();
       value = "0".repeat(Math.max(rule.numberPostfixLength - value.length, 0)) + value;
       const content = `${rule.prefix}${value}`;
       return {
-        cellData: {
-          border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
-          content,
+        content,
+      };
+    },
+    tooltip: (
+      getters: Getters,
+      content: string,
+      rule: AlphanumericIncrementModifier,
+      originCell: Cell
+    ) => {
+      return {
+        props: {
+          content: content,
         },
-        tooltip: { props: { content } },
       };
     },
   })
   .add("INCREMENT_MODIFIER", {
-    apply: (rule: IncrementModifier, data: AutofillData, getters: Getters) => {
+    core: true,
+    apply: (getters: CoreGetters, rule: IncrementModifier) => {
       rule.current += rule.increment;
       const content = rule.current.toString();
-      const locale = getters.getLocale();
-      const tooltipValue = formatValue(rule.current, { format: data.cell?.format, locale });
       return {
-        cellData: {
-          border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
-          content,
-        },
-        tooltip: content ? { props: { content: tooltipValue } } : undefined,
+        content,
       };
+    },
+    tooltip: (getters: Getters, content: string, rule: IncrementModifier, originCell: Cell) => {
+      const locale = getters.getLocale();
+      const tooltipValue = formatValue(rule.current, { format: originCell.format, locale });
+      return { props: { content: tooltipValue } };
     },
   })
   .add("DATE_INCREMENT_MODIFIER", {
-    apply: (rule: DateIncrementModifier, data: AutofillData, getters: Getters) => {
+    core: true,
+    apply: (getters: CoreGetters, rule: DateIncrementModifier) => {
       const date = toJsDate(rule.current, getters.getLocale());
       date.setFullYear(date.getFullYear() + rule.increment.years || 0);
       date.setMonth(date.getMonth() + rule.increment.months || 0);
@@ -66,44 +75,46 @@ autofillModifiersRegistry
 
       const value = jsDateToNumber(date);
       rule.current = value;
-      const locale = getters.getLocale();
-      const tooltipValue = formatValue(value, { format: data.cell?.format, locale });
       return {
-        cellData: {
-          border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
-          content: value.toString(),
-        },
-        tooltip: value ? { props: { content: tooltipValue } } : undefined,
+        content: value.toString(),
       };
+    },
+    tooltip: (getters: Getters, content: string, rule: DateIncrementModifier, originCell: Cell) => {
+      const locale = getters.getLocale();
+      const tooltipValue = formatValue(rule.current, { format: originCell.format, locale });
+      return { props: { content: tooltipValue } };
     },
   })
   .add("COPY_MODIFIER", {
-    apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
-      const content = data.cell?.content || "";
-      const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
+    core: true,
+    apply: (
+      getters: CoreGetters,
+      rule: CopyModifier,
+      direction: DIRECTION,
+      sheetId: UID,
+      originContent: string
+    ) => {
+      return { content: originContent };
+    },
+    tooltip: (getters: Getters, content: string, rule: CopyModifier, originCell: Cell) => {
+      const localeFormat = { locale: getters.getLocale(), format: originCell.format };
       return {
-        cellData: {
-          border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
-          content,
+        props: {
+          content: evaluateLiteral(originCell as LiteralCell, localeFormat).formattedValue,
         },
-        tooltip: content
-          ? {
-              props: {
-                content: data.cell
-                  ? evaluateLiteral(data.cell as LiteralCell, localeFormat).formattedValue
-                  : "",
-              },
-            }
-          : undefined,
       };
     },
   })
   .add("FORMULA_MODIFIER", {
-    apply: (rule: FormulaModifier, data: AutofillData, getters: Getters, direction: DIRECTION) => {
+    core: true,
+    apply: (
+      getters: CoreGetters,
+      rule: FormulaModifier,
+      direction: DIRECTION,
+      sheetId: UID,
+      originContent: string,
+      originTokens: Token[]
+    ) => {
       rule.current += rule.increment;
       let x = 0;
       let y = 0;
@@ -125,20 +136,28 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      const cell = data.cell;
-      if (!cell || !cell.isFormula) {
-        return { cellData: {} };
+      if (!isFormula(originContent)) {
+        return { content: "" };
       }
-      const sheetId = data.sheetId;
-      const content = getters.getTranslatedCellFormula(sheetId, x, y, cell.compiledFormula.tokens);
-      return {
-        cellData: {
-          border: data.border,
-          style: cell.style,
-          format: cell.format,
-          content,
-        },
-        tooltip: content ? { props: { content } } : undefined,
-      };
+      const content = getters.getTranslatedCellFormula(sheetId, x, y, originTokens);
+      return { content };
+    },
+    tooltip: (getters: Getters, content: string, rule: FormulaModifier, originCell: Cell) => {
+      return { props: { content } };
+    },
+  })
+  .add("NO_OP_MODIFIER", {
+    core: true,
+    apply: (
+      getters: CoreGetters,
+      rule: FormulaModifier,
+      direction: DIRECTION,
+      sheetId: UID,
+      originContent: string
+    ) => {
+      return { content: originContent };
+    },
+    tooltip: () => {
+      return { props: { content: "" } };
     },
   });
