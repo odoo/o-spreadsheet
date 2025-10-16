@@ -1,6 +1,11 @@
 import { ChartCreationContext } from "../../../src";
 import { ScatterChart } from "../../../src/helpers/figures/charts/scatter_chart";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
+} from "../../test_helpers/chart_helpers";
+import { createChart, updateChart } from "../../test_helpers/commands_helpers";
+import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("scatter chart", () => {
   test("create scatter chart from creation context", () => {
@@ -23,5 +28,44 @@ describe("scatter chart", () => {
       showValues: false,
       humanize: false,
     });
+  });
+
+  test("scatter chart runtime reflects axis bounds, scale type and grids", () => {
+    const model = createModelFromGrid({
+      A1: "x",
+      A2: "1",
+      A3: "2",
+      B1: "Series A",
+      B2: "5",
+      B3: "15",
+    });
+
+    createChart(
+      model,
+      {
+        type: "scatter",
+        labelRange: "A2:A3",
+        dataSets: [{ dataRange: "B2:B3", yAxisId: "y" }],
+        labelsAsText: false,
+      },
+      "1"
+    );
+
+    updateChart(model, "1", {
+      axesDesign: {
+        x: { min: 1, max: 3, grid: "minor" },
+        y: { min: -10, max: 10, grid: "both" },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "1").options?.scales;
+    expect(scales.x?.min).toBe(1);
+    expect(scales.x?.max).toBe(3);
+    expect(scales.x?.grid?.display).toBe(false);
+    expect(scales.x?.grid?.minor?.display).toBe(true);
+    expect(scales.y?.min).toBe(-10);
+    expect(scales.y?.max).toBe(10);
+    expect(scales.y?.grid?.display).toBe(true);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
   });
 });

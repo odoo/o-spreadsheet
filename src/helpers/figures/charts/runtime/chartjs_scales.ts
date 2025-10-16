@@ -5,7 +5,7 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
+import { getColorScale, relativeLuminance } from "@odoo/o-spreadsheet-engine/helpers/color";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -17,6 +17,7 @@ import {
 import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
   AxisDesign,
+  AxisType,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
   ChartWithAxisDefinition,
@@ -52,17 +53,26 @@ export function getBarChartScales(
   args: ChartRuntimeGenerationArgs
 ): DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> {
   let scales: DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> = {};
-  const { trendDataSetsValues: trendDatasets, locale, axisFormats } = args;
+  const { trendDataSetsValues: trendDatasets, locale, axisFormats, axisType } = args;
   const options = { stacked: definition.stacked, locale: locale };
   if (definition.horizontal) {
-    scales.x = getChartAxis(definition, "bottom", "values", { ...options, format: axisFormats?.x });
-    scales.y = getChartAxis(definition, "left", "labels", options);
+    scales.x = getChartAxis(definition, "bottom", "values", axisType, {
+      ...options,
+      format: axisFormats?.x,
+    });
+    scales.y = {
+      ...getChartAxis(definition, "left", "labels", "linear", options),
+      grid: { display: false },
+    };
   } else {
-    scales.x = getChartAxis(definition, "bottom", "labels", options);
+    scales.x = {
+      ...getChartAxis(definition, "bottom", "labels", axisType, options),
+      grid: { display: false },
+    };
     const leftAxisOptions = { ...options, format: axisFormats?.y };
-    scales.y = getChartAxis(definition, "left", "values", leftAxisOptions);
+    scales.y = getChartAxis(definition, "left", "values", "linear", leftAxisOptions);
     const rightAxisOptions = { ...options, format: axisFormats?.y1 };
-    scales.y1 = getChartAxis(definition, "right", "values", rightAxisOptions);
+    scales.y1 = getChartAxis(definition, "right", "values", "linear", rightAxisOptions);
   }
   scales = removeFalsyAttributes(scales);
 
@@ -96,9 +106,17 @@ export function getLineChartScales(
   const stacked = definition.stacked;
 
   let scales: DeepPartial<ScaleChartOptions<"line">["scales"]> = {
-    x: getChartAxis(definition, "bottom", "labels", { locale }),
-    y: getChartAxis(definition, "left", "values", { locale, stacked, format: axisFormats?.y }),
-    y1: getChartAxis(definition, "right", "values", { locale, stacked, format: axisFormats?.y1 }),
+    x: getChartAxis(definition, "bottom", "labels", axisType, { locale }),
+    y: getChartAxis(definition, "left", "values", "linear", {
+      locale,
+      stacked,
+      format: axisFormats?.y,
+    }),
+    y1: getChartAxis(definition, "right", "values", "linear", {
+      locale,
+      stacked,
+      format: axisFormats?.y1,
+    }),
   };
   scales = removeFalsyAttributes(scales);
 
@@ -145,16 +163,31 @@ export function getLineChartScales(
   return scales;
 }
 
+function getGridColor(background?: string) {
+  return relativeLuminance(background || "#ffffff") > 0.5 ? "#cccccc" : "#999999";
+}
+
+function getMinorGridColor(background?: string) {
+  return relativeLuminance(background || "#ffffff") > 0.5 ? "#e6e6e6" : "#333333";
+}
+
 export function getScatterChartScales(
   definition: GenericDefinition<ScatterChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): DeepPartial<ScaleChartOptions<"line">["scales"]> {
   const lineScales = getLineChartScales(definition, args);
+  const xScale = lineScales?.x ?? {};
+  const axisDesign = definition.axesDesign?.x;
+  const scatterGridDisplay = axisDesign?.grid !== "none" && axisDesign?.grid !== "minor";
   return {
     ...lineScales,
     x: {
-      ...lineScales!.x,
-      grid: { display: true },
+      ...xScale,
+      grid: {
+        ...xScale.grid,
+        color: getGridColor(definition.background),
+        display: scatterGridDisplay,
+      },
     },
   };
 }
@@ -163,12 +196,13 @@ export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
-  const { locale, axisFormats } = args;
+  const { locale, axisFormats, axisType } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   definition.dataSets;
+  const yDesign = definition.axesDesign?.y;
   const scales: ChartScales = {
     x: {
-      ...getChartAxis(definition, "bottom", "labels", { locale }),
+      ...getChartAxis(definition, "bottom", "labels", axisType, { locale }),
       grid: { display: false },
     },
     y: {
@@ -181,17 +215,24 @@ export function getWaterfallChartScales(
         color: chartFontColor(definition.background),
         callback: formatTickValue({ locale, format }, definition.humanize),
       },
+      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+      min: yDesign?.min,
+      max: yDesign?.max,
       grid: {
         lineWidth: (context) => (context.tick.value === 0 ? 2 : 1),
+        display: yDesign?.grid !== "none" && yDesign?.grid !== "minor",
+        color: getGridColor(definition.background),
+        // @ts-ignore
+        minor:
+          yDesign?.grid === "minor" || yDesign?.grid === "both"
+            ? {
+                display: true,
+                color: getMinorGridColor(definition.background),
+              }
+            : undefined,
       },
-      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
     },
   };
-
-  const verticalScale = scales?.y || scales?.y1;
-  if (verticalScale) {
-    verticalScale.grid = { lineWidth: (context) => (context.tick.value === 0 ? 2 : 1) };
-  }
 
   return scales;
 }
@@ -353,6 +394,7 @@ function getChartAxis(
   definition: GenericDefinition<ChartWithAxisDefinition>,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
+  axisType: AxisType | undefined,
   options: LocaleFormat & { stacked?: boolean }
 ): DeepPartial<LinearScaleOptions> | undefined {
   const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
@@ -372,22 +414,40 @@ function getChartAxis(
 
   if (type === "values") {
     const displayGridLines = !(position === "right" && useLeftAxis);
+    const majorGridEnabled = design?.grid
+      ? design?.grid === "major" || design?.grid === "both"
+      : displayGridLines;
+    const isCategoricalAxis = axisType === "category" || axisType === undefined;
+    const minorGridEnabled =
+      !isCategoricalAxis && (design?.grid === "minor" || design?.grid === "both");
+    const callback = formatTickValue(options, definition.humanize);
 
-    return {
+    const scale: DeepPartial<LinearScaleOptions> = {
       position: position,
       title: getChartAxisTitleRuntime(design),
-      grid: {
-        display: displayGridLines,
-      },
-      beginAtZero: true,
+      beginAtZero: !design?.min,
       stacked: options?.stacked,
       ticks: {
         color: fontColor,
-        callback: formatTickValue(options, definition.humanize),
+        callback,
+      },
+      min: design?.min,
+      max: design?.max,
+      grid: {
+        display: majorGridEnabled,
+        color: getGridColor(definition.background),
+        // @ts-ignore
+        minor: minorGridEnabled
+          ? {
+              display: true,
+              color: getMinorGridColor(definition.background),
+            }
+          : undefined,
       },
     };
+    return scale;
   } else {
-    return {
+    const scale: DeepPartial<LinearScaleOptions> = {
       ticks: {
         padding: 5,
         color: fontColor,
@@ -397,12 +457,24 @@ function getChartAxis(
           return truncateLabel(this.getLabelForValue(tickValue));
         },
       },
+      min: design?.min,
+      max: design?.max,
       grid: {
-        display: false,
+        display: design?.grid === "major" || design?.grid === "both",
+        color: getGridColor(definition.background),
+        // @ts-ignore
+        minor:
+          design?.grid === "minor" || design?.grid === "both"
+            ? {
+                display: true,
+                color: getMinorGridColor(definition.background),
+              }
+            : undefined,
       },
       stacked: options?.stacked,
       title: getChartAxisTitleRuntime(design),
     };
+    return scale;
   }
 }
 
