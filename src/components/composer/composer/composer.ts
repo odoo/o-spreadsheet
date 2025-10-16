@@ -276,6 +276,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       handleEvent: () => this.autoCompleteState.hide(),
     });
     onWillUnmount(() => {
+      this.props.composerStore.deactivateComposer();
       this.env.model.selection.detachObserver(this);
     });
     useEffect(() => {

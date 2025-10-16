@@ -1627,3 +1627,11 @@ describe("Double click selection in composer", () => {
     });
   });
 });
+
+test("Composer becomes inactive when unmounted", async () => {
+  composerEl = await typeInComposer("=SUM(");
+  expect(composerStore.editionMode).toBe("selecting");
+
+  parent.__owl__.destroy();
+  expect(composerStore.editionMode).toBe("inactive");
+});
