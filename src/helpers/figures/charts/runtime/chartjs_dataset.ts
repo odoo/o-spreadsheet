@@ -85,6 +85,9 @@ export function getBarChartDatasets(
       backgroundColor,
       yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
       xAxisID: "x",
+      barPercentage: 0.9,
+      categoryPercentage: dataSetsValues.length > 1 ? 0.8 : 1,
+      borderRadius: 2,
     };
     dataSets.push(dataset);
 
