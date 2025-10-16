@@ -1491,6 +1491,181 @@ describe("title", function () {
       expect(scales.x!["title"].font.style).toEqual("italic");
     }
   );
+
+  test("line chart runtime reflects axis bounds, grids and scale type", () => {
+    setGrid(model, {
+      A1: "Month",
+      A2: "Jan",
+      A3: "Feb",
+      A4: "Mar",
+      B1: "Series A",
+      B2: "5",
+      B3: "15",
+      B4: "25",
+    });
+
+    createChart(
+      model,
+      {
+        type: "line",
+        labelRange: "A2:A4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      },
+      "line-axis"
+    );
+
+    updateChart(model, "line-axis", {
+      axesDesign: {
+        x: { min: 0, max: 2, grid: { major: true, minor: true } },
+        y: { min: 5, max: 25, scaleType: "logarithmic", grid: { major: false, minor: true } },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "line-axis").options?.scales;
+    expect(scales.x?.min).toBe(0);
+    expect(scales.x?.max).toBe(2);
+    expect(scales.x?.grid?.display).toBe(true);
+    expect(scales.x?.grid?.minor?.display).toBe(true);
+    expect(scales.y?.min).toBe(5);
+    expect(scales.y?.max).toBe(25);
+    expect(scales.y?.type).toBe("logarithmic");
+    expect(scales.y?.grid?.display).toBe(false);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
+  });
+
+  test("bar chart runtime reflects axis bounds and grids", () => {
+    setGrid(model, {
+      A1: "Month",
+      A2: "Jan",
+      A3: "Feb",
+      A4: "Mar",
+      B1: "Series A",
+      B2: "5",
+      B3: "15",
+      B4: "25",
+    });
+
+    createChart(
+      model,
+      {
+        type: "bar",
+        labelRange: "A2:A4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      },
+      "bar-axis"
+    );
+
+    updateChart(model, "bar-axis", {
+      axesDesign: {
+        x: { min: 0, max: 2, grid: { major: true, minor: true } },
+        y: { min: 0, max: 30, grid: { major: false, minor: true } },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "bar-axis").options?.scales;
+    expect(scales.x?.min).toBe(0);
+    expect(scales.x?.max).toBe(2);
+    expect(scales.x?.grid?.display).toBe(true);
+    expect(scales.x?.grid?.minor?.display).toBe(true);
+    expect(scales.y?.min).toBe(0);
+    expect(scales.y?.max).toBe(30);
+    expect(scales.y?.grid?.display).toBe(false);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
+  });
+
+  test("combo chart runtime reflects axis bounds on both vertical axes", () => {
+    setGrid(model, {
+      A1: "Month",
+      A2: "Jan",
+      A3: "Feb",
+      A4: "Mar",
+      B1: "Series A",
+      B2: "5",
+      B3: "15",
+      B4: "25",
+      C1: "Series B",
+      C2: "50",
+      C3: "60",
+      C4: "70",
+    });
+
+    createChart(
+      model,
+      {
+        type: "combo",
+        labelRange: "A2:A4",
+        dataSets: [
+          { dataRange: "B2:B4", yAxisId: "y" },
+          { dataRange: "C2:C4", yAxisId: "y1" },
+        ],
+        dataSetsHaveTitle: false,
+      },
+      "combo-axis"
+    );
+
+    updateChart(model, "combo-axis", {
+      axesDesign: {
+        x: { min: 0, max: 2, grid: { major: true, minor: true } },
+        y: { min: 5, max: 30, grid: { major: false, minor: true } },
+        y1: { min: 40, max: 80, scaleType: "logarithmic", grid: { major: true, minor: true } },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "combo-axis").options?.scales;
+    expect(scales.x?.min).toBe(0);
+    expect(scales.x?.grid?.minor?.display).toBe(true);
+    expect(scales.y?.min).toBe(5);
+    expect(scales.y?.max).toBe(30);
+    expect(scales.y?.grid?.display).toBe(false);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
+    expect(scales.y1?.min).toBe(40);
+    expect(scales.y1?.max).toBe(80);
+    expect(scales.y1?.type).toBe("logarithmic");
+    expect(scales.y1?.grid?.display).toBe(true);
+    expect(scales.y1?.grid?.minor?.display).toBe(true);
+  });
+
+  test("scatter chart runtime reflects axis bounds, scale type and grids", () => {
+    setGrid(model, {
+      A1: "x",
+      A2: "1",
+      A3: "2",
+      A4: "3",
+      B1: "Series A",
+      B2: "5",
+      B3: "15",
+      B4: "25",
+    });
+
+    createChart(
+      model,
+      {
+        type: "scatter",
+        labelRange: "A2:A4",
+        dataSets: [{ dataRange: "B2:B4", yAxisId: "y" }],
+        labelsAsText: false,
+      },
+      "scatter-axis"
+    );
+
+    updateChart(model, "scatter-axis", {
+      axesDesign: {
+        x: { min: 1, max: 3, scaleType: "logarithmic", grid: { major: false, minor: true } },
+        y: { min: -10, max: 10, grid: { major: true, minor: true } },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "scatter-axis").options?.scales;
+    expect(scales.x?.min).toBe(1);
+    expect(scales.x?.max).toBe(3);
+    expect(scales.x?.type).toBe("logarithmic");
+    expect(scales.x?.grid?.display).toBe(false);
+    expect(scales.x?.grid?.minor?.display).toBe(true);
+    expect(scales.y?.min).toBe(-10);
+    expect(scales.y?.max).toBe(10);
+    expect(scales.y?.grid?.display).toBe(true);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
+  });
 });
 
 describe("multiple sheets", function () {
@@ -2287,7 +2462,6 @@ describe("Chart design configuration", () => {
       });
       expect(config.options?.scales?.y1).toMatchObject({
         position: "right",
-        grid: { display: false },
       });
       updateChart(model, "43", {
         dataSets: [
@@ -2358,6 +2532,34 @@ describe("Chart design configuration", () => {
     expect(config.options?.scales?.x?.grid?.display).toBe(true);
     expect(config.options?.scales?.y?.grid?.display).toBe(true);
   });
+
+  test.each([
+    ["line", true, "45"],
+    ["scatter", false, "46"],
+  ] as const)(
+    "%s chart allows toggling horizontal gridlines without a title",
+    (chartType, majorEnabled, chartId) => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+          type: chartType,
+        },
+        chartId
+      );
+
+      updateChart(model, chartId, {
+        axesDesign: { x: { grid: { major: majorEnabled, minor: true } } },
+      });
+
+      const config = getChartConfiguration(model, chartId);
+      expect(config.options?.scales?.x?.grid?.display).toBe(majorEnabled);
+      expect(config.options?.scales?.x?.grid?.minor?.display).toBe(true);
+    }
+  );
 
   test("horizontal bar chart displays vertical but not horizontal grid lines", () => {
     setCellContent(model, "A1", "1");

@@ -16,5 +16,60 @@
       style="axisTitleStyle"
       defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
+    <Section
+      t-if="!isCategoricalAxis"
+      class="'pt-0 o-axis-bounds-section'"
+      title.translate="Axis range">
+      <div class="d-flex">
+        <div class="w-50">
+          <span class="o-section-subtitle my-0">Minimum</span>
+          <input
+            type="number"
+            class="o-input w-100"
+            data-testid="axis-min-input"
+            t-att-value="axisMin"
+            t-on-change="updateAxisMin"
+          />
+        </div>
+        <div class="w-50 ms-3">
+          <span class="o-section-subtitle my-0">Maximum</span>
+          <input
+            type="number"
+            class="o-input w-100"
+            data-testid="axis-max-input"
+            t-att-value="axisMax"
+            t-on-change="updateAxisMax"
+          />
+        </div>
+      </div>
+    </Section>
+    <Section
+      t-if="!isCategoricalAxis"
+      class="'pt-0 o-axis-scale-section'"
+      title.translate="Scale type">
+      <select
+        class="o-input w-100"
+        data-testid="axis-scale-select"
+        t-att-value="axisScaleType"
+        t-on-change="updateAxisScaleType">
+        <option value="linear">Linear</option>
+        <option value="logarithmic">Logarithmic</option>
+      </select>
+    </Section>
+    <Section class="'pt-0'" title.translate="Gridlines">
+      <Checkbox
+        className="'o-axis-grid-major'"
+        label="majorGridLabel"
+        value="isMajorGridEnabled"
+        onChange.bind="toggleMajorGrid"
+      />
+      <Checkbox
+        t-if="canChangeMinorGridVisibility"
+        className="'o-axis-grid-minor'"
+        label="minorGridLabel"
+        value="isMinorGridEnabled"
+        onChange.bind="toggleMinorGrid"
+      />
+    </Section>
   </t>
 </templates>
