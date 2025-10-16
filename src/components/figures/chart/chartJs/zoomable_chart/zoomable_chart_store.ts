@@ -7,7 +7,7 @@ import { SpreadsheetStore } from "../../../../../stores";
 
 const TREND_LINE_AXES_IDS = [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID] as const;
 const ZOOMABLE_AXIS_IDS = ["x", ...TREND_LINE_AXES_IDS] as const;
-export type AxisId = (typeof ZOOMABLE_AXIS_IDS)[number];
+type AxisId = (typeof ZOOMABLE_AXIS_IDS)[number];
 
 export interface Boundaries {
   min: number;
@@ -28,6 +28,7 @@ export class ZoomableChartStore extends SpreadsheetStore {
   originalAxisLimits: AxesLimits = {};
   currentAxesLimits: AxesLimits = {};
   private idConversion: Record<UID, Set<UID>> = {};
+  private axisDesignBoundaries: Record<UID, { min?: number; max?: number }> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -37,17 +38,29 @@ export class ZoomableChartStore extends SpreadsheetStore {
             delete this.originalAxisLimits[chartId];
             delete this.currentAxesLimits[chartId];
           }
+          delete this.axisDesignBoundaries[cmd.figureId];
         }
         break;
       case "UPDATE_CHART":
         const type = cmd.definition.type;
-        const chartId = `${type}-${cmd.figureId}`;
+        const chartId = `${type}-${cmd.chartId}`;
         if (!this.idConversion[cmd.figureId]) {
           this.idConversion[cmd.figureId] = new Set<UID>();
         }
         this.idConversion[cmd.figureId].add(chartId);
         if (!("zoomable" in cmd.definition && cmd.definition.zoomable)) {
           this.clearAxisLimits(chartId);
+          delete this.axisDesignBoundaries[cmd.figureId];
+        } else {
+          const newAxesDesign =
+            "axesDesign" in cmd.definition ? cmd.definition.axesDesign : undefined;
+          const newXMin = newAxesDesign?.x?.min;
+          const newXMax = newAxesDesign?.x?.max;
+          const prev = this.axisDesignBoundaries[cmd.figureId];
+          if (prev?.min !== newXMin || prev?.max !== newXMax) {
+            this.clearAxisLimits(chartId);
+            this.axisDesignBoundaries[cmd.figureId] = { min: newXMin, max: newXMax };
+          }
         }
         break;
     }
