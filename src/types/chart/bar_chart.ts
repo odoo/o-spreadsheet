@@ -10,7 +10,7 @@ export interface BarChartDefinition extends CommonChartDefinition {
 }
 
 export type BarChartRuntime = {
-  chartJsConfig: ChartConfiguration;
-  masterChartConfig?: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"bar" | "line">;
+  masterChartConfig?: ChartConfiguration<"bar">;
   background: Color;
 };
