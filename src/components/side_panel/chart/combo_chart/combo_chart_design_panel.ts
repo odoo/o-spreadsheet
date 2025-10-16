@@ -1,24 +1,13 @@
 import { _t } from "../../../../translation";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
-import { DispatchResult, GenericDefinition, UID } from "../../../../types/index";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
+import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
 
-interface Props {
-  chartId: UID;
-  definition: ComboChartDefinition;
-  canUpdateChart: (
-    chartId: UID,
-    definition: GenericDefinition<ComboChartDefinition>
-  ) => DispatchResult;
-  updateChart: (
-    chartId: UID,
-    definition: GenericDefinition<ComboChartDefinition>
-  ) => DispatchResult;
-}
-
-export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<Props> {
+export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
+  ChartSidePanelProps<ComboChartDefinition>
+> {
   static template = "o-spreadsheet-ComboChartDesignPanel";
   static components = {
     ...GenericZoomableChartDesignPanel.components,

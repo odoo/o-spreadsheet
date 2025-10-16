@@ -1,32 +1,24 @@
 import { Component, useState } from "@odoo/owl";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { CommandResult, DispatchResult, SpreadsheetChildEnv } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
-
-interface Props {
-  chartId: UID;
-  definition: ScorecardChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
-}
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 interface PanelState {
   keyValueDispatchResult?: DispatchResult;
   baselineDispatchResult?: DispatchResult;
 }
 
-export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
+export class ScorecardChartConfigPanel extends Component<
+  ChartSidePanelProps<ScorecardChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { SelectionInput, ChartErrorSection, Section };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
-  };
+  static props = ChartSidePanelPropsObject;
 
   private state: PanelState = useState({
     keyValueDispatchResult: undefined,

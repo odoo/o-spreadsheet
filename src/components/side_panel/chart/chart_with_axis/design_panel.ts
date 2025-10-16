@@ -1,13 +1,7 @@
 import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
-import {
-  ChartWithDataSetDefinition,
-  DispatchResult,
-  GenericDefinition,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+import { ChartWithDataSetDefinition, SpreadsheetChildEnv } from "../../../../types/index";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {
@@ -19,24 +13,11 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  canUpdateChart: (
-    chartId: UID,
-    definition: GenericDefinition<ChartWithDataSetDefinition>
-  ) => DispatchResult;
-  updateChart: (
-    chartId: UID,
-    definition: GenericDefinition<ChartWithDataSetDefinition>
-  ) => DispatchResult;
-}
-
-export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component<
-  P,
-  SpreadsheetChildEnv
-> {
+export class ChartWithAxisDesignPanel<
+  P extends ChartSidePanelProps<ChartWithDataSetDefinition>
+> extends Component<P, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartWithAxisDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -48,12 +29,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     ChartShowValues,
     ChartHumanizeNumbers,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    canUpdateChart: Function,
-    updateChart: Function,
-  };
+  static props = ChartSidePanelPropsObject;
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);

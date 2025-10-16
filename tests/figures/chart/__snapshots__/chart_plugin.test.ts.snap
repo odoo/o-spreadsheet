@@ -67,10 +67,11 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": "#010101",
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -333,10 +334,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -621,10 +623,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -873,10 +876,11 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": undefined,
           "showValues": false,
+          "type": "bar",
         },
         "legend": {
           "display": true,
@@ -1106,10 +1110,11 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -1359,10 +1364,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -1633,10 +1639,11 @@ exports[`datasource tests create chart with column datasets with category title 
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -1907,10 +1914,11 @@ exports[`datasource tests create chart with column datasets without series title
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -2163,10 +2171,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -2418,10 +2427,11 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -2692,10 +2702,11 @@ exports[`datasource tests create chart with row datasets 1`] = `
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -2966,10 +2977,11 @@ exports[`datasource tests create chart with row datasets with category title 1`]
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,
@@ -3240,10 +3252,11 @@ exports[`datasource tests create chart with row datasets without series title 1`
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,

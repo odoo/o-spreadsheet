@@ -6,7 +6,7 @@ import {
   SunburstChartJSDataset,
   SunburstChartRuntime,
 } from "../../../../types/chart";
-import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -16,15 +16,12 @@ import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: SunburstChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<SunburstChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<SunburstChartDefinition>) => DispatchResult;
-}
-
-export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class SunburstChartDesignPanel extends Component<
+  ChartSidePanelProps<SunburstChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-SunburstChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -37,12 +34,7 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
     ChartLegend,
     PieHoleSize,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: { type: Function, optional: true },
-  };
+  static props = ChartSidePanelPropsObject;
 
   defaults = SunburstChartDefaults;
 
