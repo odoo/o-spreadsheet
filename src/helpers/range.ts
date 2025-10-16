@@ -2,6 +2,7 @@ import { Registry } from "../registries/registry";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  BoundedRange,
   CellPosition,
   ChangeType,
   CoreCommand,
@@ -226,6 +227,11 @@ function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
   }
 
   return parts;
+}
+
+export function positionToBoundedRange(position: CellPosition): BoundedRange {
+  const zone = { left: position.col, top: position.row, right: position.col, bottom: position.row };
+  return { sheetId: position.sheetId, zone };
 }
 
 /**
