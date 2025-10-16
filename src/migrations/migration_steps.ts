@@ -1,11 +1,11 @@
 import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
-import { getItemId, getUniqueText, sanitizeSheetName } from "../helpers";
+import { getItemId, getUniqueText, recomputeZones, sanitizeSheetName } from "../helpers";
 import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
-import { CustomizedDataSet, DEFAULT_LOCALE, Format, WorkbookData, Zone } from "../types";
+import { CustomizedDataSet, DEFAULT_LOCALE, Format, UID, WorkbookData, Zone } from "../types";
 import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";
 
@@ -545,6 +545,32 @@ migrationStepRegistry
             figure.data.chartId = figure.id;
           }
         }
+      }
+      return data;
+    },
+  })
+  .add("19.0", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        const borderType: Record<UID, Zone[]> = {};
+        for (const zoneXc in sheet.borders) {
+          const borderId = sheet.borders[zoneXc];
+          if (!borderId) continue;
+          if (!(borderId in borderType)) borderType[borderId] = [];
+          borderType[borderId].push(toZone(zoneXc));
+        }
+        const borders = {};
+        for (const borderId in borderType) {
+          const border = data.borders[borderId];
+          if (!border) continue;
+          const zones = recomputeZones(borderType[borderId]);
+          if (border.left || border.right) border.vertical = border.left || border.right;
+          if (border.top || border.bottom) border.horizontal = border.top || border.bottom;
+          for (const zone of zones) {
+            borders[zoneToXc(zone)] = borderId;
+          }
+        }
+        sheet.borders = borders;
       }
       return data;
     },
