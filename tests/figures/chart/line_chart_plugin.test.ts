@@ -2,6 +2,7 @@ import { ChartCreationContext, Model } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
   getChartLegendLabels,
   isChartAxisStacked,
 } from "../../test_helpers/chart_helpers";
@@ -203,5 +204,41 @@ describe("line chart", () => {
         datasetIndex: 1,
       },
     ]);
+  });
+
+  test("line chart runtime reflects axis bounds, grids and scale type", () => {
+    const model = createModelFromGrid({
+      A1: "Month",
+      A2: "Jan",
+      B1: "Series A",
+      B2: "5",
+    });
+
+    createChart(
+      model,
+      {
+        type: "line",
+        labelRange: "A2",
+        dataSets: [{ dataRange: "B2" }],
+      },
+      "1"
+    );
+
+    updateChart(model, "1", {
+      axesDesign: {
+        x: { min: 0, max: 2, gridLines: "both" },
+        y: { min: 5, max: 25, gridLines: "minor" },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "1").options?.scales;
+    expect(scales.x?.min).toBe(0);
+    expect(scales.x?.max).toBe(2);
+    expect(scales.x?.grid?.display).toBe(true);
+    expect(scales.x?.grid?.minor?.display).toBe(true);
+    expect(scales.y?.min).toBe(5);
+    expect(scales.y?.max).toBe(25);
+    expect(scales.y?.grid?.display).toBe(false);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
   });
 });

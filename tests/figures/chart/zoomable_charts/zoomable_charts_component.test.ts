@@ -265,6 +265,48 @@ describe("zoom", () => {
       expect(newMin).toEqual(1);
       expect(newMax).toEqual(2);
     });
+
+    test("Changing axesDesign x boundaries clears the zoom", async () => {
+      const store = env.getStore(ZoomableChartStore);
+      store.updateAxisLimits(lineChartId, { min: 0, max: 1.5 });
+      expect(store.currentAxesLimits[lineChartId]?.x.min).toBe(0);
+      expect(store.currentAxesLimits[lineChartId]?.x.max).toBe(1.5);
+
+      updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
+      await nextTick();
+
+      expect(store.currentAxesLimits[lineChartId]).toBeUndefined();
+    });
+
+    test("Clearing axesDesign x boundaries clears the zoom", async () => {
+      updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
+      await nextTick();
+
+      const store = env.getStore(ZoomableChartStore);
+      store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
+      expect(store.currentAxesLimits[lineChartId]?.x.min).toBe(1);
+
+      updateChart(model, chartId, { axesDesign: { x: { min: undefined, max: undefined } } });
+      await nextTick();
+
+      expect(store.currentAxesLimits[lineChartId]).toBeUndefined();
+    });
+
+    test("Unchanged axesDesign x boundaries preserve the zoom", async () => {
+      updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
+      await nextTick();
+
+      const store = env.getStore(ZoomableChartStore);
+      store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
+
+      // Update something else (title) without changing the axis boundaries
+      updateChart(model, chartId, { title: { text: "new title" } });
+      await nextTick();
+
+      // Zoom limits should be preserved
+      expect(store.currentAxesLimits[lineChartId]?.x.min).toBe(1);
+      expect(store.currentAxesLimits[lineChartId]?.x.max).toBe(2);
+    });
   });
 
   describe("Bar chart", () => {

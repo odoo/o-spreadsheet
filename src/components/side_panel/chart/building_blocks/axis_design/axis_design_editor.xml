@@ -17,5 +17,44 @@
       placeholder.translate="Add a Title"
       defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
+    <Section
+      t-if="!isCategoricalAxis"
+      class="'pt-0 o-axis-bounds-section'"
+      title.translate="Axis range">
+      <div class="d-flex">
+        <div class="w-50">
+          <span class="o-section-subtitle my-0">Minimum</span>
+          <NumberInput
+            class="'o-input w-100 axis-min-input'"
+            value="axisMin"
+            onChange.bind="updateAxisMin"
+            placeholder.translate="Lower bound value"
+          />
+        </div>
+        <div class="w-50 ms-3">
+          <span class="o-section-subtitle my-0">Maximum</span>
+          <NumberInput
+            class="'o-input w-100 axis-max-input'"
+            value="axisMax"
+            onChange.bind="updateAxisMax"
+            placeholder.translate="Upper bound value"
+          />
+        </div>
+      </div>
+    </Section>
+    <Section class="'pt-0'" t-if="!isCategoricalAxis" title.translate="Gridlines">
+      <Checkbox
+        className="'o-axis-grid-major'"
+        label="majorGridLabel"
+        value="isMajorGridEnabled"
+        onChange.bind="toggleMajorGrid"
+      />
+      <Checkbox
+        className="'o-axis-grid-minor'"
+        label="minorGridLabel"
+        value="isMinorGridEnabled"
+        onChange.bind="toggleMinorGrid"
+      />
+    </Section>
   </t>
 </templates>
