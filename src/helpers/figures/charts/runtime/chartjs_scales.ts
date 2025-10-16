@@ -3,9 +3,10 @@ import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
+  GRAY_200,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
+import { getColorScale, relativeLuminance } from "@odoo/o-spreadsheet-engine/helpers/color";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -17,6 +18,7 @@ import {
 import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
   AxisDesign,
+  AxisType,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
   ChartWithAxisDefinition,
@@ -52,17 +54,20 @@ export function getBarChartScales(
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
   let scales: ChartScales = {};
-  const { trendDataSetsValues: trendDatasets, locale, axisFormats } = args;
+  const { trendDataSetsValues: trendDatasets, locale, axisFormats, axisType } = args;
   const options = { stacked: definition.stacked, locale: locale };
   if (definition.horizontal) {
-    scales.x = getChartAxis(definition, "bottom", "values", { ...options, format: axisFormats?.x });
-    scales.y = getChartAxis(definition, "left", "labels", options);
+    scales.x = getChartAxis(definition, "bottom", "values", axisType, {
+      ...options,
+      format: axisFormats?.x,
+    });
+    scales.y = getChartAxis(definition, "left", "labels", "linear", options);
   } else {
-    scales.x = getChartAxis(definition, "bottom", "labels", options);
+    scales.x = getChartAxis(definition, "bottom", "labels", axisType, options);
     const leftAxisOptions = { ...options, format: axisFormats?.y };
-    scales.y = getChartAxis(definition, "left", "values", leftAxisOptions);
+    scales.y = getChartAxis(definition, "left", "values", "linear", leftAxisOptions);
     const rightAxisOptions = { ...options, format: axisFormats?.y1 };
-    scales.y1 = getChartAxis(definition, "right", "values", rightAxisOptions);
+    scales.y1 = getChartAxis(definition, "right", "values", "linear", rightAxisOptions);
   }
   scales = removeFalsyAttributes(scales);
 
@@ -96,9 +101,17 @@ export function getLineChartScales(
   const stacked = definition.stacked;
 
   let scales: ChartScales = {
-    x: getChartAxis(definition, "bottom", "labels", { locale }),
-    y: getChartAxis(definition, "left", "values", { locale, stacked, format: axisFormats?.y }),
-    y1: getChartAxis(definition, "right", "values", { locale, stacked, format: axisFormats?.y1 }),
+    x: getChartAxis(definition, "bottom", "labels", axisType, { locale }),
+    y: getChartAxis(definition, "left", "values", "linear", {
+      locale,
+      stacked,
+      format: axisFormats?.y,
+    }),
+    y1: getChartAxis(definition, "right", "values", "linear", {
+      locale,
+      stacked,
+      format: axisFormats?.y1,
+    }),
   };
   scales = removeFalsyAttributes(scales);
 
@@ -111,7 +124,8 @@ export function getLineChartScales(
     scales!.x!.ticks!.maxTicksLimit = 15;
     delete scales?.x?.ticks?.callback;
   } else if (axisType === "linear") {
-    scales!.x!.type = "linear";
+    scales!.x!.type =
+      definition.axesDesign?.x?.scaleType === "logarithmic" ? "logarithmic" : "linear";
     scales!.x!.ticks!.callback = definition.humanize
       ? (value) => humanizeNumber({ value, format: labelFormat }, locale)
       : (value) => formatValue(value, { format: labelFormat, locale });
@@ -145,16 +159,27 @@ export function getLineChartScales(
   return scales;
 }
 
+function getGridColor(background?: string) {
+  return relativeLuminance(background || "#ffffff") > 0.5 ? GRAY_200 : "#383838ff";
+}
+
 export function getScatterChartScales(
   definition: GenericDefinition<ScatterChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ) {
   const lineScales = getLineChartScales(definition, args);
+  const xScale = lineScales?.x ?? {};
+  const axisDesign = definition.axesDesign?.x;
+  const scatterGridDisplay = axisDesign?.grid?.major ?? true;
   return {
     ...lineScales,
     x: {
-      ...lineScales!.x,
-      grid: { display: true },
+      ...xScale,
+      grid: {
+        ...xScale.grid,
+        color: getGridColor(definition.background),
+        display: scatterGridDisplay,
+      },
     },
   };
 }
@@ -163,12 +188,12 @@ export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
-  const { locale, axisFormats } = args;
+  const { locale, axisFormats, axisType } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   definition.dataSets;
   const scales: ChartScales = {
     x: {
-      ...getChartAxis(definition, "bottom", "labels", { locale }),
+      ...getChartAxis(definition, "bottom", "labels", axisType, { locale }),
       grid: { display: false },
     },
     y: {
@@ -181,6 +206,7 @@ export function getWaterfallChartScales(
         color: chartFontColor(definition.background),
         callback: formatTickValue({ locale, format }, definition.humanize),
       },
+      //TODO: handle grid here
       grid: {
         lineWidth: (context) => (context.tick.value === 0 ? 2 : 1),
       },
@@ -353,6 +379,7 @@ function getChartAxis(
   definition: GenericDefinition<ChartWithAxisDefinition>,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
+  axisType: AxisType | undefined,
   options: LocaleFormat & { stacked?: boolean }
 ): DeepPartial<LinearScaleOptions> | undefined {
   const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
@@ -372,22 +399,45 @@ function getChartAxis(
 
   if (type === "values") {
     const displayGridLines = !(position === "right" && useLeftAxis);
+    const majorGridEnabled = design?.grid?.major ?? displayGridLines;
+    const isCategoricalAxis = axisType === "category" || axisType === undefined;
+    const minorGridEnabled = !isCategoricalAxis && (design?.grid?.minor ?? false);
+    const isLogarithmic = design?.scaleType === "logarithmic";
 
-    return {
+    const scale: DeepPartial<LinearScaleOptions> = {
       position: position,
       title: getChartAxisTitleRuntime(design),
-      grid: {
-        display: displayGridLines,
-      },
-      beginAtZero: true,
+      beginAtZero: isLogarithmic ? false : design?.min === undefined,
       stacked: options?.stacked,
       ticks: {
         color: fontColor,
         callback: formatTickValue(options, definition.humanize),
       },
     };
+    if (majorGridEnabled !== undefined || minorGridEnabled !== undefined) {
+      scale.grid = {
+        display: majorGridEnabled,
+        color: getGridColor(definition.background),
+      };
+    }
+    if (minorGridEnabled) {
+      scale.grid!["minor"] = { display: true };
+    }
+    if (design?.min !== undefined) {
+      scale["min"] = design.min;
+    }
+    if (design?.max !== undefined) {
+      scale["max"] = design.max;
+    }
+    if (isLogarithmic) {
+      scale["type"] = "logarithmic";
+    }
+    return scale;
   } else {
-    return {
+    const majorGridEnabled = design?.grid?.major ?? false;
+    const minorGridEnabled = design?.grid?.minor ?? false;
+
+    const scale: DeepPartial<LinearScaleOptions> = {
       ticks: {
         padding: 5,
         color: fontColor,
@@ -398,11 +448,22 @@ function getChartAxis(
         },
       },
       grid: {
-        display: false,
+        display: majorGridEnabled,
+        color: getGridColor(definition.background),
       },
       stacked: options?.stacked,
       title: getChartAxisTitleRuntime(design),
     };
+    if (minorGridEnabled) {
+      scale.grid!["minor"] = { display: true };
+    }
+    if (design?.min !== undefined) {
+      scale["min"] = design.min;
+    }
+    if (design?.max !== undefined) {
+      scale["max"] = design.max;
+    }
+    return scale;
   }
 }
 

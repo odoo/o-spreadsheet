@@ -84,7 +84,6 @@ export class ScatterChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
-    this.zoomable = definition.zoomable;
   }
 
   static validateChartDefinition(
@@ -115,7 +114,6 @@ export class ScatterChart extends AbstractChart {
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
-      zoomable: context.zoomable,
       humanize: context.humanize,
     };
   }
@@ -150,7 +148,6 @@ export class ScatterChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
-      zoomable: this.zoomable,
       humanize: this.humanize,
     };
   }
