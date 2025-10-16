@@ -413,9 +413,9 @@ export function getGridFormat(model: Model): GridFormatDescr {
 export function getGridStyle(model: Model): GridStyleDescr {
   const result: GridStyleDescr = {};
   const sheetId = model.getters.getActiveSheetId();
-  for (const [cellId, cell] of Object.entries(model.getters.getCells(sheetId))) {
+  for (const cellId of Object.keys(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cellId);
-    result[toXC(col, row)] = cell.style;
+    result[toXC(col, row)] = model.getters.getCellStyle({ sheetId, col, row });
   }
   return result;
 }
@@ -966,11 +966,16 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
   for (const cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {
-      style: cell.style,
       format: cell.format,
       value: model.getters.getEvaluatedCell({ sheetId, col, row }).value ?? "",
       content: cell.content,
     };
+  }
+  for (const [position, style] of model.getters
+    .getCellStyleInZone(sheetId, model.getters.getSheetZone(sheetId))
+    .entries()) {
+    const xc = toXC(position.col, position.row);
+    cells[xc] = { ...cells[xc], style };
   }
   return cells;
 }

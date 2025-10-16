@@ -10,4 +10,5 @@ export * from "./image";
 export * from "./merge";
 export * from "./range";
 export * from "./sheet";
+export * from "./style";
 export * from "./tables";
