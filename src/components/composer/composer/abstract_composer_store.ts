@@ -154,7 +154,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   startEdition(text?: string, selection?: ComposerSelection) {
     const { col, row } = this.getters.getActivePosition();
-    this.model.dispatch("SELECT_FIGURE", { figureId: null });
     this.model.dispatch("SCROLL_TO_CELL", { col, row });
 
     if (this.editionMode !== "inactive" && text) {

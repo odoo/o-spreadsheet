@@ -2,14 +2,15 @@ import { TitleOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
 import { Getters } from "../../../../types";
-import { ChartWithDataSetDefinition } from "../../../../types/chart";
+import { ChartRuntimeGenerationArgs, ChartWithDataSetDefinition } from "../../../../types/chart";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
   definition: ChartWithDataSetDefinition,
+  args: ChartRuntimeGenerationArgs,
   getters: Getters
 ): _DeepPartialObject<TitleOptions> {
-  const chartTitle = definition.title;
+  const chartTitle = args.evaluatedChartTitle;
   const fontColor = chartMutedFontColor(definition.background);
   return {
     display: !!chartTitle.text,
