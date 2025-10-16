@@ -206,6 +206,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "RESIZE_SHEETVIEW",
   "SET_VIEWPORT_OFFSET",
+  "SET_ZOOM",
 
   "EVALUATE_CELLS",
   "EVALUATE_CHARTS",
@@ -1011,6 +1012,11 @@ export interface SetViewportOffsetCommand {
   offsetY: Pixel;
 }
 
+export interface SetZoomCommand {
+  type: "SET_ZOOM";
+  zoom: number;
+}
+
 /**
  * Shift the viewport down by the viewport height
  */
@@ -1253,6 +1259,7 @@ export type LocalCommand =
   | SetDecimalCommand
   | SetContextualFormatCommand
   | ResizeViewportCommand
+  | SetZoomCommand
   | SumSelectionCommand
   | DeleteCellCommand
   | InsertCellCommand

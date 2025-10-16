@@ -2,7 +2,7 @@
 
 exports[`Grid component simple rendering snapshot 1`] = `
 <div
-  class="o-grid w-100 h-100"
+  class="o-grid w-100 h-100 o-zoomable"
   composerfocusableelement="true"
   tabindex="-1"
 >
@@ -19,7 +19,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     
   </div>
   <div
-    class="o-grid-overlay overflow-hidden"
+    class="o-grid-overlay overflow-hidden o-zoomable"
     style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
   >
     
@@ -51,7 +51,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     class="o-overlay"
   >
     <div
-      class="o-col-resizer d-flex"
+      class="o-col-resizer d-flex o-zoomable"
     >
       
       
@@ -60,7 +60,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-row-resizer"
+      class="o-row-resizer o-zoomable"
     >
       
       
@@ -101,7 +101,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <canvas
     height="1011"
-    style="width:1033px;height:1011px;"
+    style="width:1033px;height:1011px;zoom:1"
     width="1033"
   />
   

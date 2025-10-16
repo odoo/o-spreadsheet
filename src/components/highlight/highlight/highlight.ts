@@ -13,6 +13,7 @@ import {
   DnDDirection,
   useDragAndDropBeyondTheViewport,
 } from "../../helpers/drag_and_drop_grid_hook";
+import { withZoom } from "../../helpers/zoom";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
 
@@ -56,6 +57,7 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const zoomedMouseEvent = withZoom(this.env, ev);
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
 
@@ -115,12 +117,13 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
     const mouseUp = () => {
       this.highlightState.shiftingMode = "none";
     };
-    this.dragNDropGrid.start(ev, mouseMove, mouseUp, scrollDirection);
+    this.dragNDropGrid.start(zoomedMouseEvent, mouseMove, mouseUp, scrollDirection);
   }
 
   onMoveHighlight(ev: PointerEvent) {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.range.zone;
+    const zoomedMouseEvent = withZoom(this.env, ev);
 
     const position = gridOverlayPosition();
     const activeSheetId = this.env.model.getters.getActiveSheetId();
@@ -171,6 +174,6 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
       this.highlightState.shiftingMode = "none";
     };
 
-    this.dragNDropGrid.start(ev, mouseMove, mouseUp);
+    this.dragNDropGrid.start(zoomedMouseEvent, mouseMove, mouseUp);
   }
 }

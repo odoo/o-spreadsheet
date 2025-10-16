@@ -4,6 +4,7 @@ import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
+import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
@@ -202,6 +203,11 @@ topbarMenuRegistry
   .addChild("view_formulas", ["view", "show"], {
     ...ACTION_VIEW.viewFormulas,
     sequence: 10,
+  })
+  .addChild("zoom", ["view"], {
+    name: _t("Zoom"),
+    sequence: 1,
+    icon: "o-spreadsheet-Icon.ZOOM",
   })
   .addChild("view_irregularity_map", ["view"], {
     ...ACTION_VIEW.irregularityMap,
@@ -501,3 +507,8 @@ topbarMenuRegistry
   })
   .addChild("reinsert_dynamic_pivot", ["data"], ACTION_DATA.reinsertDynamicPivotMenu)
   .addChild("reinsert_static_pivot", ["data"], ACTION_DATA.reinsertStaticPivotMenu);
+
+// Zoom
+ZOOM_VALUES.forEach((zoom) => {
+  topbarMenuRegistry.addChild(`zoom${zoom}`, ["view", "zoom"], ACTION_VIEW.zoomAction(zoom));
+});

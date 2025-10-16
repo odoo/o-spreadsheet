@@ -8,8 +8,8 @@
         t-on-click="this.toggleFontList">
         <input
           type="number"
-          min="1"
-          max="400"
+          min="min"
+          max="max"
           class="o-font-size o-number-input bg-transparent border-0"
           t-on-keydown="onInputKeydown"
           t-on-wheel.prevent.stop=""
@@ -19,6 +19,7 @@
           t-on-change="setSizeFromInput"
           t-ref="inputFontSize"
         />
+        <t t-esc="props.valueIcon"/>
         <span>
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
