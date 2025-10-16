@@ -2374,7 +2374,6 @@ describe("Chart design configuration", () => {
       });
       expect(config.options?.scales?.y1).toMatchObject({
         position: "right",
-        grid: { display: false },
       });
       updateChart(model, "43", {
         dataSets: [
@@ -2445,6 +2444,34 @@ describe("Chart design configuration", () => {
     expect(config.options?.scales?.x?.grid?.display).toBe(true);
     expect(config.options?.scales?.y?.grid?.display).toBe(true);
   });
+
+  test.each([
+    ["line", true, "45"],
+    ["scatter", false, "46"],
+  ] as const)(
+    "%s chart allows toggling horizontal gridlines without a title",
+    (chartType, majorEnabled, chartId) => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+          type: chartType,
+        },
+        chartId
+      );
+
+      updateChart(model, chartId, {
+        axesDesign: { x: { gridLines: majorEnabled ? "both" : "minor" } },
+      });
+
+      const config = getChartConfiguration(model, chartId);
+      expect(config.options?.scales?.x?.grid?.display).toBe(majorEnabled);
+      expect(config.options?.scales?.x?.grid?.minor?.display).toBe(true);
+    }
+  );
 
   test("horizontal bar chart displays vertical but not horizontal grid lines", () => {
     setCellContent(model, "A1", "1");

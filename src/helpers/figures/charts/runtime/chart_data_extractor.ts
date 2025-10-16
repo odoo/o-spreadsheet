@@ -199,7 +199,7 @@ export function getCalendarChartData(
 
   ({ labels, dataSetsValues } = computeValuesAndLabels(
     labels,
-    dataSetsValues[0].data,
+    dataSetsValues[0]?.data ?? [],
     definition.horizontalGroupBy ?? "day_of_week",
     definition.verticalGroupBy ?? "hour_number",
     locale
