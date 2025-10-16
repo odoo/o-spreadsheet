@@ -923,7 +923,7 @@ export const mockChart = (options: any = {}) => {
     static BarController = class {};
     static BarElement = class {};
     chartArea = options.chartArea ?? { left: 0, top: 0, right: 100, bottom: 100 };
-    scales = options.scales ?? undefined;
+    scales = options.scales ?? { x: { type: "category" } };
   }
 
   //@ts-ignore
