@@ -60,7 +60,10 @@ autoCompleteProviders.add("pivot_measures", {
       return [];
     }
     const pivotFormulaId = extractFormulaIdFromToken(tokenAtCursor);
-    const pivotId = this.getters.getPivotId(pivotFormulaId);
+    if (pivotFormulaId === undefined) {
+      return [];
+    }
+    const pivotId = this.getters.getPivotId(pivotFormulaId.toString());
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return [];
     }
@@ -99,7 +102,10 @@ autoCompleteProviders.add("pivot_group_fields", {
       return;
     }
     const pivotFormulaId = extractFormulaIdFromToken(tokenAtCursor);
-    const pivotId = this.getters.getPivotId(pivotFormulaId);
+    if (pivotFormulaId === undefined) {
+      return;
+    }
+    const pivotId = this.getters.getPivotId(pivotFormulaId.toString());
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
@@ -115,7 +121,17 @@ autoCompleteProviders.add("pivot_group_fields", {
     } else {
       args = args.filter((ast, index) => index % 2 === 1); // keep only the field names
     }
-    const argGroupBys = args.map((ast) => ast?.value).filter(isDefined);
+    const argGroupBys = args
+      .map((ast) => {
+        if (!ast) {
+          return undefined;
+        }
+        if (ast.type === "STRING" || ast.type === "NUMBER") {
+          return ast.value.toString();
+        }
+        return undefined;
+      })
+      .filter(isDefined);
     const colFields = columns.map((groupBy) => groupBy.nameWithGranularity);
     const rowFields = rows.map((groupBy) => groupBy.nameWithGranularity);
 
@@ -131,12 +147,12 @@ autoCompleteProviders.add("pivot_group_fields", {
       proposals.push(colFields[0]);
       proposals.push(rowFields[0]);
     }
-    if (rowFields.includes(previousGroupBy)) {
+    if (previousGroupBy !== undefined && rowFields.includes(previousGroupBy)) {
       const nextRowGroupBy = rowFields[rowFields.indexOf(previousGroupBy) + 1];
       proposals.push(nextRowGroupBy);
       proposals.push(colFields[0]);
     }
-    if (colFields.includes(previousGroupBy)) {
+    if (previousGroupBy !== undefined && colFields.includes(previousGroupBy)) {
       const nextGroupBy = colFields[colFields.indexOf(previousGroupBy) + 1];
       proposals.push(nextGroupBy);
     }
@@ -204,7 +220,10 @@ autoCompleteProviders.add("pivot_group_values", {
       return;
     }
     const pivotFormulaId = extractFormulaIdFromToken(tokenAtCursor);
-    const pivotId = this.getters.getPivotId(pivotFormulaId);
+    if (pivotFormulaId === undefined) {
+      return;
+    }
+    const pivotId = this.getters.getPivotId(pivotFormulaId.toString());
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
@@ -214,7 +233,11 @@ autoCompleteProviders.add("pivot_group_values", {
       return;
     }
     const argPosition = functionContext.argPosition;
-    const groupByField: string = tokenAtCursor.functionContext?.args[argPosition - 1]?.value;
+    const groupByAst = tokenAtCursor.functionContext?.args[argPosition - 1];
+    const groupByField: string | undefined =
+      groupByAst && (groupByAst.type === "STRING" || groupByAst.type === "NUMBER")
+        ? groupByAst.value.toString()
+        : undefined;
     if (!groupByField) {
       return;
     }

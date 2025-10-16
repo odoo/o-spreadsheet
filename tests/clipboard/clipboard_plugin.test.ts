@@ -2589,6 +2589,7 @@ describe("clipboard: pasting outside of sheet", () => {
       decimalSeparator: ",",
       formulaArgSeparator: ";",
       thousandsSeparator: " ",
+      arrayRowSeparator: "\\",
     });
     pasteFromOSClipboard(model, "A1", { text: "=SUM(5 ; 3,14)" });
     expect(getCell(model, "A1")?.content).toBe("=SUM(5 , 3.14)");
