@@ -55,6 +55,9 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
       "max-height": `${COMPOSER_MAX_HEIGHT}px`,
       "line-height": "24px",
     };
+    if (this.env.model.getters.isCurrentSheetLocked()) {
+      style["pointer-events"] = "none";
+    }
     style.height = this.focus === "inactive" ? `${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";
     return cssPropertiesToCss(style);
   }
