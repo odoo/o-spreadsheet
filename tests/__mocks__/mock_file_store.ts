@@ -6,8 +6,6 @@ export class FileStore implements FileStoreInterface {
     return `file/${this.fileId++}`;
   }
 
-  async delete() {}
-
   async getFile(fileUrl) {
     return new File([], "mock", { type: "image/png" });
   }

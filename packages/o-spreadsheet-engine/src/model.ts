@@ -245,7 +245,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       const startSnapshot = performance.now();
       console.debug("Snapshot requested");
       this.session.snapshot(this.exportData());
-      this.garbageCollectExternalResources();
       console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
     console.debug("Model created in", performance.now() - start, "ms");
@@ -663,12 +662,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     data = deepCopy(data);
 
     return getXLSX(data);
-  }
-
-  garbageCollectExternalResources() {
-    for (const plugin of this.corePlugins) {
-      plugin.garbageCollectExternalResources();
-    }
   }
 }
 
