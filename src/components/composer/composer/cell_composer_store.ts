@@ -25,7 +25,9 @@ import {
   CellPosition,
   CellValueType,
   Command,
+  CommandResult,
   Direction,
+  DispatchResult,
   Format,
   FormulaCell,
   Locale,
@@ -183,6 +185,7 @@ export class CellComposerStore extends AbstractComposerStore {
   }
 
   protected confirmEdition(content: string) {
+    let result: DispatchResult;
     if (content) {
       const sheetId = this.getters.getActiveSheetId();
       const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
@@ -190,17 +193,19 @@ export class CellComposerStore extends AbstractComposerStore {
         content = markdownLink(content, cell.link.url);
       }
       this.addHeadersForSpreadingFormula(content);
-      this.model.dispatch("UPDATE_CELL", {
+      result = this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
       });
     } else {
-      this.model.dispatch("UPDATE_CELL", {
+      result = this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
         content: "",
       });
     }
-    this.model.dispatch("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
+    if (result.isSuccessful) {
+      this.model.dispatch("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
+    }
     this.setContent("");
   }
 
@@ -346,5 +351,15 @@ export class CellComposerStore extends AbstractComposerStore {
       return false;
     }
     return true;
+  }
+
+  startEdition(text?: string, selection?: ComposerSelection) {
+    if (this.getters.isCurrentSheetLocked()) {
+      this.model.trigger("command-rejected", {
+        result: new DispatchResult(CommandResult.SheetLocked),
+      });
+      return "NoStateChange";
+    }
+    return super.startEdition(text, selection);
   }
 }

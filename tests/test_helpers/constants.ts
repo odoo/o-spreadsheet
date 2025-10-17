@@ -474,7 +474,7 @@ export const TEST_COMMANDS: CommandMapping = {
   UPDATE_PIVOT: {
     type: "UPDATE_PIVOT",
     pivotId: "1",
-    pivot: PIVOT,
+    pivot: { ...PIVOT, name: "Pivot2" },
   },
   DUPLICATE_PIVOT: {
     type: "DUPLICATE_PIVOT",
@@ -511,6 +511,14 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "DELETE_CHART",
     sheetId: "Sheet1",
     chartId: "chartId",
+  },
+  LOCK_SHEET: {
+    type: "LOCK_SHEET",
+    sheetId: "Sheet1",
+  },
+  UNLOCK_SHEET: {
+    type: "UNLOCK_SHEET",
+    sheetId: "Sheet1",
   },
 };
 

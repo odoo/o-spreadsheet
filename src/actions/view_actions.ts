@@ -18,6 +18,7 @@ export const hideCols: ActionSpec = {
     });
   },
   isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.HIDE_COL",
 };
 
@@ -38,6 +39,7 @@ export const unhideCols: ActionSpec = {
     const currentCols = env.model.getters.getElementsFromSelection("COL");
     return currentCols.some((col) => hiddenCols.includes(col));
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNHIDE_COL",
 };
 
@@ -53,6 +55,7 @@ export const unhideAllCols: ActionSpec = {
   },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId()).length > 0,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNHIDE_COL",
 };
 
@@ -66,6 +69,7 @@ export const hideRows: ActionSpec = {
       elements: rows,
     });
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
   icon: "o-spreadsheet-Icon.HIDE_ROW",
 };
@@ -87,6 +91,7 @@ export const unhideRows: ActionSpec = {
     const currentRows = env.model.getters.getElementsFromSelection("ROW");
     return currentRows.some((col) => hiddenRows.includes(col));
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
@@ -102,6 +107,7 @@ export const unhideAllRows: ActionSpec = {
   },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
@@ -117,12 +123,14 @@ export const unFreezePane: ActionSpec = {
     env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNFREEZE",
 };
 
 export const freezePane: ActionSpec = {
   name: _t("Freeze"),
   icon: "o-spreadsheet-Icon.FREEZE",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const unFreezeRows: ActionSpec = {
@@ -202,6 +210,7 @@ export const viewGridlines: ActionSpec = {
     const sheetId = env.model.getters.getActiveSheetId();
     return env.model.getters.getGridLinesVisibility(sheetId);
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const irregularityMap: ActionSpec = {
@@ -249,6 +258,7 @@ export const groupColumns: ActionSpec = {
       !groups.some((group) => group.start === selection.left && group.end === selection.right)
     );
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.GROUP_COLUMNS",
 };
 
@@ -271,6 +281,7 @@ export const groupRows: ActionSpec = {
       !groups.some((group) => group.start === selection.top && group.end === selection.bottom)
     );
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.GROUP_ROWS",
 };
 
@@ -287,6 +298,7 @@ export const ungroupColumns: ActionSpec = {
     );
   },
   execute: (env) => ungroupHeaders(env, "COL"),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNGROUP_COLUMNS",
 };
 
@@ -299,6 +311,7 @@ export const ungroupRows: ActionSpec = {
     return _t("Ungroup rows %s - %s", String(selection.top + 1), String(selection.bottom + 1));
   },
   execute: (env) => ungroupHeaders(env, "ROW"),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.UNGROUP_ROWS",
 };
 
