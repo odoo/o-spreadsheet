@@ -168,7 +168,9 @@ export class ContentEditableHelper {
         span.addEventListener("mouseleave", () => {
           content.onStopHover?.();
         });
-        span.classList.add(...(content.classes || []));
+        if (content.classes?.length) {
+          span.classList.add(...content.classes);
+        }
 
         if (child) {
           p.replaceChild(span, child);
@@ -249,10 +251,10 @@ export class ContentEditableHelper {
         } else {
           text += NEWLINE;
         }
-        emptyParagraph = ["<br>", "<span><br></span>"].includes(
-          (current.value as HTMLElement).innerHTML
-        );
+        emptyParagraph = isEmptyParagraph(current.value);
         continue;
+      } else if (current.value === this.el) {
+        emptyParagraph = isEmptyParagraph(current.value);
       }
       if (!current.value.hasChildNodes()) {
         if (current.value.nodeName === "BR" && !emptyParagraph) {
@@ -273,4 +275,10 @@ function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): b
   const sameClass = deepEquals(content.classes, [...node.classList]);
   const sameContent = node.innerText === content.value;
   return sameColor && sameClass && sameContent;
+}
+
+function isEmptyParagraph(node: Node) {
+  return ["<br>", "<span><br></span>"].includes(
+    (node as HTMLElement).innerHTML.replaceAll(/\s(class|style)="[^"]*"/g, "")
+  );
 }
