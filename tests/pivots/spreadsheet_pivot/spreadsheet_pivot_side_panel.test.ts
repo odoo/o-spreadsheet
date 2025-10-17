@@ -1,3 +1,4 @@
+import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   DEFAULT_TOKEN_COLOR,
   PIVOT_TABLE_CONFIG,
@@ -5,7 +6,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { getPivotTooBigErrorMessage } from "../../../packages/o-spreadsheet-engine/src/components/translations_terms";
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { toXC, toZone } from "../../../src/helpers";

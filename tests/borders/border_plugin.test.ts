@@ -1,8 +1,7 @@
 import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { BordersPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/borders";
-import { removeFalsyAttributes } from "../../packages/o-spreadsheet-engine/src/helpers/misc";
-import { toZone } from "../../src/helpers";
+import { removeFalsyAttributes, toZone } from "../../src/helpers";
 import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
   addColumns,

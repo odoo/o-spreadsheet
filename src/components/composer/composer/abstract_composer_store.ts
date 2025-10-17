@@ -11,10 +11,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { evaluationResultToDisplayString } from "@odoo/o-spreadsheet-engine/helpers/matrix";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
-import { evaluationResultToDisplayString } from "../../../../packages/o-spreadsheet-engine/src/helpers/matrix";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,

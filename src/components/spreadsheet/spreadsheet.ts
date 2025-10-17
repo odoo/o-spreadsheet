@@ -1,5 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "@odoo/o-spreadsheet-engine/constants";
+import { unregisterChartJsExtensions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -15,7 +16,6 @@ import {
   useRef,
   useSubEnv,
 } from "@odoo/owl";
-import { unregisterChartJsExtensions } from "../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/chart_js_extension";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Store, useStore, useStoreProvider } from "../../store_engine";

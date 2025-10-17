@@ -1,3 +1,4 @@
+import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
@@ -15,7 +16,6 @@ import {
   ClipboardPasteOptions,
 } from "@odoo/o-spreadsheet-engine/types/clipboard";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { getPivotTooBigErrorMessage } from "../../packages/o-spreadsheet-engine/src/components/translations_terms";
 import { CellPopoverStore } from "../components/popover";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import {
