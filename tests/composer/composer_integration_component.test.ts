@@ -643,6 +643,7 @@ describe("Grid composer", () => {
     ({ model, env, fixture } = await mountSpreadsheet({
       model: new Model(modelData),
     }));
+    composerStore = env.getStore(CellComposerStore);
   });
 
   test("Composer is closed when changing sheet while not editing a formula", async () => {
@@ -886,6 +887,27 @@ describe("Grid composer", () => {
       expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
     });
   });
+
+  test("Grid composer will not open if the sheet is locked", async () => {
+    model.dispatch("LOCK_SHEET", {
+      sheetId: model.getters.getActiveSheetId(),
+    });
+
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerStore.currentContent).toBe("");
+    expect(composerStore.editionMode).toBe("inactive");
+
+    await typeInComposerGrid("Hello");
+    expect(composerStore.currentContent).toBe("");
+    expect(composerStore.editionMode).toBe("inactive");
+    expect(HTMLElement.prototype.animate).toHaveBeenCalled();
+  });
 });
 
 describe("TopBar composer", () => {
@@ -974,5 +996,21 @@ describe("TopBar composer", () => {
     await simulateClick(".o-spreadsheet-topbar .fa-question-circle");
     expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
     expect(document.activeElement).toBe(composerEl);
+  });
+
+  test("Topbar composer cannot be focused if the sheet is locked", async () => {
+    let env: SpreadsheetChildEnv;
+    ({ model, fixture, env } = await mountSpreadsheet());
+    composerStore = env.getStore(CellComposerStore);
+    model.dispatch("LOCK_SHEET", {
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    await click(fixture, ".o-spreadsheet-topbar .o-composer");
+    expect(composerStore.editionMode).toBe("inactive");
+    await typeInComposerTopBar("=SUM(");
+
+    expect(composerStore.currentContent).toBe("");
+    expect(composerStore.editionMode).toBe("inactive");
+    expect(HTMLElement.prototype.animate).toHaveBeenCalled();
   });
 });
