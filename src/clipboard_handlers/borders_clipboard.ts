@@ -1,7 +1,7 @@
+import { deepEquals, groupConsecutive } from "@odoo/o-spreadsheet-engine";
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
 import { splitZoneForPaste } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { ZoneBorder, ZoneBorderData } from "@odoo/o-spreadsheet-engine/plugins/core/borders";
-import { deepEquals, groupConsecutive } from "../../packages/o-spreadsheet-engine/src/helpers/misc";
 import {
   BorderDescr,
   BorderPosition,
