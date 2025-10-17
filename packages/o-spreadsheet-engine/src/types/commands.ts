@@ -239,6 +239,10 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   "REPLACE_SEARCH",
   "HIDE_SHEET",
   "SHOW_SHEET",
+  "UPDATE_PIVOT",
+  "INSERT_NEW_PIVOT",
+  "ADD_PIVOT",
+  "CREATE_SHEET",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
