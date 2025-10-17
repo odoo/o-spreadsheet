@@ -1,7 +1,7 @@
 import { isSameColor, toHex } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
+import { deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { deepEquals } from "../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { Model } from "../../src";
 import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 

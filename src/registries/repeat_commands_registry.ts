@@ -1,3 +1,4 @@
+import { deepCopy } from "@odoo/o-spreadsheet-engine";
 import {
   genericRepeatsTransforms,
   repeatZoneDependantCommand,
@@ -20,7 +21,6 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "@odoo/o-spreadsheet-engine/registries/repeat_transform_registry";
 import { Command } from "@odoo/o-spreadsheet-engine/types/commands";
-import { deepCopy } from "../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { Getters } from "../types";
 
 repeatCommandTransformRegistry.add("UPDATE_CELL", genericRepeat);
