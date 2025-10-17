@@ -1,16 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationPreview">
-    <div class="o-dv-preview p-3" t-on-click="props.onClick" t-ref="dvPreview">
-      <div class="d-flex justify-content-between">
-        <div class="o-dv-container d-flex flex-column">
-          <div class="o-dv-preview-description o-fw-bold text-truncate" t-esc="descriptionString"/>
-          <div class="o-dv-preview-ranges text-truncate" t-esc="rangesString"/>
-        </div>
-        <div
-          class="o-dv-preview-delete d-flex align-items-center o-button-icon px-3"
-          t-on-click.stop="deleteDataValidation">
-          <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
-        </div>
+    <div
+      class="o-dv-preview d-flex justify-content-between p-3"
+      t-on-click="onPreviewClick"
+      t-ref="dvPreview">
+      <div>
+        <div class="o-dv-preview-description o-fw-bold text-truncate" t-esc="descriptionString"/>
+        <div class="o-dv-preview-ranges text-truncate" t-esc="rangesString"/>
+      </div>
+      <div
+        class="o-dv-delete-button d-flex align-items-center o-button-icon px-3"
+        t-on-click.stop="deleteDataValidation">
+        <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
       </div>
     </div>
   </t>
