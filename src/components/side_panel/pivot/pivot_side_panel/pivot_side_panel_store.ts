@@ -18,8 +18,8 @@ import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { Command, UID } from "../../../../types";
 
+import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { getFirstPivotFunction } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
-import { getPivotTooBigErrorMessage } from "../../../../../packages/o-spreadsheet-engine/src/components/translations_terms";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;

@@ -1,3 +1,4 @@
+import { isDefined, range, removeFalsyAttributes } from "@odoo/o-spreadsheet-engine";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_PADDING,
@@ -36,11 +37,6 @@ import {
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import {
-  isDefined,
-  range,
-  removeFalsyAttributes,
-} from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 
