@@ -14,7 +14,6 @@ import {
   ClipboardMIMEType,
   ClipboardPasteOptions,
 } from "@odoo/o-spreadsheet-engine/types/clipboard";
-import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { getPivotTooBigErrorMessage } from "../../packages/o-spreadsheet-engine/src/components/translations_terms";
 import { CellPopoverStore } from "../components/popover";
@@ -520,23 +519,12 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
 //------------------------------------------------------------------------------
 // Image
 //------------------------------------------------------------------------------
-async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined> {
-  try {
-    return await env.imageProvider!.requestImage();
-  } catch {
-    env.raiseError(_t("An unexpected error occurred during the image transfer"));
-    return;
-  }
-}
 
 export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
   if (env.imageProvider) {
     const sheetId = env.model.getters.getActiveSheetId();
     const figureId = env.model.uuidGenerator.smallUuid();
-    const image = await requestImage(env);
-    if (!image) {
-      return;
-    }
+    const image = await env.imageProvider.requestImage();
     const size = getMaxFigureSize(env.model.getters, image.size);
     const { col, row, offset } = centerFigurePosition(env.model.getters, size);
     env.model.dispatch("CREATE_IMAGE", {

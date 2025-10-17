@@ -13,11 +13,6 @@ export interface FileStore {
   upload(file: File): Promise<FilePath>;
 
   /**
-   * Delete a file from the server
-   */
-  delete(filePath: FilePath): Promise<void>;
-
-  /**
    * get File from the server
    */
   getFile(filePath: FilePath): Promise<File | Blob>;

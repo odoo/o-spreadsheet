@@ -1,5 +1,5 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
-import { deepCopy, isDefined } from "../../helpers/misc";
+import { deepCopy } from "../../helpers/misc";
 import { CommandResult, CoreCommand } from "../../types/commands";
 import { FigureSize } from "../../types/figure";
 import { FileStore } from "../../types/files";
@@ -84,18 +84,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     }
   }
 
-  /**
-   * Delete unused images from the file store
-   */
-  garbageCollectExternalResources() {
-    const images = new Set(this.getAllImages().map((image) => image.path));
-    for (const path of this.syncedImages) {
-      if (!images.has(path)) {
-        this.fileStore?.delete(path);
-      }
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
@@ -171,13 +159,5 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       }
       sheet.images = [...sheet.images, ...images];
     }
-  }
-
-  private getAllImages(): Image[] {
-    const images: Image[] = [];
-    for (const sheetId in this.images) {
-      images.push(...Object.values(this.images[sheetId] || {}).filter(isDefined));
-    }
-    return images;
   }
 }

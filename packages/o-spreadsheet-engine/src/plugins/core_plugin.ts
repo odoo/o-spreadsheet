@@ -63,10 +63,4 @@ export class CorePlugin<State = any>
    * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
   adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName): void {}
-
-  /**
-   * Implement this method to clean unused external resources, such as images
-   * stored on a server which have been deleted.
-   */
-  garbageCollectExternalResources() {}
 }
