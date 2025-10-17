@@ -25,6 +25,7 @@ import {
   CellPosition,
   CellValueType,
   Command,
+  CommandResult,
   Direction,
   DispatchResult,
   Format,
@@ -355,5 +356,16 @@ export class CellComposerStore extends AbstractComposerStore {
       return false;
     }
     return true;
+  }
+
+  startEdition(text?: string, selection?: ComposerSelection) {
+    if (this.getters.isCurrentSheetLocked()) {
+      this.model.trigger("command-rejected", {
+        result: new DispatchResult(CommandResult.SheetLocked),
+        command: { sheetId: this.getters.getActiveSheetId() },
+      });
+      return "NoStateChange";
+    }
+    return super.startEdition(text, selection);
   }
 }
