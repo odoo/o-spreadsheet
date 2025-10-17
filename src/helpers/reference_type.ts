@@ -48,29 +48,39 @@ function getTokenNextReferenceType(xc: string): string {
 }
 
 /**
- * Returns the given XC with the given reference type. The XC string should not contain a sheet name.
+ * Returns the given XC with the given reference type.
  */
 export function setXcToFixedReferenceType(xc: string, referenceType: FixedReferenceType): string {
-  if (xc.includes("!")) {
-    throw new Error("The given XC should not contain a sheet name");
-  }
+  let sheetName;
+  ({ sheetName, xc } = splitReference(xc));
+  sheetName = sheetName ? sheetName + "!" : "";
 
   xc = xc.replace(/\$/g, "");
-  let indexOfNumber: number;
+  const splitIndex = xc.indexOf(":");
+  if (splitIndex >= 0) {
+    return `${sheetName}${_setXcToFixedReferenceType(
+      xc.slice(0, splitIndex),
+      referenceType
+    )}:${_setXcToFixedReferenceType(xc.slice(splitIndex + 1), referenceType)}`;
+  } else {
+    return sheetName + _setXcToFixedReferenceType(xc, referenceType);
+  }
+}
+
+function _setXcToFixedReferenceType(xc: string, referenceType: FixedReferenceType): string {
+  const indexOfNumber = xc.search(/[0-9]/);
+  const hasCol = indexOfNumber !== 0;
+  const hasRow = indexOfNumber >= 0;
   switch (referenceType) {
     case "col":
+      if (!hasCol) return xc;
       return "$" + xc;
     case "row":
-      indexOfNumber = xc.search(/[0-9]/);
+      if (!hasRow) return xc;
       return xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
     case "colrow":
-      indexOfNumber = xc.search(/[0-9]/);
-      if (indexOfNumber === -1 || indexOfNumber === 0) {
-        // no row number (eg. A) or no column (eg. 1)
-        return "$" + xc;
-      }
-      xc = xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
-      return "$" + xc;
+      if (!hasRow || !hasCol) return "$" + xc;
+      return "$" + xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
     case "none":
       return xc;
   }
