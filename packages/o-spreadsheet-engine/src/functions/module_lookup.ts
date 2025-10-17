@@ -3,13 +3,15 @@ import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
 import { toXC } from "../helpers/coordinates";
 import { range } from "../helpers/misc";
-import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
+import {
+  addAlignFormatToPivotHeader,
+  getPivotStyleFromFnArgs,
+} from "../helpers/pivot/pivot_helpers";
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
-import { PivotVisibilityOptions } from "../types/pivot";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -19,12 +21,12 @@ import {
   getPivotId,
 } from "./helper_lookup";
 import {
-  LinearSearchMode,
   dichotomicSearch,
   expectNumberRangeError,
   generateMatrix,
   isEvaluationError,
   linearSearch,
+  LinearSearchMode,
   strictToInteger,
   toBoolean,
   toMatrix,
@@ -907,30 +909,34 @@ export const PIVOT = {
   ],
   compute: function (
     pivotFormulaId: Maybe<FunctionResultObject>,
-    rowCount: Maybe<FunctionResultObject> = { value: 10000 },
-    includeTotal: Maybe<FunctionResultObject> = { value: true },
-    includeColumnHeaders: Maybe<FunctionResultObject> = { value: true },
-    columnCount: Maybe<FunctionResultObject> = { value: Number.MAX_VALUE },
-    includeMeasureTitles: Maybe<FunctionResultObject> = { value: true }
+    rowCount: Maybe<FunctionResultObject>,
+    includeTotal: Maybe<FunctionResultObject>,
+    includeColumnHeaders: Maybe<FunctionResultObject>,
+    columnCount: Maybe<FunctionResultObject>,
+    includeMeasureTitles: Maybe<FunctionResultObject>
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
-    const _rowCount = toNumber(rowCount, this.locale);
-    if (_rowCount < 0) {
-      return new EvaluationError(_t("The number of rows must be positive."));
-    }
-    const _columnCount = toNumber(columnCount, this.locale);
-    if (_columnCount < 0) {
-      return new EvaluationError(_t("The number of columns must be positive."));
-    }
-    const visibilityOptions: PivotVisibilityOptions = {
-      displayColumnHeaders: toBoolean(includeColumnHeaders),
-      displayTotals: toBoolean(includeTotal),
-      displayMeasuresRow: toBoolean(includeMeasureTitles),
-    };
-
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
+
+    const pivotStyle = getPivotStyleFromFnArgs(
+      coreDefinition,
+      rowCount,
+      includeTotal,
+      includeColumnHeaders,
+      columnCount,
+      includeMeasureTitles,
+      this.locale
+    );
+
+    if (pivotStyle.numberOfRows < 0) {
+      return new EvaluationError(_t("The number of rows must be positive."));
+    }
+    if (pivotStyle.numberOfColumns < 0) {
+      return new EvaluationError(_t("The number of columns must be positive."));
+    }
+
     addPivotDependencies(this, coreDefinition, coreDefinition.measures);
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
@@ -941,21 +947,21 @@ export const PIVOT = {
     if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
       return new EvaluationError(getPivotTooBigErrorMessage(table.numberOfCells, this.locale));
     }
-    const cells = table.getPivotCells(visibilityOptions);
+    const cells = table.getPivotCells(pivotStyle);
 
     let headerRows = 0;
-    if (visibilityOptions.displayColumnHeaders) {
+    if (pivotStyle.displayColumnHeaders) {
       headerRows = table.columns.length - 1;
     }
-    if (visibilityOptions.displayMeasuresRow) {
+    if (pivotStyle.displayMeasuresRow) {
       headerRows++;
     }
     const pivotTitle = this.getters.getPivotName(pivotId);
-    const tableHeight = Math.min(headerRows + _rowCount, cells[0].length);
+    const tableHeight = Math.min(headerRows + pivotStyle.numberOfRows, cells[0].length);
     if (tableHeight === 0) {
       return [[{ value: pivotTitle }]];
     }
-    const tableWidth = Math.min(1 + _columnCount, cells.length);
+    const tableWidth = Math.min(1 + pivotStyle.numberOfColumns, cells.length);
     const result: Matrix<FunctionResultObject> = [];
     for (const col of range(0, tableWidth)) {
       result[col] = [];
@@ -978,7 +984,7 @@ export const PIVOT = {
         }
       }
     }
-    if (visibilityOptions.displayColumnHeaders || visibilityOptions.displayMeasuresRow) {
+    if (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) {
       result[0][0] = { value: pivotTitle };
     }
     return result;

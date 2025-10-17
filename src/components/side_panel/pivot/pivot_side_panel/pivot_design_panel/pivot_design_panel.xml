@@ -1,0 +1,64 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotDesignPanel">
+    <Section class="'o-pivot-design'" title.translate="Display options">
+      <div>
+        <div class="container-fluid p-0 pt-2">
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">Max rows:</div>
+            <div class="col-6 d-flex align-items-center">
+              <input
+                t-att-value="pivotStyle.numberOfRows ?? ''"
+                type="number"
+                class="o-pivot-n-of-rows o-input"
+                placeholder="e.g. 10"
+                t-on-change="(ev) => this.updatePivotStyleProperty('numberOfRows', ev.target.valueAsNumber)"
+              />
+            </div>
+          </div>
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">Max columns:</div>
+            <div class="col-6 d-flex align-items-center">
+              <input
+                t-att-value="pivotStyle.numberOfColumns ?? ''"
+                type="number"
+                class="o-pivot-n-of-columns o-input"
+                placeholder="e.g. 5"
+                t-on-change="(ev) => this.updatePivotStyleProperty('numberOfColumns', ev.target.valueAsNumber)"
+              />
+            </div>
+          </div>
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">Show totals:</div>
+            <div class="col-6 d-flex align-items-center">
+              <Checkbox
+                name="'displayTotals'"
+                value="pivotStyle.displayTotals ?? defaultStyle.displayTotals"
+                onChange="(val) => this.updatePivotStyleProperty('displayTotals', val)"
+              />
+            </div>
+          </div>
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">Show column titles:</div>
+            <div class="col-6 d-flex align-items-center">
+              <Checkbox
+                name="'displayColumnHeaders'"
+                value="pivotStyle.displayColumnHeaders ?? defaultStyle.displayColumnHeaders"
+                onChange="(val) => this.updatePivotStyleProperty('displayColumnHeaders', val)"
+              />
+            </div>
+          </div>
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">Show measure titles:</div>
+            <div class="col-6 d-flex align-items-center">
+              <Checkbox
+                name="'displayMeasuresRow'"
+                value="pivotStyle.displayMeasuresRow ?? defaultStyle.displayMeasuresRow"
+                onChange="(val) => this.updatePivotStyleProperty('displayMeasuresRow', val)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  </t>
+</templates>

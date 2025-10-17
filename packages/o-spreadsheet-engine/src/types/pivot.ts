@@ -62,6 +62,7 @@ export interface CommonPivotCoreDefinition {
   sortedColumn?: PivotSortedColumn;
   collapsedDomains?: PivotCollapsedDomains;
   customFields?: Record<string, PivotCustomGroupedField>;
+  style?: PivotStyle;
 }
 
 export interface PivotSortedColumn {
@@ -239,8 +240,10 @@ export interface DimensionTreeNode {
 
 export type DimensionTree = DimensionTreeNode[];
 
-export interface PivotVisibilityOptions {
-  displayColumnHeaders: boolean;
-  displayTotals: boolean;
-  displayMeasuresRow: boolean;
+export interface PivotStyle {
+  numberOfRows?: number;
+  numberOfColumns?: number;
+  displayTotals?: boolean;
+  displayColumnHeaders?: boolean;
+  displayMeasuresRow?: boolean;
 }

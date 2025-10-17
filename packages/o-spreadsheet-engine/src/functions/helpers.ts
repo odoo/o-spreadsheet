@@ -98,6 +98,14 @@ export function toNumber(
   }
 }
 
+/** Convert the data to a number, ignoring undefined values */
+export function toNumberIgnoreUndefined(
+  data: FunctionResultObject | CellValue | undefined,
+  locale: Locale
+): number | undefined {
+  return data === undefined ? undefined : toNumber(data, locale);
+}
+
 export function tryToNumber(
   value: string | number | boolean | null | undefined,
   locale: Locale
@@ -218,6 +226,13 @@ export function toBoolean(data: FunctionResultObject | CellValue | undefined): b
     default:
       return false;
   }
+}
+
+/** Convert the data to a boolean, ignoring undefined values */
+export function toBooleanIgnoreUndefined(
+  data: FunctionResultObject | CellValue | undefined
+): boolean | undefined {
+  return data === undefined ? undefined : toBoolean(data);
 }
 
 function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
