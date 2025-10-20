@@ -60,6 +60,7 @@ import { ChartPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/chart";
 import { FigurePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/figures";
 import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { zoneToXc } from "../../../src/helpers";
+import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import {
   getCategoryAxisTickLabels,
@@ -2770,28 +2771,32 @@ describe("Linear/Time charts", () => {
     expect(getChartConfiguration(model, chartId).options?.scales?.x?.type).toEqual("linear");
   });
 
-  test("time axis for line/bar chart with date labels", () => {
-    setFormat(model, "C2:C5", "m/d/yyyy");
-    createChart(
-      model,
-      {
-        type: "line",
-        dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
-        labelsAsText: false,
-      },
-      chartId
-    );
-    const scale = getChartConfiguration(model, chartId).options.scales.x;
-    expect(scale.type).toEqual("time");
-    expect(scale.ticks?.callback).toBeUndefined();
-    expect(scale.time).toEqual({
-      displayFormats: { day: "M/d/yyyy" }, // luxon format
-      parser: "M/d/yyyy",
-      tooltipFormat: "M/d/yyyy",
-      unit: "day",
-    });
-  });
+  test.each(["mm/dd/yyyy", "yyyy-mm-dd", "dd/mm/yyyy", "d mmm yyyy"])(
+    "time axis for line/bar chart with date labels in format %s",
+    (format: string) => {
+      setFormat(model, "C2:C5", format);
+      createChart(
+        model,
+        {
+          type: "line",
+          dataSets: [{ dataRange: "B2:B5" }],
+          labelRange: "C2:C5",
+          labelsAsText: false,
+        },
+        chartId
+      );
+      const convertedFormat = convertDateFormatForLuxon(format);
+      const scale = getChartConfiguration(model, chartId).options.scales.x;
+      expect(scale.type).toEqual("time");
+      expect(scale.ticks?.callback).toBeUndefined();
+      expect(scale.time).toEqual({
+        displayFormats: { day: convertedFormat }, // luxon format
+        parser: convertedFormat,
+        tooltipFormat: convertedFormat,
+        unit: "day",
+      });
+    }
+  );
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
     setCellContent(model, "C2", "=DATE(2022,1,1)");
