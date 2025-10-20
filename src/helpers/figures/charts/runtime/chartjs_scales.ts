@@ -203,6 +203,11 @@ export function getLineChartScales(
     const axis = {
       type: "time",
       time: getChartTimeOptions(labels, labelFormat, locale),
+      min: formatValue(definition.axesDesign?.x?.min || "", { format: labelFormat, locale }),
+      max: formatValue(definition.axesDesign?.x?.max || "", {
+        format: labelFormat,
+        locale,
+      }),
     };
     Object.assign(scales!.x!, axis);
     scales!.x!.ticks!.maxTicksLimit = 15;

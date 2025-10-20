@@ -1,6 +1,7 @@
 import type { TimeScaleOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { largeMax, largeMin, parseDateTime } from ".";
+import { DateTime } from "luxon";
+import { largeMax, largeMin } from ".";
 import { Alias, Format, Locale } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -44,7 +45,7 @@ const Milliseconds = {
  * Regex to test if a format string is a date format that can be translated into a luxon time format
  */
 export const timeFormatLuxonCompatible =
-  /^((d|dd|m|mm|yyyy|yy|hh|h|ss|a)(-|:|\s|\/))*(d|dd|m|mm|yyyy|yy|hh|h|ss|a)$/i;
+  /^((d|dd|m|mm|mmm|yyyy|yy|hh|h|ss|a)(-|:|\s|\/))*(d|dd|m|mm|mmm|yyyy|yy|hh|h|ss|a)$/i;
 
 /** Get the time options for the XAxis of ChartJS */
 export function getChartTimeOptions(
@@ -73,7 +74,7 @@ export function getChartTimeOptions(
  *
  * https://github.com/moment/luxon/blob/master/docs/formatting.md#table-of-tokens
  */
-function convertDateFormatForLuxon(format: Format): LuxonFormat {
+export function convertDateFormatForLuxon(format: Format): LuxonFormat {
   // "m" before "h" === month, "m" after "h" === minute
   const indexH = format.indexOf("h");
   if (indexH >= 0) {
@@ -122,11 +123,11 @@ function getBestTimeUnitForScale(
   format: LuxonFormat,
   locale: Locale
 ): TimeUnit | undefined {
-  const labelDates = labels.map((label) => parseDateTime(label, locale)?.jsDate);
+  const labelDates = labels.map((label) => DateTime.fromFormat(label, format));
   if (labelDates.some((date) => date === undefined) || labels.length < 2) {
     return undefined;
   }
-  const labelsTimestamps = labelDates.map((date) => date!.getTime());
+  const labelsTimestamps = labelDates.map((date) => date!.ts);
   const period = largeMax(labelsTimestamps) - largeMin(labelsTimestamps);
 
   const minUnit = getFormatMinDisplayUnit(format);

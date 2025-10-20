@@ -24,7 +24,14 @@
       <div class="d-flex">
         <div class="w-50">
           <span class="o-section-subtitle my-0">Minimum</span>
+          <DateInput
+            t-if="isTimeAxis"
+            class="'o-input w-100 time-axis-min-input'"
+            value="axisMin"
+            onChange.bind="updateTimeAxisMin"
+          />
           <NumberInput
+            t-else=""
             class="'o-input w-100 axis-min-input'"
             value="axisMin"
             onChange.bind="updateAxisMin"
@@ -33,7 +40,14 @@
         </div>
         <div class="w-50 ms-3">
           <span class="o-section-subtitle my-0">Maximum</span>
+          <DateInput
+            t-if="isTimeAxis"
+            class="'o-input w-100 time-axis-max-input'"
+            value="axisMax"
+            onChange.bind="updateTimeAxisMax"
+          />
           <NumberInput
+            t-else=""
             class="'o-input w-100 axis-max-input'"
             value="axisMax"
             onChange.bind="updateAxisMax"
