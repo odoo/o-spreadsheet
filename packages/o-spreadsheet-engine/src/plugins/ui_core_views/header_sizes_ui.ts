@@ -110,7 +110,10 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         }
         break;
       case "SET_FORMATTING":
-        if (cmd.style && ("fontSize" in cmd.style || "wrapping" in cmd.style)) {
+        if (
+          cmd.style &&
+          ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
+        ) {
           for (const zone of cmd.target) {
             // TODO FLDA use rangeSet
             this.updateRowSizeForZoneChange(cmd.sheetId, zone);

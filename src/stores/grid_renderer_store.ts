@@ -20,6 +20,7 @@ import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
+  computeRotationPosition,
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
@@ -366,8 +367,9 @@ export class GridRenderer extends SpreadsheetStore {
     for (const box of boxes) {
       if (box.content) {
         ctx.globalAlpha = box.textOpacity ?? 1;
-        const style = box.style || {};
         const align = box.content.align || "left";
+        const style = { ...box.style, align } as const;
+        const rotate = style.rotation && !box.chip;
 
         // compute font and textColor
         const font = computeTextFont(style);
@@ -388,8 +390,14 @@ export class GridRenderer extends SpreadsheetStore {
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
-        const x = box.content.x;
+        let x = box.content.x;
         let y = box.content.y;
+        if (rotate) {
+          ctx.save();
+          ctx.rotate(style.rotation);
+          ({ x, y } = computeRotationPosition(box.content, style));
+        }
+
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
         for (const brokenLine of box.content.textLines) {
@@ -397,6 +405,9 @@ export class GridRenderer extends SpreadsheetStore {
           y += MIN_CELL_TEXT_MARGIN + box.content.fontSizePx;
         }
 
+        if (rotate) {
+          ctx.restore();
+        }
         if (box.clipRect) {
           ctx.restore();
         }
@@ -711,9 +722,12 @@ export class GridRenderer extends SpreadsheetStore {
     const wrapText = wrapping === "wrap" && !showFormula;
     const maxWidth = width - 2 * MIN_CELL_TEXT_MARGIN;
     const multiLineText = this.getters.getCellMultiLineText(position, { maxWidth, wrapText });
+    const noRotatationStyle = { ...style, align: "left" as const, rotation: 0 };
     const textWidth = Math.max(
-      ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
+      ...multiLineText.map((line) => this.getters.getTextWidth(line, noRotatationStyle))
     );
+    const contentSize = this.getters.getMultilineTextSize(multiLineText, style);
+    // MIN_CELL_TEXT_MARGIN;
     const chipMargin = chipStyle ? DATA_VALIDATION_CHIP_MARGIN : 0;
     const leftIconWidth = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
     const leftMargin = leftIconWidth + chipMargin;
@@ -743,6 +757,8 @@ export class GridRenderer extends SpreadsheetStore {
     box.content = {
       textLines: multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
+      textHeight,
+      textWidth,
       align,
       x: contentX,
       y: contentY,
@@ -761,7 +777,7 @@ export class GridRenderer extends SpreadsheetStore {
     }
 
     /** ClipRect */
-    const isOverflowing = contentWidth > width || fontSizePX > height;
+    const isOverflowing = contentSize.width > width || contentSize.height > height;
     if (box.icons.left || box.icons.right || box.chip) {
       box.clipRect = {
         x: box.x + leftMargin,
@@ -789,7 +805,7 @@ export class GridRenderer extends SpreadsheetStore {
           const { x, y, width, height } = this.getters.getVisibleRect(
             union(zone, emptyZoneOnTheLeft)
           );
-          if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
+          if (width < contentSize.width || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
           break;
@@ -799,7 +815,7 @@ export class GridRenderer extends SpreadsheetStore {
           const { x, y, width, height } = this.getters.getVisibleRect(
             union(zone, emptyZoneOnTheRight)
           );
-          if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
+          if (width < contentSize.width || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
           break;
@@ -811,7 +827,7 @@ export class GridRenderer extends SpreadsheetStore {
             right: nextColIndex,
           };
           const { x, y, height, width } = this.getters.getVisibleRect(emptyZone);
-          const halfContentWidth = contentWidth / 2;
+          const halfContentWidth = contentSize.width / 2;
           const boxMiddle = box.x + box.width / 2;
           if (
             x + width < boxMiddle + halfContentWidth ||

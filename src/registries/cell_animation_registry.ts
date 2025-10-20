@@ -55,6 +55,20 @@ cellAnimationRegistry.add("animatedTextColorChange", {
   },
 });
 
+cellAnimationRegistry.add("animatedTextRotationChange", {
+  id: "animatedTextRotationChange",
+  easingFn: "linear",
+  hasAnimation: (oldBox, newBox) => {
+    return oldBox?.style?.rotation !== newBox?.style?.rotation;
+  },
+  updateAnimation: function (progress, animatedBox, oldBox, newBox) {
+    const oldRotation = oldBox?.style?.rotation ?? 0;
+    const newRotation = newBox?.style?.rotation ?? 0;
+    const easedProgress = EASING_FN[this.easingFn](progress);
+    animatedBox.style.rotation = oldRotation * (1 - easedProgress) + newRotation * easedProgress;
+  },
+});
+
 cellAnimationRegistry.add("animatedDataBar", {
   id: "animatedDataBar",
   easingFn: "easeOutCubic",
