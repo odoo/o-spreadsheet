@@ -200,6 +200,22 @@ topBarToolBarRegistry
     },
     sequence: 3,
   })
+  .addChild("alignment", {
+    component: DropdownAction,
+    props: {
+      parentAction: ACTION_FORMAT.formatRotation,
+      childActions: [
+        ACTION_FORMAT.formatNoRotation,
+        ACTION_FORMAT.formatRotation45,
+        ACTION_FORMAT.formatRotation90,
+        ACTION_FORMAT.formatRotation270,
+        ACTION_FORMAT.formatRotation315,
+      ],
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+      childClass: "o-hoverable-button",
+    },
+    sequence: 4,
+  })
   .add("misc")
   .addChild("misc", {
     component: TableDropdownButton,

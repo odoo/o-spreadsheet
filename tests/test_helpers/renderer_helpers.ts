@@ -4,7 +4,7 @@ import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
-  return { width: 100 };
+  return { width: 100, fontBoundingBoxAscent: 1, fontBoundingBoxDescent: 1 };
 };
 
 interface ContextObserver {

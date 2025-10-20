@@ -9,6 +9,7 @@ import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
 import { groupConsecutive, largeMax, range } from "../../helpers/misc";
 import {
+  computeMultilineTextSize,
   computeTextLinesHeight,
   computeTextWidth,
   getCanvas,
@@ -36,6 +37,7 @@ export class SheetUIPlugin extends UIPlugin {
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
+    "getMultilineTextSize",
     "getContiguousZone",
     "computeTextYCoordinate",
   ] as const;
@@ -96,9 +98,7 @@ export class SheetUIPlugin extends UIPlugin {
     const content = this.getters.getEvaluatedCell(position).formattedValue;
     if (content) {
       const multiLineText = splitTextToWidth(this.ctx, content, style, undefined);
-      contentWidth += Math.max(
-        ...multiLineText.map((line) => computeTextWidth(this.ctx, line, style))
-      );
+      contentWidth += computeMultilineTextSize(this.ctx, multiLineText, style).width;
     }
 
     for (const icon of this.getters.getCellIcons(position)) {
@@ -123,6 +123,10 @@ export class SheetUIPlugin extends UIPlugin {
 
   getTextWidth(text: string, style: Style): Pixel {
     return computeTextWidth(this.ctx, text, style);
+  }
+
+  getMultilineTextSize(text: string[], style: Style) {
+    return computeMultilineTextSize(this.ctx, text, style);
   }
 
   getCellText(

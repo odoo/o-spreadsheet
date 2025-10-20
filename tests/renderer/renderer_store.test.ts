@@ -15,7 +15,7 @@ import {
 import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
 import { Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import { fontSizeInPixels, toHex, toZone } from "../../src/helpers";
+import { fontSizeInPixels, getContextFontSize, toHex, toZone } from "../../src/helpers";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
@@ -54,7 +54,12 @@ import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
-  return { width: text.length };
+  const fontSize = getContextFontSize(this.font);
+  return {
+    width: text.length,
+    fontBoundingBoxAscent: fontSize / 2,
+    fontBoundingBoxDescent: fontSize / 2,
+  };
 };
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
