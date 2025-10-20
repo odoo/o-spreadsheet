@@ -41,11 +41,14 @@ export function getCellContentHeight(
   content: string,
   style: Style | undefined,
   colSize: number
-) {
+): number {
   const maxWidth = style?.wrapping === "wrap" ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
-  const numberOfLines = splitTextToWidth(ctx, content, style, maxWidth).length;
+  const lines = splitTextToWidth(ctx, content, style, maxWidth);
   const fontSize = computeTextFontSizeInPixels(style);
-  return computeTextLinesHeight(fontSize, numberOfLines) + 2 * PADDING_AUTORESIZE_VERTICAL;
+  if (!style?.rotation) {
+    return computeTextLinesHeight(fontSize, lines.length) + 2 * PADDING_AUTORESIZE_VERTICAL;
+  }
+  return computeMultilineTextSize(ctx, lines, style).height + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
 export function getDefaultContextFont(
@@ -58,7 +61,38 @@ export function getDefaultContextFont(
   return `${italicStr} ${weight} ${fontSize}px ${DEFAULT_FONT}`;
 }
 
-const textWidthCache: Record<string, Record<string, number>> = {};
+export function computeMultilineTextWidth(
+  context: Canvas2DContext,
+  text: string[],
+  style: Style,
+  fontUnit: "px" | "pt" = "pt"
+) {
+  const font = computeTextFont(style, fontUnit);
+  const sizes = text.map((line) => computeCachedTextDimension(context, line, font));
+  const width = Math.max(...sizes.map((size) => size.width));
+  if (!style.rotation) return width;
+  const height = computeTextLinesHeight(sizes[0].height, text.length);
+  const cos = Math.abs(Math.cos(style.rotation));
+  const sin = Math.abs(Math.sin(style.rotation));
+  return width * cos + height * sin;
+}
+
+export function computeMultilineTextSize(
+  context: Canvas2DContext,
+  text: string[],
+  style: Style,
+  fontUnit: "px" | "pt" = "pt"
+) {
+  if (!text.length) return { width: 0, height: 0 };
+  const font = computeTextFont(style, fontUnit);
+  const sizes = text.map((line) => computeCachedTextDimension(context, line, font));
+  const height = computeTextLinesHeight(sizes[0].height, text.length);
+  const width = Math.max(...sizes.map((size) => size.width));
+  if (!style.rotation) return { height, width };
+  const cos = Math.abs(Math.cos(style.rotation));
+  const sin = Math.abs(Math.sin(style.rotation));
+  return { width: width * cos + height * sin, height: sin * width + cos * height };
+}
 
 export function computeTextWidth(
   context: Canvas2DContext,
@@ -67,20 +101,20 @@ export function computeTextWidth(
   fontUnit: "px" | "pt" = "pt"
 ) {
   const font = computeTextFont(style, fontUnit);
-  return computeCachedTextWidth(context, text, font);
+  return computeCachedTextWidth(context, text, font, style.rotation);
 }
 
-export function computeCachedTextWidth(context: Canvas2DContext, text: string, font: string) {
-  if (!textWidthCache[font]) {
-    textWidthCache[font] = {};
-  }
-  if (textWidthCache[font][text] === undefined) {
-    const oldFont = context.font;
-    context.font = font;
-    textWidthCache[font][text] = context.measureText(text).width;
-    context.font = oldFont;
-  }
-  return textWidthCache[font][text];
+export function computeCachedTextWidth(
+  context: Canvas2DContext,
+  text: string,
+  font: string,
+  rotation?: number
+) {
+  const size = computeCachedTextDimension(context, text, font);
+  if (!rotation) return size.width;
+  const cos = Math.abs(Math.cos(rotation));
+  const sin = Math.abs(Math.sin(rotation));
+  return size.width * cos + size.height * sin;
 }
 
 const textDimensionsCache: Record<string, Record<string, { width: number; height: number }>> = {};
@@ -92,23 +126,29 @@ export function computeTextDimension(
   fontUnit: "px" | "pt" = "pt"
 ): { width: number; height: number } {
   const font = computeTextFont(style, fontUnit);
-  context.save();
-  context.font = font;
-  const dimensions = computeCachedTextDimension(context, text);
-  context.restore();
-  return dimensions;
+  const size = computeCachedTextDimension(context, text, font);
+  if (!style.rotation) return size;
+  const cos = Math.abs(Math.cos(style.rotation));
+  const sin = Math.abs(Math.sin(style.rotation));
+  return {
+    width: size.width * cos + size.height * sin,
+    height: size.height * cos + size.width * sin,
+  };
 }
 
 function computeCachedTextDimension(
   context: Canvas2DContext,
-  text: string
+  text: string,
+  font: string
 ): { width: number; height: number } {
-  const font = context.font;
   if (!textDimensionsCache[font]) {
     textDimensionsCache[font] = {};
   }
   if (textDimensionsCache[font][text] === undefined) {
+    context.save();
+    context.font = font;
     const measure = context.measureText(text);
+    context.restore();
     const width = measure.width;
     const height = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent;
     textDimensionsCache[font][text] = { width, height };
@@ -395,4 +435,60 @@ export function sliceTextToFitWidth(
 
   const slicedText = text.slice(0, Math.max(0, lowerBoundLen - 1));
   return slicedText ? slicedText + ellipsis : "";
+}
+
+/**
+ * Return the position to draw text on a rotated canvas to ensure that the rotated text alignment correspond
+ * with to original's text vertical and horizontal alignment.
+ */
+export function computeRotationPosition(
+  rect: { x: number; y: number; textWidth: number; textHeight: number },
+  style: Style
+): PixelPosition {
+  if (!style.rotation || !(style.rotation % (Math.PI * 2))) return rect;
+  let { x, y } = rect;
+  const cos = Math.cos(-style.rotation);
+  const sin = Math.sin(-style.rotation);
+  const width = rect.textWidth - MIN_CELL_TEXT_MARGIN;
+  const height = rect.textHeight;
+
+  const center = style.align === "center";
+  const rotateTowardCellCenter = (style.align === "left") !== sin > 0;
+
+  const sh = sin * height;
+  const sw = Math.abs(sin * width);
+  const ch = cos * height;
+
+  // Adapt the anchor position based on the alignment and rotation
+  if (style.verticalAlign === "top") {
+    if (center) {
+      y += sw / 2;
+      x -= sh / 2;
+    } else if (rotateTowardCellCenter) {
+      x -= sh;
+    } else {
+      y += sw;
+    }
+  } else if (!style.verticalAlign || style.verticalAlign === "bottom") {
+    y += height - ch;
+    if (center) {
+      y -= sw / 2;
+      x -= sh / 2;
+    } else if (rotateTowardCellCenter) {
+      x -= sh;
+      y -= sw;
+    }
+  } else {
+    if (center) {
+      x -= sh / 2;
+    } else if (rotateTowardCellCenter) {
+      x -= sh;
+      y -= sw / 2;
+    } else {
+      y += sw / 2 + ch / 4;
+    }
+  }
+
+  // Return the coordinate in the rotate 2d plane
+  return { x: cos * x - sin * y, y: cos * y + sin * x };
 }
