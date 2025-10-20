@@ -1,9 +1,9 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
-import { LineChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { AxisType, LineChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { deepCopy } from "../../../../../helpers";
+import { DateTime, deepCopy, formatValue, jsDateToNumber } from "../../../../../helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts";
 import {
   AxisDesign,
@@ -77,12 +77,22 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     this.props.updateChart(this.props.chartId, { axesDesign });
   }
 
-  get axisMin(): number | string {
-    return this.currentAxisDesign?.min ?? "";
+  get axisMin(): string | number {
+    const min = this.currentAxisDesign?.min;
+    return (this.isTimeAxis ? this.formatAxisBoundary(min) : min) ?? "";
   }
 
-  get axisMax(): number | string {
-    return this.currentAxisDesign?.max ?? "";
+  get axisMax(): string | number {
+    const max = this.currentAxisDesign?.max;
+    return (this.isTimeAxis ? this.formatAxisBoundary(max) : max) ?? "";
+  }
+
+  get axisBoundsInputType(): "number" | "date" {
+    return this.isTimeAxis ? "date" : "number";
+  }
+
+  get axisBoundsInputStep(): string | null {
+    return this.isTimeAxis ? "1" : null;
   }
 
   get isMajorGridEnabled(): boolean {
@@ -117,27 +127,53 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateAxisMin(value: string) {
-    const parsed = value === "" ? undefined : Number(value);
-    if (parsed === undefined || !isNaN(parsed)) {
+    const min = value === "" ? undefined : Number(value);
+    if (min === undefined || !isNaN(min)) {
       const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
       axesDesign[this.state.currentAxis] = {
         ...axesDesign[this.state.currentAxis],
-        min: parsed,
+        min,
       };
       this.props.updateChart(this.props.chartId, { axesDesign });
     }
   }
 
+  updateTimeAxisMin(ev: InputEvent) {
+    const min = this.parseTimeAxisBoundaryValue(ev);
+    if (min === null) {
+      return;
+    }
+    const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
+    axesDesign[this.state.currentAxis] = {
+      ...axesDesign[this.state.currentAxis],
+      min,
+    };
+    this.props.updateChart(this.props.chartId, { axesDesign });
+  }
+
   updateAxisMax(value: string) {
-    const parsed = value === "" ? undefined : Number(value);
-    if (parsed === undefined || !isNaN(parsed)) {
+    const max = value === "" ? undefined : Number(value);
+    if (max === undefined || !isNaN(max)) {
       const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
       axesDesign[this.state.currentAxis] = {
         ...axesDesign[this.state.currentAxis],
-        max: parsed,
+        max,
       };
       this.props.updateChart(this.props.chartId, { axesDesign });
     }
+  }
+
+  updateTimeAxisMax(ev: InputEvent) {
+    const max = this.parseTimeAxisBoundaryValue(ev);
+    if (max === null) {
+      return;
+    }
+    const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
+    axesDesign[this.state.currentAxis] = {
+      ...axesDesign[this.state.currentAxis],
+      max,
+    };
+    this.props.updateChart(this.props.chartId, { axesDesign });
   }
 
   toggleMajorGrid(major: boolean) {
@@ -195,8 +231,49 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     if (this.isValueAxis) {
       return false;
     }
+    const axisType = this.getXAxisType();
+    return axisType === undefined || axisType === "category";
+  }
+
+  get isTimeAxis(): boolean {
+    return this.state.currentAxis === "x" && this.getXAxisType() === "time";
+  }
+
+  get canChangeMinorGridVisibility(): boolean {
+    if (this.isValueAxis) {
+      return true;
+    }
+    if (this.isCategoricalAxis) {
+      return false;
+    }
+    const type = this.props.definition.type;
+    return type === "line" || type === "scatter";
+  }
+
+  private parseTimeAxisBoundaryValue(ev: InputEvent): number | undefined | null {
+    const input = ev.target as HTMLInputElement;
+    const value = input.value.trim();
+    if (value === "") {
+      return undefined;
+    }
+    const valueAsNumber = input.valueAsNumber as number | undefined;
+    if (!valueAsNumber) {
+      return null;
+    }
+    const date = DateTime.fromTimestamp(valueAsNumber);
+    const dateNumber = jsDateToNumber(date);
+    return Number.isNaN(dateNumber) ? null : dateNumber;
+  }
+
+  private formatAxisBoundary(value: number | undefined): string | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+    return formatValue(value, { format: "yyyy-mm-dd", locale: this.env.model.getters.getLocale() });
+  }
+
+  private getXAxisType(): AxisType | undefined {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as LineChartRuntime;
-    const axisType = runtime?.chartJsConfig.options?.scales?.x?.type;
-    return axisType === undefined || axisType === "time";
+    return runtime?.chartJsConfig.options?.scales?.x?.type as AxisType | undefined;
   }
 }
