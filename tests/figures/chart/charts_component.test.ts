@@ -714,6 +714,65 @@ describe("charts", () => {
     }
   );
 
+  test("can edit chart time axis limits", async () => {
+    const model = createModelFromGrid({
+      A2: "=DATE(2022,1,1)",
+      A3: "=DATE(2022,1,2)",
+      A4: "=DATE(2022,1,3)",
+      A5: "=DATE(2022,1,4)",
+    });
+    setFormat(model, "A2:A5", "m/d/yyyy");
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B2:B5" }],
+        labelRange: "A2:A5",
+        type: "line",
+        labelsAsText: false,
+      },
+      chartId
+    );
+    await mountChartSidePanel(chartId, model);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const minInput = fixture.querySelector('[data-testid="axis-min-input"]') as HTMLInputElement;
+    expect(minInput.type).toBe("date");
+
+    await setInputValueAndTrigger(minInput, "2022-01-02");
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.x?.min).toEqual(Date.parse("2022-01-02"));
+
+    const maxInput = fixture.querySelector('[data-testid="axis-max-input"]') as HTMLInputElement;
+    await setInputValueAndTrigger(maxInput, "2022-01-04");
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign?.x?.max).toEqual(Date.parse("2022-01-04"));
+  });
+
+  test("Axis scale type is not editable for time axis", async () => {
+    const model = createModelFromGrid({
+      A2: "=DATE(2022,1,1)",
+      A3: "=DATE(2022,1,2)",
+      A4: "=DATE(2022,1,3)",
+      A5: "=DATE(2022,1,4)",
+    });
+    setFormat(model, "A2:A5", "m/d/yyyy");
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B2:B5" }],
+        labelRange: "A2:A5",
+        type: "line",
+        labelsAsText: false,
+      },
+      chartId
+    );
+    await mountChartSidePanel(chartId, model);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const scaleSelect = fixture.querySelector('[data-testid="axis-scale-select"]');
+    expect(scaleSelect).toBeNull();
+  });
+
   test.each(["min", "max"])("can edit chart vertical axis %s limit", async (boundarie: string) => {
     createChart(
       model,
