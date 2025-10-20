@@ -81,6 +81,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getUnboundedZone",
     "checkElementsIncludeAllNonFrozenHeaders",
     "getDuplicateSheetName",
+    "isSheetLocked",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -243,6 +244,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "UNFREEZE_COLUMNS_ROWS":
         this.setPaneDivisions(cmd.sheetId, 0, "COL");
         this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+        break;
+      case "LOCK_SHEET":
+        this.history.update("sheets", cmd.sheetId, "isLocked", true);
+        break;
+      case "UNLOCK_SHEET":
+        this.history.update("sheets", cmd.sheetId, "isLocked", false);
+        break;
     }
   }
 
@@ -274,6 +282,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           ySplit: sheetData.panes?.ySplit || 0,
         },
         color: sheetData.color,
+        isLocked: sheetData.isLocked,
       };
       this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
@@ -302,6 +311,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         areGridLinesVisible:
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
         isVisible: sheet.isVisible,
+        isLocked: sheet.isLocked,
         color: sheet.color,
       };
       if (sheet.panes.xSplit || sheet.panes.ySplit) {
@@ -325,6 +335,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getGridLinesVisibility(sheetId: UID): boolean {
     return this.getSheet(sheetId).areGridLinesVisible;
+  }
+
+  isSheetLocked(sheetId: UID): boolean {
+    return this.tryGetSheet(sheetId)?.isLocked || false;
   }
 
   tryGetSheet(sheetId: UID): Sheet | undefined {
@@ -605,6 +619,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         xSplit: 0,
         ySplit: 0,
       },
+      isLocked: false,
     };
     const orderedSheetIds = this.orderedSheetIds.slice();
     orderedSheetIds.splice(position, 0, sheet.id);
@@ -733,6 +748,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const newSheet: Sheet = deepCopy(sheet);
     newSheet.id = toId;
     newSheet.name = toName;
+    newSheet.isLocked = false;
     for (let col = 0; col <= newSheet.numberOfCols; col++) {
       for (let row = 0; row <= newSheet.rows.length; row++) {
         if (newSheet.rows[row]) {

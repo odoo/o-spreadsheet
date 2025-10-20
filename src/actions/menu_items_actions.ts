@@ -675,7 +675,7 @@ export const CAN_INSERT_HEADER = (env: SpreadsheetChildEnv, dimension: Dimension
 export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {
   name: (env) =>
     SELECTED_TABLE_HAS_FILTERS(env) ? _t("Remove selected filters") : _t("Add filters"),
-  isEnabled: (env) => IS_SELECTION_CONTINUOUS(env),
+  isEnabled: (env) => IS_SELECTION_CONTINUOUS(env) && !env.model.getters.isCurrentSheetLocked(),
   execute: (env) =>
     SELECTED_TABLE_HAS_FILTERS(env) ? REMOVE_DATA_FILTER(env) : ADD_DATA_FILTER(env),
   icon: "o-spreadsheet-Icon.FILTER_ICON_ACTIVE",

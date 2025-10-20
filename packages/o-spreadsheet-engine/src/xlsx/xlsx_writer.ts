@@ -23,6 +23,7 @@ import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
 import { addDataValidationRules } from "./functions/data_validation";
 import { createDrawing } from "./functions/drawings";
+import { addSheetProtection } from "./functions/sheet_protection";
 import {
   addBorders,
   addCellWiseConditionalFormatting,
@@ -210,6 +211,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         ${addHyperlinks(construct, data, sheetIndex)}
         ${drawingNode}
         ${tablesNode}
+        ${addSheetProtection(sheet)}
       </worksheet>
     `;
     files.push(createXMLFile(parseXML(sheetXml), `xl/worksheets/sheet${sheetIndex}.xml`, "sheet"));
