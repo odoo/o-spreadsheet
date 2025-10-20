@@ -22,7 +22,11 @@ export class MockCanvasRenderingContext2D {
   rotate() {}
   measureText(text: string) {
     const fontSize = getContextFontSize(this.font);
-    return { width: fontSize * text.length || 0 };
+    return {
+      width: fontSize * text.length || 0,
+      fontBoundingBoxAscent: fontSize / 2,
+      fontBoundingBoxDescent: fontSize / 2,
+    };
   }
   drawImage() {}
   resetTransform() {}

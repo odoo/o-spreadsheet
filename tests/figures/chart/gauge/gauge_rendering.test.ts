@@ -52,9 +52,9 @@ describe("Gauge rendering config", () => {
     expect(config.width).toEqual(testChartRect.width);
   });
 
-  /* In the following test, textPosition.y is expected to be NaN as the vertical position of the
+  /* In the following test, textPosition.y is expected to be 23 as the vertical position of the
      title is computed according to the title height, and fontBoundingBoxAscent and
-     fontBoundingBoxDescent are not implemented by js-dom so not available here.
+     fontBoundingBoxDescent are not implemented by js-dom so not available here, they are mocked to set values.
   */
   test("Chart title", () => {
     expect(getRenderingConfig(testRuntime).title).toEqual({
@@ -62,7 +62,7 @@ describe("Gauge rendering config", () => {
       fontSize: CHART_TITLE_FONT_SIZE,
       textPosition: {
         x: CHART_PADDING,
-        y: NaN,
+        y: 23,
       },
       color: chartMutedFontColor(testRuntime.background),
     });

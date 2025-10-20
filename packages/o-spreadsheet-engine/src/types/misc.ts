@@ -119,6 +119,7 @@ export interface Style {
   fillColor?: Color;
   textColor?: Color;
   fontSize?: number; // in pt, not in px!
+  rotation?: number; // in rad, clockwise because y+ is down
 }
 
 export interface DataBarFill {
