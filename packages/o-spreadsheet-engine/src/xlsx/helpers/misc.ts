@@ -43,19 +43,6 @@ export function arrayToObject<T>(array: T[], indexOffset = 0): { [key: number]: 
 }
 
 /**
- * Convert an object whose keys are numbers to an array were the element index was their key in the object.
- *
- * eg. : {0:"a", 2:"b"} => ["a", undefined, "b"]
- */
-export function objectToArray<T>(obj: { [key: number]: T }): T[] {
-  const arr: T[] = [];
-  for (const key of Object.keys(obj).map(Number)) {
-    arr[key] = obj[key];
-  }
-  return arr;
-}
-
-/**
  * In xlsx we can have string with unicode characters with the format _x00fa_.
  * Replace with characters understandable by JS
  */
