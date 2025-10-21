@@ -74,7 +74,7 @@ export default (commandLineArgs) => {
         plugins,
       },
       {
-        input: "../../dist/types/packages/o-spreadsheet-engine/index.d.ts",
+        input: "./build/js/o-spreadsheet-engine/src/index.d.ts",
         output: [{ file: "../../dist/o-spreadsheet-engine.d.ts", format: "es" }],
         plugins: [dts(), nodeResolve()],
       },

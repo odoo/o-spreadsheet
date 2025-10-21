@@ -44,17 +44,11 @@ export default (commandLineArgs) => {
       entries: [
         {
           find: "@odoo/o-spreadsheet-engine",
-          replacement: path.resolve(
-            __dirname,
-            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
-          ),
+          replacement: path.resolve(__dirname, "./packages/o-spreadsheet-engine/src"),
         },
         {
           find: "@odoo/o-spreadsheet-engine/*",
-          replacement: path.resolve(
-            __dirname,
-            "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
-          ),
+          replacement: path.resolve(__dirname, "./packages/o-spreadsheet-engine/src/*"),
         },
       ],
     }),
@@ -101,7 +95,7 @@ export default (commandLineArgs) => {
         plugins,
       },
       {
-        input: "dist/types/src/index.d.ts",
+        input: "dist/types/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
         plugins: [
           dts(),
@@ -110,13 +104,16 @@ export default (commandLineArgs) => {
             entries: [
               {
                 find: "@odoo/o-spreadsheet-engine",
-                replacement: path.resolve(__dirname, "./dist/types/packages/o-spreadsheet-engine"),
+                replacement: path.resolve(
+                  __dirname,
+                  "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
+                ),
               },
               {
                 find: "@odoo/o-spreadsheet-engine/*",
                 replacement: path.resolve(
                   __dirname,
-                  "./dist/types/packages/o-spreadsheet-engine/*"
+                  "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
                 ),
               },
             ],
