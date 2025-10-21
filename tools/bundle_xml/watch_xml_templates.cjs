@@ -6,6 +6,8 @@ const watcher = watch("./src", { filter: /\.xml$/, recursive: true }, (ev, name)
   bundle.writeOwlTemplateBundleToFile("build");
 });
 
+bundle.writeOwlTemplateBundleToFile("build");
+
 watcher.on("ready", () => console.log("Watching .xml files..."));
 watcher.on("error", (err) => console.error(`Error watching .xml files ${err}`));
 
