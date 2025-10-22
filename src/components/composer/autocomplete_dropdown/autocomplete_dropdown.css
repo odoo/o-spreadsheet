@@ -2,7 +2,6 @@
   .o-autocomplete-dropdown {
     pointer-events: auto;
     cursor: pointer;
-    background-color: #fff;
     max-width: 400px;
     z-index: 1;
     .o-autocomplete-value-focus {

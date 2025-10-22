@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-FunctionDescriptionProvider">
     <div class="o-formula-assistant-container user-select-none shadow">
       <t t-set="context" t-value="getContext()"/>
-      <div class="o-formula-assistant" t-if="context.functionDescription.name">
+      <div class="o-formula-assistant bg-white" t-if="context.functionDescription.name">
         <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
           <div>
             <span t-esc="context.functionDescription.name"/>

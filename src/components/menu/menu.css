@@ -1,6 +1,5 @@
 .o-spreadsheet {
   .o-menu {
-    background-color: white;
     user-select: none;
     .o-menu-item {
       cursor: pointer;

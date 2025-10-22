@@ -19,7 +19,6 @@
     }
     .o-cf-preview-icon {
       border: 1px solid var(--os-gray-300);
-      background-color: #fff;
       position: absolute;
       height: 50px;
       width: 50px;
