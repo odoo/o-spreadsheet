@@ -426,7 +426,7 @@ describe("autocomplete in composer", () => {
     expect(values[1].textContent).toBe("hello");
   });
 
-  test("Autocomplete dropdown text should be black by default", async () => {
+  test("Autocomplete dropdown text should have the default text color by default", async () => {
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["hello"],
@@ -441,7 +441,7 @@ describe("autocomplete in composer", () => {
     const values = fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value span");
     expect(values).toHaveLength(1);
     expect(values[0].textContent).toBe("hello");
-    expect(values[0].style.color).toBe("rgb(0, 0, 0)");
+    expect(values[0].style.color).toBe("");
   });
 });
 

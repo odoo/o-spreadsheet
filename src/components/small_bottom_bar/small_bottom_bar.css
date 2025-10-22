@@ -12,7 +12,6 @@
   }
 
   .o-small-composer {
-    background-color: white;
     border: var(--os-gray-400) solid 1px;
     line-height: 26px;
     display: flex;

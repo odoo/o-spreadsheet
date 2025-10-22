@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Menu">
     <div
       t-ref="menu"
-      class="o-menu"
+      class="o-menu bg-white"
       t-att-style="menuStyle"
       t-on-scroll="props.onScroll"
       t-on-wheel.stop=""

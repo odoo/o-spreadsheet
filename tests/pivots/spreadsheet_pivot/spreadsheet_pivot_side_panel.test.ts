@@ -1,4 +1,8 @@
-import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  DEFAULT_TOKEN_COLOR,
+  PIVOT_TABLE_CONFIG,
+  PIVOT_TOKEN_COLOR,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { getPivotTooBigErrorMessage } from "../../../packages/o-spreadsheet-engine/src/components/translations_terms";
@@ -282,7 +286,7 @@ describe("Spreadsheet pivot side panel", () => {
         "'amount with spaces:sum'": PIVOT_TOKEN_COLOR,
         Product: PIVOT_TOKEN_COLOR,
         Customer: PIVOT_TOKEN_COLOR,
-        NotAField: "#000000",
+        NotAField: DEFAULT_TOKEN_COLOR,
         "'Date:year'": PIVOT_TOKEN_COLOR,
       }
     );

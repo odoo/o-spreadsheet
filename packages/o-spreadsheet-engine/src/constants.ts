@@ -277,7 +277,7 @@ export const DEFAULT_CAROUSEL_TITLE_STYLE: ChartStyle = {
   color: TEXT_BODY,
 };
 
-export const DEFAULT_TOKEN_COLOR: Color = "#000000";
+export const DEFAULT_TOKEN_COLOR: Color = "light-dark(#000000, #ffffff)";
 const functionColor = DEFAULT_TOKEN_COLOR;
 const operatorColor = "#3da4ab";
 

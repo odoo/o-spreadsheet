@@ -70,7 +70,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.state = useState({ key: 0, displayHeader: false });
+    this.state = useState({ key: 0, displayHeader: false, colorScheme: "light" });
     this.stateUpdateMessages = [];
     this.client = {
       id: uuidGenerator.uuidv4(),
@@ -106,6 +106,15 @@ class Demo extends Component {
       isVisible: () => this.model.config.mode !== "dashboard",
       execute: () => this.model.updateMode("dashboard"),
       icon: "o-spreadsheet-Icon.OPEN_DASHBOARD",
+    });
+
+    topbarMenuRegistry.addChild("dark_mode", ["file"], {
+      name: "Toggle dark mode",
+      sequence: 12.5,
+      isReadonlyAllowed: true,
+      execute: () =>
+        (this.state.colorScheme = this.state.colorScheme === "dark" ? "light" : "dark"),
+      icon: "o-spreadsheet-Icon.DARK_MODE",
     });
 
     topbarMenuRegistry.addChild("read_write", ["file"], {
@@ -334,11 +343,11 @@ Demo.template = xml/* xml */ `
   <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content">
     <div class="p-3 border-bottom">A header</div>
     <div class="flex-fill" style="height: 100dvh !important;width: 100dvw !important;">
-      <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
+      <Spreadsheet model="model" notifyUser="notifyUser" colorScheme="state.colorScheme" t-key="state.key"/>
     </div>
   </div>
   <div t-else="" style="height: 100dvh !important;width: 100dvw !important;">
-    <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser"/>
+    <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser" colorScheme="state.colorScheme"/>
   </div>
 `;
 Demo.components = { Spreadsheet };

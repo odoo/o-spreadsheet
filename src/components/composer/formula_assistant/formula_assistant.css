@@ -1,5 +1,4 @@
 .o-spreadsheet .o-formula-assistant {
-  background: #ffffff;
   .o-formula-assistant-head {
     background-color: var(--os-composer-assistant-background);
     padding: 10px;
@@ -17,7 +16,7 @@
       text-shadow: 0px 0px 1px var(--os-composer-assistant-color);
     }
     div:last-child {
-      color: black;
+      color: var(--os-black);
     }
   }
   .o-formula-assistant-gray {

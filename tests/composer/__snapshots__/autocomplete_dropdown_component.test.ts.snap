@@ -2,7 +2,7 @@
 
 exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 <div
-  class="o-autocomplete-dropdown"
+  class="o-autocomplete-dropdown bg-white"
 >
   <div
     class="d-flex flex-column text-start o-autocomplete-value-focus"
@@ -17,7 +17,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
         S
       </span>
       <span
-        style="color:#000000; "
+        style=""
       >
         UM
       </span>
@@ -43,7 +43,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
         S
       </span>
       <span
-        style="color:#000000; "
+        style=""
       >
         ZZ
       </span>
@@ -63,7 +63,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
   
   
   <div
-    class="o-autocomplete-dropdown"
+    class="o-autocomplete-dropdown bg-white"
   >
     <div
       class="d-flex flex-column text-start o-autocomplete-value-focus"
@@ -78,7 +78,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
           S
         </span>
         <span
-          style="color:#000000; "
+          style=""
         >
           UM
         </span>
@@ -104,7 +104,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
           S
         </span>
         <span
-          style="color:#000000; "
+          style=""
         >
           ZZ
         </span>
@@ -126,7 +126,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
   
   
   <div
-    class="o-autocomplete-dropdown"
+    class="o-autocomplete-dropdown bg-white"
   >
     <div
       class="d-flex flex-column text-start o-autocomplete-value-focus"
@@ -141,7 +141,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
           S
         </span>
         <span
-          style="color:#000000; "
+          style=""
         >
           UM
         </span>
@@ -167,7 +167,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
           S
         </span>
         <span
-          style="color:#000000; "
+          style=""
         >
           ZZ
         </span>

@@ -10,7 +10,7 @@
     td,
     th {
       border: 1px solid var(--os-gray-300);
-      background-color: #fff;
+      background-color: var(--os-white-bg);
       padding: 0.3rem;
       white-space: nowrap;
 
@@ -26,7 +26,7 @@
     th {
       background-color: var(--os-background-gray-color);
       font-weight: bold;
-      color: black;
+      color: var(--os-black);
     }
 
     .o_missing_value {

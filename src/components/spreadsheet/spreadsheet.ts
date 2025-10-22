@@ -55,6 +55,7 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 
 export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
   model: Model;
+  colorScheme?: "dark" | "light";
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
@@ -64,6 +65,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     notifyUser: { type: Function, optional: true },
     raiseError: { type: Function, optional: true },
     askConfirmation: { type: Function, optional: true },
+    colorScheme: { type: String, optional: true },
   };
   static components = {
     TopBar,
@@ -101,6 +103,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`
       : "auto";
     properties["grid-template-columns"] = `auto ${columnWidth}`;
+    properties["color-scheme"] = this.props.colorScheme;
 
     return cssPropertiesToCss(properties);
   }
@@ -301,5 +304,12 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       width: Math.max(gridWidth - SCROLLBAR_WIDTH, 0),
       height: Math.max(gridHeight - SCROLLBAR_WIDTH, 0),
     };
+  }
+
+  getSpreadSheetClasses() {
+    return [
+      this.env.isSmall ? "o-spreadsheet-mobile" : "",
+      this.props.colorScheme === "dark" ? "dark" : "",
+    ].join(" ");
   }
 }

@@ -11,21 +11,21 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
 >
   <p>
     <span
-      style="color: rgb(61, 164, 171);"
+      style="color: #3da4ab;"
     >
       =
     </span>
   </p>
   <p>
     <span
-      style="color: rgb(235, 109, 0);"
+      style="color: #eb6d00;"
     >
       A1: 
     </span>
   </p>
   <p>
     <span
-      style="color: rgb(235, 109, 0);"
+      style="color: #eb6d00;"
     >
       A2
     </span>
@@ -35,31 +35,31 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
   </p>
   <p>
     <span
-      style="color: rgb(61, 164, 171);"
+      style="color: #3da4ab;"
     >
       +
     </span>
     <span
-      style="color: rgb(0, 0, 0);"
+      style="color: light-dark(#000000, #ffffff);"
     >
       SUM
     </span>
     <span
       class="highlight-parenthesis-flag"
-      style="color: rgb(0, 0, 0);"
+      style="color: light-dark(#000000, #ffffff);"
     >
       (
     </span>
   </p>
   <p>
     <span
-      style="color: rgb(2, 195, 154);"
+      style="color: #02c39a;"
     >
       5
     </span>
     <span
       class="highlight-parenthesis-flag"
-      style="color: rgb(0, 0, 0);"
+      style="color: light-dark(#000000, #ffffff);"
     >
       )
     </span>
@@ -116,7 +116,7 @@ exports[`Composer string is correctly translated to DOM Selection indicator in m
 >
   <p>
     <span
-      style="color: rgb(61, 164, 171);"
+      style="color: #3da4ab;"
     >
       =
     </span>
@@ -127,7 +127,7 @@ exports[`Composer string is correctly translated to DOM Selection indicator in m
   <p>
     <span
       class="selector-flag"
-      style="color: rgb(0, 0, 0);"
+      style="color: light-dark(#000000, #ffffff);"
     />
   </p>
 </div>
@@ -145,7 +145,7 @@ exports[`Composer string is correctly translated to DOM Selection indicator in s
   <p>
     <span
       class="selector-flag"
-      style="color: rgb(61, 164, 171);"
+      style="color: #3da4ab;"
     >
       =
     </span>
@@ -164,32 +164,32 @@ exports[`Composer string is correctly translated to DOM Simple formula 1`] = `
 >
   <p>
     <span
-      style="color: rgb(61, 164, 171);"
+      style="color: #3da4ab;"
     >
       =
     </span>
     <span
-      style="color: rgb(2, 195, 154);"
+      style="color: #02c39a;"
     >
       1
     </span>
     <span
-      style="color: rgb(0, 0, 0);"
+      style="color: light-dark(#000000, #ffffff);"
     >
        
     </span>
     <span
-      style="color: rgb(61, 164, 171);"
+      style="color: #3da4ab;"
     >
       +
     </span>
     <span
-      style="color: rgb(0, 0, 0);"
+      style="color: light-dark(#000000, #ffffff);"
     >
        
     </span>
     <span
-      style="color: rgb(235, 109, 0);"
+      style="color: #eb6d00;"
     >
       A1
     </span>
