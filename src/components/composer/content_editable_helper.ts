@@ -1,5 +1,5 @@
 import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
-import { deepEquals, toHex } from "../../helpers";
+import { deepEquals } from "../../helpers";
 import {
   getBoundingRectAsPOJO,
   getCurrentSelection,
@@ -162,6 +162,9 @@ export class ContentEditableHelper {
         const span = document.createElement("span");
         span.innerText = content.value;
         span.style.color = content.color || "";
+        if (content.opacity !== undefined && content.opacity !== 1) {
+          span.style.opacity = content.opacity.toString();
+        }
         span.addEventListener("mousemove", () => {
           content.onHover?.(getBoundingRectAsPOJO(span));
         });
@@ -266,11 +269,13 @@ export class ContentEditableHelper {
 }
 
 function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): boolean {
-  const contentColor = content.color ? toHex(content.color) : "";
-  const nodeColor = node.style?.color ? toHex(node.style.color) : "";
+  const contentColor = content.color || "";
+  const nodeColor = node.style?.color || "";
+  const nodeOpacity = node.style?.opacity || "1";
 
   const sameColor = contentColor === nodeColor;
   const sameClass = deepEquals(content.classes, [...node.classList]);
   const sameContent = node.innerText === content.value;
-  return sameColor && sameClass && sameContent;
+  const sameOpacity = (content.opacity ?? 1).toString() === nodeOpacity;
+  return sameColor && sameClass && sameContent && sameOpacity;
 }
