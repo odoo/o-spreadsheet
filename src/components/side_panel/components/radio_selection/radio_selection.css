@@ -9,6 +9,7 @@
       border: 1px solid var(--os-gray-300);
       outline: none;
       border-radius: 8px;
+      flex-shrink: 0;
 
       &:checked {
         background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%27-4%20-4%208%208%27%3E%3Ccircle%20r%3D%222%22%20fill%3D%22%23FFF%22/%3E%3C/svg%3E");
