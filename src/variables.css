@@ -1,57 +1,70 @@
 :root {
-  --os-gray-100: #f9fafb;
-  --os-gray-200: #e7e9ed; /* GRAY_200 */
-  --os-gray-300: #d8dadd; /* GRAY_300 */
-  --os-gray-400: #ced4da;
-  --os-gray-500: #7c7f89;
-  --os-gray-600: #5f636f;
-  --os-gray-700: #374151;
-  --os-gray-800: #1f2937;
-  --os-gray-900: #111827; /* GRAY_900 */
+  --os-gray-100: light-dark(#f9fafb, #1b1d26);
+  --os-gray-200: light-dark(#e7e9ed, #262a36); /* GRAY_200 */
+  --os-gray-300: light-dark(#d8dadd, #3c3e4b); /* GRAY_300 */
+  --os-gray-400: light-dark(#ced4da, #5a5e6b);
+  --os-gray-500: light-dark(#7c7f89, #6b707f);
+  --os-gray-600: light-dark(#5f636f, #7e8392);
+  --os-gray-700: light-dark(#374151, #b1b3bc);
+  --os-gray-800: light-dark(#1f2937, #d1d1d1);
+  --os-gray-900: light-dark(#111827, #e4e4e4); /* GRAY_900 */
+
+  --os-white: light-dark(#ffffff, #000000);
+  --os-black: light-dark(#000000, #ffffff);
+  --os-white-bg: light-dark(#ffffff, #1b1d26);
 
   --os-default-font: "Roboto", "Arial";
   --os-default-font-size: 10px;
-  --os-link-color: #017e84;
-  --os-link-hover-color: #01585c;
-  --os-text-body: #374151; /* TEXT_BODY */
-  --os-text-body-muted: #374151c2; /* TEXT_BODY_MUTED */
-  --os-disabled-text-color: #cacaca;
+  --os-link-color: light-dark(#017e84, #02c7b5);
+  --os-link-hover-color: light-dark(#01585c, #4ed8cb);
+  --os-text-body: light-dark(#374151, #e4e4e4); /* TEXT_BODY */
+  --os-text-body-muted: light-dark(#374151c2, #b1b3bcc2); /* TEXT_BODY_MUTED */
+  --os-disabled-text-color: light-dark(#cacaca, #ffffff80);
 
-  --os-button-hover-bg: var(--os-gray-300);
+  --os-button-bg: light-dark(var(--os-gray-200), var(--os-gray-300));
+  --os-button-hover-bg: light-dark(var(--os-gray-300), var(--os-gray-400));
   --os-button-hover-text-color: var(--os-gray-900);
-  --os-button-active-bg: #e6f2f3;
+  --os-button-active-bg: light-dark(#e6f2f3, #17373b);
   --os-button-active-text-color: var(--os-gray-900);
-  --os-primary-button-bg: #714b67;
-  --os-primary-button-hover-bg: #624159;
-  --os-primary-button-active-bg: #f1edf0;
+  --os-primary-button-bg: light-dark(#714b67, #6b3e66);
+  --os-primary-button-hover-bg: light-dark(#624159, #7b4775);
+  --os-primary-button-active-bg: light-dark(#f1edf0, #8b5185);
+  --os-primary-button-text-color: light-dark(#ffffff, #ffffff);
   --os-action-color: var(--os-link-color); /* ACTION_COLOR */
   --os-action-color-hover: var(--os-link-hover-color);
 
-  --os-composer-placeholder-color: #bdbdbd;
+  --os-composer-placeholder-color: light-dark(#bdbdbd, #757a89);
   --os-composer-assistant-color: #9b359b; /* COMPOSER_ASSISTANT_COLOR */
-  --os-composer-assistant-background: #f2f2f2;
+  --os-composer-assistant-background: light-dark(#f2f2f2, var(--os-gray-200));
   --os-composer-highlight-flag-color: #e6edf3;
   --os-composer-selector-flag-color: #a9a9a9;
 
   --os-selection-border-color: #3266ca; /* SELECTION_BORDER_COLOR */
   --os-badge-selected-color: var(--os-button-active-bg);
   --os-figure-border-color: var(--os-gray-400);
-  --os-background-gray-color: #f5f5f5;
+  --os-background-gray-color: light-dark(#f5f5f5, var(--os-white-bg));
+  --os-background-gray-color-hover: light-dark(rgba(0, 0, 0, 0.08), #ffffff40);
   --os-frozen-pane-header-border-color: #bcbcbc; /* FROZEN_PANE_HEADER_BORDER_COLOR */
-  --os-grid-border-color: #e2e3e3; /* CELL_BORDER_COLOR */
+  --os-grid-border-color: light-dark(#e2e3e3, var(--os-gray-200));
   --os-separator-color: var(--os-gray-300);
   --os-green-arrow-color: #6aa84f; /* Same color as CF arrow icon */
   --os-red-arrow-color: #e06666; /* Same color as CF arrow icon */
+  --os-active-sheet-bg: light-dark(#ffffff, var(--os-gray-300));
 
-  --os-alert-warning-bg: #fbebcc;
-  --os-alert-warning-border: #f8e2b3;
-  --os-alert-warning-text-color: #946d23;
-  --os-alert-danger-bg: #d44c591a;
-  --os-alert-danger-border: #c34a41;
-  --os-alert-danger-text-color: #c34a41;
-  --os-alert-info-bg: #cdedf1;
-  --os-alert-info-border: #98dbe2;
-  --os-alert-info-text-color: #09414a;
+  --os-alert-warning-bg: light-dark(#fbebcc, #3a2a05);
+  --os-alert-warning-border: light-dark(#f8e2b3, #5a420a);
+  --os-alert-warning-text-color: light-dark(#946d23, #f5d27b);
+  --os-alert-danger-bg: light-dark(#d44c591a, #3a0b0f);
+  --os-alert-danger-border: light-dark(#c34a41, #a23c36);
+  --os-alert-danger-text-color: light-dark(#c34a41, #ffb3a9);
+  --os-alert-info-bg: light-dark(#cdedf1, #062a30);
+  --os-alert-info-border: light-dark(#98dbe2, #22747e);
+  --os-alert-info-text-color: light-dark(#09414a, #9ee3ec);
+
+  --os-chart-preview-orange-line: light-dark(#eb6d00, #ff9d4d);
+  --os-chart-preview-orange-fill: light-dark(#ffe1c8, #734200);
+  --os-chart-preview-blue-line: light-dark(#0074d9, #4cb3ff);
+  --os-chart-preview-blue-fill: light-dark(#c4e4ff, #003e73);
 
   --os-header-height: 26px;
   --os-header-width: 48px;

@@ -8,3 +8,9 @@
     height: fit-content;
   }
 }
+
+.o-spreadsheet.dark {
+  .o-popover {
+    border: 1px solid var(--os-gray-400);
+  }
+}

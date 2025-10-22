@@ -33,7 +33,7 @@ import {
 } from "../../../../types";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { getTextDecoration } from "../../../helpers";
+import { cssPropertiesToCss, getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
@@ -402,15 +402,20 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     this.closeMenus();
   }
 
-  getPreviewGradient() {
+  getColorScalePreviewStyle() {
     const rule = this.state.rules.colorScale;
     const minColor = colorNumberToHex(rule.minimum.color);
     const midColor = colorNumberToHex(rule.midpoint?.color || DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
     const maxColor = colorNumberToHex(rule.maximum.color);
-    const baseString = "background-image: linear-gradient(to right, ";
-    return rule.midpoint === undefined
-      ? baseString + minColor + ", " + maxColor + ")"
-      : baseString + minColor + ", " + midColor + ", " + maxColor + ")";
+    const baseString = "linear-gradient(to right, ";
+    const backgroundImage =
+      rule.midpoint === undefined
+        ? baseString + minColor + ", " + maxColor + ")"
+        : baseString + minColor + ", " + midColor + ", " + maxColor + ")";
+    return cssPropertiesToCss({
+      "background-image": backgroundImage,
+      color: "#000",
+    });
   }
 
   getThresholdColor(threshold?: ColorScaleThreshold) {

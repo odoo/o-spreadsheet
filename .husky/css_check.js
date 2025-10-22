@@ -21,7 +21,7 @@ for (const file of files) {
   content = content.replace(commentPattern, "");
   // look for first level selectors
   const firstLevelSelectors = content.match(firstLevelSelectorPattern) || [];
-  if (!firstLevelSelectors.every((line) => line.startsWith(".o-spreadsheet "))) {
+  if (!firstLevelSelectors.every((line) => line.startsWith(".o-spreadsheet ") || line.startsWith(".o-spreadsheet."))) {
     faultyFiles.push(file);
   }
 }
@@ -38,7 +38,7 @@ Every css selector should be encompassed within .o-spreadsheet. For example:
 .o-spreadsheet {
     ...
 }
-or 
+or
 .o-spreadsheet .foo {
     ...
 }

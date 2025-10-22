@@ -5,7 +5,7 @@
   </t>
 
   <t t-name="o-spreadsheet-SidePanelExtended">
-    <div class="o-sidePanel h-100">
+    <div class="o-sidePanel h-100 bg-white">
       <div class="o-sidePanelHeader d-flex align-items-center justify-content-between">
         <div
           t-if="props.onToggleCollapsePanel"
@@ -50,7 +50,9 @@
   </t>
 
   <t t-name="o-spreadsheet-SidePanelCollapsed">
-    <div class="o-sidePanel collapsed w-100 h-100" t-on-click="props.onToggleCollapsePanel">
+    <div
+      class="o-sidePanel collapsed w-100 h-100 bg-white"
+      t-on-click="props.onToggleCollapsePanel">
       <div class="d-flex flex-column align-items-center">
         <div
           t-if="props.onToggleCollapsePanel"

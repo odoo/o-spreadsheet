@@ -60,7 +60,7 @@
           t-on-click="closeAssistant"
           class="fa-stack position-absolute top-0 start-100 translate-middle fs-4">
           <i class="fa fa-circle fa-stack-1x fa-inverse"/>
-          <i class="fa fa-times-circle fa-stack-1x text-muted"/>
+          <i class="fa fa-times-circle fa-stack-1x"/>
         </span>
         <div class="o-composer-assistant overflow-auto" t-att-style="assistantStyle">
           <FunctionDescriptionProvider

@@ -497,3 +497,9 @@ test("components take the small screen into account", async () => {
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   expect(fixture.querySelector(".o-spreadsheet-mobile")).not.toBeNull();
 });
+
+test("Spreadsheet color scheme can be set to dark", async () => {
+  const model = new Model();
+  await mountSpreadsheet({ model, colorScheme: "dark" });
+  expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
+});

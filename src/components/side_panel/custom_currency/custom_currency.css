@@ -1,8 +1,5 @@
 .o-spreadsheet {
   .o-custom-currency {
-    .o-format-proposals {
-      color: black;
-    }
     .o-format-examples {
       background: var(--os-gray-100);
       padding: 8px;

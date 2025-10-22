@@ -191,7 +191,12 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
     return { pass: true, message: () => "" };
   },
   toBeSameColorAs(received: string, expected: string, tolerance: number = 0) {
-    const pass = isSameColor(received, expected, tolerance);
+    let pass = false;
+    if (received.startsWith("light-dark") || expected.startsWith("light-dark")) {
+      pass = received === expected;
+    } else {
+      pass = isSameColor(received, expected, tolerance);
+    }
     const message = () =>
       pass
         ? ""

@@ -1,7 +1,6 @@
 .o-spreadsheet {
   .o-link-tool {
     font-size: 13px;
-    background-color: white;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
     padding: 6px 12px;
     border-radius: 4px;
@@ -42,6 +41,6 @@
   }
   .o-link-icon:hover {
     cursor: pointer;
-    color: #000;
+    color: var(--os-black);
   }
 }

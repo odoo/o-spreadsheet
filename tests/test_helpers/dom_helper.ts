@@ -441,7 +441,7 @@ export function getComposerColors(composerEl: Element) {
     const _el = el as HTMLElement;
     if (_el.tagName === "SPAN") {
       const color = getElComputedStyle(_el, "color");
-      colors[_el.textContent!] = toHex(color);
+      colors[_el.textContent!] = color;
     }
   }
   return colors;

@@ -5,7 +5,7 @@
         <RibbonMenu onClose="() => this.menuState.isOpen=false"/>
       </t>
       <t t-else="">
-        <div class="o-small-composer px-2 py-2 position-relative">
+        <div class="o-small-composer px-2 py-2 position-relative bg-white">
           <div class="w-100" t-ref="bottombarComposer">
             <Composer t-props="composerProps"/>
             <span

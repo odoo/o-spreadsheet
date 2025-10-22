@@ -1,7 +1,6 @@
 .o-spreadsheet {
   .o-border-selector {
     padding: 4px;
-    background-color: white;
 
     .o-divider {
       border-right: 1px solid var(--os-gray-300);
@@ -30,7 +29,6 @@
   }
 
   .o-border-style-dropdown {
-    background: #ffffff;
     padding: 4px;
     .o-style-preview {
       margin: 7px 5px 7px 5px;
@@ -38,19 +36,19 @@
       height: 5px;
     }
     .o-style-thin {
-      border-bottom: 1px solid #000000;
+      border-bottom: 1px solid var(--os-black);
     }
     .o-style-medium {
-      border-bottom: 2px solid #000000;
+      border-bottom: 2px solid var(--os-black);
     }
     .o-style-thick {
-      border-bottom: 3px solid #000000;
+      border-bottom: 3px solid var(--os-black);
     }
     .o-style-dashed {
-      border-bottom: 1px dashed #000000;
+      border-bottom: 1px dashed var(--os-black);
     }
     .o-style-dotted {
-      border-bottom: 1px dotted #000000;
+      border-bottom: 1px dotted var(--os-black);
     }
     .o-dropdown-border-type {
       cursor: pointer;
