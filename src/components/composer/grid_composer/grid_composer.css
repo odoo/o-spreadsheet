@@ -1,5 +1,6 @@
 .o-spreadsheet {
   div.o-grid-composer {
+    color-scheme: light;
     z-index: var(--os-components-importance-grid-composer);
     position: absolute;
     font-family: var(--os-default-font);

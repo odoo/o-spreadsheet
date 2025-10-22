@@ -61,7 +61,7 @@
   <t t-name="o-spreadsheet-ColorScaleRuleEditor">
     <div class="o-cf-color-scale-editor">
       <div class="o-section-subtitle">Preview</div>
-      <div class="o-cf-preview-display mb-4" t-attf-style="{{getPreviewGradient()}}">
+      <div class="o-cf-preview-display mb-4" t-attf-style="{{getColorScalePreviewStyle()}}">
         Preview text
       </div>
       <div class="o-section-subtitle">Minpoint</div>

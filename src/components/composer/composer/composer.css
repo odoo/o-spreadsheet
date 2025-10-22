@@ -6,7 +6,7 @@
       word-break: break-all;
       padding-right: 2px;
 
-      caret-color: black;
+      caret-color: var(--os-black);
       padding-left: 3px;
       padding-right: 3px;
       outline: none;
@@ -72,6 +72,12 @@
         * 'fw-semibold' when we upgrade to Bootstrap 5.2
         */
         font-weight: 600 !important;
+      }
+    }
+
+    .o-composer-assistant-container {
+      .fa-times-circle {
+        color: var(--os-primary-button-bg);
       }
     }
   }

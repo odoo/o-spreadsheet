@@ -36,7 +36,7 @@ export class TextValueProvider extends Component<Props> {
 
   getCss(html: HtmlContent) {
     return cssPropertiesToCss({
-      color: html.color || "#000000",
+      color: html.color,
       background: html.backgroundColor,
     });
   }

@@ -1,4 +1,4 @@
-import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
@@ -93,14 +93,14 @@ describe("ranges and highlights", () => {
     const composerEl = await typeInComposer("=SU");
     const contentColors = getComposerColors(composerEl);
     expect(contentColors["="]).toBeSameColorAs("#3da4ab");
-    expect(contentColors["SU"]).toBeSameColorAs("#000000");
+    expect(contentColors["SU"]).toBeSameColorAs(DEFAULT_TOKEN_COLOR);
   });
 
   test("+SU, the + should be colored", async () => {
     const composerEl = await typeInComposer("+SU");
     const contentColors = getComposerColors(composerEl);
     expect(contentColors["+"]).toBeSameColorAs("#3da4ab");
-    expect(contentColors["SU"]).toBeSameColorAs("#000000");
+    expect(contentColors["SU"]).toBeSameColorAs(DEFAULT_TOKEN_COLOR);
   });
 
   test.each([
@@ -1132,7 +1132,7 @@ describe("composer formula color", () => {
     expect(getComposerColors(composerEl)["TRUE"]).toBeSameColorAs(tokenColors.NUMBER);
   });
 
-  test(`type '=SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
+  test(`aaaa`, async () => {
     const composerEl = await typeInComposer('=SUM(1, "2"))');
     expect(getComposerColors(composerEl)[")"]).toBeSameColorAs(tokenColors.ORPHAN_RIGHT_PAREN);
   });
