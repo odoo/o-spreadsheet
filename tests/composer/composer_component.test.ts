@@ -1342,6 +1342,24 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
     ]);
   });
 
+  test("blurred tokens have reduced opacity", async () => {
+    const str = "=SUM(COS(";
+    await typeInComposer(str);
+    composerStore.changeComposerCursorSelection(str.length, str.length);
+    await nextTick();
+    const spans = [...fixture.querySelectorAll<HTMLElement>("div.o-composer span")].map((el) => ({
+      value: el.textContent || "",
+      opacity: el.style.opacity || "1",
+    }));
+    expect(spans).toEqual([
+      { value: "=", opacity: "0.5" },
+      { value: "SUM", opacity: "0.5" },
+      { value: "(", opacity: "0.5" },
+      { value: "COS", opacity: "1" },
+      { value: "(", opacity: "1" },
+    ]);
+  });
+
   describe("lighten correctly when too much parenthesis", () => {
     test.each([
       "",
