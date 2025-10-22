@@ -14,7 +14,7 @@
       &:hover,
       &:target {
         color: var(--os-gray-900) !important;
-        background: rgba(0, 0, 0, 0.1);
+        background: var(--os-background-gray-color-hover);
       }
 
       .o-chart-preview {

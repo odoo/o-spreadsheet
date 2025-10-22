@@ -2,7 +2,6 @@
   .o-table-style-popover {
     /* 7 tables preview + padding by line */
     width: calc((66px + 4px * 2) * 7 + 1.5rem * 2);
-    background: #fff;
     font-size: 14px;
     user-select: none;
 
@@ -19,7 +18,7 @@
         transition: color 0.2s, border-color 0.2s;
 
         &.selected {
-          border-bottom-color: #fff;
+          border-bottom-color: var(--os-white);
           border-top-color: var(--os-primary-button-bg);
           color: var(--os-button-active-text-color);
         }

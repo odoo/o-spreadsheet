@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Spreadsheet">
     <div
       class="o-spreadsheet h-100 w-100"
-      t-att-class="{'o-spreadsheet-mobile': env.isSmall}"
+      t-att-class="getSpreadSheetClasses()"
       t-ref="spreadsheet"
       t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
