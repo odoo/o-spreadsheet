@@ -4,6 +4,7 @@ import { HeaderIndex, Highlight, Table, Zone } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
+import { withZoom } from "../../helpers/zoom";
 
 const SIZE = 3;
 const COLOR = "#777";
@@ -45,6 +46,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
+    const zoomedMouseEvent = withZoom(this.env, ev);
 
     const onMouseUp = () => {
       document.body.style.cursor = "";
@@ -67,7 +69,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
         bottom: Math.max(row, topLeft.row),
       };
     };
-    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(zoomedMouseEvent, onMouseMove, onMouseUp);
   }
 
   get highlights(): Highlight[] {

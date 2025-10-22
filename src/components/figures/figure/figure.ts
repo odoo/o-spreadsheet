@@ -12,6 +12,7 @@ import {
   UID,
 } from "../../../types/index";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { withZoom } from "../../helpers/zoom";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 
 type ResizeAnchor =
@@ -247,7 +248,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onContextMenu(ev: MouseEvent) {
     if (this.env.isDashboard()) return;
-    this.openContextMenu({ x: ev.clientX, y: ev.clientY, width: 0, height: 0 });
+    const zoomedMouseEvent = withZoom(this.env, ev);
+    this.openContextMenu({
+      x: zoomedMouseEvent.clientX,
+      y: zoomedMouseEvent.clientY,
+      width: 0,
+      height: 0,
+    });
   }
 
   showMenu() {

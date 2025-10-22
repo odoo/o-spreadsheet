@@ -10,6 +10,7 @@ import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_hel
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
+import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
@@ -42,7 +43,10 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
-    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
+    useChildSubEnv({
+      getPopoverContainerRect: () =>
+        getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
+    });
     useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);

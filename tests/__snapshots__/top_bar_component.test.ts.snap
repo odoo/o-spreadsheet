@@ -153,6 +153,34 @@ exports[`TopBar component can set cell format 1`] = `
                 
                 
               </span>
+              <div>
+                <div
+                  class="o-dropdown"
+                >
+                  <div
+                    class="o-font-size-editor d-flex align-items-center o-menu-item-button o-hoverable-button o-toolbar-button"
+                    title="Zoom"
+                  >
+                    <input
+                      class="o-font-size o-number-input bg-transparent border-0"
+                      max="max"
+                      min="min"
+                      type="number"
+                    />
+                    %
+                    <span>
+                      <div
+                        class="o-icon fa-small"
+                      >
+                        <i
+                          class="fa fa-caret-down"
+                        />
+                      </div>
+                    </span>
+                  </div>
+                  
+                </div>
+              </div>
               
               
               <div
@@ -264,10 +292,11 @@ exports[`TopBar component can set cell format 1`] = `
                 >
                   <input
                     class="o-font-size o-number-input bg-transparent border-0"
-                    max="400"
-                    min="1"
+                    max="max"
+                    min="min"
                     type="number"
                   />
+                  
                   <span>
                     <div
                       class="o-icon fa-small"
@@ -1289,6 +1318,34 @@ exports[`TopBar component simple rendering 1`] = `
             
             
           </span>
+          <div>
+            <div
+              class="o-dropdown"
+            >
+              <div
+                class="o-font-size-editor d-flex align-items-center o-menu-item-button o-hoverable-button o-toolbar-button"
+                title="Zoom"
+              >
+                <input
+                  class="o-font-size o-number-input bg-transparent border-0"
+                  max="max"
+                  min="min"
+                  type="number"
+                />
+                %
+                <span>
+                  <div
+                    class="o-icon fa-small"
+                  >
+                    <i
+                      class="fa fa-caret-down"
+                    />
+                  </div>
+                </span>
+              </div>
+              
+            </div>
+          </div>
           
           
           <div
@@ -1399,10 +1456,11 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <input
                 class="o-font-size o-number-input bg-transparent border-0"
-                max="400"
-                min="1"
+                max="max"
+                min="min"
                 type="number"
               />
+              
               <span>
                 <div
                   class="o-icon fa-small"

@@ -75,8 +75,10 @@ interface Segment {
 export function drawGaugeChart(
   canvas: CanvasSurface,
   runtime: GaugeAnimatedRuntime,
-  dimensions?: DOMDimension // TODO VSC: this doesn't look used, consider removing this param
+  dimensions?: DOMDimension, // TODO VSC: this doesn't look used, consider removing this param
+  options: { zoom?: number } = { zoom: 1 }
 ) {
+  // const zoom = options.zoom || 1;
   const size = dimensions ?? getCanvasSize(canvas);
   const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
   canvas.width = size.width * dpr;

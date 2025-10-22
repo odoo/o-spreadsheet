@@ -118,10 +118,11 @@ exports[`Chart title Can render a chart title component 1`] = `
           >
             <input
               class="o-font-size o-number-input bg-transparent border-0"
-              max="400"
-              min="1"
+              max="max"
+              min="min"
               type="number"
             />
+            
             <span>
               <div
                 class="o-icon fa-small"

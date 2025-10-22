@@ -2,12 +2,13 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
+  ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { toHex, toZone } from "../../src/helpers";
-import { Color, Range } from "../../src/types";
+import { Color, Pixel, Range } from "../../src/types";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -760,17 +761,26 @@ describe("Border component", () => {
   });
 });
 
-describe("Edge-Scrolling on mouseMove of hightlights", () => {
+const zv = ZOOM_VALUES;
+describe.each(zv)("Edge-Scrolling on mouseMove of hightlights with zoom %s%", (zoomValue) => {
+  let zoom: number;
+  let width: Pixel;
+  let height: Pixel;
   beforeEach(async () => {
     jest.useFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());
+    zoom = zoomValue / 100;
+    model.dispatch("SET_ZOOM", { zoom });
+    ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
+    // In test sheetviewDim is not changed based on the Zoom
+    width = width * zoom;
+    height = height * zoom;
     // ensure that highlights exist
     await startGridComposition();
     await typeInComposerGrid("=A1");
   });
 
   test("Can edge-scroll border horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
     const y = DEFAULT_CELL_HEIGHT;
 
     triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
@@ -805,7 +815,6 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
   });
 
   test("Can edge-scroll border vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-border-n", "pointermove", x, 1.5 * height);
@@ -840,7 +849,6 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
   });
 
   test("Can edge-scroll corner horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
     const y = DEFAULT_CELL_HEIGHT;
 
     triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
@@ -875,7 +883,6 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
   });
 
   test("Can edge-scroll corner vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-corner-nw", "pointermove", x, 1.5 * height);
