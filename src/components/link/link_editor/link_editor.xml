@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-LinkEditor">
     <div
-      class="o-link-editor"
+      class="o-link-editor bg-white"
       t-on-click.stop="() => this.menu.isOpen=false"
       t-on-keydown="onKeyDown">
       <div class="o-section">
@@ -43,7 +43,7 @@
           <button
             t-if="!link.url"
             t-on-click.stop="openMenu"
-            class="o-special-link o-button-icon"
+            class="o-special-link o-button-icon bg-white"
             t-ref="linkEditorMenuButton">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>

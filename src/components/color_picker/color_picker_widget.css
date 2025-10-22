@@ -14,7 +14,7 @@
       border-radius: 2px;
       cursor: pointer;
       &:not([disabled]):hover {
-        background-color: rgba(0, 0, 0, 0.08);
+        background-color: var(--os-background-gray-color-hover);
       }
     }
 

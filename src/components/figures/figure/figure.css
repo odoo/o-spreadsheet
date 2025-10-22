@@ -1,5 +1,8 @@
 .o-spreadsheet {
   div.o-figure {
+    color-scheme: light;
+    color: var(--os-text-body);
+
     position: absolute;
     width: 100%;
     height: 100%;
