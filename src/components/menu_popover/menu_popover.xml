@@ -3,7 +3,7 @@
     <Popover t-if="props.menuItems" t-props="popoverProps">
       <div
         t-ref="menu"
-        class="o-menu-wrapper bg-white"
+        class="o-menu-wrapper o-bg-popover"
         t-on-mouseover="() => this.onMouseOverMainMenu()">
         <Menu t-props="menuProps"/>
       </div>

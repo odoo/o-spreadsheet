@@ -12,6 +12,7 @@
   --os-white: light-dark(#ffffff, #000000);
   --os-black: light-dark(#000000, #ffffff);
   --os-white-bg: light-dark(#ffffff, #1b1d26);
+  --os-popover-bg: light-dark(#ffffff, var(--os-gray-300));
 
   --os-default-font: "Roboto", "Arial";
   --os-default-font-size: 10px;

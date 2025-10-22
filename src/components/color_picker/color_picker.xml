@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-ColorPicker">
     <Popover t-props="popoverProps">
-      <div class="o-color-picker bg-white" t-on-click.stop="" t-att-style="colorPickerStyle">
+      <div class="o-color-picker o-bg-popover" t-on-click.stop="" t-att-style="colorPickerStyle">
         <div class="o-color-picker-section-name">Standard</div>
         <div class="colors-grid">
           <div
@@ -27,7 +27,7 @@
           <span>Custom</span>
         </div>
         <div class="colors-grid o-color-picker-toggler" t-on-click.stop="toggleColorPicker">
-          <div class="o-color-picker-line-item bg-white o-color-picker-toggler-button">
+          <div class="o-color-picker-line-item o-bg-popover o-color-picker-toggler-button">
             <div class="o-color-picker-toggler-sign">
               <t t-call="o-spreadsheet-Icon.PLUS"/>
             </div>

@@ -20,7 +20,7 @@
     <Popover t-if="state.popoverProps" t-props="state.popoverProps">
       <div
         t-ref="popoverRef"
-        class="o-chart-select-popover px-3 pb-4 bg-white"
+        class="o-chart-select-popover px-3 pb-4 o-bg-popover"
         t-att-style="state.popoverStyle">
         <t t-foreach="categories" t-as="category" t-key="category">
           <t t-if="chartTypeByCategories[category]">

@@ -24,7 +24,7 @@
         </span>
       </div>
       <Popover t-if="dropdown.isOpen" t-props="popoverProps">
-        <div class="o-text-options bg-white" t-on-click.stop="" t-ref="fontSizeList">
+        <div class="o-text-options o-bg-popover" t-on-click.stop="" t-ref="fontSizeList">
           <t t-foreach="fontSizes" t-as="fontSize" t-key="fontSize">
             <div
               t-esc="fontSize"

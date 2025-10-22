@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-FilterMenu">
-    <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
+    <div class="o-filter-menu d-flex flex-column o-bg-popover" t-on-wheel.stop="">
       <t t-if="isSortable">
         <div>
           <div

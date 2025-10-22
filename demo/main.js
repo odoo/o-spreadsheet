@@ -70,7 +70,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.state = useState({ key: 0, displayHeader: false, colorScheme: "light" });
+    this.state = useState({ key: 0, displayHeader: false, colorScheme: "dark" });
     this.stateUpdateMessages = [];
     this.client = {
       id: uuidGenerator.uuidv4(),

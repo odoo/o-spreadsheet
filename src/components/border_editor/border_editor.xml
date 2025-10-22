@@ -3,7 +3,7 @@
     <t t-set="border_color">Border Color</t>
     <Popover t-props="popoverProps">
       <div
-        class="d-flex o-border-selector bg-white"
+        class="d-flex o-border-selector o-bg-popover"
         t-on-click.stop=""
         t-att-class="props.class ? props.class : ''">
         <div class="o-border-selector-section">
@@ -52,7 +52,7 @@
             <Popover
               t-props="lineStylePickerPopoverProps"
               t-if="state.activeTool === 'borderTypeTool'">
-              <div class="o-border-style-dropdown bg-white">
+              <div class="o-border-style-dropdown o-bg-popover">
                 <t t-foreach="borderStyles" t-as="borderStyle" t-key="borderStyle">
                   <div
                     t-att-title="borderStyle"

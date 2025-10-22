@@ -5,6 +5,10 @@
     background-color: var(--os-white-bg) !important;
   }
 
+  .o-bg-popover {
+    background-color: var(--os-popover-bg);
+  }
+
   select > option {
     background-color: var(--os-white-bg);
   }
