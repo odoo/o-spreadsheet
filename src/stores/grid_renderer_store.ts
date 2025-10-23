@@ -641,7 +641,7 @@ export class GridRenderer extends SpreadsheetStore {
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const align = this.getters.getCellComputedStyle(position)?.align;
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
       return "left";
@@ -652,7 +652,7 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport, precomputeZone: Zone): Box {
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -661,9 +661,9 @@ export class GridRenderer extends SpreadsheetStore {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
-    const border = this.getters.getCellComputedBorder(position, precomputeZone);
+    const border = this.getters.getCellComputedBorder(position, viewport);
 
-    let style = this.getters.getCellComputedStyle(position);
+    let style = this.getters.getCellComputedStyle(position, viewport);
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };
@@ -860,7 +860,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, zone));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -868,7 +868,7 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport, zone);
+        const box = this.createZoneBox(sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellComputedBorder(
           {
             sheetId,

@@ -1,10 +1,10 @@
 import {
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT_SIZE,
-  DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { DEFAULT_STYLE_NO_ALIGN } from "@odoo/o-spreadsheet-engine/plugins/core/style";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import {
   addDataValidation,
@@ -15,7 +15,7 @@ import {
   setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getCellStyle } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("styles", () => {
@@ -24,7 +24,7 @@ describe("styles", () => {
     setStyle(model, "B1", { fillColor: "red" });
 
     expect(getCellContent(model, "B1")).toBe("");
-    expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCellStyle(model, "B1")).toBeDefined();
     undo(model);
     expect(getCell(model, "B1")).toBeUndefined();
   });
@@ -34,10 +34,10 @@ describe("styles", () => {
     setCellContent(model, "B1", "some content");
     setStyle(model, "B1", { fillColor: "red" });
     expect(getCellContent(model, "B1")).toBe("some content");
-    expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCellStyle(model, "B1")).toBeDefined();
     undo(model);
     expect(getCellContent(model, "B1")).toBe("some content");
-    expect(getCell(model, "B1")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "B1")).not.toBeDefined();
   });
 
   test("can clear formatting (style)", () => {
@@ -45,18 +45,18 @@ describe("styles", () => {
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     setStyle(model, "B1", { fillColor: "red" });
-    expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCellStyle(model, "B1")).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCellContent(model, "B1")).toBe("b1");
-    expect(getCell(model, "B1")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "B1")).not.toBeDefined();
   });
 
   test("default style values are not exported", () => {
     const model = new Model();
-    setStyle(model, "A1", DEFAULT_STYLE);
+    setStyle(model, "A1", DEFAULT_STYLE_NO_ALIGN);
     const data = model.exportData();
     expect(data.sheets[0].styles.A1).toBeUndefined();
     expect(data.styles).toEqual({});
@@ -87,7 +87,7 @@ describe("styles", () => {
     const model = new Model();
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
-    expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCellStyle(model, "B1")).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
@@ -101,15 +101,15 @@ describe("styles", () => {
     setCellContent(model, "B1", "b1");
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
-    expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCellStyle(model, "B1")).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
     });
-    expect(getCell(model, "B1")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "B1")).not.toBeDefined();
     undo(model);
-    expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCellStyle(model, "B1")).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
   });
 
@@ -129,7 +129,7 @@ describe("styles", () => {
     createSheet(model, { sheetId: "42" });
     setStyle(model, "A1", { fillColor: "red" }, "42");
     expect(getCell(model, "A1")).toBeUndefined();
-    expect(getCell(model, "A1", "42")!.style).toBeDefined();
+    expect(getCellStyle(model, "A1", "42")).toBeDefined();
   });
 
   test("getCellWidth use computed style", () => {

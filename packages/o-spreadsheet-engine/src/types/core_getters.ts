@@ -14,6 +14,7 @@ import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { StylePlugin } from "../plugins/core/style";
 import { TablePlugin } from "../plugins/core/tables";
 
 /**
@@ -71,6 +72,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &
   PluginGetters<typeof CellPlugin> &
+  PluginGetters<typeof StylePlugin> &
   PluginGetters<typeof MergePlugin> &
   PluginGetters<typeof BordersPlugin> &
   PluginGetters<typeof ChartPlugin> &

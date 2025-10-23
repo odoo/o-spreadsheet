@@ -11,7 +11,15 @@ import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
 import { Command } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
-import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
+import {
+  CellPosition,
+  Dimension,
+  HeaderIndex,
+  Immutable,
+  Pixel,
+  UID,
+  Zone,
+} from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {
@@ -101,6 +109,14 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
           }
         }
         break;
+      case "SET_FORMATTING":
+        if (cmd.style && ("fontSize" in cmd.style || "wrapping" in cmd.style)) {
+          for (const zone of cmd.target) {
+            // TODO FLDA use rangeSet
+            this.updateRowSizeForZoneChange(cmd.sheetId, zone);
+          }
+        }
+        break;
       case "UPDATE_CELL":
         this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
         break;
@@ -149,6 +165,13 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
       : this.getters.getColSize(sheetId, index);
   }
 
+  private updateRowSizeForZoneChange(sheetId: UID, zone: Zone) {
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      const newTallestCell = this.getRowTallestCell(sheetId, row);
+      this.history.update("tallestCellInRow", sheetId, row, newTallestCell);
+    }
+  }
+
   private updateRowSizeForCellChange(sheetId: UID, row: HeaderIndex, col: HeaderIndex) {
     const tallestCellInRow = this.tallestCellInRow[sheetId]?.[row];
     if (tallestCellInRow?.cell.col === col) {
@@ -189,9 +212,9 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     }
 
     const cell = this.getters.getCell(position);
-
+    const style = this.getters.getCellStyle(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, colSize);
+    return getDefaultCellHeight(this.ctx, cell, style, colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {

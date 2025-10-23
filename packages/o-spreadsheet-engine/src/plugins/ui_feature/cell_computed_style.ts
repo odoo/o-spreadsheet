@@ -84,31 +84,35 @@ export class CellComputedStylePlugin extends UIPlugin {
     }
   }
 
-  getCellComputedStyle(position: CellPosition): Style {
+  getCellComputedStyle(position: CellPosition, precomputeZone?: Zone): Style {
     let style = this.styles.get(position);
     if (style === undefined) {
-      style = this.computeCellStyle(position);
-      this.styles.set(position, style);
+      this.precomputeCellStyle(position.sheetId, precomputeZone ?? positionToZone(position));
+      style = this.styles.get(position) ?? {};
     }
     return style;
   }
 
-  private computeCellStyle(position: CellPosition): Style {
-    const cell = this.getters.getCell(position);
-    const cfStyle = this.getters.getCellConditionalFormatStyle(position);
-    const tableStyle = this.getters.getCellTableStyle(position);
-    const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
-    const computedStyle = {
-      ...removeFalsyAttributes(tableStyle),
-      ...removeFalsyAttributes(dataValidationStyle),
-      ...removeFalsyAttributes(cell?.style),
-      ...removeFalsyAttributes(cfStyle),
-    };
-    const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (evaluatedCell.link && !computedStyle.textColor) {
-      computedStyle.textColor = LINK_COLOR;
+  private precomputeCellStyle(sheetId: UID, zone: Zone) {
+    //Todo batch cf/dv style
+    const styles = this.getters.getCellStyleInZone(sheetId, zone);
+    const tableStyles = this.getters.getCellTableStyleZone(sheetId, zone);
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        const position = { sheetId, col, row };
+        if (this.styles.get(position) !== undefined) continue;
+        const computedStyle = {
+          ...removeFalsyAttributes(tableStyles.get(position)),
+          ...removeFalsyAttributes(this.getters.getDataValidationCellStyle(position)),
+          ...removeFalsyAttributes(styles.get(position)),
+          ...removeFalsyAttributes(this.getters.getCellConditionalFormatStyle(position)),
+        };
+        const evaluatedCell = this.getters.getEvaluatedCell(position);
+        if (evaluatedCell.link && !computedStyle.textColor) {
+          computedStyle.textColor = LINK_COLOR;
+        }
+        this.styles.set(position, computedStyle);
+      }
     }
-
-    return computedStyle;
   }
 }

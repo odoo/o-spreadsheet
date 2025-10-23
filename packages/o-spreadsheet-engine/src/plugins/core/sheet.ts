@@ -174,6 +174,18 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
+  beforeHandle(cmd: CoreCommand): void {
+    switch (cmd.type) {
+      case "REMOVE_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+        } else {
+          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+        }
+        break;
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "SET_GRID_LINES_VISIBILITY":
@@ -209,14 +221,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);
-        break;
-
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        } else {
-          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        }
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
@@ -747,14 +751,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
     for (const cell of Object.values(this.getters.getCells(fromId))) {
-      const { col, row } = this.getCellPosition(cell.id);
+      const { sheetId, col, row } = this.getCellPosition(cell.id);
+      const style = this.getters.getCellStyle({ sheetId, col, row });
       this.dispatch("UPDATE_CELL", {
         sheetId: newSheet.id,
         col,
         row,
         content: cell.content,
         format: cell.format,
-        style: cell.style,
+        style,
       });
     }
 
