@@ -72,6 +72,7 @@ interface FunctionDescriptionState {
   showDescription: boolean;
   functionDescription: FunctionDescription;
   argsToFocus: number[];
+  repeatingArgGroupIndex: number | undefined;
 }
 
 export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> {
@@ -116,6 +117,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     showDescription: false,
     functionDescription: {} as FunctionDescription,
     argsToFocus: [],
+    repeatingArgGroupIndex: 0,
   });
   assistant = useState({
     forcedClosed: false,
@@ -761,8 +763,38 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         );
 
         this.functionDescriptionState.showDescription = true;
+        this.functionDescriptionState.repeatingArgGroupIndex = this.getRepeatingArgGroupIndex(
+          description,
+          nbrArgSupplied,
+          argPosition
+        );
       }
     }
+  }
+
+  private getRepeatingArgGroupIndex(
+    description: FunctionDescription,
+    nbrArgSupplied: number,
+    argPosition: number
+  ): number | undefined {
+    const { minArgRequired, maxArgPossible, nbrArgRepeating } = description;
+
+    if (!nbrArgRepeating) {
+      return undefined;
+    }
+
+    const groupsOfOptionalRepeatingValues = nbrArgRepeating
+      ? Math.ceil((nbrArgSupplied - minArgRequired) / nbrArgRepeating)
+      : 0;
+
+    const nbrArgSuppliedRoundedToGroupOfRepeating =
+      groupsOfOptionalRepeatingValues * nbrArgRepeating + minArgRequired;
+    return (
+      argTargeting(
+        description,
+        Math.max(Math.min(maxArgPossible, nbrArgSuppliedRoundedToGroupOfRepeating), minArgRequired)
+      )(argPosition).repeatingGroupIndex ?? 0
+    );
   }
 
   /**
@@ -779,7 +811,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     nbrArgSupplied: number,
     argPosition: number
   ): number[] {
-    const { nbrArgRepeating, minArgRequired, nbrArgOptional, maxArgPossible } = description;
+    const { nbrArgRepeating, minArgRequired, nbrOptionalNonRepeatingArgs, maxArgPossible } =
+      description;
 
     // When the parenthesis is closed, we consider the user is done with the function,
     // so we know exactly the number of arguments supplied.
@@ -787,7 +820,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       const focusedArg = argTargeting(
         description,
         Math.max(Math.min(maxArgPossible, nbrArgSupplied), minArgRequired)
-      )(argPosition);
+      )(argPosition)?.index;
       return focusedArg !== undefined ? [focusedArg] : [];
     }
 
@@ -797,12 +830,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     const maxArgsNumberPossibility = nbrArgRepeating
       ? minArgRequired +
         Math.ceil((minArgsNumberPossibility - minArgRequired) / nbrArgRepeating) * nbrArgRepeating +
-        nbrArgOptional
+        nbrOptionalNonRepeatingArgs
       : maxArgPossible;
 
     const argsToFocus: number[] = [];
     for (let i = minArgsNumberPossibility; i <= maxArgsNumberPossibility; i++) {
-      const focusedArg = argTargeting(description, i)(argPosition);
+      const focusedArg = argTargeting(description, i)(argPosition)?.index;
       if (focusedArg !== undefined) {
         argsToFocus.push(focusedArg);
       }
