@@ -1245,6 +1245,32 @@ describe("Pivot (un)collapse menu items", () => {
     expect(expandAllMenuItem.isVisible!(env)).toBe(true);
   });
 
+  test("Expand/collapse menu items not visible in tabular pivot", () => {
+    const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
+    const expandAllPath = ["collapse_pivot", "expand_all_pivot"];
+    const collapsePath = ["collapse_pivot", "toggle_collapse_pivot_cell"];
+    const collapseAllMenuItem = getNode(collapseAllPath, env, cellMenuRegistry);
+    const expandAllMenuItem = getNode(expandAllPath, env, cellMenuRegistry);
+    const collapseMenuItem = getNode(collapsePath, env, cellMenuRegistry);
+    updatePivot(model, pivotId, {
+      rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
+      collapsedDomains: {
+        ROW: [[{ field: "Salesperson", value: "Kevin", type: "char" }]],
+        COL: [],
+      },
+    });
+
+    setSelection(model, ["A27"]); // "Kevin" Salesperson header
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(true);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(true);
+    expect(collapseMenuItem.isVisible!(env)).toBe(true);
+
+    updatePivot(model, pivotId, { style: { tabularForm: true } });
+    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+    expect(collapseMenuItem.isVisible!(env)).toBe(false);
+  });
+
   test("Can collapse all/expand all pivot groups", () => {
     const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
     const expandAllPath = ["collapse_pivot", "expand_all_pivot"];

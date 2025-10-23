@@ -953,13 +953,6 @@ export const PIVOT = {
     }
     const cells = table.getPivotCells(pivotStyle);
 
-    let headerRows = 0;
-    if (pivotStyle.displayColumnHeaders) {
-      headerRows = table.columns.length - 1;
-    }
-    if (pivotStyle.displayMeasuresRow) {
-      headerRows++;
-    }
     const pivotTitle = this.getters.getPivotName(pivotId);
     const { numberOfCols, numberOfRows } = table.getPivotTableDimensions(pivotStyle);
     if (numberOfRows === 0) {
@@ -984,10 +977,19 @@ export const PIVOT = {
           case "VALUE":
             result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
             break;
+          case "ROW_GROUP_NAME":
+            const fieldName = pivot.definition.rows.find(
+              (row) => row.nameWithGranularity === pivotCell.rowField
+            )?.displayName;
+            result[col].push({ value: fieldName || "" });
+            break;
         }
       }
     }
-    if (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) {
+    if (
+      (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) &&
+      cells[0][0].type === "EMPTY"
+    ) {
       result[0][0] = { value: pivotTitle };
     }
     return result;
