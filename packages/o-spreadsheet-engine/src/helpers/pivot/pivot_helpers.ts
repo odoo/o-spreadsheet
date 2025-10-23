@@ -44,6 +44,7 @@ export const DEFAULT_PIVOT_STYLE: Required<PivotStyle> = {
   bandedRows: false,
   bandedColumns: false,
   hasFilters: false,
+  tabularForm: false,
 };
 
 const AGGREGATOR_NAMES = {
@@ -467,6 +468,7 @@ export function getPivotStyleFromFnArgs(
   includeColumnHeadersArg: Maybe<FunctionResultObject | CellValue>,
   columnCountArg: Maybe<FunctionResultObject | CellValue>,
   includeMeasuresRowArg: Maybe<FunctionResultObject | CellValue>,
+  tabularFormArg: Maybe<FunctionResultObject | CellValue>,
   locale: Locale
 ): Required<PivotStyle> {
   const style = definition.style;
@@ -493,6 +495,11 @@ export function getPivotStyleFromFnArgs(
       ? toBoolean(includeMeasuresRowArg)
       : style?.displayMeasuresRow ?? DEFAULT_PIVOT_STYLE.displayMeasuresRow;
 
+  const tabularForm =
+    tabularFormArg !== undefined
+      ? toBoolean(tabularFormArg)
+      : style?.tabularForm ?? DEFAULT_PIVOT_STYLE.tabularForm;
+
   return {
     numberOfRows,
     numberOfColumns,
@@ -503,5 +510,6 @@ export function getPivotStyleFromFnArgs(
     bandedRows: style?.bandedRows ?? DEFAULT_PIVOT_STYLE.bandedRows,
     bandedColumns: style?.bandedColumns ?? DEFAULT_PIVOT_STYLE.bandedColumns,
     hasFilters: style?.hasFilters ?? DEFAULT_PIVOT_STYLE.hasFilters,
+    tabularForm,
   };
 }
