@@ -64,6 +64,7 @@ interface CollapsiblePivotTableColumn extends PivotTableColumn {
 export class SpreadsheetPivotTable {
   readonly columns: CollapsiblePivotTableColumn[][];
   rows: PivotTableRow[];
+  readonly numberOfRowGroupings: number;
   readonly measures: string[];
   readonly fieldsType: Record<string, string | undefined>;
   readonly maxIndent: number;
@@ -98,6 +99,7 @@ export class SpreadsheetPivotTable {
     });
 
     this.rows = rows.filter((row) => !this.isParentCollapsed(collapsedDomains.ROW, row));
+    this.numberOfRowGroupings = Math.max(...rows.map((row) => row.fields.length));
     this.maxIndent = Math.max(...this.rows.map((row) => row.indent));
     this.rowTree = lazy(() => this.buildRowsTree());
     this.colTree = lazy(() => this.buildColumnsTree());
@@ -177,7 +179,7 @@ export class SpreadsheetPivotTable {
       const numberOfDataRows = this.rows.length;
       const numberOfDataColumns = this.getNumberOfDataColumns();
       let pivotHeight = this.columns.length + numberOfDataRows;
-      let pivotWidth = 1 /*(row headers)*/ + numberOfDataColumns;
+      let pivotWidth = numberOfDataColumns + this.getNumberOfRowHeadersColumns(pivotStyle);
       if (!displayTotals && numberOfDataRows !== 1) {
         pivotHeight -= 1;
       }
@@ -192,10 +194,11 @@ export class SpreadsheetPivotTable {
           if (skippedRows.has(row)) {
             continue;
           }
-          domainArray[col].push(this.getPivotCell(col, row, displayTotals));
+          domainArray[col].push(this.getPivotCell(col, row, pivotStyle));
         }
       }
       this.pivotCells[key] = domainArray;
+      console.log(this.pivotCells[key]);
     }
     return this.pivotCells[key];
   }
@@ -212,42 +215,63 @@ export class SpreadsheetPivotTable {
     return this.rows[index].indent !== this.maxIndent;
   }
 
-  private getPivotCell(col: number, row: number, includeTotal = true): PivotTableCell {
+  private getPivotCell(col: number, row: number, pivotStyle: Required<PivotStyle>): PivotTableCell {
     const colHeadersHeight = this.columns.length;
-    if (col > 0 && row === colHeadersHeight - 1) {
-      const domain = this.getColHeaderDomain(col, row);
+    const numberOfRowHeadersColumns = this.getNumberOfRowHeadersColumns(pivotStyle);
+    if (col < numberOfRowHeadersColumns && row === colHeadersHeight - 1) {
+      return { type: "ROW_GROUP_NAME", groupByIndex: col };
+    } else if (col >= numberOfRowHeadersColumns && row === colHeadersHeight - 1) {
+      const domain = this.getColHeaderDomain(col, row, pivotStyle);
       if (!domain) {
         return EMPTY_PIVOT_CELL;
       }
       const measure = domain.at(-1)?.value?.toString() || "";
       return { type: "MEASURE_HEADER", domain: domain.slice(0, -1), measure };
     } else if (row <= colHeadersHeight - 1) {
-      const domain = this.getColHeaderDomain(col, row);
+      const domain = this.getColHeaderDomain(col, row, pivotStyle);
       return domain ? { type: "HEADER", domain, dimension: "COL" } : EMPTY_PIVOT_CELL;
-    } else if (col === 0) {
-      const rowIndex = row - colHeadersHeight;
-      const domain = this.getDomain(this.rows[rowIndex]);
+    } else if (col < this.getNumberOfRowHeadersColumns(pivotStyle)) {
+      const domain = this.getRowHeaderDomain(col, row, pivotStyle);
+      if (!domain) {
+        return EMPTY_PIVOT_CELL;
+      }
       return { type: "HEADER", domain, dimension: "ROW" };
     } else {
       const rowIndex = row - colHeadersHeight;
-      if (!includeTotal && this.isTotalRow(rowIndex)) {
+      if (!pivotStyle.displayTotals && this.isTotalRow(rowIndex)) {
         return EMPTY_PIVOT_CELL;
       }
-      const domain = [...this.getDomain(this.rows[rowIndex]), ...this.getColDomain(col)];
-      const measure = this.getColMeasure(col);
+      const domain = [
+        ...this.getDomain(this.rows[rowIndex]),
+        ...this.getColDomain(col, pivotStyle),
+      ];
+      const measure = this.getColMeasure(col, pivotStyle);
       return { type: "VALUE", domain, measure };
     }
   }
 
-  private getColHeaderDomain(col: number, row: number) {
-    if (col === 0) {
+  private getColHeaderDomain(col: number, row: number, pivotStyle: Required<PivotStyle>) {
+    const numberOfColHeadersRows = this.columns.length;
+    if (col < numberOfColHeadersRows) {
       return undefined;
     }
-    const pivotCol = this.columns[row].find((pivotCol) => pivotCol.offset === col);
+    // ADRM TODO: maybe change offset in this.columns to remove the -1 ? but it ends up in some commands, so maybe migration ?
+    const colIndex = col - numberOfColHeadersRows + 1;
+    const pivotCol = this.columns[row].find((pivotCol) => pivotCol.offset === colIndex);
     if (!pivotCol || pivotCol.collapsedHeader) {
       return undefined;
     }
     return this.getDomain(pivotCol);
+  }
+
+  private getRowHeaderDomain(col: number, row: number, pivotStyle: Required<PivotStyle>) {
+    const numberOfRowHeadersColumns = this.getNumberOfRowHeadersColumns(pivotStyle);
+    const rowIndex = row - this.columns.length;
+    const parentRow = this.rows[rowIndex];
+    if (col >= numberOfRowHeadersColumns || col !== parentRow.indent - 1) {
+      return undefined;
+    }
+    return this.getDomain(parentRow);
   }
 
   private getDomain(dim: PivotTableRow | PivotTableColumn) {
@@ -273,18 +297,22 @@ export class SpreadsheetPivotTable {
     });
   }
 
-  private getColDomain(col: number) {
-    const domain = this.getColHeaderDomain(col, this.columns.length - 1);
+  private getColDomain(col: number, pivotStyle: Required<PivotStyle>) {
+    const domain = this.getColHeaderDomain(col, this.columns.length - 1, pivotStyle);
     return domain ? domain.slice(0, -1) : []; // slice: remove measure and value
   }
 
-  private getColMeasure(col: number) {
-    const domain = this.getColHeaderDomain(col, this.columns.length - 1);
+  private getColMeasure(col: number, pivotStyle: Required<PivotStyle>) {
+    const domain = this.getColHeaderDomain(col, this.columns.length - 1, pivotStyle);
     const measure = domain?.at(-1)?.value;
     if (measure === undefined || measure === null) {
       throw new Error("Measure is missing");
     }
     return measure.toString();
+  }
+
+  private getNumberOfRowHeadersColumns(pivotStyle: Required<PivotStyle>) {
+    return pivotStyle.rowHeadersLayout === "compact" ? 1 : this.numberOfRowGroupings;
   }
 
   buildRowsTree(): DimensionTree {

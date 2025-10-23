@@ -981,6 +981,9 @@ export const PIVOT = {
           case "VALUE":
             result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
             break;
+          case "ROW_GROUP_NAME":
+            result[col].push(pivot.getPivotRowGroupName(pivotCell.groupByIndex));
+            break;
         }
       }
     }

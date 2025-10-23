@@ -57,6 +57,16 @@
               />
             </div>
           </div>
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">k:</div>
+            <div class="col-6 d-flex align-items-center">
+              <Checkbox
+                name="'displayMeasuresRow'"
+                value="pivotStyle.displayMeasuresRow ?? defaultStyle.displayMeasuresRow"
+                onChange="(val) => this.updatePivotStyleProperty('displayMeasuresRow', val)"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </Section>
