@@ -281,24 +281,43 @@ function getTableElementZones(
       break;
     }
     case "mainSubHeaderRow":
-      for (const row of tableMetaData.mainSubHeaderRows || []) {
-        zones.push({ top: row, bottom: row, left: 0, right: tableMetaData.numberOfCols - 1 });
+      if (tableMetaData.isTabular) {
+        for (const col of tableMetaData.mainSubHeaderRows || []) {
+          zones.push({ top: headerRows, bottom: lastRow - totalRows, left: col, right: col });
+        }
+      } else {
+        for (const row of tableMetaData.mainSubHeaderRows || []) {
+          zones.push({ top: row, bottom: row, left: 0, right: numberOfCols - 1 });
+        }
       }
       break;
     case "firstAlternatingSubHeaderRow":
-      for (const row of tableMetaData.firstAlternatingSubHeaderRows || []) {
-        zones.push({ top: row, bottom: row, left: 0, right: tableMetaData.numberOfCols - 1 });
+      if (tableMetaData.isTabular) {
+        for (const col of tableMetaData.firstAlternatingSubHeaderIndexes || []) {
+          zones.push({ top: headerRows, bottom: lastRow - totalRows, left: col, right: col });
+        }
+      } else {
+        for (const row of tableMetaData.firstAlternatingSubHeaderIndexes || []) {
+          zones.push({ top: row, bottom: row, left: 0, right: numberOfCols - 1 });
+        }
       }
       break;
     case "secondAlternatingSubHeaderRow":
-      for (const row of tableMetaData.secondAlternatingSubHeaderRows || []) {
-        zones.push({ top: row, bottom: row, left: 0, right: tableMetaData.numberOfCols - 1 });
+      if (tableMetaData.isTabular) {
+        for (const col of tableMetaData.secondAlternatingSubHeaderIndexes || []) {
+          zones.push({ top: headerRows, bottom: lastRow - totalRows, left: col, right: col });
+        }
+      } else {
+        for (const row of tableMetaData.secondAlternatingSubHeaderIndexes || []) {
+          zones.push({ top: row, bottom: row, left: 0, right: numberOfCols - 1 });
+        }
       }
       break;
     case "measureHeader":
-      if (tableMetaData.measureRow !== undefined && tableMetaData.numberOfCols > 1) {
+      if (tableMetaData.measureRow !== undefined && numberOfCols > 1) {
         const row = tableMetaData.measureRow;
-        zones.push({ top: row, bottom: row, left: 1, right: tableMetaData.numberOfCols - 1 });
+        const left = tableMetaData.isTabular ? 0 : 1;
+        zones.push({ top: row, bottom: row, left, right: numberOfCols - 1 });
       }
       break;
   }

@@ -384,6 +384,30 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       </label>
                     </div>
                   </div>
+                  <div
+                    class="row mb-2 align-items-center"
+                  >
+                    <div
+                      class="col-6"
+                    >
+                      Use tabular form:
+                    </div>
+                    <div
+                      class="col-6 d-flex align-items-center"
+                    >
+                      <label
+                        class="o-checkbox d-flex align-items-center"
+                        role="button"
+                      >
+                        <input
+                          class="me-2 flex-shrink-0 border"
+                          name="tabularForm"
+                          type="checkbox"
+                        />
+                        
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -1305,6 +1329,30 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         <input
                           class="me-2 flex-shrink-0 border"
                           name="displayMeasuresRow"
+                          type="checkbox"
+                        />
+                        
+                      </label>
+                    </div>
+                  </div>
+                  <div
+                    class="row mb-2 align-items-center"
+                  >
+                    <div
+                      class="col-6"
+                    >
+                      Use tabular form:
+                    </div>
+                    <div
+                      class="col-6 d-flex align-items-center"
+                    >
+                      <label
+                        class="o-checkbox d-flex align-items-center"
+                        role="button"
+                      >
+                        <input
+                          class="me-2 flex-shrink-0 border"
+                          name="tabularForm"
                           type="checkbox"
                         />
                         

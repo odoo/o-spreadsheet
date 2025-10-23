@@ -1,5 +1,5 @@
 import { PIVOT_INSERT_TABLE_STYLE_ID, PIVOT_STATIC_TABLE_CONFIG } from "../../constants";
-import { getUniqueText, sanitizeSheetName } from "../../helpers/misc";
+import { getUniqueText, range, sanitizeSheetName } from "../../helpers/misc";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { pivotTableStyleIdToTableStyleId } from "../../helpers/pivot_table_presets";
@@ -7,7 +7,7 @@ import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { Command, CommandResult } from "../../types/commands";
 import { CellPosition, HeaderIndex, UID } from "../../types/misc";
-import { PivotTableCell, PivotTableData } from "../../types/pivot";
+import { PivotTableData } from "../../types/pivot";
 import { UIPlugin } from "../ui_plugin";
 
 export class InsertPivotPlugin extends UIPlugin {
@@ -220,19 +220,32 @@ export class InsertPivotPlugin extends UIPlugin {
       return;
     }
     const formulaId = this.getters.getPivotFormulaId(pivotId);
-
-    const pivotCells = new Map<CellPosition, PivotTableCell>();
-    for (let col = spreadZone.left; col <= spreadZone.right; col++) {
-      for (let row = spreadZone.top; row <= spreadZone.bottom; row++) {
-        const position = { sheetId, col, row };
-        pivotCells.set(position, this.getters.getPivotCellFromPosition(position));
-      }
+    const pivotInfo = this.getters.getPivotStyleAtPosition(position);
+    if (!pivotInfo) {
+      return;
     }
-    for (const [position, pivotCell] of pivotCells) {
-      this.dispatch("UPDATE_CELL", {
-        ...position,
-        content: createPivotFormula(formulaId, pivotCell),
-      });
+
+    const pivotStyle = { ...pivotInfo.pivotStyle, tabularForm: false };
+
+    const pivot = this.getters.getPivot(pivotId);
+    const pivotTable = pivot.getCollapsedTableStructure();
+    const pivotCells = pivotTable.getPivotCells(pivotStyle);
+
+    const { numberOfCols, numberOfRows } = pivotTable.getPivotTableDimensions(pivotStyle);
+    if (numberOfRows === 0 || numberOfCols === 0) {
+      return;
+    }
+    for (const i of range(0, numberOfCols)) {
+      for (const j of range(0, numberOfRows)) {
+        const pivotCell = pivotCells[i][j];
+        if (pivotCell) {
+          const position = { sheetId, col: spreadZone.left + i, row: spreadZone.top + j };
+          this.dispatch("UPDATE_CELL", {
+            ...position,
+            content: createPivotFormula(formulaId, pivotCell),
+          });
+        }
+      }
     }
 
     if (this.getters.getCoreTable(position)) {
@@ -240,7 +253,12 @@ export class InsertPivotPlugin extends UIPlugin {
     }
 
     if (table?.isPivotTable) {
-      const rangeData = this.getters.getRangeDataFromZone(sheetId, spreadZone);
+      const rangeData = this.getters.getRangeDataFromZone(sheetId, {
+        left: spreadZone.left,
+        right: spreadZone.left + numberOfCols - 1,
+        top: spreadZone.top,
+        bottom: spreadZone.top + numberOfRows - 1,
+      });
       this.dispatch("CREATE_TABLE", {
         tableType: "static",
         sheetId,

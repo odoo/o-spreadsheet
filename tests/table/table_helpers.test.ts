@@ -280,8 +280,8 @@ describe("Table cell style", () => {
     });
 
     test("Can display a style on sub-sub-header rows", () => {
-      tableMetaData.firstAlternatingSubHeaderRows = new Set([1, 3]);
-      tableMetaData.secondAlternatingSubHeaderRows = new Set([2, 4]);
+      tableMetaData.firstAlternatingSubHeaderIndexes = new Set([1, 3]);
+      tableMetaData.secondAlternatingSubHeaderIndexes = new Set([2, 4]);
       tableStyle.firstAlternatingSubHeaderRow = { style: firstAlternatingSubHeaderRow };
       tableStyle.secondAlternatingSubHeaderRow = { style: secondAlternatingSubHeaderRow };
 
@@ -523,8 +523,8 @@ describe("Table cell borders", () => {
 
     test("Can display a border on sub-sub-header rows", () => {
       const border2: BorderDescr = { color: "#00f", style: "dashed" };
-      tableMetaData.firstAlternatingSubHeaderRows = new Set([1, 3]);
-      tableMetaData.secondAlternatingSubHeaderRows = new Set([2, 4]);
+      tableMetaData.firstAlternatingSubHeaderIndexes = new Set([1, 3]);
+      tableMetaData.secondAlternatingSubHeaderIndexes = new Set([2, 4]);
       tableStyle.firstAlternatingSubHeaderRow = { border: { top: border } };
       tableStyle.secondAlternatingSubHeaderRow = { border: { top: border2 } };
 

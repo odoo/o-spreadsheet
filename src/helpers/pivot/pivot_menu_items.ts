@@ -228,7 +228,8 @@ export const toggleCollapsePivotGroupAction: ActionSpec = {
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
     const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
-    return pivotCellState.isPivotGroup;
+    const pivotStyle = env.model.getters.getPivotStyleAtPosition(position);
+    return pivotCellState.isPivotGroup && !pivotStyle?.pivotStyle.tabularForm;
   },
 };
 
@@ -259,7 +260,8 @@ export const collapseAllPivotGroupAction: ActionSpec = {
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
     const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
-    if (!pivotCellState.isPivotGroup) {
+    const pivotStyle = env.model.getters.getPivotStyleAtPosition(position);
+    if (!pivotCellState.isPivotGroup || pivotStyle?.pivotStyle.tabularForm) {
       return false;
     }
 
@@ -296,7 +298,8 @@ export const expandAllPivotGroupAction: ActionSpec = {
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
     const pivotCellState = getPivotCellCollapseState(env.model.getters, position);
-    if (!pivotCellState.isPivotGroup) {
+    const pivotStyle = env.model.getters.getPivotStyleAtPosition(position);
+    if (!pivotCellState.isPivotGroup || pivotStyle?.pivotStyle.tabularForm) {
       return false;
     }
 
@@ -371,7 +374,12 @@ export function sortPivot(
 ) {
   const pivotId = env.model.getters.getPivotIdFromPosition(position);
   const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
+  if (
+    pivotCell.type === "EMPTY" ||
+    pivotCell.type === "HEADER" ||
+    pivotCell.type === "ROW_GROUP_NAME" ||
+    !pivotId
+  ) {
     return;
   }
 

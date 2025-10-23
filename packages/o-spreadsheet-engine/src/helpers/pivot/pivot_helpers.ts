@@ -44,6 +44,7 @@ export const DEFAULT_PIVOT_STYLE: Required<PivotStyle> = {
   bandedRows: false,
   bandedColumns: false,
   hasFilters: false,
+  tabularForm: false,
 };
 
 const AGGREGATOR_NAMES = {
@@ -503,6 +504,7 @@ export function getPivotStyleFromFnArgs(
     bandedRows: style?.bandedRows ?? DEFAULT_PIVOT_STYLE.bandedRows,
     bandedColumns: style?.bandedColumns ?? DEFAULT_PIVOT_STYLE.bandedColumns,
     hasFilters: style?.hasFilters ?? DEFAULT_PIVOT_STYLE.hasFilters,
+    tabularForm: style?.tabularForm ?? DEFAULT_PIVOT_STYLE.tabularForm,
   };
 }
 
