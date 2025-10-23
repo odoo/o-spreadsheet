@@ -174,6 +174,7 @@ describe("link editor component", () => {
       formulaArgSeparator: ";",
       decimalSeparator: ",",
       thousandsSeparator: " ",
+      arrayRowSeparator: "\\",
     });
     await openLinkEditor(model, "A1");
     setInputValueAndTrigger(labelInput(), "3,15");

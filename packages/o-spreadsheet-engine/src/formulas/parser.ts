@@ -91,6 +91,11 @@ export interface ASTSymbol extends ASTBase {
   value: string;
 }
 
+export interface ASTArray extends ASTBase {
+  type: "ARRAY";
+  rows: AST[][];
+}
+
 interface ASTEmpty extends ASTBase {
   type: "EMPTY";
   value: "";
@@ -101,6 +106,7 @@ export type AST =
   | ASTUnaryOperation
   | ASTFuncall
   | ASTSymbol
+  | ASTArray
   | ASTNumber
   | ASTBoolean
   | ASTString
@@ -219,6 +225,8 @@ function parseOperand(tokens: TokenList): AST {
         tokenStartIndex: current.tokenIndex,
         tokenEndIndex: rightParen.tokenIndex,
       };
+    case "LEFT_BRACE":
+      return parseArrayLiteral(tokens, current);
     case "OPERATOR":
       const operator = current.value;
       if (UNARY_OPERATORS_PREFIX.includes(operator)) {
@@ -274,6 +282,56 @@ function consumeOrThrow(tokens: TokenList, type, message?: string) {
     throw new BadExpressionError(message);
   }
   return token;
+}
+
+function parseArrayLiteral(tokens: TokenList, leftBrace: RichToken): ASTArray {
+  const rows: AST[][] = [];
+  let currentRow: AST[] = [];
+  let expectValue = true;
+
+  while (tokens.current?.type !== "RIGHT_BRACE") {
+    const nextToken = tokens.current;
+    if (!nextToken) {
+      throw new BadExpressionError(_t("Missing closing brace"));
+    }
+    if (nextToken.type === "ARG_SEPARATOR") {
+      tokens.shift();
+      if (expectValue) {
+        throw new BadExpressionError(_t("Unexpected empty array element"));
+      }
+      expectValue = true;
+      continue;
+    }
+    if (nextToken.type === "ARRAY_ROW_SEPARATOR") {
+      tokens.shift();
+      if (expectValue) {
+        throw new BadExpressionError(_t("Unexpected empty array element"));
+      }
+      rows.push(currentRow);
+      currentRow = [];
+      expectValue = true;
+      continue;
+    }
+    const value = parseExpression(tokens);
+    currentRow.push(value);
+    expectValue = false;
+  }
+  // Handle the closing brace
+  if (expectValue) {
+    throw new BadExpressionError(_t("Unexpected empty array element"));
+  }
+  // we could check here that all rows have the same size, but the real
+  // dimensions depend on the values inside, which could be a formula
+  // whose dimensions are not known yet.
+
+  const rightBrace = consumeOrThrow(tokens, "RIGHT_BRACE");
+  rows.push(currentRow);
+  return {
+    type: "ARRAY",
+    rows,
+    tokenStartIndex: leftBrace.tokenIndex,
+    tokenEndIndex: rightBrace.tokenIndex,
+  };
 }
 
 function parseExpression(tokens: TokenList, parent_priority: number = 0): AST {
@@ -376,6 +434,13 @@ function* astIterator(ast: AST): Iterable<AST> {
         yield* astIterator(arg);
       }
       break;
+    case "ARRAY":
+      for (const row of ast.rows) {
+        for (const cell of row) {
+          yield* astIterator(cell);
+        }
+      }
+      break;
     case "UNARY_OPERATION":
       yield* astIterator(ast.operand);
       break;
@@ -396,6 +461,11 @@ export function mapAst<T extends AST["type"]>(
       return {
         ...ast,
         args: ast.args.map((child) => mapAst(child, fn)),
+      };
+    case "ARRAY":
+      return {
+        ...ast,
+        rows: ast.rows.map((row) => row.map((cell) => mapAst(cell, fn))),
       };
     case "UNARY_OPERATION":
       return {

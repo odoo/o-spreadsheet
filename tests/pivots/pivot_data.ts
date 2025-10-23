@@ -200,6 +200,7 @@ export const pivotModelData = function (xc: string) {
         dateFormat: "m/d/yyyy",
         timeFormat: "hh:mm:ss a",
         formulaArgSeparator: ",",
+        arrayRowSeparator: ";",
       },
     },
     pivots: {
