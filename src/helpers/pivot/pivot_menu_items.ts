@@ -371,7 +371,12 @@ export function sortPivot(
 ) {
   const pivotId = env.model.getters.getPivotIdFromPosition(position);
   const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
+  if (
+    pivotCell.type === "EMPTY" ||
+    pivotCell.type === "HEADER" ||
+    pivotCell.type === "ROW_GROUP_NAME" ||
+    !pivotId
+  ) {
     return;
   }
 
