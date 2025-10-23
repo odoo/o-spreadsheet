@@ -44,6 +44,7 @@ export const DEFAULT_PIVOT_STYLE: Required<PivotStyle> = {
   bandedRows: false,
   bandedColumns: false,
   hasFilters: false,
+  tabularForm: false,
 };
 
 const AGGREGATOR_NAMES = {
@@ -207,6 +208,9 @@ export function createPivotFormula(formulaId: string, cell: PivotTableCell) {
         ...cell.domain,
         { field: "measure", value: cell.measure, type: "char" },
       ]).join(",")})`;
+    // ADRM TODO:
+    // case "ROW_GROUP_NAME":
+    //   return `=PIVOT.ROW.GROUP.NAME(${formulaId}, "${cell.rowField}")`;
   }
   return "";
 }
@@ -503,5 +507,6 @@ export function getPivotStyleFromFnArgs(
     bandedRows: style?.bandedRows ?? DEFAULT_PIVOT_STYLE.bandedRows,
     bandedColumns: style?.bandedColumns ?? DEFAULT_PIVOT_STYLE.bandedColumns,
     hasFilters: style?.hasFilters ?? DEFAULT_PIVOT_STYLE.hasFilters,
+    tabularForm: style?.tabularForm ?? DEFAULT_PIVOT_STYLE.tabularForm,
   };
 }

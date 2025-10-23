@@ -895,6 +895,31 @@ export const PIVOT_HEADER = {
   },
 } satisfies AddFunctionDescription;
 
+// ADRM TODO: rename ? delete ?
+// PIVOT.ROW.GROUP.NAME
+export const PIVOT_ROW_GROUP_NAME = {
+  description: _t("Get the header of a pivot."),
+  args: [
+    arg("pivot_id (number,string)", _t("ID of the pivot.")),
+    arg("row_group_name (string)", _t("Field name.")),
+  ],
+  compute: function (
+    pivotId: Maybe<FunctionResultObject>,
+    rowGroupName: Maybe<FunctionResultObject>
+  ) {
+    const _pivotFormulaId = toString(pivotId);
+    const _pivotId = getPivotId(_pivotFormulaId, this.getters);
+    const pivot = this.getters.getPivot(_pivotId);
+    addPivotDependencies(this, _pivotId, []);
+    pivot.init({ reload: pivot.needsReevaluation });
+    const error = pivot.assertIsValid({ throwOnError: false });
+    if (error) {
+      return error;
+    }
+    return pivot.getPivotRowGroupName(toString(rowGroupName));
+  },
+} satisfies AddFunctionDescription;
+
 export const PIVOT = {
   description: _t("Get a pivot table."),
   args: [
@@ -909,6 +934,10 @@ export const PIVOT = {
     arg(
       "include_measure_titles (boolean, default=TRUE)",
       _t("Whether to include the measure titles row or not.")
+    ),
+    arg(
+      "tabular_form (boolean, default=FALSE)",
+      _t("Whether to display the pivot in a tabular form.")
     ),
   ],
   compute: function (
@@ -984,10 +1013,16 @@ export const PIVOT = {
           case "VALUE":
             result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
             break;
+          case "ROW_GROUP_NAME":
+            result[col].push(pivot.getPivotRowGroupName(pivotCell.rowField));
+            break;
         }
       }
     }
-    if (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) {
+    if (
+      (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) &&
+      cells[0][0].type === "EMPTY"
+    ) {
       result[0][0] = { value: pivotTitle };
     }
     return result;
