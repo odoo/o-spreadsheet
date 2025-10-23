@@ -290,7 +290,12 @@ export class PivotUIPlugin extends CoreViewPlugin {
   getPivotCellSortDirection(position: CellPosition): SortDirection | "none" | undefined {
     const pivotId = this.getters.getPivotIdFromPosition(position);
     const pivotCell = this.getters.getPivotCellFromPosition(position);
-    if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
+    if (
+      pivotCell.type === "EMPTY" ||
+      pivotCell.type === "HEADER" ||
+      pivotCell.type === "ROW_GROUP_NAME" ||
+      !pivotId
+    ) {
       return undefined;
     }
     const pivot = this.getters.getPivot(pivotId);
@@ -364,6 +369,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   getPivotStyleAtPosition(
     position: CellPosition
   ): { pivotStyle: Required<PivotStyle>; pivotId: UID } | undefined {
+    position = this.getters.getArrayFormulaSpreadingOn(position) || position;
     const cell = this.getters.getCell(position);
     if (!cell || !cell.isFormula || !this.isMainFunctionPivotSpreadFunction(cell)) {
       return undefined;

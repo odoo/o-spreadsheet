@@ -305,6 +305,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (!this.isValid()) {
       throw new Error("Pivot is not valid !");
     }
+    if (this.coreDefinition.style?.tabularForm) {
+      return this.getExpandedTableStructure();
+    }
     if (!this.collapsedTable) {
       this.collapsedTable = dataEntriesToSpreadsheetPivotTable(
         this.dataEntries,
