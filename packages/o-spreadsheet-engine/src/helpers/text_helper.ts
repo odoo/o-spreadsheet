@@ -18,6 +18,9 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
 
 export function getCanvas(width: number = 100, height: number = 100): Canvas2DContext {
   // Browser environment
+  if (typeof OffscreenCanvas === "undefined") {
+    return undefined as unknown as Canvas2DContext;
+  }
   return new OffscreenCanvas(width, height).getContext("2d") as unknown as Canvas2DContext;
 }
 /**
