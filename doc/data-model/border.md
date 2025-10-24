@@ -4,7 +4,7 @@ The `borders` object defines reusable border styles. Each key is a border style 
 
 Example:
 
-```json
+```js
 "borders": {
   "1": { "bottom": { "style": "thin", "color": "#000" } },
   "2": { "top": { "style": "thin", "color": "#000" } },
@@ -20,7 +20,7 @@ To apply a border style to a cell or range, reference the border style ID in the
 
 Usage Expample
 
-```json
+```js
 {
     "sheets": [
         {

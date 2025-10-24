@@ -4,7 +4,7 @@ The tables plugin manages the creation, update, and deletion of tables within a 
 
 ## Data Structure
 
-```json
+```js
 "tables":
 [
     {
@@ -38,7 +38,7 @@ There are two main types of tables:
 
 ## Example
 
-```json
+```js
 {
   "sheets": [{
     ...

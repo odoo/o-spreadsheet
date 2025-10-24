@@ -6,7 +6,7 @@ The `conditionalFormats` property in each sheet defines rules for applying forma
 
 Each rule has the following structure:
 
-```json
+```js
 {
   "id": string,                // Unique identifier for the rule
   "ranges": [string, ...],     // Array of cell/range addresses (e.g., ["C1:C100"])
@@ -66,7 +66,7 @@ Each rule has the following structure:
 
 Example:
 
-```json
+```js
 "conditionalFormats": [
   {
     "id": "1",
@@ -119,7 +119,7 @@ Example:
 
 Usage Example:
 
-```json
+```js
 {
     "sheets": [
         {

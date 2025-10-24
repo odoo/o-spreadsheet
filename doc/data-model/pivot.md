@@ -37,7 +37,7 @@ A pivot table object can include the following properties:
 
 ## Example
 
-```json
+```js
 "pivots": {
   "1": {
     "type": "SPREADSHEET",
