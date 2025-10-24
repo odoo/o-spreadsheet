@@ -39,6 +39,7 @@ npm run test -- --watch # run all tests, rerun on file change
 3. [Model creation](doc/integrating/integration.md#model-creation)
 4. [Collaborative edition](doc/integrating/integration.md#collaborative-edition)
 5. [Translation](doc/integrating/integration.md#translation)
+6. [Data model (json)](doc/data-model.md)
 <!--
 
 - use with other UI library
