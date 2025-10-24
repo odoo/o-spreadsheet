@@ -153,7 +153,12 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   onMouseMove(ev: MouseEvent) {
-    if (this.state.isResizing || this.state.isMoving || this.state.isSelecting) {
+    if (
+      this.env.model.getters.isReadonly() ||
+      this.state.isResizing ||
+      this.state.isMoving ||
+      this.state.isSelecting
+    ) {
       return;
     }
     this._computeHandleDisplay(ev);
@@ -209,6 +214,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     }
     const index = this._getElementIndex(this._getEvOffset(ev));
     if (index < 0) {
+      return;
+    }
+    if (this.env.model.getters.isReadonly()) {
+      this._selectElement(index, false);
       return;
     }
     if (this.state.waitingForMove) {
