@@ -29,6 +29,7 @@ import {
 import {
   edgeScrollDelay,
   selectColumnByClicking,
+  simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
@@ -653,6 +654,20 @@ describe("Resizer component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
   });
+
+  test("Can open context menu in readonly", async () => {
+    model.updateMode("readonly");
+    triggerMouseEvent(".o-overlay .o-col-resizer", "contextmenu", 10, 10);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+  });
+
+  test("Cannot resize a column in readonly", async () => {
+    model.updateMode("readonly");
+    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", DEFAULT_CELL_WIDTH, 10);
+    await nextTick();
+    expect(fixture.querySelector(".o-overlay .o-col-resizer .o-handle")).toBeNull();
+  });
 });
 describe("Hide/show columns", () => {
   beforeEach(async () => {
@@ -1137,6 +1152,15 @@ describe("move selected element(s)", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe("b1");
       expect(getEvaluatedCell(model, "C1").value).toBe("c1");
       expect(getEvaluatedCell(model, "D1").value).toBe("d1");
+    });
+
+    test("Can select a column but not move it in readonly", async () => {
+      model.updateMode("readonly");
+      await selectColumnByClicking(model, "A", {});
+      expect(model.getters.getActiveCols()).toEqual(new Set([0]));
+
+      await simulateClick(".o-overlay .o-col-resizer", 10, 10);
+      expect(fixture.querySelector(".o-overlay .o-col-resizer")?.classList).not.toContain("o-grab");
     });
   });
 
