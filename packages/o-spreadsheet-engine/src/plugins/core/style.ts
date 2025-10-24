@@ -1,10 +1,18 @@
-import { ApplyRangeChange, Color, deepEquals, UID, UnboundedZone, Zone } from "../..";
+import { deepEquals } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
 import { AddColumnsRowsCommand, CoreCommand } from "../../types/commands";
-import { CellPosition, Style } from "../../types/misc";
+import {
+  ApplyRangeChange,
+  CellPosition,
+  Color,
+  Style,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
