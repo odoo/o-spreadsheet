@@ -6,7 +6,7 @@ This document describes the data structure expected for importing spreadsheet da
 
 ## Top-Level Structure
 
-```json
+```js
 {
     // The version of the data model, used for compatibility checks and upgrading.
     // If omitted, it defaults to the latest version.
@@ -62,7 +62,7 @@ This document describes the data structure expected for importing spreadsheet da
 
 The SheetPlugin manages the structure and metadata of each worksheet. Each entry in the `sheets` array is a sheet object with the following properties:
 
-```json
+```js
 {
   // Unique identifier for the sheet
   "id": string,
