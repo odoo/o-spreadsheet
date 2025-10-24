@@ -19,7 +19,7 @@ import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
-} from "../packages/o-spreadsheet-engine/src/registries/repeat_transform_registry";
+} from "@odoo/o-spreadsheet-engine/registries/repeat_transform_registry";
 import { CoreCommand, Dimension, UID } from "../src/types";
 import {
   activateSheet,
