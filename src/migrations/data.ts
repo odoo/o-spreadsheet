@@ -80,8 +80,10 @@ const LEGACY_VERSION_MAPPING = {
   17: "17.4",
   16: "17.3",
   15: "17.2",
+  "14.5": "16.4.1",
   14: "16.4",
   13: "16.3",
+  "12.5": "15.4.1",
   12: "15.4",
 
   // not accurate starting at this point
