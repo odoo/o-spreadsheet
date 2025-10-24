@@ -4,7 +4,7 @@ The `formats` object defines reusable number, date, and currency formats. Each k
 
 Example:
 
-```json
+```js
 "formats": {
   "1": "0.00%",           // Percentage with two decimals
   "2": "#,##0.00",        // Number with thousands separator and two decimals
@@ -22,7 +22,7 @@ To apply a format to a cell or range, reference the format ID in the `formats` p
 
 Usage Example:
 
-```json
+```js
 {
   "sheets": [
     ...,

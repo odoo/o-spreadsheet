@@ -17,7 +17,7 @@ To have a detailed chart, create it in o-spreadsheet and export the data to see 
 
 ## Chart Figure Object
 
-```json
+```js
 {
   "id": string,           // Unique figure ID
   "tag": "chart",         // Identifies this figure as a chart
@@ -85,7 +85,7 @@ To have a detailed chart, create it in o-spreadsheet and export the data to see 
 
 ## Example
 
-```json
+```js
 "figures": [
     {
         "id": "c85dcad9-ca99",
@@ -135,7 +135,7 @@ A carousel is a figure that can contain multiple charts (and optionally data vie
 
 ### Carousel Figure Object
 
-```json
+```js
 {
   "id": string,           // Unique figure ID
   "tag": "carousel",      // Identifies this figure as a carousel
@@ -183,7 +183,7 @@ A carousel is a figure that can contain multiple charts (and optionally data vie
 
 ### Example
 
-```json
+```js
 "figures": [
   {
     "id": "carousel-1",
