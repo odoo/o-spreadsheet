@@ -34,7 +34,7 @@ A style object can include the following properties:
 
 Example style definition:
 
-```json
+```js
 {
   "1": {
     "bold": true,
@@ -56,7 +56,7 @@ Example style definition:
 
 Top-level style definitions:
 
-```json
+```js
 "styles": {
   "1": { "bold": true, "textColor": "#674EA7", "fontSize": 18 },
   "2": { "fillColor": "#FFF2CC" },
@@ -66,7 +66,7 @@ Top-level style definitions:
 
 Per-sheet style mapping:
 
-```json
+```js
 {
   "sheets": [
     {
