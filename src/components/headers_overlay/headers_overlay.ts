@@ -150,14 +150,17 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.state.waitingForMove = false;
   }
 
-  onMouseMove(ev: PointerEvent) {
-    if (this.env.isMobile()) {
+  onMouseMove(ev: MouseEvent) {
+    if (
+      this.env.isMobile() ||
+      this.env.model.getters.isReadonly() ||
+      this.state.isResizing ||
+      this.state.isMoving ||
+      this.state.isSelecting
+    ) {
       return;
     }
     const zoomedMouseEvent = withZoom(this.env, ev);
-    if (this.state.isResizing || this.state.isMoving || this.state.isSelecting) {
-      return;
-    }
     this._computeHandleDisplay(zoomedMouseEvent);
     this._computeGrabDisplay(zoomedMouseEvent);
   }
@@ -230,6 +233,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     const zoomedMouseEvent = withZoom(this.env, ev);
     const index = this._getElementIndex(this._getEvOffset(zoomedMouseEvent));
     if (index < 0) {
+      return;
+    }
+    if (this.env.model.getters.isReadonly()) {
+      this._selectElement(index, false);
       return;
     }
     if (this.state.waitingForMove) {
