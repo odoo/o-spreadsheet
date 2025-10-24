@@ -129,9 +129,22 @@ The SheetPlugin manages the structure and metadata of each worksheet. Each entry
 
 ---
 
+## More
+
+- [Borders](data-model/border.md)
+- [Conditional formatting](data-model/cf.md)
+- [Charts](data-model/chart.md)
+- [Formats](data-model/format.md)
+- [Pivots](data-model/pivot.md)
+- [Styles](data-model/style.md)
+- [Tables](data-model/table.md)
+- [Version](data-model/version.md)
+
+---
+
 ## Example
 
-See `demo/data.js` for a full example of a valid data structure.
+See [demo/data.js](../demo/main.js) for a full example of a valid data structure.
 
 ---
 
