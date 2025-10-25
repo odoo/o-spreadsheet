@@ -277,8 +277,14 @@ function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): b
   return sameColor && sameClass && sameContent;
 }
 
+const doc = new DOMParser();
+const brNode = doc.parseFromString("<br>", "text/html").body.firstChild;
+const spanBrNode = doc.parseFromString("<span><br></span>", "text/html").body.firstChild;
+
 function isEmptyParagraph(node: Node) {
-  return ["<br>", "<span><br></span>"].includes(
-    (node as HTMLElement).innerHTML.replaceAll(/\s(class|style)="[^"]*"/g, "")
-  );
+  const node2 = node.firstChild?.cloneNode(true);
+  if (!node2 || !(node2 instanceof Element)) return false;
+  node2.removeAttribute("class");
+  node2.removeAttribute("style");
+  return node2.isEqualNode(brNode) || node2.isEqualNode(spanBrNode) || false;
 }
