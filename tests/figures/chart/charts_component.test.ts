@@ -15,7 +15,12 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../src/types";
-import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
+import {
+  GaugeChartDefinition,
+  PieChartRuntime,
+  ScorecardChartDefinition,
+  TrendConfiguration,
+} from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
@@ -2383,6 +2388,34 @@ describe("Change chart type", () => {
     updateChart(model, chartId, { horizontal: false }, sheetId);
     await nextTick();
     expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked column chart");
+  });
+
+  test("Changing an empty bar chart to scorecard does not crash and leaves keyValue undefined", async () => {
+    createChart(model, { type: "bar", dataSets: [] }, chartId);
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("scorecard");
+    await nextTick();
+
+    expect(fixture.querySelector(".o-chart")).toBeTruthy();
+
+    const def = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(def.type).toBe("scorecard");
+    expect(def.keyValue).toBeUndefined();
+  });
+
+  test("Changing an empty bar chart to gauge does not crash and leaves data range undefined", async () => {
+    createChart(model, { type: "bar", dataSets: [] }, chartId);
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("gauge");
+    await nextTick();
+
+    expect(fixture.querySelector(".o-chart")).toBeTruthy();
+
+    const def = model.getters.getChartDefinition(chartId) as GaugeChartDefinition;
+    expect(def.type).toBe("gauge");
+    expect(def.dataRange).toBeUndefined();
   });
 
   test("Can change chart type between radar and filled radar chart", async () => {
