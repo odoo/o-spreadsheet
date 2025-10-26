@@ -195,7 +195,7 @@ export class ScorecardChart extends AbstractChart {
     return {
       background: context.background,
       type: "scorecard",
-      keyValue: context.range ? context.range[0].dataRange : undefined,
+      keyValue: context.range?.[0]?.dataRange,
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
