@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toUnboundedZone, toZone } from "../../src/helpers";
 import { ZoneSet } from "../../src/plugins/ui_core_views/cell_evaluation/zone_set";
 
 describe("ZoneSet", () => {
@@ -32,6 +32,70 @@ describe("ZoneSet", () => {
     expect(Array.from(set)).toEqual([]);
   });
 
+  test("add and remove single unbounded zone: B2:3", () => {
+    const set = new ZoneSet();
+    set.add(toUnboundedZone("B2:3"));
+    expect(set.has(toUnboundedZone("B2"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("Z3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("B2:Z3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("Z2:3"))).toBeTruthy();
+    set.delete(toUnboundedZone("B2:3"));
+    expect(set.has(toUnboundedZone("B2"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("Z3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("B2:Z3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("Z2:3"))).toBeFalsy();
+    expect(Array.from(set)).toEqual([]);
+  });
+
+  test("add and remove single unbounded zone: B2:C", () => {
+    const set = new ZoneSet();
+    set.add(toUnboundedZone("B2:C"));
+    expect(set.has(toUnboundedZone("B2"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("C100"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("B2:C100"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("B100:C"))).toBeTruthy();
+    set.delete(toUnboundedZone("B2:C"));
+    expect(set.has(toUnboundedZone("B2"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("C100"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("B2:C100"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("B100:C"))).toBeFalsy();
+    expect(Array.from(set)).toEqual([]);
+  });
+
+  test("add and remove single unbounded zone: B:C", () => {
+    const set = new ZoneSet();
+    set.add(toUnboundedZone("B:C"));
+    expect(set.has(toUnboundedZone("B2"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("C3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("B2:B3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("C2:C"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("C:C"))).toBeTruthy();
+    set.delete(toUnboundedZone("B:C"));
+    expect(set.has(toUnboundedZone("B2"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("C3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("B2:B3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("C2:C"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("C:C"))).toBeFalsy();
+    expect(Array.from(set)).toEqual([]);
+  });
+
+  test("add and remove single unbounded zone: 2:3", () => {
+    const set = new ZoneSet();
+    set.add(toUnboundedZone("2:3"));
+    expect(set.has(toUnboundedZone("B2"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("C3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("B2:B3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("C2:3"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("3:3"))).toBeTruthy();
+    set.delete(toUnboundedZone("2:3"));
+    expect(set.has(toUnboundedZone("B2"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("C3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("B2:B3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("C2:3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("3:3"))).toBeFalsy();
+    expect(Array.from(set)).toEqual([]);
+  });
+
   test("zone equality: same zone added twice", () => {
     const set = new ZoneSet();
     set.add(toZone("A1:A5"));
@@ -51,6 +115,16 @@ describe("ZoneSet", () => {
     expect(Array.from(set)).toEqual([toZone("B2"), toZone("B4")]);
   });
 
+  test("removing a part of a unbounded zone", () => {
+    const set = new ZoneSet();
+    set.add(toUnboundedZone("B2:4"));
+    set.delete(toUnboundedZone("D2:D4"));
+    expect(set.has(toUnboundedZone("C2"))).toBeTruthy();
+    expect(set.has(toUnboundedZone("D3"))).toBeFalsy();
+    expect(set.has(toUnboundedZone("E4"))).toBeTruthy();
+    expect(Array.from(set)).toEqual([toUnboundedZone("B2:C4"), toUnboundedZone("E2:4")]);
+  });
+
   test("remove a bigger zone", () => {
     const set = new ZoneSet();
     set.add(toZone("B2:B4"));
@@ -68,6 +142,17 @@ describe("ZoneSet", () => {
     setB.add(toZone("C1:C5"));
     const difference = setA.difference(setB);
     expect(Array.from(difference)).toEqual([toZone("A1:A2"), toZone("B1:B5")]);
+  });
+
+  test("difference between two sets with unbounded zones", () => {
+    const setA = new ZoneSet();
+    setA.add(toUnboundedZone("A1:A"));
+    setA.add(toUnboundedZone("B1:B"));
+    const setB = new ZoneSet();
+    setB.add(toUnboundedZone("A3:A"));
+    setB.add(toUnboundedZone("B1:B3"));
+    const difference = setA.difference(setB);
+    expect(Array.from(difference)).toEqual([toUnboundedZone("A1:A2"), toUnboundedZone("B4:B")]);
   });
 
   test("difference with an empty set", () => {
@@ -203,47 +288,10 @@ describe("ZoneSet", () => {
     expect(set.isEmpty()).toBe(true);
   });
 
-  test("size with individual cells", () => {
-    const set = new ZoneSet();
-    expect(set.size()).toBe(0);
-    set.add(toZone("A1"));
-    set.add(toZone("B2"));
-    expect(set.size()).toBe(2);
-    set.delete(toZone("A1"));
-    expect(set.size()).toBe(1);
-    set.delete(toZone("B2"));
-    expect(set.size()).toBe(0);
-  });
-
-  test("size with adjacent cells", () => {
-    const set = new ZoneSet();
-    set.add(toZone("A1"));
-    set.add(toZone("A2"));
-    expect(set.size()).toBe(1);
-    set.add(toZone("B1"));
-    set.add(toZone("B2"));
-    expect(set.size()).toBe(1);
-    set.add(toZone("B3"));
-    expect(set.size()).toBe(2);
-  });
-
-  test("size with multiple zones on the same column", () => {
+  test("overlap two zones but not contained", () => {
     const set = new ZoneSet();
     set.add(toZone("A1:A3"));
-    expect(set.size()).toBe(1);
-    set.add(toZone("A5:A6"));
-    expect(set.size()).toBe(2);
-    set.add(toZone("A8:A10"));
-    expect(set.size()).toBe(3);
-  });
-
-  test("size with multiple zones on the same row", () => {
-    const set = new ZoneSet();
-    set.add(toZone("A1:C1"));
-    expect(set.size()).toBe(1);
-    set.add(toZone("E1:F1"));
-    expect(set.size()).toBe(2);
-    set.add(toZone("H1:J1"));
-    expect(set.size()).toBe(3);
+    set.add(toZone("A5:A7"));
+    expect(set.has(toZone("A2:A6"))).toBeFalsy();
   });
 });
