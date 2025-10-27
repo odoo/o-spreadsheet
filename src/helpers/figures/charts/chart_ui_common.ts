@@ -1,4 +1,9 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+  unregisterChartJsExtensions,
+} from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -39,27 +44,32 @@ export function chartToImage(
   canvas.setAttribute("height", figure.height.toString());
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
+  let imgContent: string | undefined = undefined;
   if ("chartJsConfig" in runtime) {
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
     const chart = new window.Chart(canvas, config as ChartConfiguration);
-    const imgContent = chart.toBase64Image() as string;
+    imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
-    return imgContent;
+    if (!extensionsLoaded) {
+      unregisterChartJsExtensions();
+    }
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
-    const imgContent = canvas.toDataURL();
+    imgContent = canvas.toDataURL();
     div.remove();
-    return imgContent;
   } else if (type === "gauge") {
     drawGaugeChart(canvas, runtime as GaugeChartRuntime);
-    const imgContent = canvas.toDataURL();
+    imgContent = canvas.toDataURL();
     div.remove();
-    return imgContent;
   }
-  return undefined;
+  return imgContent;
 }
 
 /**
