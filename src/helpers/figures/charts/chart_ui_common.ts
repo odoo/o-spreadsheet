@@ -1,4 +1,9 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+  unregisterChartJsExtensions,
+} from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -40,7 +45,12 @@ export function chartToImageUrl(
   let imageContent: string | undefined;
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
+  let extensionsLoaded = false;
   if ("chartJsConfig" in runtime) {
+    extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
     const chart = new window.Chart(canvas, config as ChartConfiguration);
@@ -55,6 +65,9 @@ export function chartToImageUrl(
     imageContent = canvas.toDataURL();
   }
   div.remove();
+  if (!extensionsLoaded) {
+    unregisterChartJsExtensions();
+  }
   return imageContent;
 }
 
@@ -77,7 +90,12 @@ export async function chartToImageFile(
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
   let chartBlob: Blob | null = null;
+  let extensionsLoaded = false;
   if ("chartJsConfig" in runtime) {
+    extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
     const chart = new window.Chart(canvas, config as ChartConfiguration);
@@ -92,6 +110,9 @@ export async function chartToImageFile(
     chartBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
   }
   div.remove();
+  if (!extensionsLoaded) {
+    unregisterChartJsExtensions();
+  }
   return chartBlob ? new File([chartBlob], "chart.png", { type: "image/png" }) : undefined;
 }
 
