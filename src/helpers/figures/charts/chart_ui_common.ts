@@ -1,4 +1,9 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+  unregisterChartJsExtensions,
+} from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -41,11 +46,18 @@ export function chartToImageUrl(
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
   if ("chartJsConfig" in runtime) {
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
     const chart = new window.Chart(canvas, config as ChartConfiguration);
     imageContent = chart.toBase64Image() as string;
     chart.destroy();
+    if (!extensionsLoaded) {
+      unregisterChartJsExtensions();
+    }
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
@@ -78,11 +90,18 @@ export async function chartToImageFile(
   document.body.append(div);
   let chartBlob: Blob | null = null;
   if ("chartJsConfig" in runtime) {
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
     const chart = new window.Chart(canvas, config as ChartConfiguration);
     chartBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     chart.destroy();
+    if (!extensionsLoaded) {
+      unregisterChartJsExtensions();
+    }
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
