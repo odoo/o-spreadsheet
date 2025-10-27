@@ -1,4 +1,4 @@
-import { Zone } from "../../..";
+import { UnboundedZone, Zone } from "../../..";
 import {
   constructZonesFromProfiles,
   modifyProfiles,
@@ -9,7 +9,7 @@ export class ZoneSet {
   private profilesStartingPosition: number[] = [0];
   private profiles = new Map<number, number[]>([[0, []]]);
 
-  constructor(zones: Iterable<Zone> = []) {
+  constructor(zones: Iterable<Zone | UnboundedZone> = []) {
     for (const zone of zones) {
       this.add(zone);
     }
@@ -19,15 +19,15 @@ export class ZoneSet {
     return this.profiles.size === 1 && this.profiles.get(0)?.length === 0;
   }
 
-  add(zone: Zone) {
+  add(zone: Zone | UnboundedZone) {
     modifyProfiles(this.profilesStartingPosition, this.profiles, [zone]);
   }
 
-  delete(zone: Zone) {
+  delete(zone: Zone | UnboundedZone) {
     modifyProfiles(this.profilesStartingPosition, this.profiles, [zone], true);
   }
 
-  has(zone: Zone): boolean {
+  has(zone: Zone | UnboundedZone): boolean {
     return profilesContainsZone(this.profilesStartingPosition, this.profiles, zone);
   }
 
@@ -47,14 +47,6 @@ export class ZoneSet {
       result.profiles.set(key, [...value]);
     }
     return result;
-  }
-
-  size() {
-    let size = 0;
-    for (const profile of this.profiles.values()) {
-      size += profile.length;
-    }
-    return size / 2;
   }
 
   /**

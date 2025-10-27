@@ -181,25 +181,31 @@ export function modifyProfiles<T extends Zone | UnboundedZone>( // export for te
 export function profilesContainsZone(
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>,
-  zone: Zone
+  zone: Zone | UnboundedZone
 ): boolean {
   const leftValue = zone.left;
   const rightValue = zone.right;
-  const topValue = zone.top;
-  const bottomValue = zone.bottom + 1;
   const leftIndex = binaryPredecessorSearch(profilesStartingPosition, leftValue, 0);
-  const rightIndex = binaryPredecessorSearch(profilesStartingPosition, rightValue, leftIndex);
-  if (leftIndex === -1 || rightIndex === -1) {
-    return false;
-  }
+  const rightIndex =
+    rightValue === undefined
+      ? profilesStartingPosition.length - 1
+      : binaryPredecessorSearch(profilesStartingPosition, rightValue, leftIndex);
+  /**
+   * The `profilesStartingPosition` array always contains at least the value `0` at its first position,
+   * ensuring that applying `binaryPredecessorSearch` will always return a valid index.
+   * Therefore, it is not necessary to check if the result of `binaryPredecessorSearch` equals `-1`.
+   */
+  const topValue = zone.top;
+  const bottomValue = zone.bottom === undefined ? undefined : zone.bottom + 1;
   for (let i = leftIndex; i <= rightIndex; i++) {
     const profile = profiles.get(profilesStartingPosition[i])!;
-    const topPredIndex = binaryPredecessorSearch(profile, topValue, 0, true);
-    const bottomSuccIndex = binarySuccessorSearch(profile, bottomValue, 0, true);
+    const topPredIndex = binaryPredecessorSearch(profile, topValue, 0);
     if (topPredIndex === -1 || topPredIndex % 2 !== 0) {
       return false;
     }
-    if (topValue < profile[topPredIndex] || bottomValue > profile[bottomSuccIndex]) {
+    const bottomSuccIndex =
+      bottomValue === undefined ? profile.length : binarySuccessorSearch(profile, bottomValue, 0);
+    if (topPredIndex + 1 !== bottomSuccIndex) {
       return false;
     }
   }
