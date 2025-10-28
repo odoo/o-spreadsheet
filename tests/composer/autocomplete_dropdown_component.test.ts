@@ -350,14 +350,31 @@ describe("Functions autocomplete", () => {
       // hide the auto-complete
       await click(fixture, ".fa-times-circle");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+
+      // Enter should CONFIRM as-typed (no autocomplete) and stop edition
       await keyDown({ key: "Enter" });
-      expect(composerStore.currentContent).toBe("=SU");
+      expect(getCellText(model, "A1")).toBe("=SU");
+      expect(composerStore.editionMode).toBe("inactive");
 
       // show it again
+      await typeInComposer("=SU");
       await click(fixture, ".fa-question-circle");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
       await keyDown({ key: "Enter" });
       expect(composerStore.currentContent).toBe("=SUM(");
+    });
+
+    test("after force-closing assistant, plain text in another cell still confirms", async () => {
+      await typeInComposer("=SU");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+      await click(fixture, ".fa-times-circle");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+      await keyDown({ key: "Enter" });
+
+      await typeInComposer("hello");
+      await keyDown({ key: "Enter" });
+      expect(getCellText(model, "A2")).toBe("hello");
+      expect(parent.env.getStore(CellComposerStore).editionMode).toBe("inactive");
     });
 
     test("autocomplete proposal can be automatically expanded", async () => {
@@ -440,6 +457,27 @@ describe("Data validation autocomplete", () => {
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
     expect(fixture.querySelector(".fa-times-circle")).toBeFalsy();
     expect(fixture.querySelector(".fa-question-circle")).toBeFalsy();
+  });
+
+  test("after force-closing formula assistant, Enter in data validation still selects from dropdown", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: [" 1", "2", "3"],
+      displayStyle: "arrow",
+    });
+
+    await typeInComposer("=SU");
+    await click(fixture, ".fa-times-circle");
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+    expect(fixture.querySelector(".fa-times-circle")).toBeFalsy();
+
+    await keyDown({ key: "Escape" });
+    await typeInComposer("");
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
+
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "A1")).toBe("1");
   });
 });
 
