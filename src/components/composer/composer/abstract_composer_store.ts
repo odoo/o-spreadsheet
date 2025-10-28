@@ -930,10 +930,14 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.autoComplete.hide();
   }
 
-  autoCompleteOrStop(direction: Direction) {
+  autoCompleteOrStop(direction: Direction, isAutocompleteForcedClosed: boolean = false) {
     if (this.editionMode !== "inactive") {
       const autoComplete = this.autoComplete;
-      if (autoComplete.provider && autoComplete.selectedIndex !== undefined) {
+      if (
+        !isAutocompleteForcedClosed &&
+        autoComplete.provider &&
+        autoComplete.selectedIndex !== undefined
+      ) {
         const autoCompleteValue = autoComplete.provider.proposals[autoComplete.selectedIndex]?.text;
         if (autoCompleteValue) {
           this.autoComplete.provider?.selectProposal(autoCompleteValue);

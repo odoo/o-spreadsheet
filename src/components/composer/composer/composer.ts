@@ -385,17 +385,21 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private processTabKey(ev: KeyboardEvent, direction: Direction) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (!this.assistant.forcedClosed) {
-      this.props.composerStore.autoCompleteOrStop(direction);
-    }
+
+    this.props.composerStore.autoCompleteOrStop(
+      direction,
+      this.assistant.forcedClosed && this.props.composerStore.canBeToggled
+    );
   }
 
   private processEnterKey(ev: KeyboardEvent, direction: Direction) {
     ev.preventDefault();
     ev.stopPropagation();
-    if (!this.assistant.forcedClosed) {
-      this.props.composerStore.autoCompleteOrStop(direction);
-    }
+
+    this.props.composerStore.autoCompleteOrStop(
+      direction,
+      this.assistant.forcedClosed && this.props.composerStore.canBeToggled
+    );
   }
 
   private processNewLineEvent(ev: KeyboardEvent) {
