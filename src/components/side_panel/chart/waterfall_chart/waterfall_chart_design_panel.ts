@@ -7,6 +7,7 @@ import {
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import { Color } from "../../../../types";
+import { VerticalAxisPosition } from "../../../../types/chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -89,7 +90,7 @@ export class WaterfallChartDesignPanel extends Component<
     );
   }
 
-  updateVerticalAxisPosition(value: "left" | "right") {
+  updateVerticalAxisPosition(value: VerticalAxisPosition) {
     this.props.updateChart(this.props.chartId, {
       verticalAxisPosition: value,
     });

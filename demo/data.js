@@ -71,6 +71,8 @@ export const demoData = {
         C35: "=floor(RAND()*50)",
         D10: "note that C7 is empty",
         D12: "this is a sum of sums",
+        D26: "third dataset",
+        D27: "=floor(RANDARRAY(9,1)*50)",
         F2: "italic blablah",
         F3: "strikethrough",
         F4: "underline",
@@ -978,6 +980,38 @@ export const demoData = {
           offset: {
             x: 550,
             y: 2225,
+          },
+          col: 0,
+          row: 0,
+        },
+        {
+          id: "16",
+          tag: "chart",
+          width: 500,
+          height: 400,
+          data: {
+            type: "bubble",
+            dataSetsHaveTitle: true,
+            background: "#FFFFFF",
+            dataSets: [
+              {
+                dataRange: "Sheet1!C26:C35",
+              },
+            ],
+            legendPosition: "top",
+            xRange: "Sheet1!B26:B35",
+            labelRange: "Sheet1!A27:A35",
+            sizeRange: "Sheet1!D26:D35",
+            title: {
+              text: "Bubble",
+            },
+            humanize: true,
+            bubbleColor: { color: "multiple" },
+            chartId: "16",
+          },
+          offset: {
+            x: 100,
+            y: 2550,
           },
           col: 0,
           row: 0,
