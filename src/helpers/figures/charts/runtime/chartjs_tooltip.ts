@@ -20,6 +20,7 @@ import {
   SunburstChartRawData,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
@@ -27,6 +28,7 @@ import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/t
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CellValue } from "../../../../types";
+import { BubbleChartData } from "../bubble_chart";
 import { renderToString } from "./chart_custom_tooltip";
 import { GHOST_SUNBURST_VALUE } from "./chartjs_dataset";
 
@@ -141,6 +143,53 @@ export function getLineChartTooltip(
   };
 
   return tooltip;
+}
+
+export function getBubbleChartTooltip(
+  definition: BubbleChartDefinition,
+  args: BubbleChartData
+): ChartTooltip {
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    callbacks: {
+      title: () => "",
+      beforeLabel: (tooltipItem) => {
+        const label = args.labels[tooltipItem.dataIndex];
+        return label ?? "";
+      },
+      label: (tooltipItem) => {
+        const raw = args.bubblePoints[tooltipItem.dataIndex];
+        const locale = args.locale;
+        const formattedX = formatOrHumanizeValue(
+          raw?.x,
+          args.axisFormats?.x,
+          locale,
+          definition.humanize
+        );
+        const formattedY = formatOrHumanizeValue(
+          raw?.y,
+          args.axisFormats?.y,
+          locale,
+          definition.humanize
+        );
+        const formattedSize = definition.sizeRange
+          ? formatOrHumanizeValue(raw?.r ?? 0, args.axisFormats?.size, locale, definition.humanize)
+          : undefined;
+        const parts: string[] = [];
+        if (formattedX) {
+          parts.push(formattedX);
+        }
+        if (formattedY) {
+          parts.push(formattedY);
+        }
+        return (
+          (parts.length ? `(${parts.join(", ")})` : "") +
+          (formattedSize ? `→ ${formattedSize}` : "")
+        );
+      },
+    },
+  };
 }
 
 export function getPieChartTooltip(

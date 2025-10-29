@@ -1,4 +1,4 @@
-import { LineChartRuntime, ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { LineChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Scale } from "chart.js";
 import { Model } from "../../../../src";
 import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
@@ -88,16 +88,5 @@ describe("Zoomable chart configuration tests", () => {
 
     expect(runtime.chartJsConfig.options?.scales?.[TREND_LINE_XAXIS_ID]).toBeDefined();
     expect(runtime.masterChartConfig?.options?.scales?.[TREND_LINE_XAXIS_ID]).toBeUndefined();
-  });
-
-  test("Scatter chart master chart does not show lines and has smaller point size", () => {
-    createChart(model, { type: "scatter", dataSets: [{ dataRange: "A1:A5" }] }, "chartId");
-    const runtime = model.getters.getChartRuntime("chartId") as ScatterChartRuntime;
-
-    expect(runtime.chartJsConfig.data.datasets[0].showLine).toBe(false);
-    expect(runtime.chartJsConfig.data.datasets[0].pointRadius).toBe(3);
-
-    expect(runtime.masterChartConfig?.data.datasets[0].showLine).toBe(false);
-    expect(runtime.masterChartConfig?.data.datasets[0].pointRadius).toBe(2);
   });
 });

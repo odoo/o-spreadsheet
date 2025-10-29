@@ -8,7 +8,11 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
-import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  isEvaluationError,
+  toNumber,
+  tryToNumber,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { DAYS, isDateTimeFormat, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
@@ -38,7 +42,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import { Point } from "chart.js";
+import { BubbleDataPoint, Point } from "chart.js";
 import {
   CellValue,
   DEFAULT_LOCALE,
@@ -49,6 +53,7 @@ import {
   Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
+import { BubbleChart, BubbleChartData } from "../bubble_chart";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -452,6 +457,87 @@ export function getHierarchalChartData(
     axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
     labels,
     locale: getters.getLocale(),
+  };
+}
+
+export function getBubbleChartData(chart: BubbleChart, getters: Getters): BubbleChartData {
+  const locale = getters.getLocale();
+  const dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  const labelsFormatted = chart.labelRange ? getters.getRangeFormattedValues(chart.labelRange) : [];
+  const labelsRaw = chart.labelRange ? getters.getRangeValues(chart.labelRange) : [];
+  const xValues = chart.xRange ? getters.getRangeValues(chart.xRange) : [];
+  const sizeValues = chart.sizeRange ? getters.getRangeValues(chart.sizeRange) : [];
+  const yDataset = dataSetsValues[0] ?? { data: [], label: undefined, hidden: false };
+  const removeFirstLabel = shouldRemoveFirstLabel(
+    chart.xRange,
+    chart.dataSets[0],
+    chart.dataSetsHaveTitle || false
+  );
+  if (removeFirstLabel) {
+    labelsFormatted.shift();
+    labelsRaw.shift();
+    xValues.shift();
+    sizeValues.shift();
+  }
+
+  const maxLength = Math.max(
+    yDataset.data.length,
+    xValues.length,
+    sizeValues.length,
+    labelsFormatted.length
+  );
+
+  const bubblePoints: BubbleDataPoint[] = [];
+  const filteredLabels: string[] = [];
+  const filteredDatasetValues: DatasetValues[] = [{ ...yDataset, data: [] }];
+  const filteredSizes: number[] = [];
+
+  const xNumbers: number[] = [];
+  const yNumbers: number[] = [];
+
+  for (let index = 0; index < maxLength; index++) {
+    const rawX = xValues[index];
+    const rawY = yDataset.data[index];
+    const rawSize = sizeValues[index];
+    const label = labelsFormatted[index] ?? labelsRaw[index];
+
+    const xNumber = tryToNumber(rawX, locale);
+    const yNumber = tryToNumber(rawY, locale);
+    if (
+      xNumber === undefined ||
+      yNumber === undefined ||
+      Number.isNaN(xNumber) ||
+      Number.isNaN(yNumber)
+    ) {
+      continue;
+    }
+    const sizeNumber = tryToNumber(rawSize as any, locale) ?? 0;
+    xNumbers.push(xNumber);
+    yNumbers.push(yNumber);
+    filteredLabels.push(label ? String(label) : "");
+    (filteredDatasetValues[0].data as (number | null)[]).push(yNumber);
+    filteredSizes.push(sizeNumber);
+  }
+
+  for (let index = 0; index < filteredSizes.length; index++) {
+    bubblePoints.push({
+      x: xNumbers[index],
+      y: yNumbers[index],
+      r: filteredSizes[index],
+    });
+  }
+
+  const axisFormats = {
+    x: getRangeFormat(getters, chart.xRange),
+    y: getRangeFormat(getters, chart.dataSets[0]?.dataRange),
+  };
+
+  return {
+    dataSetsValues: filteredDatasetValues,
+    axisFormats,
+    labels: filteredLabels,
+    locale,
+    bubblePoints,
   };
 }
 
@@ -1020,11 +1106,22 @@ function getChartDatasetFormat(
 ): Format | undefined {
   const dataSets = allDataSets.filter((ds) => (axis === "right") === !!ds.rightYAxis);
   for (const ds of dataSets) {
-    const formatsInDataset = getters.getRangeFormats(ds.dataRange);
-    const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
+    const format = getRangeFormat(getters, ds.dataRange);
     if (format) return format;
   }
   return undefined;
+}
+
+/**
+ * Get the format to apply to the the range values. This format is defined as the first format
+ * found in the range that isn't a date format.
+ */
+function getRangeFormat(getters: Getters, range?: Range): Format | undefined {
+  if (!range) {
+    return undefined;
+  }
+  const formats = getters.getRangeFormats(range);
+  return formats.find((format) => format && !isDateTimeFormat(format));
 }
 
 function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {

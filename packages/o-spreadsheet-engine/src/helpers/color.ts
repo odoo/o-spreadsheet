@@ -385,8 +385,10 @@ export function chipTextColor(chipBackgroundColor: Color): Color {
     : darkenColor(chipBackgroundColor, 0.75);
 }
 
+export const ORIGINAL_BLUE = "#4EA7F2";
+
 const COLORS_SM = [
-  "#4EA7F2", // Blue
+  ORIGINAL_BLUE, // Blue
   "#EA6175", // Red
   "#43C5B1", // Teal
   "#F4A261", // Orange
@@ -394,7 +396,7 @@ const COLORS_SM = [
   "#FFD86D", // Yellow
 ];
 const COLORS_MD = [
-  "#4EA7F2", // Blue #1
+  ORIGINAL_BLUE, // Blue #1
   "#3188E6", // Blue #2
   "#43C5B1", // Teal #1
   "#00A78D", // Teal #2
@@ -408,7 +410,7 @@ const COLORS_MD = [
   "#FFBC2C", // Yellow #2
 ];
 const COLORS_LG = [
-  "#4EA7F2", // Blue #1
+  ORIGINAL_BLUE, // Blue #1
   "#3188E6", // Blue #2
   "#056BD9", // Blue #3
   "#A76DBC", // Violet #1
@@ -434,7 +436,7 @@ const COLORS_LG = [
   "#C08A16", // Yellow #3
 ];
 const COLORS_XL = [
-  "#4EA7F2", // Blue #1
+  ORIGINAL_BLUE, // Blue #1
   "#3188E6", // Blue #2
   "#056BD9", // Blue #3
   "#155193", // Blue #4
@@ -471,7 +473,7 @@ const COLORS_XL = [
 // Same as above but with alternating colors
 
 const ALTERNATING_COLORS_MD = [
-  "#4EA7F2", // Blue    #1
+  ORIGINAL_BLUE, // Blue    #1
   "#43C5B1", // Teal    #1
   "#EA6175", // Red     #1
   "#F4A261", // Orange  #1
@@ -485,7 +487,7 @@ const ALTERNATING_COLORS_MD = [
   "#FFBC2C", // Yellow  #2
 ];
 const ALTERNATING_COLORS_LG = [
-  "#4EA7F2", // Blue    #1
+  ORIGINAL_BLUE, // Blue    #1
   "#A76DBC", // Violet  #1
   "#EA6175", // Red     #1
   "#43C5B1", // Teal    #1
@@ -511,7 +513,7 @@ const ALTERNATING_COLORS_LG = [
   "#C08A16", // Yellow  #3
 ];
 const ALTERNATING_COLORS_XL = [
-  "#4EA7F2", // Blue    #1
+  ORIGINAL_BLUE, // Blue    #1
   "#A76DBC", // Violet  #1
   "#EA6175", // Red     #1
   "#43C5B1", // Teal    #1
