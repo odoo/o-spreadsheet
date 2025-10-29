@@ -45,6 +45,7 @@ import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
@@ -243,6 +244,40 @@ export function createChart(
     showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
     horizontalGroupBy: ("horizontalGroupBy" in data && data.horizontalGroupBy) || "day_of_week",
     verticalGroupBy: ("verticalGroupBy" in data && data.verticalGroupBy) || "month_number",
+  };
+  return model.dispatch("CREATE_CHART", {
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
+    sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+    definition,
+  });
+}
+
+export function createBubbleChart(
+  model: Model,
+  data: Partial<BubbleChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+  const definition = {
+    ...data,
+    type: "bubble" as const,
+    title: data.title || { text: "test" },
+    verticalAxisPosition: data.verticalAxisPosition || "left",
+    background: data.background,
+    legendPosition: data.legendPosition || "top",
+    xRange: data.xRange || "",
+    yRange: data.yRange || "",
+    labelRange: data.labelRange || "",
+    colorMode: data.colorMode || "multiple",
   };
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),

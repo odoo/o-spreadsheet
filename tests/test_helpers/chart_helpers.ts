@@ -136,4 +136,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showHeaders: true,
   zoomable: false,
   humanize: false,
+  bubbleXRange: "Sheet1!A1:A4",
+  bubbleSizeRange: "Sheet1!A1:A4",
+  bubbleColorMode: "single",
 };
