@@ -71,6 +71,10 @@ export const ChartTerms: {
     [CommandResult.GaugeUpperInflectionPointNaN]: _t(
       "The upper inflection point value must be a number"
     ),
+    // BUBBLE CHART ERRORS
+    [CommandResult.InvalidYRange]: _t("The vertical axis values range is invalid"),
+    [CommandResult.InvalidXRange]: _t("The horizontal axis values range is invalid"),
+    [CommandResult.InvalidBubbleSizeRange]: _t("The bubble sizes range is invalid"),
   },
   ColorScales: {
     blues: _t("Blues"),

@@ -9,7 +9,9 @@
           onChange.bind="this.updateLegendPosition"
         />
       </div>
-      <div t-else="" title="No legend available">None</div>
+      <div t-else="" title="No legend available">
+        <span class="o-disabled">None</span>
+      </div>
     </Section>
   </t>
 </templates>

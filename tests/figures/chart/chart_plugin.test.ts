@@ -1,11 +1,5 @@
 import { Point } from "chart.js";
-import {
-  ChartDefinition,
-  ChartDefinitionWithDataSource,
-  ChartWithAxisDefinition,
-  CommandResult,
-  Model,
-} from "../../../src";
+import { ChartDefinition, ChartDefinitionWithDataSource, CommandResult, Model } from "../../../src";
 
 import {
   activateSheet,
@@ -4436,7 +4430,7 @@ describe("Can make numbers human-readable", () => {
 
   test.each(["line", "bar", "scatter", "combo"] as const)(
     "%s chart showValues plugin takes humanization into account",
-    async (type: ChartWithAxisDefinition["type"]) => {
+    async (type: "line" | "bar" | "scatter" | "combo") => {
       createChart(
         model,
         {

@@ -2,7 +2,7 @@ import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
-  ChartDefinitionWithDataSource,
+  ChartDefinition,
   ChartRangeDataSource,
   DataSet,
   DataSetStyle,
@@ -302,9 +302,7 @@ export function getChartPositionAtCenterOfViewport(
   }; // Position at the center of the scrollable viewport
 }
 
-export function getDefinedAxis(
-  definition: Partial<ChartDefinitionWithDataSource<string | Range>>
-): {
+export function getDefinedAxis(definition: Partial<ChartDefinition<string | Range>>): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {
@@ -313,7 +311,8 @@ export function getDefinedAxis(
   if ("horizontal" in definition && definition.horizontal) {
     return { useLeftAxis: true, useRightAxis: false };
   }
-  for (const design of Object.values(definition.dataSetStyles ?? {})) {
+  const dataSetStyles = "dataSetStyles" in definition ? definition.dataSetStyles ?? {} : {};
+  for (const design of Object.values(dataSetStyles)) {
     if (design?.yAxisId === "y1") {
       useRightAxis = true;
     } else {

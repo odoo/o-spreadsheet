@@ -6,12 +6,10 @@ import {
 } from "../../../../constants";
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
-import {
-  ChartDefinitionWithDataSource,
-  ChartRuntimeGenerationArgs,
-  GenericDefinition,
-} from "../../../../types/chart/chart";
+import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
+import { ChartRuntimeGenerationArgs, GenericDefinition } from "../../../../types/chart/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import { LegendPosition } from "../../../../types/chart/common_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
@@ -21,18 +19,21 @@ import {
 } from "../../../../types/chart/sunburst_chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { DeepPartial } from "../../../../types/misc";
+import { Range } from "../../../../types/range";
 import { ColorGenerator } from "../../../color";
+import { BubbleChartData } from "../bubble_chart";
 import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
-function getLegendDisplayOptions(
-  definition: GenericDefinition<ChartDefinitionWithDataSource>,
-  args: ChartRuntimeGenerationArgs
-): ChartLegend {
+function getLegendDisplayOptions({
+  legendPosition,
+}: {
+  legendPosition?: LegendPosition;
+}): ChartLegend {
   return {
-    display: definition.legendPosition !== "none",
-    position: definition.legendPosition !== "none" ? definition.legendPosition : undefined,
+    display: legendPosition !== "none",
+    position: legendPosition !== "none" ? legendPosition : undefined,
   };
 }
 
@@ -42,7 +43,7 @@ export function getBarChartLegend(
 ): ChartLegend {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle: "rect",
       lineWidth: 3,
@@ -59,7 +60,7 @@ export function getLineChartLegend(
   const lineWidth = filled ? 2 : 3;
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle,
       lineWidth,
@@ -79,7 +80,7 @@ export function getPieChartLegend(
   );
   const fontColor = chartFontColor(definition.background);
   return {
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     labels: {
       usePointStyle: true,
       generateLabels: (c) =>
@@ -108,13 +109,34 @@ export function getScatterChartLegend(
 ): ChartLegend {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle: "circle",
-      // the stroke is the border around the circle, so increasing its size with the chart's color reduce the size of the circle
       strokeStyle: definition.background || "#ffffff",
       lineWidth: 8,
     }),
+  };
+}
+
+export function getBubbleChartLegend(
+  definition: BubbleChartDefinition<Range>,
+  args: BubbleChartData
+): ChartLegend {
+  if (definition.bubbleColor.color !== "multiple") {
+    return { display: false };
+  }
+  return {
+    ...INTERACTIVE_LEGEND_CONFIG_FOR_BUBBLE_CHART,
+    ...getLegendDisplayOptions(definition),
+    ...getBubbleChartLegendLabels(
+      chartFontColor(definition.background),
+      {
+        pointStyle: "circle",
+        strokeStyle: definition.background || "#ffffff",
+        lineWidth: 8,
+      },
+      args.bubbleLabels
+    ),
   };
 }
 
@@ -124,7 +146,7 @@ export function getComboChartLegend(
 ): ChartLegend {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       lineWidth: 3,
     }),
@@ -141,7 +163,7 @@ export function getWaterfallChartLegend(
   const subTotalColor = definition.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
 
   return {
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     labels: {
       usePointStyle: true,
       generateLabels: () => {
@@ -191,7 +213,7 @@ export function getRadarChartLegend(
   const lineWidth = fill ? 2 : 3;
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle,
       lineWidth,
@@ -206,7 +228,7 @@ export function getSunburstChartLegend(
   const fontColor = chartFontColor(definition.background);
 
   return {
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     labels: {
       usePointStyle: true,
       generateLabels: (chart) => {
@@ -236,7 +258,7 @@ export function getSunburstChartLegend(
  * onLeave callbacks are used to show a pointer when hovering an item
  * of the legend so that the user knows it is clickable.
  */
-export const INTERACTIVE_LEGEND_CONFIG = {
+const INTERACTIVE_LEGEND_CONFIG = {
   onHover: (event) => {
     const target = event.native?.target;
     if (!target) {
@@ -266,6 +288,25 @@ export const INTERACTIVE_LEGEND_CONFIG = {
     } else {
       legend.chart.show(index);
     }
+    event.native.preventDefault();
+    event.native.stopPropagation();
+  },
+};
+
+const INTERACTIVE_LEGEND_CONFIG_FOR_BUBBLE_CHART = {
+  ...INTERACTIVE_LEGEND_CONFIG,
+  onClick: (event, legendItem, legend) => {
+    if (event.type !== "click") {
+      return;
+    }
+    const index = legendItem.datasetIndex;
+    if (index === undefined) {
+      return;
+    }
+    const meta = legend.chart.getDatasetMeta(0);
+    const alreadyHidden = meta.data[index].hidden;
+    meta.data[index].hidden = !alreadyHidden;
+    legend.chart.update();
     event.native.preventDefault();
     event.native.stopPropagation();
   },
@@ -317,6 +358,51 @@ function getCustomLegendLabels(
           ? !data.datasets[legendItem.datasetIndex!].hidden
           : true;
       },
+    },
+  };
+}
+
+function getBubbleChartLegendLabels(
+  fontColor: Color,
+  legendLabelConfig: Partial<LegendItem>,
+  labels: string[]
+): {
+  labels: {
+    color: Color;
+    usePointStyle: boolean;
+    generateLabels: (chart: Chart) => LegendItem[];
+    filter?: LegendOptions<any>["labels"]["filter"];
+  };
+} {
+  return {
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      generateLabels: (chart: Chart) => {
+        if (!chart.data.datasets[0]) {
+          return [];
+        }
+        const backgroundColor = chart.data.datasets[0].backgroundColor;
+        const colors =
+          typeof backgroundColor === "string"
+            ? chart.data.datasets[0].data.map(() => backgroundColor)
+            : backgroundColor;
+        return chart.data.datasets[0].data
+          .map((point, index) => {
+            return {
+              text: labels[index],
+              fontColor,
+              strokeStyle: colors?.[index],
+              fillStyle: colors?.[index],
+              hidden: chart.getDatasetMeta(0).data[index]["hidden"],
+              pointStyle: "rect",
+              datasetIndex: index,
+              ...legendLabelConfig,
+            } as LegendItem;
+          })
+          .filter((label) => label.text);
+      },
+      filter: (legendItem, data) => true,
     },
   };
 }
