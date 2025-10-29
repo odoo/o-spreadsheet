@@ -66,4 +66,11 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     }
     return axes;
   }
+
+  get chartSheetIsLocked(): boolean {
+    const sheetId = this.env.model.getters.getFigureSheetId(
+      this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
+    );
+    return sheetId ? this.env.model.getters.isSheetLocked(sheetId) : false;
+  }
 }

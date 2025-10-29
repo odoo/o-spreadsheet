@@ -41,6 +41,7 @@ export const cut: ActionSpec = {
     interactiveCut(env);
     await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.CUT",
 };
 
@@ -49,6 +50,7 @@ export const paste: ActionSpec = {
   description: "Ctrl+V",
   execute: ACTIONS.PASTE_ACTION,
   icon: "o-spreadsheet-Icon.PASTE",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const pasteSpecial: ActionSpec = {
@@ -57,17 +59,20 @@ export const pasteSpecial: ActionSpec = {
     return !env.model.getters.isCutOperation();
   },
   icon: "o-spreadsheet-Icon.PASTE",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const pasteSpecialValue: ActionSpec = {
   name: _t("Paste as value"),
   description: "Ctrl+Shift+V",
   execute: ACTIONS.PASTE_AS_VALUE_ACTION,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const pasteSpecialFormat: ActionSpec = {
   name: _t("Paste format only"),
   execute: ACTIONS.PASTE_FORMAT_ACTION,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const findAndReplace: ActionSpec = {
@@ -88,43 +93,51 @@ export const deleteValues: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteRows: ActionSpec = {
   name: ACTIONS.REMOVE_ROWS_NAME,
   execute: ACTIONS.REMOVE_ROWS_ACTION,
   isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteRow: ActionSpec = {
   ...deleteRows,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const clearRows: ActionSpec = {
   name: ACTIONS.DELETE_CONTENT_ROWS_NAME,
   execute: ACTIONS.DELETE_CONTENT_ROWS_ACTION,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteCols: ActionSpec = {
   name: ACTIONS.REMOVE_COLUMNS_NAME,
   execute: ACTIONS.REMOVE_COLUMNS_ACTION,
   isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteCol: ActionSpec = {
   ...deleteCols,
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const clearCols: ActionSpec = {
   name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
   execute: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteCells: ActionSpec = {
   name: _t("Delete cells"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteCellShiftUp: ActionSpec = {
@@ -134,6 +147,7 @@ export const deleteCellShiftUp: ActionSpec = {
     const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
     handlePasteResult(env, result);
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const deleteCellShiftLeft: ActionSpec = {
@@ -143,11 +157,12 @@ export const deleteCellShiftLeft: ActionSpec = {
     const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
     handlePasteResult(env, result);
   },
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const mergeCells: ActionSpec = {
   name: _t("Merge cells"),
-  isEnabled: (env) => !cannotMerge(env),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked() && !cannotMerge(env),
   isActive: (env) => hasMergeInAnySelectedZone(env),
   execute: (env) => toggleMerge(env),
   icon: "o-spreadsheet-Icon.MERGE_CELL",
