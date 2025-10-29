@@ -83,7 +83,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
 
   onMouseDown(ev: MouseEvent) {
     // Stop the event if the input is not focused, we handle everything in onMouseUp
-    if (ev.target !== document.activeElement) {
+    if (ev.target !== document.activeElement && this.props.selectContentOnFocus) {
       ev.preventDefault();
       ev.stopPropagation();
     }
@@ -91,7 +91,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
 
   onMouseUp(ev: MouseEvent) {
     const target = ev.target as HTMLInputElement;
-    if (target !== document.activeElement) {
+    if (target !== document.activeElement && this.props.selectContentOnFocus) {
       target.focus();
       if (this.props.selectContentOnFocus) {
         target.select();
