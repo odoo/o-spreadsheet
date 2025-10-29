@@ -1,0 +1,40 @@
+<templates>
+  <t t-name="o-spreadsheet-BubbleChartConfigPanel">
+    <div>
+      <ChartDataSeries
+        ranges="this.getDataSeriesRanges()"
+        onSelectionChanged.bind="onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="onDataSeriesConfirmed"
+        onSelectionReordered.bind="onDataSeriesReordered"
+        onSelectionRemoved.bind="onDataSeriesRemoved"
+        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
+        datasetOrientation="datasetOrientation"
+        canChangeDatasetOrientation="canChangeDatasetOrientation"
+        onFlipAxis.bind="setDatasetOrientation"
+      />
+      <ChartLabelRange
+        title.translate="Horizontal axis values"
+        range="getXAxisRange()"
+        isInvalid="isXAxisInvalid"
+        onSelectionChanged.bind="onXAxisRangeChanged"
+        onSelectionConfirmed.bind="onXAxisRangeConfirmed"
+      />
+      <ChartLabelRange
+        title.translate="Bubble labels"
+        range="getLabelRange()"
+        isInvalid="isLabelInvalid"
+        onSelectionChanged.bind="onLabelRangeChanged"
+        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+      />
+      <ChartLabelRange
+        title.translate="Bubble sizes"
+        range="getBubbleSizeRange()"
+        isInvalid="isBubbleSizeRangeInvalid"
+        onSelectionChanged.bind="onBubbleSizeRangeChanged"
+        onSelectionConfirmed.bind="onBubbleSizeRangeConfirmed"
+      />
+
+      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+    </div>
+  </t>
+</templates>

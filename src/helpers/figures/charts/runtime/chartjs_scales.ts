@@ -28,6 +28,7 @@ import {
   ScatterChartDefinition,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
@@ -157,6 +158,50 @@ export function getScatterChartScales(
       grid: { display: true },
     },
   };
+}
+
+export function getBubbleChartScales(
+  definition: GenericDefinition<BubbleChartDefinition>,
+  args: ChartRuntimeGenerationArgs
+): DeepPartial<ScaleChartOptions<"line">["scales"]> {
+  const { locale, axisType, labels, axisFormats } = args;
+  const labelFormat = axisFormats?.x;
+
+  const format = definition.verticalAxisPosition === "right" ? axisFormats?.y1 : axisFormats?.y;
+  let scales: DeepPartial<ScaleChartOptions<"line">["scales"]> = {
+    x: {
+      ...getChartAxis(definition, "bottom", "labels", { locale }),
+      grid: { display: true },
+    },
+    y: {
+      position: definition.verticalAxisPosition ?? "left",
+      ticks: {
+        color: chartFontColor(definition.background),
+        callback: formatTickValue({ locale, format }, definition.humanize),
+      },
+      grid: {
+        lineWidth: (context) => (context.tick.value === 0 ? 2 : 1),
+      },
+      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+    },
+  };
+  scales = removeFalsyAttributes(scales);
+
+  if (axisType === "time" && labels && labelFormat) {
+    const axis = {
+      type: "time",
+      time: getChartTimeOptions(labels, labelFormat, locale),
+    };
+    Object.assign(scales!.x!, axis);
+    scales!.x!.ticks!.maxTicksLimit = 15;
+    delete scales?.x?.ticks?.callback;
+  } else if (axisType === "linear") {
+    scales!.x!.type = "linear";
+    scales!.x!.ticks!.callback = definition.humanize
+      ? (value) => humanizeNumber({ value, format: labelFormat }, locale)
+      : (value) => formatValue(value, { format: labelFormat, locale });
+  }
+  return scales;
 }
 
 export function getWaterfallChartScales(
@@ -319,7 +364,7 @@ function getGeoChartProjection(projection: GeoChartProjection) {
   return projection;
 }
 
-function getChartAxisTitleRuntime(design?: AxisDesign):
+export function getChartAxisTitleRuntime(design?: AxisDesign):
   | {
       display: boolean;
       text: string;
