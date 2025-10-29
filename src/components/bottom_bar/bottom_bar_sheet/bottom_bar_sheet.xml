@@ -9,6 +9,7 @@
         t-on-click="onClick"
         t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
         t-ref="sheetDiv"
+        t-key="sheetName"
         t-att-style="props.style"
         t-att-title="sheetName"
         t-att-data-id="props.sheetId"
