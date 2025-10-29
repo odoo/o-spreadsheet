@@ -220,10 +220,14 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             title="Changing the pivot definition requires to reload the data. It may take some time."
           >
             <input
-              class="me-2"
+              class="me-2 flex-shrink-0"
               type="checkbox"
             />
-            Defer updates
+            <span
+              class="text-truncate"
+            >
+              Defer updates
+            </span>
             
           </label>
           
@@ -442,10 +446,14 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             title="Changing the pivot definition requires to reload the data. It may take some time."
           >
             <input
-              class="me-2"
+              class="me-2 flex-shrink-0"
               type="checkbox"
             />
-            Defer updates
+            <span
+              class="text-truncate"
+            >
+              Defer updates
+            </span>
             
           </label>
           

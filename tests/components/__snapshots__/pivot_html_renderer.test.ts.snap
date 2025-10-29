@@ -10,11 +10,15 @@ exports[`Pivot HTML Renderer Rendering a simple pivot table 1`] = `
       role="button"
     >
       <input
-        class="me-2"
+        class="me-2 flex-shrink-0"
         name="missing_values"
         type="checkbox"
       />
-      Display missing cells only
+      <span
+        class="text-truncate"
+      >
+        Display missing cells only
+      </span>
       
     </label>
     
