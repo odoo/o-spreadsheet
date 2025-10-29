@@ -3,6 +3,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Component } from "@odoo/owl";
 import { Store, useLocalStore } from "../../../../../store_engine";
 import { PivotStyle, UID } from "../../../../../types";
+import { NumberInput } from "../../../../number_input/number_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
@@ -14,12 +15,17 @@ interface Props {
 export class PivotDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDesignPanel";
   static props = { pivotId: String };
-  static components = { Section, Checkbox };
+  static components = { Section, Checkbox, NumberInput };
 
   store!: Store<PivotSidePanelStore>;
 
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId, "neverDefer");
+  }
+
+  updatePivotStyleNumberProperty(valueStr: string, key: keyof PivotStyle) {
+    const value = parseInt(valueStr);
+    this.store.update({ style: { ...this.pivotStyle, [key]: isNaN(value) ? undefined : value } });
   }
 
   updatePivotStyleProperty(key: keyof PivotStyle, value: PivotStyle[keyof PivotStyle]) {

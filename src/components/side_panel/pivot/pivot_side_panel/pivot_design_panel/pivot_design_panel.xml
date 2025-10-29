@@ -6,24 +6,22 @@
           <div class="row mb-2 align-items-center">
             <div class="col-6">Max rows:</div>
             <div class="col-6 d-flex align-items-center">
-              <input
-                t-att-value="pivotStyle.numberOfRows ?? ''"
-                type="number"
-                class="o-pivot-n-of-rows o-input"
-                placeholder="e.g. 10"
-                t-on-change="(ev) => this.updatePivotStyleProperty('numberOfRows', ev.target.valueAsNumber)"
+              <NumberInput
+                value="pivotStyle.numberOfRows ?? ''"
+                class="'o-pivot-n-of-rows'"
+                placeholder.translate="e.g. 10"
+                onChange="(value) => this.updatePivotStyleNumberProperty(value, 'numberOfRows')"
               />
             </div>
           </div>
           <div class="row mb-2 align-items-center">
             <div class="col-6">Max columns:</div>
             <div class="col-6 d-flex align-items-center">
-              <input
-                t-att-value="pivotStyle.numberOfColumns ?? ''"
-                type="number"
-                class="o-pivot-n-of-columns o-input"
-                placeholder="e.g. 5"
-                t-on-change="(ev) => this.updatePivotStyleProperty('numberOfColumns', ev.target.valueAsNumber)"
+              <NumberInput
+                value="pivotStyle.numberOfColumns ?? ''"
+                class="'o-pivot-n-of-columns'"
+                placeholder.translate="e.g. 5"
+                onChange="(value) => this.updatePivotStyleNumberProperty(value, 'numberOfColumns')"
               />
             </div>
           </div>
