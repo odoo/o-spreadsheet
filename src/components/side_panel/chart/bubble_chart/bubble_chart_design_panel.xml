@@ -1,0 +1,56 @@
+<templates>
+  <t t-name="o-spreadsheet-BubbleChartDesignPanel">
+    <GeneralDesignEditor t-props="props">
+      <t t-set-slot="general-extension">
+        <ChartLegend t-props="props" disabled="colorMode == 'single'"/>
+        <Section class="'o-vertical-axis-selection pt-0'" title.translate="Vertical axis position">
+          <RadioSelection
+            choices="axisChoices"
+            selectedValue="verticalAxisPosition"
+            name="'axis'"
+            onChange.bind="updateVerticalAxisPosition"
+          />
+        </Section>
+        <Section class="'pt-0'" title.translate="Values">
+          <ChartShowValues t-props="props"/>
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Bubble chart design">
+      <t t-set-slot="content">
+        <Section class="'pt-0'" title.translate="Color mode">
+          <RadioSelection
+            choices="colorModeChoices"
+            selectedValue="colorMode"
+            name="'bubble-color-mode'"
+            onChange.bind="onColorModeChange"
+          />
+          <Checkbox
+            name="'opacity'"
+            value="opacity"
+            onChange.bind="updateBubbleOpacity"
+            className="'w-100 pt-2'"
+            label.translate="Show solid bubbles"
+            title.translate="Show solid bubbles"
+          />
+        </Section>
+        <Section t-if="colorMode == 'single'" class="'pt-0'" title.translate="Bubble color">
+          <RoundColorPicker
+            currentColor="currentBubbleColor"
+            onColorPicked.bind="updateBubbleColor"
+          />
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
+      <t t-set-slot="content">
+        <AxisDesignEditor
+          axesList="axesList"
+          chartId="props.chartId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

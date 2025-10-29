@@ -83,6 +83,14 @@ export const TEST_CHART_DATA = {
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
   },
+  bubble: {
+    type: "bubble" as const,
+    xRange: "A2:A5",
+    dataSets: [{ dataRange: "B2:B5" }],
+    labelRange: "C2:C5",
+    sizeRange: "D2:D5",
+    title: { text: "Bubble Chart" },
+  },
 };
 
 const PIVOT: PivotCoreDefinition = {
