@@ -189,6 +189,47 @@
       <path fill="var(--os-gray-600)" d="M2,2 v44 h1 v-44 M3,45 h42 v1 h-42"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-ChartPreview.BUBBLE_CHART">
+    <svg viewBox="0 0 48 48" class="o-chart-preview" xmlns="http://www.w3.org/2000/svg">
+      <circle
+        stroke="var(--os-chart-preview-blue-line)"
+        fill="var(--os-chart-preview-blue-fill)"
+        cx="12"
+        cy="32"
+        r="4"
+      />
+      <circle
+        stroke="var(--os-chart-preview-blue-line)"
+        fill="var(--os-chart-preview-blue-fill)"
+        cx="22"
+        cy="16"
+        r="3"
+      />
+      <circle
+        stroke="var(--os-chart-preview-orange-line)"
+        fill="var(--os-chart-preview-orange-fill)"
+        cx="30"
+        cy="26"
+        r="5"
+      />
+      <circle
+        stroke="var(--os-chart-preview-orange-line)"
+        fill="var(--os-chart-preview-orange-fill)"
+        cx="18"
+        cy="24"
+        r="2.5"
+      />
+      <circle
+        stroke="var(--os-chart-preview-purple-line)"
+        fill="var(--os-chart-preview-purple-fill)"
+        cx="36"
+        cy="14"
+        r="6"
+        opacity="0.8"
+      />
+      <path fill="var(--os-gray-600)" d="M2,2 v44 h1 v-44 M3,45 h42 v1 h-42"/>
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-ChartPreview.GAUGE_CHART">
     <svg
       viewBox="0 0 48 48"

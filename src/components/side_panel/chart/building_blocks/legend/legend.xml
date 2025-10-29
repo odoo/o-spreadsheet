@@ -1,6 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-ChartLegend">
-    <Section class="'pt-0'" title.translate="Legend position">
+    <Section
+      class="'pt-0' + (props.disabled ? ' o-disabled' : '')"
+      title.translate="Legend position">
       <Select
         selectedValue="props.definition.legendPosition ?? 'top'"
         values="legendValues"
