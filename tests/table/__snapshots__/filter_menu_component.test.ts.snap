@@ -62,15 +62,20 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     >
       <!-- toString because t-set with a body creates a LazyValue instead of a string -->
       <label
-        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto"
         role="button"
+        title="(Blanks)"
       >
         <input
-          class="me-2"
+          class="me-2 flex-shrink-0"
           name="(Blanks)"
           type="checkbox"
         />
-        (Blanks)
+        <span
+          class="text-truncate"
+        >
+          (Blanks)
+        </span>
         
       </label>
       
@@ -80,15 +85,20 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     >
       <!-- toString because t-set with a body creates a LazyValue instead of a string -->
       <label
-        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto"
         role="button"
+        title="1"
       >
         <input
-          class="me-2"
+          class="me-2 flex-shrink-0"
           name="1"
           type="checkbox"
         />
-        1
+        <span
+          class="text-truncate"
+        >
+          1
+        </span>
         
       </label>
       
@@ -98,15 +108,20 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     >
       <!-- toString because t-set with a body creates a LazyValue instead of a string -->
       <label
-        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto"
         role="button"
+        title="2"
       >
         <input
-          class="me-2"
+          class="me-2 flex-shrink-0"
           name="2"
           type="checkbox"
         />
-        2
+        <span
+          class="text-truncate"
+        >
+          2
+        </span>
         
       </label>
       
