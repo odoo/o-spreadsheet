@@ -68,7 +68,11 @@ beforeEach(() => {
   rendererStore = container.get(RendererStore);
   jest
     .spyOn(MockCanvasRenderingContext2D.prototype, "measureText")
-    .mockImplementation((text: string) => ({ width: text.length }));
+    .mockImplementation((text: string) => ({
+      width: text.length,
+      fontBoundingBoxAscent: 1,
+      fontBoundingBoxDescent: 1,
+    }));
 
   const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
   drawGrid = () => rendererStore.draw(ctx);

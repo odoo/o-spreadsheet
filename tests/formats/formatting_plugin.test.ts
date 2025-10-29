@@ -15,7 +15,12 @@ import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
+import {
+  fontSizeInPixels,
+  getCellContentHeight,
+  positionToZone,
+  toCartesian,
+} from "../../src/helpers";
 import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
 import {
   createSheet,
@@ -824,4 +829,54 @@ describe("Autoresize", () => {
     expect(getCellContent(model, "A1")).toEqual("-7");
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(initialSize);
   });
+
+  test.each([-Math.PI / 2, -Math.PI / 3, -Math.PI / 4, 0, Math.PI / 4, Math.PI / 3, Math.PI / 2])(
+    "Autoresize work with rotated text %s",
+    (rotation) => {
+      const noRotationStyle = { fontSize: 20 };
+
+      model.dispatch("SET_FORMATTING", {
+        sheetId,
+        target: [positionToZone(toCartesian("A1"))],
+        style: { rotation, ...noRotationStyle },
+      });
+
+      const cos = Math.abs(Math.cos(rotation));
+      const sin = Math.abs(Math.sin(rotation));
+      let width, height;
+
+      setCellContent(model, "A1", "ABC");
+      ({ width, height } = model.getters.getMultilineTextSize(["ABC"], noRotationStyle));
+      model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      expect(model.getters.getColSize(sheetId, 0)).toEqual(
+        Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
+      );
+      model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      expect(model.getters.getRowSize(sheetId, 0)).toEqual(
+        Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
+      );
+
+      setCellContent(model, "A1", "ABC\n123");
+      ({ width, height } = model.getters.getMultilineTextSize(["ABC", "123"], noRotationStyle));
+      model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      expect(model.getters.getColSize(sheetId, 0)).toEqual(
+        Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
+      );
+      model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      expect(model.getters.getRowSize(sheetId, 0)).toEqual(
+        Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
+      );
+
+      setCellContent(model, "A1", "ABC-123");
+      ({ width, height } = model.getters.getMultilineTextSize(["ABC-123"], noRotationStyle));
+      model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      expect(model.getters.getColSize(sheetId, 0)).toEqual(
+        Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
+      );
+      model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      expect(model.getters.getRowSize(sheetId, 0)).toEqual(
+        Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
+      );
+    }
+  );
 });
