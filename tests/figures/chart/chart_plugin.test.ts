@@ -5,7 +5,6 @@ import {
   BarChartDefinition,
   BarChartRuntime,
   ChartDefinitionWithDataSource,
-  ChartWithAxisDefinition,
   LineChartRuntime,
   PieChartDefinition,
   PieChartRuntime,
@@ -4409,7 +4408,7 @@ describe("Can make numbers human-readable", () => {
 
   test.each(["line", "bar", "scatter", "combo"] as const)(
     "%s chart showValues plugin takes humanization into account",
-    async (type: ChartWithAxisDefinition["type"]) => {
+    async (type: "line" | "bar" | "scatter" | "combo") => {
       createChart(
         model,
         {

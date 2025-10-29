@@ -5,13 +5,16 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
   COLOR_TRANSPARENT,
+  DEFAULT_BUBBLE_RADIUS,
   DEFAULT_CHART_COLOR_SCALE,
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
+  MAX_BUBBLE_RADIUS,
+  MIN_BUBBLE_RADIUS,
 } from "../../../../constants";
 import { tryToNumber } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import { ChartRuntimeGenerationArgs, Color, GenericDefinition, Range } from "../../../../types";
 import {
   BarChartDefinition,
   DataSetStyle,
@@ -29,6 +32,7 @@ import {
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import {
@@ -55,7 +59,8 @@ import {
   setColorAlpha,
 } from "../../../color";
 import { formatValue } from "../../../format/format";
-import { isDefined, range } from "../../../misc";
+import { clip, isDefined, range } from "../../../misc";
+import { BubbleChartData } from "../bubble_chart";
 import {
   getPieColors,
   isTrendLineAxis,
@@ -277,6 +282,79 @@ export function getScatterChartDatasets(
     }
   }
   return dataSets;
+}
+
+export function getBubbleChartDataset(
+  definition: BubbleChartDefinition<Range>,
+  chartData: BubbleChartData
+): ChartDataset<"line">[] {
+  let backgroundColor: string | string[], borderColor: string | string[];
+  if (definition.bubbleColor.color === "multiple") {
+    const colorGenerator = new ColorGenerator(chartData.bubbleSizes.length);
+    borderColor = [];
+    for (let i = 0; i < chartData.bubbleSizes.length; i++) {
+      borderColor.push(colorGenerator.next());
+    }
+    backgroundColor = borderColor.map((c) =>
+      setColorAlpha(c, definition.bubbleColor.transparent ? 0.5 : 1)
+    );
+  } else {
+    borderColor = definition.bubbleColor.color;
+    backgroundColor = setColorAlpha(borderColor, definition.bubbleColor.transparent ? 0.5 : 1);
+  }
+
+  const radii = computeBubbleRadii(chartData.bubbleSizes);
+  const data: { x: number | string; y: number }[] = [];
+  for (let i = 0; i < chartData.bubbleSizes.length; i++) {
+    const yCell = chartData.dataSetsValues[0].data[i];
+    data.push({
+      x: chartData.labels[i],
+      y: isNumberResult(yCell) ? yCell.value : NaN,
+    });
+  }
+
+  const dataset = {
+    label: chartData.dataSetsValues[0]?.label,
+    data,
+    backgroundColor,
+    borderColor,
+    hoverBackgroundColor: backgroundColor,
+    hoverBorderColor: borderColor,
+    yAxisID: "y",
+    pointRadius: radii,
+    pointHoverRadius: radii,
+    showLine: false,
+  } as ChartDataset<"line">;
+
+  return [dataset];
+}
+
+function computeBubbleRadii(sizeValues: (number | undefined)[]): number[] {
+  if (!sizeValues.length) {
+    return [];
+  }
+  const finiteSizes = sizeValues.filter(
+    (value) => Number.isFinite(value) && value! > 0
+  ) as number[];
+  const min = finiteSizes.length ? Math.min(...finiteSizes) : 0;
+  const max = finiteSizes.length ? Math.max(...finiteSizes) : 0;
+  const range = max - min;
+  if (!finiteSizes.length) {
+    return sizeValues.map(() => DEFAULT_BUBBLE_RADIUS);
+  }
+  return sizeValues.map((value) => {
+    if (value === undefined || !Number.isFinite(value) || value < 0) {
+      return 0;
+    }
+    if (value === 0) {
+      return DEFAULT_BUBBLE_RADIUS;
+    }
+    if (range === 0) {
+      return MIN_BUBBLE_RADIUS;
+    }
+    const normalized = clip((value - min) / range, 0, 1);
+    return MIN_BUBBLE_RADIUS + normalized * (MAX_BUBBLE_RADIUS - MIN_BUBBLE_RADIUS);
+  });
 }
 
 export function getPieChartDatasets(

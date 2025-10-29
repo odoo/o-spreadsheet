@@ -8,7 +8,7 @@ import {
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
-import { Color, DeepPartial, LocaleFormat } from "../../../../types";
+import { Color, DeepPartial, LocaleFormat, Range } from "../../../../types";
 import {
   AxisDesign,
   AxisType,
@@ -24,6 +24,7 @@ import {
   ScatterChartDefinition,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   GeoChartDefinition,
@@ -275,6 +276,21 @@ export function getScatterChartScales(
   };
 }
 
+export function getBubbleChartScales(
+  definition: BubbleChartDefinition<string | Range>,
+  args: ChartRuntimeGenerationArgs
+): DeepPartial<ScaleChartOptions<"line">["scales"]> {
+  const scatterScales = getScatterChartScales(definition, args);
+  const position = definition.verticalAxisPosition || "left";
+  return {
+    ...scatterScales,
+    y: {
+      ...scatterScales.y,
+      position,
+    },
+  };
+}
+
 export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
@@ -483,7 +499,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
 }
 
 function getChartAxis(
-  definition: GenericDefinition<ChartWithAxisDefinition>,
+  definition: Partial<ChartWithAxisDefinition>,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
   axisType: AxisType | undefined,

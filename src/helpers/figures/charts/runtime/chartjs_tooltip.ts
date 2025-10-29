@@ -1,6 +1,6 @@
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
 import { toNumber } from "../../../../functions/helpers";
-import { CellValue, DeepPartial } from "../../../../types";
+import { CellValue, DeepPartial, Range } from "../../../../types";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -12,13 +12,16 @@ import {
   SunburstChartRawData,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { setColorAlpha } from "../../../color";
 import { formatOrHumanizeValue, humanizeNumber } from "../../../format/format";
+import { isDefined } from "../../../misc";
 import { isNumber } from "../../../numbers";
+import { BubbleChartData } from "../bubble_chart";
 import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
 import { GHOST_SUNBURST_VALUE } from "./chartjs_dataset";
@@ -134,6 +137,60 @@ export function getLineChartTooltip(
   };
 
   return tooltip;
+}
+
+export function getBubbleChartTooltip(
+  definition: BubbleChartDefinition<Range>,
+  args: BubbleChartData
+): ChartTooltip {
+  const hasAnyValidSize = args.bubbleSizes.some(isDefined);
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    callbacks: {
+      title: () => "",
+      beforeLabel: (tooltipItem) => args.bubbleLabels[tooltipItem.dataIndex] ?? "",
+      label: (tooltipItem) => {
+        const locale = args.locale;
+        let x: string | number = args.labels[tooltipItem.dataIndex];
+        if (typeof x === "string" && isNumber(x, locale)) {
+          x = toNumber(x, locale);
+        }
+        const y = args.dataSetsValues[0].data[tooltipItem.dataIndex].value;
+        const size = args.bubbleSizes[tooltipItem.dataIndex];
+        const formattedX = formatOrHumanizeValue(
+          x,
+          args.axisFormats?.x,
+          locale,
+          definition.humanize
+        );
+        const formattedY = formatOrHumanizeValue(
+          y,
+          args.axisFormats?.y,
+          locale,
+          definition.humanize
+        );
+        const formattedSize =
+          size !== undefined && definition.sizeRange
+            ? formatOrHumanizeValue(size, args.axisFormats?.size, locale, definition.humanize)
+            : undefined;
+        const parts: string[] = [];
+        if (formattedX) {
+          parts.push(formattedX);
+        }
+        if (formattedY) {
+          parts.push(formattedY);
+        }
+        return (
+          (parts.length ? `(${parts.join(", ")})` : "") +
+          (formattedSize ? `→ ${formattedSize}` : "")
+        );
+      },
+    },
+    filter: (tooltipItem) => {
+      return !hasAnyValidSize || args.bubbleSizes[tooltipItem.dataIndex] !== undefined;
+    },
+  };
 }
 
 export function getPieChartTooltip(

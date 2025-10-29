@@ -7,7 +7,7 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "../../../../functions/helper_statistical";
-import { toNumber } from "../../../../functions/helpers";
+import { toNumber, tryToNumber } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
 import {
   CellValue,
@@ -17,6 +17,7 @@ import {
   GenericDefinition,
   Getters,
   Locale,
+  Range,
 } from "../../../../types";
 import {
   AxisType,
@@ -33,6 +34,7 @@ import {
   SunburstChartDefinition,
   TrendConfiguration,
 } from "../../../../types/chart";
+import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import {
   CalendarChartDefinition,
   CalendarChartGranularity,
@@ -48,6 +50,8 @@ import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { DAYS, formatValue, isDateTimeFormat, MONTHS } from "../../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { BubbleChartData } from "../bubble_chart";
+import { shouldRemoveFirstLabel } from "../chart_common";
 
 const EMPTY = Object.freeze({ value: null });
 const ZERO = Object.freeze({ value: 0 });
@@ -422,6 +426,101 @@ export function getHierarchalChartData(
     axisFormats: { y: getChartLabelFormat(labels) },
     labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
+  };
+}
+
+export function getBubbleChartData(
+  definition: BubbleChartDefinition<Range>,
+  getters: Getters
+): BubbleChartData {
+  const chartData = getBubbleChartSourceData(definition, getters);
+  const data = getLineChartData(definition, chartData, getters);
+
+  let labelValues = definition.labelRange
+    ? getters.getVisibleRangeValues(definition.labelRange)
+    : [];
+  let sizeValues = definition.sizeRange ? getters.getVisibleRangeValues(definition.sizeRange) : [];
+  if (chartData.shouldRemoveFirstLabel) {
+    labelValues = labelValues.slice(1);
+    sizeValues = sizeValues.slice(1);
+  }
+
+  const bubbleLabels: string[] = [];
+  const bubbleSizes: (number | undefined)[] = [];
+  const sizeFormat = getChartLabelFormat(sizeValues);
+
+  for (let index = 0; index < data.dataSetsValues[0].data.length; index++) {
+    const rawSize = sizeValues[index]?.value;
+    const labelValue = labelValues[index];
+    const label = labelValue
+      ? formatValue(labelValue.value, { format: labelValue.format, locale: data.locale })
+      : "";
+    let sizeNumber = rawSize === null ? undefined : tryToNumber(rawSize, data.locale);
+    if (sizeNumber !== undefined && sizeNumber < 0) {
+      sizeNumber = undefined;
+    }
+    bubbleLabels.push(label ? String(label) : "");
+    bubbleSizes.push(sizeNumber);
+  }
+
+  const order = range(0, bubbleSizes.length).sort((a, b) => {
+    const sizeA = bubbleSizes[a];
+    const sizeB = bubbleSizes[b];
+    if (sizeA === undefined && sizeB === undefined) {
+      return 0;
+    }
+    if (sizeA === undefined) {
+      return 1;
+    }
+    if (sizeB === undefined) {
+      return -1;
+    }
+    return sizeB - sizeA;
+  });
+
+  data.dataSetsValues[0] = {
+    ...data.dataSetsValues[0],
+    data: order.map((i) => data.dataSetsValues[0].data[i]),
+  };
+
+  return {
+    ...data,
+    axisFormats: {
+      ...(data.axisFormats || {}),
+      size: sizeFormat,
+    },
+    labels: order.map((i) => data.labels[i]),
+    bubbleLabels: order.map((i) => bubbleLabels[i]),
+    bubbleSizes: order.map((i) => bubbleSizes[i]),
+  };
+}
+
+function getBubbleChartSourceData(
+  definition: BubbleChartDefinition<Range>,
+  getters: Getters
+): ChartData & { shouldRemoveFirstLabel: boolean } {
+  const yRange = definition.yRanges[0];
+  const labelValues = definition.xRange
+    ? getters.getVisibleRangeValues(definition.xRange)
+    : yRange
+    ? Array.from({ length: getters.getVisibleRangeValues(yRange).length }, () => EMPTY)
+    : [];
+  const yValues = yRange ? getters.getVisibleRangeValues(yRange) : [];
+  const removeFirstValue = shouldRemoveFirstLabel(
+    labelValues.length,
+    yValues.length,
+    definition.dataSetsHaveTitle || false
+  );
+  return {
+    labelValues: removeFirstValue ? labelValues.slice(1) : labelValues,
+    dataSetsValues: [
+      {
+        dataSetId: "0",
+        label: "",
+        data: removeFirstValue ? yValues.slice(1) : yValues,
+      },
+    ],
+    shouldRemoveFirstLabel: removeFirstValue,
   };
 }
 

@@ -1,0 +1,110 @@
+import { Component } from "@odoo/owl";
+import { Color } from "chart.js";
+import { FIRST_CHART_COLOR } from "../../../../helpers";
+import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
+import { _t } from "../../../../translation";
+import { VerticalAxisPosition } from "../../../../types/chart";
+import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
+import { DispatchResult, UID } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Checkbox } from "../../components/checkbox/checkbox";
+import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
+import { RadioSelection } from "../../components/radio_selection/radio_selection";
+import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
+import { Section } from "../../components/section/section";
+import {
+  AxisDefinition,
+  AxisDesignEditor,
+} from "../building_blocks/axis_design/axis_design_editor";
+import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
+import { ChartLegend } from "../building_blocks/legend/legend";
+import { ChartShowValues } from "../building_blocks/show_values/show_values";
+import { ChartSidePanelPropsObject } from "../common";
+
+interface Props {
+  chartId: UID;
+  definition: BubbleChartDefinition;
+  canUpdateChart: (chartId: UID, definition: Partial<BubbleChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<BubbleChartDefinition>) => DispatchResult;
+}
+
+export class BubbleChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-BubbleChartDesignPanel";
+  static components = {
+    GeneralDesignEditor,
+    SidePanelCollapsible,
+    Section,
+    AxisDesignEditor,
+    ChartLegend,
+    ChartShowValues,
+    ChartHumanizeNumbers,
+    RadioSelection,
+    RoundColorPicker,
+    Checkbox,
+  };
+  static props = ChartSidePanelPropsObject;
+
+  get axesList(): AxisDefinition[] {
+    return [
+      { id: "x", name: _t("Horizontal axis") },
+      { id: this.verticalAxisPosition === "right" ? "y1" : "y", name: _t("Vertical axis") },
+    ];
+  }
+
+  colorModeChoices = [
+    { value: "single", label: _t("Single color") },
+    { value: "multiple", label: _t("Multiple colors") },
+  ];
+
+  axisChoices = CHART_AXIS_CHOICES;
+
+  get colorMode(): "multiple" | "single" {
+    const definition = this.props.definition as BubbleChartDefinition;
+    return definition.bubbleColor.color === "multiple" ? "multiple" : "single";
+  }
+
+  onColorModeChange(mode: "multiple" | "single") {
+    this.updateBubbleColor(mode === "multiple" ? "multiple" : FIRST_CHART_COLOR);
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    const definition = this.props.definition as BubbleChartDefinition;
+    return definition.verticalAxisPosition ?? "left";
+  }
+
+  updateVerticalAxisPosition(value: VerticalAxisPosition) {
+    this.props.updateChart(this.props.chartId, {
+      verticalAxisPosition: value,
+    });
+  }
+
+  updateBubbleColor(color: string | "multiple") {
+    const colorMode = this.props.definition.bubbleColor;
+    this.props.updateChart(this.props.chartId, {
+      bubbleColor: {
+        ...colorMode,
+        color,
+      },
+    });
+  }
+
+  get currentBubbleColor(): Color {
+    const mode = this.colorMode;
+    return mode !== "multiple" ? this.props.definition.bubbleColor.color : FIRST_CHART_COLOR;
+  }
+
+  get areBubbleTransparents(): boolean {
+    return this.props.definition.bubbleColor.transparent || false;
+  }
+
+  updateBubbleTransparency(transparent: boolean) {
+    const colorMode = this.props.definition.bubbleColor;
+    this.props.updateChart(this.props.chartId, {
+      bubbleColor: {
+        ...colorMode,
+        transparent,
+      },
+    });
+  }
+}

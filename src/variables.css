@@ -70,6 +70,8 @@
   --os-chart-preview-orange-dark: light-dark(#a34c00, #c96a1e);
   --os-chart-preview-blue-line: light-dark(#0074d9, #4cb3ff);
   --os-chart-preview-blue-fill: light-dark(#c4e4ff, #003e73);
+  --os-chart-preview-green-line: light-dark(#00701e, #00a82d);
+  --os-chart-preview-green-fill: light-dark(#ddffab, #385e00);
 
   --os-header-height: 26px;
   --os-header-width: 48px;

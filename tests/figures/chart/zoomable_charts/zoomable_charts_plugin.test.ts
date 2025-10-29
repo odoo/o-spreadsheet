@@ -1,7 +1,7 @@
 import { Scale } from "chart.js";
 import { Model } from "../../../../src";
 import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
-import { LineChartRuntime, ScatterChartRuntime } from "../../../../src/types/chart";
+import { LineChartRuntime } from "../../../../src/types/chart";
 import { toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
 
@@ -98,20 +98,5 @@ describe("Zoomable chart configuration tests", () => {
 
     expect(runtime.chartJsConfig.options?.scales?.[TREND_LINE_XAXIS_ID]).toBeDefined();
     expect(runtime.masterChartConfig?.options?.scales?.[TREND_LINE_XAXIS_ID]).toBeUndefined();
-  });
-
-  test("Scatter chart master chart does not show lines and has smaller point size", () => {
-    createChart(
-      model,
-      { type: "scatter", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }) },
-      "chartId"
-    );
-    const runtime = model.getters.getChartRuntime("chartId") as ScatterChartRuntime;
-
-    expect(runtime.chartJsConfig.data.datasets[0].showLine).toBe(false);
-    expect(runtime.chartJsConfig.data.datasets[0].pointRadius).toBe(3);
-
-    expect(runtime.masterChartConfig?.data.datasets[0].showLine).toBe(false);
-    expect(runtime.masterChartConfig?.data.datasets[0].pointRadius).toBe(2);
   });
 });

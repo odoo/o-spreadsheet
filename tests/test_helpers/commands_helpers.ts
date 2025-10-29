@@ -40,6 +40,7 @@ import {
   ParsedOsClipboardContentWithImageData,
   Pixel,
   PixelPosition,
+  Range,
   SelectionStep,
   SetDecimalStep,
   SortDirection,
@@ -57,6 +58,7 @@ import { SpreadsheetChart } from "../../src/helpers/figures/chart";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
 import { SunburstChartDefinition } from "../../src/types/chart";
+import { BubbleChartDefinition } from "../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
@@ -237,7 +239,7 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: { type: ChartDefinition["type"] } & Partial<ChartDefinitionWithDataSource<string>>,
+  data: Partial<ChartDefinition<string | Range>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -260,7 +262,42 @@ export function createChart(
     title: { text: "test" },
     ...data,
     dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
-    dataSetStyles: data.dataSetStyles ?? {},
+  };
+
+  return model.dispatch("CREATE_CHART", {
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
+    sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+    definition: SpreadsheetChart.deleteInvalidKeys(definition as ChartDefinition),
+  });
+}
+
+export function createBubbleChart(
+  model: Model,
+  data: Partial<BubbleChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+  const definition = {
+    ...data,
+    yRanges: data.yRanges || [],
+    labelsAsText: data.labelsAsText || false,
+    dataSetsHaveTitle: data.dataSetsHaveTitle ?? false,
+    type: "bubble" as const,
+    title: data.title || { text: "test" },
+    background: data.background,
+    legendPosition: data.legendPosition || "top",
+    labelRange: data.labelRange || "",
+    bubbleColor: data.bubbleColor || { color: "multiple" },
+    verticalAxisPosition: data.verticalAxisPosition || "left",
   };
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),

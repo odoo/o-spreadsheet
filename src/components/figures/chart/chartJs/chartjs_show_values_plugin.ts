@@ -1,5 +1,5 @@
 import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { computeTextWidth } from "../../../../helpers";
+import { computeTextWidth, hexToHSLA, toHex } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 import type { ChartType as AllChartType } from "../../../../types/chart";
@@ -62,6 +62,9 @@ export const chartShowValuesPlugin: Plugin = {
       case "calendar":
         drawBarChartValues(chart, options, ctx);
         break;
+      case "bubble":
+        drawBubbleChartValues(chart, options, ctx);
+        break;
       case "funnel":
         drawHorizontalBarChartValues(chart, options, ctx);
         break;
@@ -104,6 +107,8 @@ function drawLineOrBarOrRadarChartValues(
       let yPosition = 0;
       if (chart.config.type === "line" || chart.config.type === "radar") {
         yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      } else if (chart.config.type === "bubble") {
+        yPosition = point.y;
       } else {
         const yZeroLine = yAxisScale.getPixelForValue(0);
         const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
@@ -185,6 +190,50 @@ function drawBarChartValues(
         continue; // Skip drawing the value if there is not enough space in the bar
       }
       drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBubbleChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+  const textsPositions: Record<number, number[]> = {};
+
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = parsedValue.y;
+      if (isNaN(value)) {
+        continue;
+      }
+
+      const point = dataset.data[i];
+      const xPosition = point.x;
+      let yPosition = Math.max(Math.min(point.y, yMax), yMin);
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < 13) {
+          yPosition = value < 0 ? otherPosition + 13 : otherPosition - 13;
+        }
+      }
+      textsPositions[xPosition].push(yPosition);
+      const color = point.options.backgroundColor ?? "#ffffff";
+      const hsla = hexToHSLA(toHex(color));
+      if (hsla.a === 1) {
+        ctx.fillStyle = chartFontColor(color);
+      } else {
+        ctx.fillStyle = "#000000";
+      }
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      ctx.fillText(valueToDisplay, xPosition, yPosition);
     }
   }
 }
