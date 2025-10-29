@@ -14,7 +14,7 @@
       }
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+        background-color: var(--os-background-gray-color-hover);
       }
 
       &:not(:hover) .o-dv-preview-delete {

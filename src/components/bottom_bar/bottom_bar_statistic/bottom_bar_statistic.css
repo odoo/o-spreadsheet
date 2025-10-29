@@ -4,7 +4,7 @@
     padding: 4px 4px 4px 8px;
     cursor: pointer;
     &:hover {
-      background-color: rgba(0, 0, 0, 0.08) !important;
+      background-color: var(--os-background-gray-color-hover) !important;
     }
   }
 }

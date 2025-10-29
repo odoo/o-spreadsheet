@@ -49,7 +49,7 @@ describe("Data validation auto complete", () => {
         {
           backgroundColor: GRAY_200, // default color
           classes: ["badge rounded-pill fs-6 fw-normal w-100 mt-1 text-start"],
-          color: undefined,
+          color: "#2C3649",
           value: "hello",
         },
       ],
@@ -82,7 +82,7 @@ describe("Data validation auto complete", () => {
         {
           backgroundColor: GRAY_200, // default color
           classes: ["badge rounded-pill fs-6 fw-normal w-100 mt-1 text-start"],
-          color: undefined,
+          color: "#2C3649",
           value: "hello",
         },
       ],

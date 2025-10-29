@@ -42,7 +42,7 @@ autoCompleteProviders.add("dataValidation", {
         htmlContent: [
           {
             value: value.label,
-            color: color ? chipTextColor(color) : undefined,
+            color: chipTextColor(color || GRAY_200),
             backgroundColor: color || GRAY_200,
             classes: ["badge rounded-pill fs-6 fw-normal w-100 mt-1 text-start"],
           },

@@ -1,4 +1,4 @@
-import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
@@ -93,14 +93,14 @@ describe("ranges and highlights", () => {
     const composerEl = await typeInComposer("=SU");
     const contentColors = getComposerColors(composerEl);
     expect(contentColors["="]).toBeSameColorAs("#3da4ab");
-    expect(contentColors["SU"]).toBeSameColorAs("#000000");
+    expect(contentColors["SU"]).toBeSameColorAs(DEFAULT_TOKEN_COLOR);
   });
 
   test("+SU, the + should be colored", async () => {
     const composerEl = await typeInComposer("+SU");
     const contentColors = getComposerColors(composerEl);
     expect(contentColors["+"]).toBeSameColorAs("#3da4ab");
-    expect(contentColors["SU"]).toBeSameColorAs("#000000");
+    expect(contentColors["SU"]).toBeSameColorAs(DEFAULT_TOKEN_COLOR);
   });
 
   test.each([
@@ -1132,7 +1132,7 @@ describe("composer formula color", () => {
     expect(getComposerColors(composerEl)["TRUE"]).toBeSameColorAs(tokenColors.NUMBER);
   });
 
-  test(`type '=SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
+  test(`aaaa`, async () => {
     const composerEl = await typeInComposer('=SUM(1, "2"))');
     expect(getComposerColors(composerEl)[")"]).toBeSameColorAs(tokenColors.ORPHAN_RIGHT_PAREN);
   });
@@ -1339,6 +1339,24 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
     composerStore.changeComposerCursorSelection(str.length, str.length + 1);
     expect(getBlurredState(composerStore)).toEqual([
       { isBlurred: false, value: "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " },
+    ]);
+  });
+
+  test("blurred tokens have reduced opacity", async () => {
+    const str = "=SUM(COS(";
+    await typeInComposer(str);
+    composerStore.changeComposerCursorSelection(str.length, str.length);
+    await nextTick();
+    const spans = [...fixture.querySelectorAll<HTMLElement>("div.o-composer span")].map((el) => ({
+      value: el.textContent || "",
+      opacity: el.style.opacity || "1",
+    }));
+    expect(spans).toEqual([
+      { value: "=", opacity: "0.5" },
+      { value: "SUM", opacity: "0.5" },
+      { value: "(", opacity: "0.5" },
+      { value: "COS", opacity: "1" },
+      { value: "(", opacity: "1" },
     ]);
   });
 

@@ -19,7 +19,7 @@
       <div class="o-section pb-1 pt-0">
         <div class="o-section-title">Carousel Sections</div>
       </div>
-      <div class="o-carousel-preview-list overflow-auto" t-ref="previewList">
+      <div class="o-carousel-preview-list overflow-auto bg-white" t-ref="previewList">
         <t t-foreach="carouselItems" t-as="item" t-key="getItemId(item)">
           <div
             class="o-carousel-preview border-bottom pe-2 position-relative w-100 d-flex align-items-center"

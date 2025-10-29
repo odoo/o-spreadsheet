@@ -10,7 +10,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     class="o-spreadsheet-topbar-wrapper o-two-columns"
   >
     <div
-      class="o-spreadsheet-topbar d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar d-flex flex-column user-select-none bg-white"
     >
       <div
         class="o-topbar-top d-flex justify-content-between"
@@ -1047,7 +1047,7 @@ exports[`components take the small screen into account 1`] = `
     class="o-spreadsheet-topbar-wrapper o-two-columns"
   >
     <div
-      class="o-spreadsheet-topbar d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar d-flex flex-column user-select-none bg-white"
     >
       
       <!-- Toolbar and Cell Content -->
@@ -1842,7 +1842,7 @@ exports[`components take the small screen into account 1`] = `
     >
       
       <div
-        class="o-small-composer px-2 py-2 position-relative"
+        class="o-small-composer px-2 py-2 position-relative bg-white"
       >
         <div
           class="w-100"

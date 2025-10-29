@@ -5,7 +5,7 @@ exports[`Grid integration can display error tooltip 1`] = `
   class="o-popover-content"
 >
   <div
-    class="o-error-tooltip"
+    class="o-error-tooltip bg-white"
   >
     <div
       class="o-error-tooltip-title fw-bold text-danger"

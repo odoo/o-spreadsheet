@@ -8,12 +8,12 @@
     margin-left: -1px;
     cursor: pointer;
     &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
+      background-color: var(--os-background-gray-color-hover);
     }
 
     &.active {
       color: var(--os-action-color);
-      background-color: #ffffff;
+      background-color: var(--os-active-sheet-bg);
       box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
     }
 
@@ -21,7 +21,7 @@
       z-index: 1;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+        background-color: var(--os-background-gray-color-hover);
       }
     }
 

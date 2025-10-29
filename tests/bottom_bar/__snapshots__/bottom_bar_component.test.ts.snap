@@ -2,7 +2,7 @@
 
 exports[`BottomBar component Can open the list of statistics 1`] = `
 <div
-  class="o-menu"
+  class="o-menu bg-white"
   style="width:250px; "
 >
   

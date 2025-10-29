@@ -109,6 +109,13 @@ beforeEach(() => {
       const blob = new window.Blob([data], { type });
       setTimeout(() => callback(blob), 0);
     });
+  // light-dark() colors are not supported in the color parser used by jsdom. Mock the setColor to avoid parsing color issues
+  jest
+    .spyOn(CSSStyleDeclaration.prototype, "color", "set")
+    .mockImplementation(function (this: CSSStyleDeclaration, color: string) {
+      // @ts-ignore
+      this._setProperty("color", color);
+    });
   patchSessionMove();
   /** this is the magic shit
    * ensures that we properly load every files from the library but
