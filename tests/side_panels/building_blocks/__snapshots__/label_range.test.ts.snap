@@ -49,11 +49,15 @@ exports[`Label range Can add options to the label range component 1`] = `
       role="button"
     >
       <input
-        class="me-2"
+        class="me-2 flex-shrink-0"
         name="my_option"
         type="checkbox"
       />
-      My option
+      <span
+        class="text-truncate"
+      >
+        My option
+      </span>
       
     </label>
     
