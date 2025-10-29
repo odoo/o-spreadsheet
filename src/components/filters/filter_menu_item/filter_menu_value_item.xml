@@ -14,8 +14,9 @@
         name="value.toString()"
         value="this.props.isChecked"
         onChange="this.props.onClick"
-        className="'p-2 w-100 pe-auto text-truncate'"
+        className="'p-2 w-100 pe-auto'"
         label="value.toString()"
+        title="value.toString()"
       />
     </div>
   </t>
