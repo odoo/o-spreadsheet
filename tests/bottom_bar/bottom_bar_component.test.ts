@@ -58,6 +58,10 @@ async function mountBottomBar(
   return { parent, model, env };
 }
 
+function getSheetNameSpan(): HTMLSpanElement | null {
+  return fixture.querySelector<HTMLSpanElement>(".o-sheet-name");
+}
+
 describe("BottomBar component", () => {
   test("simple rendering", async () => {
     await mountBottomBar();
@@ -338,14 +342,13 @@ describe("BottomBar component", () => {
     test("Pasting styled content in sheet name and renaming sheet does not throw a trackback", async () => {
       const HTML = `<span style="color: rgb(242, 44, 61); background-color: rgb(0, 0, 0);">HELLO</span>`;
 
-      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      const sheetName = getSheetNameSpan()!;
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
 
       sheetName.innerHTML = HTML;
       await keyDown({ key: "Enter" });
-
-      expect(sheetName.getAttribute("contenteditable")).toEqual("false");
+      expect(getSheetNameSpan()!.getAttribute("contenteditable")).toEqual("false");
       await nextTick();
 
       expect(sheetName.innerText).toEqual("HELLO");
@@ -367,6 +370,21 @@ describe("BottomBar component", () => {
         expect(focusableElementStore.focus).toHaveBeenCalled();
       }
     );
+
+    test("Displayed sheet name is udpated on undo/redo", async () => {
+      const sheetName = getSheetNameSpan()!;
+      expect(sheetName.textContent).toEqual("Sheet1");
+      await doubleClick(sheetName);
+      sheetName.textContent = "ThisIsASheet";
+      await keyDown({ key: "Enter" });
+      expect(getSheetNameSpan()!.textContent).toEqual("ThisIsASheet");
+      undo(model);
+      await nextTick();
+      expect(getSheetNameSpan()!.textContent).toEqual("Sheet1");
+      redo(model);
+      await nextTick();
+      expect(getSheetNameSpan()!.textContent).toEqual("ThisIsASheet");
+    });
   });
 
   test("Can't rename a sheet in readonly mode", async () => {
