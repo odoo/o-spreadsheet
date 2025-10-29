@@ -7,14 +7,14 @@
       t-att-class="{'text-muted': props.disabled }"
       t-attf-class="{{props.className}}">
       <input
-        class="me-2"
+        class="me-2 flex-shrink-0"
         type="checkbox"
         t-att-disabled="props.disabled"
         t-att-name="props.name"
         t-att-checked="props.value"
         t-on-change="onChange"
       />
-      <t t-if="props.label" t-esc="props.label"/>
+      <span class="text-truncate" t-if="props.label" t-esc="props.label"/>
     </label>
   </t>
 </templates>
