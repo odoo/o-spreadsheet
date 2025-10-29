@@ -1,20 +1,18 @@
 import { Color, Style } from "../misc";
 import { Range } from "../range";
 import { TitleDesign } from "./chart";
+import { NonDataSourceBaseChartDefinition } from "./common_chart";
 
-export interface ScorecardChartDefinition<T extends string | Range = string> {
+export interface ScorecardChartDefinition<T extends string | Range = string>
+  extends NonDataSourceBaseChartDefinition {
   readonly type: "scorecard";
-  readonly title: TitleDesign;
   readonly keyValue?: T;
   readonly keyDescr?: TitleDesign;
   readonly baseline?: T;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: TitleDesign;
-  readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
-  readonly humanize?: boolean;
-  readonly dataSource?: undefined; // doesn't use a data source. Explicitly declaring the key ensures that `dataSource` can be safely accessed on the `ChartDefinition` union without TypeScript errors.
 }
 
 export type BaselineMode = "text" | "difference" | "percentage" | "progress";

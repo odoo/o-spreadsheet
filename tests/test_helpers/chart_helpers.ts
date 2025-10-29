@@ -8,7 +8,7 @@ import {
   Model,
   UID,
 } from "../../src";
-import { toHex } from "../../src/helpers/color";
+import { FIRST_CHART_COLOR, toHex } from "../../src/helpers/color";
 import {
   areChartJSExtensionsLoaded,
   registerChartJSExtensions,
@@ -33,6 +33,7 @@ export function getChartLegendLabels(model: Model, chartId: UID) {
   const fakeChart = {
     ...runtime.chartJsConfig,
     isDatasetVisible: (index) => true,
+    getDatasetMeta: (index) => runtime.chartJsConfig.data!.datasets![index],
   };
   return runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any);
 }
@@ -227,4 +228,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   zoomable: true,
   humanize: false,
   slicesColors: [],
+  bubbleLabelRange: "Sheet1!A1:A4",
+  bubbleSizeRange: "Sheet1!A1:A4",
+  bubbleColorMode: { color: FIRST_CHART_COLOR },
 };

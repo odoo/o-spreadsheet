@@ -37,6 +37,7 @@ import {
 } from "../../test_helpers/chart_helpers";
 import {
   copy,
+  createBubbleChart,
   createCalendarChart,
   createChart,
   createGaugeChart,
@@ -105,6 +106,9 @@ function createTestChart(
       break;
     case "calendar":
       createCalendarChart(model, TEST_CHART_DATA.calendar, newChartId, undefined, partialFigure);
+      break;
+    case "bubble":
+      createBubbleChart(model, TEST_CHART_DATA.bubble, newChartId, undefined, partialFigure);
       break;
     default:
       createChart(

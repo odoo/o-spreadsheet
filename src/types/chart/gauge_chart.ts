@@ -2,15 +2,13 @@ import type { ChartOptions } from "chart.js";
 import { Color } from "../misc";
 import { Range } from "../range";
 import { TitleDesign } from "./chart";
+import { NonDataSourceBaseChartDefinition } from "./common_chart";
 
-export interface GaugeChartDefinition<T extends string | Range = string> {
+export interface GaugeChartDefinition<T extends string | Range = string>
+  extends NonDataSourceBaseChartDefinition {
   readonly type: "gauge";
-  readonly title: TitleDesign;
   readonly dataRange?: T;
   readonly sectionRule: SectionRule;
-  readonly background?: Color;
-  readonly humanize?: boolean;
-  readonly dataSource?: undefined; // doesn't use a data source. Explicitly declaring the key ensures that `dataSource` can be safely accessed on the `ChartDefinition` union without TypeScript errors.
 }
 
 export interface SectionRule {

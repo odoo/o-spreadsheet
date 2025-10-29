@@ -1,4 +1,5 @@
 import { BarChart } from "../helpers/figures/charts/bar_chart";
+import { BubbleChart } from "../helpers/figures/charts/bubble_chart";
 import { CalendarChart } from "../helpers/figures/charts/calendar_chart";
 import { ComboChart } from "../helpers/figures/charts/combo_chart";
 import { FunnelChart } from "../helpers/figures/charts/funnel_chart";
@@ -36,6 +37,7 @@ chartTypeRegistry.add("funnel", FunnelChart);
 chartTypeRegistry.add("sunburst", SunburstChart);
 chartTypeRegistry.add("treemap", TreeMapChart);
 chartTypeRegistry.add("calendar", CalendarChart);
+chartTypeRegistry.add("bubble", BubbleChart);
 
 chartSubtypeRegistry
   .add("line", {
@@ -84,6 +86,13 @@ chartSubtypeRegistry
     chartSubtype: "scatter",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.SCATTER_CHART",
+  })
+  .add("bubble", {
+    displayName: _t("Bubble"),
+    chartType: "bubble",
+    chartSubtype: "bubble",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.BUBBLE_CHART",
   })
   .add("column", {
     matcher: (definition) =>
