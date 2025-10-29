@@ -94,4 +94,20 @@ describe("Spreadsheet pivot side panel", () => {
     await setInputValueAndTrigger("input.o-pivot-n-of-rows", "12");
     expect(model.getters.getPivotCoreDefinition("1").style?.numberOfRows).toBe(12);
   });
+
+  test("Editing a number input with a non-number value make the property undefined and not NaN", async () => {
+    updatePivot(model, "1", { style: { numberOfRows: 5, numberOfColumns: 10 } });
+    await nextTick();
+
+    jest.useFakeTimers();
+    setInputValueAndTrigger("input.o-pivot-n-of-rows", "olà");
+    setInputValueAndTrigger("input.o-pivot-n-of-columns", "");
+    jest.advanceTimersByTime(1000);
+
+    expect(model.getters.getPivotCoreDefinition("1").style).toEqual({
+      numberOfRows: undefined,
+      numberOfColumns: undefined,
+    });
+    jest.useRealTimers();
+  });
 });
