@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
 import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
-import { range, toHex } from "../../src/helpers";
+import { CHART_COLOR_BLUE, range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
 
@@ -137,4 +137,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   zoomable: false,
   humanize: false,
   slicesColors: [],
+  bubbleLabelRange: "Sheet1!A1:A4",
+  bubbleSizeRange: "Sheet1!A1:A4",
+  bubbleColorMode: { color: CHART_COLOR_BLUE },
 };
