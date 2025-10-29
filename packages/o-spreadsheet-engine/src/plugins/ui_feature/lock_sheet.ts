@@ -6,7 +6,11 @@ export class LockSheetPlugin extends UIPlugin {
   static getters = ["isCurrentSheetLocked"] as const;
 
   allowDispatch(cmd: Command): CommandResult | CommandResult[] {
-    if (lockedSheetAllowedCommands.has(cmd.type)) {
+    /**
+     * From an implementation POV, isdashboard implies that the user is not connected
+     * to other users and can do any operation and can do core modifications that will only affect them
+     */
+    if (lockedSheetAllowedCommands.has(cmd.type) || this.getters.isDashboard()) {
       return CommandResult.Success;
     }
     if (
