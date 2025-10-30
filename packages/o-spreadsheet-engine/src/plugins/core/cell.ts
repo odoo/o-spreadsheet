@@ -255,6 +255,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    const start = performance.now();
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
@@ -291,6 +292,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
+    console.debug(`cells import ${performance.now() - start} ms`);
   }
 
   export(data: WorkbookData) {
