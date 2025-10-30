@@ -1,6 +1,7 @@
 import { Registry } from "../../registry";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
+import { UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
@@ -35,6 +36,7 @@ export interface PivotRegistryItem {
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
   canHaveCustomGroup: (field: PivotField) => boolean;
+  isPivotUnused: (getters: Getters, pivotId: UID) => boolean;
 }
 
 export const pivotRegistry = new Registry<PivotRegistryItem>();
@@ -59,4 +61,5 @@ pivotRegistry.add("SPREADSHEET", {
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
   isGroupable: () => true,
   canHaveCustomGroup: (field: PivotField) => field.type === "char" && !field.isCustomField,
+  isPivotUnused: () => true,
 });
