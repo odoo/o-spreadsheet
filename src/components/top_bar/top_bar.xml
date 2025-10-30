@@ -72,7 +72,7 @@
       </div>
       <div
         t-if="this.fingerprints.isEnabled"
-        class="irregularity-map d-flex align-items-center justify-content-between">
+        class="topbar-banner irregularity-map d-flex align-items-center justify-content-between">
         <div
           t-on-click="() => this.fingerprints.disable()"
           role="button"
