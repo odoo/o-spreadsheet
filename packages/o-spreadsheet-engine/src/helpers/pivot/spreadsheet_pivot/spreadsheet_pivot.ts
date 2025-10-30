@@ -263,6 +263,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return finalCell;
   }
 
+  getPivotRowGroupName(groupByIndex: number): FunctionResultObject {
+    const rowDimension = this.definition.rows[groupByIndex];
+    return { value: rowDimension?.displayName || "" };
+  }
+
   getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
