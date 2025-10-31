@@ -1,5 +1,6 @@
 import { toHex } from "../../helpers/color";
 import { getUniqueText } from "../../helpers/misc";
+import { PIVOT_TABLE_PRESETS } from "../../helpers/pivot_table_presets";
 import {
   DEFAULT_TABLE_CONFIG,
   TABLE_PRESETS,
@@ -73,6 +74,9 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
   }
 
   getTableStyle(styleId: string): TableStyle {
+    if (PIVOT_TABLE_PRESETS[styleId]) {
+      return PIVOT_TABLE_PRESETS[styleId];
+    }
     if (!this.styles[styleId]) {
       throw new Error(`Table style ${styleId} does not exist`);
     }

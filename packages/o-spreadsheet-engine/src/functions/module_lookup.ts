@@ -962,15 +962,14 @@ export const PIVOT = {
       headerRows++;
     }
     const pivotTitle = this.getters.getPivotName(pivotId);
-    const tableHeight = Math.min(headerRows + pivotStyle.numberOfRows, cells[0].length);
-    if (tableHeight === 0) {
+    const { numberOfCols, numberOfRows } = table.getPivotTableDimensions(pivotStyle);
+    if (numberOfRows === 0) {
       return [[{ value: pivotTitle }]];
     }
-    const tableWidth = Math.min(1 + pivotStyle.numberOfColumns, cells.length);
     const result: Matrix<FunctionResultObject> = [];
-    for (const col of range(0, tableWidth)) {
+    for (const col of range(0, numberOfCols)) {
       result[col] = [];
-      for (const row of range(0, tableHeight)) {
+      for (const row of range(0, numberOfRows)) {
         const pivotCell = cells[col][row];
         switch (pivotCell.type) {
           case "EMPTY":

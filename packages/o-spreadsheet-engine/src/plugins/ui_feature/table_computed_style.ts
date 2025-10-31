@@ -3,7 +3,7 @@ import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
 import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
 import { Border, CellPosition, Lazy, Style, TableId, UID, Zone } from "../../types/misc";
-import { Table, TableConfig } from "../../types/table";
+import { Table, TableConfig, TableMetaData } from "../../types/table";
 import { UIPlugin } from "../ui_plugin";
 
 interface ComputedTableStyle {
@@ -115,19 +115,19 @@ export class TableComputedStylePlugin extends UIPlugin {
 
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {
     return lazy(() => {
-      const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
       const style = this.getters.getTableStyle(table.config.styleId);
-      const relativeTableStyle = getComputedTableStyle(config, style, numberOfCols, numberOfRows);
+      const { tableMetaData, config } = this.getTableMetaData(sheetId, table);
+      const relativeTableStyle = getComputedTableStyle(config, style, tableMetaData);
 
       // Return the style with sheet coordinates instead of tables coordinates
       const mapping = this.getTableMapping(sheetId, table);
       const absoluteTableStyle: ComputedTableStyle = { borders: {}, styles: {} };
-      for (let col = 0; col < numberOfCols; col++) {
+      for (let col = 0; col < tableMetaData.numberOfCols; col++) {
         const colInSheet = mapping.colMapping[col];
         absoluteTableStyle.borders[colInSheet] = {};
         absoluteTableStyle.styles[colInSheet] = {};
 
-        for (let row = 0; row < numberOfRows; row++) {
+        for (let row = 0; row < tableMetaData.numberOfRows; row++) {
           const rowInSheet = mapping.rowMapping[row];
           absoluteTableStyle.borders[colInSheet][rowInSheet] = relativeTableStyle.borders[col][row];
           absoluteTableStyle.styles[colInSheet][rowInSheet] = relativeTableStyle.styles[col][row];
@@ -135,6 +135,67 @@ export class TableComputedStylePlugin extends UIPlugin {
       }
       return absoluteTableStyle;
     });
+  }
+
+  private getTableMetaData(
+    sheetId: UID,
+    table: Table
+  ): { tableMetaData: TableMetaData; config: TableConfig } {
+    const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
+    if (!table.isPivotTable) {
+      return { tableMetaData: { numberOfCols, numberOfRows, mode: "table" }, config };
+    }
+
+    const mainPosition = { sheetId, col: table.range.zone.left, row: table.range.zone.top };
+    const pivotInfo = this.getters.getPivotStyleAtPosition(mainPosition);
+    if (!pivotInfo) {
+      throw new Error("No dynamic pivot info found at pivot table position");
+    }
+    const pivot = this.getters.getPivot(pivotInfo.pivotId);
+    const pivotStyle = pivotInfo.pivotStyle;
+    const maxRowDepth = pivot.getExpandedTableStructure().getNumberOfRowGroupBys();
+    const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
+
+    const mainSubHeaderRows = new Set<number>();
+    const firstAlternatingSubHeaderRows = new Set<number>();
+    const secondAlternatingSubHeaderRows = new Set<number>();
+    let hiddenRowsOffset = 0;
+
+    for (let row = 0; row < pivotCells[0].length; row++) {
+      const isRowHidden = this.getters.isRowHidden(sheetId, row + table.range.zone.top);
+      if (isRowHidden) {
+        hiddenRowsOffset++;
+        continue;
+      }
+
+      const cell = pivotCells[0][row];
+      if (cell.type !== "HEADER" || cell.domain.length === 0) {
+        continue;
+      }
+      if (cell.domain.length === 1 && maxRowDepth > 1) {
+        mainSubHeaderRows.add(row - hiddenRowsOffset);
+      } else if (cell.domain.length % 2 === 0 && maxRowDepth > cell.domain.length) {
+        firstAlternatingSubHeaderRows.add(row - hiddenRowsOffset);
+      } else if (cell.domain.length % 2 === 1 && maxRowDepth > cell.domain.length) {
+        secondAlternatingSubHeaderRows.add(row - hiddenRowsOffset);
+      }
+    }
+
+    const hasMeasureRow =
+      config.numberOfHeaders &&
+      pivotStyle.displayMeasuresRow &&
+      !this.getters.isRowHidden(sheetId, config.numberOfHeaders - 1 + table.range.zone.top);
+    const tableMetaData: TableMetaData = {
+      mode: "pivot",
+      numberOfCols,
+      numberOfRows,
+      mainSubHeaderRows,
+      firstAlternatingSubHeaderRows,
+      secondAlternatingSubHeaderRows,
+      measureRow: hasMeasureRow ? config.numberOfHeaders - 1 : undefined,
+    };
+
+    return { tableMetaData, config };
   }
 
   /**

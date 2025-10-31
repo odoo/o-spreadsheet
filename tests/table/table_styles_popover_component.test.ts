@@ -1,4 +1,7 @@
-import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import {
+  DEFAULT_TABLE_CONFIG,
+  TABLE_PRESETS,
+} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import {
   TableStylesPopover,
@@ -22,6 +25,8 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
       positioning: "top-right",
       verticalOffset: 0,
     },
+    tableStyles: model.getters.getTableStyles(),
+    type: "table",
     ...partialProps,
   };
   openSidePanel = jest.fn();
@@ -30,9 +35,22 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
   await nextTick();
 }
 
-describe("Table style editor panel", () => {
+describe("Table style popover", () => {
   beforeEach(() => {
     model = new Model();
+  });
+
+  test("Only table styles given as props are displayed", async () => {
+    const tableStyles = {
+      Style1: TABLE_PRESETS["TableStyleMedium1"],
+      Style2: TABLE_PRESETS["TableStyleMedium12"],
+    };
+    await mountPopover({ tableStyles });
+
+    const items = fixture.querySelectorAll(".o-table-style-list-item");
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveAttribute("title", "Black, TableStyleMedium1");
+    expect(items[1]).toHaveAttribute("title", "Purple, TableStyleMedium12");
   });
 
   test("Can change displayed categories with the radio button", async () => {
@@ -73,6 +91,11 @@ describe("Table style editor panel", () => {
     expect(openSidePanel).toHaveBeenCalledWith("TableStyleEditorPanel", { onStylePicked });
   });
 
+  test("Cannot create custom style for pivots", async () => {
+    await mountPopover({ type: "pivot" });
+    expect(".o-notebook-tab[data-id='custom']").toHaveCount(0);
+  });
+
   describe("Custom style context menu menu", () => {
     beforeEach(async () => {
       createTableStyle(model, "MyStyle");
@@ -81,7 +104,7 @@ describe("Table style editor panel", () => {
     });
 
     test("Can edit a custom table style with the top-right hover button", async () => {
-      click(fixture, ".o-table-style-edit-button");
+      await click(fixture, ".o-table-style-edit-button");
       expect(openSidePanel).toHaveBeenCalledWith("TableStyleEditorPanel", { styleId: "MyStyle" });
     });
 

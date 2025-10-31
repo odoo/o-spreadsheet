@@ -418,6 +418,27 @@ export class SpreadsheetPivotTable {
     }
     return this.rows.filter((row) => row.indent === depth + 1).map((row) => this.getDomain(row));
   }
+
+  getPivotTableDimensions(pivotStyle: Required<PivotStyle>) {
+    const cells = this.getPivotCells(pivotStyle);
+    let numberOfHeaderRows = 0;
+    if (pivotStyle.displayColumnHeaders) {
+      numberOfHeaderRows = this.columns.length - 1;
+    }
+    if (pivotStyle.displayMeasuresRow) {
+      numberOfHeaderRows++;
+    }
+
+    return {
+      numberOfCols: Math.min(1 + pivotStyle.numberOfColumns, cells.length),
+      numberOfRows: Math.min(numberOfHeaderRows + pivotStyle.numberOfRows, cells[0].length),
+      numberOfHeaderRows,
+    };
+  }
+
+  getNumberOfRowGroupBys() {
+    return Math.max(...this.rows.map((row) => row.fields.length));
+  }
 }
 
 export const EMPTY_PIVOT_CELL = { type: "EMPTY" } as const;

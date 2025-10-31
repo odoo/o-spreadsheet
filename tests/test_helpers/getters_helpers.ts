@@ -1,6 +1,6 @@
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { ClipboardPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import {
   Border,
   Cell,
@@ -263,4 +263,10 @@ export function getClipboardVisibleZones(model: Model): Zone[] {
 export function getCellIcons(model: Model, xc: string) {
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getCellIcons({ ...toCartesian(xc), sheetId });
+}
+
+export function getTables(model: Model, sheetId: UID) {
+  return model.getters
+    .getTables(sheetId)
+    .map((table) => ({ ...table, zone: zoneToXc(table.range.zone) }));
 }

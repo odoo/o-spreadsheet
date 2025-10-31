@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { toZone, zoneToXc } from "../../src/helpers";
+import { toZone } from "../../src/helpers";
 import { UID } from "../../src/types";
 import {
   copy,
@@ -15,12 +15,14 @@ import {
   updateTableConfig,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { getCellStyle } from "../test_helpers/getters_helpers";
+import { getCellStyle, getTables } from "../test_helpers/getters_helpers";
 import {
   getExportedExcelData,
   getFilterHiddenValues,
+  setGrid,
   toCellPosition,
 } from "../test_helpers/helpers";
+import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -29,12 +31,6 @@ beforeEach(() => {
   model = new Model();
   sheetId = model.getters.getActiveSheetId();
 });
-
-function getTables(model: Model, sheetId: UID) {
-  return model.getters
-    .getTables(sheetId)
-    .map((table) => ({ ...table, zone: zoneToXc(table.range.zone) }));
-}
 
 describe("Dynamic tables", () => {
   test("Can create a dynamic table", () => {
@@ -231,6 +227,69 @@ describe("Dynamic tables", () => {
 
       const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1:C3" }]);
+    });
+  });
+
+  describe("Pivots", () => {
+    beforeEach(() => {
+      const grid = { A1: "Price", A2: "10", A3: "=PIVOT(1)" };
+      setGrid(model, grid);
+      addPivot(model, "A1:A2", {
+        measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+      });
+    });
+
+    test("A pivot formula with style does create a dynamic table", () => {
+      expect(getTables(model, sheetId)).toHaveLength(0);
+
+      updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+      expect(getTables(model, sheetId)).toHaveLength(1);
+      expect(getTables(model, sheetId)[0]).toMatchObject({
+        config: { styleId: "PivotTableStyleMedium9" },
+        zone: "A3:B5",
+      });
+    });
+
+    test("A single pivot can generate multiple tables", () => {
+      expect(getTables(model, sheetId)).toHaveLength(0);
+
+      updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+      setCellContent(model, "E25", "=PIVOT(1)");
+      const tables = getTables(model, sheetId);
+      expect(tables).toHaveLength(2);
+      expect(tables[0]).toMatchObject({
+        config: { styleId: "PivotTableStyleMedium9" },
+        zone: "A3:B5",
+      });
+      expect(tables[1]).toMatchObject({
+        config: { styleId: "PivotTableStyleMedium9" },
+        zone: "E25:F27",
+        id: expect.not.stringMatching(tables[0].id),
+      });
+    });
+
+    test("Table from pivot takes precedence over standard dynamic table", () => {
+      createDynamicTable(model, "A3", { styleId: "TableStyleMedium2" });
+      expect(getTables(model, sheetId)[0]).toMatchObject({
+        config: { styleId: "TableStyleMedium2" },
+        zone: "A3:B5",
+      });
+
+      updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+      expect(getTables(model, sheetId)).toHaveLength(1);
+      expect(getTables(model, sheetId)[0]).toMatchObject({
+        config: { styleId: "PivotTableStyleMedium9" },
+        zone: "A3:B5",
+      });
+    });
+
+    test("Tables from pivots are not exported", async () => {
+      updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+      expect(getTables(model, sheetId)).toHaveLength(1);
+
+      expect(model.exportData().sheets[0].tables).toHaveLength(0);
+      // TODO: pivot table style should somehow be exported to Excel
+      expect((await getExportedExcelData(model)).sheets[0].tables).toHaveLength(0);
     });
   });
 });

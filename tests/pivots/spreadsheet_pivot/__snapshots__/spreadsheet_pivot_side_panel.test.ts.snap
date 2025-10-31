@@ -77,7 +77,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
       class="o-sidePanelBody"
     >
       <div
-        class="d-flex flex-column h-100"
+        class="o-pivot-panel d-flex flex-column h-100"
       >
         <div
           class="o-panel d-flex"
@@ -396,6 +396,551 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               </div>
               
             </div>
+            <div
+              class="o-section o-pivot-table-style"
+            >
+              <div
+                class="o-section-title"
+              >
+                Pivot table style
+                
+                
+              </div>
+              
+              <div
+                class="row mb-2 align-items-center pt-2"
+              >
+                <div
+                  class="col-6"
+                >
+                  Banded rows:
+                </div>
+                <div
+                  class="col-6 d-flex align-items-center"
+                >
+                  <label
+                    class="o-checkbox d-flex align-items-center"
+                    role="button"
+                  >
+                    <input
+                      class="me-2 flex-shrink-0 border"
+                      name="bandedRows"
+                      type="checkbox"
+                    />
+                    
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row mb-2 align-items-center"
+              >
+                <div
+                  class="col-6"
+                >
+                  Banded columns
+                </div>
+                <div
+                  class="col-6 d-flex align-items-center"
+                >
+                  <label
+                    class="o-checkbox d-flex align-items-center"
+                    role="button"
+                  >
+                    <input
+                      class="me-2 flex-shrink-0 border"
+                      name="bandedColumns"
+                      type="checkbox"
+                    />
+                    
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row mb-2 align-items-center"
+              >
+                <div
+                  class="col-6"
+                >
+                  Filter button
+                </div>
+                <div
+                  class="col-6 d-flex align-items-center"
+                >
+                  <label
+                    class="o-checkbox d-flex align-items-center"
+                    role="button"
+                  >
+                    <input
+                      class="me-2 flex-shrink-0 border"
+                      name="hasFilters"
+                      type="checkbox"
+                    />
+                    
+                  </label>
+                </div>
+              </div>
+              <div
+                class="mt-4"
+              >
+                <div
+                  class="o-table-style-picker d-flex flew-row justify-content-between ps-1 border rounded"
+                >
+                  <div
+                    class="d-flex flex-row overflow-hidden o-pivot-previews"
+                  >
+                    <div
+                      class="o-table-style-list-item position-relative selected"
+                      data-id="None"
+                      title="None"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight1"
+                      title="Light Black 1"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight2"
+                      title="Light Blue 2"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight3"
+                      title="Light Red 3"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight4"
+                      title="Light Green 4"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight5"
+                      title="Light Purple 5"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight6"
+                      title="Light Gray 6"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight7"
+                      title="Light Orange 7"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight8"
+                      title="Light Black 8"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight9"
+                      title="Light Blue 9"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight10"
+                      title="Light Red 10"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight11"
+                      title="Light Green 11"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight12"
+                      title="Light Purple 12"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight13"
+                      title="Light Gray 13"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight14"
+                      title="Light Orange 14"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight15"
+                      title="Light Black 15"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight16"
+                      title="Light Blue 16"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight17"
+                      title="Light Red 17"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight18"
+                      title="Light Green 18"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight19"
+                      title="Light Purple 19"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight20"
+                      title="Light Gray 20"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight21"
+                      title="Light Orange 21"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight22"
+                      title="Light Black 22"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight23"
+                      title="Light Blue 23"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight24"
+                      title="Light Red 24"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight25"
+                      title="Light Green 25"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight26"
+                      title="Light Purple 26"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight27"
+                      title="Light Gray 27"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight28"
+                      title="Light Orange 28"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    
+                  </div>
+                  <div
+                    class="o-table-style-picker-arrow d-flex align-items-center px-1 border-start"
+                  >
+                    <div
+                      class="o-icon fa-small"
+                    >
+                      <i
+                        class="fa fa-caret-down"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+              
+            </div>
           </div>
         </div>
       </div>
@@ -482,7 +1027,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
       class="o-sidePanelBody"
     >
       <div
-        class="d-flex flex-column h-100"
+        class="o-pivot-panel d-flex flex-column h-100"
       >
         <div
           class="o-panel d-flex"
@@ -783,6 +1328,551 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                     </div>
                   </div>
                 </div>
+              </div>
+              
+            </div>
+            <div
+              class="o-section o-pivot-table-style"
+            >
+              <div
+                class="o-section-title"
+              >
+                Pivot table style
+                
+                
+              </div>
+              
+              <div
+                class="row mb-2 align-items-center pt-2"
+              >
+                <div
+                  class="col-6"
+                >
+                  Banded rows:
+                </div>
+                <div
+                  class="col-6 d-flex align-items-center"
+                >
+                  <label
+                    class="o-checkbox d-flex align-items-center"
+                    role="button"
+                  >
+                    <input
+                      class="me-2 flex-shrink-0 border"
+                      name="bandedRows"
+                      type="checkbox"
+                    />
+                    
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row mb-2 align-items-center"
+              >
+                <div
+                  class="col-6"
+                >
+                  Banded columns
+                </div>
+                <div
+                  class="col-6 d-flex align-items-center"
+                >
+                  <label
+                    class="o-checkbox d-flex align-items-center"
+                    role="button"
+                  >
+                    <input
+                      class="me-2 flex-shrink-0 border"
+                      name="bandedColumns"
+                      type="checkbox"
+                    />
+                    
+                  </label>
+                </div>
+              </div>
+              <div
+                class="row mb-2 align-items-center"
+              >
+                <div
+                  class="col-6"
+                >
+                  Filter button
+                </div>
+                <div
+                  class="col-6 d-flex align-items-center"
+                >
+                  <label
+                    class="o-checkbox d-flex align-items-center"
+                    role="button"
+                  >
+                    <input
+                      class="me-2 flex-shrink-0 border"
+                      name="hasFilters"
+                      type="checkbox"
+                    />
+                    
+                  </label>
+                </div>
+              </div>
+              <div
+                class="mt-4"
+              >
+                <div
+                  class="o-table-style-picker d-flex flew-row justify-content-between ps-1 border rounded"
+                >
+                  <div
+                    class="d-flex flex-row overflow-hidden o-pivot-previews"
+                  >
+                    <div
+                      class="o-table-style-list-item position-relative selected"
+                      data-id="None"
+                      title="None"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight1"
+                      title="Light Black 1"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight2"
+                      title="Light Blue 2"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight3"
+                      title="Light Red 3"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight4"
+                      title="Light Green 4"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight5"
+                      title="Light Purple 5"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight6"
+                      title="Light Gray 6"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight7"
+                      title="Light Orange 7"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight8"
+                      title="Light Black 8"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight9"
+                      title="Light Blue 9"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight10"
+                      title="Light Red 10"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight11"
+                      title="Light Green 11"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight12"
+                      title="Light Purple 12"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight13"
+                      title="Light Gray 13"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight14"
+                      title="Light Orange 14"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight15"
+                      title="Light Black 15"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight16"
+                      title="Light Blue 16"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight17"
+                      title="Light Red 17"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight18"
+                      title="Light Green 18"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight19"
+                      title="Light Purple 19"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight20"
+                      title="Light Gray 20"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight21"
+                      title="Light Orange 21"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight22"
+                      title="Light Black 22"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight23"
+                      title="Light Blue 23"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight24"
+                      title="Light Red 24"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight25"
+                      title="Light Green 25"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight26"
+                      title="Light Purple 26"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight27"
+                      title="Light Gray 27"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    <div
+                      class="o-table-style-list-item position-relative"
+                      data-id="PivotTableStyleLight28"
+                      title="Light Orange 28"
+                    >
+                      <div
+                        class="o-table-preview"
+                      >
+                        <canvas
+                          class="w-100 h-100"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                    
+                  </div>
+                  <div
+                    class="o-table-style-picker-arrow d-flex align-items-center px-1 border-start"
+                  >
+                    <div
+                      class="o-icon fa-small"
+                    >
+                      <i
+                        class="fa fa-caret-down"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
               </div>
               
             </div>

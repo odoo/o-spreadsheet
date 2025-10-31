@@ -17,15 +17,17 @@
             t-esc="categories[category_value]"
           />
         </div>
-        <div class="d-flex flex-wrap px-4">
+        <div
+          class="d-flex flex-wrap px-4"
+          t-att-class="props.type === 'pivot' ? 'o-pivot-previews' : 'o-table-previews'">
           <t t-foreach="displayedStyles" t-as="styleId" t-key="styleId">
             <TableStylePreview
-              class="'o-table-style-popover-preview'"
               styleId="styleId"
               selected="styleId === props.selectedStyleId"
               tableConfig="props.tableConfig"
-              tableStyle="env.model.getters.getTableStyle(styleId)"
+              tableStyle="props.tableStyles[styleId]"
               onClick="() => this.props.onStylePicked(styleId)"
+              type="props.type"
             />
           </t>
           <div

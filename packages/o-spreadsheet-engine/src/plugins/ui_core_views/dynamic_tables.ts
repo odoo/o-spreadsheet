@@ -6,13 +6,15 @@ import {
   getZoneArea,
   isInside,
   overlap,
+  positionToZone,
   toZone,
   union,
   zoneToXc,
 } from "../../helpers/zones";
 import { Command, invalidateEvaluationCommands } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
-import { CoreTable, DynamicTable, Filter, Table } from "../../types/table";
+import { PivotStyle } from "../../types/pivot";
+import { CoreTable, DynamicTable, Filter, Table, TableConfig } from "../../types/table";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 
 import { CoreViewPlugin } from "../core_view_plugin";
@@ -65,19 +67,11 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
     const coreTables = this.getters.getCoreTables(sheetId);
 
     // First we create the static tables, so we can use them to compute collision with dynamic tables
-    for (const table of coreTables) {
-      if (table.type === "dynamic") {
-        continue;
-      }
-      tables.push(table);
-    }
-    const staticTables = [...tables];
+    const staticTables = [...coreTables].filter((table) => table.type !== "dynamic");
+    tables.push(...staticTables);
 
     // Then we create the dynamic tables
-    for (const coreTable of coreTables) {
-      if (coreTable.type !== "dynamic") {
-        continue;
-      }
+    for (const coreTable of this.getDynamicTables(sheetId)) {
       const table = this.coreTableToTable(sheetId, coreTable);
       let tableZone = table.range.zone;
       // Reduce the zone to avoid collision with static tables. Per design, dynamic tables can't overlap with other
@@ -91,6 +85,66 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
     }
 
     return tables;
+  }
+
+  private getDynamicTables(sheetId: UID): DynamicTable[] {
+    const dynamicTablesFromCore = this.getters
+      .getCoreTables(sheetId)
+      .filter((table) => table.type === "dynamic");
+    const pivotTables = this.getTablesFromPivots(sheetId);
+
+    const pivotRanges = new Set(
+      pivotTables.map((t) => this.getters.getRangeString(t.range, sheetId))
+    );
+
+    const nonPivotDynamicTables = dynamicTablesFromCore.filter(
+      (t) => !pivotRanges.has(this.getters.getRangeString(t.range, sheetId))
+    );
+
+    return [...pivotTables, ...nonPivotDynamicTables];
+  }
+
+  private getTablesFromPivots(sheetId: UID): DynamicTable[] {
+    const tables: DynamicTable[] = [];
+    for (const { position, pivotStyle, pivotId } of this.getters.getAllPivotArrayFormulas()) {
+      const spreadZone = this.getters.getSpreadZone(position);
+      const cell = this.getters.getCell(position);
+      if (
+        position.sheetId !== sheetId ||
+        !spreadZone ||
+        !cell ||
+        pivotStyle.tableStyleId === "None"
+      ) {
+        continue;
+      }
+      tables.push({
+        type: "dynamic",
+        id: "pivot_table_" + pivotId + "_" + cell.id,
+        range: this.getters.getRangeFromZone(sheetId, positionToZone(position)),
+        config: this.getTableConfigFromPivotStyle(pivotId, pivotStyle),
+        isPivotTable: true,
+      });
+    }
+    return tables;
+  }
+
+  private getTableConfigFromPivotStyle(
+    pivotId: UID,
+    pivotStyle: Required<PivotStyle>
+  ): TableConfig {
+    const pivot = this.getters.getPivot(pivotId);
+    const pivotTable = pivot.getCollapsedTableStructure();
+
+    return {
+      hasFilters: pivotStyle.hasFilters,
+      totalRow: pivotStyle.displayTotals,
+      firstColumn: true,
+      lastColumn: true,
+      numberOfHeaders: pivotTable.getPivotTableDimensions(pivotStyle).numberOfHeaderRows,
+      bandedRows: pivotStyle.bandedRows,
+      bandedColumns: pivotStyle.bandedColumns,
+      styleId: pivotStyle.tableStyleId,
+    };
   }
 
   getFilters(sheetId: UID): Filter[] {
@@ -189,7 +243,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
     const zone = this.getters.getSpreadZone(tablePosition) ?? table.range.zone;
     const range = this.getters.getRangeFromZone(sheetId, zone);
     const filters = this.getDynamicTableFilters(sheetId, table, zone);
-    return { id: table.id, range, filters, config: table.config };
+    return { id: table.id, range, filters, config: table.config, isPivotTable: table.isPivotTable };
   }
 
   private getDynamicTableFilters(sheetId: UID, table: DynamicTable, tableZone: Zone): Filter[] {

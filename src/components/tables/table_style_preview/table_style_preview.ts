@@ -1,7 +1,7 @@
 import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
-import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { TableConfig, TableMetaData, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
+import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { deepEquals } from "../../../helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -10,10 +10,10 @@ import { drawPreviewTable } from "./table_canvas_helpers";
 interface Props {
   tableConfig: TableConfig;
   tableStyle: TableStyle;
-  class: string;
   styleId?: string;
   selected?: boolean;
   onClick?: () => void;
+  type: "table" | "pivot";
 }
 
 export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
@@ -22,7 +22,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     tableConfig: Object,
     tableStyle: Object,
-    class: String,
+    type: String,
     styleId: { type: String, optional: true },
     selected: { type: Boolean, optional: true },
     onClick: { type: Function, optional: true },
@@ -40,16 +40,48 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
         this.drawTable(nextProps);
       }
     });
-    onMounted(() => this.drawTable(this.props));
+    const resizeObserver = new ResizeObserver(() => {
+      this.drawTable(this.props);
+    });
+    useEffect(
+      () => {
+        resizeObserver.observe(this.canvasRef.el!);
+        return () => {
+          resizeObserver.disconnect();
+        };
+      },
+      () => [this.canvasRef.el]
+    );
   }
 
   private drawTable(props: Props) {
     const ctx = this.canvasRef.el!.getContext("2d")!;
     const { width, height } = this.canvasRef.el!.getBoundingClientRect();
+    if (!width || !height) {
+      return;
+    }
     this.canvasRef.el!.width = width;
     this.canvasRef.el!.height = height;
-    const computedStyle = getComputedTableStyle(props.tableConfig, props.tableStyle, 5, 5);
-    drawPreviewTable(ctx, computedStyle, (width - 1) / 5, (height - 1) / 5);
+    let tableMetaData: TableMetaData;
+    if (props.type === "table") {
+      tableMetaData = { mode: "table", numberOfCols: 5, numberOfRows: 5 };
+    } else {
+      tableMetaData = {
+        mode: "pivot",
+        numberOfCols: 5,
+        numberOfRows: 8,
+        mainSubHeaderRows: new Set([
+          props.tableConfig.numberOfHeaders,
+          props.tableConfig.numberOfHeaders + 3,
+        ]),
+      };
+    }
+    const computedStyle = getComputedTableStyle(props.tableConfig, props.tableStyle, tableMetaData);
+    drawPreviewTable(ctx, computedStyle, {
+      ...tableMetaData,
+      colWidth: (width - 1) / tableMetaData.numberOfCols,
+      rowHeight: (height - 1) / tableMetaData.numberOfRows,
+    });
   }
 
   onContextMenu(event: MouseEvent) {
@@ -71,11 +103,11 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     if (!this.props.styleId) {
       return "";
     }
-    return this.env.model.getters.getTableStyle(this.props.styleId).displayName;
+    return this.props.tableStyle.displayName;
   }
 
   get isStyleEditable(): boolean {
-    if (!this.props.styleId) {
+    if (!this.props.styleId || this.props.type !== "table") {
       return false;
     }
     return this.env.model.getters.isTableStyleEditable(this.props.styleId);

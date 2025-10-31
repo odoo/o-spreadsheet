@@ -15,11 +15,11 @@
         <div class="d-flex flex-wrap">
           <t t-foreach="tableTemplates" t-as="templateName" t-key="templateName">
             <TableStylePreview
-              class="'o-table-style-edit-template-preview'"
               selected="templateName === state.selectedTemplateName"
               tableConfig="previewTableConfig"
               tableStyle="computeTableStyle(templateName)"
               onClick="() => this.onTemplatePicked(templateName)"
+              type="'table'"
             />
           </t>
         </div>
