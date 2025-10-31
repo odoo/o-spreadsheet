@@ -1,6 +1,6 @@
-import { TABLE_STYLE_CATEGORIES } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { TableConfig } from "@odoo/o-spreadsheet-engine/types/table";
+import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { isChildEvent } from "../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../popover/popover";
@@ -12,6 +12,8 @@ export interface TableStylesPopoverProps {
   closePopover: () => void;
   onStylePicked: (styleId: string) => void;
   popoverProps?: PopoverProps;
+  tableStyles: Record<string, TableStyle>;
+  type: "table" | "pivot";
 }
 
 export type CustomTablePopoverMouseEvent = MouseEvent & { hasClosedTableStylesPopover?: boolean };
@@ -29,9 +31,9 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
     closePopover: Function,
     onStylePicked: Function,
     selectedStyleId: { type: String, optional: true },
+    tableStyles: Object,
+    type: String,
   };
-
-  categories = TABLE_STYLE_CATEGORIES;
 
   private tableStyleListRef = useRef("tableStyleList");
   state = useState<State>({ selectedCategory: this.initialSelectedCategory });
@@ -48,7 +50,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   }
 
   get displayedStyles(): string[] {
-    const styles = this.env.model.getters.getTableStyles();
+    const styles = this.props.tableStyles;
     return Object.keys(styles).filter(
       (styleId) => styles[styleId].category === this.state.selectedCategory
     );
@@ -56,8 +58,19 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
 
   get initialSelectedCategory() {
     return this.props.selectedStyleId
-      ? this.env.model.getters.getTableStyle(this.props.selectedStyleId).category
+      ? this.props.tableStyles[this.props.selectedStyleId].category
       : "medium";
+  }
+
+  get categories() {
+    const commonCategories = {
+      light: _t("Light"),
+      medium: _t("Medium"),
+      dark: _t("Dark"),
+    };
+    return this.props.type === "table"
+      ? { ...commonCategories, custom: _t("Custom") }
+      : commonCategories;
   }
 
   newTableStyle() {

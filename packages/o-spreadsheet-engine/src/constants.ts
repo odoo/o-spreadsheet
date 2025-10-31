@@ -254,7 +254,7 @@ export const NEWLINE = "\n";
 export const FONT_SIZES: number[] = [6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 36];
 
 // Pivot
-export const PIVOT_TABLE_CONFIG = {
+export const PIVOT_STATIC_TABLE_CONFIG = {
   hasFilters: false,
   totalRow: false,
   firstColumn: true,
@@ -265,6 +265,7 @@ export const PIVOT_TABLE_CONFIG = {
   styleId: "TableStyleMedium5",
   automaticAutofill: false,
 };
+export const PIVOT_INSERT_TABLE_STYLE_ID = "PivotTableStyleMedium12";
 export const PIVOT_INDENT = 15;
 export const PIVOT_COLLAPSE_ICON_SIZE = 12;
 export const PIVOT_MAX_NUMBER_OF_CELLS = 5e5;
