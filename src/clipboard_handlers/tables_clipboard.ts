@@ -114,14 +114,20 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
    */
   private getTableStyleToCopy(cellPosition: CellPosition): TableStyle {
     const styleFromTable = this.getters.getCellTableStyle(cellPosition);
+    const styleFromPivotTable = this.getters.getCellPivotTableStyle(cellPosition);
     const cellStyle = this.getters.getCellStyle(cellPosition);
 
     const bordersFromTable = this.getters.getCellTableBorder(cellPosition);
+    const bordersFromPivotTable = this.getters.getCellPivotTableBorder(cellPosition);
     const cellBorder = this.getters.getCellBorder(cellPosition);
 
     return {
-      style: { ...styleFromTable, ...removeFalsyAttributes(cellStyle) },
-      border: { ...bordersFromTable, ...removeFalsyAttributes(cellBorder) },
+      style: { ...styleFromTable, ...styleFromPivotTable, ...removeFalsyAttributes(cellStyle) },
+      border: {
+        ...bordersFromTable,
+        ...bordersFromPivotTable,
+        ...removeFalsyAttributes(cellBorder),
+      },
     };
   }
 

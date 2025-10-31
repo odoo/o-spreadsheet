@@ -65,7 +65,7 @@ export interface TableStyle {
   category: string;
 
   displayName: string;
-  templateName: TableStyleTemplateName;
+  templateName: string /*TableStyleTemplateName; */; // ADRM TODO
   primaryColor: string;
 
   wholeTable?: TableElementStyle;

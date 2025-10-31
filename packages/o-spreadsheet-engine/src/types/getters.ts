@@ -18,6 +18,7 @@ import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
+import { PivotTableComputedStylePlugin } from "../plugins/ui_feature/pivot_computed_table_style";
 import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
@@ -66,6 +67,7 @@ export type Getters = {
   PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
+  PluginGetters<typeof PivotTableComputedStylePlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &

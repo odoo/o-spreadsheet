@@ -65,6 +65,7 @@ export class CellComputedStylePlugin extends UIPlugin {
   private precomputeCellBorders(sheetId: UID, zone: Zone) {
     const borders = this.getters.getCellBordersInZone(sheetId, zone);
     const tableBorders = this.getters.getCellTableBorderZone(sheetId, zone);
+    const pivotTableBorders = this.getters.getCellPivotTableBorderZone(sheetId, zone);
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const position = { sheetId, col, row };
@@ -73,6 +74,7 @@ export class CellComputedStylePlugin extends UIPlugin {
         const cellTableBorder = tableBorders.get(position);
         const border = {
           ...removeFalsyAttributes(cellTableBorder),
+          ...removeFalsyAttributes(pivotTableBorders.get(position)),
           ...removeFalsyAttributes(cellBorder),
         };
         if (isObjectEmptyRecursive(border)) {
@@ -97,12 +99,14 @@ export class CellComputedStylePlugin extends UIPlugin {
     //Todo batch cf/dv style
     const styles = this.getters.getCellStyleInZone(sheetId, zone);
     const tableStyles = this.getters.getCellTableStyleZone(sheetId, zone);
+    const pivotTableStyles = this.getters.getCellPivotTableStyleZone(sheetId, zone);
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const position = { sheetId, col, row };
         if (this.styles.get(position) !== undefined) continue;
         const computedStyle = {
           ...removeFalsyAttributes(tableStyles.get(position)),
+          ...removeFalsyAttributes(pivotTableStyles.get(position)),
           ...removeFalsyAttributes(this.getters.getDataValidationCellStyle(position)),
           ...removeFalsyAttributes(styles.get(position)),
           ...removeFalsyAttributes(this.getters.getCellConditionalFormatStyle(position)),

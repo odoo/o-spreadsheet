@@ -60,5 +60,7 @@
         </div>
       </div>
     </Section>
+
+    <Section class="'o-pivot-table-style'" title.translate="Pivot table style">je</Section>
   </t>
 </templates>

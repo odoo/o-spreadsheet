@@ -41,6 +41,7 @@ import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "./ui_feature/header_visibility_ui";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
+import { PivotTableComputedStylePlugin } from "./ui_feature/pivot_computed_table_style";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
@@ -107,6 +108,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("table_computed_style", TableComputedStylePlugin)
+  .add("pivot_table_computed_style", PivotTableComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin)

@@ -2,6 +2,7 @@ import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
+import { TableElementStyle, TableStyle } from "./table";
 
 export type Aggregator =
   | "array_agg"
@@ -246,4 +247,11 @@ export interface PivotStyle {
   displayTotals?: boolean;
   displayColumnHeaders?: boolean;
   displayMeasuresRow?: boolean;
+}
+
+export interface PivotTableStyle extends TableStyle {
+  mainSubHeaderRow?: TableElementStyle;
+  firstSubSubHeaderRow?: TableElementStyle;
+  secondSubSubHeaderRow?: TableElementStyle;
+  rowHeadersColumn?: TableElementStyle;
 }
