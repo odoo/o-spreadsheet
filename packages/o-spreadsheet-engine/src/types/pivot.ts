@@ -250,6 +250,7 @@ export interface PivotStyle {
 }
 
 export interface PivotTableStyle extends TableStyle {
+  measureHeaderRow?: TableElementStyle;
   mainSubHeaderRow?: TableElementStyle;
   firstSubSubHeaderRow?: TableElementStyle;
   secondSubSubHeaderRow?: TableElementStyle;

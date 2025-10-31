@@ -2,7 +2,7 @@ import { toScalar } from "../../functions/helper_matrices";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { lazy } from "../../helpers/misc";
 import { getPivotStyleFromFnArgs } from "../../helpers/pivot/pivot_helpers";
-import { getComputedPivotTableStyle } from "../../helpers/pivot_table_helpers";
+import { getComputedPivotTableStyle, TableInfo } from "../../helpers/pivot_table_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../helpers/pivot_table_presets";
 import { FormulaCell } from "../../types/cells";
 import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
@@ -167,29 +167,42 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
         }
       }
 
-      console.log(pivotTable.columns);
+      const numberOfHeaderRows = Math.max(
+        ...pivotCells
+          .slice(1)
+          .map((col) =>
+            col.reduce(
+              (count, cell) =>
+                cell.type === "HEADER" || cell.type === "MEASURE_HEADER" ? count + 1 : count,
+              0
+            )
+          )
+      );
+
+      console.log({ numberOfHeaderRows });
       // const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
       const config: TableConfig = {
         hasFilters: false,
         totalRow: pivotStyle.displayTotals,
         firstColumn: false,
         lastColumn: false,
-        numberOfHeaders: pivotTable.columns.length,
+        numberOfHeaders: numberOfHeaderRows,
         bandedRows: false,
-        bandedColumns: false,
+        bandedColumns: true,
         styleId: "TableStyleMedium5",
       };
       const style = PIVOT_TABLE_PRESETS["PivotTableStyleMedium7"];
 
-      const tableInfo = {
+      const tableInfo: TableInfo = {
         numberOfCols: pivotCells.length,
         numberOfRows: pivotCells[0].length,
         mainSubHeaderRows,
         firstSubSubHeaderRows,
         secondSubSubHeaderRows,
+        measureHeaderRowIndex:
+          numberOfHeaderRows && pivotStyle.displayMeasuresRow ? numberOfHeaderRows - 1 : undefined,
       };
       const relativeTableStyle = getComputedPivotTableStyle(config, style, tableInfo);
-      console.log("relativeTableStyle", pivotCells);
       const rootCellPosition = this.getters.getCellPosition(rootCell.id);
 
       // Return the style with sheet coordinates instead of tables coordinates

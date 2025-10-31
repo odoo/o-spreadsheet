@@ -11,6 +11,7 @@ type PivotTableElement = keyof Omit<
 const TABLE_ELEMENTS_BY_PRIORITY: PivotTableElement[] = [
   "wholeTable",
   "headerRow",
+  "measureHeaderRow",
   "firstSubSubHeaderRow",
   "secondSubSubHeaderRow",
   "mainSubHeaderRow",
@@ -24,9 +25,10 @@ const TABLE_ELEMENTS_BY_PRIORITY: PivotTableElement[] = [
   "totalRow",
 ];
 
-interface TableInfo {
+export interface TableInfo {
   numberOfCols: number;
   numberOfRows: number;
+  measureHeaderRowIndex?: number;
   mainSubHeaderRows: Set<number>;
   firstSubSubHeaderRows: Set<number>;
   secondSubSubHeaderRows: Set<number>;
@@ -141,9 +143,8 @@ function getAllPivotTableStyles(
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const tableElStyle = style[tableElement];
-    const bold = isTableElementInBold(tableElement);
 
-    if (!tableElStyle && !bold) {
+    if (!tableElStyle) {
       continue;
     }
 
@@ -159,24 +160,12 @@ function getAllPivotTableStyles(
             ...styles[col][row],
             ...tableElStyle?.style,
           };
-          if (bold) {
-            styles[col][row].bold = true;
-          }
         }
       }
     }
   }
 
   return styles;
-}
-
-function isTableElementInBold(tableElement: PivotTableElement) {
-  return (
-    tableElement === "firstColumn" ||
-    tableElement === "lastColumn" ||
-    // tableElement === "headerRow" ||
-    tableElement === "totalRow"
-  );
 }
 
 function getPivotTableElementZones(
@@ -188,18 +177,24 @@ function getPivotTableElementZones(
 
   switch (el) {
     case "mainSubHeaderRow":
-      for (const r of tableInfo.mainSubHeaderRows) {
-        zones.push({ top: r, bottom: r, left: 0, right: tableInfo.numberOfCols - 1 });
+      for (const row of tableInfo.mainSubHeaderRows) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableInfo.numberOfCols - 1 });
       }
       break;
     case "firstSubSubHeaderRow":
-      for (const r of tableInfo.firstSubSubHeaderRows) {
-        zones.push({ top: r, bottom: r, left: 0, right: tableInfo.numberOfCols - 1 });
+      for (const row of tableInfo.firstSubSubHeaderRows) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableInfo.numberOfCols - 1 });
       }
       break;
     case "secondSubSubHeaderRow":
-      for (const r of tableInfo.secondSubSubHeaderRows) {
-        zones.push({ top: r, bottom: r, left: 0, right: tableInfo.numberOfCols - 1 });
+      for (const row of tableInfo.secondSubSubHeaderRows) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableInfo.numberOfCols - 1 });
+      }
+      break;
+    case "measureHeaderRow":
+      if (tableInfo.measureHeaderRowIndex && tableInfo.numberOfCols > 1) {
+        const row = tableInfo.measureHeaderRowIndex;
+        zones.push({ top: row, bottom: row, left: 1, right: tableInfo.numberOfCols - 1 });
       }
       break;
     case "rowHeadersColumn":

@@ -18,21 +18,30 @@ const pivotMediumSeries1: PivotTableStyleTemplate = (colorSet) => ({
   category: "medium",
   templateName: "pivotMediumSerie1",
   primaryColor: colorSet.highlight,
-  wholeTable: {
-    border: { horizontal: { color: colorSet.light, style: "thin" } },
-  },
-  headerRow: {
-    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" },
-  },
-  mainSubHeaderRow: {
-    style: { fillColor: colorSet.mediumBorder, textColor: "#FFFFFF" },
-  },
+  wholeTable: { border: { horizontal: { color: colorSet.light, style: "thin" } } },
+  headerRow: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
+  measureHeaderRow: { border: { top: { color: colorSet.light, style: "thin" } } },
+  mainSubHeaderRow: { style: { fillColor: colorSet.mediumBorder, textColor: "#FFFFFF" } },
   firstSubSubHeaderRow: {
     style: { fillColor: colorSet.light },
+    border: { bottom: { color: colorSet.highlight, style: "thin" } },
   },
-  totalRow: { border: { top: { color: colorSet.highlight, style: "thin" } } },
-  firstRowStripe: { style: { fillColor: colorSet.light } },
-  firstColumnStripe: { style: { fillColor: colorSet.light } },
+  totalRow: {
+    border: { top: { color: colorSet.highlight, style: "thin" } }, // @compatibility: should be double line
+    style: { bold: true },
+  },
+  firstRowStripe: {
+    border: {
+      bottom: { color: colorSet.highlight, style: "thin" },
+      top: { color: colorSet.highlight, style: "thin" },
+    },
+  },
+  firstColumnStripe: {
+    border: {
+      left: { color: colorSet.highlight, style: "thin" },
+      right: { color: colorSet.highlight, style: "thin" },
+    },
+  },
 });
 
 export const PIVOT_TABLE_PRESETS: Record<string, PivotTableStyle> = {

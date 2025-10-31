@@ -198,7 +198,7 @@ function getAllTableStyles(
   return styles;
 }
 
-function getTableElementZones(
+export function getTableElementZones(
   el: TableElement,
   tableConfig: TableConfig,
   numberOfCols: number,
