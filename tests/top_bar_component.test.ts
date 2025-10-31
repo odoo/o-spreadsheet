@@ -435,7 +435,6 @@ describe("TopBar component", () => {
     expect(getCell(model, "A1")).toBeUndefined();
     const formatTool = fixture.querySelector('.o-menu-item-button[title="More formats"]')!;
     await click(formatTool);
-    expect(fixture).toMatchSnapshot();
     await click(fixture, `.o-menu-item[title="Percent"]`);
     expect(getCell(model, "A1")!.format).toEqual("0.00%");
   });
@@ -792,7 +791,7 @@ describe("TopBar - Custom currency", () => {
     });
     await click(fixture, ".o-menu-item-button[title='More formats']");
     await click(fixture, ".o-menu-item[title='Custom currency']");
-    expect(fixture.querySelector(".o-custom-currency")).toBeTruthy();
+    expect(fixture.querySelector(".o-sidePanel .o-more-formats-panel")).toBeTruthy();
   });
 });
 

@@ -1,54 +1,67 @@
-import { Component } from "@odoo/owl";
-import { createActions } from "../../../actions/action";
-import {
-  formatNumberDate,
-  formatNumberDateTime,
-  formatNumberDayAndFullMonth,
-  formatNumberDayAndShortMonth,
-  formatNumberDuration,
-  formatNumberFullDateTime,
-  formatNumberFullMonth,
-  formatNumberFullQuarter,
-  formatNumberFullWeekDayAndMonth,
-  formatNumberISODate,
-  formatNumberISODateTime,
-  formatNumberQuarter,
-  formatNumberShortMonth,
-  formatNumberShortWeekDay,
-  formatNumberTime,
-} from "../../../actions/format_actions";
-
+import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
+import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { currenciesRegistry } from "../../../registries/currencies_registry";
+import { useLocalStore } from "../../../store_engine";
+import { TextInput } from "../../text_input/text_input";
+import { BadgeSelection } from "../components/badge_selection/badge_selection";
+import { Checkbox } from "../components/checkbox/checkbox";
+import { Section } from "../components/section/section";
+import { CustomFormatCategory, MoreFormatsStore } from "./more_formats_store";
 
 interface Props {
   onCloseSidePanel: () => void;
+  category?: CustomFormatCategory;
 }
-
-const DATE_FORMAT_ACTIONS = createActions([
-  formatNumberFullDateTime,
-  formatNumberISODate,
-  formatNumberISODateTime,
-  formatNumberFullWeekDayAndMonth,
-  formatNumberDayAndFullMonth,
-  formatNumberShortWeekDay,
-  formatNumberDayAndShortMonth,
-  formatNumberFullMonth,
-  formatNumberShortMonth,
-  formatNumberDate,
-  formatNumberTime,
-  formatNumberDateTime,
-  formatNumberDuration,
-  formatNumberQuarter,
-  formatNumberFullQuarter,
-]);
 
 export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-MoreFormatsPanel";
   static props = {
     onCloseSidePanel: Function,
+    category: { type: String, optional: true },
+  };
+  static components = {
+    BadgeSelection,
+    Section,
+    TextInput,
+    Checkbox,
   };
 
-  get dateFormatsActions() {
-    return DATE_FORMAT_ACTIONS;
+  store!: Store<MoreFormatsStore>;
+
+  setup() {
+    this.store = useLocalStore(MoreFormatsStore, this.props.category);
+    onWillStart(() => this.loadCurrencies());
+    onWillUpdateProps((nextProps: Props) => {
+      if (nextProps.category && nextProps.category !== this.props.category) {
+        this.store.changeCategory(nextProps.category);
+      }
+    });
+  }
+
+  async loadCurrencies() {
+    if (currenciesRegistry.getAll().length === 0) {
+      const currencies = await (this.env.loadCurrencies?.() ?? Promise.resolve([]));
+      currencies.forEach((currency, index) => {
+        currenciesRegistry.replace(index.toString(), currency);
+      });
+      this.store.updateAvailableCurrencies();
+    }
+  }
+
+  currencyDisplayName(currency: Currency): string {
+    return currency.name + (currency.code ? ` (${currency.code})` : "");
+  }
+
+  updateSelectCurrency(ev: InputEvent) {
+    const target = ev.target as HTMLInputElement;
+    const currencyIndex = parseInt(target.value, 10);
+    this.store.selectCurrency(currencyIndex);
+  }
+
+  isFormatSelected(format: string | undefined): boolean {
+    const currentFormat = this.store.currentFormat;
+    return format === currentFormat;
   }
 }

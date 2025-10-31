@@ -71,6 +71,9 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     this.model.selection.observe(this, {
       handleEvent: this.handleEvent.bind(this),
     });
+    this.onDispose(() => {
+      this.model.selection.unobserve(this);
+    });
   }
 
   handle(cmd: Command) {
