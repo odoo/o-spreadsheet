@@ -234,28 +234,6 @@ describe("Table cell style", () => {
   });
 });
 
-describe("Bold highlighted cells", () => {
-  test("Headers are in bold", () => {
-    tableConfig.numberOfHeaders = 1;
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
-    expect(computedStyle.styles[0][0].bold).toBe(true);
-  });
-
-  test("Totals are in bold", () => {
-    tableConfig.totalRow = true;
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
-    expect(computedStyle.styles[0][4].bold).toBe(true);
-  });
-
-  test("First/last column are in bold", () => {
-    tableConfig.firstColumn = true;
-    tableConfig.lastColumn = true;
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
-    expect(computedStyle.styles[0][0].bold).toBe(true);
-    expect(computedStyle.styles[4][0].bold).toBe(true);
-  });
-});
-
 describe("Table cell borders", () => {
   const border: BorderDescr = { color: "#0f0", style: "thick" };
   const allBorders = { top: border, bottom: border, left: border, right: border };

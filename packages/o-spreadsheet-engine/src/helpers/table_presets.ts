@@ -94,9 +94,17 @@ const lightColoredText: TableStyleTemplate = (colorSet) => ({
       bottom: { color: colorSet.highlight, style: "thin" },
     },
   },
-  headerRow: { border: { bottom: { color: colorSet.highlight, style: "thin" } } },
-  totalRow: { border: { top: { color: colorSet.highlight, style: "thin" } } },
+  headerRow: {
+    border: { bottom: { color: colorSet.highlight, style: "thin" } },
+    style: { bold: true },
+  },
+  totalRow: {
+    border: { top: { color: colorSet.highlight, style: "thin" } },
+    style: { bold: true },
+  },
   firstRowStripe: { style: { fillColor: colorSet.light } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
 });
 
 const lightWithHeader: TableStyleTemplate = (colorSet) => ({
@@ -112,12 +120,17 @@ const lightWithHeader: TableStyleTemplate = (colorSet) => ({
     },
   },
   headerRow: {
-    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" },
+    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true },
     border: { bottom: { color: colorSet.highlight, style: "thin" } },
   },
-  totalRow: { border: { top: { color: colorSet.highlight, style: "medium" } } }, // @compatibility: should be double line
+  totalRow: {
+    border: { top: { color: colorSet.highlight, style: "medium" } }, // @compatibility: should be double line
+    style: { bold: true },
+  },
   firstRowStripe: { border: { bottom: { color: colorSet.highlight, style: "thin" } } },
   secondRowStripe: { border: { bottom: { color: colorSet.highlight, style: "thin" } } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
 });
 
 const lightAllBorders: TableStyleTemplate = (colorSet) => ({
@@ -134,10 +147,18 @@ const lightAllBorders: TableStyleTemplate = (colorSet) => ({
       vertical: { color: colorSet.highlight, style: "thin" },
     },
   },
-  headerRow: { border: { bottom: { color: colorSet.highlight, style: "medium" } } },
-  totalRow: { border: { top: { color: colorSet.highlight, style: "medium" } } }, // @compatibility: should be double line
+  headerRow: {
+    border: { bottom: { color: colorSet.highlight, style: "medium" } },
+    style: { bold: true },
+  },
+  totalRow: {
+    border: { top: { color: colorSet.highlight, style: "medium" } }, // @compatibility: should be double line
+    style: { bold: true },
+  },
   firstRowStripe: { style: { fillColor: colorSet.light } },
   firstColumnStripe: { style: { fillColor: colorSet.light } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
 });
 
 const mediumBandedBorders: TableStyleTemplate = (colorSet) => ({
@@ -153,12 +174,15 @@ const mediumBandedBorders: TableStyleTemplate = (colorSet) => ({
       horizontal: { color: colorSet.mediumBorder, style: "thin" },
     },
   },
-  headerRow: {
-    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" },
+  headerRow: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
+  totalRow: {
+    border: { top: { color: colorSet.highlight, style: "medium" } }, // @compatibility: should be double line
+    style: { bold: true },
   },
-  totalRow: { border: { top: { color: colorSet.highlight, style: "medium" } } }, // @compatibility: should be double line
   firstRowStripe: { style: { fillColor: colorSet.light } },
   firstColumnStripe: { style: { fillColor: colorSet.light } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
 });
 
 const mediumWhiteBorders: TableStyleTemplate = (colorSet) => ({
@@ -174,14 +198,14 @@ const mediumWhiteBorders: TableStyleTemplate = (colorSet) => ({
   },
   headerRow: {
     border: { bottom: { color: "#FFFFFF", style: "thick" } },
-    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" },
+    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true },
   },
   totalRow: {
     border: { top: { color: "#FFFFFF", style: "thick" } },
-    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" },
+    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true },
   },
-  firstColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
-  lastColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
+  firstColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
+  lastColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
   firstRowStripe: { style: { fillColor: colorSet.medium } },
   firstColumnStripe: { style: { fillColor: colorSet.medium } },
 });
@@ -196,13 +220,16 @@ const mediumMinimalBorders: TableStyleTemplate = (colorSet) => ({
       bottom: { color: "#000000", style: "medium" },
     },
   },
-  totalRow: { border: { top: { color: "#000000", style: "medium" } } }, // @compatibility: should be double line
+  totalRow: {
+    border: { top: { color: "#000000", style: "medium" } }, // @compatibility: should be double line
+    style: { bold: true },
+  },
   headerRow: {
-    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" },
+    style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true },
     border: { bottom: { color: "#000000", style: "medium" } },
   },
-  firstColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
-  lastColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
+  firstColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
+  lastColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
   firstRowStripe: { style: { fillColor: COLOR_SETS.black.light } },
   firstColumnStripe: { style: { fillColor: COLOR_SETS.black.light } },
 });
@@ -222,9 +249,15 @@ const mediumAllBorders: TableStyleTemplate = (colorSet) => ({
     },
     style: { fillColor: colorSet.light },
   },
-  totalRow: { border: { top: { color: colorSet.highlight, style: "medium" } } }, // @compatibility: should be double line
+  totalRow: {
+    border: { top: { color: colorSet.highlight, style: "medium" } }, // @compatibility: should be double line
+    style: { bold: true },
+  },
   firstRowStripe: { style: { fillColor: colorSet.medium } },
   firstColumnStripe: { style: { fillColor: colorSet.medium } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
+  headerRow: { style: { bold: true } },
 });
 
 const dark: TableStyleTemplate = (colorSet) => ({
@@ -233,19 +266,19 @@ const dark: TableStyleTemplate = (colorSet) => ({
   primaryColor: colorSet.highlight,
   wholeTable: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
   totalRow: {
-    style: { fillColor: colorSet.dark, textColor: "#FFFFFF" },
+    style: { fillColor: colorSet.dark, textColor: "#FFFFFF", bold: true },
     border: { top: { color: "#FFFFFF", style: "thick" } },
   },
   headerRow: {
-    style: { fillColor: "#000000" },
+    style: { fillColor: "#000000", bold: true },
     border: { bottom: { color: "#FFFFFF", style: "thick" } },
   },
   firstColumn: {
-    style: { fillColor: colorSet.dark },
+    style: { fillColor: colorSet.dark, bold: true },
     border: { right: { color: "#FFFFFF", style: "thick" } },
   },
   lastColumn: {
-    style: { fillColor: colorSet.dark },
+    style: { fillColor: colorSet.dark, bold: true },
     border: { left: { color: "#FFFFFF", style: "thick" } },
   },
   firstRowStripe: { style: { fillColor: colorSet.dark } },
@@ -257,10 +290,15 @@ const darkNoBorders: TableStyleTemplate = (colorSet) => ({
   templateName: "darkNoBorders",
   primaryColor: colorSet.highlight,
   wholeTable: { style: { fillColor: colorSet.light } },
-  totalRow: { border: { top: { color: "#000000", style: "medium" } } }, // @compatibility: should be double line
-  headerRow: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
+  totalRow: {
+    border: { top: { color: "#000000", style: "medium" } }, // @compatibility: should be double line
+    style: { bold: true },
+  },
+  headerRow: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
   firstRowStripe: { style: { fillColor: colorSet.medium } },
   firstColumnStripe: { style: { fillColor: colorSet.medium } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
 });
 
 const darkTemplateInBlack = dark(COLOR_SETS.black);
