@@ -173,9 +173,8 @@ function getAllTableStyles(
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const tableElStyle = style[tableElement];
-    const bold = isTableElementInBold(tableElement);
 
-    if (!tableElStyle && !bold) {
+    if (!tableElStyle) {
       continue;
     }
 
@@ -191,24 +190,12 @@ function getAllTableStyles(
             ...styles[col][row],
             ...tableElStyle?.style,
           };
-          if (bold) {
-            styles[col][row].bold = true;
-          }
         }
       }
     }
   }
 
   return styles;
-}
-
-function isTableElementInBold(tableElement: TableElement) {
-  return (
-    tableElement === "firstColumn" ||
-    tableElement === "lastColumn" ||
-    tableElement === "headerRow" ||
-    tableElement === "totalRow"
-  );
 }
 
 function getTableElementZones(
