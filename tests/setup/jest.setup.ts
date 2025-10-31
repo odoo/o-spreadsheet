@@ -54,6 +54,14 @@ function registerOwlTemplates() {
   }
 }
 
+class PointerEventPolyfill extends MouseEvent {
+  pointerId: number;
+  constructor(type: string, eventInitDict: PointerEventInit) {
+    super(type, eventInitDict);
+    this.pointerId = eventInitDict.pointerId ?? 0;
+  }
+}
+
 beforeAll(() => {
   registerOwlTemplates();
   setDefaultSheetViewSize(1000);
@@ -82,6 +90,9 @@ beforeAll(() => {
   };
 
   console.debug = () => {};
+
+  // @ts-ignore
+  window.PointerEvent = PointerEventPolyfill;
 });
 
 beforeEach(() => {

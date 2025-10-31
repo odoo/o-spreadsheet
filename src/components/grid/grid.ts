@@ -205,11 +205,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return scrollY > 0;
     });
 
-    usePinchToZoom(this.gridRef, (scale: number) => {
-      this.env.model.dispatch("SET_ZOOM", {
-        zoom: this.env.model.getters.getViewportZoomLevel() * scale,
-      });
-    });
+    usePinchToZoom(
+      this.gridRef,
+      () => this.env.model.getters.getViewportZoomLevel(),
+      (zoom: number) => {
+        if (zoom >= 0.5 && zoom <= 2) {
+          this.env.model.dispatch("SET_ZOOM", { zoom });
+        }
+      }
+    );
   }
 
   get highlights() {
