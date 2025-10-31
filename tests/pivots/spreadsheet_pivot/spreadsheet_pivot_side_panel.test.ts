@@ -1,4 +1,7 @@
-import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  PIVOT_INSERT_TABLE_STYLE_ID,
+  PIVOT_TOKEN_COLOR,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { getPivotTooBigErrorMessage } from "../../../packages/o-spreadsheet-engine/src/components/translations_terms";
@@ -22,7 +25,7 @@ import {
   keyDown,
   setInputValueAndTrigger,
 } from "../../test_helpers/dom_helper";
-import { getCellText, getCoreTable, getEvaluatedCell } from "../../test_helpers/getters_helpers";
+import { getCellText, getEvaluatedCell, getTable } from "../../test_helpers/getters_helpers";
 import {
   doAction,
   editStandaloneComposer,
@@ -343,6 +346,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can duplicate a pivot and undo the whole action with one step backward", async () => {
+    updatePivot(model, "1", {
+      style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
+    });
     await click(fixture, SELECTORS.COG_WHEEL);
     await click(fixture, SELECTORS.DUPLICATE_PIVOT);
     const pivotId = model.getters.getPivotId("2")!;
@@ -354,10 +360,9 @@ describe("Spreadsheet pivot side panel", () => {
       "Pivot (copy) (Pivot #2)"
     );
     expect(getCellText(model, "A1")).toBe("=PIVOT(2)");
-    expect(getCoreTable(model, "A1")).toMatchObject({
-      range: { zone: toZone("A1") },
-      config: PIVOT_TABLE_CONFIG,
-      type: "dynamic",
+    expect(getTable(model, "A1")).toMatchObject({
+      range: { zone: toZone("A1:A3") },
+      config: { styleId: PIVOT_INSERT_TABLE_STYLE_ID },
     });
 
     undo(model);
@@ -365,7 +370,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotId("2")).toBeUndefined();
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
-    expect(getCoreTable(model, "A1")).toBe(undefined);
+    expect(getTable(model, "A1")).toBe(undefined);
   });
 
   test("Can duplicate a pivot when a duplicate sheet name already exists", async () => {

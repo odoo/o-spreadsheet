@@ -21,7 +21,7 @@ import {
   UpdatePivotCommand,
 } from "../../types/commands";
 import { CellPosition, FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
-import { PivotCoreMeasure, PivotTableCell } from "../../types/pivot";
+import { PivotCoreMeasure, PivotStyle, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 import { UIPluginConfig } from "../ui_plugin";
@@ -42,6 +42,8 @@ export class PivotUIPlugin extends CoreViewPlugin {
     "generateNewCalculatedMeasureName",
     "isPivotUnused",
     "isSpillPivotFormula",
+    "getAllPivotArrayFormulas",
+    "getPivotStyleAtPosition",
   ] as const;
 
   private pivots: Record<UID, Pivot> = {};
@@ -345,5 +347,55 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
     this.unusedPivots = [...unusedPivots];
     return this.unusedPivots;
+  }
+
+  getAllPivotArrayFormulas(): {
+    position: CellPosition;
+    pivotStyle: Required<PivotStyle>;
+    pivotId: UID;
+  }[] {
+    const result: { position: CellPosition; pivotStyle: Required<PivotStyle>; pivotId: UID }[] = [];
+    for (const cellId of this.getters.getCellsWithTrackedFormula("PIVOT")) {
+      const position = this.getters.getCellPosition(cellId);
+      if (!position) {
+        continue;
+      }
+      const pivotInfo = this.getPivotStyleAtPosition(position);
+      if (pivotInfo) {
+        result.push({ position, ...pivotInfo });
+      }
+    }
+    return result;
+  }
+
+  getPivotStyleAtPosition(
+    position: CellPosition
+  ): { pivotStyle: Required<PivotStyle>; pivotId: UID } | undefined {
+    const cell = this.getters.getCell(position);
+    if (!cell || !cell.isFormula) {
+      return undefined;
+    }
+    const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula.tokens);
+    if (!pivotFunction || pivotFunction.functionName !== "PIVOT") {
+      return undefined;
+    }
+    const pivotIdArg = pivotFunction.args[0];
+    if (!pivotIdArg) {
+      return undefined;
+    }
+    const pivotId = this.getters.getPivotId(pivotIdArg.toString());
+    if (!pivotId) {
+      return undefined;
+    }
+    const pivotStyle = getPivotStyleFromFnArgs(
+      this.getters.getPivotCoreDefinition(pivotId),
+      toScalar(pivotFunction.args[1]),
+      toScalar(pivotFunction.args[2]),
+      toScalar(pivotFunction.args[3]),
+      toScalar(pivotFunction.args[4]),
+      toScalar(pivotFunction.args[5]),
+      this.getters.getLocale()
+    );
+    return { pivotStyle, pivotId };
   }
 }

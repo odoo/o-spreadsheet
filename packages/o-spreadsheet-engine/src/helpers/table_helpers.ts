@@ -8,6 +8,7 @@ import {
   StaticTable,
   Table,
   TableConfig,
+  TableMetaData,
   TableStyle,
 } from "../types/table";
 
@@ -24,6 +25,10 @@ const TABLE_ELEMENTS_BY_PRIORITY: TableElement[] = [
   "firstColumn",
   "lastColumn",
   "headerRow",
+  "measureHeader",
+  "firstSubSubHeaderRow",
+  "secondSubSubHeaderRow",
+  "mainSubHeaderRow",
   "totalRow",
 ];
 
@@ -66,51 +71,50 @@ export function isStaticTable(table: CoreTable): table is StaticTable {
 export function getComputedTableStyle(
   tableConfig: TableConfig,
   style: TableStyle,
-  numberOfCols: number,
-  numberOfRows: number
+  tableMetaData: TableMetaData
 ): ComputedTableStyle {
   return {
-    borders: getAllTableBorders(tableConfig, style, numberOfCols, numberOfRows),
-    styles: getAllTableStyles(tableConfig, style, numberOfCols, numberOfRows),
+    borders: getAllTableBorders(tableConfig, style, tableMetaData),
+    styles: getAllTableStyles(tableConfig, style, tableMetaData),
   };
 }
 
 function getAllTableBorders(
   tableConfig: TableConfig,
   style: TableStyle,
-  nOfCols: number,
-  nOfRows: number
+  tableMetaData: TableMetaData
 ): Border[][] {
+  const { numberOfCols: nOfCols, numberOfRows: nOfRows } = tableMetaData;
   const borders: Border[][] = generateMatrix(nOfCols, nOfRows, () => ({}));
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const styleBorder = style[tableElement]?.border;
     if (!styleBorder) continue;
 
-    const zones = getTableElementZones(tableElement, tableConfig, nOfCols, nOfRows);
+    const zones = getTableElementZones(tableElement, tableConfig, tableMetaData);
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           // Special case: we don't want borders inside the headers rows
           const noInsideBorder =
             tableElement === "wholeTable" && row <= tableConfig.numberOfHeaders - 1;
-          if (row === zone.top && styleBorder?.top) {
+          if (row === zone.top && styleBorder?.top !== undefined) {
             setBorderDescr(borders, "top", styleBorder.top, col, row, nOfCols, nOfRows);
-          } else if (row !== zone.top && !noInsideBorder && styleBorder?.horizontal) {
+          } else if (row !== zone.top && !noInsideBorder && styleBorder?.horizontal !== undefined) {
             setBorderDescr(borders, "top", styleBorder.horizontal, col, row, nOfCols, nOfRows);
           }
 
-          if (row === zone.bottom && styleBorder?.bottom) {
+          if (row === zone.bottom && styleBorder?.bottom !== undefined) {
             setBorderDescr(borders, "bottom", styleBorder.bottom, col, row, nOfCols, nOfRows);
           }
 
-          if (col === zone.left && styleBorder?.left) {
+          if (col === zone.left && styleBorder?.left !== undefined) {
             setBorderDescr(borders, "left", styleBorder.left, col, row, nOfCols, nOfRows);
           }
 
-          if (col === zone.right && styleBorder?.right) {
+          if (col === zone.right && styleBorder?.right !== undefined) {
             setBorderDescr(borders, "right", styleBorder.right, col, row, nOfCols, nOfRows);
-          } else if (col !== zone.right && !noInsideBorder && styleBorder?.vertical) {
+          } else if (col !== zone.right && !noInsideBorder && styleBorder?.vertical !== undefined) {
             setBorderDescr(borders, "right", styleBorder.vertical, col, row, nOfCols, nOfRows);
           }
         }
@@ -129,7 +133,7 @@ function getAllTableBorders(
 function setBorderDescr(
   computedBorders: Border[][],
   dir: "top" | "bottom" | "left" | "right",
-  borderDescr: BorderDescr,
+  borderDescr: BorderDescr | null,
   col: number,
   row: number,
   numberOfCols: number,
@@ -137,27 +141,27 @@ function setBorderDescr(
 ) {
   switch (dir) {
     case "top":
-      computedBorders[col][row].top = borderDescr;
+      computedBorders[col][row].top = borderDescr ?? undefined;
       if (row !== 0) {
-        computedBorders[col][row - 1].bottom = borderDescr;
+        computedBorders[col][row - 1].bottom = borderDescr ?? undefined;
       }
       return;
     case "bottom":
-      computedBorders[col][row].bottom = borderDescr;
+      computedBorders[col][row].bottom = borderDescr ?? undefined;
       if (row !== numberOfRows - 1) {
-        computedBorders[col][row + 1].top = borderDescr;
+        computedBorders[col][row + 1].top = borderDescr ?? undefined;
       }
       return;
     case "left":
-      computedBorders[col][row].left = borderDescr;
+      computedBorders[col][row].left = borderDescr ?? undefined;
       if (col !== 0) {
-        computedBorders[col - 1][row].right = borderDescr;
+        computedBorders[col - 1][row].right = borderDescr ?? undefined;
       }
       return;
     case "right":
-      computedBorders[col][row].right = borderDescr;
+      computedBorders[col][row].right = borderDescr ?? undefined;
       if (col !== numberOfCols - 1) {
-        computedBorders[col + 1][row].left = borderDescr;
+        computedBorders[col + 1][row].left = borderDescr ?? undefined;
       }
       return;
   }
@@ -166,9 +170,9 @@ function setBorderDescr(
 function getAllTableStyles(
   tableConfig: TableConfig,
   style: TableStyle,
-  numberOfCols: number,
-  numberOfRows: number
+  tableMetaData: TableMetaData
 ): Style[][] {
+  const { numberOfCols, numberOfRows } = tableMetaData;
   const styles: Style[][] = generateMatrix(numberOfCols, numberOfRows, () => ({}));
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
@@ -178,7 +182,7 @@ function getAllTableStyles(
       continue;
     }
 
-    const zones = getTableElementZones(tableElement, tableConfig, numberOfCols, numberOfRows);
+    const zones = getTableElementZones(tableElement, tableConfig, tableMetaData);
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
@@ -198,12 +202,12 @@ function getAllTableStyles(
   return styles;
 }
 
-function getTableElementZones(
+export function getTableElementZones(
   el: TableElement,
   tableConfig: TableConfig,
-  numberOfCols: number,
-  numberOfRows: number
+  tableMetaData: TableMetaData
 ): Zone[] {
+  const { numberOfCols, numberOfRows } = tableMetaData;
   const zones: Zone[] = [];
 
   const headerRows = Math.min(tableConfig.numberOfHeaders, numberOfRows);
@@ -242,16 +246,41 @@ function getTableElementZones(
         zones.push({ top: i, left: 0, bottom: i, right: lastCol });
       }
       break;
-    case "firstColumnStripe":
+    case "firstColumnStripe": {
       if (!tableConfig.bandedColumns) break;
+      const bottom = tableMetaData.mode === "pivot" ? lastRow : lastRow - totalRows;
       for (let i = 0; i < numberOfCols; i += 2) {
-        zones.push({ top: headerRows, left: i, bottom: lastRow - totalRows, right: i });
+        zones.push({ top: headerRows, left: i, bottom, right: i });
       }
       break;
-    case "secondColumnStripe":
+    }
+    case "secondColumnStripe": {
       if (!tableConfig.bandedColumns) break;
+      const bottom = tableMetaData.mode === "pivot" ? lastRow : lastRow - totalRows;
       for (let i = 1; i < numberOfCols; i += 2) {
-        zones.push({ top: headerRows, left: i, bottom: lastRow - totalRows, right: i });
+        zones.push({ top: headerRows, left: i, bottom, right: i });
+      }
+      break;
+    }
+    case "mainSubHeaderRow":
+      for (const row of tableMetaData.mainSubHeaderRows || []) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableMetaData.numberOfCols - 1 });
+      }
+      break;
+    case "firstSubSubHeaderRow":
+      for (const row of tableMetaData.firstSubSubHeaderRows || []) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableMetaData.numberOfCols - 1 });
+      }
+      break;
+    case "secondSubSubHeaderRow":
+      for (const row of tableMetaData.secondSubSubHeaderRows || []) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableMetaData.numberOfCols - 1 });
+      }
+      break;
+    case "measureHeader":
+      if (tableMetaData.measureHeaderIndex !== undefined && tableMetaData.numberOfCols > 1) {
+        const row = tableMetaData.measureHeaderIndex;
+        zones.push({ top: row, bottom: row, left: 1, right: tableMetaData.numberOfCols - 1 });
       }
       break;
   }

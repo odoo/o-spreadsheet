@@ -1,4 +1,6 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TableConfig } from "@odoo/o-spreadsheet-engine/types/table";
@@ -50,6 +52,11 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
       this.closePopover();
       return;
     }
+    const pivotId = this.pivotIdInSelection;
+    if (pivotId) {
+      this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
+      return;
+    }
     if (this.env.model.getters.getFirstTableInSelection()) {
       this.topBarToolStore.closeDropdowns();
       this.env.toggleSidePanel("TableSidePanel", {});
@@ -71,6 +78,14 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get action(): ActionSpec {
+    const pivotId = this.pivotIdInSelection;
+    if (pivotId) {
+      return {
+        name: _t("Edit pivot style"),
+        icon: "o-spreadsheet-Icon.EDIT_TABLE",
+      };
+    }
+
     return {
       name: (env) =>
         env.model.getters.getFirstTableInSelection() ? _t("Edit table") : _t("Insert table"),
@@ -83,5 +98,23 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
 
   get tableConfig(): TableConfig {
     return { ...DEFAULT_TABLE_CONFIG, numberOfHeaders: 1, bandedRows: true };
+  }
+
+  get tableStyles() {
+    return this.env.model.getters.getTableStyles();
+  }
+
+  get pivotIdInSelection(): UID | undefined {
+    const selection = this.env.model.getters.getSelectedZones();
+    for (const zone of selection) {
+      for (const position of positions(zone)) {
+        const sheetId = this.env.model.getters.getActiveSheetId();
+        const pivotId = this.env.model.getters.getPivotIdFromPosition({ sheetId, ...position });
+        if (pivotId) {
+          return pivotId;
+        }
+      }
+    }
+    return undefined;
   }
 }
