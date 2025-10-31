@@ -3,13 +3,6 @@ import { Color } from "../types/misc";
 import { TableConfig, TableStyle, TableStyleTemplateName } from "../types/table";
 import { darkenColor, lightenColor } from "./color";
 
-export const TABLE_STYLE_CATEGORIES = {
-  light: _t("Light"),
-  medium: _t("Medium"),
-  dark: _t("Dark"),
-  custom: _t("Custom"),
-};
-
 export const DEFAULT_TABLE_CONFIG: TableConfig = {
   hasFilters: false,
   totalRow: false,
@@ -26,7 +19,13 @@ export const DEFAULT_TABLE_CONFIG: TableConfig = {
   styleId: "TableStyleMedium2",
 };
 
-interface ColorSet {
+export const TABLE_STYLE_CATEGORIES = {
+  light: _t("Light"),
+  medium: _t("Medium"),
+  dark: _t("Dark"),
+};
+
+export interface TableColorSet {
   name: string;
   coloredText: Color;
   light: Color;
@@ -36,9 +35,9 @@ interface ColorSet {
   highlight: Color;
 }
 
-export type TableStyleTemplate = (colorSet: ColorSet) => Omit<TableStyle, "displayName">;
+export type TableStyleTemplate = (colorSet: TableColorSet) => Omit<TableStyle, "displayName">;
 
-function generateTableColorSet(name: string, highlightColor: Color): ColorSet {
+function generateTableColorSet(name: string, highlightColor: Color): TableColorSet {
   return {
     coloredText: darkenColor(highlightColor, 0.3),
     light: lightenColor(highlightColor, 0.8),
@@ -50,7 +49,7 @@ function generateTableColorSet(name: string, highlightColor: Color): ColorSet {
   };
 }
 
-const COLOR_SETS = {
+export const TABLE_COLOR_SETS = {
   black: {
     name: _t("Black"),
     coloredText: "#000000",
@@ -60,9 +59,9 @@ const COLOR_SETS = {
     mediumBorder: "#000000",
     highlight: "#000000",
   },
-  lightBlue: generateTableColorSet(_t("Light blue"), "#346B90"),
+  lightBlue: generateTableColorSet(_t("Blue"), "#346B90"),
   red: generateTableColorSet(_t("Red"), "#C53628"),
-  lightGreen: generateTableColorSet(_t("Light green"), "#748747"),
+  lightGreen: generateTableColorSet(_t("Green"), "#748747"),
   purple: generateTableColorSet(_t("Purple"), "#6C4E65"),
   gray: {
     name: _t("Gray"),
@@ -76,11 +75,11 @@ const COLOR_SETS = {
   orange: generateTableColorSet(_t("Orange"), "#C37034"),
 };
 
-const DARK_COLOR_SETS = {
-  black: COLOR_SETS.black,
-  orangeBlue: { ...COLOR_SETS.lightBlue, highlight: COLOR_SETS.orange.highlight },
-  purpleGreen: { ...COLOR_SETS.lightGreen, highlight: COLOR_SETS.purple.highlight },
-  redBlue: { ...COLOR_SETS.lightBlue, highlight: COLOR_SETS.red.highlight },
+export const DARK_TABLE_COLOR_SETS = {
+  black: TABLE_COLOR_SETS.black,
+  orangeBlue: { ...TABLE_COLOR_SETS.lightBlue, highlight: TABLE_COLOR_SETS.orange.highlight },
+  purpleGreen: { ...TABLE_COLOR_SETS.lightGreen, highlight: TABLE_COLOR_SETS.purple.highlight },
+  redBlue: { ...TABLE_COLOR_SETS.lightBlue, highlight: TABLE_COLOR_SETS.red.highlight },
 };
 
 const lightColoredText: TableStyleTemplate = (colorSet) => ({
@@ -230,8 +229,8 @@ const mediumMinimalBorders: TableStyleTemplate = (colorSet) => ({
   },
   firstColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
   lastColumn: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF", bold: true } },
-  firstRowStripe: { style: { fillColor: COLOR_SETS.black.light } },
-  firstColumnStripe: { style: { fillColor: COLOR_SETS.black.light } },
+  firstRowStripe: { style: { fillColor: TABLE_COLOR_SETS.black.light } },
+  firstColumnStripe: { style: { fillColor: TABLE_COLOR_SETS.black.light } },
 });
 
 const mediumAllBorders: TableStyleTemplate = (colorSet) => ({
@@ -301,10 +300,10 @@ const darkNoBorders: TableStyleTemplate = (colorSet) => ({
   lastColumn: { style: { bold: true } },
 });
 
-const darkTemplateInBlack = dark(COLOR_SETS.black);
+const darkTemplateInBlack = dark(TABLE_COLOR_SETS.black);
 darkTemplateInBlack.wholeTable!.style!.fillColor = "#737373";
 
-const mediumMinimalBordersInBlack = mediumMinimalBorders(COLOR_SETS.black);
+const mediumMinimalBordersInBlack = mediumMinimalBorders(TABLE_COLOR_SETS.black);
 mediumMinimalBordersInBlack.wholeTable!.border = {
   ...mediumMinimalBordersInBlack.wholeTable!.border,
   left: { color: "#000000", style: "thin" },
@@ -313,85 +312,145 @@ mediumMinimalBordersInBlack.wholeTable!.border = {
   vertical: { color: "#000000", style: "thin" },
 };
 
-function buildPreset(name: string, template: TableStyleTemplate, colorSet: ColorSet): TableStyle {
+function buildPreset(
+  name: string,
+  template: TableStyleTemplate,
+  colorSet: TableColorSet
+): TableStyle {
   return { ...template(colorSet), displayName: `${colorSet.name}, ${name}` };
 }
 
 export const TABLE_PRESETS: Record<string, TableStyle> = {
-  None: { category: "light", templateName: "none", primaryColor: "", displayName: "none" },
+  None: { category: "light", templateName: "none", primaryColor: "", displayName: _t("None") },
 
-  TableStyleLight1: buildPreset("TableStyleLight1", lightColoredText, COLOR_SETS.black),
-  TableStyleLight2: buildPreset("TableStyleLight2", lightColoredText, COLOR_SETS.lightBlue),
-  TableStyleLight3: buildPreset("TableStyleLight3", lightColoredText, COLOR_SETS.red),
-  TableStyleLight4: buildPreset("TableStyleLight4", lightColoredText, COLOR_SETS.lightGreen),
-  TableStyleLight5: buildPreset("TableStyleLight5", lightColoredText, COLOR_SETS.purple),
-  TableStyleLight6: buildPreset("TableStyleLight6", lightColoredText, COLOR_SETS.gray),
-  TableStyleLight7: buildPreset("TableStyleLight7", lightColoredText, COLOR_SETS.orange),
+  TableStyleLight1: buildPreset("TableStyleLight1", lightColoredText, TABLE_COLOR_SETS.black),
+  TableStyleLight2: buildPreset("TableStyleLight2", lightColoredText, TABLE_COLOR_SETS.lightBlue),
+  TableStyleLight3: buildPreset("TableStyleLight3", lightColoredText, TABLE_COLOR_SETS.red),
+  TableStyleLight4: buildPreset("TableStyleLight4", lightColoredText, TABLE_COLOR_SETS.lightGreen),
+  TableStyleLight5: buildPreset("TableStyleLight5", lightColoredText, TABLE_COLOR_SETS.purple),
+  TableStyleLight6: buildPreset("TableStyleLight6", lightColoredText, TABLE_COLOR_SETS.gray),
+  TableStyleLight7: buildPreset("TableStyleLight7", lightColoredText, TABLE_COLOR_SETS.orange),
 
-  TableStyleLight8: buildPreset("TableStyleLight8", lightWithHeader, COLOR_SETS.black),
-  TableStyleLight9: buildPreset("TableStyleLight9", lightWithHeader, COLOR_SETS.lightBlue),
-  TableStyleLight10: buildPreset("TableStyleLight10", lightWithHeader, COLOR_SETS.red),
-  TableStyleLight11: buildPreset("TableStyleLight11", lightWithHeader, COLOR_SETS.lightGreen),
-  TableStyleLight12: buildPreset("TableStyleLight12", lightWithHeader, COLOR_SETS.purple),
-  TableStyleLight13: buildPreset("TableStyleLight13", lightWithHeader, COLOR_SETS.gray),
-  TableStyleLight14: buildPreset("TableStyleLight14", lightWithHeader, COLOR_SETS.orange),
+  TableStyleLight8: buildPreset("TableStyleLight8", lightWithHeader, TABLE_COLOR_SETS.black),
+  TableStyleLight9: buildPreset("TableStyleLight9", lightWithHeader, TABLE_COLOR_SETS.lightBlue),
+  TableStyleLight10: buildPreset("TableStyleLight10", lightWithHeader, TABLE_COLOR_SETS.red),
+  TableStyleLight11: buildPreset("TableStyleLight11", lightWithHeader, TABLE_COLOR_SETS.lightGreen),
+  TableStyleLight12: buildPreset("TableStyleLight12", lightWithHeader, TABLE_COLOR_SETS.purple),
+  TableStyleLight13: buildPreset("TableStyleLight13", lightWithHeader, TABLE_COLOR_SETS.gray),
+  TableStyleLight14: buildPreset("TableStyleLight14", lightWithHeader, TABLE_COLOR_SETS.orange),
 
-  TableStyleLight15: buildPreset("TableStyleLight15", lightAllBorders, COLOR_SETS.black),
-  TableStyleLight16: buildPreset("TableStyleLight16", lightAllBorders, COLOR_SETS.lightBlue),
-  TableStyleLight17: buildPreset("TableStyleLight17", lightAllBorders, COLOR_SETS.red),
-  TableStyleLight18: buildPreset("TableStyleLight18", lightAllBorders, COLOR_SETS.lightGreen),
-  TableStyleLight19: buildPreset("TableStyleLight19", lightAllBorders, COLOR_SETS.purple),
-  TableStyleLight20: buildPreset("TableStyleLight20", lightAllBorders, COLOR_SETS.gray),
-  TableStyleLight21: buildPreset("TableStyleLight21", lightAllBorders, COLOR_SETS.orange),
+  TableStyleLight15: buildPreset("TableStyleLight15", lightAllBorders, TABLE_COLOR_SETS.black),
+  TableStyleLight16: buildPreset("TableStyleLight16", lightAllBorders, TABLE_COLOR_SETS.lightBlue),
+  TableStyleLight17: buildPreset("TableStyleLight17", lightAllBorders, TABLE_COLOR_SETS.red),
+  TableStyleLight18: buildPreset("TableStyleLight18", lightAllBorders, TABLE_COLOR_SETS.lightGreen),
+  TableStyleLight19: buildPreset("TableStyleLight19", lightAllBorders, TABLE_COLOR_SETS.purple),
+  TableStyleLight20: buildPreset("TableStyleLight20", lightAllBorders, TABLE_COLOR_SETS.gray),
+  TableStyleLight21: buildPreset("TableStyleLight21", lightAllBorders, TABLE_COLOR_SETS.orange),
 
-  TableStyleMedium1: buildPreset("TableStyleMedium1", mediumBandedBorders, COLOR_SETS.black),
-  TableStyleMedium2: buildPreset("TableStyleMedium2", mediumBandedBorders, COLOR_SETS.lightBlue),
-  TableStyleMedium3: buildPreset("TableStyleMedium3", mediumBandedBorders, COLOR_SETS.red),
-  TableStyleMedium4: buildPreset("TableStyleMedium4", mediumBandedBorders, COLOR_SETS.lightGreen),
-  TableStyleMedium5: buildPreset("TableStyleMedium5", mediumBandedBorders, COLOR_SETS.purple),
-  TableStyleMedium6: buildPreset("TableStyleMedium6", mediumBandedBorders, COLOR_SETS.gray),
-  TableStyleMedium7: buildPreset("TableStyleMedium7", mediumBandedBorders, COLOR_SETS.orange),
+  TableStyleMedium1: buildPreset("TableStyleMedium1", mediumBandedBorders, TABLE_COLOR_SETS.black),
+  TableStyleMedium2: buildPreset(
+    "TableStyleMedium2",
+    mediumBandedBorders,
+    TABLE_COLOR_SETS.lightBlue
+  ),
+  TableStyleMedium3: buildPreset("TableStyleMedium3", mediumBandedBorders, TABLE_COLOR_SETS.red),
+  TableStyleMedium4: buildPreset(
+    "TableStyleMedium4",
+    mediumBandedBorders,
+    TABLE_COLOR_SETS.lightGreen
+  ),
+  TableStyleMedium5: buildPreset("TableStyleMedium5", mediumBandedBorders, TABLE_COLOR_SETS.purple),
+  TableStyleMedium6: buildPreset("TableStyleMedium6", mediumBandedBorders, TABLE_COLOR_SETS.gray),
+  TableStyleMedium7: buildPreset("TableStyleMedium7", mediumBandedBorders, TABLE_COLOR_SETS.orange),
 
-  TableStyleMedium8: buildPreset("TableStyleMedium8", mediumWhiteBorders, COLOR_SETS.black),
-  TableStyleMedium9: buildPreset("TableStyleMedium9", mediumWhiteBorders, COLOR_SETS.lightBlue),
-  TableStyleMedium10: buildPreset("TableStyleMedium10", mediumWhiteBorders, COLOR_SETS.red),
-  TableStyleMedium11: buildPreset("TableStyleMedium11", mediumWhiteBorders, COLOR_SETS.lightGreen),
-  TableStyleMedium12: buildPreset("TableStyleMedium12", mediumWhiteBorders, COLOR_SETS.purple),
-  TableStyleMedium13: buildPreset("TableStyleMedium13", mediumWhiteBorders, COLOR_SETS.gray),
-  TableStyleMedium14: buildPreset("TableStyleMedium14", mediumWhiteBorders, COLOR_SETS.orange),
+  TableStyleMedium8: buildPreset("TableStyleMedium8", mediumWhiteBorders, TABLE_COLOR_SETS.black),
+  TableStyleMedium9: buildPreset(
+    "TableStyleMedium9",
+    mediumWhiteBorders,
+    TABLE_COLOR_SETS.lightBlue
+  ),
+  TableStyleMedium10: buildPreset("TableStyleMedium10", mediumWhiteBorders, TABLE_COLOR_SETS.red),
+  TableStyleMedium11: buildPreset(
+    "TableStyleMedium11",
+    mediumWhiteBorders,
+    TABLE_COLOR_SETS.lightGreen
+  ),
+  TableStyleMedium12: buildPreset(
+    "TableStyleMedium12",
+    mediumWhiteBorders,
+    TABLE_COLOR_SETS.purple
+  ),
+  TableStyleMedium13: buildPreset("TableStyleMedium13", mediumWhiteBorders, TABLE_COLOR_SETS.gray),
+  TableStyleMedium14: buildPreset(
+    "TableStyleMedium14",
+    mediumWhiteBorders,
+    TABLE_COLOR_SETS.orange
+  ),
 
   TableStyleMedium15: { ...mediumMinimalBordersInBlack, displayName: "Black, TableStyleMedium15" },
-  TableStyleMedium16: buildPreset("TableStyleMedium16", mediumMinimalBorders, COLOR_SETS.lightBlue),
-  TableStyleMedium17: buildPreset("TableStyleMedium17", mediumMinimalBorders, COLOR_SETS.red),
+  TableStyleMedium16: buildPreset(
+    "TableStyleMedium16",
+    mediumMinimalBorders,
+    TABLE_COLOR_SETS.lightBlue
+  ),
+  TableStyleMedium17: buildPreset("TableStyleMedium17", mediumMinimalBorders, TABLE_COLOR_SETS.red),
   TableStyleMedium18: buildPreset(
     "TableStyleMedium18",
     mediumMinimalBorders,
-    COLOR_SETS.lightGreen
+    TABLE_COLOR_SETS.lightGreen
   ),
-  TableStyleMedium19: buildPreset("TableStyleMedium19", mediumMinimalBorders, COLOR_SETS.purple),
-  TableStyleMedium20: buildPreset("TableStyleMedium20", mediumMinimalBorders, COLOR_SETS.gray),
-  TableStyleMedium21: buildPreset("TableStyleMedium21", mediumMinimalBorders, COLOR_SETS.orange),
+  TableStyleMedium19: buildPreset(
+    "TableStyleMedium19",
+    mediumMinimalBorders,
+    TABLE_COLOR_SETS.purple
+  ),
+  TableStyleMedium20: buildPreset(
+    "TableStyleMedium20",
+    mediumMinimalBorders,
+    TABLE_COLOR_SETS.gray
+  ),
+  TableStyleMedium21: buildPreset(
+    "TableStyleMedium21",
+    mediumMinimalBorders,
+    TABLE_COLOR_SETS.orange
+  ),
 
-  TableStyleMedium22: buildPreset("TableStyleMedium22", mediumAllBorders, COLOR_SETS.black),
-  TableStyleMedium23: buildPreset("TableStyleMedium23", mediumAllBorders, COLOR_SETS.lightBlue),
-  TableStyleMedium24: buildPreset("TableStyleMedium24", mediumAllBorders, COLOR_SETS.red),
-  TableStyleMedium25: buildPreset("TableStyleMedium25", mediumAllBorders, COLOR_SETS.lightGreen),
-  TableStyleMedium26: buildPreset("TableStyleMedium26", mediumAllBorders, COLOR_SETS.purple),
-  TableStyleMedium27: buildPreset("TableStyleMedium27", mediumAllBorders, COLOR_SETS.gray),
-  TableStyleMedium28: buildPreset("TableStyleMedium28", mediumAllBorders, COLOR_SETS.orange),
+  TableStyleMedium22: buildPreset("TableStyleMedium22", mediumAllBorders, TABLE_COLOR_SETS.black),
+  TableStyleMedium23: buildPreset(
+    "TableStyleMedium23",
+    mediumAllBorders,
+    TABLE_COLOR_SETS.lightBlue
+  ),
+  TableStyleMedium24: buildPreset("TableStyleMedium24", mediumAllBorders, TABLE_COLOR_SETS.red),
+  TableStyleMedium25: buildPreset(
+    "TableStyleMedium25",
+    mediumAllBorders,
+    TABLE_COLOR_SETS.lightGreen
+  ),
+  TableStyleMedium26: buildPreset("TableStyleMedium26", mediumAllBorders, TABLE_COLOR_SETS.purple),
+  TableStyleMedium27: buildPreset("TableStyleMedium27", mediumAllBorders, TABLE_COLOR_SETS.gray),
+  TableStyleMedium28: buildPreset("TableStyleMedium28", mediumAllBorders, TABLE_COLOR_SETS.orange),
 
   TableStyleDark1: { ...darkTemplateInBlack, displayName: "Black, TableStyleDark1" },
-  TableStyleDark2: buildPreset("TableStyleDark2", dark, COLOR_SETS.lightBlue),
-  TableStyleDark3: buildPreset("TableStyleDark3", dark, COLOR_SETS.red),
-  TableStyleDark4: buildPreset("TableStyleDark4", dark, COLOR_SETS.lightGreen),
-  TableStyleDark5: buildPreset("TableStyleDark5", dark, COLOR_SETS.purple),
-  TableStyleDark6: buildPreset("TableStyleDark6", dark, COLOR_SETS.gray),
-  TableStyleDark7: buildPreset("TableStyleDark7", dark, COLOR_SETS.orange),
+  TableStyleDark2: buildPreset("TableStyleDark2", dark, TABLE_COLOR_SETS.lightBlue),
+  TableStyleDark3: buildPreset("TableStyleDark3", dark, TABLE_COLOR_SETS.red),
+  TableStyleDark4: buildPreset("TableStyleDark4", dark, TABLE_COLOR_SETS.lightGreen),
+  TableStyleDark5: buildPreset("TableStyleDark5", dark, TABLE_COLOR_SETS.purple),
+  TableStyleDark6: buildPreset("TableStyleDark6", dark, TABLE_COLOR_SETS.gray),
+  TableStyleDark7: buildPreset("TableStyleDark7", dark, TABLE_COLOR_SETS.orange),
 
-  TableStyleDark8: buildPreset("TableStyleDark8", darkNoBorders, DARK_COLOR_SETS.black),
-  TableStyleDark9: buildPreset("TableStyleDark9", darkNoBorders, DARK_COLOR_SETS.redBlue),
-  TableStyleDark10: buildPreset("TableStyleDark10", darkNoBorders, DARK_COLOR_SETS.purpleGreen),
-  TableStyleDark11: buildPreset("TableStyleDark11", darkNoBorders, DARK_COLOR_SETS.orangeBlue),
+  TableStyleDark8: buildPreset("TableStyleDark8", darkNoBorders, DARK_TABLE_COLOR_SETS.black),
+  TableStyleDark9: buildPreset("TableStyleDark9", darkNoBorders, DARK_TABLE_COLOR_SETS.redBlue),
+  TableStyleDark10: buildPreset(
+    "TableStyleDark10",
+    darkNoBorders,
+    DARK_TABLE_COLOR_SETS.purpleGreen
+  ),
+  TableStyleDark11: buildPreset(
+    "TableStyleDark11",
+    darkNoBorders,
+    DARK_TABLE_COLOR_SETS.orangeBlue
+  ),
 };
 
 export const TABLE_STYLES_TEMPLATES: Record<TableStyleTemplateName, TableStyleTemplate> = {

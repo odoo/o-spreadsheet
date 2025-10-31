@@ -33,6 +33,7 @@ import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,
   createRangeFromXc,
+  positions,
   range,
   toCartesian,
   toUnboundedZone,
@@ -380,19 +381,22 @@ type GridResult = { [xc: string]: string | number | boolean | undefined };
 type GridFormatDescr = { [xc: string]: Format | undefined };
 type GridStyleDescr = { [xc: string]: Style | undefined };
 
-function getCellGrid(model: Model): { [xc: string]: EvaluatedCell } {
+function getCellGrid(model: Model, range?: string): { [xc: string]: EvaluatedCell } {
   const result = {};
   const sheetId = model.getters.getActiveSheetId();
-  for (const position of model.getters.getEvaluatedCellsPositions(sheetId)) {
+  const cellPositions = range
+    ? positions(toZone(range)).map(({ col, row }) => ({ sheetId, col, row }))
+    : model.getters.getEvaluatedCellsPositions(sheetId);
+  for (const position of cellPositions) {
     const { col, row } = position;
     result[toXC(col, row)] = model.getters.getEvaluatedCell(position);
   }
   return result;
 }
 
-export function getGrid(model: Model): GridResult {
+export function getGrid(model: Model, range?: string): GridResult {
   const result: GridResult = {};
-  for (const [xc, cell] of Object.entries(getCellGrid(model))) {
+  for (const [xc, cell] of Object.entries(getCellGrid(model, range))) {
     result[xc] = cell.value ?? "";
   }
   return result;
@@ -414,12 +418,12 @@ export function getGridFormat(model: Model): GridFormatDescr {
   return result;
 }
 
-export function getGridStyle(model: Model): GridStyleDescr {
+export function getGridStyle(model: Model, range?: string): GridStyleDescr {
   const result: GridStyleDescr = {};
   const sheetId = model.getters.getActiveSheetId();
-  for (const cellId of Object.keys(model.getters.getCells(sheetId))) {
-    const { col, row } = model.getters.getCellPosition(cellId);
-    result[toXC(col, row)] = model.getters.getCellStyle({ sheetId, col, row });
+  for (const xc of Object.keys(getCellGrid(model, range))) {
+    const { col, row } = toCartesian(xc);
+    result[toXC(col, row)] = model.getters.getCellComputedStyle({ sheetId, col, row });
   }
   return result;
 }

@@ -14,6 +14,7 @@ import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
+import { FormulaCell } from "../../types/cells";
 import {
   AddPivotCommand,
   Command,
@@ -22,7 +23,7 @@ import {
   invalidateEvaluationCommands,
 } from "../../types/commands";
 import { CellPosition, FunctionResultObject, SortDirection, UID, isMatrix } from "../../types/misc";
-import { PivotCoreMeasure, PivotTableCell } from "../../types/pivot";
+import { PivotCoreMeasure, PivotStyle, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 import { UIPluginConfig } from "../ui_plugin";
@@ -43,6 +44,8 @@ export class PivotUIPlugin extends CoreViewPlugin {
     "generateNewCalculatedMeasureName",
     "isPivotUnused",
     "isSpillPivotFormula",
+    "getAllPivotArrayFormulas",
+    "getPivotStyleAtPosition",
   ] as const;
 
   private pivots: Record<UID, Pivot> = {};
@@ -211,10 +214,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
     if (!pivot.isValid()) {
       return EMPTY_PIVOT_CELL;
     }
-    if (
-      functionName === "PIVOT" &&
-      !cell.content.replaceAll(" ", "").toUpperCase().startsWith("=PIVOT")
-    ) {
+    if (functionName === "PIVOT" && !this.isMainFunctionPivotSpreadFunction(cell)) {
       return EMPTY_PIVOT_CELL;
     }
     if (functionName === "PIVOT") {
@@ -348,5 +348,60 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
     this.unusedPivotsInFormulas = [...unusedPivots];
     return this.unusedPivotsInFormulas;
+  }
+
+  getAllPivotArrayFormulas(): {
+    position: CellPosition;
+    pivotStyle: Required<PivotStyle>;
+    pivotId: UID;
+  }[] {
+    const result: { position: CellPosition; pivotStyle: Required<PivotStyle>; pivotId: UID }[] = [];
+    for (const cellId of this.getters.getCellsWithTrackedFormula("PIVOT")) {
+      const position = this.getters.getCellPosition(cellId);
+      const pivotInfo = this.getPivotStyleAtPosition(position);
+      if (pivotInfo) {
+        result.push({ position, ...pivotInfo });
+      }
+    }
+    return result;
+  }
+
+  getPivotStyleAtPosition(
+    position: CellPosition
+  ): { pivotStyle: Required<PivotStyle>; pivotId: UID } | undefined {
+    const cell = this.getters.getCell(position);
+    if (!cell || !cell.isFormula || !this.isMainFunctionPivotSpreadFunction(cell)) {
+      return undefined;
+    }
+    const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula.tokens);
+    if (!pivotFunction || pivotFunction.functionName !== "PIVOT") {
+      return undefined;
+    }
+    const pivotIdArg = pivotFunction.args[0];
+    if (!pivotIdArg) {
+      return undefined;
+    }
+    const pivotId = this.getters.getPivotId(pivotIdArg.toString());
+    if (!pivotId) {
+      return undefined;
+    }
+    const pivotStyle = getPivotStyleFromFnArgs(
+      this.getters.getPivotCoreDefinition(pivotId),
+      toScalar(pivotFunction.args[1]),
+      toScalar(pivotFunction.args[2]),
+      toScalar(pivotFunction.args[3]),
+      toScalar(pivotFunction.args[4]),
+      toScalar(pivotFunction.args[5]),
+      this.getters.getLocale()
+    );
+    return { pivotStyle, pivotId };
+  }
+
+  private isMainFunctionPivotSpreadFunction(cell: FormulaCell): boolean {
+    const tokens = cell.compiledFormula.tokens;
+    const firstNonSpaceToken = tokens.find((token, i) => i > 0 && token.type !== "SPACE");
+    return (
+      firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === "PIVOT"
+    );
   }
 }

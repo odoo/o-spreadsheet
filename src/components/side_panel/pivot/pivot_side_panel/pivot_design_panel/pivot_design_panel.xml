@@ -58,5 +58,46 @@
         </div>
       </div>
     </Section>
+
+    <Section class="'o-pivot-table-style'" title.translate="Pivot table style">
+      <div class="row mb-2 align-items-center pt-2">
+        <div class="col-6">Banded rows:</div>
+        <div class="col-6 d-flex align-items-center">
+          <Checkbox
+            name="'bandedRows'"
+            value="pivotStyle.bandedRows ?? defaultStyle.bandedRows"
+            onChange="(val) => this.updatePivotStyleProperty('bandedRows', val)"
+          />
+        </div>
+      </div>
+      <div class="row mb-2 align-items-center">
+        <div class="col-6">Banded columns</div>
+        <div class="col-6 d-flex align-items-center">
+          <Checkbox
+            name="'bandedColumns'"
+            value="pivotStyle.bandedColumns ?? defaultStyle.bandedColumns"
+            onChange="(val) => this.updatePivotStyleProperty('bandedColumns', val)"
+          />
+        </div>
+      </div>
+      <div class="row mb-2 align-items-center">
+        <div class="col-6">Filter button</div>
+        <div class="col-6 d-flex align-items-center">
+          <Checkbox
+            name="'hasFilters'"
+            value="pivotStyle.hasFilters ?? defaultStyle.hasFilters"
+            onChange="(val) => this.updatePivotStyleProperty('hasFilters', val)"
+          />
+        </div>
+      </div>
+      <div class="mt-4">
+        <TableStylePicker
+          tableConfig="tableConfig"
+          onStylePicked.bind="onStylePicked"
+          tableStyles="tableStyles"
+          type="'pivot'"
+        />
+      </div>
+    </Section>
   </t>
 </templates>

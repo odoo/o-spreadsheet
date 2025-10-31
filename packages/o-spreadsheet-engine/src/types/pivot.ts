@@ -244,4 +244,9 @@ export interface PivotStyle {
   displayTotals?: boolean;
   displayColumnHeaders?: boolean;
   displayMeasuresRow?: boolean;
+
+  tableStyleId?: string;
+  bandedRows?: boolean;
+  bandedColumns?: boolean;
+  hasFilters?: boolean;
 }

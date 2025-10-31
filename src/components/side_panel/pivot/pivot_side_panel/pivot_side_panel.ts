@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Pixel, UID } from "../../../../types";
@@ -11,6 +11,7 @@ import { PivotDesignPanel } from "./pivot_design_panel/pivot_design_panel";
 interface Props {
   pivotId: UID;
   onCloseSidePanel: () => void;
+  openTab: "configuration" | "design";
 }
 
 interface State {
@@ -22,14 +23,16 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     pivotId: String,
     onCloseSidePanel: Function,
+    openTab: { type: String, optional: true },
   };
+  static defaultProps = { openTab: "configuration" };
   static components = {
     PivotLayoutConfigurator,
     Section,
     PivotDesignPanel,
   };
 
-  state = useState<State>({ panel: "configuration" });
+  state = useState<State>({ panel: this.props.openTab || "configuration" });
   private panelContentRef = useRef<HTMLElement>("panelContent");
   private scrollPositions: Record<"configuration" | "design", Pixel> = {
     configuration: 0,
@@ -38,6 +41,11 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useHighlights(this);
+    onWillUpdateProps((nextProps) => {
+      if (nextProps.openTab && nextProps.openTab !== this.props.openTab) {
+        this.switchPanel(nextProps.openTab);
+      }
+    });
   }
 
   get sidePanelEditor() {
@@ -49,7 +57,9 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get highlights() {
-    return getPivotHighlights(this.env.model.getters, this.props.pivotId);
+    return this.state.panel === "configuration"
+      ? getPivotHighlights(this.env.model.getters, this.props.pivotId)
+      : [];
   }
 
   switchPanel(panel: "configuration" | "design") {

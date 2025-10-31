@@ -7,7 +7,8 @@ import { toZone, zoneToXc } from "../../src/helpers";
 import { UID } from "../../src/types";
 import { createTable, setSelection } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick, setGrid } from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -77,5 +78,18 @@ describe("Table dropdown button", () => {
     expect(model.getters.getTableStyle(table.config.styleId).displayName).toEqual(
       "Custom Table Style"
     );
+  });
+
+  test("Clicking on the widget open the pivot side panel if there is a pivot in the selection", async () => {
+    setGrid(model, { A1: "Price", A2: "10", A3: "=PIVOT(1)" });
+    addPivot(model, "A1:A2", {});
+    setSelection(model, ["A3"]);
+    await nextTick();
+
+    expect(".o-table-widget .o-menu-item-button").toHaveAttribute("title", "Edit pivot style");
+
+    await click(fixture, ".o-table-widget .o-menu-item-button");
+    expect(".o-pivot-panel").toHaveCount(1);
+    expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
   });
 });
