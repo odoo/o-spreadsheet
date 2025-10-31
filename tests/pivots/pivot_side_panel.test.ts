@@ -57,6 +57,20 @@ describe("Pivot side panel", () => {
     expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
   });
 
+  test("Can change the active panel tab with the panel props", async () => {
+    env.openSidePanel("PivotSidePanel", { pivotId: "2", openTab: "design" });
+    await nextTick();
+    expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" }); // defaults to configuration
+    await nextTick();
+    expect(".o-sidePanel-tab.o-panel-design").toHaveClass("inactive");
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "2", openTab: "design" });
+    await nextTick();
+    expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
+  });
+
   test("It should close the side panel when clicking on delete in the editor", async () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
@@ -93,7 +107,7 @@ describe("Pivot side panel", () => {
     });
   });
 
-  test("Pivot cells are highlighted when the panel is open", async () => {
+  test("Pivot cells are highlighted when the panel is open on the config tab", async () => {
     // prettier-ignore
     setGrid(model, {
       A1: "Partner", B1: "Amount",
@@ -106,6 +120,9 @@ describe("Pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A5:A7"]);
+
+    await click(fixture, ".o-sidePanel-tab.o-panel-design");
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual([]);
   });
 
   test("Renaming the computed measure the pivot is sorted on keep the sorting", async () => {

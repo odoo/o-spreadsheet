@@ -30,6 +30,7 @@ import {
   getCellContent,
   getCellStyle,
   getFilter,
+  getStyle,
   getTable,
 } from "../test_helpers/getters_helpers";
 import {
@@ -821,6 +822,30 @@ describe("Table plugin", () => {
       expect(getTable(model, "D2")).toBeFalsy();
       expect(getCellStyle(model, "D2")).toEqual({ fillColor: "#FF0000", bold: true });
       expect(getBorder(model, "D2")?.top).toEqual(DEFAULT_BORDER_DESC);
+    });
+
+    test("HideGridLine table style is ignored in the copy paste", () => {
+      TABLE_PRESETS.TestStyleAllRed = {
+        ...TABLE_PRESETS.TestStyleAllRed,
+        wholeTable: { style: { fillColor: "#FF0000", hideGridLines: true } },
+      };
+      const model = new Model();
+      createTable(model, "B2:B3");
+      updateTableConfig(model, "B2", { styleId: "TestStyleAllRed", numberOfHeaders: 1 });
+      expect(getStyle(model, "B2")).toEqual({
+        fillColor: "#FF0000",
+        bold: true,
+        hideGridLines: true,
+      });
+
+      copy(model, "B2");
+      paste(model, "C1");
+      expect(getTable(model, "C1")).toBeFalsy();
+      expect(getCellStyle(model, "C1")).toEqual({
+        fillColor: "#FF0000",
+        bold: true,
+        hideGridLines: undefined,
+      });
     });
 
     test("Copy table style as a cell style if the selection is inside the table but smaller", () => {

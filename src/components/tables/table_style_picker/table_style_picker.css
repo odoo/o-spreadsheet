@@ -10,10 +10,29 @@
     .o-table-style-list-item {
       padding: 5px 6px;
       margin: 5px 2px;
+    }
 
-      .o-table-style-picker-preview {
-        width: 51px;
-        height: 36px;
+    .o-pivot-previews {
+      .o-table-style-list-item {
+        padding: 5px 4px;
+        margin: 5px 2px;
+
+        .o-table-preview {
+          width: 56px;
+          height: 49px;
+        }
+      }
+    }
+
+    .o-table-previews {
+      .o-table-style-list-item {
+        padding: 5px 6px;
+        margin: 5px 2px;
+
+        .o-table-preview {
+          width: 51px;
+          height: 36px;
+        }
       }
     }
   }

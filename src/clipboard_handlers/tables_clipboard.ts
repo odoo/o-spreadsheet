@@ -113,7 +113,10 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
    * UPDATE_CELL replace the whole style of the cell with the style of the command, it doesn't merge the two.
    */
   private getTableStyleToCopy(cellPosition: CellPosition): TableStyle {
-    const styleFromTable = this.getters.getCellTableStyle(cellPosition);
+    const styleFromTable = removeFalsyAttributes({
+      ...this.getters.getCellTableStyle(cellPosition),
+      hideGridLines: false,
+    });
     const cellStyle = this.getters.getCellStyle(cellPosition);
 
     const bordersFromTable = this.getters.getCellTableBorder(cellPosition);

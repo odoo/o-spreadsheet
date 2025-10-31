@@ -7,7 +7,7 @@
       t-att-title="styleName"
       t-on-click="props.onClick"
       t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)">
-      <div t-att-class="props.class">
+      <div class="o-table-preview">
         <canvas t-ref="canvas" class="w-100 h-100"/>
       </div>
       <div

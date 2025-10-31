@@ -2,10 +2,11 @@ import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_
 import {
   ComputedTableStyle,
   TableConfig,
+  TableMetaData,
   TableStyle,
 } from "@odoo/o-spreadsheet-engine/types/table";
 import { deepCopy } from "../../src/helpers";
-import { Border, BorderDescr } from "../../src/types";
+import { Border, BorderDescr, Style } from "../../src/types";
 
 const TEST_TABLE_STYLE: TableStyle = {
   category: "light",
@@ -24,6 +25,8 @@ const TEST_TABLE_CONFIG: TableConfig = {
   bandedColumns: false,
   styleId: "TestStyle",
 };
+
+let tableMetaData: TableMetaData;
 
 let tableConfig: TableConfig;
 let tableStyle: TableStyle;
@@ -46,6 +49,11 @@ function getBorders(tableStyle: ComputedTableStyle, col: number, row: number): B
 beforeEach(() => {
   tableConfig = deepCopy(TEST_TABLE_CONFIG);
   tableStyle = deepCopy(TEST_TABLE_STYLE);
+  tableMetaData = {
+    mode: "table",
+    numberOfCols: 5,
+    numberOfRows: 5,
+  };
 });
 
 describe("Table cell style", () => {
@@ -61,7 +69,7 @@ describe("Table cell style", () => {
 
   test("Can have style on whole table", () => {
     tableStyle.wholeTable = { style: wholeTableStyle };
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(wholeTableStyle);
   });
 
@@ -69,26 +77,24 @@ describe("Table cell style", () => {
     tableConfig.numberOfHeaders = 1;
     tableStyle.wholeTable = { style: wholeTableStyle };
     tableStyle.headerRow = { style: headerRowStyle };
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
 
     expect(computedStyle.styles[0][0]).toMatchObject(headerRowStyle);
     expect(computedStyle.styles[0][1]).toMatchObject(wholeTableStyle);
   });
 
   test("Can have multiple header rows with style", () => {
-    tableConfig.numberOfHeaders = 1;
     tableStyle.wholeTable = { style: wholeTableStyle };
     tableStyle.headerRow = { style: headerRowStyle };
     tableConfig.numberOfHeaders = 2;
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(headerRowStyle);
     expect(computedStyle.styles[0][1]).toMatchObject(headerRowStyle);
     expect(computedStyle.styles[0][2]).toMatchObject(wholeTableStyle);
   });
 
   test("Whole table vertical/horizontal borders are not applied inside the header rows", () => {
-    tableConfig.numberOfHeaders = 2;
     tableStyle.wholeTable = {
       style: wholeTableStyle,
       border: {
@@ -98,7 +104,7 @@ describe("Table cell style", () => {
     };
     tableConfig.numberOfHeaders = 2;
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(wholeTableStyle);
     expect(computedStyle.borders[0][0]).toEqual({});
     expect(computedStyle.borders[0][1]).toEqual({ bottom: { color: "#0f0", style: "thin" } });
@@ -109,7 +115,7 @@ describe("Table cell style", () => {
     tableStyle.wholeTable = { style: wholeTableStyle };
     tableStyle.totalRow = { style: totalRowStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][3]).toMatchObject(wholeTableStyle);
     expect(computedStyle.styles[0][4]).toMatchObject(totalRowStyle);
   });
@@ -121,7 +127,7 @@ describe("Table cell style", () => {
     tableStyle.firstColumn = { style: firstColumnStyle };
     tableStyle.lastColumn = { style: lastColumnStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(firstColumnStyle);
     expect(computedStyle.styles[1][0]).toMatchObject(wholeTableStyle);
     expect(computedStyle.styles[4][0]).toMatchObject(lastColumnStyle);
@@ -137,7 +143,7 @@ describe("Table cell style", () => {
     tableStyle.firstColumn = { style: firstColumnStyle };
     tableStyle.lastColumn = { style: lastColumnStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(headerRowStyle);
     expect(computedStyle.styles[0][1]).toMatchObject(firstColumnStyle);
     expect(computedStyle.styles[0][4]).toMatchObject(totalRowStyle);
@@ -152,21 +158,20 @@ describe("Table cell style", () => {
     tableStyle.firstRowStripe = { style: firstRowStripeStyle };
     tableStyle.secondRowStripe = { style: secondRowStripeStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(firstRowStripeStyle);
     expect(computedStyle.styles[0][1]).toMatchObject(secondRowStripeStyle);
     expect(computedStyle.styles[0][2]).toMatchObject(firstRowStripeStyle);
   });
 
   test("Headers and total rows are ignored in banded rows", () => {
-    tableConfig.numberOfHeaders = 1;
     tableConfig.totalRow = true;
     tableConfig.numberOfHeaders = 2;
     tableConfig.bandedRows = true;
     tableStyle.firstRowStripe = { style: firstRowStripeStyle };
     tableStyle.secondRowStripe = { style: secondRowStripeStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject({});
     expect(computedStyle.styles[0][1]).toMatchObject({});
     expect(computedStyle.styles[0][2]).toMatchObject(firstRowStripeStyle);
@@ -179,7 +184,7 @@ describe("Table cell style", () => {
     tableStyle.firstColumnStripe = { style: firstColumnStripeStyle };
     tableStyle.secondColumnStripe = { style: secondColumnStripeStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(firstColumnStripeStyle);
     expect(computedStyle.styles[1][0]).toMatchObject(secondColumnStripeStyle);
     expect(computedStyle.styles[2][0]).toMatchObject(firstColumnStripeStyle);
@@ -195,7 +200,7 @@ describe("Table cell style", () => {
     tableStyle.secondColumnStripe = { style: secondColumnStripeStyle };
 
     // Note that unlike header rows, the first and last column are NOT ignored in the col banding indexing (Excel behaviour)
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(firstColumnStyle);
     expect(computedStyle.styles[1][0]).toMatchObject(secondColumnStripeStyle);
     expect(computedStyle.styles[2][0]).toMatchObject(firstColumnStripeStyle);
@@ -212,7 +217,7 @@ describe("Table cell style", () => {
     tableStyle.firstColumnStripe = { style: firstColumnStripeStyle };
     tableStyle.secondColumnStripe = { style: secondColumnStripeStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject(firstColumnStripeStyle);
     expect(computedStyle.styles[1][0]).toMatchObject(secondColumnStripeStyle);
     expect(computedStyle.styles[2][0]).toMatchObject(firstColumnStripeStyle);
@@ -220,17 +225,73 @@ describe("Table cell style", () => {
     expect(computedStyle.styles[4][0]).toMatchObject(firstColumnStripeStyle);
   });
 
-  test("Banded column style do not applies to header/total rows", () => {
+  test("Banded column style do not applies to header/total rows in normal tables", () => {
     tableConfig.numberOfHeaders = 1;
     tableConfig.totalRow = true;
     tableConfig.bandedColumns = true;
     tableStyle.firstColumnStripe = { style: firstColumnStripeStyle };
     tableStyle.secondColumnStripe = { style: secondColumnStripeStyle };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(computedStyle.styles[0][0]).toMatchObject({});
     expect(computedStyle.styles[0][1]).toMatchObject(firstColumnStripeStyle);
     expect(computedStyle.styles[0][4]).toMatchObject({});
+  });
+
+  describe("Pivot specific table style", () => {
+    const measureHeader: Style = { fillColor: "#8a8", textColor: "#8a8" };
+    const mainSubHeaderRow: Style = { fillColor: "#f3f", textColor: "#f3f" };
+    const firstAlternatingSubHeaderRow: Style = { fillColor: "#119", textColor: "#119" };
+    const secondAlternatingSubHeaderRow: Style = { fillColor: "#e99", textColor: "#e99" };
+
+    test("Banded column style does applies to total row in pivot", () => {
+      tableConfig.numberOfHeaders = 1;
+      tableConfig.totalRow = true;
+      tableConfig.bandedColumns = true;
+      tableStyle.firstColumnStripe = { style: firstColumnStripeStyle };
+      tableStyle.secondColumnStripe = { style: secondColumnStripeStyle };
+      tableMetaData.mode = "pivot";
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      expect(computedStyle.styles[0][4]).toMatchObject(firstColumnStripeStyle);
+      expect(computedStyle.styles[1][4]).toMatchObject(secondColumnStripeStyle);
+    });
+
+    test("Can display a style on the measure row", () => {
+      tableMetaData.measureRow = 1;
+      tableStyle.measureHeader = { style: measureHeader };
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      expect(computedStyle.styles[0][0]).toEqual({});
+      expect(computedStyle.styles[0][1]).toEqual({});
+      expect(computedStyle.styles[1][1]).toMatchObject(measureHeader);
+      expect(computedStyle.styles[4][1]).toMatchObject(measureHeader);
+    });
+
+    test("Can display a style on main sub-header rows", () => {
+      tableMetaData.mainSubHeaderRows = new Set([0, 2]);
+      tableStyle.mainSubHeaderRow = { style: mainSubHeaderRow };
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      expect(computedStyle.styles[0][0]).toMatchObject(mainSubHeaderRow);
+      expect(computedStyle.styles[0][1]).toEqual({});
+      expect(computedStyle.styles[0][2]).toMatchObject(mainSubHeaderRow);
+      expect(computedStyle.styles[0][3]).toEqual({});
+    });
+
+    test("Can display a style on sub-sub-header rows", () => {
+      tableMetaData.firstAlternatingSubHeaderRows = new Set([1, 3]);
+      tableMetaData.secondAlternatingSubHeaderRows = new Set([2, 4]);
+      tableStyle.firstAlternatingSubHeaderRow = { style: firstAlternatingSubHeaderRow };
+      tableStyle.secondAlternatingSubHeaderRow = { style: secondAlternatingSubHeaderRow };
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      expect(computedStyle.styles[0][0]).toEqual({});
+      expect(computedStyle.styles[0][1]).toMatchObject(firstAlternatingSubHeaderRow);
+      expect(computedStyle.styles[0][2]).toMatchObject(secondAlternatingSubHeaderRow);
+      expect(computedStyle.styles[0][3]).toMatchObject(firstAlternatingSubHeaderRow);
+      expect(computedStyle.styles[0][4]).toMatchObject(secondAlternatingSubHeaderRow);
+    });
   });
 });
 
@@ -239,7 +300,7 @@ describe("Table cell borders", () => {
   const allBorders = { top: border, bottom: border, left: border, right: border };
   test("Can outline the table", () => {
     tableStyle.wholeTable = { border: allBorders };
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, left: border });
     expect(getBorders(computedStyle, 0, 4)).toEqual({ bottom: border, left: border });
     expect(getBorders(computedStyle, 4, 0)).toEqual({ top: border, right: border });
@@ -250,7 +311,7 @@ describe("Table cell borders", () => {
 
   test("Can have borders inside the table", () => {
     tableStyle.wholeTable = { border: { vertical: border, horizontal: border } };
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ bottom: border, right: border });
     expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border, right: border });
     expect(getBorders(computedStyle, 4, 0)).toEqual({ bottom: border, left: border });
@@ -260,11 +321,10 @@ describe("Table cell borders", () => {
   });
 
   test("Can have a border for headers", () => {
-    tableConfig.numberOfHeaders = 1;
     tableConfig.numberOfHeaders = 2;
     tableStyle.headerRow = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, left: border });
     expect(getBorders(computedStyle, 0, 1)).toEqual({ bottom: border, left: border });
     expect(getBorders(computedStyle, 1, 0)).toEqual({ top: border });
@@ -277,7 +337,7 @@ describe("Table cell borders", () => {
     tableConfig.totalRow = true;
     tableStyle.totalRow = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 3)).toEqual({ bottom: border });
     expect(getBorders(computedStyle, 1, 3)).toEqual({ bottom: border });
 
@@ -292,7 +352,7 @@ describe("Table cell borders", () => {
     tableStyle.firstColumn = { border: allBorders };
     tableStyle.lastColumn = { border: allBorders };
 
-    const style = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const style = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(style, 0, 0)).toEqual({ top: border, right: border, left: border });
     expect(getBorders(style, 0, 1)).toEqual({ left: border, right: border });
     expect(getBorders(style, 0, 4)).toEqual({ bottom: border, right: border, left: border });
@@ -306,7 +366,7 @@ describe("Table cell borders", () => {
     tableConfig.bandedColumns = true;
     tableStyle.firstColumnStripe = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, left: border, right: border });
     expect(getBorders(computedStyle, 1, 0)).toEqual({ right: border, left: border });
     expect(getBorders(computedStyle, 2, 0)).toEqual({ top: border, right: border, left: border });
@@ -318,7 +378,7 @@ describe("Table cell borders", () => {
     tableConfig.bandedColumns = true;
     tableStyle.secondColumnStripe = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ right: border });
     expect(getBorders(computedStyle, 1, 0)).toEqual({ top: border, right: border, left: border });
     expect(getBorders(computedStyle, 2, 0)).toEqual({ right: border, left: border });
@@ -332,7 +392,7 @@ describe("Table cell borders", () => {
     tableStyle.firstColumnStripe = { border: { left: border, right: border } };
     tableStyle.secondColumnStripe = { border: { left: border2, right: border2 } };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ left: border, right: border2 });
     expect(getBorders(computedStyle, 1, 0)).toEqual({ left: border2, right: border2 });
     expect(getBorders(computedStyle, 2, 0)).toEqual({ left: border2, right: border2 });
@@ -340,15 +400,14 @@ describe("Table cell borders", () => {
     expect(getBorders(computedStyle, 4, 0)).toEqual({ left: border2, right: border });
   });
 
-  test("Banded col borders are not in the headers or total rows", () => {
-    tableConfig.numberOfHeaders = 1;
+  test("Banded col borders are not in the headers or total rows in normal tables", () => {
     tableConfig.totalRow = true;
     tableConfig.numberOfHeaders = 2;
     tableConfig.bandedColumns = true;
     tableStyle.firstColumnStripe = { border: allBorders };
     tableStyle.secondColumnStripe = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({});
     expect(getBorders(computedStyle, 0, 1)).toEqual({ bottom: border });
     expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border });
@@ -358,7 +417,7 @@ describe("Table cell borders", () => {
     tableConfig.bandedRows = true;
     tableStyle.firstRowStripe = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, bottom: border, left: border });
     expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border, bottom: border });
     expect(getBorders(computedStyle, 0, 2)).toEqual({ top: border, bottom: border, left: border });
@@ -370,7 +429,7 @@ describe("Table cell borders", () => {
     tableConfig.bandedRows = true;
     tableStyle.secondRowStripe = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ bottom: border });
     expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border, bottom: border, left: border });
     expect(getBorders(computedStyle, 0, 2)).toEqual({ top: border, bottom: border });
@@ -384,7 +443,7 @@ describe("Table cell borders", () => {
     tableStyle.firstRowStripe = { border: { top: border, bottom: border } };
     tableStyle.secondRowStripe = { border: { top: border2, bottom: border2 } };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, bottom: border2 });
     expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border2, bottom: border2 });
     expect(getBorders(computedStyle, 0, 2)).toEqual({ top: border2, bottom: border2 });
@@ -393,16 +452,88 @@ describe("Table cell borders", () => {
   });
 
   test("Banded row borders are not in the headers or total rows", () => {
-    tableConfig.numberOfHeaders = 1;
     tableConfig.totalRow = true;
     tableConfig.numberOfHeaders = 2;
     tableConfig.bandedRows = true;
     tableStyle.firstRowStripe = { border: allBorders };
     tableStyle.secondRowStripe = { border: allBorders };
 
-    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, 5, 5);
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({});
     expect(getBorders(computedStyle, 0, 1)).toEqual({ bottom: border });
     expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border });
+  });
+
+  test("Can set null border in style to overwrite other borders", () => {
+    tableStyle.wholeTable = { border: allBorders };
+    tableStyle.headerRow = {
+      border: {
+        top: null,
+        left: null,
+        right: null,
+        bottom: null,
+        vertical: null,
+        horizontal: null,
+      },
+    };
+    tableConfig.numberOfHeaders = 1;
+
+    const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+    expect(getBorders(computedStyle, 0, 0)).toEqual({});
+    expect(getBorders(computedStyle, 0, 0)).toEqual({});
+    expect(getBorders(computedStyle, 0, 1)).toEqual({ left: border });
+  });
+
+  describe("Pivot specific table border", () => {
+    test("Banded col borders are in the total row of pivot", () => {
+      tableConfig.totalRow = true;
+      tableConfig.bandedColumns = true;
+      tableStyle.firstColumnStripe = { border: allBorders };
+      tableStyle.secondColumnStripe = { border: allBorders };
+      tableMetaData.mode = "pivot";
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      const allBordersExceptTop = { bottom: border, left: border, right: border };
+      expect(getBorders(computedStyle, 0, 4)).toEqual(allBordersExceptTop);
+      expect(getBorders(computedStyle, 1, 4)).toEqual(allBordersExceptTop);
+    });
+
+    test("Can display a border on the measure row", () => {
+      tableMetaData.measureRow = 1;
+      tableStyle.measureHeader = { border: allBorders };
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      expect(getBorders(computedStyle, 1, 0)).toEqual({ bottom: border });
+      const allBordersExceptRight = { top: border, bottom: border, left: border };
+      expect(getBorders(computedStyle, 1, 1)).toEqual(allBordersExceptRight);
+      expect(getBorders(computedStyle, 1, 2)).toEqual({ top: border });
+    });
+
+    test("Can display a style on main sub-header rows", () => {
+      tableMetaData.mainSubHeaderRows = new Set([0, 2]);
+      tableStyle.mainSubHeaderRow = { border: allBorders };
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      const allBordersExceptRight = { top: border, bottom: border, left: border };
+      expect(getBorders(computedStyle, 0, 0)).toEqual(allBordersExceptRight);
+      expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border, bottom: border });
+      expect(getBorders(computedStyle, 0, 2)).toEqual(allBordersExceptRight);
+      expect(getBorders(computedStyle, 0, 3)).toEqual({ top: border });
+    });
+
+    test("Can display a border on sub-sub-header rows", () => {
+      const border2: BorderDescr = { color: "#00f", style: "dashed" };
+      tableMetaData.firstAlternatingSubHeaderRows = new Set([1, 3]);
+      tableMetaData.secondAlternatingSubHeaderRows = new Set([2, 4]);
+      tableStyle.firstAlternatingSubHeaderRow = { border: { top: border } };
+      tableStyle.secondAlternatingSubHeaderRow = { border: { top: border2 } };
+
+      const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
+      expect(getBorders(computedStyle, 0, 0)).toEqual({ bottom: border });
+      expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border, bottom: border2 });
+      expect(getBorders(computedStyle, 0, 2)).toEqual({ top: border2, bottom: border });
+      expect(getBorders(computedStyle, 0, 3)).toEqual({ top: border, bottom: border2 });
+      expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border2 });
+    });
   });
 });

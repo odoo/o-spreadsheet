@@ -3,7 +3,7 @@ import { Command } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
-const trackedFormulas = ["SUBTOTAL"];
+const trackedFormulas = ["SUBTOTAL", "PIVOT"];
 
 export class FormulaTrackerPlugin extends CoreViewPlugin {
   static getters = ["getCellsWithTrackedFormula"] as const;

@@ -7,6 +7,7 @@ export interface Table {
   readonly range: Range;
   readonly filters: Filter[];
   readonly config: TableConfig;
+  readonly isPivotTable?: boolean;
 }
 
 export interface StaticTable extends Table {
@@ -44,6 +45,16 @@ export interface TableConfig {
   styleId: string;
 }
 
+export interface TableMetaData {
+  mode: "pivot" | "table";
+  numberOfCols: number;
+  numberOfRows: number;
+  measureRow?: number;
+  mainSubHeaderRows?: Set<number>;
+  firstAlternatingSubHeaderRows?: Set<number>;
+  secondAlternatingSubHeaderRows?: Set<number>;
+}
+
 export interface ComputedTableStyle {
   borders: Border[][];
   styles: Style[][];
@@ -55,10 +66,14 @@ export interface TableElementStyle {
   size?: number;
 }
 
-export interface TableBorder extends Border {
+export interface TableBorder {
+  top?: BorderDescr | null;
+  bottom?: BorderDescr | null;
+  left?: BorderDescr | null;
+  right?: BorderDescr | null;
   // used to describe borders inside of a zone
-  horizontal?: BorderDescr;
-  vertical?: BorderDescr;
+  horizontal?: BorderDescr | null;
+  vertical?: BorderDescr | null;
 }
 
 export interface TableStyle {
@@ -79,6 +94,11 @@ export interface TableStyle {
   headerRow?: TableElementStyle;
   totalRow?: TableElementStyle;
 
+  measureHeader?: TableElementStyle;
+  mainSubHeaderRow?: TableElementStyle;
+  firstAlternatingSubHeaderRow?: TableElementStyle;
+  secondAlternatingSubHeaderRow?: TableElementStyle;
+
   // Exist in OpenXML. Not implemented ATM.
   // firstHeaderCell: TableElementStyle;
   // lastHeaderCell: TableElementStyle;
@@ -86,17 +106,7 @@ export interface TableStyle {
   // lastTotalCell: TableElementStyle;
 }
 
-export type TableStyleTemplateName =
-  | "none"
-  | "lightColoredText"
-  | "lightAllBorders"
-  | "mediumAllBorders"
-  | "lightWithHeader"
-  | "mediumBandedBorders"
-  | "mediumMinimalBorders"
-  | "darkNoBorders"
-  | "mediumWhiteBorders"
-  | "dark";
+export type TableStyleTemplateName = string;
 
 const filterCriterions: GenericCriterionType[] = [
   "containsText",
