@@ -62,7 +62,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
               id: cell?.id || "",
-              format: cell?.format,
               content: pivotFormula,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -77,7 +76,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
             cell = {
               id: cell?.id || "",
-              format: evaluatedCell.format,
               content,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -86,7 +84,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         }
         cellsInRow.push({
           content: cell?.content ?? "",
-          format: cell?.format,
           tokens: cell?.isFormula
             ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
             : [],
@@ -235,13 +232,11 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
-    const originFormat = origin?.format || origin.evaluatedCell.format;
 
     if (clipboardOption?.pasteOption === "asValue") {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content: origin.evaluatedCell.value?.toString() || "",
-        format: originFormat,
       });
       return;
     }
@@ -250,7 +245,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       this.dispatch("UPDATE_CELL", {
         ...target,
         style: origin?.style ?? null,
-        format: originFormat ?? targetCell.format,
       });
       return;
     }
@@ -270,12 +264,10 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         origin.tokens
       );
     }
-    if (content !== "" || origin?.format || origin?.style) {
+    if (content !== "") {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin?.style || null,
-        format: origin?.format,
       });
     } else if (targetCell) {
       this.dispatch("CLEAR_CELL", target);

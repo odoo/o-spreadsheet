@@ -156,6 +156,7 @@ export class SortPlugin extends UIPlugin {
         const position = cellPositions[c][sortedIndex[r]];
         const cell = this.getters.getCell(position);
         const style = this.getters.getCellStyle(position);
+        const format = this.getters.getCellFormat(position);
         const newCol: HeaderIndex = sortZone.left + c * stepX;
         const newRow: HeaderIndex = sortZone.top + r * stepY;
         const newCellValues: Omit<UpdateCellCommand, "type"> = {
@@ -178,7 +179,7 @@ export class SortPlugin extends UIPlugin {
           }
           newCellValues.style = style;
           newCellValues.content = content;
-          newCellValues.format = cell.format;
+          newCellValues.format = format;
         }
         updateCellCommands.push(newCellValues);
       }

@@ -476,8 +476,9 @@ export class AutofillPlugin extends UIPlugin {
       }
       const border = this.getters.getCellBorder(cellData);
       const style = this.getters.getCellStyle(cellData);
+      const format = this.getters.getCellFormat(cellData);
       nextCells.push({
-        data: { ...cellData, border, style },
+        data: { ...cellData, border, style, format },
         rule,
       });
     }

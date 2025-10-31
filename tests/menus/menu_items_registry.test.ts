@@ -26,8 +26,8 @@ import {
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import {
-  getCell,
   getCellContent,
+  getCellFormat,
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
@@ -1109,14 +1109,14 @@ describe("Menu Item actions", () => {
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("$1,000.12");
       action.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("[$$]#,##0.00");
+      expect(getCellFormat(model, "A1")).toBe("[$$]#,##0.00");
     });
 
     test("rounded currency format with default currency", () => {
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.description(env)).toBe("$1,000");
       action.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("[$$]#,##0");
+      expect(getCellFormat(model, "A1")).toBe("[$$]#,##0");
     });
 
     test("currency format with custom default currency", () => {
@@ -1125,7 +1125,7 @@ describe("Menu Item actions", () => {
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1,000.120");
       action.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("[$€]#,##0.000");
+      expect(getCellFormat(model, "A1")).toBe("[$€]#,##0.000");
     });
 
     test("rounded currency format with custom default currency", () => {
@@ -1134,7 +1134,7 @@ describe("Menu Item actions", () => {
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.description(env)).toBe("€1,000");
       action.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("[$€]#,##0");
+      expect(getCellFormat(model, "A1")).toBe("[$€]#,##0");
     });
 
     test("rounded currency format is invisible if the custom default format is already rounded", () => {
@@ -1158,7 +1158,7 @@ describe("Menu Item actions", () => {
       const action = getNode(["format", "format_number", "format_number_accounting"], env);
       expect(action.isVisible(env)).toBe(true);
       action.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("[$€]*  #,##0 ;[$€]* (#,##0);[$€]*   -  ");
+      expect(getCellFormat(model, "A1")).toBe("[$€]*  #,##0 ;[$€]* (#,##0);[$€]*   -  ");
     });
 
     test.each(DEFAULT_LOCALES)("Date", (locale) => {
@@ -1218,9 +1218,9 @@ describe("Menu Item actions", () => {
         env
       );
       setNumberFormatAction.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("#,##0.00");
+      expect(getCellFormat(model, "A1")).toBe("#,##0.00");
       setCellContent(env.model, "B1", "=A1");
-      expect(getCell(model, "B1")?.format).toBeUndefined();
+      expect(getCellFormat(model, "B1")).toBeUndefined();
       expect(getEvaluatedCell(model, "B1")?.format).toBe("#,##0.00");
       selectCell(env.model, "B1");
       expect(setAutoFormatAction.isActive?.(env)).toBe(true);

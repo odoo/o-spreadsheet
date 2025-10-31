@@ -981,7 +981,7 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
   for (const cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {
-      format: cell.format,
+      format: model.getters.getCellFormat({ sheetId, col, row }),
       value: model.getters.getEvaluatedCell({ sheetId, col, row }).value ?? "",
       content: cell.content,
     };
