@@ -77,6 +77,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     this.stream.observe(owner, callbacks);
   }
 
+  unobserve(owner: unknown) {
+    this.stream.unobserve(owner);
+  }
+
   release(owner: unknown) {
     if (this.stream.isListening(owner)) {
       this.stream.release(owner);

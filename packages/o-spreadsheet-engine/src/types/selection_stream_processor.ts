@@ -9,6 +9,7 @@ type StatefulStream<Event, State> = {
   resetDefaultAnchor: (owner: unknown, state: State) => void;
   resetAnchor: (owner: unknown, state: State) => void;
   observe: (owner: unknown, callbacks: StreamCallbacks<Event>) => void;
+  unobserve: (owner: unknown) => void;
   release: (owner: unknown) => void;
   getBackToDefault(): void;
 };
