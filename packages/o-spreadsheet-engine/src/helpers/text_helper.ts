@@ -78,6 +78,9 @@ export function computeCachedTextWidth(context: Canvas2DContext, text: string, f
     textWidthCache[font] = {};
   }
   if (textWidthCache[font][text] === undefined) {
+    if (!context) {
+      return text.length; // Fallback estimation
+    }
     const oldFont = context.font;
     context.font = font;
     textWidthCache[font][text] = context.measureText(text).width;
