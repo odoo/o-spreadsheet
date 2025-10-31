@@ -1,3 +1,4 @@
+import { isDefined, range } from "@odoo/o-spreadsheet-engine";
 import {
   BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -56,7 +57,6 @@ import {
   TreeMapGroupColor,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
-import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
