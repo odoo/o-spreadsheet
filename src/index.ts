@@ -336,6 +336,7 @@ import {
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
+import { TopBar } from "./components/top_bar/top_bar";
 
 export const helpers = {
   arg,
@@ -466,6 +467,7 @@ export const components = {
   ChartDashboardMenu,
   FullScreenFigure,
   NumberInput,
+  TopBar,
 };
 
 export const hooks = {

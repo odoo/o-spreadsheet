@@ -6,7 +6,7 @@
   }
 
   @media (max-width: 768px) {
-    .irregularity-map span {
+    .topbar-banner span {
       overflow: auto;
       align-items: normal !important;
     }
@@ -53,7 +53,7 @@
       }
     }
 
-    .irregularity-map {
+    .topbar-banner {
       border-top: 1px solid var(--os-separator-color);
       height: var(--os-desktop-topbar-toolbar-height);
 
