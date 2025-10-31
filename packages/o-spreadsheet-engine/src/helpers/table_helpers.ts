@@ -8,6 +8,7 @@ import {
   StaticTable,
   Table,
   TableConfig,
+  TableInfo,
   TableStyle,
 } from "../types/table";
 
@@ -17,13 +18,18 @@ type TableElement = keyof Omit<
 >;
 const TABLE_ELEMENTS_BY_PRIORITY: TableElement[] = [
   "wholeTable",
+  "headerRow",
+  "measureHeaderRow",
+  "firstSubSubHeaderRow",
+  "secondSubSubHeaderRow",
+  "mainSubHeaderRow",
   "firstColumnStripe",
   "secondColumnStripe",
   "firstRowStripe",
   "secondRowStripe",
   "firstColumn",
   "lastColumn",
-  "headerRow",
+  "rowHeadersColumn",
   "totalRow",
 ];
 
@@ -66,28 +72,27 @@ export function isStaticTable(table: CoreTable): table is StaticTable {
 export function getComputedTableStyle(
   tableConfig: TableConfig,
   style: TableStyle,
-  numberOfCols: number,
-  numberOfRows: number
+  tableInfo: TableInfo
 ): ComputedTableStyle {
   return {
-    borders: getAllTableBorders(tableConfig, style, numberOfCols, numberOfRows),
-    styles: getAllTableStyles(tableConfig, style, numberOfCols, numberOfRows),
+    borders: getAllTableBorders(tableConfig, style, tableInfo),
+    styles: getAllTableStyles(tableConfig, style, tableInfo),
   };
 }
 
 function getAllTableBorders(
   tableConfig: TableConfig,
   style: TableStyle,
-  nOfCols: number,
-  nOfRows: number
+  tableInfo: TableInfo
 ): Border[][] {
+  const { numberOfCols: nOfCols, numberOfRows: nOfRows } = tableInfo;
   const borders: Border[][] = generateMatrix(nOfCols, nOfRows, () => ({}));
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const styleBorder = style[tableElement]?.border;
     if (!styleBorder) continue;
 
-    const zones = getTableElementZones(tableElement, tableConfig, nOfCols, nOfRows);
+    const zones = getTableElementZones(tableElement, tableConfig, tableInfo);
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
@@ -166,9 +171,9 @@ function setBorderDescr(
 function getAllTableStyles(
   tableConfig: TableConfig,
   style: TableStyle,
-  numberOfCols: number,
-  numberOfRows: number
+  tableInfo: TableInfo
 ): Style[][] {
+  const { numberOfCols, numberOfRows } = tableInfo;
   const styles: Style[][] = generateMatrix(numberOfCols, numberOfRows, () => ({}));
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
@@ -178,7 +183,7 @@ function getAllTableStyles(
       continue;
     }
 
-    const zones = getTableElementZones(tableElement, tableConfig, numberOfCols, numberOfRows);
+    const zones = getTableElementZones(tableElement, tableConfig, tableInfo);
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
@@ -201,9 +206,9 @@ function getAllTableStyles(
 export function getTableElementZones(
   el: TableElement,
   tableConfig: TableConfig,
-  numberOfCols: number,
-  numberOfRows: number
+  tableInfo: TableInfo
 ): Zone[] {
+  const { numberOfCols, numberOfRows } = tableInfo;
   const zones: Zone[] = [];
 
   const headerRows = Math.min(tableConfig.numberOfHeaders, numberOfRows);
@@ -252,6 +257,27 @@ export function getTableElementZones(
       if (!tableConfig.bandedColumns) break;
       for (let i = 1; i < numberOfCols; i += 2) {
         zones.push({ top: headerRows, left: i, bottom: lastRow - totalRows, right: i });
+      }
+      break;
+    case "mainSubHeaderRow":
+      for (const row of tableInfo.mainSubHeaderRows || []) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableInfo.numberOfCols - 1 });
+      }
+      break;
+    case "firstSubSubHeaderRow":
+      for (const row of tableInfo.firstSubSubHeaderRows || []) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableInfo.numberOfCols - 1 });
+      }
+      break;
+    case "secondSubSubHeaderRow":
+      for (const row of tableInfo.secondSubSubHeaderRows || []) {
+        zones.push({ top: row, bottom: row, left: 0, right: tableInfo.numberOfCols - 1 });
+      }
+      break;
+    case "measureHeaderRow":
+      if (tableInfo.measureHeaderRowIndex && tableInfo.numberOfCols > 1) {
+        const row = tableInfo.measureHeaderRowIndex;
+        zones.push({ top: row, bottom: row, left: 1, right: tableInfo.numberOfCols - 1 });
       }
       break;
   }

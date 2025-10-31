@@ -44,6 +44,16 @@ export interface TableConfig {
   styleId: string;
 }
 
+// ADRM TODO better name?
+export interface TableInfo {
+  numberOfCols: number;
+  numberOfRows: number;
+  measureHeaderRowIndex?: number;
+  mainSubHeaderRows?: Set<number>;
+  firstSubSubHeaderRows?: Set<number>;
+  secondSubSubHeaderRows?: Set<number>;
+}
+
 export interface ComputedTableStyle {
   borders: Border[][];
   styles: Style[][];
@@ -79,6 +89,12 @@ export interface TableStyle {
   headerRow?: TableElementStyle;
   totalRow?: TableElementStyle;
 
+  measureHeaderRow?: TableElementStyle;
+  mainSubHeaderRow?: TableElementStyle;
+  firstSubSubHeaderRow?: TableElementStyle;
+  secondSubSubHeaderRow?: TableElementStyle;
+  rowHeadersColumn?: TableElementStyle;
+
   // Exist in OpenXML. Not implemented ATM.
   // firstHeaderCell: TableElementStyle;
   // lastHeaderCell: TableElementStyle;
@@ -86,17 +102,17 @@ export interface TableStyle {
   // lastTotalCell: TableElementStyle;
 }
 
-export type TableStyleTemplateName =
-  | "none"
-  | "lightColoredText"
-  | "lightAllBorders"
-  | "mediumAllBorders"
-  | "lightWithHeader"
-  | "mediumBandedBorders"
-  | "mediumMinimalBorders"
-  | "darkNoBorders"
-  | "mediumWhiteBorders"
-  | "dark";
+export type TableStyleTemplateName = string; // ADRM TODO
+// | "none"
+// | "lightColoredText"
+// | "lightAllBorders"
+// | "mediumAllBorders"
+// | "lightWithHeader"
+// | "mediumBandedBorders"
+// | "mediumMinimalBorders"
+// | "darkNoBorders"
+// | "mediumWhiteBorders"
+// | "dark";
 
 const filterCriterions: GenericCriterionType[] = [
   "containsText",

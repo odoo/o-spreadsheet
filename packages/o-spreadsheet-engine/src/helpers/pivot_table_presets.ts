@@ -1,20 +1,16 @@
-import { PivotTableStyle } from "../types/pivot";
-import { TABLE_COLOR_SETS, TableColorSet } from "./table_presets";
-
-export type PivotTableStyleTemplate = (
-  colorSet: TableColorSet
-) => Omit<PivotTableStyle, "displayName">; // ADRM TODO:what was template name used for actually ?
+import { TableStyle } from "../types/table";
+import { TABLE_COLOR_SETS, TableColorSet, TableStyleTemplate } from "./table_presets";
 
 // ADRM TODO uncopy ?
 function buildPreset(
   name: string,
-  template: PivotTableStyleTemplate,
+  template: TableStyleTemplate,
   colorSet: TableColorSet
-): PivotTableStyle {
+): TableStyle {
   return { ...template(colorSet), displayName: `${colorSet.name}, ${name}` };
 }
 
-const pivotMediumSeries1: PivotTableStyleTemplate = (colorSet) => ({
+const pivotMediumSeries1: TableStyleTemplate = (colorSet) => ({
   category: "medium",
   templateName: "pivotMediumSerie1",
   primaryColor: colorSet.highlight,
@@ -44,7 +40,7 @@ const pivotMediumSeries1: PivotTableStyleTemplate = (colorSet) => ({
   },
 });
 
-export const PIVOT_TABLE_PRESETS: Record<string, PivotTableStyle> = {
+export const PIVOT_TABLE_PRESETS: Record<string, TableStyle> = {
   None: { category: "light", templateName: "none", primaryColor: "", displayName: "none" },
 
   PivotTableStyleMedium1: buildPreset(

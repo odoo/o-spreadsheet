@@ -117,7 +117,8 @@ export class TableComputedStylePlugin extends UIPlugin {
     return lazy(() => {
       const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
       const style = this.getters.getTableStyle(table.config.styleId);
-      const relativeTableStyle = getComputedTableStyle(config, style, numberOfCols, numberOfRows);
+      const tableInfo = { numberOfCols, numberOfRows };
+      const relativeTableStyle = getComputedTableStyle(config, style, tableInfo);
 
       // Return the style with sheet coordinates instead of tables coordinates
       const mapping = this.getTableMapping(sheetId, table);

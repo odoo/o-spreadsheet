@@ -2,12 +2,13 @@ import { toScalar } from "../../functions/helper_matrices";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { lazy } from "../../helpers/misc";
 import { getPivotStyleFromFnArgs } from "../../helpers/pivot/pivot_helpers";
-import { getComputedPivotTableStyle, TableInfo } from "../../helpers/pivot_table_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../helpers/pivot_table_presets";
+import { getComputedTableStyle } from "../../helpers/table_helpers";
 import { FormulaCell } from "../../types/cells";
 import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
 import { Border, CellPosition, Lazy, Style, UID, Zone } from "../../types/misc";
-import { TableConfig } from "../../types/table";
+import { PivotStyle } from "../../types/pivot";
+import { TableConfig, TableInfo } from "../../types/table";
 import { UIPlugin } from "../ui_plugin";
 
 interface ComputedTableStyle {
@@ -29,6 +30,7 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
     "getCellPivotTableStyleZone",
     "getCellPivotTableBorder",
     "getCellPivotTableBorderZone",
+    "getTableConfigForPivotCell",
   ] as const;
 
   private pivotStyle: Record<UID, Record<CellId, Lazy<ComputedTableStyle>>> = {};
@@ -108,7 +110,7 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
 
     if (!(cell.id in this.pivotStyle[position.sheetId])) {
       this.pivotStyle[position.sheetId][cell.id] = this.computePivotTableStyle(
-        position.sheetId,
+        position,
         cell,
         pivotId
       );
@@ -118,29 +120,18 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
   }
 
   private computePivotTableStyle(
-    sheetId: UID,
+    position: CellPosition,
     rootCell: FormulaCell,
     pivotId: UID
   ): Lazy<ComputedTableStyle> {
     return lazy(() => {
-      const result = this.getters.getFirstPivotFunction(sheetId, rootCell.compiledFormula.tokens);
-      if (!result) {
+      const pivotTableInfo = this.getTableConfigForPivotCell(position);
+      if (!pivotTableInfo) {
         return { borders: {}, styles: {} };
       }
-      const { args } = result;
-
-      const pivotStyle = getPivotStyleFromFnArgs(
-        this.getters.getPivotCoreDefinition(pivotId),
-        toScalar(args[1]),
-        toScalar(args[2]),
-        toScalar(args[3]),
-        toScalar(args[4]),
-        toScalar(args[5]),
-        this.getters.getLocale()
-      );
+      const { tableConfig, pivotStyle } = pivotTableInfo;
       const pivot = this.getters.getPivot(pivotId);
-      const pivotTable = pivot.getCollapsedTableStructure();
-      const pivotCells = pivotTable.getPivotCells(pivotStyle);
+      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
 
       const maxRowDepth = Math.max(
         ...pivot
@@ -167,30 +158,6 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
         }
       }
 
-      const numberOfHeaderRows = Math.max(
-        ...pivotCells
-          .slice(1)
-          .map((col) =>
-            col.reduce(
-              (count, cell) =>
-                cell.type === "HEADER" || cell.type === "MEASURE_HEADER" ? count + 1 : count,
-              0
-            )
-          )
-      );
-
-      console.log({ numberOfHeaderRows });
-      // const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
-      const config: TableConfig = {
-        hasFilters: false,
-        totalRow: pivotStyle.displayTotals,
-        firstColumn: false,
-        lastColumn: false,
-        numberOfHeaders: numberOfHeaderRows,
-        bandedRows: false,
-        bandedColumns: true,
-        styleId: "TableStyleMedium5",
-      };
       const style = PIVOT_TABLE_PRESETS["PivotTableStyleMedium7"];
 
       const tableInfo: TableInfo = {
@@ -200,9 +167,11 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
         firstSubSubHeaderRows,
         secondSubSubHeaderRows,
         measureHeaderRowIndex:
-          numberOfHeaderRows && pivotStyle.displayMeasuresRow ? numberOfHeaderRows - 1 : undefined,
+          tableConfig.numberOfHeaders && pivotStyle.displayMeasuresRow
+            ? tableConfig.numberOfHeaders - 1
+            : undefined,
       };
-      const relativeTableStyle = getComputedPivotTableStyle(config, style, tableInfo);
+      const relativeTableStyle = getComputedTableStyle(tableConfig, style, tableInfo);
       const rootCellPosition = this.getters.getCellPosition(rootCell.id);
 
       // Return the style with sheet coordinates instead of tables coordinates
@@ -220,6 +189,62 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
       }
       return absoluteTableStyle;
     });
+  }
+
+  getTableConfigForPivotCell(
+    position: CellPosition
+  ): { tableConfig: TableConfig; pivotStyle: Required<PivotStyle> } | undefined {
+    const pivotId = this.getters.getPivotIdFromPosition(position);
+    const cell = this.getters.getCorrespondingFormulaCell(position);
+    if (!pivotId || !cell) {
+      return undefined;
+    }
+
+    const result = this.getters.getFirstPivotFunction(
+      position.sheetId,
+      cell.compiledFormula.tokens
+    );
+    if (!result) {
+      return undefined;
+    }
+    const { args } = result;
+    const pivotStyle = getPivotStyleFromFnArgs(
+      this.getters.getPivotCoreDefinition(pivotId),
+      toScalar(args[1]),
+      toScalar(args[2]),
+      toScalar(args[3]),
+      toScalar(args[4]),
+      toScalar(args[5]),
+      this.getters.getLocale()
+    );
+
+    const pivot = this.getters.getPivot(pivotId);
+    const pivotTable = pivot.getCollapsedTableStructure();
+    const pivotCells = pivotTable.getPivotCells(pivotStyle);
+
+    const numberOfHeaderRows = Math.max(
+      ...pivotCells
+        .slice(1)
+        .map((col) =>
+          col.reduce(
+            (count, cell) =>
+              cell.type === "HEADER" || cell.type === "MEASURE_HEADER" ? count + 1 : count,
+            0
+          )
+        )
+    );
+
+    const tableConfig: TableConfig = {
+      hasFilters: false,
+      totalRow: pivotStyle.displayTotals,
+      firstColumn: false,
+      lastColumn: false,
+      numberOfHeaders: numberOfHeaderRows,
+      bandedRows: false,
+      bandedColumns: true,
+      styleId: "TableStyleMedium5",
+    };
+    return { tableConfig, pivotStyle };
   }
 
   /**
