@@ -77,7 +77,7 @@ import {
   moveAnchorWithinSelection,
   updateSelectionWithArrowKeys,
 } from "../helpers/selection_helpers";
-import { useTouchScroll } from "../helpers/touch_scroll_hook";
+import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
@@ -204,19 +204,20 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       () => [this.sidePanel.isMainPanelOpen, this.sidePanel.isSecondaryPanelOpen]
     );
 
-    useTouchScroll(
-      this.gridRef,
-      this.moveCanvas.bind(this),
-      () => {
+    useTouchHandlers(this.gridRef, {
+      updateScroll: this.moveCanvas.bind(this),
+      canMoveUp: () => {
         const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
         return scrollY > 0;
       },
-      () => {
+      canMoveDown: () => {
         const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
         const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
         return scrollY < maxOffsetY;
-      }
-    );
+      },
+      getZoom: () => this.env.model.getters.getViewportZoomLevel(),
+      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+    });
   }
 
   get highlights() {

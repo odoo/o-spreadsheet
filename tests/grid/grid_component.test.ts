@@ -20,7 +20,7 @@ import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
+import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
@@ -77,6 +77,7 @@ import {
   scrollGrid,
   simulateClick,
   triggerMouseEvent,
+  triggerPointerEvent,
   triggerTouchEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
@@ -2445,4 +2446,63 @@ describe("Can select de-select zones", () => {
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1:B2")]);
     expect(model.getters.getActivePosition()).toMatchObject({ col: 1, row: 1 });
   });
+});
+
+test("Can pinch to zoom in", async () => {
+  ({ parent, model, fixture } = await mountSpreadsheet());
+
+  const grid = fixture.querySelector(".o-grid-overlay")!;
+  const moveDistance = 30;
+
+  // first we have to move the pointer enough to trigger the pinch zoom which
+  // required to move the pointers form at least 30 px apart
+  const startDelta = Math.ceil(Math.sqrt(30 ** 2 / 2));
+
+  const secondPointerStartX = 100 + startDelta;
+  const secondPointerStartY = 100 + startDelta;
+
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 1, bubbles: true });
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 2, bubbles: true });
+  triggerPointerEvent(grid, "pointermove", secondPointerStartX, secondPointerStartY, {
+    pointerId: 2,
+    bubbles: true,
+  });
+
+  // zoom in 30 px of distance
+  triggerPointerEvent(
+    grid,
+    "pointermove",
+    secondPointerStartX + moveDistance,
+    secondPointerStartY + moveDistance,
+    {
+      pointerId: 2,
+      bubbles: true,
+    }
+  );
+
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBeCloseTo(1.54);
+
+  // go back to initial
+  triggerPointerEvent(grid, "pointermove", secondPointerStartX, secondPointerStartY, {
+    pointerId: 2,
+    bubbles: true,
+  });
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBeCloseTo(1);
+
+  // // pinch to zoom out - closer pointers
+  triggerPointerEvent(grid, "pointermove", 110, 110, {
+    pointerId: 1,
+    bubbles: true,
+  });
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBeCloseTo(0.74);
+
+  // go back to initial
+  triggerPointerEvent(grid, "pointermove", 100, 100, {
+    pointerId: 1,
+    bubbles: true,
+  });
+  expect(model.getters.getViewportZoomLevel()).toBeCloseTo(1);
 });

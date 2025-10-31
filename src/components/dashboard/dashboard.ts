@@ -8,7 +8,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useTouchScroll } from "../helpers/touch_scroll_hook";
+import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
@@ -56,19 +56,20 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     });
     this.cellPopovers = useStore(CellPopoverStore);
 
-    useTouchScroll(
-      this.gridRef,
-      this.moveCanvas.bind(this),
-      () => {
+    useTouchHandlers(this.gridRef, {
+      updateScroll: this.moveCanvas.bind(this),
+      canMoveUp: () => {
         const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
         return scrollY > 0;
       },
-      () => {
+      canMoveDown: () => {
         const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
         const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
         return scrollY < maxOffsetY;
-      }
-    );
+      },
+      getZoom: () => this.env.model.getters.getViewportZoomLevel(),
+      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+    });
   }
 
   get gridContainer() {
