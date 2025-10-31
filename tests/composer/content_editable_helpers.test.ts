@@ -133,6 +133,15 @@ describe("ContentEditableHelper", () => {
 
       div.innerHTML = "hello<br>test<br>";
       expect(helper.getText()).toBe("hello\ntest\n");
+
+      div.innerHTML = "<br><br><br>";
+      expect(helper.getText()).toBe("\n\n\n");
+
+      div.innerHTML = "<br>";
+      expect(helper.getText()).toBe("\n");
+
+      div.innerHTML = "<span><br></span>";
+      expect(helper.getText()).toBe("\n");
     });
 
     test("Paste multiline <p>", () => {
