@@ -5,9 +5,9 @@
         <t t-foreach="getDisplayedTableStyles()" t-as="styleId" t-key="styleId">
           <TableStylePreview
             class="'o-table-style-picker-preview'"
-            selected="styleId === props.table.config.styleId"
-            tableConfig="props.table.config"
-            tableStyle="env.model.getters.getTableStyle(styleId)"
+            selected="styleId === props.tableConfig.styleId"
+            tableConfig="props.tableConfig"
+            tableStyle="props.tableStyles[styleId]"
             styleId="styleId"
             onClick="() => this.onStylePicked(styleId)"
           />
@@ -20,11 +20,12 @@
       </div>
     </div>
     <TableStylesPopover
-      tableConfig="props.table.config"
-      selectedStyleId="props.table.config.styleId"
+      tableConfig="props.tableConfig"
+      selectedStyleId="props.tableConfig.styleId"
       onStylePicked.bind="onStylePicked"
       popoverProps="state.popoverProps"
       closePopover.bind="closePopover"
+      tableStyles="props.tableStyles"
     />
   </t>
 </templates>

@@ -249,6 +249,7 @@ export function getTableElementZones(
       break;
     case "firstColumnStripe":
       if (!tableConfig.bandedColumns) break;
+      // ADRM TODO: in pivots the total row is included in banded columns ...
       for (let i = 0; i < numberOfCols; i += 2) {
         zones.push({ top: headerRows, left: i, bottom: lastRow - totalRows, right: i });
       }

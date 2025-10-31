@@ -13,6 +13,7 @@
       onStylePicked.bind="onStylePicked"
       popoverProps="state.popoverProps"
       closePopover.bind="closePopover"
+      tableStyles="tableStyles"
     />
   </t>
 </templates>

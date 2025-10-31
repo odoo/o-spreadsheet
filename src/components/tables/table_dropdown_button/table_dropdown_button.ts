@@ -84,4 +84,8 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
   get tableConfig(): TableConfig {
     return { ...DEFAULT_TABLE_CONFIG, numberOfHeaders: 1, bandedRows: true };
   }
+
+  get tableStyles() {
+    return this.env.model.getters.getTableStyles();
+  }
 }

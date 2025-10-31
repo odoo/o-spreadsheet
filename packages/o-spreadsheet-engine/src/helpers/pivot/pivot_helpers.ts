@@ -40,6 +40,9 @@ export const DEFAULT_PIVOT_STYLE: Required<PivotStyle> = {
   displayMeasuresRow: true,
   numberOfRows: Number.MAX_VALUE,
   numberOfColumns: Number.MAX_VALUE,
+  tableStyleId: "None",
+  bandedRows: false,
+  bandedColumns: false,
 };
 
 const AGGREGATOR_NAMES = {
@@ -489,5 +492,14 @@ export function getPivotStyleFromFnArgs(
       ? toBoolean(includeMeasuresRowArg)
       : style?.displayMeasuresRow ?? DEFAULT_PIVOT_STYLE.displayMeasuresRow;
 
-  return { numberOfRows, numberOfColumns, displayTotals, displayColumnHeaders, displayMeasuresRow };
+  return {
+    numberOfRows,
+    numberOfColumns,
+    displayTotals,
+    displayColumnHeaders,
+    displayMeasuresRow,
+    tableStyleId: style?.tableStyleId || DEFAULT_PIVOT_STYLE.tableStyleId,
+    bandedRows: style?.bandedRows ?? DEFAULT_PIVOT_STYLE.bandedRows,
+    bandedColumns: style?.bandedColumns ?? DEFAULT_PIVOT_STYLE.bandedColumns,
+  };
 }

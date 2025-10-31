@@ -1,7 +1,14 @@
 import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
-import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { TableConfig, TableInfo, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
+import {
+  Component,
+  onMounted,
+  onWillUnmount,
+  onWillUpdateProps,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { deepEquals } from "../../../helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -40,15 +47,35 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
         this.drawTable(nextProps);
       }
     });
-    onMounted(() => this.drawTable(this.props));
+    onMounted(() => {
+      resizeObserver.observe(this.canvasRef.el!);
+    });
+    onWillUnmount(() => {
+      resizeObserver.disconnect();
+    });
+    const resizeObserver = new ResizeObserver(() => {
+      this.drawTable(this.props);
+    });
   }
 
   private drawTable(props: Props) {
     const ctx = this.canvasRef.el!.getContext("2d")!;
     const { width, height } = this.canvasRef.el!.getBoundingClientRect();
+    if (!width || !height) {
+      return;
+    }
     this.canvasRef.el!.width = width;
     this.canvasRef.el!.height = height;
-    const computedStyle = getComputedTableStyle(props.tableConfig, props.tableStyle, 5, 5);
+    const tableInfo: TableInfo = {
+      numberOfCols: 5,
+      numberOfRows: 5,
+      // ADRM TODO
+      // mainSubHeaderRows: new Set([
+      //   props.tableConfig.numberOfHeaders,
+      //   props.tableConfig.numberOfHeaders + 2,
+      // ]),
+    };
+    const computedStyle = getComputedTableStyle(props.tableConfig, props.tableStyle, tableInfo);
     drawPreviewTable(ctx, computedStyle, (width - 1) / 5, (height - 1) / 5);
   }
 
@@ -71,13 +98,14 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     if (!this.props.styleId) {
       return "";
     }
-    return this.env.model.getters.getTableStyle(this.props.styleId).displayName;
+    return this.props.tableStyle.displayName;
   }
 
   get isStyleEditable(): boolean {
     if (!this.props.styleId) {
       return false;
     }
+    // ADRM TODO: fix this for pivots
     return this.env.model.getters.isTableStyleEditable(this.props.styleId);
   }
 

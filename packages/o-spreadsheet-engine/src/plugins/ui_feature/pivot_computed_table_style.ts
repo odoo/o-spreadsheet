@@ -30,7 +30,7 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
     "getCellPivotTableStyleZone",
     "getCellPivotTableBorder",
     "getCellPivotTableBorderZone",
-    "getTableConfigForPivotCell",
+    "getTableConfigForPivotCell", // ADRM TODO: private ?
   ] as const;
 
   private pivotStyle: Record<UID, Record<CellId, Lazy<ComputedTableStyle>>> = {};
@@ -158,7 +158,7 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
         }
       }
 
-      const style = PIVOT_TABLE_PRESETS["PivotTableStyleMedium7"];
+      const style = PIVOT_TABLE_PRESETS[pivotStyle.tableStyleId];
 
       const tableInfo: TableInfo = {
         numberOfCols: pivotCells.length,
@@ -217,6 +217,9 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
       toScalar(args[5]),
       this.getters.getLocale()
     );
+    if (!pivotStyle.tableStyleId) {
+      return undefined;
+    }
 
     const pivot = this.getters.getPivot(pivotId);
     const pivotTable = pivot.getCollapsedTableStructure();
@@ -237,12 +240,12 @@ export class PivotTableComputedStylePlugin extends UIPlugin {
     const tableConfig: TableConfig = {
       hasFilters: false,
       totalRow: pivotStyle.displayTotals,
-      firstColumn: false,
+      firstColumn: true,
       lastColumn: false,
       numberOfHeaders: numberOfHeaderRows,
-      bandedRows: false,
-      bandedColumns: true,
-      styleId: "TableStyleMedium5",
+      bandedRows: pivotStyle.bandedRows,
+      bandedColumns: pivotStyle.bandedColumns,
+      styleId: pivotStyle.tableStyleId,
     };
     return { tableConfig, pivotStyle };
   }

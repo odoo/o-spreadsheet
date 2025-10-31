@@ -24,7 +24,7 @@
               styleId="styleId"
               selected="styleId === props.selectedStyleId"
               tableConfig="props.tableConfig"
-              tableStyle="env.model.getters.getTableStyle(styleId)"
+              tableStyle="props.tableStyles[styleId]"
               onClick="() => this.props.onStylePicked(styleId)"
             />
           </t>

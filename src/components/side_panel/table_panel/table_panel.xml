@@ -63,7 +63,11 @@
         </div>
       </Section>
       <Section>
-        <TableStylePicker table="props.table"/>
+        <TableStylePicker
+          tableConfig="props.table.config"
+          onStylePicked.bind="onStylePicked"
+          tableStyles="env.model.getters.getTableStyles()"
+        />
       </Section>
       <Section title.translate="Data range">
         <SelectionInput

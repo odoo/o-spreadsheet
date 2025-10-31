@@ -93,7 +93,6 @@ export interface TableStyle {
   mainSubHeaderRow?: TableElementStyle;
   firstSubSubHeaderRow?: TableElementStyle;
   secondSubSubHeaderRow?: TableElementStyle;
-  rowHeadersColumn?: TableElementStyle;
 
   // Exist in OpenXML. Not implemented ATM.
   // firstHeaderCell: TableElementStyle;
