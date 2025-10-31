@@ -72,6 +72,8 @@ export function createEvaluatedCell(
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
   if (!link) {
+    //@ts-ignore
+    return functionResult;
     const evaluateCell = _createEvaluatedCell(functionResult, locale, cell);
     return addOrigin(evaluateCell, functionResult.origin ?? origin);
   }
