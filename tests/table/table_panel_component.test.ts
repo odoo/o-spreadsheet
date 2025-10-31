@@ -10,13 +10,14 @@ import {
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
+import { addPivot } from "../test_helpers/pivot_helpers";
 
 function getTable(model: Model, sheetId: UID): Table {
   return model.getters.getTables(sheetId)[0];
@@ -183,6 +184,14 @@ describe("Table side panel", () => {
 
   test("Selecting a cell without a table closes the side panel", async () => {
     setSelection(model, ["D1"]);
+    await nextTick();
+    expect(fixture.querySelector(".o-table-panel")).toBeNull();
+  });
+
+  test("Selecting a cell with a pivot table closes the table panel", async () => {
+    setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2", F1: "=PIVOT(1)" });
+    addPivot(model, "A1:B2", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+    setSelection(model, ["F1"]);
     await nextTick();
     expect(fixture.querySelector(".o-table-panel")).toBeNull();
   });

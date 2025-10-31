@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Table } from "@odoo/o-spreadsheet-engine/types/table";
+import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, useState } from "@odoo/owl";
 import { PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
@@ -9,7 +9,10 @@ import {
 } from "../table_styles_popover/table_styles_popover";
 
 interface TableStylePickerProps {
-  table: Table;
+  tableConfig: TableConfig;
+  onStylePicked: (styleId: string) => void;
+  tableStyles: Record<string, TableStyle>;
+  type: "table" | "pivot";
 }
 
 interface TableStylePickerState {
@@ -19,19 +22,24 @@ interface TableStylePickerState {
 export class TableStylePicker extends Component<TableStylePickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePicker";
   static components = { TableStylesPopover, TableStylePreview };
-  static props = { table: Object };
+  static props = {
+    tableConfig: Object,
+    onStylePicked: Function,
+    tableStyles: Object,
+    type: String,
+  };
 
   state = useState<TableStylePickerState>({ popoverProps: undefined });
 
-  getDisplayedTableStyles() {
-    const allStyles = this.env.model.getters.getTableStyles();
-    const selectedStyleCategory = allStyles[this.props.table.config.styleId].category;
+  getDisplayedTableStyles(): string[] {
+    const allStyles = this.props.tableStyles;
+    const selectedStyleCategory = allStyles[this.props.tableConfig.styleId].category;
     const styles = Object.keys(allStyles).filter(
       (key) => allStyles[key].category === selectedStyleCategory
     );
-    const selectedStyleIndex = styles.indexOf(this.props.table.config.styleId);
+    const selectedStyleIndex = styles.indexOf(this.props.tableConfig.styleId);
     if (selectedStyleIndex === -1) {
-      return selectedStyleIndex;
+      return styles;
     }
 
     const index = Math.floor(selectedStyleIndex / 4) * 4;
@@ -39,12 +47,7 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
   }
 
   onStylePicked(styleId: string) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("UPDATE_TABLE", {
-      sheetId,
-      zone: this.props.table.range.zone,
-      config: { styleId: styleId },
-    });
+    this.props.onStylePicked(styleId);
     this.closePopover();
   }
 
