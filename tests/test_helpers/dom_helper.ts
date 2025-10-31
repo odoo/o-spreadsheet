@@ -303,6 +303,31 @@ export function triggerKeyboardEvent(
   return ev;
 }
 
+export function triggerPointerEvent(
+  selector: DOMTarget,
+  type: string,
+  offsetX?: number,
+  offsetY?: number,
+  extra: PointerEventInit = { bubbles: true }
+) {
+  if (type === "pointermove") {
+    extra = { button: -1, ...extra };
+  }
+  const ev = new PointerEvent(type, {
+    // this is only correct if we assume the target is positioned
+    // at the very top left corner of the screen
+    clientX: offsetX,
+    clientY: offsetY,
+    bubbles: true,
+    ...extra,
+  });
+  (ev as any).offsetX = offsetX;
+  (ev as any).offsetY = offsetY;
+  const target = getTarget(selector);
+  target.dispatchEvent(ev);
+  return ev;
+}
+
 function dispatchEvent(selector: string | EventTarget, ev: Event) {
   if (typeof selector === "string") {
     const el = document.querySelector(selector);
