@@ -1,4 +1,4 @@
-import { Format, FormattedValue } from "./format";
+import { Format } from "./format";
 import { FunctionResultObject, Link, RangeCompiledFormula, UID } from "./misc";
 
 interface CellAttributes {
@@ -26,13 +26,13 @@ interface EvaluatedCellProperties extends FunctionResultObject {
   readonly format?: Format;
   /**
    * Cell value formatted based on the format
-   */
-  readonly formattedValue: FormattedValue;
-  readonly defaultAlign: "right" | "center" | "left";
-  /**
-   * Can the cell appear in an automatic sum zone.
-   */
-  readonly isAutoSummable: boolean;
+  //  */
+  // readonly formattedValue: FormattedValue;
+  // readonly defaultAlign: "right" | "center" | "left";
+  // /**
+  //  * Can the cell appear in an automatic sum zone.
+  //  */
+  // readonly isAutoSummable: boolean;
   readonly link?: Link;
 }
 
@@ -41,27 +41,27 @@ export type CellValue = string | number | boolean | null; // We use null to repr
 export type EvaluatedCell = NumberCell | TextCell | BooleanCell | EmptyCell | ErrorCell;
 
 export interface NumberCell extends EvaluatedCellProperties {
-  readonly type: CellValueType.number;
+  // readonly type: CellValueType.number;
   readonly value: number;
 }
 
 export interface TextCell extends EvaluatedCellProperties {
-  readonly type: CellValueType.text;
+  // readonly type: CellValueType.text;
   readonly value: string;
 }
 
 export interface BooleanCell extends EvaluatedCellProperties {
-  readonly type: CellValueType.boolean;
+  // readonly type: CellValueType.boolean;
   readonly value: boolean;
 }
 
 export interface EmptyCell extends EvaluatedCellProperties {
-  readonly type: CellValueType.empty;
+  // readonly type: CellValueType.empty;
   readonly value: null;
 }
 
 export interface ErrorCell extends EvaluatedCellProperties {
-  readonly type: CellValueType.error;
+  // readonly type: CellValueType.error;
   readonly value: string;
   readonly message?: string;
 }
