@@ -32,3 +32,54 @@ puisqu'on a des nouveaux, je met le "wall-of-fame according to VSC":
 - Pierre (PRO): spreadsheet native pivots
 - Adrien (ADRM): rework side-panel styles, chart selection menu (the classiest menu in spreadsheet), data-tables, the show as values in pivot <3
 - Remy (RAR): comments (discuss integration), so many bugfixes, POC of migrations --> migrations is not ready for us
+
+## (fin 2025)
+
+Vincent (VSC)
+
+- Split the model into engine and UI (major refactor)
+- Documentation updates
+
+Florian (FLDA)
+
+- Implemented zoom for the grid
+- Various improvements and refactors in grid, border, and selection logic to prepare for infinite sheets
+- Added tooltips and improved cell interactions
+
+Alexis (LAA)
+
+- Formula assistant UI and formatter improvements (repeatable arguments)
+- Formula vectorization and argument pattern changes
+- Performance optimizations in formula import and worksheet handling
+
+Lucas (LUL)
+
+- Performance improvements in evaluation and collaborative features
+- Pivot table enhancements: calculated measures, error handling, cache, and sorting
+
+Adrien Minne (ADRM)
+
+- Major chart and carousel improvements: design panel, context menu, full screen toggle, drag & drop
+- Cell animations
+- Pivot design panel
+- Bugfixes and refactoring in charts, composer, and clipboard
+
+Pierre Rousseau (PRO)
+
+- Removal of SCSS and refactoring CSS
+- Global filter layout reimplementation x3
+- Spreadsheet native pivots
+- Package and dependency management
+
+Remi Rahir (RAR)
+
+- Spreadsheet: Mobile-tte (pouet pouet 🛵)
+- Input component refactors (NumberInput, FontSizeEditor)
+- Chart and sheet plugin improvements
+- Various bugfixes and releases
+
+Anthony Hendrickx (ANHE)
+
+- Chart slider implementation
+- Chart zoom and radar chart features
+- Handcrafted SVG icons
