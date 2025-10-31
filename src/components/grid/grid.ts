@@ -68,6 +68,7 @@ import { cssPropertiesToCss } from "../helpers";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
+import { usePinchToZoom } from "../helpers/pinch_to_zoom_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -202,6 +203,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
       const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
       return scrollY > 0;
+    });
+
+    usePinchToZoom(this.gridRef, (scale: number) => {
+      this.env.model.dispatch("SET_ZOOM", {
+        zoom: this.env.model.getters.getViewportZoomLevel() * scale,
+      });
     });
   }
 
