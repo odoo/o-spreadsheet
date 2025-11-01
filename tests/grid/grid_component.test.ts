@@ -75,6 +75,7 @@ import {
   scrollGrid,
   simulateClick,
   triggerMouseEvent,
+  triggerPointerEvent,
   triggerTouchEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
@@ -2260,4 +2261,44 @@ describe("Header grouping shortcuts", () => {
       expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(false);
     });
   });
+});
+test("Can pinch to zoom in", async () => {
+  ({ parent, model, fixture } = await mountSpreadsheet());
+
+  const grid = fixture.querySelector(".o-grid-overlay")!;
+  const moveDistance = 30;
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 1, bubbles: true });
+  triggerPointerEvent(grid, "pointerdown", 120, 120, { pointerId: 2, bubbles: true });
+
+  // zoom in 30 px of distance
+  triggerPointerEvent(grid, "pointermove", 120 + moveDistance, 120 + moveDistance, {
+    pointerId: 2,
+    bubbles: true,
+  });
+
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBe(1.58);
+
+  // go back to initial
+  triggerPointerEvent(grid, "pointermove", 120, 120, {
+    pointerId: 2,
+    bubbles: true,
+  });
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBe(1);
+
+  // // pinch to zoom out - closer pointers
+  triggerPointerEvent(grid, "pointermove", 110, 110, {
+    pointerId: 1,
+    bubbles: true,
+  });
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBe(0.71);
+
+  // go back to initial
+  triggerPointerEvent(grid, "pointermove", 100, 100, {
+    pointerId: 1,
+    bubbles: true,
+  });
+  expect(model.getters.getViewportZoomLevel()).toBe(1);
 });
