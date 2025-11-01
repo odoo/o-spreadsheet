@@ -13,6 +13,7 @@ export function usePinchToZoom(
   const evCache: PointerEvent[] = [];
   let prevDiff = -1;
 
+  // TODO merge with the other helper (touch scroll to ensure mutially exclusive behaviours
   useRefListener(ref, "pointerdown", pointerdownHandler, { passive: false });
   useRefListener(ref, "pointermove", pointermoveHandler, { passive: false });
   useRefListener(ref, "pointerup", pointerupHandler, { passive: false });
