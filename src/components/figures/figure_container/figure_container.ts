@@ -22,9 +22,7 @@ import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
-interface Props {
-  onFigureDeleted: () => void;
-}
+interface Props {}
 
 interface Container {
   type: ContainerType;
@@ -464,6 +462,4 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-FiguresContainer.props = {
-  onFigureDeleted: Function,
-};
+FiguresContainer.props = {};
