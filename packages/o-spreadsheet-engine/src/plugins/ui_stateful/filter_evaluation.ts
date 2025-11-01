@@ -5,6 +5,7 @@ import { deepCopy, getUniqueText, range } from "../../helpers/misc";
 import { toLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { EvaluatedCell } from "../../types/cells";
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, FilterId, UID } from "../../types/misc";
@@ -204,7 +205,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
   }
 
   private getCellValueAsString(sheetId: UID, col: number, row: number): string {
-    const value = this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
+    const value = this.getters.getFormattedValue(
+      this.getters.getEvaluatedCell({ sheetId, col, row }) as EvaluatedCell
+    );
     return value.toLowerCase();
   }
 
@@ -226,8 +229,10 @@ export class FilterEvaluationPlugin extends UIPlugin {
           const filter = this.getters.getFilter(position);
 
           const valuesInFilterZone = filter?.filteredRange
-            ? positions(filter.filteredRange.zone).map(
-                (position) => this.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue
+            ? positions(filter.filteredRange.zone).map((position) =>
+                this.getters.getFormattedValue(
+                  this.getters.getEvaluatedCell({ sheetId, ...position }) as EvaluatedCell
+                )
               )
             : [];
 
@@ -243,7 +248,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
           }
 
           // In xlsx, column header should ALWAYS be a string and should be unique in the table
-          const headerString = this.getters.getEvaluatedCell(position).formattedValue;
+          const headerString = this.getters.getFormattedValue(
+            this.getters.getEvaluatedCell(position) as EvaluatedCell
+          );
           const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
           headerNames.push(headerName);
           const xc = toXC(position.col, position.row);

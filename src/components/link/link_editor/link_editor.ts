@@ -46,12 +46,12 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     if (cell.link) {
       return {
         url: cell.link.url,
-        label: cell.formattedValue,
+        label: this.env.model.getters.getFormattedValue(cell),
         isUrlEditable: cell.link.isUrlEditable,
       };
     }
     return {
-      label: cell.formattedValue,
+      label: this.env.model.getters.getFormattedValue(cell),
       url: "",
       isUrlEditable: true,
     };

@@ -884,7 +884,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
       const { sheetId, zone } = ds.labelCell;
       const cell = getters.getEvaluatedCell({ sheetId, col: zone.left, row: zone.top });
       if (cell) {
-        label = cell.formattedValue;
+        label = getters.getFormattedValue(cell);
       }
     }
 

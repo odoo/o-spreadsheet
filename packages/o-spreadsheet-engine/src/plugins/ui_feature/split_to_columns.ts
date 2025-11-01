@@ -94,11 +94,12 @@ export class SplitToColumnsPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const splitted: string[][] = [];
     for (const row of range(selection.top, selection.bottom + 1)) {
-      const text = this.getters.getEvaluatedCell({
+      const cell = this.getters.getEvaluatedCell({
         sheetId,
         col: selection.left,
         row,
-      }).formattedValue;
+      });
+      const text = this.getters.getFormattedValue(cell);
       splitted.push(this.splitAndRemoveTrailingEmpty(text, separator));
     }
     return splitted;
@@ -217,7 +218,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
   private checkSeparatorInSelection({ separator }: SplitTextIntoColumnsCommand): CommandResult {
     const cells = this.getters.getSelectedCells();
     for (const cell of cells) {
-      if (cell.formattedValue.includes(separator)) {
+      if (this.getters.getFormattedValue(cell).includes(separator)) {
         return CommandResult.Success;
       }
     }

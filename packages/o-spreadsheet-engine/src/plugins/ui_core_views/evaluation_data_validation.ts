@@ -122,9 +122,10 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     const labelsSet = new Set<string>();
     for (const p of positions(range.zone)) {
       const cell = this.getters.getEvaluatedCell({ ...p, sheetId: range.sheetId });
-      if (cell.formattedValue && !labelsSet.has(cell.formattedValue)) {
-        labelsSet.add(cell.formattedValue);
-        values.push({ label: cell.formattedValue, value: cell.value?.toString() || "" });
+      const formatted = this.getters.getFormattedValue(cell);
+      if (formatted && !labelsSet.has(formatted)) {
+        labelsSet.add(formatted);
+        values.push({ label: formatted, value: cell.value?.toString() || "" });
       }
     }
     return values;

@@ -67,7 +67,9 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     let cells = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
       (position) => ({
         position,
-        cellValue: this.env.model.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue,
+        cellValue: this.env.model.getters.getFormattedValue(
+          this.env.model.getters.getEvaluatedCell({ sheetId, ...position })
+        ),
       })
     );
     if (filterValue?.filterType !== "criterion") {

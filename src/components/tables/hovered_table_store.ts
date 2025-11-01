@@ -50,7 +50,7 @@ export class HoveredTableStore extends SpreadsheetStore {
     const doesTableRowHaveContent = range(left, right + 1).some((col) => {
       return (
         !this.getters.isColHidden(sheetId, col) &&
-        this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
+        this.getters.getFormattedValue(this.getters.getEvaluatedCell({ sheetId, col, row }))
       );
     });
 

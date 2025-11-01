@@ -2,6 +2,7 @@ import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
+import { formatValue } from "../../../helpers/format/format";
 import { cellPositions, positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
@@ -151,6 +152,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getRangeFormattedValues",
     "getRangeValues",
     "getRangeFormats",
+    "getFormattedValue",
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
@@ -253,7 +255,9 @@ export class EvaluationPlugin extends CoreViewPlugin {
   getRangeFormattedValues(range: Range): FormattedValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
-    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).formattedValue);
+    return this.mapVisiblePositions(range, (p) =>
+      this.getters.getFormattedValue(this.getters.getEvaluatedCell(p) as EvaluatedCell)
+    );
   }
 
   /**
@@ -272,6 +276,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
+  }
+
+  getFormattedValue(cell: EvaluatedCell): string {
+    return formatValue(cell.value, { format: cell.format, locale: this.getters.getLocale() }) ?? "";
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
