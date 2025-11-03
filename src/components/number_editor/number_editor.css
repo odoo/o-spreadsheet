@@ -1,7 +1,7 @@
 .o-spreadsheet {
   .o-number-editor {
     width: max-content !important;
-    height: calc(100% - 4px);
+
     input.o-font-size {
       outline: none;
       height: 20px;
