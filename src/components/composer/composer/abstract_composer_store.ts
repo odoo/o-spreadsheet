@@ -10,17 +10,16 @@ import {
   EnrichedToken,
 } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { isEvaluationError, transposeMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
+import { evaluationResultToDisplayString } from "../../../../packages/o-spreadsheet-engine/src/helpers/matrix";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,
   colors,
   concat,
-  formatValue,
   fuzzyLookup,
   getZoneArea,
   isEqual,
@@ -47,11 +46,8 @@ import {
   Command,
   Direction,
   EditionMode,
-  FunctionResultObject,
   HeaderIndex,
   Highlight,
-  isMatrix,
-  Matrix,
   Range,
   RangePart,
   UID,
@@ -343,7 +339,11 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
     const result = this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula);
     this.hoveredTokens = hoveredContextTokens;
-    this.hoveredContentEvaluation = this.evaluationResultToDisplayString(result);
+    this.hoveredContentEvaluation = evaluationResultToDisplayString(
+      result,
+      "0",
+      this.getters.getLocale()
+    );
   }
 
   private getRelatedTokens(tokens: EnrichedToken[], tokenIndex: number): EnrichedToken[] {
@@ -367,37 +367,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       throw e;
     }
-  }
-
-  private evaluationResultToDisplayString(
-    result: Matrix<FunctionResultObject> | FunctionResultObject
-  ): string {
-    const locale = this.getters.getLocale();
-    if (isMatrix(result)) {
-      const rowSeparator = locale.decimalSeparator === "," ? "/" : ",";
-      const arrayStr = transposeMatrix(result)
-        .map((row) => row.map((val) => this.cellValueToDisplayString(val)).join(rowSeparator))
-        .join(";");
-      return `{${arrayStr}}`;
-    }
-
-    return this.cellValueToDisplayString(result);
-  }
-
-  private cellValueToDisplayString(result: FunctionResultObject): string {
-    const value = result.value;
-    switch (typeof value) {
-      case "number":
-        return formatValue(value, { locale: this.getters.getLocale(), format: result.format });
-      case "string":
-        if (isEvaluationError(value)) {
-          return value;
-        }
-        return `"${value}"`;
-      case "boolean":
-        return value ? "TRUE" : "FALSE";
-    }
-    return "0";
   }
 
   private captureSelection(zone: Zone, col?: HeaderIndex, row?: HeaderIndex) {

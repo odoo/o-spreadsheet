@@ -1,17 +1,22 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
-import { toXC } from "../helpers/coordinates";
-import { range } from "../helpers/misc";
+import { toCartesian, toXC } from "../helpers/coordinates";
+import { isFormula, range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
 } from "../helpers/pivot/pivot_helpers";
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
-import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
+import {
+  CellErrorType,
+  EvaluationError,
+  InvalidReferenceError,
+  NotAvailableError,
+} from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe, UID, Zone } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -1103,4 +1108,156 @@ export const OFFSET = {
         })
     );
   },
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// CHOOSE
+//--------------------------------------------------------------------------
+export const CHOOSE = {
+  description: _t("Returns an element from a list of choices based on index."),
+  args: [
+    arg("index (number)", _t("Which choice to return.")),
+    arg(
+      "choice (any, range<any>, repeating)",
+      _t("A potential value to return. May be a reference to a cell or an individual value.")
+    ),
+  ],
+  compute: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
+    const _index = Math.floor(toNumber(index, this.locale)) - 1;
+    if (_index < 0 || _index >= choices.length) {
+      return new EvaluationError(
+        _t("Index for CHOOSE is invalid. Valid values are between 1 and %(choices)s inclusive.", {
+          choices: choices.length,
+        })
+      );
+    }
+    const result = choices[_index];
+    return result ?? new EvaluationError(_t("Choice is undefined."));
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// DROP
+//--------------------------------------------------------------------------
+export const DROP = {
+  description: _t(
+    "Excludes a specified number of rows or columns from the start or end of an array."
+  ),
+  args: [
+    arg("array (range)", _t("The array from which to drop rows or columns")),
+    arg(
+      "rows (number)",
+      _t("The number of rows to drop. A negative value drops from the end of the array.")
+    ),
+    arg(
+      "columns (number, optional)",
+      _t("The number of columns to exclude. A negative value drops from the end of the array.")
+    ),
+  ],
+  compute: function (
+    array: Matrix<{ value: string }>,
+    rows: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>
+  ) {
+    const _rows = toNumber(rows, this.locale);
+    const _columns = toNumber(columns, this.locale);
+    let result = array;
+    if (Math.abs(_columns) >= array.length || Math.abs(_rows) >= array[0].length) {
+      return new EvaluationError(
+        _t(
+          "The number of rows or column to exclude must be smaller than the number of elements in the array."
+        )
+      );
+    }
+    if (_columns >= 0) {
+      result = result.slice(_columns);
+    } else {
+      result = result.slice(0, result.length + _columns);
+    }
+    for (let i = 0; i < result.length; i++) {
+      if (_rows >= 0) {
+        result[i] = result[i].slice(_rows);
+      } else {
+        result[i] = result[i].slice(0, result[i].length + _rows);
+      }
+    }
+    return result;
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// TAKE
+//--------------------------------------------------------------------------
+
+export const TAKE = {
+  description: _t(
+    "Returns a specified number of contiguous rows or columns from the start or end of an array."
+  ),
+  args: [
+    arg("array (range)", _t("The array from which to take rows or columns.")),
+    arg(
+      "rows (number)",
+      _t("The number of rows to take. A negative value takes from the end of the array.")
+    ),
+    arg(
+      "columns (number, optional)",
+      _t("The number of columns to take. A negative value takes from the end of the array.")
+    ),
+  ],
+  compute: function (
+    array: Matrix<{ value: string }>,
+    rows: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>
+  ) {
+    let _rows = !rows ? array[0].length : toNumber(rows, this.locale);
+    let _columns = toNumber(columns, this.locale);
+    let result = array;
+    if (Math.abs(_columns) >= array.length || _columns === 0) {
+      _columns = array.length;
+    }
+    if (Math.abs(_rows) >= array[0].length) {
+      _rows = array[0].length;
+    }
+    if (_columns >= 0) {
+      result = result.slice(0, _columns);
+    } else {
+      result = result.slice(result.length + _columns, result.length);
+    }
+    if (_rows === 0) {
+      return new EvaluationError(_t("The number of rows can not be zero."));
+    }
+    for (let i = 0; i < result.length; i++) {
+      if (_rows > 0) {
+        result[i] = result[i].slice(0, _rows);
+      } else {
+        result[i] = result[i].slice(result[i].length + _rows, result[i].length);
+      }
+    }
+    return result;
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// FORMULATEXT
+//--------------------------------------------------------------------------
+
+export const FORMULATEXT = {
+  description: _t("Returns a formula as a string."),
+  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
+  compute: function (cellReference: { value: string }) {
+    const { sheetName, xc } = splitReference(cellReference.value);
+    const { col, row } = toCartesian(xc);
+    const sheetId: UID =
+      (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.__originSheetId;
+    const cell = this.getters.getCell({ sheetId, col, row });
+    if (cell && isFormula(cell.content)) {
+      return cell.content;
+    } else {
+      return new NotAvailableError(_t("The cell does not contain a formula."));
+    }
+  },
+  isExported: true,
 } satisfies AddFunctionDescription;
