@@ -1,6 +1,6 @@
 .o-spreadsheet {
   color: var(--os-text-body);
-
+  touch-action: pan-y;
   input {
     background-color: white;
   }

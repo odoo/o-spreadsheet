@@ -214,17 +214,19 @@ class Demo extends Component {
     const stores = useStoreProvider();
 
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
-    useExternalListener(window, "unhandledrejection", this.notifyError.bind(this));
-    useExternalListener(window, "error", this.notifyError.bind(this));
+    useExternalListener(window, "unhandledrejection", this.handleError.bind(this));
+    useExternalListener(window, "error", this.handleError.bind(this));
 
     onWillStart(() => this.initiateConnection());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
-    onError((error) => {
-      console.error(error.cause || error);
-      this.notifyError();
-    });
+    onError(this.handleError.bind(this));
+  }
+
+  handleError(error) {
+    console.error(error.cause || error);
+    this.notifyError();
   }
 
   notifyError() {
