@@ -1,3 +1,4 @@
+import { evaluationResultToDisplayString } from "../helpers/matrix";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
@@ -14,6 +15,7 @@ import {
   toMatrix,
   toNumber,
   toNumberMatrix,
+  toString,
   transposeMatrix,
 } from "./helpers";
 
@@ -823,6 +825,48 @@ export const WRAPROWS = {
       const index = row * nbColumns + col;
       return index < array.length ? array[index] : padWith;
     });
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// ARRAYTOTEXT
+// -----------------------------------------------------------------------------
+
+const FORMAT_OPTIONS = [
+  { value: 0, label: _t("Concise format (default)") },
+  { value: 1, label: _t("Strict format") },
+];
+
+export const ARRAYTOTEXT = {
+  description: _t(
+    "returns an array of text values from any specified range. It passes text values unchanged, and converts non-text values to text."
+  ),
+  args: [
+    arg("array (range)", _t("The array to convert into text")),
+    arg("format (number, default=0)", _t("The format of the returned data."), FORMAT_OPTIONS),
+  ],
+  compute: function (
+    array: Matrix<{ value: string }>,
+    format: Maybe<FunctionResultObject> = { value: 0 }
+  ) {
+    const _format = toNumber(format, this.locale);
+    const _array = toMatrix(array);
+    if (_format === 1) {
+      return evaluationResultToDisplayString(_array, "", this.locale);
+    } else if (_format === 0) {
+      const rowSeparator = this.locale.decimalSeparator === "," ? "/" : ",";
+      const arrayStr = transposeMatrix(_array)
+        .flatMap((row) =>
+          row.map((value) => {
+            return isEvaluationError(value.value) ? value.value : toString(value);
+          })
+        )
+        .join(rowSeparator);
+      return arrayStr;
+    } else {
+      return new EvaluationError(_t("Format must be 0 or 1"));
+    }
   },
   isExported: true,
 } satisfies AddFunctionDescription;
