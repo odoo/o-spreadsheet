@@ -69,7 +69,7 @@ import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/do
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
-import { useTouchScroll } from "../helpers/touch_scroll_hook";
+import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect, ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
@@ -199,10 +199,20 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       () => [this.sidePanel.isMainPanelOpen, this.sidePanel.isSecondaryPanelOpen]
     );
 
-    useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
-    });
+    useTouchHandlers(
+      this.gridRef,
+      this.moveCanvas.bind(this),
+      () => {
+        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        return scrollY > 0;
+      },
+      () => this.env.model.getters.getViewportZoomLevel(),
+      (zoom: number) => {
+        if (zoom >= 0.5 && zoom <= 2) {
+          this.env.model.dispatch("SET_ZOOM", { zoom });
+        }
+      }
+    );
   }
 
   get highlights() {

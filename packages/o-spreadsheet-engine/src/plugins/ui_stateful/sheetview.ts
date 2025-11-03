@@ -151,6 +151,12 @@ export class SheetViewPlugin extends UIPlugin {
           this.checkValuesAreDifferent,
           this.checkPositiveDimension
         )(cmd);
+      case "SET_ZOOM":
+        if (cmd.zoom > 2 || cmd.zoom < 0.5) {
+          return CommandResult.InvalidZoomLevel;
+        } else {
+          return CommandResult.Success;
+        }
       default:
         return CommandResult.Success;
     }

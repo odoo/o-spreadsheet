@@ -8,7 +8,6 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
@@ -54,10 +53,10 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     });
     this.cellPopovers = useStore(CellPopoverStore);
 
-    useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
-    });
+    // useTouchHandlers(this.gridRef, this.moveCanvas.bind(this), () => {
+    //   const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    //   return scrollY > 0;
+    // });
   }
 
   get gridContainer() {
