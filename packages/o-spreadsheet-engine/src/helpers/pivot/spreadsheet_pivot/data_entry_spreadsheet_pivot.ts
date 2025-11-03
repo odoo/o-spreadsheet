@@ -11,7 +11,7 @@ import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 
 export type FieldName = string;
-export type FieldValue = Pick<EvaluatedCell, "type" | "format" | "value" | "formattedValue">;
+export type FieldValue = Pick<EvaluatedCell, "format" | "value">;
 
 export type DataEntry = Record<FieldName, FieldValue | undefined>;
 export type DataEntries = DataEntry[];

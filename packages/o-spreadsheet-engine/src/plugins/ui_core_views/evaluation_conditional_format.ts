@@ -1,12 +1,12 @@
 import { compile } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { percentile } from "../../helpers";
-import { parseLiteral } from "../../helpers/cells/cell_evaluation";
+import { isErrorCell, isNumberCell, parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { colorNumberToHex, getColorScale } from "../../helpers/color";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
+import { EvaluatedCell, NumberCell } from "../../types/cells";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
@@ -179,7 +179,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   ): null | number {
     const rangeValues = this.getters
       .getEvaluatedCellsInZone(sheetId, this.getters.getRangeFromSheetXC(sheetId, range).zone)
-      .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
+      .filter((cell): cell is NumberCell => isNumberCell(cell))
       .map((cell) => cell.value);
     switch (threshold.type) {
       case "value":
@@ -230,7 +230,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
-        if (cell.type !== CellValueType.number) {
+        if (!isNumberCell(cell)) {
           continue;
         }
         const icon = this.computeIcon(
@@ -280,7 +280,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     const rangeValues = this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues || range);
     const allValues = this.getters
       .getEvaluatedCellsInZone(sheetId, rangeValues.zone)
-      .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
+      .filter((cell): cell is NumberCell => isNumberCell(cell))
       .map((cell) => cell.value);
     const max = largeMax(allValues);
     if (max <= 0) {
@@ -298,7 +298,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         const cell = this.getters.getEvaluatedCell({ sheetId, col: targetCol, row: targetRow });
         if (
           !isInside(targetCol, targetRow, zoneOfValues) ||
-          cell.type !== CellValueType.number ||
+          !isNumberCell(cell) ||
           cell.value <= 0
         ) {
           // values negatives or 0 are ignored
@@ -343,7 +343,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
-        if (cell.type === CellValueType.number) {
+        if (isNumberCell(cell)) {
           const value = clip(cell.value, minValue, maxValue);
           if (!computedStyle[col]) computedStyle[col] = [];
           computedStyle[col][row] = computedStyle[col]?.[row] || {};
@@ -355,7 +355,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   private getRuleResultForTarget(target: CellPosition, rule: CellIsRule): boolean {
     const cell: EvaluatedCell = this.getters.getEvaluatedCell(target);
-    if (cell.type === CellValueType.error) {
+    if (isErrorCell(cell)) {
       return false;
     }
 

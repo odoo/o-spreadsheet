@@ -5,6 +5,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
+import { isEmptyCell } from "../../helpers/cells/cell_evaluation";
 import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
 import { groupConsecutive, largeMax, range } from "../../helpers/misc";
@@ -16,7 +17,6 @@ import {
   splitTextToWidth,
 } from "../../helpers/text_helper";
 import { isEqual, positions } from "../../helpers/zones";
-import { CellValueType } from "../../types/cells";
 import { Command, CommandResult, LocalCommand } from "../../types/commands";
 import {
   CellPosition,
@@ -93,7 +93,7 @@ export class SheetUIPlugin extends UIPlugin {
 
     let contentWidth = 0;
 
-    const content = this.getters.getEvaluatedCell(position).formattedValue;
+    const content = this.getters.getFormattedValue(this.getters.getEvaluatedCell(position));
     if (content) {
       const multiLineText = splitTextToWidth(this.ctx, content, style, undefined);
       contentWidth += Math.max(
@@ -239,7 +239,7 @@ export class SheetUIPlugin extends UIPlugin {
    */
   private isCellEmpty(position: CellPosition): boolean {
     const mainPosition = this.getters.getMainCellPosition(position);
-    return this.getters.getEvaluatedCell(mainPosition).type === CellValueType.empty;
+    return isEmptyCell(this.getters.getEvaluatedCell(mainPosition));
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
@@ -294,7 +294,7 @@ export class SheetUIPlugin extends UIPlugin {
         const colSize = this.getters.getColSize(sheetId, position.col);
         const style = this.getters.getCellStyle(position);
 
-        const content = evaluatedCell.formattedValue;
+        const content = this.getters.getFormattedValue(evaluatedCell);
         const evaluatedSize = getCellContentHeight(this.ctx, content, style, colSize);
         if (evaluatedSize > evaluatedRowSize && evaluatedSize > DEFAULT_CELL_HEIGHT) {
           evaluatedRowSize = evaluatedSize;

@@ -1,7 +1,7 @@
 import { NEWLINE } from "../../constants";
+import { isTextCell } from "../../helpers/cells/cell_evaluation";
 import { canonicalizeNumberContent } from "../../helpers/locale";
 import { range } from "../../helpers/misc";
-import { CellValueType } from "../../types/cells";
 import { Command, CommandResult, SplitTextIntoColumnsCommand } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";
 import { DEFAULT_STYLE_NO_ALIGN } from "../core/style";
@@ -32,7 +32,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
   getAutomaticSeparator(): string {
     const cells = this.getters.getSelectedCells();
     for (const cell of cells) {
-      if (cell.value && cell.type === CellValueType.text) {
+      if (cell.value && isTextCell(cell)) {
         const separator = this.getAutoSeparatorForString(cell.value);
         if (separator) {
           return separator;

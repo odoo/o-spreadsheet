@@ -2,14 +2,14 @@ import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
-import { parseLiteral } from "../../helpers/cells/cell_evaluation";
+import { isEmptyCell, parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { chipTextColor } from "../../helpers/color";
 import { lazy } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
 import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
-import { CellValue, CellValueType } from "../../types/cells";
+import { CellValue } from "../../types/cells";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import {
   DataValidationCriterion,
@@ -220,7 +220,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
       }
       validationResults[col][row] = lazy(() => {
         const evaluatedCell = this.getters.getEvaluatedCell(cellPosition);
-        if (evaluatedCell.type === CellValueType.empty) {
+        if (isEmptyCell(evaluatedCell)) {
           return VALID_RESULT;
         }
         return this.getValidationResultForCellValue(evaluatedCell.value, cellPosition);

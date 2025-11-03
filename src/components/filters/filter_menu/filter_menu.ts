@@ -1,9 +1,13 @@
+import {
+  isBooleanCell,
+  isNumberCell,
+  isTextCell,
+} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import {
-  CellValueType,
   CriterionFilter,
   DataFilterValue,
   Position,
@@ -85,9 +89,9 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
         break;
       }
       const cell = this.env.model.getters.getEvaluatedCell({ sheetId, row, col: position.col });
-      if (cell.type === CellValueType.text || cell.type === CellValueType.boolean) {
+      if (isTextCell(cell) || isBooleanCell(cell)) {
         cellTypesCount.text++;
-      } else if (cell.type === CellValueType.number) {
+      } else if (isNumberCell(cell)) {
         if (cell.format && isDateTimeFormat(cell.format)) {
           cellTypesCount.date++;
         } else {

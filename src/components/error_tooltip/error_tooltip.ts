@@ -1,7 +1,8 @@
+import { isErrorCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
-import { CellPosition, CellValueType } from "../../types";
+import { CellPosition } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
@@ -67,7 +68,7 @@ export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
     const cell = getters.getEvaluatedCell(position);
     if (
-      (cell.type === CellValueType.error && !!cell.message) ||
+      (isErrorCell(cell) && !!cell.message) ||
       getters.getInvalidDataValidationMessage(position)
     ) {
       return {

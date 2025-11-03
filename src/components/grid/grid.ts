@@ -3,6 +3,7 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { isEmptyCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
@@ -42,7 +43,6 @@ import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import {
   Align,
-  CellValueType,
   Client,
   ClipboardMIMEType,
   Dimension,
@@ -231,17 +231,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private keyDownMapping: { [key: string]: Function } = {
     Enter: () => {
       const cell = this.env.model.getters.getActiveCell();
-      cell.type === CellValueType.empty
-        ? this.onComposerCellFocused()
-        : this.onComposerContentFocused();
+      isEmptyCell(cell) ? this.onComposerCellFocused() : this.onComposerContentFocused();
     },
     Tab: () => this.env.model.selection.moveAnchorCell("right", 1),
     "Shift+Tab": () => this.env.model.selection.moveAnchorCell("left", 1),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
-      cell.type === CellValueType.empty
-        ? this.onComposerCellFocused()
-        : this.onComposerContentFocused();
+      isEmptyCell(cell) ? this.onComposerCellFocused() : this.onComposerContentFocused();
     },
     Delete: () => {
       this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
@@ -555,7 +551,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheetId();
     ({ col, row } = this.env.model.getters.getMainCellPosition({ sheetId, col, row }));
     const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
-    if (cell.type === CellValueType.empty) {
+    if (isEmptyCell(cell)) {
       this.onComposerCellFocused();
     } else {
       this.onComposerContentFocused();

@@ -1,6 +1,6 @@
+import { isBooleanCell, isEmptyCell } from "../../helpers/cells/cell_evaluation";
 import { isBoolean } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
-import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { isMatrix } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -19,7 +19,7 @@ export class DataValidationInsertionPlugin extends UIPlugin {
               this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
               // In this case, a cell has been updated in the core plugin but
               // not yet evaluated. This can occur after a paste operation.
-            } else if (cell?.content && evaluatedCell.type === CellValueType.empty) {
+            } else if (cell?.content && isEmptyCell(evaluatedCell)) {
               let value: string | undefined;
               if (cell.content.startsWith("=")) {
                 const result = this.getters.evaluateFormula(position.sheetId, cell.content);
@@ -30,7 +30,7 @@ export class DataValidationInsertionPlugin extends UIPlugin {
               if (!value || !isBoolean(value)) {
                 this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
               }
-            } else if (evaluatedCell.type !== CellValueType.boolean) {
+            } else if (!isBooleanCell(evaluatedCell)) {
               this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
             }
           }

@@ -16,6 +16,12 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  isEmptyCell,
+  isErrorCell,
+  isNumberCell,
+} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { getDefaultAlign } from "@odoo/o-spreadsheet-engine/plugins/core/style";
 import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
@@ -43,7 +49,6 @@ import {
   BorderDescrWithOpacity,
   Box,
   CellPosition,
-  CellValueType,
   Command,
   GridRenderingContext,
   HeaderIndex,
@@ -603,7 +608,7 @@ export class GridRenderer extends SpreadsheetStore {
       const nextCellBorder = this.getters.getCellComputedBorder(position);
       const doesCellHaveGridIcon = this.getters.doesCellHaveGridIcon(position);
       if (
-        nextCell.type !== CellValueType.empty ||
+        !isEmptyCell(nextCell) ||
         this.getters.isInMerge(position) ||
         nextCellBorder?.left ||
         doesCellHaveGridIcon
@@ -624,7 +629,7 @@ export class GridRenderer extends SpreadsheetStore {
       const previousCellBorder = this.getters.getCellComputedBorder(position);
       const doesCellHaveGridIcon = this.getters.doesCellHaveGridIcon(position);
       if (
-        previousCell.type !== CellValueType.empty ||
+        !isEmptyCell(previousCell) ||
         this.getters.isInMerge(position) ||
         previousCellBorder?.right ||
         doesCellHaveGridIcon
@@ -646,10 +651,10 @@ export class GridRenderer extends SpreadsheetStore {
     if (formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
       return "left";
     }
-    if (isOverflowing && evaluatedCell.type === CellValueType.number) {
+    if (isOverflowing && isNumberCell(evaluatedCell)) {
       return align !== "center" ? "left" : align;
     }
-    return align || evaluatedCell.defaultAlign;
+    return align ?? getDefaultAlign(evaluatedCell);
   }
 
   private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
@@ -692,8 +697,7 @@ export class GridRenderer extends SpreadsheetStore {
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
       isError:
-        (cell.type === CellValueType.error && !!cell.message) ||
-        this.getters.isDataValidationInvalid(position),
+        (isErrorCell(cell) && !!cell.message) || this.getters.isDataValidationInvalid(position),
       icons: cellIcons,
       disabledAnimation: this.zonesWithPreventedAnimationsInNextFrame.some(
         (z) => isZoneInside(zone, z) || overlap(zone, z)
@@ -702,7 +706,7 @@ export class GridRenderer extends SpreadsheetStore {
 
     const fontSizePX = computeTextFontSizeInPixels(box.style);
 
-    if (cell.type === CellValueType.empty || box.icons.center) {
+    if (isEmptyCell(cell) || box.icons.center) {
       return box;
     }
 

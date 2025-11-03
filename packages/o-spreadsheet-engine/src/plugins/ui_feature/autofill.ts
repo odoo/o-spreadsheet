@@ -1,3 +1,4 @@
+import { isEmptyCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { clip } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
@@ -11,7 +12,7 @@ import {
   GeneratorCell,
   Tooltip,
 } from "../../types/autofill";
-import { Cell, CellValueType } from "../../types/cells";
+import { Cell } from "../../types/cells";
 import { AutoFillCellCommand, Command, CommandResult, LocalCommand } from "../../types/commands";
 import { Getters } from "../../types/getters";
 import { Border, DIRECTION, HeaderIndex, UID, Zone } from "../../types/misc";
@@ -379,7 +380,7 @@ export class AutofillPlugin extends UIPlugin {
     // Stop autofill at the next non-empty cell
     const selection = this.getters.getSelectedZone();
     for (let row = selection.bottom + 1; row <= autofillRow; row++) {
-      if (this.getters.getEvaluatedCell({ ...activePosition, row }).type !== CellValueType.empty) {
+      if (!isEmptyCell(this.getters.getEvaluatedCell({ ...activePosition, row }))) {
         autofillRow = row - 1;
         break;
       }
@@ -399,7 +400,7 @@ export class AutofillPlugin extends UIPlugin {
 
     if (col > 0) {
       let leftPosition = { sheetId, col: col - 1, row };
-      while (this.getters.getEvaluatedCell(leftPosition).type !== CellValueType.empty) {
+      while (!isEmptyCell(this.getters.getEvaluatedCell(leftPosition))) {
         row += 1;
         leftPosition = { sheetId, col: col - 1, row };
       }
@@ -408,7 +409,7 @@ export class AutofillPlugin extends UIPlugin {
       col = zone.right;
       if (col <= this.getters.getNumberCols(sheetId)) {
         let rightPosition = { sheetId, col: col + 1, row };
-        while (this.getters.getEvaluatedCell(rightPosition).type !== CellValueType.empty) {
+        while (!isEmptyCell(this.getters.getEvaluatedCell(rightPosition))) {
           row += 1;
           rightPosition = { sheetId, col: col + 1, row };
         }

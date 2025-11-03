@@ -1,7 +1,7 @@
+import { isEmptyCell } from "../../helpers/cells/cell_evaluation";
 import { deepEquals, range } from "../../helpers/misc";
 import { sortCells } from "../../helpers/sort";
 import { isInside, overlap, positions, zoneToDimension } from "../../helpers/zones";
-import { CellValueType } from "../../types/cells";
 import {
   Command,
   CommandResult,
@@ -100,18 +100,18 @@ export class SortPlugin extends UIPlugin {
    */
   private hasHeader(sheetId: UID, items: Position[][]): boolean {
     if (items[0].length === 1) return false;
-    let cells: CellValueType[][] = items.map((col) =>
-      col.map(({ col, row }) => this.getters.getEvaluatedCell({ sheetId, col, row }).type)
+    let cells = items.map((col) =>
+      col.map(({ col, row }) => this.getters.getEvaluatedCell({ sheetId, col, row }))
     );
 
     // ignore left-most column when topLeft cell is empty
     const topLeft = cells[0][0];
-    if (topLeft === CellValueType.empty) {
+    if (isEmptyCell(topLeft)) {
       cells = cells.slice(1);
     }
-    if (cells.some((item) => item[0] === CellValueType.empty)) {
+    if (cells.some((item) => isEmptyCell(item[0]))) {
       return false;
-    } else if (cells.some((item) => item[1] !== CellValueType.empty && item[0] !== item[1])) {
+    } else if (cells.some((item) => !isEmptyCell(item[1]) && item[0] !== item[1])) {
       return true;
     } else {
       return false;

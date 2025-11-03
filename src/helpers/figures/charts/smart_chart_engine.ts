@@ -3,10 +3,15 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  isEmptyCell,
+  isNumberCell,
+  isTextCell,
+} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { getZoneArea, getZonesByColumns, zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { BarChartDefinition, LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
-import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
+import { ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
 
 type ColumnType = "number" | "text" | "date" | "percentage" | "empty";
 
@@ -48,7 +53,7 @@ function detectColumnType(cells: EvaluatedCell[]): ColumnType {
   let detectedType: ColumnType = "empty";
   for (const cell of cells) {
     let type: ColumnType | null = null;
-    if (cell.type === CellValueType.number) {
+    if (isNumberCell(cell)) {
       if (cell.format && isDateTimeFormat(cell.format)) {
         type = "date";
       } else if (cell.format?.includes("%")) {
@@ -56,7 +61,7 @@ function detectColumnType(cells: EvaluatedCell[]): ColumnType {
       } else {
         type = "number";
       }
-    } else if (cell.type === CellValueType.text) {
+    } else if (isTextCell(cell)) {
       type = "text";
     }
     if (type) {
@@ -94,7 +99,7 @@ function isDatasetTitled(getters: Getters, column: ColumnInfo): boolean {
     col: column.zone.left,
     row: column.zone.top,
   });
-  return ![CellValueType.number, CellValueType.empty].includes(titleCell.type);
+  return !(isNumberCell(titleCell) || isEmptyCell(titleCell));
 }
 
 /**

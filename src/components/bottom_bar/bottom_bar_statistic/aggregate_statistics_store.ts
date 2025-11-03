@@ -6,6 +6,10 @@ import {
   max,
   min,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
+import {
+  getEvaluatedCellType,
+  isEmptyCell,
+} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { lazy, memoize, recomputeZones } from "../../../helpers";
 import { Get } from "../../../store_engine";
@@ -125,7 +129,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
           }
 
           const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
-          if (evaluatedCell.type !== CellValueType.empty) {
+          if (!isEmptyCell(evaluatedCell)) {
             cells.push(evaluatedCell);
           }
         }
@@ -136,7 +140,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
 
     const getCells = memoize((typeStr: string) => {
       const types = typeStr.split(",");
-      return cells.filter((c) => types.includes(c.type));
+      return cells.filter((c) => types.includes(getEvaluatedCellType(c)));
     });
     for (const fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:

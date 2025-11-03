@@ -1,5 +1,5 @@
 import { toJsDate } from "../functions/helpers";
-import { evaluateLiteral } from "../helpers/cells/cell_evaluation";
+import { evaluateLiteral, isNumberCell, isTextCell } from "../helpers/cells/cell_evaluation";
 import {
   DateTime,
   getTimeDifferenceInWholeDays,
@@ -8,7 +8,7 @@ import {
 } from "../helpers/dates";
 import { isDateTimeFormat } from "../helpers/format/format";
 import { AutofillModifier } from "../types/autofill";
-import { Cell, CellValueType, EvaluatedCell, LiteralCell } from "../types/cells";
+import { Cell, EvaluatedCell, LiteralCell } from "../types/cells";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { DIRECTION } from "../types/misc";
 import { Registry } from "./registry";
@@ -189,7 +189,7 @@ autofillRulesRegistry
   .add("increment_alphanumeric_value", {
     condition: (cell: Cell) =>
       !cell.isFormula &&
-      evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
+      isTextCell(evaluateLiteral(cell, { locale: DEFAULT_LOCALE })) &&
       alphaNumericValueRegExp.test(cell.content),
     generateRule: (cell: Cell, cells: Cell[], direction: DIRECTION) => {
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
@@ -198,8 +198,7 @@ autofillRulesRegistry
         cell,
         cells,
         (evaluatedCell) =>
-          evaluatedCell.type === CellValueType.text &&
-          alphaNumericValueRegExp.test(evaluatedCell.value)
+          isTextCell(evaluatedCell) && alphaNumericValueRegExp.test(evaluatedCell.value)
       )
         // get consecutive alphanumeric cells, no matter what the prefix is
         .filter((cell) => prefix === (cell.value ?? "").toString().match(stringPrefixRegExp)![0])
@@ -230,8 +229,7 @@ autofillRulesRegistry
   })
   .add("copy_text", {
     condition: (cell: Cell) =>
-      !cell.isFormula &&
-      evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text,
+      !cell.isFormula && isTextCell(evaluateLiteral(cell, { locale: DEFAULT_LOCALE })),
     generateRule: () => {
       return { type: "COPY_MODIFIER" };
     },
@@ -248,7 +246,7 @@ autofillRulesRegistry
     condition: (cell: Cell, cells: (Cell | undefined)[]) => {
       return (
         !cell.isFormula &&
-        evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number &&
+        isNumberCell(evaluateLiteral(cell, { locale: DEFAULT_LOCALE })) &&
         !!cell.format &&
         isDateTimeFormat(cell.format)
       );
@@ -258,7 +256,7 @@ autofillRulesRegistry
         cell,
         cells,
         (evaluatedCell) =>
-          evaluatedCell.type === CellValueType.number &&
+          isNumberCell(evaluatedCell) &&
           !!evaluatedCell.format &&
           isDateTimeFormat(evaluatedCell.format)
       ).map((cell) => Number(cell.value));
@@ -274,28 +272,26 @@ autofillRulesRegistry
         return {
           type: "DATE_INCREMENT_MODIFIER",
           increment,
-          current: evaluation.type === CellValueType.number ? evaluation.value : 0,
+          current: isNumberCell(evaluation) ? evaluation.value : 0,
         };
       }
       return {
         type: "INCREMENT_MODIFIER",
         increment,
-        current: evaluation.type === CellValueType.number ? evaluation.value : 0,
+        current: isNumberCell(evaluation) ? evaluation.value : 0,
       };
     },
     sequence: 25,
   })
   .add("increment_number", {
     condition: (cell: Cell) =>
-      !cell.isFormula &&
-      evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number,
+      !cell.isFormula && isNumberCell(evaluateLiteral(cell, { locale: DEFAULT_LOCALE })),
     generateRule: (cell: LiteralCell, cells: (Cell | undefined)[], direction: DIRECTION) => {
       const group = getGroup(
         cell,
         cells,
         (evaluatedCell) =>
-          evaluatedCell.type === CellValueType.number &&
-          !isDateTimeFormat(evaluatedCell.format || "")
+          isNumberCell(evaluatedCell) && !isDateTimeFormat(evaluatedCell.format || "")
       ).map((cell) => Number(cell.value));
       let increment = calculateIncrementBasedOnGroup(group);
       if (["up", "left"].includes(direction) && group.length === 1) {
@@ -305,7 +301,7 @@ autofillRulesRegistry
       return {
         type: "INCREMENT_MODIFIER",
         increment,
-        current: evaluation.type === CellValueType.number ? evaluation.value : 0,
+        current: isNumberCell(evaluation) ? evaluation.value : 0,
       };
     },
     sequence: 40,

@@ -1,6 +1,6 @@
+import { isEmptyCell, isTextCell } from "../helpers/cells/cell_evaluation";
 import { getFullReference, setXcToFixedReferenceType, splitReference } from "../helpers/references";
 import { _t } from "../translation";
-import { CellValueType } from "../types/cells";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { FunctionResultObject, Matrix, Maybe } from "../types/misc";
@@ -70,10 +70,10 @@ export const CELL = {
         return range.zone.top + 1;
       case "type": {
         const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        const type = this.getters.getEvaluatedCell(position).type;
-        if (type === CellValueType.empty) {
+        const cell = this.getters.getEvaluatedCell(position);
+        if (isEmptyCell(cell)) {
           return "b"; // blank
-        } else if (type === CellValueType.text) {
+        } else if (isTextCell(cell)) {
           return "l"; // label
         } else {
           return "v"; // value

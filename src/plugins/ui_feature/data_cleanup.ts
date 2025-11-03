@@ -1,3 +1,4 @@
+import { isEmptyCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { getClipboardDataPositions } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions, zoneToDimension } from "@odoo/o-spreadsheet-engine/helpers/zones";
@@ -178,7 +179,7 @@ export class DataCleanupPlugin extends UIPlugin {
       zone.top += 1;
     }
     const evaluatedCells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
-    if (evaluatedCells.every((evaluatedCel) => evaluatedCel.type === "empty")) {
+    if (evaluatedCells.every((evaluatedCell) => isEmptyCell(evaluatedCell))) {
       return CommandResult.EmptyTarget;
     }
     return CommandResult.Success;

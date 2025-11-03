@@ -7,6 +7,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { getDefaultAlign } from "@odoo/o-spreadsheet-engine/plugins/core/style";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
@@ -430,7 +431,7 @@ function getHorizontalAlign(env: SpreadsheetChildEnv): Align {
     return style.align;
   }
   const cell = env.model.getters.getActiveCell();
-  return cell.defaultAlign;
+  return getDefaultAlign(cell);
 }
 
 function getVerticalAlign(env: SpreadsheetChildEnv): VerticalAlign {

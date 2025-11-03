@@ -1,8 +1,10 @@
 import { deepEquals } from "../../helpers";
+import { getEvaluatedCellType } from "../../helpers/cells/cell_evaluation";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
+import { CellValueType, EvaluatedCell } from "../../types/cells";
 import { AddColumnsRowsCommand, CoreCommand } from "../../types/commands";
 import {
   ApplyRangeChange,
@@ -27,6 +29,18 @@ export const DEFAULT_STYLE_NO_ALIGN = {
   fillColor: "",
   textColor: "",
 } as Partial<Style>;
+
+export function getDefaultAlign(cell: EvaluatedCell) {
+  switch (getEvaluatedCellType(cell)) {
+    case CellValueType.number:
+      return "right";
+    case CellValueType.error:
+    case CellValueType.boolean:
+      return "center";
+    default:
+      return "left";
+  }
+}
 
 export type ZoneStyle = {
   zone: UnboundedZone;

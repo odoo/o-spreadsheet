@@ -1,3 +1,4 @@
+import { getEvaluatedCellType } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 import {
   AlternatingColorGenerator,
@@ -217,7 +218,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
 
   private getLiteralFingerprint(position: CellPosition): Fingerprint | undefined {
     const evaluatedCell = this.getters.getEvaluatedCell(position);
-    switch (evaluatedCell.type) {
+    switch (getEvaluatedCellType(evaluatedCell)) {
       case CellValueType.number:
       case CellValueType.boolean:
         return DATA_FINGERPRINT;

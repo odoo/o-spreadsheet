@@ -15,6 +15,7 @@ import {
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   adaptChartRange,
@@ -37,7 +38,6 @@ import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
   AdaptSheetName,
   ApplyRangeChange,
-  CellValueType,
   Color,
   CommandResult,
   Format,
@@ -308,9 +308,9 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
       col: dataRange.zone.left,
       row: dataRange.zone.top,
     });
-    if (cell.type === CellValueType.number) {
+    if (isNumberCell(cell)) {
       gaugeValue = cell.value;
-      formattedValue = cell.formattedValue;
+      formattedValue = getters.getFormattedValue(cell);
       format = cell.format;
     }
   }

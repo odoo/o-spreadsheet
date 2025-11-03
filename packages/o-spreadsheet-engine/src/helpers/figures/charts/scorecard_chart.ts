@@ -5,7 +5,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
-import { CellValueType, EvaluatedCell } from "../../../types/cells";
+import { EvaluatedCell } from "../../../types/cells";
 import {
   BaselineArrowDirection,
   BaselineMode,
@@ -22,6 +22,7 @@ import { Locale } from "../../../types/locale";
 import { ApplyRangeChange, Color, RangeAdapter, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
+import { isNumberCell } from "../../cells/cell_evaluation";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
 import { isNumber } from "../../numbers";
@@ -33,6 +34,7 @@ import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_c
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(
+  getters: Getters,
   baseline: EvaluatedCell | undefined,
   keyValue: EvaluatedCell | undefined,
   baselineMode: BaselineMode,
@@ -41,15 +43,11 @@ function getBaselineText(
 ): string {
   if (!baseline) {
     return "";
-  } else if (
-    baselineMode === "text" ||
-    keyValue?.type !== CellValueType.number ||
-    baseline.type !== CellValueType.number
-  ) {
+  } else if (baselineMode === "text" || !isNumberCell(keyValue) || !isNumberCell(baseline)) {
     if (humanizeNumbers) {
       return humanizeNumber(baseline, locale);
     }
-    return baseline.formattedValue;
+    return getters.getFormattedValue(baseline);
   }
   let { value, format } = baseline;
   if (baselineMode === "progress") {
@@ -74,6 +72,7 @@ function getBaselineText(
 }
 
 function getKeyValueText(
+  getters: Getters,
   keyValueCell: EvaluatedCell | undefined,
   humanizeNumbers: boolean,
   locale: Locale
@@ -84,7 +83,7 @@ function getKeyValueText(
   if (humanizeNumbers) {
     return humanizeNumber(keyValueCell, locale);
   }
-  return keyValueCell.formattedValue ?? String(keyValueCell.value ?? "");
+  return getters.getFormattedValue(keyValueCell);
 }
 
 function getBaselineColor(
@@ -97,8 +96,8 @@ function getBaselineColor(
   if (
     baselineMode === "text" ||
     baselineMode === "progress" ||
-    baseline?.type !== CellValueType.number ||
-    keyValue?.type !== CellValueType.number
+    !isNumberCell(baseline) ||
+    !isNumberCell(keyValue)
   ) {
     return undefined;
   }
@@ -116,11 +115,7 @@ function getBaselineArrowDirection(
   keyValue: EvaluatedCell | undefined,
   baselineMode: BaselineMode
 ): BaselineArrowDirection {
-  if (
-    baselineMode === "text" ||
-    baseline?.type !== CellValueType.number ||
-    keyValue?.type !== CellValueType.number
-  ) {
+  if (baselineMode === "text" || !isNumberCell(baseline) || !isNumberCell(keyValue)) {
     return "neutral";
   }
 
@@ -450,7 +445,7 @@ export function createScorecardChartRuntime(
       row: chart.keyValue.zone.top,
     };
     keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-    formattedKeyValue = getKeyValueText(keyValueCell, chart.humanize ?? true, locale);
+    formattedKeyValue = getKeyValueText(getters, keyValueCell, chart.humanize ?? true, locale);
   }
   let baselineCell: EvaluatedCell | undefined;
   const baseline = chart.baseline;
@@ -468,6 +463,7 @@ export function createScorecardChartRuntime(
   );
 
   const baselineDisplay = getBaselineText(
+    getters,
     baselineCell,
     keyValueCell,
     chart.baselineMode,

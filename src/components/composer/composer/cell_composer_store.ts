@@ -4,7 +4,14 @@ import {
   isMultipleElementMatrix,
   toScalar,
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import {
+  isBooleanCell,
+  isEmptyCell,
+  isErrorCell,
+  isNumberCell,
+  isTextCell,
+  parseLiteral,
+} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { getDateTimeFormat, localizeFormula } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -23,7 +30,6 @@ import {
 import {
   AddColumnsRowsCommand,
   CellPosition,
-  CellValueType,
   Command,
   Direction,
   Format,
@@ -245,29 +251,30 @@ export class CellComposerStore extends AbstractComposerStore {
     if (cell?.content.startsWith("'")) {
       return { text: cell.content };
     }
-    const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
-    switch (type) {
-      case CellValueType.empty:
-        return { text: "" };
-      case CellValueType.text:
-      case CellValueType.error:
-        return { text: value };
-      case CellValueType.boolean:
-        return { text: formattedValue };
-      case CellValueType.number:
-        if (format && isDateTimeFormat(format)) {
-          if (parseDateTime(formattedValue, locale) !== null) {
-            // formatted string can be parsed again
-            return { text: formattedValue };
-          }
-          // display a simplified and parsable string otherwise
-          const timeFormat = Number.isInteger(value)
-            ? locale.dateFormat
-            : getDateTimeFormat(locale);
-          return { text: formatValue(value, { locale, format: timeFormat }) };
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
+    const formattedValue = this.getters.getFormattedValue(evaluatedCell);
+    const { format } = evaluatedCell;
+    if (isEmptyCell(evaluatedCell)) {
+      return { text: "" };
+    } else if (isTextCell(evaluatedCell) || isErrorCell(evaluatedCell)) {
+      return { text: evaluatedCell.value };
+    } else if (isBooleanCell(evaluatedCell)) {
+      return { text: formattedValue };
+    } else if (isNumberCell(evaluatedCell)) {
+      if (format && isDateTimeFormat(format)) {
+        if (parseDateTime(formattedValue, locale) !== null) {
+          // formatted string can be parsed again
+          return { text: formattedValue };
         }
-        return { text: this.numberComposerContent(value, format, locale) };
+        // display a simplified and parsable string otherwise
+        const timeFormat = Number.isInteger(evaluatedCell.value)
+          ? locale.dateFormat
+          : getDateTimeFormat(locale);
+        return { text: formatValue(evaluatedCell.value, { locale, format: timeFormat }) };
+      }
+      return { text: this.numberComposerContent(evaluatedCell.value, format, locale) };
     }
+    throw new Error("Unhandled cell type in composer");
   }
 
   private getPrettifiedFormula(cell: FormulaCell): string {

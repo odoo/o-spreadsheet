@@ -1,8 +1,13 @@
 import { compile } from "../../../formulas/compiler";
 
-import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
+import {
+  createEvaluatedCell,
+  evaluateLiteral,
+  isEmptyCell,
+  isErrorCell,
+} from "../../../helpers/cells/cell_evaluation";
 
-import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
+import { EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   BadExpressionError,
   CellErrorType,
@@ -76,7 +81,7 @@ export class Evaluator {
     }
     const evaluatedCell = this.evaluatedCells.get(position);
     if (
-      evaluatedCell?.type === CellValueType.error &&
+      isErrorCell(evaluatedCell) &&
       !(options.ignoreSpillError && evaluatedCell?.value === CellErrorType.SpilledBlocked)
     ) {
       return positionToZone(position);
@@ -93,7 +98,7 @@ export class Evaluator {
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
-    const isEmpty = this.getEvaluatedCell(position).type === CellValueType.empty;
+    const isEmpty = isEmptyCell(this.getEvaluatedCell(position));
     if (isEmpty) {
       return undefined;
     }
@@ -394,7 +399,7 @@ export class Evaluator {
         cellData,
         formulaPosition
       );
-      if (evaluatedCell.type === CellValueType.error) {
+      if (isErrorCell(evaluatedCell)) {
         evaluatedCell.errorOriginPosition = formulaReturn.errorOriginPosition ?? formulaPosition;
       }
       return evaluatedCell;
@@ -492,10 +497,7 @@ export class Evaluator {
     const checkCollision = (i: number, j: number) => {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
-      if (
-        rawCell?.content ||
-        this.getters.getEvaluatedCell(position).type !== CellValueType.empty
-      ) {
+      if (rawCell?.content || !isEmptyCell(this.getters.getEvaluatedCell(position))) {
         this.blockedArrayFormulas.add(formulaPosition);
         throw new SplillBlockedError(
           _t(
@@ -522,7 +524,7 @@ export class Evaluator {
         cell,
         position
       );
-      if (evaluatedCell.type === CellValueType.error) {
+      if (isErrorCell(evaluatedCell)) {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
       }
       this.evaluatedCells.set(position, evaluatedCell);

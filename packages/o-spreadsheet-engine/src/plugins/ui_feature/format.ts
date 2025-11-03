@@ -1,3 +1,4 @@
+import { isNumberCell } from "../../helpers/cells/cell_evaluation";
 import {
   changeDecimalPlaces,
   createDefaultFormat,
@@ -5,7 +6,6 @@ import {
 } from "../../helpers/format/format";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { positions, positionToZone } from "../../helpers/zones";
-import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { Format } from "../../types/format";
 import { CellPosition, Position, SetDecimalStep, UID, Zone } from "../../types/misc";
@@ -126,7 +126,7 @@ export class FormatPlugin extends UIPlugin {
     for (const pos of [position]) {
       const cell = this.getters.getEvaluatedCell(pos);
       if (
-        cell.type === CellValueType.number &&
+        isNumberCell(cell) &&
         !(cell.format && isDateTimeFormat(cell.format)) // reject dates
       ) {
         return cell.format || createDefaultFormat(cell.value);

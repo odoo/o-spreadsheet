@@ -1,4 +1,5 @@
 import { RemoveDuplicateTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { isEmptyCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
@@ -60,7 +61,7 @@ export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv>
       const sheetId = this.env.model.getters.getActiveSheetId();
       const row = this.env.model.getters.getSelectedZone().top;
       const colHeader = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
-      if (colHeader.type !== "empty") {
+      if (isEmptyCell(colHeader)) {
         colLabel += ` - ${colHeader.value}`;
       }
     }

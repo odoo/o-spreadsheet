@@ -1,6 +1,6 @@
+import { isEmptyCell } from "../../helpers/cells/cell_evaluation";
 import { getTableContentZone } from "../../helpers/table_helpers";
 import { isInside } from "../../helpers/zones";
-import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -37,7 +37,7 @@ export class TableAutofillPlugin extends UIPlugin {
       if (r === row) {
         continue;
       }
-      if (this.getters.getEvaluatedCell({ col, row: r, sheetId }).type !== CellValueType.empty) {
+      if (!isEmptyCell(this.getters.getEvaluatedCell({ col, row: r, sheetId }))) {
         return;
       }
     }

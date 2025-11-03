@@ -507,7 +507,7 @@ export class ClipboardPlugin extends UIPlugin {
             .map((c) =>
               this.getters.shouldShowFormulas() && c?.tokens?.length
                 ? c?.content || ""
-                : c.evaluatedCell?.formattedValue || ""
+                : this.getters.getFormattedValue(c.evaluatedCell) || ""
             )
             .join("\t");
         })

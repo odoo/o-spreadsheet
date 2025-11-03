@@ -1,5 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SELECTION_BORDER_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { getDefaultAlign } from "@odoo/o-spreadsheet-engine/plugins/core/style";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import {
@@ -157,7 +158,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     let textAlign = "left";
 
     if (!_isFormula) {
-      textAlign = style.align || cell.defaultAlign;
+      textAlign = style.align ?? getDefaultAlign(cell);
     }
 
     const maxHeight = this.props.gridDims.height - this.rect.y;

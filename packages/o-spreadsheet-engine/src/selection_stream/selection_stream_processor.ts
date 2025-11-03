@@ -1,6 +1,6 @@
+import { isEmptyCell, isTextCell } from "../helpers/cells/cell_evaluation";
 import { deepCopy, deepEquals } from "../helpers/misc";
 import { isEqual, isInside, positionToZone, reorderZone, union } from "../helpers/zones";
-import { CellValueType } from "../types/cells";
 import { CommandResult, DispatchResult } from "../types/commands";
 import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
 import { Getters } from "../types/getters";
@@ -627,8 +627,6 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   private isCellSkippableInCluster(position: CellPosition): boolean {
     const mainPosition = this.getters.getMainCellPosition(position);
     const cell = this.getters.getEvaluatedCell(mainPosition);
-    return (
-      cell.type === CellValueType.empty || (cell.type === CellValueType.text && cell.value === "")
-    );
+    return isEmptyCell(cell) || (isTextCell(cell) && cell.value === "");
   }
 }

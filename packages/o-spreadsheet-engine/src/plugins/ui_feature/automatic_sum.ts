@@ -1,7 +1,8 @@
+import { isNumberCell } from "../../helpers/cells/cell_evaluation";
 import { isDateTimeFormat } from "../../helpers/format/format";
 import { groupConsecutive, largeMax, largeMin, range } from "../../helpers/misc";
 import { isInside, isOneDimensional, positions, union, zoneToDimension } from "../../helpers/zones";
-import { CellValueType, EvaluatedCell } from "../../types/cells";
+import { EvaluatedCell } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { Dimension, HeaderIndex, Position, Sheet, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -172,7 +173,8 @@ export class AutomaticSumPlugin extends UIPlugin {
     const cells = this.getters.getEvaluatedCellsInZone(sheet.id, zone);
     const cellPositions = range(end, -1, -1);
     const invalidCells = cellPositions.filter(
-      (position) => cells[position] && !cells[position].isAutoSummable
+      (position) => cells[position] && !false
+      // (position) => cells[position] && !cells[position].isAutoSummable
     );
     const maxValidPosition = largeMax(invalidCells);
     const numberSequences = groupConsecutive(
@@ -190,7 +192,7 @@ export class AutomaticSumPlugin extends UIPlugin {
   }
 
   private isNumber(cell: EvaluatedCell): boolean {
-    return cell.type === CellValueType.number && !(cell.format && isDateTimeFormat(cell.format));
+    return isNumberCell(cell) && !(cell.format && isDateTimeFormat(cell.format));
   }
 
   private isZoneValid(zone: Zone): boolean {

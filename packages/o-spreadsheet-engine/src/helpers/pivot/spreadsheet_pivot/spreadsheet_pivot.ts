@@ -1,7 +1,7 @@
 import { handleError } from "../../../functions/create_compute_function";
 import { toString } from "../../../functions/helpers";
 import { _t } from "../../../translation";
-import { CellValueType, EvaluatedCell } from "../../../types/cells";
+import { EvaluatedCell } from "../../../types/cells";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
@@ -18,8 +18,15 @@ import {
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { Range } from "../../../types/range";
+import {
+  isBooleanCell,
+  isEmptyCell,
+  isErrorCell,
+  isNumberCell,
+  isTextCell,
+} from "../../cells/cell_evaluation";
 import { toXC } from "../../coordinates";
-import { formatValue, isDateTimeFormat } from "../../format/format";
+import { isDateTimeFormat } from "../../format/format";
 import { deepEquals, isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
@@ -270,7 +277,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     const measure = this.getMeasure(measureId);
     const allValues = dataEntries.map((value) => value[measure.fieldName]).filter(isDefined);
-    const values = allValues.filter((cell) => cell.type !== CellValueType.empty);
+    const values = allValues.filter((cell) => !isEmptyCell(cell));
     const aggregator = measure.aggregator;
     const operator = AGGREGATORS_FN[aggregator];
     if (!operator) {
@@ -293,9 +300,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const groups = groupPivotDataEntriesBy(this.dataEntries, dimension);
     const orderedKeys = orderDataEntriesKeys(groups, dimension);
     for (const key of orderedKeys) {
+      const entry = groups[key]?.[0]?.[dimension.nameWithGranularity];
       values.push({
-        value: groups[key]?.[0]?.[dimension.nameWithGranularity]?.value ?? "",
-        label: groups[key]?.[0]?.[dimension.nameWithGranularity]?.formattedValue || "",
+        value: entry?.value ?? "",
+        label: entry ? this.getters.getFormattedValue(entry) : "",
       });
     }
     return values;
@@ -407,41 +415,39 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   private getTypeFromZone(sheetId: UID, zone: Zone) {
     const cells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
-    const nonEmptyCells = cells.filter(
-      (cell) => !(cell.type === CellValueType.empty || cell.value === "")
-    );
+    const nonEmptyCells = cells.filter((cell) => !(isEmptyCell(cell) || cell.value === ""));
     if (nonEmptyCells.length === 0) {
       return "integer";
     }
     if (
       nonEmptyCells.every(
-        (cell) => cell.type === CellValueType.number && cell.format && isDateTimeFormat(cell.format)
+        (cell) => isNumberCell(cell) && cell.format && isDateTimeFormat(cell.format)
       )
     ) {
       return "datetime";
     }
-    if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
+    if (nonEmptyCells.every((cell) => isBooleanCell(cell))) {
       return "boolean";
     }
-    if (nonEmptyCells.some((cell) => cell.type === CellValueType.text)) {
+    if (nonEmptyCells.some((cell) => isTextCell(cell))) {
       return "char";
     }
     return "integer";
   }
 
   private assertCellIsValidField(col: number, row: number, cell: EvaluatedCell) {
-    if (cell.type === CellValueType.error) {
+    if (isErrorCell(cell)) {
       throw new EvaluationError(
         _t("The pivot cannot be created because cell %s contains an error", toXC(col, row))
       );
     }
-    if (cell.type === CellValueType.empty || cell.value === "") {
+    if (isEmptyCell(cell) || (isTextCell(cell) && cell.value === "")) {
       throw new EvaluationError(
         _t("The pivot cannot be created because cell %s is empty", toXC(col, row))
       );
     }
 
-    if (cell.value === "__count") {
+    if (isTextCell(cell) && cell.value === "__count") {
       throw new EvaluationError(
         _t("The pivot cannot be created because cell %s contains a reserved value", toXC(col, row))
       );
@@ -495,7 +501,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           throw new Error(`Field ${this.metaData.fieldKeys[index]} does not exist`);
         }
         if (cell.value === "") {
-          entry[field.name] = { value: null, type: CellValueType.empty, formattedValue: "" };
+          entry[field.name] = { value: null };
         } else {
           entry[field.name] = cell;
         }
@@ -506,7 +512,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         const baseValue = entry[customField.parentField];
         const parentField = this.fields[customField.parentField];
         if (!baseValue || !parentField) {
-          entry[customFieldName] = { value: null, type: CellValueType.empty, formattedValue: "" };
+          entry[customFieldName] = { value: null };
           continue;
         }
         const group =
@@ -517,14 +523,14 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           value: group ? group.name : baseValue.value,
         };
       }
-      entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
+      entry["__count"] = { value: 1 };
       dataEntries.push(entry);
     }
     const dateDimensions = this.definition.columns
       .concat(this.definition.rows)
       .filter((d) => d.type === "datetime");
     if (dateDimensions.length) {
-      const locale = this.getters.getLocale();
+      // const locale = this.getters.getLocale();
       for (const entry of dataEntries) {
         for (const dimension of dateDimensions) {
           const value = createDate(
@@ -532,14 +538,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
             entry[dimension.fieldName]?.value || null,
             this.getters.getLocale()
           );
-          const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
-          const { format, value: valueToFormat } = adapter.toValueAndFormat(value, locale);
+          // const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
+          // const { format, value: valueToFormat } = adapter.toValueAndFormat(value, locale);
 
           entry[dimension.nameWithGranularity] = {
             value,
-            type: entry[dimension.fieldName]?.type || CellValueType.empty,
             format: entry[dimension.fieldName]?.format,
-            formattedValue: formatValue(valueToFormat, { locale, format }),
+            // formattedValue: formatValue(valueToFormat, { locale, format }),
           };
         }
       }

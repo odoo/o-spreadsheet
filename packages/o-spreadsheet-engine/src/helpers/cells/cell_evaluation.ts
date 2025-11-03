@@ -9,10 +9,11 @@ import {
   EvaluatedCell,
   LiteralCell,
   NumberCell,
+  TextCell,
 } from "../../types/cells";
 import { LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
-import { CellPosition, FunctionResultObject } from "../../types/misc";
+import { CellPosition, FunctionResultObject, Maybe } from "../../types/misc";
 import { parseDateTime } from "../dates";
 import {
   detectDateFormat,
@@ -24,6 +25,43 @@ import {
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
+
+export function isNumberCell(cell: Maybe<EvaluatedCell>): cell is NumberCell {
+  return !!cell && getEvaluatedCellType(cell) === CellValueType.number;
+}
+
+export function isTextCell(cell: Maybe<EvaluatedCell>): cell is TextCell {
+  return !!cell && getEvaluatedCellType(cell) === CellValueType.text;
+}
+
+export function isBooleanCell(cell: Maybe<EvaluatedCell>): cell is BooleanCell {
+  return !!cell && getEvaluatedCellType(cell) === CellValueType.boolean;
+}
+
+export function isEmptyCell(cell: Maybe<EvaluatedCell>): cell is EmptyCell {
+  return !!cell && getEvaluatedCellType(cell) === CellValueType.empty;
+}
+
+export function isErrorCell(cell: Maybe<EvaluatedCell>): cell is ErrorCell {
+  return !!cell && getEvaluatedCellType(cell) === CellValueType.error;
+}
+
+export function getEvaluatedCellType(cell: EvaluatedCell): CellValueType {
+  if (cell.value === null) {
+    return CellValueType.empty;
+  }
+  switch (typeof cell.value) {
+    case "number":
+      return CellValueType.number;
+    case "boolean":
+      return CellValueType.boolean;
+    case "string":
+      if (isEvaluationError(cell.value)) {
+        return CellValueType.error;
+      }
+      return CellValueType.text;
+  }
+}
 
 export function evaluateLiteral(
   literalCell: LiteralCell,
@@ -139,10 +177,10 @@ function textCell(
   return {
     value,
     format,
-    formattedValue,
-    type: CellValueType.text,
-    isAutoSummable: true,
-    defaultAlign: "left",
+    // formattedValue,
+    // type: CellValueType.text,
+    // isAutoSummable: true,
+    // defaultAlign: "left",
   };
 }
 
@@ -150,10 +188,10 @@ function numberCell(value: number, format: string | undefined, formattedValue: s
   return {
     value: value || 0, // necessary to avoid "-0" and NaN values,
     format,
-    formattedValue,
-    type: CellValueType.number,
-    isAutoSummable: true,
-    defaultAlign: "right",
+    // formattedValue,
+    // type: CellValueType.number,
+    // isAutoSummable: true,
+    // defaultAlign: "right",
   };
 }
 
@@ -161,10 +199,10 @@ const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyC
   return {
     value: null,
     format,
-    formattedValue: "",
-    type: CellValueType.empty,
-    isAutoSummable: true,
-    defaultAlign: "left",
+    // formattedValue: "",
+    // type: CellValueType.empty,
+    // isAutoSummable: true,
+    // defaultAlign: "left",
   };
 });
 
@@ -176,10 +214,10 @@ function dateTimeCell(
   return {
     value,
     format,
-    formattedValue,
-    type: CellValueType.number,
-    isAutoSummable: false,
-    defaultAlign: "right",
+    // formattedValue,
+    // type: CellValueType.number,
+    // isAutoSummable: false,
+    // defaultAlign: "right",
   };
 }
 
@@ -191,21 +229,21 @@ function booleanCell(
   return {
     value,
     format,
-    formattedValue,
-    type: CellValueType.boolean,
-    isAutoSummable: false,
-    defaultAlign: "center",
+    // formattedValue,
+    // type: CellValueType.boolean,
+    // isAutoSummable: false,
+    // defaultAlign: "center",
   };
 }
 
 function errorCell(value: string, message?: string): ErrorCell {
   return {
     value,
-    formattedValue: value,
     message,
-    type: CellValueType.error,
-    isAutoSummable: false,
-    defaultAlign: "center",
+    // formattedValue: value,
+    // type: CellValueType.error,
+    // isAutoSummable: false,
+    // defaultAlign: "center",
   };
 }
 

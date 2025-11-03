@@ -1,10 +1,11 @@
 import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
+import { isEmptyCell, isErrorCell } from "../../../helpers/cells/cell_evaluation";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { formatValue } from "../../../helpers/format/format";
 import { cellPositions, positions } from "../../../helpers/zones";
-import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
+import { CellValue, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
   CoreViewCommand,
@@ -324,7 +325,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   isEmpty(sheetId: UID, zone: Zone): boolean {
     return positions(zone)
       .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
-      .every((cell) => cell.type === CellValueType.empty);
+      .every((cell) => isEmptyCell(cell));
   }
 
   /**
@@ -394,7 +395,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
         content = !isExported ? newContent : exportedCellData;
       }
       exportedSheetData.cells[xc] = content;
-      exportedSheetData.cellValues[xc] = evaluatedCell.type !== "error" ? value : undefined;
+      exportedSheetData.cellValues[xc] = !isErrorCell(evaluatedCell) ? value : undefined;
       const spillZone = this.getSpreadZone(position);
       if (spillZone) {
         exportedSheetData.formulaSpillRanges[xc] = this.getters.getRangeString(

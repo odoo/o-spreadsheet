@@ -1,3 +1,4 @@
+import { isErrorCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { deepCopy, deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
 import {
@@ -10,7 +11,6 @@ import {
 import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
 import { cellPositions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CellValueType } from "@odoo/o-spreadsheet-engine/types/cells";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   CellPosition,
@@ -95,11 +95,7 @@ export const FIX_FORMULAS: ActionSpec = {
     }
     const pivot = env.model.getters.getPivot(pivotId);
     const cell = env.model.getters.getEvaluatedCell(position);
-    return (
-      pivot.isValid() &&
-      env.model.getters.isSpillPivotFormula(position) &&
-      cell.type !== CellValueType.error
-    );
+    return pivot.isValid() && env.model.getters.isSpillPivotFormula(position) && !isErrorCell(cell);
   },
   icon: "o-spreadsheet-Icon.PIVOT",
 };
