@@ -1104,3 +1104,23 @@ export const OFFSET = {
     );
   },
 } satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// CHOOSE
+// -----------------------------------------------------------------------------
+export const CHOOSE = {
+  description: _t("An element from a list of choices based on index."),
+  args: [
+    arg("index (number)", _t("Which choice (of the up to 30 provided) to return.")),
+    arg(
+      "choice (ANY, RANGE<ANY>, repeating)",
+      _t(
+        "A potential value to return. Required. May be a reference to a cell or an individual value.."
+      )
+    ),
+  ],
+  compute: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
+    return choices[Math.floor(toNumber(index, this.locale)) - 1] || "#ERROR";
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;

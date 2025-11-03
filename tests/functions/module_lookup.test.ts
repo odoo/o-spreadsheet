@@ -1922,3 +1922,30 @@ describe("OFFSET formula", () => {
     expect(getEvaluatedCell(model2, "A1", "sh3").value).toBe("bloub");
   });
 });
+
+describe("CHOOSE formula", () => {
+  test("should return second choice when index is 2", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE(2, "A", "B", "C")` })).toBe("B");
+  });
+  test("should return first choice when index is 1", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE(1, "A", "B", "C")` })).toBe("A");
+  });
+  test("should truncate decimal index before using it", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE(1.4, "A", "B", "C")` })).toBe("A");
+  });
+  test("should convert string index to number", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE("1", "A", "B", "C")` })).toBe("A");
+  });
+  test("error if index is not a number", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE("a", "A", "B", "C")` })).toBe("#ERROR");
+  });
+  test("error if index is négative", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE(-1, "A", "B", "C")` })).toBe("#ERROR");
+  });
+  test("error if index is too big", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE(4, "A", "B", "C")` })).toBe("#ERROR");
+  });
+  test("error if argument is missing", () => {
+    expect(evaluateCell("A1", { A1: `=CHOOSE(4)` })).toBe("#BAD_EXPR");
+  });
+});
