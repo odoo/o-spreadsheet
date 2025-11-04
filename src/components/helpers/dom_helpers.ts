@@ -234,6 +234,10 @@ export function isIOS() {
   );
 }
 
+export function isBrowserSafari() {
+  return /Safari/i.test(navigator.userAgent);
+}
+
 function isOtherMobileOS() {
   return /(webOS|BlackBerry|Windows Phone)/i.test(navigator.userAgent);
 }

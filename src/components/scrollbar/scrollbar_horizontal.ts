@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
-import { isBrowserFirefox } from "../helpers/dom_helpers";
+import { isBrowserFirefox, isBrowserSafari } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
@@ -47,7 +47,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
       height: `${scrollbarWidth}px`,
-      right: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
+      right: isBrowserFirefox() || isBrowserSafari() ? `${scrollbarWidth}px` : "0",
     };
   }
 

@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
-import { isBrowserFirefox } from "../helpers/dom_helpers";
+import { isBrowserFirefox, isBrowserSafari } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
@@ -47,7 +47,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
       width: `${scrollbarWidth}px`,
-      bottom: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
+      bottom: isBrowserFirefox() || isBrowserSafari() ? `${scrollbarWidth}px` : "0",
     };
   }
 
