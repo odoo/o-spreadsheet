@@ -384,6 +384,40 @@ describe("evaluateCells", () => {
     expect(evaluateCell("A1", { A1: "=A2<>A3", A2: "abc", A3: "def" })).toBe(true);
   });
 
+  test("# operator", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3)");
+    setCellContent(model, "B1", "=SEQUENCE(3)");
+
+    createSheet(model, { sheetId: "42" });
+    const sheet2 = model.getters.getSheetIds()[1];
+    setCellContent(model, "A1", "=SEQUENCE(3)", sheet2);
+
+    setCellContent(model, "C1", "=A1#");
+    expect(getEvaluatedCell(model, "C1").value).toBe(1);
+    expect(getEvaluatedCell(model, "C2").value).toBe(2);
+    expect(getEvaluatedCell(model, "C3").value).toBe(3);
+
+    setCellContent(model, "C1", "=A1:A1#");
+    expect(getEvaluatedCell(model, "C1").value).toBe(1);
+    expect(getEvaluatedCell(model, "C2").value).toBe(2);
+    expect(getEvaluatedCell(model, "C3").value).toBe(3);
+
+    setCellContent(model, "C1", "=A1:B1#");
+    expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "C2").value).toBe(null);
+    expect(getEvaluatedCell(model, "C3").value).toBe(null);
+
+    expect(getEvaluatedCell(model, "C1").message).toBe(
+      "Only single-cell references are allowed to get the spilled range."
+    );
+
+    setCellContent(model, "C1", "=Sheet2!A1#");
+    expect(getEvaluatedCell(model, "C1").value).toBe(1);
+    expect(getEvaluatedCell(model, "C2").value).toBe(2);
+    expect(getEvaluatedCell(model, "C3").value).toBe(3);
+  });
+
   test("if with sub expressions", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "0" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "1" })).toBe(1);

@@ -1,9 +1,9 @@
 import { _t } from "../translation";
-import { DivisionByZeroError } from "../types/errors";
+import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { FunctionResultNumber, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { isEvaluationError, toNumber, toString } from "./helpers";
+import { generateMatrix, isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -286,6 +286,71 @@ export const POW = {
   compute: function (base: Maybe<FunctionResultObject>, exponent: Maybe<FunctionResultObject>) {
     return POWER.compute.bind(this)(base, exponent);
   },
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// SPILLED_RANGE
+// -----------------------------------------------------------------------------
+
+/**
+ * Internal formula implementing the # operator.
+ * It allows to get the spilled range of an array formula from any reference, including
+ * references returned by other functions.
+ * e.g. =IF(condition, A1, H10)#
+ **/
+export const SPILLED_RANGE = {
+  description: _t("Gets the spilled range of an array formula."),
+  args: [arg("ref (meta  , range<meta>)", _t("The reference to get the spilled range from."))],
+  compute: function (ref: Matrix<{ value: string }> | undefined) {
+    if (ref === undefined) {
+      return new EvaluationError(_t("The range is out of bounds."));
+    }
+    if (ref.length !== 1 || ref[0].length !== 1) {
+      return new EvaluationError(
+        _t("Only single-cell references are allowed to get the spilled range.")
+      );
+    }
+    const _ref = ref[0][0];
+    if (isEvaluationError(_ref.value)) {
+      return _ref;
+    }
+
+    const initialRange = this.getters.getRangeFromSheetXC(this.__originSheetId, _ref.value);
+    const cellPosition = {
+      col: initialRange.zone.left,
+      row: initialRange.zone.top,
+      sheetId: initialRange.sheetId,
+    };
+
+    const originPosition = this.__originCellPosition;
+    if (originPosition) {
+      // The following line is used to reset the dependencies of the cell, to avoid
+      // keeping dependencies from previous evaluation (i.e. in case the reference
+      // has been changed).
+      this.updateDependencies?.(originPosition);
+    }
+
+    const spilledZone = this.getters.getSpreadZone(cellPosition);
+    if (spilledZone === undefined) {
+      return new InvalidReferenceError();
+    }
+    const spilledRange = this.getters.getRangeFromZone(initialRange.sheetId, spilledZone);
+    if (originPosition) {
+      this.addDependencies?.(originPosition, [spilledRange]);
+    }
+
+    return generateMatrix(
+      spilledZone.right - spilledZone.left + 1,
+      spilledZone.bottom - spilledZone.top + 1,
+      (col: number, row: number): FunctionResultObject =>
+        this.getters.getEvaluatedCell({
+          sheetId: spilledRange.sheetId,
+          col: spilledZone.left + col,
+          row: spilledZone.top + row,
+        })
+    );
+  },
+  hidden: true,
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------

@@ -230,7 +230,49 @@ function addArgsAST(tokens: EnrichedToken[]): EnrichedToken[] {
  * @param formula
  */
 export function composerTokenize(formula: string, locale: Locale): EnrichedToken[] {
-  const tokens = rangeTokenize(formula, locale);
-
+  // Note:
+  // Ideally, rangeTokenize would only identify ranges for the composer:
+  // Ranges should be treated as single tokens in the composer, so users can select
+  // ranges on the grid. And compilation should treats ranges as operations between
+  // references. ( because ":" can be used as an operator between other things than
+  // references).
+  //
+  // The same applies to spilled ranges: although they are handled as operators
+  // during compilation, for the composer, we already treat them as part of the
+  // same token as the reference.
+  //
+  // Therefore, in the future, spillRangeTokenize and rangeTokenize will need to
+  // be combined into a single process specific to the composer and to the token
+  // creation process specific to the composer selection mode.
+  const tokens = spilledRangeTokenize(rangeTokenize(formula, locale));
   return addArgsAST(mapParentFunction(mapParenthesisCode(enrichTokens(tokens))));
+}
+
+function spilledRangeTokenize(tokens: Token[]): Token[] {
+  const result: Token[] = [];
+  while (tokens.length) {
+    result.push(matchSpilledRange(tokens) || tokens.shift()!);
+  }
+  return result;
+}
+
+function matchSpilledRange(tokens: Token[]): Token | null {
+  if (tokens.length < 2) {
+    return null;
+  }
+  const firstToken = tokens[0];
+  const secondToken = tokens[1];
+  if (
+    firstToken.type === "REFERENCE" &&
+    secondToken.type === "OPERATOR" &&
+    secondToken.value === "#" &&
+    !firstToken.value.includes(":")
+  ) {
+    tokens.splice(0, 2);
+    return {
+      type: firstToken.type,
+      value: firstToken.value + "#",
+    };
+  }
+  return null;
 }

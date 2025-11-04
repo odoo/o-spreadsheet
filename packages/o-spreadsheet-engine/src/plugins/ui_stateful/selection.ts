@@ -1,7 +1,9 @@
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
+import { getFullReference, splitReference } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { clip, deepCopy, range } from "../../helpers/misc";
+import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import {
   isEqual,
   isZoneInside,
@@ -37,6 +39,7 @@ import {
   UnboundedZone,
   Zone,
 } from "../../types/misc";
+import { Range } from "../../types/range";
 import { GridRenderingContext } from "../../types/rendering";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -69,6 +72,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "tryGetActiveSheetId",
     "isGridSelectionActive",
     "getSelectecUnboundedZone",
+    "getSelectionRangeString",
   ] as const;
 
   private gridSelection: {
@@ -442,6 +446,45 @@ export class GridSelectionPlugin extends UIPlugin {
     return [...new Set(elements)].sort();
   }
 
+  /**
+   * Same as `getRangeString` but add:
+   * - all necessary merge to the range to make it a valid selection
+   * - the "#" suffix if the range is a spilled reference
+   */
+  getSelectionRangeString(range: Range, forSheetId: UID): string {
+    const expandedZone = this.getters.expandZone(range.sheetId, range.zone);
+    const expandedRange = createRange(
+      {
+        ...range,
+        zone: {
+          ...expandedZone,
+          bottom: isFullColRange(range) ? undefined : expandedZone.bottom,
+          right: isFullRowRange(range) ? undefined : expandedZone.right,
+        },
+      },
+      this.getters.getSheetSize
+    );
+    const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
+    if (this.getters.isSingleCellOrMerge(range.sheetId, range.zone)) {
+      const { sheetName, xc } = splitReference(rangeString);
+      return getFullReference(sheetName, xc.split(":")[0]);
+    }
+
+    const spreaderPosition = this.getters.getArrayFormulaSpreadingOn({
+      sheetId: expandedRange.sheetId,
+      col: expandedRange.zone.left,
+      row: expandedRange.zone.top,
+    });
+
+    const spreadZone =
+      spreaderPosition && this.getters.getSpreadZone(spreaderPosition, { ignoreSpillError: true });
+    if (spreadZone && isEqual(spreadZone, expandedRange.zone)) {
+      const { sheetName, xc } = splitReference(rangeString);
+      return getFullReference(sheetName, xc.split(":")[0]) + "#";
+    }
+
+    return rangeString;
+  }
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------

@@ -1,7 +1,5 @@
-import { getFullReference, splitReference } from "../../helpers";
 import { toXC } from "../../helpers/coordinates";
 import { clip, deepEquals, isDefined } from "../../helpers/misc";
-import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import {
   doesAnyZoneCrossFrozenPane,
   isEqual,
@@ -46,7 +44,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getMerge",
     "getMergesInZone",
     "isSingleCellOrMerge",
-    "getSelectionRangeString",
     "isMainCellPosition",
   ] as const;
 
@@ -152,30 +149,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return Array.from(mergeIds)
       .map((mergeId) => this.getMergeById(sheetId, mergeId))
       .filter(isDefined);
-  }
-
-  /**
-   * Same as `getRangeString` but add all necessary merge to the range to make it a valid selection
-   */
-  getSelectionRangeString(range: Range, forSheetId: UID): string {
-    const expandedZone = this.getters.expandZone(range.sheetId, range.zone);
-    const expandedRange = createRange(
-      {
-        ...range,
-        zone: {
-          ...expandedZone,
-          bottom: isFullColRange(range) ? undefined : expandedZone.bottom,
-          right: isFullRowRange(range) ? undefined : expandedZone.right,
-        },
-      },
-      this.getters.getSheetSize
-    );
-    const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
-    if (this.isSingleCellOrMerge(range.sheetId, range.zone)) {
-      const { sheetName, xc } = splitReference(rangeString);
-      return getFullReference(sheetName, xc.split(":")[0]);
-    }
-    return rangeString;
   }
 
   /**
