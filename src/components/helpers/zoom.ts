@@ -1,5 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Pixel, Rect } from "../..";
+import { isBrowserSafari } from "./dom_helpers";
 
 export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
   clientX: Pixel;
@@ -26,16 +27,23 @@ export function withZoom<T extends MouseEvent>(
     originalTargetRect = getZoomTargetBoundingRect(ev);
   }
   if (!originalTargetRect) return withNoZoom(ev);
-  const baseOffsetX = ev.clientX - originalTargetRect.left;
-  const baseOffsetY = ev.clientY - originalTargetRect.top;
+
+  const correctionFactor = isBrowserSafari() ? zoomLevel : 1;
+
+  if (isBrowserSafari()) {
+    console.log("withZoom", { zoomLevel, originalTargetRect, ev });
+  }
+
+  const baseOffsetX = ev.clientX - originalTargetRect.left * correctionFactor;
+  const baseOffsetY = ev.clientY - originalTargetRect.top * correctionFactor;
   const offsetX = baseOffsetX / zoomLevel;
   const offsetY = baseOffsetY / zoomLevel;
   return {
     ev,
-    clientX: ev.clientX - baseOffsetX + offsetX,
-    clientY: ev.clientY - baseOffsetY + offsetY,
-    offsetX,
-    offsetY,
+    clientX: (ev.clientX - baseOffsetX + offsetX) / 1,
+    clientY: (ev.clientY - baseOffsetY + offsetY) / 1,
+    offsetX: offsetX / 1,
+    offsetY: offsetY / 1,
   };
 }
 
@@ -71,5 +79,6 @@ function getZoomTargetBoundingRect(ev: MouseEvent): DOMRect | null {
   }
   const targetEl = target.classList.contains("o-zoomable") ? target : target.closest(".o-zoomable");
   if (!targetEl) return null;
+  // add a proxy for safari that divides the x.y pretty much everything
   return targetEl.getBoundingClientRect();
 }

@@ -291,7 +291,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
         ?.getBoundingClientRect().height || 0;
 
     const gridWidth =
-      this.spreadsheetRef.el?.querySelector(".o-grid")?.getBoundingClientRect().width || 0;
+      (this.spreadsheetRef.el?.getBoundingClientRect().width || 0) -
+      (this.spreadsheetRef.el?.querySelector(".o-sidePanel")?.getBoundingClientRect().width || 0);
     const gridHeight =
       (this.spreadsheetRef.el?.getBoundingClientRect().height || 0) -
       (this.spreadsheetRef.el?.querySelector(".o-column-groups")?.getBoundingClientRect().height ||

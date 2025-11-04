@@ -54,7 +54,8 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;
 
-    const x = zoomedMouseEvent.clientX - position.left;
+    const zoomLevel = getters.getViewportZoomLevel();
+    const x = (zoomedMouseEvent.clientX - position.left) / 1;
     let colIndex = getters.getColIndex(x);
 
     if (scrollDirection !== "vertical") {
@@ -84,11 +85,13 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
       }
     }
 
-    const y = zoomedMouseEvent.clientY - position.top;
+    const y = (zoomedMouseEvent.clientY - position.top) / zoomLevel;
     let rowIndex = getters.getRowIndex(y);
 
     if (scrollDirection !== "horizontal") {
+      console.log("edge scroll Y");
       const previousY = previousEvClientPosition.clientY - position.top;
+      console.log("edge scroll Y");
       const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
       if (edgeScrollInfoY.canEdgeScroll) {
         canEdgeScroll = true;
