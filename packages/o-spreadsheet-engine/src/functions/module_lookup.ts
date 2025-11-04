@@ -1111,16 +1111,71 @@ export const OFFSET = {
 export const CHOOSE = {
   description: _t("An element from a list of choices based on index."),
   args: [
-    arg("index (number)", _t("Which choice (of the up to 30 provided) to return.")),
+    arg("index (number)", _t("Which choice to return.")),
     arg(
-      "choice (ANY, RANGE<ANY>, repeating)",
+      "choice (any, range<any>, repeating)",
       _t(
-        "A potential value to return. Required. May be a reference to a cell or an individual value.."
+        "A potential value to return. Required. May be a reference to a cell or an individual value."
       )
     ),
   ],
   compute: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
-    return choices[Math.floor(toNumber(index, this.locale)) - 1] || "#ERROR";
+    const _index = Math.floor(toNumber(index, this.locale)) - 1;
+    if (_index < 0 || _index >= choices.length) {
+      return new EvaluationError(
+        _t("Index for CHOOSE is invalid. Valid values are between 1 and %(choices)s inclusive.", {
+          choices: choices.length,
+        })
+      );
+    }
+    const result = choices[_index];
+    return result ?? new EvaluationError(_t("Message d erreur à corriger"));
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// DROP
+// -----------------------------------------------------------------------------
+export const DROP = {
+  description: _t(
+    "Excludes a specified number of rows or columns from the start or end of an array."
+  ),
+  args: [
+    arg("array (range)", _t("The array from which to drop rows or columns")),
+    arg(
+      "rows (number)",
+      _t("The number of rows to drop. A negative value drops from the end of the array.")
+    ),
+    arg(
+      "columns (number, optional)",
+      _t("The number of columns to exclude. A negative value drops from the end of the array.")
+    ),
+  ],
+  compute: function (
+    array: Matrix<{ value: string }>,
+    rows: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>
+  ) {
+    const _rows = toNumber(rows, this.locale);
+    const _columns = toNumber(columns, this.locale);
+    let result = array;
+    if (Math.abs(_columns) >= array.length || Math.abs(_rows) >= array[0].length) {
+      return new EvaluationError(_t("Number of rows or column to exclude is too big."));
+    }
+    if (_columns >= 0) {
+      result = result.slice(_columns);
+    } else {
+      result = result.slice(0, result.length + _columns);
+    }
+    for (let i = 0; i < result.length; i++) {
+      if (_rows >= 0) {
+        result[i] = result[i].slice(_rows);
+      } else {
+        result[i] = result[i].slice(0, result[i].length + _rows);
+      }
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
