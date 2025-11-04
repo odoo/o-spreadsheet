@@ -168,12 +168,17 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
     const selectedZones = this.env.model.getters.getSelectedZones();
     const sheetId = this.env.model.getters.getActiveSheetId();
 
-    const cells = selectedZones
-      .map((zone) => this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone))
+    const zoneFormats = selectedZones
+      .map((zone) => this.env.model.getters.getZoneFormats(sheetId, zone))
       .flat();
-    const firstFormat = cells[0].format;
+    if (!zoneFormats.length) {
+      return undefined;
+    }
+    const firstFormat = zoneFormats[0].format;
 
-    return cells.every((cell) => cell.format === firstFormat) ? firstFormat : undefined;
+    return zoneFormats.every((zoneFormat) => zoneFormat.format === firstFormat)
+      ? firstFormat
+      : undefined;
   }
 
   currencyDisplayName(currency: Currency): string {
