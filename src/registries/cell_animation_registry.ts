@@ -182,8 +182,7 @@ cellAnimationRegistry.add("textChange", {
       y: slideInY,
       width: newBox.width,
       height: newBox.height,
-      style: { ...newBox.style },
-      skipCellGridLines: true,
+      style: { ...newBox.style, hideGridLines: true },
       content: newBox.content ? { ...newBox.content } : undefined,
       clipRect: newBox.clipRect || {
         ...newBox,
@@ -202,8 +201,7 @@ cellAnimationRegistry.add("textChange", {
       y: slideOutY,
       width: newBox.width,
       height: newBox.height,
-      style: { ...oldBox.style },
-      skipCellGridLines: true,
+      style: { ...oldBox.style, hideGridLines: true },
       content: oldBox.content ? { ...oldBox.content } : undefined,
       clipRect: oldBox.clipRect || {
         ...newBox,
@@ -351,22 +349,20 @@ cellAnimationRegistry.add("iconChange", {
       const newIcon = newBox.icons?.[side];
       const slideInBox: Box = {
         id: `${newBox.id}-icon-${side}-slide-in`,
-        style: { verticalAlign: newBox.style.verticalAlign },
+        style: { verticalAlign: newBox.style.verticalAlign, hideGridLines: true },
         x: newBox.x,
         y: slideInY,
         width: newBox.width,
         height: newBox.height,
-        skipCellGridLines: true,
         icons: { [side]: { ...newIcon, clipRect: newBox } },
       };
       const slideOutBox: Box = {
         id: `${newBox.id}-icon-${side}-slide-out`,
-        style: { verticalAlign: oldBox.style.verticalAlign },
+        style: { verticalAlign: oldBox.style.verticalAlign, hideGridLines: true },
         x: newBox.x,
         y: slideOutY,
         width: newBox.width,
         height: newBox.height,
-        skipCellGridLines: true,
         icons: { [side]: { ...oldIcon, clipRect: newBox } },
       };
       animatedBox.icons[side] = makeIconsEmpty(newBox.icons)[side];

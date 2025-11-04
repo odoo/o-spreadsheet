@@ -120,6 +120,7 @@ export interface Style {
   textColor?: Color;
   fontSize?: number; // in pt, not in px!
   rotation?: number; // in rad, clockwise because y+ is down
+  hideGridLines?: boolean; // hide the grid lines for this cell. Mainly used for pivot tables and cell animations.
 }
 
 export interface DataBarFill {

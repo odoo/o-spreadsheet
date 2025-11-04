@@ -2487,4 +2487,29 @@ describe("renderer", () => {
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
   });
+
+  test("Applying style hideGridLines on a cell skips the drawing of the grid lines for this cell", () => {
+    const model = new Model();
+    const { drawGridRenderer } = setRenderer(model);
+
+    let strokeRectCalls: string[];
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (key, args) => {
+        if (key === "strokeRect") {
+          strokeRectCalls.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+        }
+      },
+    });
+
+    strokeRectCalls = [];
+    drawGridRenderer(ctx);
+
+    const baseNumberOfStrokeRect = strokeRectCalls.length;
+
+    setStyle(model, "A1:B2", { hideGridLines: true });
+    strokeRectCalls = [];
+    drawGridRenderer(ctx);
+
+    expect(strokeRectCalls.length).toBe(baseNumberOfStrokeRect - 4);
+  });
 });
