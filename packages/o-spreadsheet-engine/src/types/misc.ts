@@ -226,7 +226,6 @@ export interface ClipboardCell {
   position: CellPosition;
   content: string;
   style?: Style | undefined;
-  format?: Format | undefined;
   tokens?: Token[];
   border?: Border;
 }

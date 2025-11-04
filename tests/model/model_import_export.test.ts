@@ -28,6 +28,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getEvaluatedCell,
   getMerges,
@@ -510,7 +511,7 @@ describe("Migrations", () => {
       formats: { 2: "0.00%" },
       borders: { 3: border },
     });
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
     expect(getCellStyle(model, "A1")).toEqual(style);
     expect(getBorder(model, "A1")).toEqual(border);
     const data = model.exportData();
@@ -817,7 +818,7 @@ describe("Import", () => {
       formats: { 1: "0.00%" },
     });
     expect(getCell(model, "A1")?.content).toBe("");
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
   });
 });
 
@@ -1092,7 +1093,7 @@ test("import date as string and detect the format", () => {
       },
     ],
   });
-  expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
+  expect(getCellFormat(model, "A1")).toBe("m/d/yyyy");
   expect(getCell(model, "A1")?.content).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");
 });
@@ -1106,7 +1107,7 @@ test("import localized date as string and detect the format", () => {
     ],
     settings: { locale: FR_LOCALE },
   });
-  expect(getCell(model, "A1")?.format).toBe("d/m/yyyy");
+  expect(getCellFormat(model, "A1")).toBe("d/m/yyyy");
   expect(getCell(model, "A1")?.content).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("31/12/2020");
 });

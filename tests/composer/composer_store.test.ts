@@ -38,6 +38,7 @@ import {
   getActivePosition,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getEvaluatedCell,
@@ -1033,7 +1034,7 @@ describe("edition", () => {
       test("Can input localized date", () => {
         updateLocale(model, FR_LOCALE);
         editCell(model, "A1", "30/01/2020");
-        expect(getCell(model, "A1")?.format).toBe("dd/mm/yyyy");
+        expect(getCellFormat(model, "A1")).toBe("dd/mm/yyyy");
         expect(getCell(model, "A1")?.content).toBe(
           jsDateToRoundNumber(new DateTime(2020, 0, 30)).toString()
         );
@@ -1042,13 +1043,13 @@ describe("edition", () => {
       test("Changing the locale after inputting a localized date does not change the date value", () => {
         updateLocale(model, FR_LOCALE);
         editCell(model, "A1", "30/01/2020");
-        expect(getCell(model, "A1")?.format).toBe("dd/mm/yyyy");
+        expect(getCellFormat(model, "A1")).toBe("dd/mm/yyyy");
         expect(getEvaluatedCell(model, "A1").value).toBe(
           jsDateToRoundNumber(new DateTime(2020, 0, 30))
         );
 
         updateLocale(model, DEFAULT_LOCALE);
-        expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
+        expect(getCellFormat(model, "A1")).toBe("m/d/yyyy");
         expect(getEvaluatedCell(model, "A1").value).toBe(
           jsDateToRoundNumber(new DateTime(2020, 0, 30))
         );
