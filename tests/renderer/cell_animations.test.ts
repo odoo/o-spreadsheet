@@ -345,7 +345,7 @@ describe("Individual animation tests", () => {
       y: a2Box.y - DEFAULT_CELL_HEIGHT,
       width: DEFAULT_CELL_WIDTH,
       height: DEFAULT_CELL_HEIGHT,
-      skipCellGridLines: true,
+      style: { hideGridLines: true },
     });
     expect(getBoxFromXc("A2-text-slide-out")).toMatchObject({
       content: { textLines: ["oldText"], y: originalContentY },
@@ -353,7 +353,7 @@ describe("Individual animation tests", () => {
       y: a2Box.y,
       width: DEFAULT_CELL_WIDTH,
       height: DEFAULT_CELL_HEIGHT,
-      skipCellGridLines: true,
+      style: { hideGridLines: true },
     });
 
     animationFrameCallback(0);
