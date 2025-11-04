@@ -255,7 +255,7 @@ function parseNumberFormatTokens(
 function parseDateFormatTokens(tokens: FormatToken[] | undefined): DateInternalFormat | undefined {
   const internalFormat =
     tokens && areValidDateFormatTokens(tokens) ? { type: "date", tokens } : undefined;
-  if (!internalFormat) {
+  if (!internalFormat || !tokens?.some((token) => token.type === "DATE_PART")) {
     return undefined;
   }
   if (
