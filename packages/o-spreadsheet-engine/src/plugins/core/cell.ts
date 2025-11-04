@@ -2,11 +2,7 @@ import { compile, compileTokens } from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
-import {
-  getItemId,
-  groupItemIdsByZones,
-  iterateItemIdsPositions,
-} from "../../helpers/data_normalization";
+import { iterateItemIdsPositions } from "../../helpers/data_normalization";
 import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
 import { toCartesian, toXC } from "../../helpers/coordinates";
@@ -23,15 +19,10 @@ import {
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
-import { CellPosition, HeaderIndex, UID } from "../../types/misc";
+import { HeaderIndex, UID } from "../../types/misc";
 
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
-import {
-  detectDateFormat,
-  detectNumberFormat,
-  isExcelCompatible,
-  isTextFormat,
-} from "../../helpers/format/format";
+import { detectDateFormat, detectNumberFormat, isTextFormat } from "../../helpers/format/format";
 import { Format } from "../../types/format";
 import {
   AdaptSheetName,
@@ -294,10 +285,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   export(data: WorkbookData) {
-    const formats: { [formatId: number]: string } = {};
-
     for (const _sheet of data.sheets) {
-      const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: string } = {};
       const positions = Object.keys(this.cells[_sheet.id] || {})
         .map((cellId) => this.getters.getCellPosition(cellId))
@@ -305,19 +293,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-        if (cell.format) {
-          const formatId = getItemId<Format>(cell.format, formats);
-          positionsByFormat[formatId] ??= [];
-          positionsByFormat[formatId].push(position);
-        }
         if (cell.content) {
           cells[xc] = cell.content;
         }
       }
-      _sheet.formats = groupItemIdsByZones(positionsByFormat);
       _sheet.cells = cells;
     }
-    data.formats = formats;
   }
 
   importCell(sheetId: UID, content?: string, format?: Format): Cell {
@@ -327,23 +308,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
-    const incompatibleIds: number[] = [];
-    for (const formatId in data.formats || []) {
-      if (!isExcelCompatible(data.formats[formatId])) {
-        incompatibleIds.push(Number(formatId));
-        delete data.formats[formatId];
-      }
-    }
-    if (incompatibleIds.length) {
-      for (const sheet of data.sheets) {
-        for (const zoneXc in sheet.formats) {
-          const formatId = sheet.formats[zoneXc];
-          if (formatId && incompatibleIds.includes(formatId)) {
-            delete sheet.formats[zoneXc];
-          }
-        }
-      }
-    }
   }
 
   // ---------------------------------------------------------------------------
