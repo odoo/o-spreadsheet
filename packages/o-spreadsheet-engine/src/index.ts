@@ -87,6 +87,7 @@ import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 import { isMatrix } from "./types/misc";
 export { EventBus } from "./helpers/event_bus";
+export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
 export { coreTypes, invalidateEvaluationCommands } from "./types/commands";
 export { EvaluationError } from "./types/errors";
 
