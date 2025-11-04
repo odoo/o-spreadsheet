@@ -2043,14 +2043,7 @@ describe("DROP formula", () => {
       A2: "A2", B2: "B2",
                                     D5: "=DROP(A1:B2,-2)",
     };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "#ERROR",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
   });
   test("error if too much columns to exclude in negative", () => {
     //prettier-ignore
@@ -2059,13 +2052,36 @@ describe("DROP formula", () => {
       A2: "A2", B2: "B2",
                                     D5: "=DROP(A1:B2,0,-2)",
     };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "#ERROR",
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
+  });
+});
+
+describe("ARRAYTOTEXT formula", () => {
+  test("correct without format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2)",
     };
-    expect(evaluateGrid(grid)).toEqual(result);
+    expect(evaluateCell("D5", grid)).toBe("A1,B1,A2,B2");
+  });
+  test("correct with format 1", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2,1)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("{A1,B1;A2,B2}");
+  });
+  test("correct with an empty cell", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("A1,,A2,B2");
   });
 });

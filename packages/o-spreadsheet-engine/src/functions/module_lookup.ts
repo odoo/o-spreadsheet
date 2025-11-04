@@ -1179,3 +1179,46 @@ export const DROP = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// ARRAYTOTEXT
+// -----------------------------------------------------------------------------
+
+export const ARRAYTOTEXT = {
+  description: _t(
+    "returns an array of text values from any specified range. It passes text values unchanged, and converts non-text values to text."
+  ),
+  //c'est ce que dit excel mais je trouve pas ça très clair
+  args: [
+    arg("array (range)", _t("The array to convert into text")),
+    arg("format (number, optional)", _t("The format of the returned data.")),
+  ],
+  compute: function (
+    array: Matrix<{ value: string }>,
+    format: Maybe<FunctionResultObject> = { value: 0 }
+  ) {
+    let result = "";
+    const symb = { 0: ",", 1: ";" };
+    const _format = toNumber(format, this.locale);
+    if (!(_format in Object.keys(symb))) {
+      return new EvaluationError(_t("Format must be 0 or 1"));
+    }
+    for (let row = 0; row < array[0].length; row++) {
+      for (let col = 0; col < array.length; col++) {
+        const text = array[col][row].value ?? "";
+        result = result + text;
+        if (col !== array.length - 1) {
+          result = result + ",";
+        }
+      }
+      if (row !== array[0].length - 1) {
+        result = result + symb[_format];
+      }
+    }
+    if (_format === 1) {
+      result = "{" + result + "}";
+    }
+    return result;
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
