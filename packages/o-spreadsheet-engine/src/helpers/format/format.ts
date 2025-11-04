@@ -227,6 +227,9 @@ function repeatCharToFitWidth(formattedValue: string, formatWidth?: FormatWidth)
 }
 
 function applyInternalNumberFormat(value: number, format: NumberInternalFormat, locale: Locale) {
+  if (!format.integerPart.length && !format.decimalPart?.length) {
+    return "";
+  }
   if (value === Infinity) {
     return "∞" + (format.percentSymbols ? "%" : "");
   }
