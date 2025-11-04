@@ -33,6 +33,7 @@ import {
   numberToLetters,
   overlap,
   positionToZone,
+  recomputeZones,
   union,
   zoneToXc,
 } from "../helpers/index";
@@ -120,6 +121,12 @@ export class GridRenderer extends SpreadsheetStore {
         this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
         break;
     }
+  }
+
+  finalize() {
+    this.zonesWithPreventedAnimationsInNextFrame = recomputeZones(
+      this.zonesWithPreventedAnimationsInNextFrame
+    );
   }
 
   get renderingLayers() {
