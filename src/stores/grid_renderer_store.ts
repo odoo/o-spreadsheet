@@ -197,7 +197,7 @@ export class GridRenderer extends SpreadsheetStore {
 
     if (areGridLinesVisible) {
       for (const box of boxes) {
-        if (box.skipCellGridLines) {
+        if (box.style.hideGridLines) {
           continue;
         }
         ctx.strokeStyle = CELL_BORDER_COLOR;
