@@ -478,6 +478,32 @@ describe("edition", () => {
     expect(composerStore.currentContent).toBe("=D4");
   });
 
+  test("alter selection updates composer content when selecting a spilled range", () => {
+    setCellContent(model, "A1", "=SEQUENCE(2, 2)");
+
+    selectCell(model, "C1");
+    composerStore.startEdition("=");
+
+    selectCell(model, "A1");
+    expect(composerStore.currentContent).toBe("=A1");
+    resizeAnchorZone(model, "down");
+    resizeAnchorZone(model, "right");
+    expect(composerStore.currentContent).toBe("=A1#");
+  });
+
+  test("remove the spilled range operator after selecting simple range", () => {
+    setCellContent(model, "A1", "=SEQUENCE(2, 2)");
+
+    selectCell(model, "C1");
+    composerStore.startEdition("=");
+    selectCell(model, "A1");
+    setAnchorCorner(model, "B2");
+
+    expect(composerStore.currentContent).toBe("=A1#");
+    resizeAnchorZone(model, "left");
+    expect(composerStore.currentContent).toBe("=A1:A2");
+  });
+
   test("enable selection mode reset to initial position only when selecting on the edition sheet", () => {
     selectCell(model, "D3");
     composerStore.startEdition("=");

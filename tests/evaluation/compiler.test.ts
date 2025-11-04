@@ -87,6 +87,16 @@ describe("expression compiler", () => {
     const compiledFormula = compiledBaseFunction("={1;2;3;4}");
     expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
+
+  test("expression with cell#", () => {
+    const compiledFormula = compiledBaseFunction("=A1#");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("expression with range#", () => {
+    const compiledFormula = compiledBaseFunction("=A1:B2#");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
 });
 
 describe("compile functions", () => {

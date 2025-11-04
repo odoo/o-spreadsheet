@@ -299,7 +299,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       // move cursor to the right part of the token
       this.selectionStart = this.selectionEnd = refToken.end;
-      const zone = this.getters.getRangeFromSheetXC(this.sheetId, xc).zone;
+      const zone = this.getFullySpreadRange(this.sheetId, xc).zone;
       this.captureSelection(zone);
       this.editionMode = "selecting";
     } else {
@@ -550,8 +550,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   private updateComposerRange(oldZone: Zone, newZone: Zone | UnboundedZone) {
     const activeSheetId = this.getters.getActiveSheetId();
 
-    const tokentAtCursor = this.tokenAtCursor;
-    const tokens = tokentAtCursor ? [tokentAtCursor, ...this.currentTokens] : this.currentTokens;
+    // There may be multiple references in the formula that match the highlighted
+    // zone we want to update. We only want to update one reference.
+    const tokenAtCursor = this.tokenAtCursor;
+    const tokens = tokenAtCursor ? [tokenAtCursor, ...this.currentTokens] : this.currentTokens;
     const previousRefToken = tokens
       .filter((token) => token.type === "REFERENCE")
       .find((token) => {
@@ -561,7 +563,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         if (!isSheetNameEqual(this.getters.getSheetName(activeSheetId), sheetName)) {
           return false;
         }
-        const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
+        const refRange = this.getFullySpreadRange(activeSheetId, xc);
         return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), oldZone);
       });
 
@@ -569,7 +571,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return;
     }
 
-    const previousRange = this.getters.getRangeFromSheetXC(activeSheetId, previousRefToken.value);
+    const previousRange = this.getFullySpreadRange(activeSheetId, previousRefToken.value);
     this.selectionStart = previousRefToken!.start;
     this.selectionEnd = this.selectionStart + previousRefToken!.value.length;
 
@@ -655,7 +657,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         return false;
       }
 
-      const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
+      const range = this.getFullySpreadRange(refSheet, xc);
       let zone = range.zone;
       zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
       return isEqual(zone, highlight.range.zone);
@@ -807,8 +809,25 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const editionSheetId = this.sheetId;
     const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")
-      .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
+      .map((token) => this.getFullySpreadRange(editionSheetId, token.value));
     return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
+  }
+
+  private getFullySpreadRange(sheetId: UID, xc: string): Range {
+    if (!xc.endsWith("#")) {
+      return this.getters.getRangeFromSheetXC(sheetId, xc);
+    }
+    const reference = xc.slice(0, -1);
+    const range = this.getters.getRangeFromSheetXC(sheetId, reference);
+    const spreadZone = this.getters.getSpreadZone({
+      sheetId: range.sheetId,
+      col: range.zone.left,
+      row: range.zone.top,
+    });
+    if (spreadZone) {
+      return this.getters.getRangeFromZone(sheetId, spreadZone);
+    }
+    return range;
   }
 
   private async updateAutoCompleteProvider() {

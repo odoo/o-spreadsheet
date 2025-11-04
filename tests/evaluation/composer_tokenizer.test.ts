@@ -341,4 +341,11 @@ describe("composerTokenizer base tests", () => {
       { start: 1, end: 7, length: 6, type: "SYMBOL", value: "trueee", parenthesesCode: "" },
     ]);
   });
+
+  test("spill range operator", () => {
+    expect(composerTokenize("=A1#", DEFAULT_LOCALE)).toEqual([
+      { end: 1, length: 1, parenthesesCode: "", start: 0, type: "OPERATOR", value: "=" },
+      { end: 4, length: 3, parenthesesCode: "", start: 1, type: "REFERENCE", value: "A1#" },
+    ]);
+  });
 });
