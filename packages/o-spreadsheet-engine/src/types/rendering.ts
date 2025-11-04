@@ -60,7 +60,6 @@ export interface RenderingBox {
   overlayColor?: Color;
   icons: { left?: RenderingGridIcon; right?: RenderingGridIcon; center?: RenderingGridIcon };
   textOpacity?: number;
-  skipCellGridLines?: boolean;
   disabledAnimation?: boolean;
 }
 
