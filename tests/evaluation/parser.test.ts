@@ -549,6 +549,7 @@ describe("Converting AST to string", () => {
     expect(astToFormula(parse("1%"))).toBe("1%");
     expect(astToFormula(parse("(1+2)%"))).toBe("(1+2)%");
     expect(astToFormula(parse("={1,2;3,4}"))).toBe("{1,2;3,4}");
+    expect(astToFormula(parse("A1#"))).toBe("A1#");
   });
   test("Convert binary operator", () => {
     expect(astToFormula(parse("89-45"))).toBe("89-45");

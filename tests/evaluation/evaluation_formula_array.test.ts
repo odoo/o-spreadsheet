@@ -65,6 +65,12 @@ describe("evaluate formulas that use/return an array", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(168);
   });
 
+  test("can reference spilled range with spill operator", () => {
+    setCellContent(model, "A1", "=MFILL(2, 2, 5)");
+    setCellContent(model, "D1", "=SUM(A1#)");
+    expect(getEvaluatedCell(model, "D1").value).toBe(20);
+  });
+
   test("can use result array in formula that accept scalar only (vectorization)", () => {
     setCellContent(model, "A1", "=ABS(MFILL(2, 2, -42))");
     expect(getEvaluatedCell(model, "A1").value).toBe(42);

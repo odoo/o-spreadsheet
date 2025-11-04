@@ -28,7 +28,7 @@ import { NEWLINE } from "../constants";
  */
 
 export const POSTFIX_UNARY_OPERATORS = ["%"];
-const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
+const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&,#".split(",").concat(POSTFIX_UNARY_OPERATORS);
 
 type TokenType =
   | "OPERATOR"
@@ -68,10 +68,10 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
       tokenizeArgsSeparator(chars, locale) ||
       tokenizeBraces(chars) ||
       tokenizeParenthesis(chars) ||
+      tokenizeInvalidRange(chars) ||
       tokenizeOperator(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
-      tokenizeInvalidRange(chars) ||
       tokenizeNumber(chars, locale) ||
       tokenizeSymbol(chars);
 

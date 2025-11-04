@@ -8,7 +8,7 @@ import { Token } from "./tokenizer";
 const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
 
 const UNARY_OPERATORS_PREFIX = ["-", "+"];
-const UNARY_OPERATORS_POSTFIX = ["%"];
+const UNARY_OPERATORS_POSTFIX = ["%", "#"];
 
 interface RichToken extends Token {
   tokenIndex: number;
@@ -114,6 +114,7 @@ export type AST =
   | ASTEmpty;
 
 export const OP_PRIORITY = {
+  "#": 40,
   "%": 40,
   "^": 30,
   "*": 20,
