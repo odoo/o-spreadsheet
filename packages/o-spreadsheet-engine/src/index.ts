@@ -10,7 +10,7 @@ import {
 import { getFunctionsFromTokens } from "./formulas/helpers";
 import { arg } from "./functions/arguments";
 import { functionRegistry } from "./functions/function_registry";
-import { isEvaluationError, toBoolean, toJsDate, toNumber } from "./functions/helpers";
+import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import {
   UuidGenerator,
   deepCopy,
@@ -86,6 +86,8 @@ import {
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 import { isMatrix } from "./types/misc";
+export { EventBus } from "./helpers/event_bus";
+export { coreTypes, invalidateEvaluationCommands } from "./types/commands";
 export { EvaluationError } from "./types/errors";
 
 export { FunctionCodeBuilder, Scope, type FunctionCode } from "./formulas/code_builder";
