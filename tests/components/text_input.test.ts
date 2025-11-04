@@ -117,4 +117,11 @@ describe("TextInput", () => {
     await nextTick();
     expect(input.value).toEqual("world");
   });
+
+  test("can render a text input in error", async () => {
+    await mountTextInput({ value: "", onChange: () => {}, errorMessage: "Error Message" });
+    expect("input").toHaveClass("o-invalid");
+    expect(".os-input-error-icon").toHaveCount(1);
+    expect(".os-input-error-icon").toHaveAttribute("title", "Error Message");
+  });
 });

@@ -1,16 +1,24 @@
 <templates>
   <t t-name="o-spreadsheet-TextInput">
-    <input
-      type="text"
-      t-ref="{{refName}}"
-      t-att-class="inputClass"
-      t-att-id="props.id"
-      t-att-placeholder="props.placeholder"
-      t-on-change="save"
-      t-on-blur="save"
-      t-on-pointerdown="onMouseDown"
-      t-on-pointerup="onMouseUp"
-      t-on-keydown="onKeyDown"
-    />
+    <div class="position-relative">
+      <input
+        type="text"
+        t-ref="{{refName}}"
+        t-att-class="inputClass"
+        t-att-id="props.id"
+        t-att-placeholder="props.placeholder"
+        t-on-change="save"
+        t-on-blur="save"
+        t-on-pointerdown="onMouseDown"
+        t-on-pointerup="onMouseUp"
+        t-on-keydown="onKeyDown"
+      />
+      <span
+        t-if="props.errorMessage"
+        class="os-input-error-icon text-danger position-absolute d-flex align-items-center"
+        t-att-title="props.errorMessage">
+        <t t-call="o-spreadsheet-Icon.ERROR"/>
+      </span>
+    </div>
   </t>
 </templates>

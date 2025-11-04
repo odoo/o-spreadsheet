@@ -16,11 +16,16 @@ exports[`Chart title Can render a chart title component 1`] = `
         
       </div>
       
-      <input
-        class="w-100 os-input o-input-border"
-        placeholder=""
-        type="text"
-      />
+      <div
+        class="position-relative"
+      >
+        <input
+          class="w-100 os-input o-input-border"
+          placeholder=""
+          type="text"
+        />
+        
+      </div>
       <div
         class="o-chart-title-designer position-relative d-flex align-items-center"
       >

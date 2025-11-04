@@ -13,4 +13,12 @@
   .os-input:focus {
     border-color: var(--os-action-color);
   }
+  .os-input.o-invalid {
+    background-color: var(--os-alert-danger-bg);
+    border-color: var(--os-alert-danger-border);
+  }
+  .os-input-error-icon {
+    right: 7px;
+    top: 4px;
+  }
 }
