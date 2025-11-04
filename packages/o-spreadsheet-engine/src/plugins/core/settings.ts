@@ -1,12 +1,12 @@
 import { getDateTimeFormat, isValidLocale } from "../../helpers/locale";
 import { CommandResult, CoreCommand } from "../../types/commands";
-import { Format } from "../../types/format";
+import { Format, LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 export class SettingsPlugin extends CorePlugin {
-  static getters = ["getLocale"] as const;
+  static getters = ["getLocale", "getLocaleFormat"] as const;
   private locale: Locale = DEFAULT_LOCALE;
 
   allowDispatch(cmd: CoreCommand) {
@@ -30,6 +30,10 @@ export class SettingsPlugin extends CorePlugin {
 
   getLocale(): Locale {
     return this.locale;
+  }
+
+  getLocaleFormat(format?: Format): LocaleFormat {
+    return { locale: this.locale, format };
   }
 
   private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
