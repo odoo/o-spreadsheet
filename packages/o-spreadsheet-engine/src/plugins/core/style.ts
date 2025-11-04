@@ -89,11 +89,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         }
         break;
       case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnn(cmd);
-        } else {
-          this.handleAddRows(cmd);
-        }
+        this.handleAddColRow(cmd);
         break;
       case "CLEAR_CELL":
         this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
@@ -103,6 +99,9 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         break;
       case "DELETE_SHEET":
         this.history.update("styles", cmd.sheetId, undefined);
+        break;
+      case "DUPLICATE_SHEET":
+        this.history.update("styles", cmd.sheetIdTo, this.styles[cmd.sheetId]);
         break;
     }
   }
@@ -125,54 +124,24 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     this.history.update("styles", sheetId, newStyles);
   }
 
-  private handleAddColumnn(cmd: AddColumnsRowsCommand) {
-    const styles = this.styles[cmd.sheetId] ?? [];
-    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
-      const style = styles[styleIdx];
-      if (style.zone.left - cmd.quantity === cmd.base && cmd.position === "before") {
+  private handleAddColRow(cmd: AddColumnsRowsCommand) {
+    const start = cmd.dimension === "COL" ? "left" : "top";
+    const end = cmd.dimension === "COL" ? "right" : "bottom";
+    const sheetId = cmd.sheetId;
+    const sheetValues = this.styles[sheetId] ?? [];
+    for (let idx = 0; idx < sheetValues.length; idx++) {
+      const value = sheetValues[idx];
+      if (value.zone[start] - cmd.quantity === cmd.base && cmd.position === "before") {
         this.history.update(
           "styles",
-          cmd.sheetId,
-          styleIdx,
+          sheetId,
+          idx,
           "zone",
-          "left",
-          style.zone.left - cmd.quantity
+          start,
+          value.zone[start] - cmd.quantity
         );
-      } else if (style.zone.right === cmd.base && cmd.position === "after") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "right",
-          style.zone.right + cmd.quantity
-        );
-      }
-    }
-  }
-
-  private handleAddRows(cmd: AddColumnsRowsCommand) {
-    const styles = this.styles[cmd.sheetId] ?? [];
-    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
-      const style = styles[styleIdx];
-      if (style.zone.top - cmd.quantity === cmd.base && cmd.position === "before") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "top",
-          style.zone.top - cmd.quantity
-        );
-      } else if (style.zone.bottom === cmd.base && cmd.position === "after") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "bottom",
-          style.zone.bottom + cmd.quantity
-        );
+      } else if (value.zone[end] === cmd.base && cmd.position === "after") {
+        this.history.update("styles", sheetId, idx, "zone", end, value.zone[end] + cmd.quantity);
       }
     }
   }
@@ -318,11 +287,11 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           this.setStyle(sheet.id, toZone(zoneXc), data.styles[styleId]);
         }
       }
-      for (const sheetData of data.sheets) {
-        if (sheetData.merges) {
-          for (const merge of sheetData.merges) {
-            this.onMerge(sheetData.id, toZone(merge));
-          }
+    }
+    for (const sheetData of data.sheets) {
+      if (sheetData.merges) {
+        for (const merge of sheetData.merges) {
+          this.onMerge(sheetData.id, toZone(merge));
         }
       }
     }
@@ -351,14 +320,16 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       return CommandResult.NoChanges;
     }
     for (const zone of recomputeZones(target)) {
+      const styles = hasStyle && this.getCellStyleInZone(sheetId, zone);
+      const formats = hasFormat && this.getters.getCellFormatInZone(sheetId, zone);
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const position = { sheetId, col, row };
-          const cell = this.getters.getCell(position);
-          const style = this.getCellStyle(position);
+          const oldStyle = styles && styles.get(position);
+          const oldFormat = formats && formats.get(position);
           if (
-            (hasStyle && !deepEquals(style, cmd.style)) ||
-            (hasFormat && cell?.format !== cmd.format)
+            (hasStyle && !deepEquals(oldStyle, cmd.style)) ||
+            (hasFormat && oldFormat !== cmd.format)
           ) {
             return CommandResult.Success;
           }

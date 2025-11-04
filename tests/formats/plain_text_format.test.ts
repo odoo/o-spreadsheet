@@ -1,7 +1,12 @@
 import { Model } from "../../src";
 import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellFormat,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 let model: Model;
@@ -104,13 +109,13 @@ describe("Plain text format", () => {
     const exported = model.exportData();
 
     const importedModel = new Model(exported);
-    expect(getCell(importedModel, "A1")?.format).toBe("@");
+    expect(getCellFormat(importedModel, "A1")).toBe("@");
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });
 
-  test("Cells with no content stay empty with a text format", () => {
+  test("Cells with no content are not created with format", () => {
     setFormat(model, "A1", "@");
-    expect(getCell(model, "A1")?.content).toBe("");
+    expect(getCell(model, "A1")).toBeUndefined();
     expect(getEvaluatedCell(model, "A1").value).toBe(null);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.empty);
   });

@@ -16,7 +16,7 @@ import {
   EvaluatedCell,
   Lazy,
   Locale,
-  invalidateEvaluationCommands,
+  doesInvalidateEvalution,
 } from "../../../types";
 
 export interface StatisticFnResults {
@@ -77,10 +77,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
   }
 
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (doesInvalidateEvalution(cmd)) {
       this.isDirty = true;
     }
     switch (cmd.type) {
