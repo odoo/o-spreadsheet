@@ -197,7 +197,7 @@ export class GridRenderer extends SpreadsheetStore {
 
     if (areGridLinesVisible) {
       for (const box of boxes) {
-        if (box.skipCellGridLines) continue;
+        if (box.style.hideGridLines) continue;
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
