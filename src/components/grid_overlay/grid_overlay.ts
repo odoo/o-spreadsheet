@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
-import { deepEquals, positionToZone } from "../../helpers";
+import { deepEquals, positionToZone, zoneToDimension } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { Store, useStore } from "../../store_engine";
 import {
@@ -253,6 +253,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
     const openedPopover = this.cellPopovers.persistentCellPopover;
     const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
+    console.log("Cell clicked:", { col, row, zoomedMouseEvent });
     const clickedIcon = this.getInteractiveIconAtEvent(zoomedMouseEvent);
     if (clickedIcon) {
       this.env.model.selection.getBackToDefault();

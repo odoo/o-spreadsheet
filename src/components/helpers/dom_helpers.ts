@@ -1,5 +1,6 @@
 import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
+import { getZoomedDomRect } from "./zoom";
 
 const macRegex = /Mac/i;
 
@@ -14,10 +15,10 @@ export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event):
   return !!ev.target && parent!.contains(ev.target as Node);
 }
 
-export function gridOverlayPosition() {
+export function gridOverlayPosition(zoom = 1) {
   const spreadsheetElement = document.querySelector(".o-grid-overlay");
   if (spreadsheetElement) {
-    return spreadsheetElement.getBoundingClientRect();
+    return getZoomedDomRect(zoom, spreadsheetElement.getBoundingClientRect());
   }
   throw new Error("Can't find spreadsheet position");
 }

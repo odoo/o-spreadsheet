@@ -267,7 +267,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
       }
     },
-    "Ctrl+A": () => this.env.model.selection.loopSelection(),
+    "Ctrl+A": (ev) => {this.env.model.selection.loopSelection(); ev.stopPropagation();},
     "Ctrl+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
     "Ctrl+Y": () => this.env.model.dispatch("REQUEST_REDO"),
     F4: () => this.env.model.dispatch("REQUEST_REDO"),

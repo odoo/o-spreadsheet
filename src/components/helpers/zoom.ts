@@ -25,6 +25,8 @@ export function withZoom<T extends MouseEvent>(
   const zoomLevel = env.model.getters.getViewportZoomLevel();
   if (originalTargetRect === undefined) {
     originalTargetRect = getZoomTargetBoundingRect(ev);
+    //  => this is fucked up in safari because the "closest o-zoomable" is actually zoomed already
+    // il faut probablement limiter ce truc de rect magique avec 
   }
   if (!originalTargetRect) return withNoZoom(ev);
 
@@ -67,6 +69,21 @@ export function getZoomedRect(zoom: number, rect: Rect): Rect {
     x: rect.x * zoom,
     y: rect.y * zoom,
   };
+}
+
+export function getZoomedDomRect(zoom: number, rect: DOMRect): DOMRect {
+  return {
+    ...rect,
+    height: rect.height * zoom,
+    width: rect.width * zoom,
+    x: rect.x * zoom,
+    y: rect.y * zoom,
+    top: rect.top * zoom,
+    right: rect.right * zoom,
+    bottom: rect.bottom * zoom,
+    left: rect.left * zoom,
+  };
+
 }
 
 /**
