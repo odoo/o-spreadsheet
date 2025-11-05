@@ -15,7 +15,7 @@ import {
 import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
 import { Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import { fontSizeInPixels, toHex, toZone } from "../../src/helpers";
+import { blendColors, fontSizeInPixels, toHex, toZone } from "../../src/helpers";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
@@ -68,6 +68,20 @@ function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
   return (gridRenderer["getGridBoxes"](zone)! as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
   )!;
+}
+
+/**
+ * Cell fills are drawn with a 0.5 offset from the cell rect so they fill all of the cell and are not
+ * affected with the 0.5 offset we use to make the canvas lines sharp.
+ */
+function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
+  return fillStyles.map((fs) => ({
+    ...fs,
+    x: fs.x + 0.5,
+    y: fs.y + 0.5,
+    w: fs.w - 1,
+    h: fs.h - 1,
+  }));
 }
 
 interface ContextObserver {
@@ -379,13 +393,17 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 },
+    ]);
 
     fillStyle = [];
     setStyle(model, "A1", { fillColor: "#DC6CDE" });
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
@@ -425,13 +443,17 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 },
+    ]);
 
     fillStyle = [];
     setStyle(model, "A1", { fillColor: "#DC6CDE" });
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test("fillstyle of cell works with CF", () => {
@@ -463,13 +485,15 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
 
     fillStyle = [];
     setCellContent(model, "A1", "1");
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test("fill style of hovered clickable cells goes over regular fill style", () => {
@@ -477,7 +501,7 @@ describe("renderer", () => {
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const background = "#DC6CDF";
-    const hoverColor = TABLE_HOVER_BACKGROUND_COLOR;
+    const hoverColor = blendColors(background, TABLE_HOVER_BACKGROUND_COLOR);
     createTable(model, "A1", { numberOfHeaders: 0 });
     setStyle(model, "A1", { fillColor: background });
     setCellContent(model, "A1", "Data");
@@ -502,13 +526,15 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(ctx);
-    expect(fillStyles).toEqual([{ color: background, h: 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyles)).toEqual([
+      { color: background, h: 23, w: 96, x: 0, y: 0 },
+    ]);
 
     fillStyles = [];
     container.get(HoveredTableStore).hover({ col: 0, row: 0 });
     drawGridRenderer(ctx);
 
-    expect(fillStyles).toEqual([
+    expect(removeOffsetOfFillStyles(fillStyles)).toEqual([
       { color: background, h: 23, w: 96, x: 0, y: 0 },
       { color: hoverColor, h: 23, w: 96, x: 0, y: 0 },
     ]);
@@ -543,13 +569,15 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
 
     fillStyle = [];
     setCellContent(model, "A1", "1");
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test("formula fingerprints", () => {
@@ -843,7 +871,7 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
     fillStyle = [];
     const sheetId = model.getters.getActiveSheetId();
     const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -862,7 +890,9 @@ describe("renderer", () => {
     expect(result).toBeSuccessfullyDispatched();
     drawGridRenderer(ctx);
 
-    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
+      { color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test.each(["I am a very long text", "100000000000000"])(
