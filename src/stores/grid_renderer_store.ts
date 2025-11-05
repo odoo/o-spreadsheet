@@ -20,6 +20,7 @@ import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
+  blendColors,
   computeRotationPosition,
   computeTextFont,
   computeTextFontSizeInPixels,
@@ -213,7 +214,15 @@ export class GridRenderer extends SpreadsheetStore {
       const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        // We shift the canvas by CANVAS_SHIFT to avoid blurry lines (lines are drawn between pixels), but fillRect
+        // are drawn at the exact pixel position, so we need to compensate this shift here. We also want to extend
+        // the fill by 1px to draw over the gridLines.
+        ctx.fillRect(
+          box.x - CANVAS_SHIFT,
+          box.y - CANVAS_SHIFT,
+          box.width + CANVAS_SHIFT * 2,
+          box.height + CANVAS_SHIFT * 2
+        );
       }
       if (box.dataBarFill) {
         ctx.fillStyle = box.dataBarFill.color;
@@ -221,22 +230,27 @@ export class GridRenderer extends SpreadsheetStore {
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
       }
+      if (box.overlayColor) {
+        ctx.fillStyle = blendColors(style.fillColor || "#ffffff", box.overlayColor);
+        ctx.fillRect(
+          box.x - CANVAS_SHIFT,
+          box.y - CANVAS_SHIFT,
+          box.width + CANVAS_SHIFT * 2,
+          box.height + CANVAS_SHIFT * 2
+        );
+      }
       if (box?.chip) {
         ctx.save();
         ctx.beginPath();
         ctx.rect(box.x, box.y, box.width, box.height);
         ctx.clip();
         const chip = box.chip;
-        ctx.fillStyle = chip.color;
+        ctx.fillStyle = box.overlayColor ? blendColors(chip.color, box.overlayColor) : chip.color;
         const radius = 10;
         ctx.beginPath();
         ctx.roundRect(chip.x, chip.y, chip.width, chip.height, radius);
         ctx.fill();
         ctx.restore();
-      }
-      if (box.overlayColor) {
-        ctx.fillStyle = box.overlayColor;
-        ctx.fillRect(box.x, box.y, box.width, box.height);
       }
       if (box.isError) {
         ctx.fillStyle = "red";
