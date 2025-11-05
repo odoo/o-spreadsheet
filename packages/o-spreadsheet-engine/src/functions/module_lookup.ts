@@ -1,7 +1,7 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
-import { toXC } from "../helpers/coordinates";
+import { toCartesian, toXC } from "../helpers/coordinates";
 import { range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
@@ -11,7 +11,7 @@ import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe, UID, Zone } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -1217,6 +1217,79 @@ export const ARRAYTOTEXT = {
     }
     if (_format === 1) {
       result = "{" + result + "}";
+    }
+    return result;
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// FORMULATEXT
+// -----------------------------------------------------------------------------
+
+export const FORMULATEXT = {
+  description: _t("Returns a formula as a string."),
+  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
+  compute: function (cellReference: { value: string }) {
+    const { sheetName, xc } = splitReference(cellReference.value);
+    const { col, row } = toCartesian(xc);
+    let sheetId: UID;
+    if (sheetName) {
+      //@ts-ignore
+      sheetId = this.getters.getSheetIdByName(sheetName);
+    } else {
+      sheetId = this.getters.getActiveSheetId();
+    }
+    const result = this.getters.getCell({ sheetId, col, row });
+    return result?.content || "";
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// TAKE
+// -----------------------------------------------------------------------------
+
+export const TAKE = {
+  description: _t(
+    "Returns a specified number of contiguous rows or columns from the start or end of an array."
+  ),
+  args: [
+    arg("array (range)", _t("The array from which to take rows or columns.")),
+    arg(
+      "rows (number)",
+      _t("The number of rows to take. A negative value takes from the end of the array.")
+    ),
+    arg(
+      "columns (number, optional)",
+      _t("The number of columns to take. A negative value takes from the end of the array.")
+    ),
+  ],
+  compute: function (
+    array: Matrix<{ value: string }>,
+    rows: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>
+  ) {
+    let _rows = toNumber(rows, this.locale);
+    let _columns = toNumber(columns, this.locale);
+    let result = array;
+    if (Math.abs(_columns) >= array.length || _columns === 0) {
+      _columns = array.length;
+    }
+    if (Math.abs(_rows) >= array[0].length) {
+      _rows = array[0].length;
+    }
+    if (_columns >= 0) {
+      result = result.slice(0, _columns);
+    } else {
+      result = result.slice(result.length + _columns, result.length);
+    }
+    for (let i = 0; i < result.length; i++) {
+      if (_rows >= 0) {
+        result[i] = result[i].slice(0, _rows);
+      } else {
+        result[i] = result[i].slice(result[i].length + _rows, result[i].length);
+      }
     }
     return result;
   },
