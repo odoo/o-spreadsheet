@@ -3,6 +3,11 @@ import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
 import { Alias, Align, BorderDescr, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
 
+export interface DOMRectPosition {
+  top: Pixel;
+  left: Pixel;
+}
+
 /**
  * Coordinate in pixels
  */

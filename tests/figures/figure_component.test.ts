@@ -2,6 +2,8 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   FIGURE_BORDER_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
   MENU_WIDTH,
   ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
@@ -155,7 +157,12 @@ beforeEach(() => {
 describe("figures", () => {
   beforeEach(async () => {
     notifyUser = jest.fn();
-    mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
+    mockSpreadsheetRect = {
+      top: 100,
+      left: 200,
+      height: 1000 + HEADER_HEIGHT,
+      width: 1000 + HEADER_WIDTH,
+    };
     mockFigureMenuItemRect = { top: 500, left: 500 };
     ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     sheetId = model.getters.getActiveSheetId();

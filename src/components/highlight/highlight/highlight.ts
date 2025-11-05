@@ -117,9 +117,11 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
   onMoveHighlight(ev: PointerEvent) {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.range.zone;
-    const zoomedMouseEvent = withZoom(this.env, ev);
 
-    const position = gridOverlayPosition();
+    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    const position = gridOverlayPosition(zoomLevel);
+    const zoomedMouseEvent = withZoom(this.env, ev, position);
+
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 
     const initCol = this.env.model.getters.getColIndex(zoomedMouseEvent.clientX - position.left);
