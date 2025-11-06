@@ -65,7 +65,7 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
 
 export function createEvaluatedCell(
   functionResult: FunctionResultObject,
-  locale: LocaleFormat = { format: undefined, locale: DEFAULT_LOCALE },
+  locale: LocaleFormat = { locale: DEFAULT_LOCALE },
   origin?: CellPosition
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
@@ -74,14 +74,14 @@ export function createEvaluatedCell(
     return addOrigin(evaluateCell, functionResult.origin ?? origin);
   }
   const value = parseLiteral(link.label, locale.locale);
-  const format2 =
+  const format =
     functionResult.format ||
     (typeof value === "number"
       ? detectDateFormat(link.label, locale.locale) || detectNumberFormat(link.label)
       : undefined);
   const linkPayload = {
     value,
-    format2,
+    format,
   };
   return addOrigin(
     {

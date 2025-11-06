@@ -22,8 +22,10 @@ import {
   UnboundedZone,
   Zone,
 } from "../../types/misc";
+import { BoundedRange } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { RangeSet } from "../ui_core_views/cell_evaluation/range_set";
 
 export const DEFAULT_STYLE_NO_ALIGN = {
   verticalAlign: "bottom",
@@ -60,6 +62,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     "getStyleColors",
     "getCellFormat",
     "getCellFormatInZone",
+    "getCellFormatInRanges",
     "getZoneFormats",
   ] as const;
 
@@ -107,7 +110,12 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           } else {
             this.clearFormat(cmd.sheetId, [positionToZone(cmd)]);
           }
-        } else if ("content" in cmd && cmd.content && !cmd.content.startsWith("=")) {
+        } else if (
+          "content" in cmd &&
+          cmd.content &&
+          !cmd.content.startsWith("=") &&
+          !this.getCellFormat(cmd)
+        ) {
           const locale = this.getters.getLocale();
           const parsedValue = parseLiteral(cmd.content, locale);
           const format =
@@ -388,6 +396,32 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     for (const format of this.formats[sheetId] ?? []) {
       const inter = intersection(format.zone, zone);
       if (inter) formats.push({ zone: inter, format: format.format });
+    }
+    return formats;
+  }
+
+  getCellFormatInRanges(ranges: RangeSet | BoundedRange[]): PositionMap<Format> {
+    const formats = new PositionMap<Format>();
+    const zonesBySheet: Record<UID, Zone[]> = {};
+    for (const range of ranges) {
+      if (!(range.sheetId in zonesBySheet)) {
+        zonesBySheet[range.sheetId] = [];
+      }
+      zonesBySheet[range.sheetId].push(range.zone);
+    }
+    for (const sheetId in zonesBySheet) {
+      const zones = recomputeZones(zonesBySheet[sheetId]);
+      for (const zone of zones) {
+        for (const { zone: z, format } of this.formats[sheetId] ?? []) {
+          const inter = intersection(z, zone);
+          if (!inter) continue;
+          for (let col = inter.left; col <= inter.right; col++) {
+            for (let row = inter.top; row <= inter.bottom; row++) {
+              formats.set({ sheetId, col, row }, format);
+            }
+          }
+        }
+      }
     }
     return formats;
   }

@@ -56,6 +56,7 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  private formatCache: PositionMap<Format> = new PositionMap();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -161,6 +162,7 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(rangesToCompute));
     rangesToCompute.addMany(arrayFormulasPositions);
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
+    this.formatCache = this.getters.getCellFormatInRanges(rangesToCompute);
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
   }
@@ -224,6 +226,7 @@ export class Evaluator {
       const zone = this.getters.getSheetZone(sheetId);
       ranges.push({ sheetId, zone });
     }
+    this.formatCache = this.getters.getCellFormatInRanges(ranges);
     this.evaluate(ranges);
     console.debug("evaluate all cells", performance.now() - start, "ms");
   }
@@ -301,14 +304,13 @@ export class Evaluator {
       this.clearEvaluatedRanges(ranges);
       for (const range of ranges) {
         const { left, bottom, right, top } = range.zone;
-        const formats = this.getters.getCellFormatInZone(range.sheetId, range.zone);
         for (let col = left; col <= right; col++) {
           for (let row = top; row <= bottom; row++) {
             const position = { sheetId: range.sheetId, col, row };
             if (this.nextRangesToUpdate.hasPosition(position)) {
               continue;
             }
-            const evaluatedCell = this.computeCell(position, formats.get(position));
+            const evaluatedCell = this.computeCell(position);
             if (evaluatedCell !== EMPTY_CELL) {
               this.evaluatedCells.set(position, evaluatedCell);
             }
@@ -333,7 +335,7 @@ export class Evaluator {
     }
   }
 
-  private computeCell(position: CellPosition, format?: Format): EvaluatedCell {
+  private computeCell(position: CellPosition): EvaluatedCell {
     const evaluation = this.evaluatedCells.get(position);
     if (evaluation) {
       return evaluation; // already computed
@@ -353,7 +355,7 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
-    const localeFormat = { format, locale: this.getters.getLocale() };
+    const format = this.formatCache.get(position);
     try {
       if (this.cellsBeingComputed.has(cellId)) {
         return ERROR_CYCLE_CELL;
@@ -361,7 +363,7 @@ export class Evaluator {
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(position, cell, format)
-        : evaluateLiteral(cell, localeFormat, position);
+        : evaluateLiteral(cell, { format, locale: this.getters.getLocale() }, position);
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
