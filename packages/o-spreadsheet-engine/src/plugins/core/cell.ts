@@ -381,7 +381,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
-    const format = "format" in after ? after.format : before && before.format;
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -390,11 +389,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *     - either there wasn't a cell at this place and the command says format is empty
      *     - or there was a cell at this place, but it's an empty cell and the command says format is empty
      *  */
-    if (
-      ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (!before || before.content === ""))) &&
-      !format
-    ) {
+    if (hasContent && !afterContent && !after.formula) {
       if (before) {
         this.history.update("cells", sheetId, before.id, undefined);
         this.dispatch("UPDATE_CELL_POSITION", {
@@ -408,7 +403,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     const cellId = before?.id || this.getNextUid();
-    const cell = this.createCell(cellId, afterContent, format, sheetId);
+    const cell = this.createCell(cellId, afterContent, undefined, sheetId);
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
