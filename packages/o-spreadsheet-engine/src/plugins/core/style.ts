@@ -132,9 +132,11 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         break;
       case "CLEAR_CELL":
         this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
+        this.clearFormat(cmd.sheetId, [positionToZone(cmd)]);
         break;
       case "CLEAR_CELLS":
         this.clearStyle(cmd.sheetId, cmd.target);
+        this.clearFormat(cmd.sheetId, cmd.target);
         break;
       case "DELETE_SHEET":
         this.history.update("styles", cmd.sheetId, undefined);
