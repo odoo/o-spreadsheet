@@ -402,8 +402,10 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     return formats;
   }
 
-  getCellFormatInRanges(ranges: RangeSet | BoundedRange[]): PositionMap<Format> {
-    const formats = new PositionMap<Format>();
+  getCellFormatInRanges(
+    ranges: RangeSet | BoundedRange[],
+    startingMap: PositionMap<Format> = new PositionMap<Format>()
+  ): PositionMap<Format> {
     const zonesBySheet: Record<UID, Zone[]> = {};
     for (const range of ranges) {
       if (!(range.sheetId in zonesBySheet)) {
@@ -419,13 +421,13 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           if (!inter) continue;
           for (let col = inter.left; col <= inter.right; col++) {
             for (let row = inter.top; row <= inter.bottom; row++) {
-              formats.set({ sheetId, col, row }, format);
+              startingMap.set({ sheetId, col, row }, format);
             }
           }
         }
       }
     }
-    return formats;
+    return startingMap;
   }
 
   getStyleColors(sheetId: UID): Color[] {

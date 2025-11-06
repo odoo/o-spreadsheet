@@ -71,6 +71,10 @@ export class Evaluator {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
   }
 
+  addToFormatCache(sheetId: UID, zone: Zone) {
+    this.formatCache = this.getters.getCellFormatInRanges([{ sheetId, zone }], this.formatCache);
+  }
+
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
     const spreadZone = this.spreadingRelations.getArrayResultZone(position);
     if (!spreadZone) {
@@ -418,6 +422,7 @@ export class Evaluator {
       left: formulaPosition.col,
       right: formulaPosition.col + nbColumns - 1,
     };
+    this.addToFormatCache(formulaPosition.sheetId, resultZone);
     this.spreadingRelations.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
@@ -523,7 +528,7 @@ export class Evaluator {
       const position = { sheetId, col: i + col, row: j + row };
       const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(matrixResult[i][j]),
-        this.getters.getLocaleFormat(),
+        this.getters.getLocaleFormat(this.formatCache.get(position)),
         position
       );
       if (evaluatedCell.type === CellValueType.error) {
