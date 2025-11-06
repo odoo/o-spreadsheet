@@ -3,7 +3,7 @@ import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { iterateItemIdsPositions } from "../../helpers/data_normalization";
-import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc";
+import { concat, deepEquals, replaceNewLines } from "../../helpers/misc";
 
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
@@ -12,7 +12,6 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside } from "../../helpers/zones";
 import { Cell, FormulaCell, LiteralCell } from "../../types/cells";
 import {
-  AddColumnsRowsCommand,
   ClearCellCommand,
   CommandResult,
   CoreCommand,
@@ -29,7 +28,6 @@ import {
   ApplyRangeChange,
   CompiledFormula,
   RangeCompiledFormula,
-  Style,
   UpdateCellData,
   Zone,
 } from "../../types/misc";
@@ -109,13 +107,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "SET_FORMATTING":
         if ("format" in cmd && cmd.format !== undefined) {
           this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnFormat.bind(this));
-        } else {
-          this.handleAddColumnsRows(cmd, this.copyRowFormat.bind(this));
         }
         break;
       case "UPDATE_CELL":
@@ -198,26 +189,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
-  }
-
-  /**
-   * Copy the format of the reference column/row to the new columns/rows.
-   */
-  private handleAddColumnsRows(
-    cmd: AddColumnsRowsCommand,
-    fn: (sheetId: UID, styleRef: HeaderIndex, elements: HeaderIndex[]) => void
-  ) {
-    // The new elements have already been inserted in the sheet at this point.
-    let insertedElements: HeaderIndex[];
-    let styleReference: HeaderIndex;
-    if (cmd.position === "before") {
-      insertedElements = range(cmd.base, cmd.base + cmd.quantity);
-      styleReference = cmd.base + cmd.quantity;
-    } else {
-      insertedElements = range(cmd.base + 1, cmd.base + cmd.quantity + 1);
-      styleReference = cmd.base;
-    }
-    fn(cmd.sheetId, styleReference, insertedElements);
   }
 
   // ---------------------------------------------------------------------------
@@ -396,49 +367,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     return topLeft;
-  }
-
-  /**
-   * Copy the format of one column to other columns.
-   */
-  private copyColumnFormat(sheetId: UID, refColumn: HeaderIndex, targetCols: HeaderIndex[]) {
-    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
-      const format = this.getFormat(sheetId, refColumn, row);
-      if (format.format) {
-        for (const col of targetCols) {
-          this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
-        }
-      }
-    }
-  }
-
-  /**
-   * Copy the format of one row to other rows.
-   */
-  private copyRowFormat(sheetId: UID, refRow: HeaderIndex, targetRows: HeaderIndex[]) {
-    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
-      const format = this.getFormat(sheetId, col, refRow);
-      if (format.format) {
-        for (const row of targetRows) {
-          this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
-        }
-      }
-    }
-  }
-
-  /**
-   * gets the currently used style and format of a cell based on it's coordinates
-   */
-  private getFormat(sheetId: UID, col: HeaderIndex, row: HeaderIndex): { format?: Format } {
-    const format: { style?: Style; format?: string } = {};
-    const position = this.getters.getMainCellPosition({ sheetId, col, row });
-    const cell = this.getters.getCell(position);
-    if (cell) {
-      if (cell.format) {
-        format["format"] = cell.format;
-      }
-    }
-    return format;
   }
 
   private getNextUid() {
