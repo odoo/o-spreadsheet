@@ -27,6 +27,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getMerges,
 } from "../test_helpers/getters_helpers";
@@ -508,7 +509,7 @@ describe("Migrations", () => {
       formats: { 2: "0.00%" },
       borders: { 3: border },
     });
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
     expect(getCellStyle(model, "A1")).toEqual(style);
     expect(getBorder(model, "A1")).toEqual(border);
     const data = model.exportData();
@@ -815,7 +816,7 @@ describe("Import", () => {
       formats: { 1: "0.00%" },
     });
     expect(getCell(model, "A1")?.content).toBe("");
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
   });
 });
 

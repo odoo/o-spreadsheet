@@ -30,6 +30,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getEvaluatedCell,
   getStyle,
@@ -424,7 +425,7 @@ describe("Collaborative local history", () => {
       ],
     };
     const model = new Model(data, {}, initialMessages);
-    expect(getCell(model, "A1")?.format).toBeUndefined();
+    expect(getCellFormat(model, "A1")).toBeUndefined();
   });
 
   test("Update chart revisions contain the full definition", () => {

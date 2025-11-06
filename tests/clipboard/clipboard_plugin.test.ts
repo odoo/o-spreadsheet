@@ -70,6 +70,7 @@ import {
   getCell,
   getCellContent,
   getCellError,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getClipboardVisibleZones,
@@ -2238,12 +2239,12 @@ describe("clipboard", () => {
 
     // automatic format on G4
     expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
-    expect(getCell(model, "G4")?.format).toBeUndefined();
+    expect(getCellFormat(model, "G4")).toBeUndefined();
     expect(getEvaluatedCell(model, "G4").format).toBe("#,##0[$$]");
 
     // forced format copied from D5
     expect(getCell(model, "G5")?.content).toBe('=PIVOT.VALUE(1,"Price:sum")');
-    expect(getCell(model, "G5")?.format).toBe("#,##0.0");
+    expect(getCellFormat(model, "G5")).toBe("#,##0.0");
     expect(getEvaluatedCell(model, "G5").format).toBe("#,##0.0");
   });
 

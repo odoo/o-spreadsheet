@@ -126,7 +126,7 @@ describe("styles", () => {
       sheetId,
       target: target("A1"),
     });
-    expect(getCell(model, "A1")?.format).toBeUndefined();
+    expect(getCellFormat(model, "A1")).toBeUndefined();
   });
 
   test("Can set a format in another than the active one", () => {

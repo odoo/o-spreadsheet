@@ -186,7 +186,7 @@ describe("formatting values (with formatters)", () => {
     setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
     selectCell(model, "A1");
     setDecimal(model, "A1", 1);
-    expect(getCell(model, "A1")?.format).toBe("0.000");
+    expect(getCellFormat(model, "A1")).toBe("0.000");
   });
 
   test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", () => {
@@ -195,19 +195,19 @@ describe("formatting values (with formatters)", () => {
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
     setDecimal(model, "A1", 1);
-    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(9));
+    expect(getCellFormat(model, "A1")).toBe("0." + "0".repeat(9));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.123456789");
 
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
+    expect(getCellFormat(model, "A1")).toBe("0." + "0".repeat(8));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(7));
+    expect(getCellFormat(model, "A1")).toBe("0." + "0".repeat(7));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.1234568");
 
     setDecimal(model, "A1", 1);
-    expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
+    expect(getCellFormat(model, "A1")).toBe("0." + "0".repeat(8));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
   });
 
@@ -217,17 +217,17 @@ describe("formatting values (with formatters)", () => {
 
     setFormat(model, "A1", "0.0\\€");
     setDecimal(model, "A1", 1);
-    expect(getCell(model, "A1")?.format).toBe("0.00\\€");
+    expect(getCellFormat(model, "A1")).toBe("0.00\\€");
 
     setFormat(model, "A1", "0.0\\€");
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe("0\\€");
+    expect(getCellFormat(model, "A1")).toBe("0\\€");
 
     setFormat(model, "A1", "0.0$0");
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe("0.0$");
+    expect(getCellFormat(model, "A1")).toBe("0.0$");
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe("0$");
+    expect(getCellFormat(model, "A1")).toBe("0$");
   });
 
   test("SET_DECIMAL on multi-part format", () => {
@@ -236,15 +236,15 @@ describe("formatting values (with formatters)", () => {
 
     setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
     setDecimal(model, "A1", 1);
-    expect(getCell(model, "A1")?.format).toBe("0.00\\€;$0.#0; 0.0 ;@");
+    expect(getCellFormat(model, "A1")).toBe("0.00\\€;$0.#0; 0.0 ;@");
 
     setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe("0\\€;$0; 0 ;@");
+    expect(getCellFormat(model, "A1")).toBe("0\\€;$0; 0 ;@");
 
     setFormat(model, "A1", ";;;@");
     setDecimal(model, "A1", -1);
-    expect(getCell(model, "A1")?.format).toBe(";;;@");
+    expect(getCellFormat(model, "A1")).toBe(";;;@");
   });
 
   test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", () => {
@@ -268,7 +268,7 @@ describe("pivot contextual formatting", () => {
   test("format without pivot", () => {
     const model = new Model();
     setContextualFormat(model, "A1", "0.00%");
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
   });
 
   test("format on a pivot measure value applies to the entire measure", () => {
@@ -284,9 +284,9 @@ describe("pivot contextual formatting", () => {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
     setContextualFormat(model, "D3", "[$$]#,##0.00");
-    expect(getCell(model, "D3")?.format).toBeUndefined();
-    expect(getCell(model, "E3")?.format).toBeUndefined();
-    expect(getCell(model, "F3")?.format).toBeUndefined();
+    expect(getCellFormat(model, "D3")).toBeUndefined();
+    expect(getCellFormat(model, "E3")).toBeUndefined();
+    expect(getCellFormat(model, "F3")).toBeUndefined();
     expect(getEvaluatedCell(model, "D3")?.format).toBe("[$$]#,##0.00");
     expect(getEvaluatedCell(model, "E3")?.format).toBe("[$$]#,##0.00");
     expect(getEvaluatedCell(model, "F3")?.format).toBe("[$$]#,##0.00");
@@ -341,7 +341,7 @@ describe("pivot contextual formatting", () => {
     });
     setFormat(model, "B5", "0.0%");
     setContextualFormat(model, "B5", "[$$]#,##0.00");
-    expect(getCell(model, "B5")?.format).toBeUndefined();
+    expect(getCellFormat(model, "B5")).toBeUndefined();
     expect(getEvaluatedCell(model, "B5").formattedValue).toBe("$10.00");
   });
 
@@ -356,8 +356,8 @@ describe("pivot contextual formatting", () => {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
     setContextualFormat(model, "B5:B6", "[$$]#,##0.00");
-    expect(getCell(model, "B5")?.format).toBeUndefined();
-    expect(getCell(model, "B6")?.format).toBe("[$$]#,##0.00");
+    expect(getCellFormat(model, "B5")).toBeUndefined();
+    expect(getCellFormat(model, "B6")).toBe("[$$]#,##0.00");
     expect(getEvaluatedCell(model, "B5")?.format).toBe("[$$]#,##0.00");
   });
 
@@ -395,7 +395,7 @@ describe("pivot contextual formatting", () => {
     });
     setContextualFormat(model, "C1", "[$$]#,##0.00");
     expect(model.getters.getPivotCoreDefinition("1")?.measures[0].format).toBeUndefined();
-    expect(getCell(model, "C1")?.format).toBe("[$$]#,##0.00");
+    expect(getCellFormat(model, "C1")).toBe("[$$]#,##0.00");
   });
 
   test("topbar menu correctly indicates the format of the selected pivot cell", () => {
