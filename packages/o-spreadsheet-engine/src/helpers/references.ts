@@ -101,7 +101,7 @@ function getTokenNextReferenceType(xc: string): string {
 export function setXcToFixedReferenceType(xc: string, referenceType: FixedReferenceType): string {
   let sheetName;
   ({ sheetName, xc } = splitReference(xc));
-  sheetName = sheetName ? sheetName + "!" : "";
+  sheetName = sheetName ? getCanonicalSymbolName(sheetName) + "!" : "";
 
   xc = xc.replace(/\$/g, "");
   const splitIndex = xc.indexOf(":");
