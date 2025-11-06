@@ -142,9 +142,12 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         this.history.update("styles", cmd.sheetId, undefined);
         this.history.update("formats", cmd.sheetId, undefined);
         break;
-      case "UPDATE_LOCALE":
-        this.updateLocale(this.getters.getLocale(), cmd.locale);
-        break;
+    }
+  }
+
+  beforeHandle(cmd: CoreCommand): void {
+    if (cmd.type === "UPDATE_LOCALE") {
+      this.updateLocale(this.getters.getLocale(), cmd.locale);
     }
   }
 
