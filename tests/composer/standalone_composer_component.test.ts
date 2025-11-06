@@ -149,6 +149,14 @@ describe("Spreadsheet integrations tests", () => {
     expect(composerEl.textContent).toBe("=Sheet1!A1");
   });
 
+  test("content with references from another sheet having space in name adds single quotes", async () => {
+    await openSidePanelWithComposer({ defaultStatic: true });
+    await editStandaloneComposer(composerSelector, "=", { confirm: false });
+    createSheet(model, { sheetId: "sheet2", name: "second sheet", activate: true });
+    await simulateClick(".o-grid-overlay", 300, 200);
+    expect(composerEl.textContent).toBe("='second sheet'!$D$9");
+  });
+
   test("display the content from the props when inactive", async () => {
     await openSidePanelWithComposer({ composerContent: "content from props" });
     await editStandaloneComposer(composerSelector, "edited", { confirm: false });
