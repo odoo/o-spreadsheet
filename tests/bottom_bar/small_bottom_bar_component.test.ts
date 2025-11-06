@@ -100,6 +100,13 @@ describe("Small Bottom Bar", () => {
       await click(fixture, ".o-ribbon-menu .o-menu-item[title='Copy']");
       expect(fixture.querySelector(".o-ribbon-menu")).toBeNull();
     });
+
+    test("Can open the top-levels menu in readonly mode", async () => {
+      model.updateMode("readonly");
+      await click(fixture, ".bottom-bar-menu .ribbon-toggler");
+      await click(fixture, ".o-ribbon-menu .o-menu-item[title='View']");
+      expect(fixture.querySelectorAll(".o-ribbon-menu .o-menu-item")).toHaveLength(4);
+    });
   });
 
   test("scroll is reset when navigating through ribbon menu", async () => {
