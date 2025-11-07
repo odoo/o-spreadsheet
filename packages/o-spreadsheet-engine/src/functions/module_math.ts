@@ -6,7 +6,6 @@ import { DivisionByZeroError, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import {
   Arg,
-  CellPosition,
   FunctionResultNumber,
   FunctionResultObject,
   Matrix,
@@ -1387,17 +1386,10 @@ export const SUBTOTAL = {
       acceptHiddenCells = false;
     }
 
-    const { __originCellPosition: position, cellPositionMetaData: positionMap } = this;
+    const { __originCellPosition: position } = this;
     if (position) {
-      const existingData = positionMap.get(position) || {};
-      existingData["subtotal"] = true;
-      positionMap.set(position, existingData);
+      this.sendEvaluationMessage({ type: "addSubTotalToPosition", position });
     }
-
-    const isSubtotalCell = (cellPosition: CellPosition) => {
-      const cellMeta = positionMap.get(cellPosition);
-      return cellMeta?.subtotal === true;
-    };
 
     if (code < 1 || code > 11) {
       return new EvaluationError(
@@ -1423,7 +1415,7 @@ export const SUBTOTAL = {
 
         for (let col = left; col <= right; col++) {
           const cell = this.getters.getCell({ sheetId, col, row });
-          if (!cell || !isSubtotalCell({ sheetId, col, row })) {
+          if (!cell || !this.getters.isSubtotalCell({ sheetId, col, row })) {
             evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
           }
         }

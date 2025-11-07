@@ -1,6 +1,11 @@
 import { astToFormula } from "../../formulas/formula_formatter";
 import { Token } from "../../formulas/tokenizer";
+import { PositionMap } from "../../helpers/cells/position_map";
 import { deepEquals, getUniqueText } from "../../helpers/misc";
+import {
+  evaluationListenerRegistry,
+  EvaluationMessage,
+} from "../../helpers/pivot/evaluation_listener_registry";
 import { getFirstPivotFunction } from "../../helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
 import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
@@ -44,9 +49,14 @@ export class PivotUIPlugin extends CoreViewPlugin {
   private unusedPivotsInFormulas?: UID[];
   private custom: UIPluginConfig["custom"];
 
+  private pivotCellsCache = new PositionMap<PivotCacheItem>();
+
   constructor(config: CoreViewPluginConfig) {
     super(config);
     this.custom = config.custom;
+    evaluationListenerRegistry.replace("PivotUIPlugin", {
+      handleEvaluationMessage: this.handleEvaluationMessage.bind(this),
+    });
   }
 
   beforeHandle(cmd: Command) {
@@ -112,12 +122,27 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
   }
 
+  handleEvaluationMessage(message: EvaluationMessage) {
+    if (message.type === "invalidateAllCells") {
+      this.pivotCellsCache = new PositionMap<PivotCacheItem>();
+    } else if (message.type === "invalidateCell") {
+      this.pivotCellsCache.delete(message.position);
+    } else if (message.type === "addPivotToPosition") {
+      this.pivotCellsCache.set(message.position, message.item);
+    }
+  }
+
   // ---------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------
 
   getPivotInfoAtPosition(position: CellPosition): PivotCacheItem | undefined {
-    return this.getters.getEvaluatedCellMetaData(position)?.pivot;
+    const cachedAtPosition = this.pivotCellsCache.get(position);
+    if (cachedAtPosition) {
+      return cachedAtPosition;
+    }
+    const mainPosition = this.getters.getArrayFormulaSpreadingOn(position);
+    return mainPosition ? this.pivotCellsCache.get(mainPosition) : undefined;
   }
 
   /**

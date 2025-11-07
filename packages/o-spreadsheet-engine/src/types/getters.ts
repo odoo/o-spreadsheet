@@ -72,4 +72,5 @@ export type Getters = {
   PluginGetters<typeof CheckboxTogglePlugin> &
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
-  PluginGetters<typeof CarouselUIPlugin>;
+  PluginGetters<typeof CarouselUIPlugin> &
+  PluginGetters<typeof SubtotalEvaluationPlugin>;

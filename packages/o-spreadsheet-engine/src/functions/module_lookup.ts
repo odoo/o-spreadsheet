@@ -787,11 +787,9 @@ export const XLOOKUP = {
 //--------------------------------------------------------------------------
 
 function addPivotMetaDataToContext(context: EvalContext, item: PivotCacheItem) {
-  const { __originCellPosition: position, cellPositionMetaData: positionMap } = context;
+  const { __originCellPosition: position } = context;
   if (position) {
-    const existingData = positionMap.get(position) || {};
-    existingData["pivot"] = item;
-    positionMap.set(position, existingData);
+    context.sendEvaluationMessage({ type: "addPivotToPosition", position, item });
   }
 }
 

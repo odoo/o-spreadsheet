@@ -1,6 +1,5 @@
 import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
-import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { cellPositions, positions } from "../../../helpers/zones";
@@ -160,8 +159,6 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
-    "getEvaluatedCellMetaDataMap",
-    "getEvaluatedCellMetaData",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -426,18 +423,5 @@ export class EvaluationPlugin extends CoreViewPlugin {
       return spreadingFormulaCell;
     }
     return undefined;
-  }
-
-  getEvaluatedCellMetaDataMap(): PositionMap<{ [metaDataKey: string]: any }> {
-    return this.evaluator.getCellPositionMetaDataMap();
-  }
-
-  getEvaluatedCellMetaData(position: CellPosition) {
-    const cachedAtPosition = this.evaluator.getCellPositionMetaDataMap().get(position);
-    if (cachedAtPosition) {
-      return cachedAtPosition;
-    }
-    const mainPosition = this.getArrayFormulaSpreadingOn(position);
-    return mainPosition ? this.evaluator.getCellPositionMetaDataMap().get(mainPosition) : undefined;
   }
 }
