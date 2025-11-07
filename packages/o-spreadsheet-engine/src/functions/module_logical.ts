@@ -72,7 +72,7 @@ export const IF = {
   ],
   compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
     if (isMultipleElementMatrix(logicalExpression)) {
-      return applyVectorization(IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
+      return applyVectorization(this, IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
     }
     const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
     return result ?? { value: 0 };
@@ -94,7 +94,7 @@ export const IFERROR = {
   ],
   compute: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(IFERROR.compute, [value, valueIfError]);
+      return applyVectorization(this, IFERROR.compute, [value, valueIfError]);
     }
     const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
     return result ?? { value: 0 };
@@ -116,7 +116,7 @@ export const IFNA = {
   ],
   compute: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(IFNA.compute, [value, valueIfError]);
+      return applyVectorization(this, IFNA.compute, [value, valueIfError]);
     }
     const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
     return result ?? { value: 0 };
@@ -149,7 +149,7 @@ export const IFS = {
     }
     while (values.length > 0) {
       if (isMultipleElementMatrix(values[0])) {
-        return applyVectorization(IFS.compute, values);
+        return applyVectorization(this, IFS.compute, values);
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();

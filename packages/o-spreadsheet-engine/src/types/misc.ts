@@ -6,6 +6,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 import { Token } from "../formulas/tokenizer";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
+import { PivotStyle, PivotTableCell } from "./pivot";
 import { Range } from "./range";
 
 /**
@@ -418,3 +419,22 @@ export interface ValueAndLabel<T = string> {
   value: T;
   label: string;
 }
+
+export interface StaticPivotCacheItem {
+  type: "static";
+  pivotId: UID;
+  pivotCell: PivotTableCell;
+}
+
+export interface DynamicPivotCacheItem {
+  type: "dynamic";
+  pivotId: UID;
+  pivotStyle: Required<PivotStyle>;
+}
+
+export interface ErrorPivotCacheItem {
+  type: "error";
+  pivotId: UID;
+}
+
+export type PivotCacheItem = StaticPivotCacheItem | DynamicPivotCacheItem | ErrorPivotCacheItem;

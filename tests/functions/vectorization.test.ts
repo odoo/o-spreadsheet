@@ -2,7 +2,7 @@ import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "@odoo/o-spreadsheet-engine";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { splitReference } from "../../src/helpers";
+import { positionToZone, splitReference, zoneToXc } from "../../src/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   addToRegistry,
@@ -210,5 +210,22 @@ describe("vectorization", () => {
       ["A4B5", "A4C5"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
+  });
+
+  test("evalContext.__originCellPosition points to the current offset during vectorization, not on the root cell", () => {
+    addToRegistry(functionRegistry, "TEST.FN", {
+      description: "a function with simple args",
+      args: [{ name: "arg1", description: "", type: ["ANY"] }],
+      compute: function () {
+        return this.__originCellPosition ? zoneToXc(positionToZone(this.__originCellPosition)) : "";
+      },
+    });
+
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=TEST.FN(A1:B2)");
+    expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
+      ["D1", "E1"],
+      ["D2", "E2"],
+    ]);
   });
 });

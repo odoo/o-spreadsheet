@@ -34,6 +34,7 @@ import {
   GetSymbolValue,
   isMatrix,
   Matrix,
+  PivotCacheItem,
   RangeCompiledFormula,
   UID,
   Zone,
@@ -55,6 +56,8 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+
+  private cellPositionMetaData = new PositionMap<{ [metaDataKey: string]: any }>();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -139,6 +142,7 @@ export class Evaluator {
       forwardSearch: new Map(),
       reverseSearch: new Map(),
     };
+    this.compilationParams.evalContext.cellPositionMetaData = this.cellPositionMetaData;
   }
 
   private createEmptyPositionSet() {
@@ -218,6 +222,7 @@ export class Evaluator {
   evaluateAllCells() {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
+    this.cellPositionMetaData = new PositionMap<PivotCacheItem>();
     const ranges: BoundedRange[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
       const zone = this.getters.getSheetZone(sheetId);
@@ -263,6 +268,10 @@ export class Evaluator {
     } catch (error) {
       return handleError(error, "");
     }
+  }
+
+  getCellPositionMetaDataMap(): PositionMap<{ [metaDataKey: string]: any }> {
+    return this.cellPositionMetaData;
   }
 
   /**
@@ -325,7 +334,9 @@ export class Evaluator {
       const { left, bottom, right, top } = range.zone;
       for (let col = left; col <= right; col++) {
         for (let row = top; row <= bottom; row++) {
-          this.evaluatedCells.delete({ sheetId: range.sheetId, col, row });
+          const position = { sheetId: range.sheetId, col, row };
+          this.cellPositionMetaData.delete(position);
+          this.evaluatedCells.delete(position);
         }
       }
     }
@@ -545,6 +556,7 @@ export class Evaluator {
           continue;
         }
         this.evaluatedCells.delete(resultPosition);
+        this.cellPositionMetaData.delete(resultPosition);
       }
     }
     const sheetId = position.sheetId;

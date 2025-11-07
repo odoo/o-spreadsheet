@@ -11,7 +11,7 @@ import {
   NotAvailableError,
   errorTypes,
 } from "../types/errors";
-import { LookupCaches } from "../types/functions";
+import { EvalContext, LookupCaches } from "../types/functions";
 import { Locale } from "../types/locale";
 import {
   Arg,
@@ -499,6 +499,7 @@ type VectorArgType = "horizontal" | "vertical" | "matrix";
  *   as ranges and invoke this helper directly within your `compute` implementation.
  */
 export function applyVectorization(
+  evalCtx: EvalContext,
   formula: (...args: Arg[]) => Matrix<FunctionResultObject> | FunctionResultObject,
   args: Arg[],
   acceptToVectorize: boolean[] | undefined = undefined
@@ -541,7 +542,7 @@ export function applyVectorization(
 
   if (countVectorizedCol === 1 && countVectorizedRow === 1) {
     // either this function is not vectorized or it ends up with a 1x1 dimension
-    return formula(...args);
+    return formula.call(evalCtx, ...args);
   }
 
   const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
@@ -564,7 +565,16 @@ export function applyVectorization(
         _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
       );
     }
-    const singleCellComputeResult = formula(...getArgOffset(col, row));
+    const basePosition = evalCtx.__originCellPosition;
+    const ctx = { ...evalCtx };
+    if (basePosition) {
+      ctx.__originCellPosition = {
+        col: basePosition.col + col,
+        row: basePosition.row + row,
+        sheetId: basePosition.sheetId,
+      };
+    }
+    const singleCellComputeResult = formula.call(ctx, ...getArgOffset(col, row));
     // In the case where the user tries to vectorize arguments of an array formula, we will get an
     // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
     // we won't be able to return the values.

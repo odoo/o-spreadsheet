@@ -34,7 +34,7 @@ export function createComputeFunction(
       acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
 
-    return applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize);
+    return applyVectorization(this, errorHandlingCompute, args, acceptToVectorize);
   }
 
   function errorHandlingCompute(
