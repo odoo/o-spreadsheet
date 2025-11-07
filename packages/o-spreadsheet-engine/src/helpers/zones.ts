@@ -466,7 +466,12 @@ export function isInside(col: number, row: number, zone: UnboundedZone): boolean
  * Check if a zone is inside another
  */
 export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
-  return isEqual(union(biggerZone, smallZone), biggerZone);
+  return (
+    smallZone.left >= biggerZone.left &&
+    smallZone.right <= biggerZone.right &&
+    smallZone.top >= biggerZone.top &&
+    smallZone.bottom <= biggerZone.bottom
+  );
 }
 
 export function zoneToDimension(zone: Zone): ZoneDimension {
