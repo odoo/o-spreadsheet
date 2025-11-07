@@ -296,6 +296,14 @@ describe("knows what is a reference and what is not", () => {
       { type: "SYMBOL", value: "Sheet3!A" },
     ]);
   });
+
+  test("ref with spill range operator", () => {
+    expect(rangeTokenize("=A1#")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "A1" },
+      { type: "OPERATOR", value: "#" },
+    ]);
+  });
 });
 
 describe("tokenize ranges", () => {
