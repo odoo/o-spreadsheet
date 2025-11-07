@@ -80,6 +80,7 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<
     if (!options.isCutOperation) {
       this.dispatch("SET_FORMATTING", { sheetId, target: zones, style: undefined });
       for (const zone of zones) {
+        this.dispatch("CLEAR_FORMATTING", { sheetId, target: zones });
         for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
           this.pasteStyleZone(sheetId, pasteZone.left, pasteZone.top, content.styles);
           this.pasteFormatZone(sheetId, pasteZone.left, pasteZone.top, content.formats);
