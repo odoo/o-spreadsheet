@@ -506,10 +506,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasStyle = "style" in cmd;
     const oldStyle = hasStyle && this.getters.getCellStyle(cmd);
     const hasFormat = "format" in cmd;
+    const oldFormat = hasFormat && this.getters.getCellFormat(cmd);
     if (
       (!hasContent || cell?.content === cmd.content) &&
       (!hasStyle || deepEquals(oldStyle, cmd.style)) &&
-      (!hasFormat || cell?.format === cmd.format)
+      (!hasFormat || oldFormat === cmd.format)
     ) {
       return CommandResult.NoChanges;
     }
