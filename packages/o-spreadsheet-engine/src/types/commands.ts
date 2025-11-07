@@ -690,7 +690,7 @@ export interface UpdateFilterCommand extends PositionDependentCommand {
 
 export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
-  style?: Style;
+  style?: Style | null;
   format?: Format;
 }
 

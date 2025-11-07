@@ -63,6 +63,7 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
+      this.dispatch("SET_FORMATTING", { sheetId, target: zones, style: null });
       for (const zone of zones) {
         for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
           this.pasteStyleZone(sheetId, pasteZone.left, pasteZone.top, content.styles);
@@ -70,6 +71,7 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<
       }
     } else {
       const { left, top } = zones[0];
+      this.dispatch("SET_FORMATTING", { sheetId, target: [zones[0]], style: null });
       this.pasteStyleZone(sheetId, left, top, content.styles);
     }
   }

@@ -22,8 +22,8 @@ clipboardHandlersRegistries.cellHandlers
   .add("cell", CellClipboardHandler)
   .add("sheet", SheetClipboardHandler)
   .add("merge", MergeClipboardHandler)
+  .add("style", StyleClipboardHandler)
   .add("table", TableClipboardHandler)
   .add("conditionalFormat", ConditionalFormatClipboardHandler)
   .add("references", ReferenceClipboardHandler)
-  .add("border", BorderClipboardHandler)
-  .add("style", StyleClipboardHandler);
+  .add("border", BorderClipboardHandler);
