@@ -597,13 +597,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
     const newSelection = this.contentHelper.getCurrentSelection();
-    this.props.composerStore.stopComposerRangeSelection();
     const isCurrentlyInactive = this.props.composerStore.editionMode === "inactive";
     this.props.onComposerContentFocused(newSelection);
     if (!isCurrentlyInactive) {
       this.props.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     }
-
     this.processTokenAtCursor();
   }
 
