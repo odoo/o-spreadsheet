@@ -154,6 +154,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
     this.selectionStart = start;
     this.selectionEnd = end;
+    this.editionMode = "editing";
     this.computeFormulaCursorContext();
     this.computeParenthesisRelatedToCursor();
     this.updateAutoCompleteProvider();
