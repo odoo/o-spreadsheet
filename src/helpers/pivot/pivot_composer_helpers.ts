@@ -49,7 +49,6 @@ export function insertTokenAfterArgSeparator(
     // replace the whole token
     start = tokenAtCursor.start;
   }
-  this.composer.stopComposerRangeSelection();
   this.composer.changeComposerCursorSelection(start, end);
   this.composer.replaceComposerCursorSelection(value);
 }
@@ -72,7 +71,6 @@ export function insertTokenAfterLeftParenthesis(
     // replace the whole token
     start = tokenAtCursor.start;
   }
-  this.composer.stopComposerRangeSelection();
   this.composer.changeComposerCursorSelection(start, end);
   this.composer.replaceComposerCursorSelection(value);
 }

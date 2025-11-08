@@ -126,6 +126,13 @@ describe("edition", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
+  test("should switch to editing mode when composer cursor selection changes", () => {
+    composerStore.startEdition("=sum(");
+    expect(composerStore.editionMode).toBe("selecting");
+    composerStore.changeComposerCursorSelection(0, 5);
+    expect(composerStore.editionMode).toBe("editing");
+  });
+
   test("Stopping the edition should complete the missing parenthesis of a formula", async () => {
     composerStore.startEdition("=sum(sum(1,2");
     composerStore.stopEdition();
@@ -349,7 +356,6 @@ describe("edition", () => {
   test("selecting insert range in selecting mode", () => {
     composerStore.startEdition();
     composerStore.setCurrentContent("=");
-    composerStore.changeComposerCursorSelection(1, 1);
 
     setSelection(model, ["A1:A3"]);
     expect(composerStore.currentContent).toBe("=A1:A3");
