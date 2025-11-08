@@ -466,7 +466,6 @@ describe("Autocomplete parenthesis", () => {
   test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
     await typeInComposer("=S(");
     // go behind the letter "S"
-    composerStore.stopComposerRangeSelection();
     composerStore.changeComposerCursorSelection(2, 2);
     await nextTick();
     // show autocomplete

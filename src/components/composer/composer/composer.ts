@@ -563,9 +563,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     }
     const newSelection = this.contentHelper.getCurrentSelection();
 
-    this.props.composerStore.stopComposerRangeSelection();
     this.props.onComposerContentFocused();
-
     this.props.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     this.processTokenAtCursor();
   }
