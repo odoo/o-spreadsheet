@@ -117,6 +117,55 @@ describe("parser", () => {
     });
   });
 
+  test("can parse sub-expression in array literal", () => {
+    expect(parse("={1,2+2;3,SUM(4)}")).toMatchObject({
+      type: "ARRAY",
+      rows: [
+        [
+          { type: "NUMBER", value: 1 },
+          {
+            type: "BIN_OPERATION",
+            value: "+",
+            left: { type: "NUMBER", value: 2 },
+            right: { type: "NUMBER", value: 2 },
+          },
+        ],
+        [
+          { type: "NUMBER", value: 3 },
+          { type: "FUNCALL", value: "SUM", args: [{ type: "NUMBER", value: 4 }] },
+        ],
+      ],
+    });
+  });
+
+  test("can parse nested array literal", () => {
+    expect(parse("={{1,2},{3,4}}")).toMatchObject({
+      type: "ARRAY",
+      rows: [
+        [
+          {
+            type: "ARRAY",
+            rows: [
+              [
+                { type: "NUMBER", value: 1 },
+                { type: "NUMBER", value: 2 },
+              ],
+            ],
+          },
+          {
+            type: "ARRAY",
+            rows: [
+              [
+                { type: "NUMBER", value: 3 },
+                { type: "NUMBER", value: 4 },
+              ],
+            ],
+          },
+        ],
+      ],
+    });
+  });
+
   test("array literal throw error when empty entries", () => {
     expect(() => parse("={1,,}")).toThrow("Unexpected token: ,");
     expect(() => parse("={1;}")).toThrow("Unexpected token: }");
@@ -135,7 +184,16 @@ describe("parser", () => {
     // the dimensions depend on the values inside, which could be formulas
     // whose dimensions are not known yet. This should be handled in the evaluator.
     // ex ={1,2; SPLIT("3,4", ",")} should provide a valid result
-    expect(() => parse("={1,2;3}")).not.toThrow();
+    expect(parse("={1,2;3}")).toMatchObject({
+      type: "ARRAY",
+      rows: [
+        [
+          { type: "NUMBER", value: 1 },
+          { type: "NUMBER", value: 2 },
+        ],
+        [{ type: "NUMBER", value: 3 }],
+      ],
+    });
   });
 
   test("can parse unary operations", () => {
