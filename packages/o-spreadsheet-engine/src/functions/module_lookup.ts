@@ -1129,7 +1129,7 @@ export const CHOOSE = {
       );
     }
     const result = choices[_index];
-    return result ?? new EvaluationError(_t("Message d erreur à corriger"));
+    return result ?? new EvaluationError(_t("Choice is undefined."));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1161,7 +1161,11 @@ export const DROP = {
     const _columns = toNumber(columns, this.locale);
     let result = array;
     if (Math.abs(_columns) >= array.length || Math.abs(_rows) >= array[0].length) {
-      return new EvaluationError(_t("Number of rows or column to exclude is too big."));
+      return new EvaluationError(
+        _t(
+          "The number of rows or column to exclude must be smaller or equal than the number of elements in the array."
+        )
+      );
     }
     if (_columns >= 0) {
       result = result.slice(_columns);
@@ -1188,7 +1192,6 @@ export const ARRAYTOTEXT = {
   description: _t(
     "returns an array of text values from any specified range. It passes text values unchanged, and converts non-text values to text."
   ),
-  //c'est ce que dit excel mais je trouve pas ça très clair
   args: [
     arg("array (range)", _t("The array to convert into text")),
     arg("format (number, optional)", _t("The format of the returned data.")),
@@ -1205,7 +1208,8 @@ export const ARRAYTOTEXT = {
     }
     for (let row = 0; row < array[0].length; row++) {
       for (let col = 0; col < array.length; col++) {
-        const text = array[col][row].value ?? "";
+        const value = array[col][row].value;
+        const text = isEvaluationError(value) ? value : toString(value);
         result = result + text;
         if (col !== array.length - 1) {
           result = result + ",";
@@ -1233,13 +1237,8 @@ export const FORMULATEXT = {
   compute: function (cellReference: { value: string }) {
     const { sheetName, xc } = splitReference(cellReference.value);
     const { col, row } = toCartesian(xc);
-    let sheetId: UID;
-    if (sheetName) {
-      //@ts-ignore
-      sheetId = this.getters.getSheetIdByName(sheetName);
-    } else {
-      sheetId = this.getters.getActiveSheetId();
-    }
+    const sheetId: UID =
+      (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.getters.getActiveSheetId();
     const result = this.getters.getCell({ sheetId, col, row });
     return result?.content || "";
   },
