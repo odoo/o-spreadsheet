@@ -1,6 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-BorderEditorWidget">
-    <div class="d-flex position-relative" title="Borders">
+    <div
+      class="d-flex position-relative"
+      t-att-class="{'o-disabled': env.model.getters.isCurrentSheetLocked()}"
+      title="Borders">
       <span
         t-ref="borderEditorButton"
         t-on-click.stop="toggleBorderEditor"
