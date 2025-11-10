@@ -27,7 +27,7 @@ function stackHorizontally(
 
   if (options?.requireSameRowCount) {
     const firstLength = nbRowsArr[0];
-    if (!nbRowsArr.every((len) => len === firstLength)) {
+    if (nbRowsArr.some((len) => len !== firstLength)) {
       return new EvaluationError(
         _t(
           "All ranges in [[FUNCTION_NAME]] must have the same number of columns (got %s).",
@@ -61,7 +61,7 @@ function stackVertically(
 
   if (options?.requireSameColCount) {
     const firstLength = nbColsArr[0];
-    if (!nbColsArr.every((len) => len === firstLength)) {
+    if (nbColsArr.some((len) => len !== firstLength)) {
       return new EvaluationError(
         _t(
           "All ranges in [[FUNCTION_NAME]] must have the same number of columns (got %s).",
@@ -72,9 +72,9 @@ function stackVertically(
   }
 
   const nbRows = matrices.reduce((acc, m) => acc + (m?.[0]?.length ?? 0), 0);
-  const result: Matrix<FunctionResultObject> = Array(nbCols)
-    .fill([])
-    .map(() => Array(nbRows).fill({ value: null }));
+  const result: Matrix<FunctionResultObject> = generateMatrix(nbCols, nbRows, () => ({
+    value: null,
+  }));
 
   let currentRow = 0;
   for (const matrix of matrices) {
@@ -90,7 +90,7 @@ function stackVertically(
 }
 
 // -----------------------------------------------------------------------------
-// ARRAY_CONSTRAIN
+// ARRAY.CONSTRAIN
 // -----------------------------------------------------------------------------
 export const ARRAY_CONSTRAIN = {
   description: _t("Returns a result array constrained to a specific width and height."),
@@ -142,6 +142,7 @@ export const ARRAY_LITERAL = {
     return stackVertically(ranges, { requireSameColCount: true });
   },
   isExported: false,
+  hidden: true,
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
@@ -159,6 +160,7 @@ export const ARRAY_ROW = {
     return stackHorizontally(ranges, { requireSameRowCount: true });
   },
   isExported: false,
+  hidden: true,
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------

@@ -293,16 +293,13 @@ function parseArrayLiteral(tokens: TokenList, leftBrace: RichToken): ASTArray {
     const nextToken = tokens.current;
     if (!nextToken) {
       throw new BadExpressionError(_t("Missing closing brace"));
-    }
-    if (nextToken.type === "ARG_SEPARATOR") {
+    } else if (nextToken.type === "ARG_SEPARATOR") {
       tokens.shift();
       if (expectValue) {
         throw new BadExpressionError(_t("Unexpected empty array element"));
       }
       expectValue = true;
-      continue;
-    }
-    if (nextToken.type === "ARRAY_ROW_SEPARATOR") {
+    } else if (nextToken.type === "ARRAY_ROW_SEPARATOR") {
       tokens.shift();
       if (expectValue) {
         throw new BadExpressionError(_t("Unexpected empty array element"));
@@ -310,21 +307,17 @@ function parseArrayLiteral(tokens: TokenList, leftBrace: RichToken): ASTArray {
       rows.push(currentRow);
       currentRow = [];
       expectValue = true;
-      continue;
+    } else {
+      const value = parseExpression(tokens);
+      currentRow.push(value);
+      expectValue = false;
     }
-    const value = parseExpression(tokens);
-    currentRow.push(value);
-    expectValue = false;
   }
   // Handle the closing brace
   if (expectValue) {
     throw new BadExpressionError(_t("Unexpected empty array element"));
   }
-  // we could check here that all rows have the same size, but the real
-  // dimensions depend on the values inside, which could be a formula
-  // whose dimensions are not known yet.
-
-  const rightBrace = consumeOrThrow(tokens, "RIGHT_BRACE");
+  const rightBrace = consumeOrThrow(tokens, "RIGHT_BRACE", _t("Missing closing brace"));
   rows.push(currentRow);
   return {
     type: "ARRAY",
