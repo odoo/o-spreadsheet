@@ -128,7 +128,7 @@ export const ARRAY_CONSTRAIN = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
-// ARRAY_LITERAL
+// ARRAY.LITERAL
 // -----------------------------------------------------------------------------
 export const ARRAY_LITERAL = {
   description: _t(
@@ -145,7 +145,7 @@ export const ARRAY_LITERAL = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
-// ARRAY_ROW
+// ARRAY.ROW
 // -----------------------------------------------------------------------------
 export const ARRAY_ROW = {
   description: _t(
