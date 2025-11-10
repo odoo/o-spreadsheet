@@ -1943,7 +1943,11 @@ describe("CHOOSE formula", () => {
     expect(evaluateCell("A1", { A1: `=CHOOSE(-1, "A", "B", "C")` })).toBe("#ERROR");
   });
   test("error if index is too big", () => {
-    expect(evaluateCell("A1", { A1: `=CHOOSE(4, "A", "B", "C")` })).toBe("#ERROR");
+    const model = createModelFromGrid({ A1: `=CHOOSE(4, "A", "B", "C")` });
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").message).toBe(
+      "Index for CHOOSE is invalid. Valid values are between 1 and 3 inclusive."
+    );
   });
   test("error if argument is missing", () => {
     expect(evaluateCell("A1", { A1: `=CHOOSE(4)` })).toBe("#BAD_EXPR");
@@ -1962,253 +1966,220 @@ describe("DROP formula", () => {
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,1)", E5: "", 
+                                    D5: "=DROP(A1:B2,1)"
     };
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E5")).toEqual([["A2", "B2"]]);
+  });
+  test("correct for one column", () => {
     //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "A2", E5: "B2",
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=DROP(A1:B2,,1)"
     };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:D6")).toEqual([["B1"], ["B2"]]);
   });
   test("correct for -1 column", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,0,-1)",
-                                    D6: ""
+                                    D5: "=DROP(A1:B2,,-1)"
     };
-    //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "A1",
-                                    D6: "A2"
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:D6")).toEqual([["A1"], ["A2"]]);
   });
   test("correct for -1 row", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,-1)", E5: "", 
+                                    D5: "=DROP(A1:B2,-1)"
     };
-    //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "A1", E5: "B1",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E5")).toEqual([["A1", "B1"]]);
   });
-  test("error if too much rows to exclude", () => {
+  test("error if too many rows to exclude", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,2)",
-    };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "#ERROR",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
-  });
-  test("error if too much columns to exclude", () => {
-    //prettier-ignore
-    const grid = {
-      A1: "A1", B1: "B1",
-      A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,0,2)",
-    };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "#ERROR",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
-  });
-  test("error if too much rows to exclude in negative", () => {
-    //prettier-ignore
-    const grid = {
-      A1: "A1", B1: "B1",
-      A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,-2)",
+                                    D5: "=DROP(A1:B2,2)"
     };
     expect(evaluateCell("D5", grid)).toBe("#ERROR");
   });
-  test("error if too much columns to exclude in negative", () => {
+  test("error if too many columns to exclude", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=DROP(A1:B2,0,-2)",
+                                    D5: "=DROP(A1:B2,,2)"
+    };
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
+  });
+  test("error if too many rows to exclude in negative", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=DROP(A1:B2,-2)"
+    };
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
+  });
+  test("error if too many columns to exclude in negative", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=DROP(A1:B2,,-2)"
     };
     expect(evaluateCell("D5", grid)).toBe("#ERROR");
   });
 });
-
-describe("ARRAYTOTEXT formula", () => {
-  test("correct without format", () => {
+describe("FORMULATEXT formula", () => {
+  test("correct with a formula", () => {
     //prettier-ignore
     const grid = {
-      A1: "A1", B1: "B1",
+      A1: "=SUM(B1:B2)", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=ARRAYTOTEXT(A1:B2)",
+                                    D5: "=FORMULATEXT(A1)",
     };
-    expect(evaluateCell("D5", grid)).toBe("A1,B1,A2,B2");
+    expect(evaluateCell("D5", grid)).toBe("=SUM(B1:B2)");
   });
-  test("correct with format 1", () => {
+  test("correct with a classic cell", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=ARRAYTOTEXT(A1:B2,1)",
+                                    D5: "=FORMULATEXT(A1)",
     };
-    expect(evaluateCell("D5", grid)).toBe("{A1,B1;A2,B2}");
+    expect(evaluateCell("D5", grid)).toBe("#N/A");
   });
   test("correct with an empty cell", () => {
     //prettier-ignore
     const grid = {
-      A1: "A1",
+      A1: "", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=ARRAYTOTEXT(A1:B2)",
+                                    D5: "=FORMULATEXT(A1)",
     };
-    expect(evaluateCell("D5", grid)).toBe("A1,,A2,B2");
+    expect(evaluateCell("D5", grid)).toBe("#N/A");
   });
 });
-
 describe("TAKE formula", () => {
+  test("everything should be taken", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=TAKE(A1:B2,)"
+    };
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E6")).toEqual([
+      ["A1", "B1"],
+      ["A2", "B2"],
+    ]);
+  });
   test("correct for one row", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,1)", E5: "", 
+                                    D5: "=TAKE(A1:B2,1)"
     };
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E5")).toEqual([["A1", "B1"]]);
+  });
+  test("correct for 1 column", () => {
     //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "A1", E5: "B1",
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=TAKE(A1:B2,,1)"
     };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:D6")).toEqual([["A1"], ["A2"]]);
   });
   test("correct for -1 column", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,2,-1)",
-                                    D6: ""
+                                    D5: "=TAKE(A1:B2,,-1)"
     };
-    //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "B1",
-                                    D6: "B2"
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:D6")).toEqual([["B1"], ["B2"]]);
   });
   test("correct for -1 row", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,-1)", E5: "", 
+                                    D5: "=TAKE(A1:B2,-1)"
     };
-    //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "A2", E5: "B2",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E5")).toEqual([["A2", "B2"]]);
   });
-  test("all rows if too much rows to take", () => {
+  test("all rows if too many rows to take", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,3)", E5: "",
-                                    D6: "", E6: ""
+                                    D5: "=TAKE(A1:B2,3)"
     };
-    //prettier-ignore
-    const result = {
-      A1: "A1", B1: "B1", 
-      A2: "A2", B2: "B2", 
-                                    D5: "A1", E5: "B1",
-                                    D6: "A2", E6: "B2",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E6")).toEqual([
+      ["A1", "B1"],
+      ["A2", "B2"],
+    ]);
   });
-  test("all columns if too much columns to take", () => {
+  test("all columns if too many columns to take", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,2,3)", E5: "",
-                                    D6: "", E6: ""
+                                    D5: "=TAKE(A1:B2,2,3)"
     };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "A1",
-      E5: "B1",
-      D6: "A2",
-      E6: "B2",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E6")).toEqual([
+      ["A1", "B1"],
+      ["A2", "B2"],
+    ]);
   });
-  test("all rows if too much rows to take in negative", () => {
+  test("all rows if too many rows to take in negative", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,-3)", E5: "",
-                                    D6: "", E6: ""
+                                    D5: "=TAKE(A1:B2,-3)"
     };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "A1",
-      E5: "B1",
-      D6: "A2",
-      E6: "B2",
-    };
-    expect(evaluateGrid(grid)).toEqual(result);
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E6")).toEqual([
+      ["A1", "B1"],
+      ["A2", "B2"],
+    ]);
   });
-  test("all columns if too much columns to take in negative", () => {
+  test("all columns if too many columns to take in negative", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "B2",
-                                    D5: "=TAKE(A1:B2,2,-3)", E5: "",
-                                    D6: "", E6: ""
+                                    D5: "=TAKE(A1:B2,2,-3)"
     };
-    const result = {
-      A1: "A1",
-      B1: "B1",
-      A2: "A2",
-      B2: "B2",
-      D5: "A1",
-      E5: "B1",
-      D6: "A2",
-      E6: "B2",
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "D5:E6")).toEqual([
+      ["A1", "B1"],
+      ["A2", "B2"],
+    ]);
+  });
+  test("error if rows equal 0", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=TAKE(A1:B2,0)",
     };
-    expect(evaluateGrid(grid)).toEqual(result);
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
   });
 });

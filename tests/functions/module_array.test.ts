@@ -1710,3 +1710,59 @@ describe("WRAPROWS function", () => {
     ]);
   });
 });
+describe("ARRAYTOTEXT formula", () => {
+  test("correct without format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2)"
+    };
+    expect(evaluateCell("D5", grid)).toBe("A1,B1,A2,B2");
+  });
+  test("correct with format 1", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2,1)"
+    };
+    expect(evaluateCell("D5", grid)).toBe('{"A1","B1";"A2","B2"}');
+  });
+  test("error with wrong format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2,2)"
+    };
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
+  });
+  test("correct with an empty cell and no format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2)"
+    };
+    expect(evaluateCell("D5", grid)).toBe("A1,,A2,B2");
+  });
+  test("correct with an empty cell and format 1", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2,1)"
+    };
+    expect(evaluateCell("D5", grid)).toBe('{"A1",;"A2","B2"}');
+  });
+  test("correct with links, booleans, decimals and errors", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "www.odoo.com", B1: "true", C1: "12/12/2012",
+      A2: "3.14", B2: "=0/0", C2: "",
+                                    D5: "=ARRAYTOTEXT(A1:C2)"
+    };
+    expect(evaluateCell("D5", grid)).toBe("www.odoo.com,TRUE,41255,3.14,#DIV/0!,");
+  });
+});

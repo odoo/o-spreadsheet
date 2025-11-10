@@ -2,14 +2,19 @@ import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
 import { toCartesian, toXC } from "../helpers/coordinates";
-import { range } from "../helpers/misc";
+import { isFormula, range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
 } from "../helpers/pivot/pivot_helpers";
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
-import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
+import {
+  CellErrorType,
+  EvaluationError,
+  InvalidReferenceError,
+  NotAvailableError,
+} from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Matrix, Maybe, UID, Zone } from "../types/misc";
 import { arg } from "./arguments";
@@ -49,6 +54,7 @@ const IS_SORTED_OPTIONS = [
   { value: true, label: _t("Approximate match (default)") },
   { value: false, label: _t("Exact match") },
 ];
+
 // -----------------------------------------------------------------------------
 // ADDRESS
 // -----------------------------------------------------------------------------
@@ -1109,14 +1115,12 @@ export const OFFSET = {
 // CHOOSE
 // -----------------------------------------------------------------------------
 export const CHOOSE = {
-  description: _t("An element from a list of choices based on index."),
+  description: _t("Returns an element from a list of choices based on index."),
   args: [
     arg("index (number)", _t("Which choice to return.")),
     arg(
       "choice (any, range<any>, repeating)",
-      _t(
-        "A potential value to return. Required. May be a reference to a cell or an individual value."
-      )
+      _t("A potential value to return. May be a reference to a cell or an individual value.")
     ),
   ],
   compute: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
@@ -1129,7 +1133,7 @@ export const CHOOSE = {
       );
     }
     const result = choices[_index];
-    return result ?? new EvaluationError(_t("Message d erreur à corriger"));
+    return result ?? new EvaluationError(_t("Choice is undefined."));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1161,7 +1165,11 @@ export const DROP = {
     const _columns = toNumber(columns, this.locale);
     let result = array;
     if (Math.abs(_columns) >= array.length || Math.abs(_rows) >= array[0].length) {
-      return new EvaluationError(_t("Number of rows or column to exclude is too big."));
+      return new EvaluationError(
+        _t(
+          "The number of rows or column to exclude must be smaller than the number of elements in the array."
+        )
+      );
     }
     if (_columns >= 0) {
       result = result.slice(_columns);
@@ -1176,72 +1184,6 @@ export const DROP = {
       }
     }
     return result;
-  },
-  isExported: true,
-} satisfies AddFunctionDescription;
-
-// -----------------------------------------------------------------------------
-// ARRAYTOTEXT
-// -----------------------------------------------------------------------------
-
-export const ARRAYTOTEXT = {
-  description: _t(
-    "returns an array of text values from any specified range. It passes text values unchanged, and converts non-text values to text."
-  ),
-  //c'est ce que dit excel mais je trouve pas ça très clair
-  args: [
-    arg("array (range)", _t("The array to convert into text")),
-    arg("format (number, optional)", _t("The format of the returned data.")),
-  ],
-  compute: function (
-    array: Matrix<{ value: string }>,
-    format: Maybe<FunctionResultObject> = { value: 0 }
-  ) {
-    let result = "";
-    const symb = { 0: ",", 1: ";" };
-    const _format = toNumber(format, this.locale);
-    if (!(_format in Object.keys(symb))) {
-      return new EvaluationError(_t("Format must be 0 or 1"));
-    }
-    for (let row = 0; row < array[0].length; row++) {
-      for (let col = 0; col < array.length; col++) {
-        const text = array[col][row].value ?? "";
-        result = result + text;
-        if (col !== array.length - 1) {
-          result = result + ",";
-        }
-      }
-      if (row !== array[0].length - 1) {
-        result = result + symb[_format];
-      }
-    }
-    if (_format === 1) {
-      result = "{" + result + "}";
-    }
-    return result;
-  },
-  isExported: true,
-} satisfies AddFunctionDescription;
-
-// -----------------------------------------------------------------------------
-// FORMULATEXT
-// -----------------------------------------------------------------------------
-
-export const FORMULATEXT = {
-  description: _t("Returns a formula as a string."),
-  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
-  compute: function (cellReference: { value: string }) {
-    const { sheetName, xc } = splitReference(cellReference.value);
-    const { col, row } = toCartesian(xc);
-    let sheetId: UID;
-    if (sheetName) {
-      //@ts-ignore
-      sheetId = this.getters.getSheetIdByName(sheetName);
-    } else {
-      sheetId = this.getters.getActiveSheetId();
-    }
-    const result = this.getters.getCell({ sheetId, col, row });
-    return result?.content || "";
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1270,7 +1212,7 @@ export const TAKE = {
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
-    let _rows = toNumber(rows, this.locale);
+    let _rows = !rows ? array[0].length : toNumber(rows, this.locale);
     let _columns = toNumber(columns, this.locale);
     let result = array;
     if (Math.abs(_columns) >= array.length || _columns === 0) {
@@ -1284,14 +1226,39 @@ export const TAKE = {
     } else {
       result = result.slice(result.length + _columns, result.length);
     }
+    if (_rows === 0) {
+      return new EvaluationError(_t("The number of rows can not be zero."));
+    }
     for (let i = 0; i < result.length; i++) {
-      if (_rows >= 0) {
+      if (_rows > 0) {
         result[i] = result[i].slice(0, _rows);
       } else {
         result[i] = result[i].slice(result[i].length + _rows, result[i].length);
       }
     }
     return result;
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// FORMULATEXT
+// -----------------------------------------------------------------------------
+
+export const FORMULATEXT = {
+  description: _t("Returns a formula as a string."),
+  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
+  compute: function (cellReference: { value: string }) {
+    const { sheetName, xc } = splitReference(cellReference.value);
+    const { col, row } = toCartesian(xc);
+    const sheetId: UID =
+      (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.__originSheetId;
+    const cell = this.getters.getCell({ sheetId, col, row });
+    if (cell && isFormula(cell.content)) {
+      return cell.content;
+    } else {
+      return new NotAvailableError(_t("The cell does not contain a formula."));
+    }
   },
   isExported: true,
 } satisfies AddFunctionDescription;
