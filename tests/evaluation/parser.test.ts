@@ -118,8 +118,16 @@ describe("parser", () => {
   });
 
   test("array literal throw error when empty entries", () => {
-    expect(() => parse("={1,,}")).toThrow("Unexpected empty array element");
-    expect(() => parse("={1;}")).toThrow("Unexpected empty array element");
+    expect(() => parse("={1,,}")).toThrow("Unexpected token: ,");
+    expect(() => parse("={1;}")).toThrow("Unexpected token: }");
+  });
+
+  test("array literal throw error with missing closing brace", () => {
+    expect(() => parse("={1,2")).toThrow("Missing closing brace");
+  });
+
+  test("with a wrong locale", () => {
+    expect(() => parse("={3; 3; 1 \\ 4;5;6}")).toThrow("Unexpected token: \\");
   });
 
   test("array literal with mismatched row length does not throw", () => {

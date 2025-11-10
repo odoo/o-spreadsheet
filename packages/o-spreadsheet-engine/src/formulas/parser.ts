@@ -286,36 +286,20 @@ function consumeOrThrow(tokens: TokenList, type, message?: string) {
 
 function parseArrayLiteral(tokens: TokenList, leftBrace: RichToken): ASTArray {
   const rows: AST[][] = [];
-  let currentRow: AST[] = [];
-  let expectValue = true;
+  let currentRow: AST[] = [parseExpression(tokens)]; // there must be at least one element
 
   while (tokens.current?.type !== "RIGHT_BRACE") {
-    const nextToken = tokens.current;
+    const nextToken = tokens.shift();
     if (!nextToken) {
       throw new BadExpressionError(_t("Missing closing brace"));
     } else if (nextToken.type === "ARG_SEPARATOR") {
-      tokens.shift();
-      if (expectValue) {
-        throw new BadExpressionError(_t("Unexpected empty array element"));
-      }
-      expectValue = true;
+      currentRow.push(parseExpression(tokens));
     } else if (nextToken.type === "ARRAY_ROW_SEPARATOR") {
-      tokens.shift();
-      if (expectValue) {
-        throw new BadExpressionError(_t("Unexpected empty array element"));
-      }
       rows.push(currentRow);
-      currentRow = [];
-      expectValue = true;
+      currentRow = [parseExpression(tokens)];
     } else {
-      const value = parseExpression(tokens);
-      currentRow.push(value);
-      expectValue = false;
+      throw new BadExpressionError(_t("Unexpected token: %s", nextToken.value));
     }
-  }
-  // Handle the closing brace
-  if (expectValue) {
-    throw new BadExpressionError(_t("Unexpected empty array element"));
   }
   const rightBrace = consumeOrThrow(tokens, "RIGHT_BRACE", _t("Missing closing brace"));
   rows.push(currentRow);
