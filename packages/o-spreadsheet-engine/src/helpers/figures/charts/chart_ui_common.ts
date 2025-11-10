@@ -127,7 +127,11 @@ async function canvasToObjectUrl(canvas: OffscreenCanvas): Promise<string | unde
   if (!blob) {
     return undefined;
   }
-  if (!URL.createObjectURL)
-    throw new Error("URL.createObjectURL is not supported in this environment");
-  return URL.createObjectURL(blob);
+  return new Promise((resolve) => {
+    const f = new FileReader();
+    f.addEventListener("load", () => {
+      resolve(f.result as string);
+    });
+    f.readAsDataURL(blob);
+  });
 }
