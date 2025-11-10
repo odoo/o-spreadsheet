@@ -1943,7 +1943,11 @@ describe("CHOOSE formula", () => {
     expect(evaluateCell("A1", { A1: `=CHOOSE(-1, "A", "B", "C")` })).toBe("#ERROR");
   });
   test("error if index is too big", () => {
-    expect(evaluateCell("A1", { A1: `=CHOOSE(4, "A", "B", "C")` })).toBe("#ERROR");
+    const model = createModelFromGrid({ A1: `=CHOOSE(4, "A", "B", "C")` });
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").message).toBe(
+      "Index for CHOOSE is invalid. Valid values are between 1 and 3 inclusive."
+    );
   });
   test("error if argument is missing", () => {
     expect(evaluateCell("A1", { A1: `=CHOOSE(4)` })).toBe("#BAD_EXPR");
@@ -2004,7 +2008,7 @@ describe("DROP formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("error if too much rows to exclude", () => {
+  test("error if too many rows to exclude", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2020,7 +2024,7 @@ describe("DROP formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("error if too much columns to exclude", () => {
+  test("error if too many columns to exclude", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2036,7 +2040,7 @@ describe("DROP formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("error if too much rows to exclude in negative", () => {
+  test("error if too many rows to exclude in negative", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2045,7 +2049,7 @@ describe("DROP formula", () => {
     };
     expect(evaluateCell("D5", grid)).toBe("#ERROR");
   });
-  test("error if too much columns to exclude in negative", () => {
+  test("error if too many columns to exclude in negative", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2075,6 +2079,15 @@ describe("ARRAYTOTEXT formula", () => {
     };
     expect(evaluateCell("D5", grid)).toBe("{A1,B1;A2,B2}");
   });
+  test("error with wrong format", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=ARRAYTOTEXT(A1:B2,2)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("#ERROR");
+  });
   test("correct with an empty cell", () => {
     //prettier-ignore
     const grid = {
@@ -2084,8 +2097,46 @@ describe("ARRAYTOTEXT formula", () => {
     };
     expect(evaluateCell("D5", grid)).toBe("A1,,A2,B2");
   });
+  test("correct with links, booleans, decimals and errors", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "www.odoo.com", B1: "true", C1: "12/12/2012",
+      A2: "3.14", B2: "#ERROR", C2: "",
+                                    D5: "=ARRAYTOTEXT(A1:C2)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("www.odoo.com,TRUE,41255,3.14,#ERROR,");
+  });
 });
 
+describe("FORMULATEXT formula", () => {
+  test("correct with a formula", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "=SUM(B1:B2)", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=FORMULATEXT(A1)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("=SUM(B1:B2)");
+  });
+  test("correct with a classic cell", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=FORMULATEXT(A1)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("A1");
+  });
+  test("correct with an empty cell", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "", B1: "B1",
+      A2: "A2", B2: "B2",
+                                    D5: "=FORMULATEXT(A1)",
+    };
+    expect(evaluateCell("D5", grid)).toBe("");
+  });
+});
 describe("TAKE formula", () => {
   test("correct for one row", () => {
     //prettier-ignore
@@ -2134,7 +2185,7 @@ describe("TAKE formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("all rows if too much rows to take", () => {
+  test("all rows if too many rows to take", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2151,7 +2202,7 @@ describe("TAKE formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("all columns if too much columns to take", () => {
+  test("all columns if too many columns to take", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2171,7 +2222,7 @@ describe("TAKE formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("all rows if too much rows to take in negative", () => {
+  test("all rows if too many rows to take in negative", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
@@ -2191,7 +2242,7 @@ describe("TAKE formula", () => {
     };
     expect(evaluateGrid(grid)).toEqual(result);
   });
-  test("all columns if too much columns to take in negative", () => {
+  test("all columns if too many columns to take in negative", () => {
     //prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
