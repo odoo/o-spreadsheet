@@ -8,7 +8,6 @@ import {
   HeaderIndex,
   Pixel,
   Position,
-  Rect,
   Ref,
   SpreadsheetChildEnv,
 } from "../../types";
@@ -151,10 +150,9 @@ interface Props {
     ev: PointerEvent | MouseEvent
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
-  onGridResized: (dimension: Rect) => void;
+  onGridResized: () => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
-  getGridSize: () => { width: number; height: number };
 }
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
@@ -167,7 +165,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onGridMoved: Function,
     gridOverlayDimensions: String,
     slots: { type: Object, optional: true },
-    getGridSize: Function,
   };
   static components = {
     FiguresContainer,
@@ -187,14 +184,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     useCellHovered(this.env, this.gridOverlay);
     const resizeObserver = new ResizeObserver(() => {
-      const boundingRect = this.gridOverlayEl.getBoundingClientRect();
-      const { width, height } = this.props.getGridSize();
-      this.props.onGridResized({
-        x: boundingRect.left,
-        y: boundingRect.top,
-        height: height,
-        width: width,
-      });
+      this.props.onGridResized();
     });
     onMounted(() => {
       resizeObserver.observe(this.gridOverlayEl);
