@@ -459,7 +459,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return !(rect.width === 0 || rect.height === 0);
   }
 
-  onGridResized({ height, width }: DOMDimension) {
+  onGridResized() {
+    const { height, width } = this.props.getGridSize();
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,

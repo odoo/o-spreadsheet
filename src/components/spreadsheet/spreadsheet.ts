@@ -544,26 +544,25 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   getGridSize() {
-    const topBarHeight =
-      this.spreadsheetRef.el
-        ?.querySelector(".o-spreadsheet-topbar-wrapper")
-        ?.getBoundingClientRect().height || 0;
-    const bottomBarHeight =
-      this.spreadsheetRef.el
-        ?.querySelector(".o-spreadsheet-bottombar-wrapper")
-        ?.getBoundingClientRect().height || 0;
+    const el = this.spreadsheetRef.el;
+    if (!el) {
+      return { width: 0, height: 0 };
+    }
+    const getHeight = (selector) => el.querySelector(selector)?.getBoundingClientRect().height || 0;
+    const getWidth = (selector) => el.querySelector(selector)?.getBoundingClientRect().width || 0;
 
-    const gridWidth =
-      this.spreadsheetRef.el?.querySelector(".o-grid")?.getBoundingClientRect().width || 0;
-    const gridHeight =
-      (this.spreadsheetRef.el?.getBoundingClientRect().height || 0) -
-      (this.spreadsheetRef.el?.querySelector(".o-column-groups")?.getBoundingClientRect().height ||
-        0) -
-      topBarHeight -
-      bottomBarHeight;
-    return {
-      width: Math.max(gridWidth - SCROLLBAR_WIDTH, 0),
-      height: Math.max(gridHeight - SCROLLBAR_WIDTH, 0),
-    };
+    const rect = el.getBoundingClientRect();
+    const topBarHeight = getHeight(".o-spreadsheet-topbar-wrapper");
+    const bottomBarHeight = getHeight(".o-spreadsheet-bottombar-wrapper");
+    const colGroupHeight = getHeight(".o-column-groups");
+    const gridWidth = getWidth(".o-grid");
+
+    const width = Math.max(gridWidth - SCROLLBAR_WIDTH, 0);
+    const height = Math.max(
+      rect.height - topBarHeight - bottomBarHeight - colGroupHeight - SCROLLBAR_WIDTH,
+      0
+    );
+
+    return { width, height };
   }
 }
