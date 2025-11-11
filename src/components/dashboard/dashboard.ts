@@ -21,7 +21,9 @@ import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
-interface Props {}
+interface Props {
+  getGridSize: () => DOMDimension;
+}
 
 css/* scss */ `
   .o-dashboard-clickable-cell {
@@ -79,10 +81,8 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get gridContainer() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const { right } = this.env.model.getters.getSheetZone(sheetId);
-    const { end } = this.env.model.getters.getColDimensions(sheetId, right);
-    return cssPropertiesToCss({ "max-width": `${end}px` });
+    const maxWidth = this.getMaxSheetWidth();
+    return cssPropertiesToCss({ "max-width": `${maxWidth}px` });
   }
 
   get gridOverlayDimensions() {
@@ -120,10 +120,12 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.cellPopovers.close();
   }
 
-  onGridResized({ height, width }: DOMDimension) {
+  onGridResized() {
+    const { height, width } = this.props.getGridSize();
+    const maxWidth = this.getMaxSheetWidth();
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      width: width,
-      height: height,
+      width: Math.min(maxWidth, width),
+      height,
       gridOffsetX: 0,
       gridOffsetY: 0,
     });
@@ -142,5 +144,11 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       ...getRefBoundingRect(this.gridRef),
       ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
     };
+  }
+
+  private getMaxSheetWidth(): Pixel {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const { right } = this.env.model.getters.getSheetZone(sheetId);
+    return this.env.model.getters.getColDimensions(sheetId, right).end;
   }
 }
