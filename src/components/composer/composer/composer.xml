@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Composer">
-    <div class="o-composer-container w-100 h-100">
+    <div class="o-composer-container w-100 h-100" t-ref="composerContainer">
       <t t-set="autoCompleteProposals" t-value="props.composerStore.autoCompleteProposals"/>
       <t t-set="canBeToggled" t-value="props.composerStore.canBeToggled"/>
       <t
@@ -12,10 +12,9 @@
           t-if="props.focus !== 'inactive' and assistantIsAvailable and canBeToggled and assistant.forcedClosed"
           role="button"
           title="Show formula help"
-          t-on-click="openAssistant"
+          t-on-click.stop="openAssistant"
           t-on-pointerdown.prevent.stop=""
-          t-on-click.prevent.stop=""
-          t-on-pointerup.prevent.stop=""
+          t-on-pointerup.stop=""
           class="fa-stack position-absolute translate-middle force-open-assistant fs-4">
           <i class="fa fa-circle fa-stack-1x fa-inverse"/>
           <i class="fa fa-question-circle fa-stack-1x"/>
@@ -51,13 +50,14 @@
         t-att-style="assistantContainerStyle"
         t-if="props.focus !== 'inactive' and assistantIsAvailable and !(canBeToggled and assistant.forcedClosed)"
         t-on-wheel.stop=""
-        t-on-pointerdown.prevent.stop=""
-        t-on-pointerup.prevent.stop=""
-        t-on-click.prevent.stop="">
+        t-on-pointerdown.stop=""
+        t-on-pointerup.stop=""
+        t-on-click.stop="">
         <span
           t-if="canBeToggled and !assistant.forcedClosed"
           role="button"
           t-on-click="closeAssistant"
+          t-on-pointerdown.prevent.stop=""
           class="fa-stack position-absolute top-0 start-100 translate-middle fs-4">
           <i class="fa fa-circle fa-stack-1x fa-inverse"/>
           <i class="fa fa-times-circle fa-stack-1x"/>

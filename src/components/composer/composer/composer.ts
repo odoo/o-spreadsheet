@@ -105,6 +105,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   composerRef = useRef("o_composer");
+  containerRef = useRef("composerContainer");
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
@@ -475,6 +476,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       this.props.composerStore.stopEdition();
       return;
     }
+
+    if (this.containerRef.el?.contains(ev.relatedTarget as Node)) {
+      return;
+    }
+
     if (target.attributes.getNamedItem("composerFocusableElement")) {
       this.contentHelper.el.focus();
       return;

@@ -1,4 +1,5 @@
 .o-spreadsheet .o-formula-assistant {
+  outline: unset;
   .o-formula-assistant-head {
     background-color: var(--os-composer-assistant-background);
     padding: 10px;
