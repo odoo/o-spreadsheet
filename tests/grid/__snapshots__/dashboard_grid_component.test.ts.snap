@@ -2,7 +2,8 @@
 
 exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`] = `
 <div
-  class="o-grid o-two-columns"
+  class="o-grid o-two-columns o-zoomable"
+  style="zoom:1; "
   tabindex="-1"
 >
   <div
@@ -33,7 +34,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     
     <canvas
       height="985"
-      style="width:985px;height:985px;zoom:1"
+      style="width:985px;height:985px;zoom:1;"
       width="985"
     />
     

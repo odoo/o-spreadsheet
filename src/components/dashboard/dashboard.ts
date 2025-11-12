@@ -142,4 +142,9 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     const { right } = this.env.model.getters.getSheetZone(sheetId);
     return this.env.model.getters.getColDimensions(sheetId, right).end;
   }
+
+  get dashboardStyle() {
+    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    return cssPropertiesToCss({ zoom: `${zoomLevel}` });
+  }
 }
