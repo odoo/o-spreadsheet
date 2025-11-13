@@ -26,15 +26,6 @@ const { useStoreProvider } = o_spreadsheet.stores;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
-const NOTIFICATION_STYLE =
-  "position:absolute;\
-  right:0px;\
-  border:2px solid black;\
-  background:#F5F5DCD5;\
-  padding:20px;\
-  z-index:10000;\
-  width:140px;";
-
 topbarMenuRegistry.addChild("reload", ["file"], {
   name: "Clear & reload demo",
   sequence: 10,
@@ -311,7 +302,14 @@ class Demo extends Component {
     const div = document.createElement("div");
     const text = document.createTextNode(notification.text);
     div.appendChild(text);
-    div.style = NOTIFICATION_STYLE;
+    div.classList.add(
+      "o-test-notification",
+      "bg-white",
+      "p-3",
+      "shadow",
+      "rounded",
+      notification.type
+    );
     const element = document.querySelector(".o-spreadsheet") || document.body; // if we crash on launch, the spreadsheet is not mounted yet
     div.onclick = () => {
       element.removeChild(div);
