@@ -110,7 +110,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
         break;
       case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
+        if ("content" in cmd || "formula" in cmd) {
+          this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
+        }
         break;
 
       case "CLEAR_CELL":
@@ -377,19 +379,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
     const before = this.getters.getCell({ sheetId, col, row });
-    const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
-
-    /* Read the following IF as:
-     * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
-     * - the command says the new content is empty and has no format
-     * - the command has no content property, in this case
-     *     - either there wasn't a cell at this place and the command says format is empty
-     *     - or there was a cell at this place, but it's an empty cell and the command says format is empty
-     *  */
-    if (hasContent && !afterContent && !after.formula) {
+    const afterContent = replaceNewLines(after?.content);
+    if (!afterContent && !after.formula) {
       if (before) {
         this.history.update("cells", sheetId, before.id, undefined);
         this.dispatch("UPDATE_CELL_POSITION", {
@@ -493,8 +486,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
     const cell = this.getters.getCell(cmd);
     const style = this.getters.getCellStyle(cmd);
+    const format = this.getters.getCellFormat(cmd);
     if (!cell) return CommandResult.NoChanges;
-    if (!cell.content && !style && !cell.format) {
+    if (!cell.content && !style && !format) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
