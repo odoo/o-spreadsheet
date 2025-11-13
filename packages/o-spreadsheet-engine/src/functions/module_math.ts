@@ -1409,7 +1409,7 @@ export const SUBTOTAL = {
         if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) continue;
 
         for (let col = left; col <= right; col++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
+          const cell = this.getters.getCorrespondingFormulaCell({ sheetId, col, row });
           if (!cell || !isSubtotalCell(cell)) {
             evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
           }
