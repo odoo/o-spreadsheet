@@ -81,6 +81,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getUnboundedZone",
     "checkElementsIncludeAllNonFrozenHeaders",
     "getDuplicateSheetName",
+    "tryGetCellPosition",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -426,6 +427,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       throw new Error(`asking for a cell position that doesn't exist, cell id: ${cellId}`);
     }
     return cell;
+  }
+
+  tryGetCellPosition(cellId: UID): CellPosition | undefined {
+    return this.cellPosition[cellId];
   }
 
   getNumberCols(sheetId: UID) {
