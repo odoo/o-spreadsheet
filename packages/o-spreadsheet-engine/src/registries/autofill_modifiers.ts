@@ -33,7 +33,7 @@ autofillModifiersRegistry
         cellData: {
           border: data.border,
           style: data.style,
-          format: data.cell && data.cell.format,
+          format: data.format,
           content,
         },
         tooltip: { props: { content } },
@@ -45,12 +45,12 @@ autofillModifiersRegistry
       rule.current += rule.increment;
       const content = rule.current.toString();
       const locale = getters.getLocale();
-      const tooltipValue = formatValue(rule.current, { format: data.cell?.format, locale });
+      const tooltipValue = formatValue(rule.current, { format: data.format, locale });
       return {
         cellData: {
           border: data.border,
           style: data.style,
-          format: data.cell && data.cell.format,
+          format: data.format,
           content,
         },
         tooltip: content ? { props: { content: tooltipValue } } : undefined,
@@ -67,12 +67,12 @@ autofillModifiersRegistry
       const value = jsDateToNumber(date);
       rule.current = value;
       const locale = getters.getLocale();
-      const tooltipValue = formatValue(value, { format: data.cell?.format, locale });
+      const tooltipValue = formatValue(value, { format: data.format, locale });
       return {
         cellData: {
           border: data.border,
           style: data.style,
-          format: data.cell && data.cell.format,
+          format: data.format,
           content: value.toString(),
         },
         tooltip: value ? { props: { content: tooltipValue } } : undefined,
@@ -82,12 +82,12 @@ autofillModifiersRegistry
   .add("COPY_MODIFIER", {
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
       const content = data.cell?.content || "";
-      const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
+      const localeFormat = { locale: getters.getLocale(), format: data.format };
       return {
         cellData: {
           border: data.border,
           style: data.style,
-          format: data.cell && data.cell.format,
+          format: data.format,
           content,
         },
         tooltip: content
@@ -135,7 +135,7 @@ autofillModifiersRegistry
         cellData: {
           border: data.border,
           style: data.style,
-          format: cell.format,
+          format: data.format,
           content,
         },
         tooltip: content ? { props: { content } } : undefined,
