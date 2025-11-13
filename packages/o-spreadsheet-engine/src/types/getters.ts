@@ -7,6 +7,7 @@ import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views/evaluation_data_validation";
+import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
@@ -72,4 +73,5 @@ export type Getters = {
   PluginGetters<typeof CheckboxTogglePlugin> &
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
+  PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof CarouselUIPlugin>;

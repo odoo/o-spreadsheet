@@ -27,6 +27,7 @@ import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "./ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "./ui_core_views/evaluation_data_validation";
+import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import { AutofillPlugin } from "./ui_feature/autofill";
@@ -122,4 +123,5 @@ export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("dynamic_tables", DynamicTablesPlugin)
   .add("custom_colors", CustomColorsPlugin)
   .add("pivot_ui", PivotUIPlugin)
-  .add("cell_icon", CellIconPlugin);
+  .add("cell_icon", CellIconPlugin)
+  .add("formula_tracker", FormulaTrackerPlugin);

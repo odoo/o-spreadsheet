@@ -2,6 +2,7 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
+import { Cell } from "../types/cells";
 import { ChartStyle } from "../types/chart";
 import { SearchOptions } from "../types/find_and_replace";
 import { Cloneable, ConsecutiveIndexes, DebouncedFunction, Lazy, Style, UID } from "../types/misc";
@@ -744,4 +745,13 @@ export function chartStyleToCellStyle(style: ChartStyle): Style {
     textColor: style.color,
     align: style.align,
   };
+}
+
+export function doesCellContainFunction(cell: Cell, formula: string): boolean {
+  return (
+    cell.isFormula &&
+    cell.compiledFormula.tokens.some(
+      (t) => t.type === "SYMBOL" && t.value.toUpperCase() === formula
+    )
+  );
 }
