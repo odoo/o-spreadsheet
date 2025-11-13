@@ -133,11 +133,14 @@ export async function pointerUp(target: DOMTarget) {
  */
 export async function hoverCell(model: Model, xc: string, delay: number) {
   const zone = toZone(xc);
-  let { x, y } = model.getters.getVisibleRect(zone);
+  const zoom = model.getters.getViewportZoomLevel();
+  let { x, y, width, height } = model.getters.getVisibleRectWithZoom(zone);
   if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH;
-    y -= HEADER_HEIGHT;
+    x -= HEADER_WIDTH * zoom;
+    y -= HEADER_HEIGHT * zoom;
   }
+  x += width / 2;
+  y += height / 2;
   triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   jest.advanceTimersByTime(delay);
   await nextTick();
