@@ -191,7 +191,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
     useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
       const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
+      return scrollY >= 0;
     });
   }
 
