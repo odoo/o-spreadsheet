@@ -28,6 +28,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getEvaluatedCell,
@@ -60,9 +61,9 @@ describe("getCellText", () => {
       content: "=DATE(2021,1,1)",
       format: "bla",
     });
-    expect(getCell(model, "A1")?.format).toBe("bla");
-    expect(getCell(model, "B2")?.format).toBe("bla");
-    expect(getCell(model, "C3")?.format).toBe("bla");
+    expect(getCellFormat(model, "A1")).toBe("bla");
+    expect(getCellFormat(model, "B2")).toBe("bla");
+    expect(getCellFormat(model, "C3")).toBe("bla");
   });
 
   test("update cell outside of sheet", () => {

@@ -23,13 +23,12 @@ import {
   setCellContent,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { FR_LOCALE } from "../test_helpers/constants";
 import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
-  getEvaluatedCell,
   getMerges,
 } from "../test_helpers/getters_helpers";
 
@@ -510,7 +509,7 @@ describe("Migrations", () => {
       formats: { 2: "0.00%" },
       borders: { 3: border },
     });
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
     expect(getCellStyle(model, "A1")).toEqual(style);
     expect(getBorder(model, "A1")).toEqual(border);
     const data = model.exportData();
@@ -817,7 +816,7 @@ describe("Import", () => {
       formats: { 1: "0.00%" },
     });
     expect(getCell(model, "A1")?.content).toBe("");
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
   });
 });
 
@@ -1082,33 +1081,6 @@ test("import then export (figures)", () => {
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);
-});
-
-test("import date as string and detect the format", () => {
-  const model = new Model({
-    sheets: [
-      {
-        cells: { A1: "12/31/2020" },
-      },
-    ],
-  });
-  expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
-  expect(getCell(model, "A1")?.content).toBe("44196");
-  expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");
-});
-
-test("import localized date as string and detect the format", () => {
-  const model = new Model({
-    sheets: [
-      {
-        cells: { A1: "31/12/2020" },
-      },
-    ],
-    settings: { locale: FR_LOCALE },
-  });
-  expect(getCell(model, "A1")?.format).toBe("d/m/yyyy");
-  expect(getCell(model, "A1")?.content).toBe("44196");
-  expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("31/12/2020");
 });
 
 test("Week start is automatically added during migration", () => {

@@ -62,7 +62,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
               id: cell?.id || "",
-              format: cell?.format,
               content: pivotFormula,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -77,7 +76,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
             cell = {
               id: cell?.id || "",
-              format: evaluatedCell.format,
               content,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -86,11 +84,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         }
         cellsInRow.push({
           content: cell?.content ?? "",
-          format: cell?.format,
           tokens: cell?.isFormula
             ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
             : [],
-          border: this.getters.getCellBorder(position) || undefined,
           evaluatedCell,
           position,
         });
@@ -249,7 +245,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        style: origin?.style ?? null,
         format: originFormat ?? targetCell.format,
       });
       return;
@@ -270,11 +265,10 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         origin.tokens
       );
     }
-    if (content !== "" || origin?.format || origin?.style) {
+    if (content !== "" || origin?.format) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin?.style || null,
         format: origin?.format,
       });
     } else if (targetCell) {
