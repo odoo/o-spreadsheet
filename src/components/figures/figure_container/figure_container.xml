@@ -11,7 +11,6 @@
             t-att-style="container.inverseViewportStyle">
             <t t-foreach="container.figures" t-as="figure" t-key="figure.id">
               <FigureComponent
-                onFigureDeleted="this.props.onFigureDeleted"
                 figure="figure"
                 style="getFigureStyle(figure)"
                 onMouseDown="(ev) => this.startDraggingFigure(figure, ev)"
