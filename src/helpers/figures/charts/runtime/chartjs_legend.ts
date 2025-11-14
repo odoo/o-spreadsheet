@@ -21,6 +21,7 @@ import {
   SunburstChartJSDataset,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
@@ -114,6 +115,26 @@ export function getScatterChartLegend(
       strokeStyle: definition.background || "#ffffff",
       lineWidth: 8,
     }),
+  };
+}
+
+export function getBubbleChartLegend(
+  definition: GenericDefinition<BubbleChartDefinition>,
+  args: ChartRuntimeGenerationArgs
+): ChartLegend {
+  return {
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getLegendDisplayOptions(definition, args),
+    ...getBubbleChartLegendLabels(
+      chartFontColor(definition.background),
+      {
+        pointStyle: "circle",
+        // the stroke is the border around the circle, so increasing its size with the chart's color reduce the size of the circle
+        strokeStyle: definition.background || "#ffffff",
+        lineWidth: 8,
+      },
+      args.labels
+    ),
   };
 }
 
@@ -316,6 +337,46 @@ function getCustomLegendLabels(
           ? !data.datasets[legendItem.datasetIndex!].hidden
           : true;
       },
+    },
+  };
+}
+
+function getBubbleChartLegendLabels(
+  fontColor: Color,
+  legendLabelConfig: Partial<LegendItem>,
+  labels: string[]
+): {
+  labels: {
+    color: Color;
+    usePointStyle: boolean;
+    generateLabels: (chart: Chart) => LegendItem[];
+    filter?: LegendOptions<any>["labels"]["filter"];
+  };
+} {
+  return {
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      generateLabels: (chart: Chart) => {
+        if (!chart.data.datasets[0]) {
+          return [];
+        }
+        return chart.data.datasets[0].data
+          .map((point, index) => {
+            return {
+              text: labels[index],
+              fontColor,
+              strokeStyle: chart.data.datasets[0].borderColor![index] as Color,
+              fillStyle: chart.data.datasets[0].backgroundColor![index] as Color,
+              hidden: false,
+              pointStyle: "rect",
+              datasetIndex: index,
+              ...legendLabelConfig,
+            } as LegendItem;
+          })
+          .filter((label) => label.text);
+      },
+      filter: (legendItem, data) => true,
     },
   };
 }

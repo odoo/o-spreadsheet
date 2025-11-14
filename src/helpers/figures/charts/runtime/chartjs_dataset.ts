@@ -41,6 +41,7 @@ import {
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import {
   GeoChartDefinition,
@@ -58,6 +59,7 @@ import {
 import { ChartDataset, Point } from "chart.js";
 import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import { BubbleChartData } from "../bubble_chart";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -220,6 +222,38 @@ export function getScatterChartDatasets(
     }
   }
   return dataSets;
+}
+
+export function getBubbleChartDataset(
+  definition: BubbleChartDefinition,
+  chartData: BubbleChartData
+): ChartDataset<"bubble">[] {
+  const datasetDesign = definition.dataSets?.[0];
+  const baseColor = datasetDesign?.backgroundColor || new ColorGenerator(1).next();
+  let backgroundColor: string | string[] = setColorAlpha(baseColor, 0.5);
+  let borderColor: string | string[] = baseColor;
+  if (definition.colorMode === "multiple") {
+    const preferredColors = datasetDesign?.backgroundColor ? [datasetDesign.backgroundColor] : [];
+    const colorGenerator = new ColorGenerator(chartData.bubblePoints.length, preferredColors);
+    const colors: string[] = [];
+    for (let i = 0; i < chartData.bubblePoints.length; i++) {
+      colors.push(colorGenerator.next());
+    }
+    backgroundColor = colors.map((c) => setColorAlpha(c, 0.5));
+    borderColor = colors;
+  }
+
+  const dataset = {
+    label: chartData.dataSetsValues[0]?.label,
+    data: chartData.bubblePoints,
+    backgroundColor,
+    borderColor,
+    hoverBackgroundColor: backgroundColor,
+    hoverBorderColor: borderColor,
+    yAxisID: "y",
+  } as ChartDataset<"bubble">;
+
+  return [dataset];
 }
 
 export function getPieChartDatasets(
