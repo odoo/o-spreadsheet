@@ -330,6 +330,7 @@ export const registries = {
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
   chartJsExtensionRegistry,
+  topBarToolBarRegistry,
 };
 
 import "./registries/chart_types";
@@ -344,6 +345,9 @@ import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registri
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { TopBar } from "./components/top_bar/top_bar";
+import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
+import { ActionButton } from "./components/action_button/action_button";
+import { MenuButtonTool } from "./components/top_bar/menu_button_tool/menu_button_tool";
 
 export const helpers = {
   arg,
@@ -483,6 +487,8 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  ActionButton,
+  MenuButtonTool,
 };
 
 export const hooks = {

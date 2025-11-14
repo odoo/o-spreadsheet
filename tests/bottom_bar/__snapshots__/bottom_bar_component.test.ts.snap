@@ -251,7 +251,7 @@ exports[`BottomBar component simple rendering 1`] = `
               tabindex="-1"
             >
               <div
-                class="o-icon fa-small"
+                class="o-icon fa-small o-caret-down"
               >
                 <i
                   class="fa fa-caret-down"

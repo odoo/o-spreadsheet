@@ -211,37 +211,38 @@ export const insertTable: ActionSpec = {
   icon: "o-spreadsheet-Icon.PAINT_TABLE",
 };
 
-export const insertFunction: ActionSpec = {
-  name: _t("Function"),
-  icon: "o-spreadsheet-Icon.FORMULA",
-};
-
 export const insertFunctionSum: ActionSpec = {
+  id: "insert_function_sum",
   name: _t("SUM"),
   execute: (env) => env.startCellEdition(`=SUM(`),
 };
 
 export const insertFunctionAverage: ActionSpec = {
+  id: "insert_function_average",
   name: _t("AVERAGE"),
   execute: (env) => env.startCellEdition(`=AVERAGE(`),
 };
 
 export const insertFunctionCount: ActionSpec = {
+  id: "insert_function_count",
   name: _t("COUNT"),
   execute: (env) => env.startCellEdition(`=COUNT(`),
 };
 
 export const insertFunctionMax: ActionSpec = {
+  id: "insert_function_max",
   name: _t("MAX"),
   execute: (env) => env.startCellEdition(`=MAX(`),
 };
 
 export const insertFunctionMin: ActionSpec = {
+  id: "insert_function_min",
   name: _t("MIN"),
   execute: (env) => env.startCellEdition(`=MIN(`),
 };
 
-export const categorieFunctionAll: ActionSpec = {
+export const categoryFunctionAll: ActionSpec = {
+  id: "category_function_all",
   name: _t("All"),
   children: [allFunctionListMenuBuilder],
 };
@@ -271,6 +272,20 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
       children: createFormulaFunctions(functionsInCategory),
     };
   });
+};
+
+export const insertFunction: ActionSpec = {
+  name: _t("Function"),
+  icon: "o-spreadsheet-Icon.FORMULA",
+  children: [
+    insertFunctionSum,
+    insertFunctionAverage,
+    insertFunctionCount,
+    insertFunctionMax,
+    { ...insertFunctionMin, separator: true },
+    categoryFunctionAll,
+    categoriesFunctionListMenuBuilder,
+  ],
 };
 
 export const insertLink: ActionSpec = {

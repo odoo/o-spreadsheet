@@ -3,11 +3,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 2px 1px;
-    padding: 0px 1px;
+    margin: 2px 2px;
+    padding: 0px 4px;
     border-radius: 2px;
     min-width: 22px;
+
+    .o-caret-down {
+      margin-left: 4px;
+      width: fit-content;
+    }
   }
+
   .o-disabled {
     opacity: 0.6;
     cursor: default;
