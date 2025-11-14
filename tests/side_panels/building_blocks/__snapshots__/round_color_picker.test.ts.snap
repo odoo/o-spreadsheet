@@ -6,7 +6,7 @@ exports[`Panel color picker Can render a panel color picker component 1`] = `
     class="o-spreadsheet"
   >
     <div
-      class="o-round-color-picker-button rounded-circle"
+      class="o-round-color-picker-button rounded-circle border"
       style=""
     />
     

@@ -57,7 +57,7 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
       class="os-collapse d-none"
     >
       <div
-        class="o-formula-assistant-core pb-3 m-3"
+        class="o-formula-assistant-core pb-3 m-3 border-bottom"
       >
         <div
           class="o-formula-assistant-gray"

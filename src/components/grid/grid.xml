@@ -64,7 +64,7 @@
       </t>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
-      <div class="o-scrollbar corner"/>
+      <div class="o-scrollbar corner border-top border-start"/>
     </div>
   </t>
 </templates>

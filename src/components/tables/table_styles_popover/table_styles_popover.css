@@ -10,7 +10,6 @@
 
       .o-notebook-tab {
         padding: 5px 15px;
-        border: 1px solid var(--os-gray-300);
         margin-bottom: -1px;
         margin-left: -1px;
         color: var(--os-text-body);
@@ -18,8 +17,8 @@
         transition: color 0.2s, border-color 0.2s;
 
         &.selected {
-          border-bottom-color: var(--os-white);
-          border-top-color: var(--os-primary-button-bg);
+          border-bottom-color: var(--os-white-bg) !important;
+          border-top-color: var(--os-primary-button-bg) !important;
           color: var(--os-button-active-text-color);
         }
       }

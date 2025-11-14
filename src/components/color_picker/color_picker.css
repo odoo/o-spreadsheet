@@ -49,30 +49,21 @@
       padding: var(--os-picker-padding);
       display: flex;
       .o-cancel {
-        border: var(--os-item-border-width) solid var(--os-gray-300);
         width: 100%;
         padding: 5px;
         font-size: 14px;
         background-color: var(--os-white-bg);
-        border-radius: 4px;
         &:hover:enabled {
           background-color: var(--os-background-gray-color-hover);
         }
       }
     }
     .o-add-button {
-      border: var(--os-item-border-width) solid var(--os-gray-300);
       padding: 4px;
       background-color: var(--os-white-bg);
-      border-radius: 4px;
       &:hover:enabled {
         background-color: var(--os-background-gray-color-hover);
       }
-    }
-    .o-separator {
-      border-bottom: var(--os-menu-separator-border-width) solid var(--os-separator-color);
-      margin-top: var(--os-menu-separator-padding);
-      margin-bottom: var(--os-menu-separator-padding);
     }
 
     .o-custom-selector {
@@ -102,10 +93,8 @@
         background: linear-gradient(to top, #000 0%, transparent 100%);
       }
       .o-hue-picker {
-        border: var(--os-item-border-width) solid var(--os-gray-300);
         width: 100%;
         height: 12px;
-        border-radius: 4px;
         background: linear-gradient(
           to right,
           hsl(0, 100%, 50%) 0%,
@@ -130,10 +119,8 @@
         display: flex;
         input {
           width: 50%;
-          border-radius: 4px;
           padding: 4px 23px 4px 10px;
           height: 24px;
-          border: 1px solid var(--os-gray-300);
           margin-right: 2px;
         }
         .o-wrong-color {
@@ -152,8 +139,6 @@
         justify-content: end;
       }
       .o-color-preview {
-        border: 1px solid var(--os-gray-300);
-        border-radius: 4px;
         width: 50%;
       }
     }

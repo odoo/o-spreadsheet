@@ -1,13 +1,11 @@
 .o-spreadsheet {
   .o-cf-ruleEditor {
     .o-cf-preview-display {
-      border: 1px solid var(--os-gray-300);
       padding: 10px;
     }
 
     .o-cf-cell-is-rule {
       .o-divider {
-        border-right: 1px solid var(--os-gray-300);
         margin: 4px 6px;
       }
     }
@@ -25,11 +23,9 @@
     }
     .o-cf-iconset-rule {
       .o-cf-clickable-icon {
-        border: 1px solid var(--os-gray-300);
-        border-radius: 4px;
         cursor: pointer;
         &:hover {
-          border-color: var(--os-action-color);
+          border-color: var(--os-action-color) !important;
           background-color: var(--os-badge-selected-color);
         }
         .o-icon {

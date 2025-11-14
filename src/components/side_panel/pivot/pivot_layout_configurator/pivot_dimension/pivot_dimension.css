@@ -1,7 +1,6 @@
 .o-spreadsheet {
   .pivot-dimension {
-    border: 1px solid var(--os-gray-300);
-    border-radius: 4px;
+    background-color: light-dark(var(--os-white), var(--os-gray-300));
 
     select.o-input {
       height: inherit;

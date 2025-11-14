@@ -4,7 +4,7 @@
       <div class="o-section-subtitle">Icons</div>
       <div class="o-cf-iconsets d-flex flex-row">
         <div
-          class="o-cf-iconset o-cf-clickable-icon d-flex flex-row justify-content-between"
+          class="o-cf-iconset o-cf-clickable-icon d-flex flex-row justify-content-between border rounded"
           t-foreach="['arrows', 'smiley', 'dots']"
           t-as="iconSet"
           t-key="iconSet"
@@ -27,7 +27,7 @@
     <tr>
       <td>
         <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-'+icon+'Icon', ev)">
-          <div class="o-cf-icon-button o-cf-clickable-icon me-3">
+          <div class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded">
             <t t-call="o-spreadsheet-Icon.{{icons[iconValue].template}}"/>
           </div>
         </div>
@@ -110,7 +110,7 @@
         <tr>
           <td>
             <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-lowerIcon', ev)">
-              <div class="o-cf-icon-button o-cf-clickable-icon me-3">
+              <div class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded">
                 <t t-call="o-spreadsheet-Icon.{{icons[rule.icons.lower].template}}"/>
               </div>
             </div>

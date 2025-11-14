@@ -5,7 +5,7 @@
         <RibbonMenu onClose="() => this.menuState.isOpen=false"/>
       </t>
       <t t-else="">
-        <div class="o-small-composer px-2 py-2 position-relative bg-white">
+        <div class="o-small-composer px-2 py-2 position-relative bg-white border">
           <div class="w-100" t-ref="bottombarComposer">
             <Composer t-props="composerProps"/>
             <span
@@ -37,7 +37,7 @@
             composerFocusableElement="true"
           />
         </div>
-        <div class="d-flex flex-fill align-items-center bottom-bar-menu">
+        <div class="d-flex flex-fill align-items-center bottom-bar-menu border-top border-bottom">
           <Ripple>
             <div class="py-1 px-1 mx-2 ribbon-toggler" t-on-click="toggleRibbon">
               <i class="o-icon fa fa-cog"/>

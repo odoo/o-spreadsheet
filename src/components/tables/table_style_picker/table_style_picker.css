@@ -1,11 +1,6 @@
 .o-spreadsheet {
   .o-table-style-picker {
-    border: 1px solid var(--os-gray-300);
-    border-radius: 3px;
-
     .o-table-style-picker-arrow {
-      border-left: 1px solid var(--os-gray-300);
-
       &:hover {
         background: var(--os-button-hover-bg);
         cursor: pointer;

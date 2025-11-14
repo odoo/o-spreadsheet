@@ -20,7 +20,6 @@
   .o-filter-menu-list {
     flex: auto;
     overflow-y: auto;
-    border: 1px solid var(--os-gray-300);
     height: 130px;
   }
 }

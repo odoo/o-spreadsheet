@@ -13,7 +13,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-spreadsheet-topbar d-flex flex-column user-select-none bg-white"
     >
       <div
-        class="o-topbar-top d-flex justify-content-between"
+        class="o-topbar-top d-flex justify-content-between border-bottom"
       >
         <!-- Menus -->
         <div
@@ -188,7 +188,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -278,7 +278,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -315,7 +315,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -413,7 +413,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -492,7 +492,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -602,7 +602,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -706,7 +706,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-topbar-composer-container w-100"
         >
           <div
-            class="o-topbar-composer position-relative bg-white user-select-text d-flex o-topbar-composer-inactive"
+            class="o-topbar-composer position-relative bg-white user-select-text d-flex border o-topbar-composer-inactive"
           >
             <div
               class="o-composer-container w-100 h-100"
@@ -914,7 +914,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         </div>
         
         <div
-          class="o-scrollbar corner"
+          class="o-scrollbar corner border-top border-start"
         />
       </div>
     </div>
@@ -925,7 +925,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   >
     
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
     >
       <div
         class="o-ripple-container position-relative add-sheet-container"
@@ -1021,7 +1021,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               class="position-relative"
             >
               <div
-                class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+                class="o-sheet d-flex align-items-center user-select-none text-nowrap border-start border-end active"
                 composerfocusableelement="true"
                 data-id="sh1"
                 style=""
@@ -1203,7 +1203,7 @@ exports[`components take the small screen into account 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -1293,7 +1293,7 @@ exports[`components take the small screen into account 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -1330,7 +1330,7 @@ exports[`components take the small screen into account 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -1428,7 +1428,7 @@ exports[`components take the small screen into account 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -1507,7 +1507,7 @@ exports[`components take the small screen into account 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -1617,7 +1617,7 @@ exports[`components take the small screen into account 1`] = `
               
               
               <div
-                class="o-topbar-divider"
+                class="o-topbar-divider border-end"
               />
               
             </div>
@@ -1886,7 +1886,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
         <div
-          class="o-scrollbar corner"
+          class="o-scrollbar corner border-top border-start"
         />
       </div>
     </div>
@@ -1900,7 +1900,7 @@ exports[`components take the small screen into account 1`] = `
     >
       
       <div
-        class="o-small-composer px-2 py-2 position-relative bg-white"
+        class="o-small-composer px-2 py-2 position-relative bg-white border"
       >
         <div
           class="w-100"
@@ -1945,7 +1945,7 @@ exports[`components take the small screen into account 1`] = `
       </div>
       
       <div
-        class="d-flex flex-fill align-items-center bottom-bar-menu"
+        class="d-flex flex-fill align-items-center bottom-bar-menu border-top border-bottom"
       >
         <div
           class="o-ripple-container position-relative"
@@ -1969,7 +1969,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
         <div
-          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
+          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
         >
           <div
             class="o-ripple-container position-relative add-sheet-container"
@@ -2065,7 +2065,7 @@ exports[`components take the small screen into account 1`] = `
                   class="position-relative"
                 >
                   <div
-                    class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+                    class="o-sheet d-flex align-items-center user-select-none text-nowrap border-start border-end active"
                     composerfocusableelement="true"
                     data-id="Sheet1"
                     style=""

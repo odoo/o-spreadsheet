@@ -12,7 +12,6 @@
   }
 
   .o-small-composer {
-    border: var(--os-gray-400) solid 1px;
     line-height: 26px;
     display: flex;
     z-index: var(--os-components-importance-top-bar-composer);
@@ -20,8 +19,6 @@
 
   .bottom-bar-menu {
     background-color: var(--os-background-gray-color);
-    border-top: 1px solid var(--os-gray-400);
-    border-bottom: 1px solid var(--os-gray-400);
   }
 
   .o-spreadsheet-bottom-bar {
