@@ -5,7 +5,7 @@ import {
   DEFAULT_FIGURE_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
+import { ChartDefinition, Model, RangeChartDataSet } from "../../../src";
 import { toXC, zoneToXc } from "../../../src/helpers";
 import {
   addColumns,
@@ -536,7 +536,7 @@ describe("Smart chart type detection", () => {
     doAction(["insert", "insert_chart"], env);
 
     const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
-    const expectedDatasets: CustomizedDataSet[] = [];
+    const expectedDatasets: RangeChartDataSet[] = [];
     for (let i = 0; i < datasetLastCol; i++) {
       expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
     }
@@ -566,7 +566,7 @@ describe("Smart chart type detection", () => {
     createDatasetFromDescription(datasetPattern);
     doAction(["insert", "insert_chart"], env);
 
-    const expectedDatasets: CustomizedDataSet[] = [];
+    const expectedDatasets: RangeChartDataSet[] = [];
     for (let i = 1; i < datasetPattern.length; i++) {
       expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
     }

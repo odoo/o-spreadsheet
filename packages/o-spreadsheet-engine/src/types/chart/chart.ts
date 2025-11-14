@@ -63,6 +63,11 @@ export type ChartWithDataSetDefinition = Extract<
   { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
 >;
 
+export type ChartWithRangeDataSetDefinition = Extract<
+  ChartDefinition,
+  { dataSets: RangeChartDataSet[] }
+>;
+
 export type ChartWithAxisDefinition = Extract<
   ChartWithDataSetDefinition,
   { axesDesign?: AxesDesign }
@@ -136,10 +141,13 @@ export interface TrendConfiguration {
   window?: number;
 }
 
-export type CustomizedDataSet = {
-  readonly dataRange: string;
+type CustomizedDataSet = {
   readonly trend?: TrendConfiguration;
 } & DatasetDesign;
+
+export type RangeChartDataSet = CustomizedDataSet & {
+  readonly dataRange: string;
+};
 
 export type AxisType = "category" | "linear" | "time";
 
@@ -194,8 +202,8 @@ export interface ExcelChartDefinition {
 }
 
 export interface ChartCreationContext {
-  readonly range?: CustomizedDataSet[];
-  readonly hierarchicalRanges?: CustomizedDataSet[];
+  readonly range?: RangeChartDataSet[];
+  readonly hierarchicalRanges?: RangeChartDataSet[];
   readonly title?: TitleDesign;
   readonly background?: Color;
   readonly auxiliaryRange?: string;

@@ -19,9 +19,9 @@ import {
 import {
   ChartCreationContext,
   ChartStyle,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
@@ -92,7 +92,7 @@ export class SunburstChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): SunburstChartDefinition {
-    const dataSets: CustomizedDataSet[] = [];
+    const dataSets: RangeChartDataSet[] = [];
     if (context.hierarchicalRanges?.length) {
       dataSets.push(...context.hierarchicalRanges);
     } else if (context.auxiliaryRange) {

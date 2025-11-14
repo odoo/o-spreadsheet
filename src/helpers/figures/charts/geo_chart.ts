@@ -15,10 +15,10 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
   DatasetDesign,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   GeoChartColorScale,
@@ -103,7 +103,7 @@ export class GeoChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
         ...this.dataSetDesign?.[i],
@@ -148,7 +148,7 @@ export class GeoChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): GeoChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
+    const ranges: RangeChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
         ...this.dataSetDesign?.[i],

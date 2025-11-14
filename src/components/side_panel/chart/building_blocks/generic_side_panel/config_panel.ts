@@ -20,8 +20,8 @@ import {
   ChartDatasetOrientation,
   ChartWithDataSetDefinition,
   CommandResult,
-  CustomizedDataSet,
   DispatchResult,
+  RangeChartDataSet,
   UID,
   Zone,
 } from "../../../../../types";
@@ -64,7 +64,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     labelsDispatchResult: undefined,
   });
 
-  protected dataSets: CustomizedDataSet[] = [];
+  protected dataSets: RangeChartDataSet[] = [];
   private labelRange: string | undefined;
   private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
@@ -275,8 +275,8 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     }
   }
 
-  get splitRanges(): CustomizedDataSet[] {
-    const postProcessedRanges: CustomizedDataSet[] = [];
+  get splitRanges(): RangeChartDataSet[] {
+    const postProcessedRanges: RangeChartDataSet[] = [];
     for (const dataSet of this.dataSets) {
       const range = dataSet.dataRange;
       if (!this.env.model.getters.isRangeValid(range)) {

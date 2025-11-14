@@ -1,11 +1,11 @@
 import type { ChartConfiguration, ChartDataset } from "chart.js";
 import { Color } from "../misc";
-import { ChartStyle, CustomizedDataSet, TitleDesign } from "./chart";
+import { ChartStyle, RangeChartDataSet, TitleDesign } from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface SunburstChartDefinition {
   readonly type: "sunburst";
-  readonly dataSets: CustomizedDataSet[];
+  readonly dataSets: RangeChartDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;

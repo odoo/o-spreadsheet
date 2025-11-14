@@ -3,12 +3,13 @@ import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
   ChartWithDataSetDefinition,
-  CustomizedDataSet,
+  ChartWithRangeDataSetDefinition,
   DataSet,
   DatasetValues,
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
   GenericDefinition,
+  RangeChartDataSet,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
@@ -159,7 +160,7 @@ export function adaptChartRange(
  */
 export function createDataSets(
   getters: CoreGetters,
-  customizedDataSets: CustomizedDataSet[],
+  customizedDataSets: RangeChartDataSet[],
   sheetId: UID,
   dataSetsHaveTitle: boolean
 ): DataSet[] {
@@ -323,11 +324,9 @@ export function toExcelLabelRange(
  * Transform a chart definition which supports dataSets (dataSets and LabelRange)
  * with an executed command
  */
-export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithDataSetDefinition>(
-  chartSheetId: UID,
-  definition: T,
-  applyChange: RangeAdapter
-): T {
+export function transformChartDefinitionWithDataSetsWithZone<
+  T extends ChartWithRangeDataSetDefinition
+>(chartSheetId: UID, definition: T, applyChange: RangeAdapter): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
     const adaptedRange = adaptStringRange(chartSheetId, definition.labelRange, applyChange);
@@ -336,7 +335,7 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
     }
   }
 
-  const dataSets: CustomizedDataSet[] = [];
+  const dataSets: RangeChartDataSet[] = [];
   for (const dataSet of definition.dataSets) {
     const newDataSet = { ...dataSet };
     const adaptedRange = adaptStringRange(chartSheetId, dataSet.dataRange, applyChange);

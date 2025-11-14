@@ -17,8 +17,8 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
-  CustomizedDataSet,
   LegendPosition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ComboChartDataSet,
@@ -100,7 +100,7 @@ export class ComboChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
         ...this.dataSetDesign?.[i],
