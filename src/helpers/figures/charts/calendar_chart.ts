@@ -12,51 +12,54 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
-  ChartColorScale,
+  BarChartDefinition,
+  BarChartRuntime,
   ChartCreationContext,
   CustomizedDataSet,
-  DataSet,
-  DatasetDesign,
   ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  GeoChartDefinition,
-  GeoChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { ChartConfiguration } from "chart.js";
+  LegendPosition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
+import type { ChartConfiguration } from "chart.js";
 import {
   ApplyRangeChange,
+  AxesDesign,
+  ChartColorScale,
   Color,
   CommandResult,
+  DataSet,
   Getters,
+  Granularity,
   Range,
   RangeAdapter,
   UID,
 } from "../../../types";
 import {
+  getCalendarChartData,
+  getCalendarChartDatasetAndLabels,
+  getCalendarChartLayout,
+  getCalendarChartScales,
+  getCalendarChartShowValues,
+  getCalendarChartTooltip,
+  getCalendarColorScale,
   getChartTitle,
-  getGeoChartData,
-  getGeoChartDatasets,
-  getGeoChartScales,
-  getGeoChartTooltip,
 } from "./runtime";
-import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class GeoChart extends AbstractChart {
+export class CalendarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly type = "geo";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
+  readonly type = "calendar";
+  readonly showValues?: boolean;
   readonly colorScale?: ChartColorScale;
+  readonly axesDesign?: AxesDesign;
+  readonly horizontalGroupBy: Granularity;
+  readonly verticalGroupBy: Granularity;
+  readonly legendPosition: LegendPosition;
   readonly missingValueColor?: Color;
-  readonly region?: string;
 
-  constructor(definition: GeoChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: CalendarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -66,50 +69,52 @@ export class GeoChart extends AbstractChart {
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
+    this.showValues = definition.showValues;
     this.colorScale = definition.colorScale;
+    this.axesDesign = definition.axesDesign;
+    this.horizontalGroupBy = definition.horizontalGroupBy ?? "day_of_week";
+    this.verticalGroupBy = definition.verticalGroupBy ?? "month_number";
+    this.legendPosition = definition.legendPosition;
     this.missingValueColor = definition.missingValueColor;
-    this.region = definition.region;
   }
 
   static transformDefinition(
     chartSheetId: UID,
-    definition: GeoChartDefinition,
+    definition: BarChartDefinition,
     applyChange: RangeAdapter
-  ): GeoChartDefinition {
+  ): BarChartDefinition {
     return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(
     validator: Validator,
-    definition: GeoChartDefinition
+    definition: BarChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): GeoChartDefinition {
+  static getDefinitionFromContextCreation(context: ChartCreationContext): CalendarChartDefinition {
+    let legendPosition: LegendPosition = "left";
+    if (context.legendPosition === "right") {
+      legendPosition = "right";
+    }
     return {
       background: context.background,
       dataSets: context.range ?? [],
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
-      legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
-      type: "geo",
+      type: "calendar",
       labelRange: context.auxiliaryRange || undefined,
-      humanize: context.humanize,
+      showValues: context.showValues,
+      axesDesign: context.axesDesign,
+      legendPosition,
     };
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
-    for (const [i, dataSet] of this.dataSets.entries()) {
-      range.push({
-        ...this.dataSetDesign?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
-      });
-    }
+    const range: CustomizedDataSet[] = [
+      { dataRange: this.getters.getRangeString(this.dataSets[0].dataRange, this.sheetId) },
+    ];
     return {
       ...this,
       range,
@@ -119,7 +124,7 @@ export class GeoChart extends AbstractChart {
     };
   }
 
-  duplicateInDuplicatedSheet(newSheetId: UID): GeoChart {
+  duplicateInDuplicatedSheet(newSheetId: UID): CalendarChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
     const labelRange = duplicateLabelRangeInDuplicatedSheet(
       this.sheetId,
@@ -127,19 +132,19 @@ export class GeoChart extends AbstractChart {
       this.labelRange
     );
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
-    return new GeoChart(definition, newSheetId, this.getters);
+    return new CalendarChart(definition, newSheetId, this.getters);
   }
 
-  copyInSheetId(sheetId: UID): GeoChart {
+  copyInSheetId(sheetId: UID): CalendarChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
       sheetId
     );
-    return new GeoChart(definition, sheetId, this.getters);
+    return new CalendarChart(definition, sheetId, this.getters);
   }
 
-  getDefinition(): GeoChartDefinition {
+  getDefinition(): CalendarChartDefinition {
     return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
   }
 
@@ -147,28 +152,26 @@ export class GeoChart extends AbstractChart {
     dataSets: DataSet[],
     labelRange: Range | undefined,
     targetSheetId?: UID
-  ): GeoChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
-    for (const [i, dataSet] of dataSets.entries()) {
-      ranges.push({
-        ...this.dataSetDesign?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
-      });
-    }
+  ): CalendarChartDefinition {
+    const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
+      dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+    }));
     return {
-      type: "geo",
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
+      type: "calendar",
       background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
+      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
+      showValues: this.showValues,
       colorScale: this.colorScale,
+      axesDesign: this.axesDesign,
+      horizontalGroupBy: this.horizontalGroupBy,
+      verticalGroupBy: this.verticalGroupBy,
+      legendPosition: this.legendPosition,
       missingValueColor: this.missingValueColor,
-      region: this.region,
-      humanize: this.humanize,
     };
   }
 
@@ -176,7 +179,7 @@ export class GeoChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): GeoChart {
+  updateRanges(applyChange: ApplyRangeChange): CalendarChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
@@ -187,27 +190,36 @@ export class GeoChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new GeoChart(definition, this.sheetId, this.getters);
+    return new CalendarChart(definition, this.sheetId, this.getters);
   }
 }
 
-export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoChartRuntime {
+export function createCalendarChartRuntime(
+  chart: CalendarChart,
+  getters: Getters
+): BarChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getGeoChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getCalendarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
-  const config: ChartConfiguration = {
-    type: "choropleth",
+  const config: ChartConfiguration<"bar"> = {
+    type: "bar",
     data: {
-      datasets: getGeoChartDatasets(definition, chartData),
+      labels,
+      //@ts-ignore
+      datasets,
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getGeoChartScales(definition, chartData),
+      indexAxis: "x",
+      layout: getCalendarChartLayout(definition, chartData),
+      scales: getCalendarChartScales(definition, datasets),
       plugins: {
         title: getChartTitle(definition, getters),
-        tooltip: getGeoChartTooltip(definition, chartData),
         legend: { display: false },
+        tooltip: getCalendarChartTooltip(definition, chartData),
+        chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
+        chartColorScalePlugin: getCalendarColorScale(definition, chartData),
       },
     },
   };

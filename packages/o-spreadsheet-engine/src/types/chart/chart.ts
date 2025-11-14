@@ -1,7 +1,7 @@
 import { Point } from "chart.js";
-import { Align, Color, VerticalAlign } from "../misc";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import { CalendarChartDefinition } from "./calendar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
@@ -21,6 +21,8 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
+import { Align, Color, VerticalAlign } from "../..";
+import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Range } from "../range";
@@ -39,6 +41,7 @@ export const CHART_TYPES = [
   "funnel",
   "sunburst",
   "treemap",
+  "calendar",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -56,12 +59,20 @@ export type ChartDefinition =
   | GeoChartDefinition
   | FunnelChartDefinition
   | SunburstChartDefinition
-  | TreeMapChartDefinition;
+  | TreeMapChartDefinition
+  | CalendarChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
 >;
+
+export type ChartWithColorScaleDefinition = Extract<
+  ChartDefinition,
+  { colorScale?: ChartColorScale }
+>;
+
+export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;
 
 export type ChartWithAxisDefinition = Extract<
   ChartWithDataSetDefinition,
@@ -244,3 +255,20 @@ export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
 > & {
   dataSets?: Omit<T["dataSets"][number], "dataRange">[];
 };
+
+export interface ChartColorScale {
+  minColor: Color;
+  midColor?: Color;
+  maxColor: Color;
+}
+
+export function schemeToColorScale(scheme: string): ChartColorScale | undefined {
+  const colors = COLORSCHEMES[scheme];
+  return colors === undefined
+    ? undefined
+    : {
+        minColor: colors[0],
+        midColor: colors.length === 3 ? colors[1] : undefined,
+        maxColor: colors[colors.length - 1],
+      };
+}

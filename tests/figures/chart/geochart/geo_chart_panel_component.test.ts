@@ -2,8 +2,10 @@ import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_c
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+import { schemeToColorScale } from "../../../../src/types";
 import {
   changeRoundColorPickerColor,
+  click,
   createGeoChart,
   getHTMLCheckboxValue,
   getRoundColorPickerValue,
@@ -87,7 +89,7 @@ describe("Geo chart side panel", () => {
   describe("Design panel", () => {
     test("Geo design panel is correctly initialized", async () => {
       createGeoChart(model, {
-        colorScale: "purples",
+        colorScale: schemeToColorScale("purples"),
         legendPosition: "right",
         background: "#000000",
         title: { text: "Title", bold: true },
@@ -98,23 +100,28 @@ describe("Geo chart side panel", () => {
       expect(".o-chart-title input").toHaveValue("Title");
       expect(".o-chart-legend-position").toHaveValue("right");
       expect("span[title=Bold]").toHaveClass("active");
-      expect(".o-color-scale select").toHaveValue("purples");
+      const classList = fixture.querySelector(".o-color-scale .color-scale-preview")?.classList;
+      expect(classList).toContain("purples-color-scale");
     });
 
     test("Can edit the color scale", async () => {
-      createGeoChart(model, { colorScale: "purples" });
+      createGeoChart(model, { colorScale: schemeToColorScale("purples") });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      await setInputValueAndTrigger(".o-color-scale select", "oranges");
-      expect(getGeoChartDefinition(chartId)?.colorScale).toEqual("oranges");
-      expect(".o-color-scale select").toHaveValue("oranges");
+      await click(fixture, ".color-scale-container");
+      await click(fixture, ".color-scale-preview.oranges-color-scale");
+      expect(getGeoChartDefinition(chartId)?.colorScale).toEqual(schemeToColorScale("oranges"));
+      const classList = fixture.querySelector(".o-color-scale .color-scale-preview")?.classList;
+      expect(classList).toContain("oranges-color-scale");
     });
 
     test("Can edit a custom color scale", async () => {
       createGeoChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      await setInputValueAndTrigger(".o-color-scale select", "custom");
+      await click(fixture, ".color-scale-container");
+      await click(fixture, ".color-scale-preview.custom-color-scale");
+
       await changeRoundColorPickerColor(".o-min-color", "#FF0000");
       await changeRoundColorPickerColor(".o-mid-color", "#00FF00");
       await changeRoundColorPickerColor(".o-max-color", "#0000FF");

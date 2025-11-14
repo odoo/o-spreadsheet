@@ -4,6 +4,7 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
   COLOR_TRANSPARENT,
+  DEFAULT_CHART_COLOR_SCALE,
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "@odoo/o-spreadsheet-engine/constants";
@@ -41,6 +42,7 @@ import {
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import {
   GeoChartDefinition,
@@ -58,6 +60,7 @@ import {
 import { ChartDataset, Point } from "chart.js";
 import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import { getRuntimeColorScale } from "./chartjs_scales";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -102,6 +105,51 @@ export function getBarChartDatasets(
   dataSets.push(...trendDatasets);
 
   return dataSets;
+}
+
+export function getCalendarChartDatasetAndLabels(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): {
+  datasets: (ChartDataset<"bar" | "line"> & { values: number[] })[];
+  labels: string[];
+} {
+  const { labels, dataSetsValues } = args;
+
+  const values = dataSetsValues
+    .map((ds) => ds.data)
+    .flat()
+    .filter(isDefined);
+
+  const maxValue = Math.max(...values);
+  const minValue = Math.min(...values);
+  const colorMap = getRuntimeColorScale(
+    definition.colorScale ?? DEFAULT_CHART_COLOR_SCALE,
+    minValue,
+    maxValue
+  );
+
+  const dataSets: (ChartDataset<"bar" | "line"> & { values: number[] })[] = [];
+  for (const dataSetValues of dataSetsValues) {
+    dataSets.push({
+      label: dataSetValues.label,
+      data: dataSetValues.data.map((v) => 1),
+      backgroundColor: dataSetValues.data.map((v) =>
+        v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
+      ),
+      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderSkipped: false,
+      borderWidth: 1,
+      barPercentage: 1,
+      categoryPercentage: 1,
+      values: dataSetValues.data,
+    });
+  }
+
+  return {
+    labels,
+    datasets: dataSets,
+  };
 }
 
 export function getWaterfallDatasetAndLabels(

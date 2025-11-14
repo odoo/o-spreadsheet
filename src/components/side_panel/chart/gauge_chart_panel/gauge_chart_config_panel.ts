@@ -2,30 +2,22 @@ import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_t
 import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { CommandResult, CustomizedDataSet, DispatchResult, UID } from "../../../../types/index";
+import { CommandResult, CustomizedDataSet, DispatchResult } from "../../../../types/index";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
-
-interface Props {
-  chartId: UID;
-  definition: GaugeChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-}
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 interface PanelState {
   dataRangeDispatchResult?: DispatchResult;
 }
 
-export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
+export class GaugeChartConfigPanel extends Component<
+  ChartSidePanelProps<GaugeChartDefinition>,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
   static components = { ChartErrorSection, ChartDataSeries };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
-  };
+  static props = ChartSidePanelPropsObject;
 
   private state: PanelState = useState({
     dataRangeDispatchResult: undefined,

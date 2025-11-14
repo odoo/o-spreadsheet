@@ -1,23 +1,21 @@
 import { CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { ChartDefinition, Color, DispatchResult, TitleDesign, UID } from "../../../../../types";
+import { ChartDefinition, Color, TitleDesign } from "../../../../../types";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { ChartTitle } from "../chart_title/chart_title";
 
 interface GeneralDesignEditorState {
   activeTool: string;
 }
 
-interface Props {
-  chartId: UID;
-  definition: ChartDefinition;
-  updateChart: (chartId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
+interface Props extends ChartSidePanelProps<ChartDefinition> {
   defaultChartTitleFontSize?: number;
+  slots?: object;
 }
 
 export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -30,10 +28,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     RadioSelection,
   };
   static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
+    ...ChartSidePanelPropsObject,
     defaultChartTitleFontSize: { type: Number, optional: true },
     slots: { type: Object, optional: true },
   };

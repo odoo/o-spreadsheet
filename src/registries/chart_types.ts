@@ -13,6 +13,7 @@ import {
   SunburstChartDefinition,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
@@ -31,6 +32,10 @@ import {
   ScorecardChart,
   WaterfallChart,
 } from "../helpers/figures/charts";
+import {
+  CalendarChart,
+  createCalendarChartRuntime,
+} from "../helpers/figures/charts/calendar_chart";
 import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
 import { createFunnelChartRuntime, FunnelChart } from "../helpers/figures/charts/funnel_chart";
 import { createGeoChartRuntime, GeoChart } from "../helpers/figures/charts/geo_chart";
@@ -189,6 +194,19 @@ chartRegistry.add("treemap", {
   transformDefinition: TreeMapChart.transformDefinition,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   sequence: 100,
+});
+chartRegistry.add("calendar", {
+  match: (type) => type === "calendar",
+  createChart: (definition, sheetId, getters) =>
+    new CalendarChart(definition as CalendarChartDefinition, sheetId, getters),
+  getChartRuntime: (chart, getters) => {
+    return createCalendarChartRuntime(chart as CalendarChart, getters);
+  },
+  validateChartDefinition: CalendarChart.validateChartDefinition,
+  transformDefinition: CalendarChart.transformDefinition,
+  getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
+  sequence: 110,
+  dataSeriesLimit: 1,
 });
 
 chartSubtypeRegistry
@@ -379,4 +397,11 @@ chartSubtypeRegistry
     chartSubtype: "treemap",
     category: "hierarchical",
     preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
+  })
+  .add("calendar", {
+    displayName: _t("Calendar"),
+    chartSubtype: "calendar",
+    chartType: "calendar",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.CALENDAR_CHART",
   });
