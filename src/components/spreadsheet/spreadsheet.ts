@@ -245,7 +245,7 @@ css/* scss */ `
     border-radius: 4px;
     font-weight: 500;
     font-size: 14px;
-    height: 32px;
+    min-height: 32px;
     line-height: 16px;
     flex-grow: 1;
     background-color: ${BUTTON_BG};
