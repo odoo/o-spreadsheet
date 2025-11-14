@@ -9,7 +9,7 @@
 
     td,
     th {
-      border: 1px solid var(--os-gray-300);
+      border: 1px solid var(--os-border-color);
       background-color: var(--os-white-bg);
       padding: 0.3rem;
       white-space: nowrap;

@@ -12,7 +12,7 @@
             t-att-selected="currentLocale.code === locale.code"
           />
         </select>
-        <div class="o-locale-preview mt-4 p-3 rounded">
+        <div class="o-locale-preview mt-4 p-3 rounded border">
           <div>
             <span class="o-fw-bold me-1">Number:</span>
             <span t-esc="numberFormatPreview"/>

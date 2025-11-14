@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-SpeechBubble">
     <t t-portal="'.o-spreadsheet'">
-      <div class="o-speech-bubble position-absolute px-3" t-ref="bubble">
+      <div class="o-speech-bubble position-absolute px-3 border" t-ref="bubble">
         <div class="o-speech-content text-truncate pb-1" t-esc="props.content"/>
       </div>
     </t>

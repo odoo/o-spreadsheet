@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-ConditionalFormatPreview">
     <t t-set="cf" t-value="props.conditionalFormat"/>
     <div
-      class="o-cf-preview w-100"
+      class="o-cf-preview w-100 border-bottom"
       t-ref="cfPreview"
       t-att-class="props.class"
       t-att-data-id="cf.id"
@@ -15,7 +15,7 @@
         </div>
         <t t-if="cf.rule.type==='IconSetRule'">
           <div
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white">
+            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white border">
             <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.upper].template}}"/>
             <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.middle].template}}"/>
             <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.lower].template}}"/>
@@ -24,7 +24,7 @@
         <t t-else="">
           <div
             t-att-style="getPreviewImageStyle(cf.rule)"
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white">
+            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white border">
             123
           </div>
         </t>

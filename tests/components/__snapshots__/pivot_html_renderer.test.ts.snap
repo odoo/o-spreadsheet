@@ -10,7 +10,7 @@ exports[`Pivot HTML Renderer Rendering a simple pivot table 1`] = `
       role="button"
     >
       <input
-        class="me-2 flex-shrink-0"
+        class="me-2 flex-shrink-0 border"
         name="missing_values"
         type="checkbox"
       />

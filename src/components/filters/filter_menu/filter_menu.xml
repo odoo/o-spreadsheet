@@ -16,7 +16,7 @@
         </div>
       </t>
       <div class="o-filter-menu-content">
-        <div class="o-separator"/>
+        <div class="o-separator border-bottom"/>
         <SidePanelCollapsible
           isInitiallyCollapsed="filterValueType !== 'criterion'"
           title.translate="Filter by criterion">

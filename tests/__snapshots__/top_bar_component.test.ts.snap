@@ -5,7 +5,7 @@ exports[`TopBar component simple rendering 1`] = `
   class="o-spreadsheet-topbar d-flex flex-column user-select-none bg-white"
 >
   <div
-    class="o-topbar-top d-flex justify-content-between"
+    class="o-topbar-top d-flex justify-content-between border-bottom"
   >
     <!-- Menus -->
     <div
@@ -180,7 +180,7 @@ exports[`TopBar component simple rendering 1`] = `
           
           
           <div
-            class="o-topbar-divider"
+            class="o-topbar-divider border-end"
           />
           
         </div>
@@ -270,7 +270,7 @@ exports[`TopBar component simple rendering 1`] = `
           
           
           <div
-            class="o-topbar-divider"
+            class="o-topbar-divider border-end"
           />
           
         </div>
@@ -307,7 +307,7 @@ exports[`TopBar component simple rendering 1`] = `
           
           
           <div
-            class="o-topbar-divider"
+            class="o-topbar-divider border-end"
           />
           
         </div>
@@ -405,7 +405,7 @@ exports[`TopBar component simple rendering 1`] = `
           
           
           <div
-            class="o-topbar-divider"
+            class="o-topbar-divider border-end"
           />
           
         </div>
@@ -484,7 +484,7 @@ exports[`TopBar component simple rendering 1`] = `
           
           
           <div
-            class="o-topbar-divider"
+            class="o-topbar-divider border-end"
           />
           
         </div>
@@ -594,7 +594,7 @@ exports[`TopBar component simple rendering 1`] = `
           
           
           <div
-            class="o-topbar-divider"
+            class="o-topbar-divider border-end"
           />
           
         </div>
@@ -698,7 +698,7 @@ exports[`TopBar component simple rendering 1`] = `
       class="o-topbar-composer-container w-100"
     >
       <div
-        class="o-topbar-composer position-relative bg-white user-select-text d-flex o-topbar-composer-inactive"
+        class="o-topbar-composer position-relative bg-white user-select-text d-flex border o-topbar-composer-inactive"
       >
         <div
           class="o-composer-container w-100 h-100"

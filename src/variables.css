@@ -11,7 +11,7 @@
 
   --os-white: light-dark(#ffffff, #000000);
   --os-black: light-dark(#000000, #ffffff);
-  --os-white-bg: light-dark(#ffffff, #1b1d26);
+  --os-white-bg: light-dark(#ffffff, var(--os-gray-200));
 
   --os-default-font: "Roboto", "Arial";
   --os-default-font-size: 10px;
@@ -32,6 +32,7 @@
   --os-primary-button-text-color: light-dark(#ffffff, #ffffff);
   --os-action-color: var(--os-link-color); /* ACTION_COLOR */
   --os-action-color-hover: var(--os-link-hover-color);
+  --os-border-color: light-dark(var(--os-gray-300), var(--os-gray-400));
 
   --os-composer-placeholder-color: light-dark(#bdbdbd, #757a89);
   --os-composer-assistant-color: #9b359b; /* COMPOSER_ASSISTANT_COLOR */
@@ -57,7 +58,7 @@
   --os-alert-danger-bg: light-dark(#d44c591a, #3a0b0f);
   --os-alert-danger-border: light-dark(#c34a41, #a23c36);
   --os-alert-danger-text-color: light-dark(#c34a41, #ffb3a9);
-  --os-alert-info-bg: light-dark(#cdedf1, #062a30);
+  --os-alert-info-bg: light-dark(#cdedf1, #18535e);
   --os-alert-info-border: light-dark(#98dbe2, #22747e);
   --os-alert-info-text-color: light-dark(#09414a, #9ee3ec);
 
@@ -102,7 +103,6 @@
     var(--os-color-picker-width) - 30px - (2 * var(--os-item-border-width))
   );
   --os-container-width: calc(var(--os-color-picker-width) + (2 * var(--os-picker-padding)));
-  --os-menu-separator-border-width: 1px;
   --os-menu-separator-padding: 5px;
 
   --os-components-importance-grid: 0;

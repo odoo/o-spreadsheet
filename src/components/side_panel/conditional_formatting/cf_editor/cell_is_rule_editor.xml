@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-CellIsRuleEditorPreview">
     <div
-      class="o-cf-preview-display"
+      class="o-cf-preview-display border"
       t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                        text-decoration:{{getTextDecoration(currentStyle)}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
@@ -75,7 +75,7 @@
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
         />
-        <div class="o-divider"/>
+        <div class="o-divider border-end"/>
         <ColorPickerWidget
           currentColor="rule.style.fillColor"
           toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)"

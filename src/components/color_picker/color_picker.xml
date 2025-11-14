@@ -20,7 +20,7 @@
             </div>
           </div>
         </div>
-        <div class="o-separator"/>
+        <div class="o-separator border-bottom"/>
         <div
           class="o-color-picker-section-name o-color-picker-toggler"
           t-on-click="toggleColorPicker">
@@ -59,7 +59,7 @@
             <div class="magnifier pe-none" t-att-style="pointerStyle"/>
           </div>
           <div class="o-hue-container" t-on-pointerdown="dragHuePointer">
-            <div class="o-hue-picker" t-on-click.stop=""/>
+            <div class="o-hue-picker border rounded" t-on-click.stop=""/>
             <div class="o-hue-slider pe-none" t-att-style="sliderStyle">
               <t t-call="o-spreadsheet-Icon.CARET_UP"/>
             </div>
@@ -67,16 +67,17 @@
           <div class="o-custom-input-preview">
             <input
               type="text"
+              class="border rounded"
               t-att-class="{'o-wrong-color': !isHexColorInputValid }"
               t-on-click.stop=""
               t-att-value="state.customHexColor"
               t-on-input="setHexColor"
             />
-            <div class="o-color-preview" t-att-style="colorPreviewStyle"/>
+            <div class="o-color-preview border rounded" t-att-style="colorPreviewStyle"/>
           </div>
           <div class="o-custom-input-buttons">
             <button
-              class="o-add-button"
+              class="o-add-button border rounded"
               t-att-class="{'o-disabled': !state.customHexColor or !isHexColorInputValid}"
               t-on-click.stop="addCustomColor">
               Add
@@ -84,9 +85,9 @@
           </div>
         </div>
         <t t-if="!props.disableNoColor">
-          <div class="o-separator"/>
+          <div class="o-separator border-bottom"/>
           <div class="o-buttons">
-            <button t-on-click="resetColor" class="o-cancel">No Color</button>
+            <button t-on-click="resetColor" class="o-cancel border rounded">No Color</button>
           </div>
         </t>
       </div>
