@@ -103,6 +103,14 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
+  test("should switch to editing mode when composer cursor selection changes", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "=sum(" });
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 5 });
+    expect(model.getters.getEditionMode()).toBe("editing");
+  });
+
   test("Stopping the edition should complete the missing parenthesis of a formula", async () => {
     const model = new Model();
     model.dispatch("START_EDITION", { text: "=sum(sum(1,2" });
@@ -422,10 +430,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "=",
-    });
-    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
-      start: 1,
-      end: 1,
+      selection: { start: 1, end: 1 },
     });
 
     setSelection(model, ["A1:A3"]);
