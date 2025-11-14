@@ -21,9 +21,9 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import {
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
@@ -107,7 +107,7 @@ export class BarChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
         ...this.definition.dataSets?.[i],
@@ -152,7 +152,7 @@ export class BarChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): BarChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
+    const ranges: RangeChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
         ...this.definition.dataSets?.[i],

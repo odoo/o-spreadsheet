@@ -1,11 +1,11 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { ChartRuntimeGenerationArgs, CustomizedDataSet, TitleDesign } from "./chart";
+import { ChartRuntimeGenerationArgs, RangeChartDataSet, TitleDesign } from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface GeoChartDefinition {
   readonly type: "geo";
-  readonly dataSets: CustomizedDataSet[];
+  readonly dataSets: RangeChartDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;

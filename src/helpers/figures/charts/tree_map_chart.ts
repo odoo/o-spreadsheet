@@ -14,9 +14,9 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   TreeMapChartDefinition,
@@ -85,7 +85,7 @@ export class TreeMapChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
-    const dataSets: CustomizedDataSet[] = [];
+    const dataSets: RangeChartDataSet[] = [];
     if (context.hierarchicalRanges?.length) {
       dataSets.push(...context.hierarchicalRanges);
     } else if (context.auxiliaryRange) {
@@ -152,7 +152,7 @@ export class TreeMapChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): TreeMapChartDefinition {
-    const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
+    const ranges: RangeChartDataSet[] = dataSets.map((dataSet) => ({
       dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
     }));
     return {

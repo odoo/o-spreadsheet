@@ -15,9 +15,9 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
 import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
@@ -96,7 +96,7 @@ export class FunnelChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
         ...this.definition.dataSets?.[i],
@@ -141,7 +141,7 @@ export class FunnelChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): FunnelChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
+    const ranges: RangeChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
         ...this.definition.dataSets?.[i],

@@ -7,7 +7,7 @@ import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { chartRegistry } from "../registries/chart_registry";
 import { Registry } from "../registry";
-import { CustomizedDataSet } from "../types/chart";
+import { RangeChartDataSet } from "../types/chart";
 import { Format } from "../types/format";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { Zone } from "../types/misc";
@@ -298,7 +298,7 @@ migrationStepRegistry
             continue;
           }
           const { dataSets, ...newData } = sheet.figures[f].data;
-          const newDataSets: CustomizedDataSet = dataSets.map((dataRange) => ({ dataRange }));
+          const newDataSets: RangeChartDataSet = dataSets.map((dataRange) => ({ dataRange }));
           newData.dataSets = newDataSets;
           sheet.figures[f].data = newData;
         }

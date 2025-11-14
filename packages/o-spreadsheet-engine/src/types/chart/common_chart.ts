@@ -1,13 +1,10 @@
 import { Color } from "../misc";
-import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
+import { AxesDesign, RangeChartDataSet, TitleDesign } from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";
 export type LegendPosition = "top" | "bottom" | "left" | "right" | "none";
 
 export interface CommonChartDefinition {
-  readonly dataSets: CustomizedDataSet[];
-  readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
@@ -15,4 +12,10 @@ export interface CommonChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
   readonly humanize?: boolean;
+}
+
+export interface ChartRangeDefinition extends CommonChartDefinition {
+  readonly dataSetsHaveTitle: boolean;
+  readonly labelRange?: string;
+  readonly dataSets: RangeChartDataSet[];
 }

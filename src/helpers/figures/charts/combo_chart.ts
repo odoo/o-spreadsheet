@@ -16,6 +16,9 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
+  RangeChartDataSet,
+} from "@odoo/o-spreadsheet-engine/types/chart";
+import {
   ComboChartDataSet,
   ComboChartDefinition,
   ComboChartRuntime,
@@ -26,7 +29,6 @@ import {
   ApplyRangeChange,
   ChartCreationContext,
   CommandResult,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
   Getters,
@@ -90,7 +92,7 @@ export class ComboChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
         ...this.definition.dataSets?.[i],
