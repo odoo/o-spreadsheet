@@ -3,6 +3,7 @@ import { ComponentConstructor } from "@odoo/owl";
 import { PropsOf } from "../types/props_of";
 
 type ToolBarItem<C extends ComponentConstructor = ComponentConstructor> = {
+  id: string;
   component: C;
   props: PropsOf<C>;
   sequence: number;
@@ -21,6 +22,16 @@ export class ToolBarRegistry {
 
   addChild(key: string, value: ToolBarItem): this {
     this.content[key].push(value);
+    return this;
+  }
+
+  replaceChild(childId: string, key: string, value: ToolBarItem): this {
+    const items = this.content[key];
+    const index = items.findIndex((item) => item.id === childId);
+    if (index === -1) {
+      throw new Error(`Could not find item with id ${childId} in category ${key}`);
+    }
+    this.content[key][index] = value;
     return this;
   }
 

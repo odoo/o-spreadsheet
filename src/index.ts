@@ -325,6 +325,7 @@ export const registries = {
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
   chartJsExtensionRegistry,
+  topBarToolBarRegistry,
 };
 
 import "./registries/chart_types";
@@ -336,7 +337,10 @@ import {
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
+import { ActionButton } from "./components/action_button/action_button";
+import { MenuButtonTool } from "./components/top_bar/menu_button_tool/menu_button_tool";
 import { TopBar } from "./components/top_bar/top_bar";
+import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 
 export const helpers = {
   arg,
@@ -468,6 +472,8 @@ export const components = {
   FullScreenFigure,
   NumberInput,
   TopBar,
+  ActionButton,
+  MenuButtonTool,
 };
 
 export const hooks = {

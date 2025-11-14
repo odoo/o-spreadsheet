@@ -294,36 +294,6 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertFunction,
     sequence: 60,
   })
-  .addChild("insert_function_sum", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionSum,
-    sequence: 0,
-  })
-  .addChild("insert_function_average", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionAverage,
-    sequence: 10,
-  })
-  .addChild("insert_function_count", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionCount,
-    sequence: 20,
-  })
-  .addChild("insert_function_max", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionMax,
-    sequence: 30,
-  })
-  .addChild("insert_function_min", ["insert", "insert_function"], {
-    ...ACTION_INSERT.insertFunctionMin,
-    sequence: 40,
-    separator: true,
-  })
-  .addChild("categorie_function_all", ["insert", "insert_function"], {
-    ...ACTION_INSERT.categorieFunctionAll,
-    sequence: 50,
-  })
-  .addChild(
-    "categories_function_list",
-    ["insert", "insert_function"],
-    ACTION_INSERT.categoriesFunctionListMenuBuilder
-  )
   .addChild("insert_link", ["insert"], {
     ...ACTION_INSERT.insertLink,
     separator: true,

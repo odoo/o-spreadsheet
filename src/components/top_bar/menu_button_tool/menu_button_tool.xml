@@ -1,7 +1,7 @@
 <templates>
-  <div t-name="o-spreadsheet-NumberFormatsTool" t-ref="buttonRef" t-on-click.stop="">
+  <div t-name="o-spreadsheet-MenuButtonTool" t-ref="buttonRef" t-on-click.stop="">
     <ActionButton
-      action="formatNumberMenuItemSpec"
+      action="props.action"
       hasTriangleDownIcon="true"
       onClick.bind="toggleMenu"
       class="props.class"
@@ -10,7 +10,7 @@
       t-if="isActive"
       anchorRect="state.anchorRect"
       menuItems="state.menuItems"
-      onClose="() => {}"
+      onClose.bind="onClose"
       popoverPositioning="'bottom-left'"
     />
   </div>
