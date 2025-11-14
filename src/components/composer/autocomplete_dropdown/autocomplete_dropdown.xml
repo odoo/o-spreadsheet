@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-TextValueProvider">
     <div
       t-ref="autoCompleteList"
+      t-on-pointerdown.prevent=""
       t-att-class="{
           'o-autocomplete-dropdown bg-white': props.proposals.length}">
       <t t-foreach="props.proposals" t-as="proposal" t-key="proposal.text + proposal_index">
