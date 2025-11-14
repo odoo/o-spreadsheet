@@ -5,7 +5,6 @@
     padding: 12px;
     display: flex;
     flex-direction: column;
-    border-radius: 4px;
     width: calc(340 + 2 * 12) px;
 
     .o-section {

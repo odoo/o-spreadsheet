@@ -10,7 +10,7 @@
             t-foreach="Object.keys(categories)"
             t-as="category"
             t-key="category"
-            class="o-notebook-tab d-flex align-items-center"
+            class="o-notebook-tab d-flex align-items-center border"
             t-att-class="{ 'selected': state.selectedCategory === category }"
             t-on-click="() => state.selectedCategory = category"
             t-att-data-id="category"

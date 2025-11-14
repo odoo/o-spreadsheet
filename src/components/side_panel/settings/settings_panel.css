@@ -1,6 +1,5 @@
 .o-spreadsheet {
   .o-locale-preview {
-    border: 1px solid var(--os-gray-300);
-    background-color: var(--os-gray-100);
+    background-color: light-dark(var(--os-gray-100), var(--os-gray-300));
   }
 }

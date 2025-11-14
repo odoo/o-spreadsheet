@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-TopBarComposer">
     <div class="o-topbar-composer-container w-100">
       <div
-        class="o-topbar-composer position-relative bg-white user-select-text d-flex"
+        class="o-topbar-composer position-relative bg-white user-select-text d-flex border"
         t-att-class="{
           'o-topbar-composer-readonly': env.model.getters.isReadonly(),
           'o-topbar-composer-active': focus !== 'inactive',

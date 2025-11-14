@@ -3,9 +3,6 @@
     background-color: var(--os-composer-assistant-background);
     padding: 10px;
   }
-  .o-formula-assistant-core {
-    border-bottom: 1px solid gray;
-  }
   .o-formula-assistant-arg-description {
     font-size: 85%;
   }

@@ -24,7 +24,7 @@
             </span>
           </div>
         </div>
-        <div class="o-divider"/>
+        <div class="o-divider border-end"/>
         <div class="o-border-selector-section">
           <div
             class="m-0 p-0 d-flex align-items-center justify-content-center o-with-color o-hoverable-button"

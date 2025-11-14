@@ -5,8 +5,9 @@
   </t>
 
   <t t-name="o-spreadsheet-SidePanelExtended">
-    <div class="o-sidePanel h-100 bg-white">
-      <div class="o-sidePanelHeader d-flex align-items-center justify-content-between">
+    <div class="o-sidePanel h-100 bg-white border-top border-start">
+      <div
+        class="o-sidePanelHeader d-flex align-items-center justify-content-between border-bottom">
         <div
           t-if="props.onToggleCollapsePanel"
           class="o-collapse-panel o-sidePanelAction rounded"

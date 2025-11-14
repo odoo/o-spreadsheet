@@ -170,7 +170,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     </div>
   </div>
   <div
-    class="o-separator"
+    class="o-separator border-bottom"
   />
   
   
@@ -290,7 +290,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     </div>
   </div>
   <div
-    class="o-separator"
+    class="o-separator border-bottom"
   />
   
   
@@ -404,7 +404,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     </div>
   </div>
   <div
-    class="o-separator"
+    class="o-separator border-bottom"
   />
   
   

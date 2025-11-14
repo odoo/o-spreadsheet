@@ -11,7 +11,7 @@
       <t t-if="store.category === 'currency'" t-call="o-spreadsheet-CustomCurrencySection"/>
       <t t-set="proposals" t-value="store.formatProposals"/>
       <Section title.translate="Type" t-if="proposals.length">
-        <div class="o-format-proposals overflow-auto">
+        <div class="o-format-proposals overflow-auto border">
           <div
             t-foreach="proposals"
             t-as="proposal"
@@ -34,7 +34,7 @@
           errorMessage="store.invalidFormatMessage"
         />
         <t t-set="examples" t-value="store.formatExamples"/>
-        <div class="o-format-examples mt-4 p-2 rounded" t-if="examples.length">
+        <div class="o-format-examples mt-4 p-2 rounded border" t-if="examples.length">
           <table class="w-100">
             <t t-foreach="examples" t-as="example" t-key="example_index">
               <tr>

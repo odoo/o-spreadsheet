@@ -3,8 +3,6 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    border: solid var(--os-gray-300);
-    border-width: 1px 0 0 1px;
     user-select: none;
     color: var(--os-text-body);
     &.collapsed {
@@ -21,7 +19,6 @@
     }
     .o-sidePanelHeader {
       padding: 8px;
-      border-bottom: 1px solid var(--os-gray-300);
     }
     .o-sidePanelAction {
       padding: 5px 10px;
@@ -92,12 +89,12 @@
     .o-sidePanel-tab {
       padding: 8px 0px;
       cursor: pointer;
-      border-right: 1px solid var(--os-gray-300);
+      border-right: 1px solid var(--os-border-color);
 
       &.inactive {
         color: var(--os-text-body);
         background-color: var(--os-gray-100);
-        border-bottom: 1px solid var(--os-gray-300);
+        border-bottom: 1px solid var(--os-border-color);
       }
 
       &:not(.inactive) {

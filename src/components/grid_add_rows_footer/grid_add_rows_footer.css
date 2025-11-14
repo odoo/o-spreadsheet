@@ -1,5 +1,7 @@
 .o-spreadsheet {
   .o-grid-add-rows {
+    color-scheme: light;
+    color: var(--os-text-body);
     input.o-input {
       width: 60px;
       height: 30px;

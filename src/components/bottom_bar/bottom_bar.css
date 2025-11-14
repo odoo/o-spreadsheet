@@ -1,7 +1,6 @@
 .o-spreadsheet {
   .o-spreadsheet-bottom-bar {
     font-size: 15px;
-    border-top: 1px solid var(--os-gray-400);
     background-color: var(--os-background-gray-color);
     padding-left: var(--os-header-width);
 

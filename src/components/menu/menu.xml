@@ -10,7 +10,7 @@
       t-on-click.stop=""
       t-on-contextmenu.prevent="">
       <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
-        <div t-if="menuItem === 'separator'" class="o-separator"/>
+        <div t-if="menuItem === 'separator'" class="o-separator border-bottom"/>
         <t t-else="">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>

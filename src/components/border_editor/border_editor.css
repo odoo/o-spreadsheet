@@ -3,7 +3,6 @@
     padding: 4px;
 
     .o-divider {
-      border-right: 1px solid var(--os-gray-300);
       margin: 0 6px;
     }
 

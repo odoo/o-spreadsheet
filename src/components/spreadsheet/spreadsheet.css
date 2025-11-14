@@ -1,8 +1,32 @@
 .o-spreadsheet {
+  .border {
+    border: 1px solid var(--os-border-color) !important;
+  }
+
+  .border-bottom {
+    border-bottom: 1px solid var(--os-border-color) !important;
+  }
+
+  .border-top {
+    border-top: 1px solid var(--os-border-color) !important;
+  }
+
+  .border-start {
+    border-left: 1px solid var(--os-border-color) !important;
+  }
+
+  .border-end {
+    border-right: 1px solid var(--os-border-color) !important;
+  }
+
   color: var(--os-text-body);
 
   .bg-white {
     background-color: var(--os-white-bg) !important;
+  }
+
+  .bg-white-contrasted {
+    background-color: light-dark(var(--os-white), var(--os-gray-300));
   }
 
   select > option {
@@ -10,7 +34,7 @@
   }
 
   input {
-    background-color: var(--os-white-bg);
+    background-color: transparent;
   }
 
   &.o-spreadsheet-mobile .o-spreadsheet-topbar-wrapper,
@@ -41,7 +65,6 @@
     direction: ltr;
   }
   .o-separator {
-    border-bottom: var(--os-menu-separator-border-width) solid var(--os-separator-color);
     margin-top: var(--os-menu-separator-padding);
     margin-bottom: var(--os-menu-separator-padding);
   }
@@ -97,7 +120,7 @@
     padding: 1px 0;
     width: 100%;
     outline: none;
-    border-color: var(--os-gray-300);
+    border-color: var(--os-border-color);
     color: var(--os-gray-900);
 
     &::placeholder {
@@ -173,7 +196,6 @@
   }
 
   .o-button {
-    border: 1px solid;
     border-radius: 4px;
     font-weight: 500;
     font-size: 14px;

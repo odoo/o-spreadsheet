@@ -23,7 +23,7 @@
         </div>
 
         <Collapse isCollapsed="state.isCollapsed">
-          <div class="o-formula-assistant-core pb-3 m-3">
+          <div class="o-formula-assistant-core pb-3 m-3 border-bottom">
             <div class="o-formula-assistant-gray">ABOUT</div>
             <div t-esc="context.functionDescription.description"/>
           </div>

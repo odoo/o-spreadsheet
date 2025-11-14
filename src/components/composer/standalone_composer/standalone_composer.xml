@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-StandaloneComposer">
     <div
-      class="o-standalone-composer"
+      class="o-standalone-composer border-bottom"
       t-on-click.stop=""
       t-att-class="containerClass"
       t-att-title="props.title">

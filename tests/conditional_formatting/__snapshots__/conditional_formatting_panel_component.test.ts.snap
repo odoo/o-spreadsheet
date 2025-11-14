@@ -15,7 +15,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
         style=""
       >
         <div
-          class="o-cf-preview w-100"
+          class="o-cf-preview w-100 border-bottom"
           data-id="1"
         >
           <div
@@ -54,7 +54,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             </div>
             
             <div
-              class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white"
+              class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white border"
               style="background:#FF0000; "
             >
                123 
@@ -102,7 +102,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
         style=""
       >
         <div
-          class="o-cf-preview w-100"
+          class="o-cf-preview w-100 border-bottom"
           data-id="2"
         >
           <div
@@ -141,7 +141,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             </div>
             
             <div
-              class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white"
+              class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2 bg-white border"
               style="background-image: linear-gradient(to right, #FF00FF, #123456)"
             >
                123 

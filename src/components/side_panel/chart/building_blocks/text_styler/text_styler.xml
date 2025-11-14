@@ -5,7 +5,10 @@
       t-att-class="props.class">
       <ActionButton action="boldButtonAction" class="'o-hoverable-button'"/>
       <ActionButton action="italicButtonAction" class="'o-hoverable-button'"/>
-      <div class="o-divider" t-if="props.hasHorizontalAlign || props.hasVerticalAlign"/>
+      <div
+        class="o-divider border-start"
+        t-if="props.hasHorizontalAlign || props.hasVerticalAlign"
+      />
       <div class="o-dropdown position-relative" t-if="props.hasHorizontalAlign">
         <ActionButton
           action="horizontalAlignButtonAction"
@@ -44,13 +47,13 @@
           </div>
         </div>
       </div>
-      <div class="o-divider"/>
+      <div class="o-divider border-start"/>
       <FontSizeEditor
         currentFontSize="currentFontSize"
         onFontSizeChanged.bind="this.updateFontSize"
         class="'o-hoverable-button'"
       />
-      <div class="o-divider"/>
+      <div class="o-divider border-start"/>
       <ColorPickerWidget
         currentColor="props.style.color ?? props.defaultStyle?.color"
         toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"

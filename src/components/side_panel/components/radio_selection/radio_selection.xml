@@ -8,6 +8,7 @@
       <t t-foreach="props.choices" t-as="choice" t-key="choice.value">
         <label class="o-radio d-flex align-items-center me-4">
           <input
+            class="border rounded-circle"
             t-att-class="{
               'me-1': props.direction === 'horizontal',
               'me-2': props.direction === 'vertical'}"
