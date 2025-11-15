@@ -70,7 +70,7 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "1");
     addPivot(model, "M1:N1", {}, "2");
     setCellContent(model, "A1", `=PIVOT("1") + PIVOT("2")`);
-    expect(model.getters.getPivotIdFromPosition(model.getters.getActivePosition())).toBe("1");
+    expect(model.getters.getPivotIdFromPosition(model.getters.getActivePosition())).toBe("2");
     expect(cellMenuRegistry.get("pivot_properties").isVisible!(env)).toBe(true);
   });
 
@@ -83,14 +83,14 @@ describe("Pivot properties menu item", () => {
     expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
   });
 
-  test("It should open the pivot side panel when clicking on pivot_properties with the first pivot id", () => {
+  test("It should open the pivot side panel when clicking on pivot_properties with the last pivot id", () => {
     selectCell(model, "A1");
     addPivot(model, "M1:N1", {}, "1");
     addPivot(model, "M1:N1", {}, "2");
     setCellContent(model, "A1", `=PIVOT("1") + PIVOT("2")`);
     const openSidePanel = jest.spyOn(env, "openSidePanel");
     cellMenuRegistry.get("pivot_properties").execute!(env);
-    expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
+    expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "2" });
   });
 });
 

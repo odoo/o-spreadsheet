@@ -24,6 +24,10 @@ import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
+import {
+  evaluationListenerRegistry,
+  EvaluationMessage,
+} from "../../../helpers/pivot/evaluation_listener_registry";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -139,6 +143,14 @@ export class Evaluator {
       forwardSearch: new Map(),
       reverseSearch: new Map(),
     };
+    this.compilationParams.evalContext.sendEvaluationMessage = (message: EvaluationMessage) =>
+      this.sendToListeners(message);
+  }
+
+  private sendToListeners(message: EvaluationMessage) {
+    for (const listener of evaluationListenerRegistry.getAll()) {
+      listener.handleEvaluationMessage(message);
+    }
   }
 
   private createEmptyPositionSet() {
@@ -218,6 +230,7 @@ export class Evaluator {
   evaluateAllCells() {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
+    this.sendToListeners({ type: "invalidateAllCells" });
     const ranges: BoundedRange[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
       const zone = this.getters.getSheetZone(sheetId);
@@ -325,7 +338,9 @@ export class Evaluator {
       const { left, bottom, right, top } = range.zone;
       for (let col = left; col <= right; col++) {
         for (let row = top; row <= bottom; row++) {
-          this.evaluatedCells.delete({ sheetId: range.sheetId, col, row });
+          const position = { sheetId: range.sheetId, col, row };
+          this.sendToListeners({ type: "invalidateCell", position });
+          this.evaluatedCells.delete(position);
         }
       }
     }
@@ -545,6 +560,7 @@ export class Evaluator {
           continue;
         }
         this.evaluatedCells.delete(resultPosition);
+        this.sendToListeners({ type: "invalidateCell", position: resultPosition });
       }
     }
     const sheetId = position.sheetId;

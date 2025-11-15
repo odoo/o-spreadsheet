@@ -1,13 +1,13 @@
 import { astToFormula } from "../../formulas/formula_formatter";
 import { Token } from "../../formulas/tokenizer";
-import { toScalar } from "../../functions/helper_matrices";
+import { PositionMap } from "../../helpers/cells/position_map";
 import { deepEquals, getUniqueText } from "../../helpers/misc";
 import {
-  getFirstPivotFunction,
-  getNumberOfPivotFunctions,
-} from "../../helpers/pivot/pivot_composer_helpers";
+  evaluationListenerRegistry,
+  EvaluationMessage,
+} from "../../helpers/pivot/evaluation_listener_registry";
+import { getFirstPivotFunction } from "../../helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
-import { getPivotStyleFromFnArgs } from "../../helpers/pivot/pivot_helpers";
 import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
@@ -17,10 +17,10 @@ import {
   AddPivotCommand,
   Command,
   CoreCommand,
-  UpdatePivotCommand,
   invalidateEvaluationCommands,
+  UpdatePivotCommand,
 } from "../../types/commands";
-import { CellPosition, FunctionResultObject, SortDirection, UID, isMatrix } from "../../types/misc";
+import { CellPosition, PivotCacheItem, SortDirection, UID } from "../../types/misc";
 import { PivotCoreMeasure, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
@@ -42,15 +42,21 @@ export class PivotUIPlugin extends CoreViewPlugin {
     "generateNewCalculatedMeasureName",
     "isPivotUnused",
     "isSpillPivotFormula",
+    "getPivotInfoAtPosition",
   ] as const;
 
   private pivots: Record<UID, Pivot> = {};
   private unusedPivotsInFormulas?: UID[];
   private custom: UIPluginConfig["custom"];
 
+  private pivotCellsCache = new PositionMap<PivotCacheItem>();
+
   constructor(config: CoreViewPluginConfig) {
     super(config);
     this.custom = config.custom;
+    evaluationListenerRegistry.replace("PivotUIPlugin", {
+      handleEvaluationMessage: this.handleEvaluationMessage.bind(this),
+    });
   }
 
   beforeHandle(cmd: Command) {
@@ -116,39 +122,39 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
   }
 
+  handleEvaluationMessage(message: EvaluationMessage) {
+    if (message.type === "invalidateAllCells") {
+      this.pivotCellsCache = new PositionMap<PivotCacheItem>();
+    } else if (message.type === "invalidateCell") {
+      this.pivotCellsCache.delete(message.position);
+    } else if (message.type === "addPivotToPosition") {
+      this.pivotCellsCache.set(message.position, message.item);
+    }
+  }
+
   // ---------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------
+
+  getPivotInfoAtPosition(position: CellPosition): PivotCacheItem | undefined {
+    const cachedAtPosition = this.pivotCellsCache.get(position);
+    if (cachedAtPosition) {
+      return cachedAtPosition;
+    }
+    const mainPosition = this.getters.getArrayFormulaSpreadingOn(position);
+    return mainPosition ? this.pivotCellsCache.get(mainPosition) : undefined;
+  }
 
   /**
    * Get the id of the pivot at the given position. Returns undefined if there
    * is no pivot at this position
    */
   getPivotIdFromPosition(position: CellPosition) {
-    const cell = this.getters.getCorrespondingFormulaCell(position);
-    if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(
-        position.sheetId,
-        cell.compiledFormula.tokens
-      );
-      if (pivotFunction) {
-        const pivotId = pivotFunction.args[0]?.toString();
-        return pivotId && this.getters.getPivotId(pivotId);
-      }
-    }
-    return undefined;
+    return this.getPivotInfoAtPosition(position)?.pivotId;
   }
 
   isSpillPivotFormula(position: CellPosition) {
-    const cell = this.getters.getCorrespondingFormulaCell(position);
-    if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(
-        position.sheetId,
-        cell.compiledFormula.tokens
-      );
-      return pivotFunction?.functionName === "PIVOT";
-    }
-    return false;
+    return this.getPivotInfoAtPosition(position)?.type === "dynamic";
   }
 
   getFirstPivotFunction(sheetId: UID, tokens: Token[]) {
@@ -188,87 +194,40 @@ export class PivotUIPlugin extends CoreViewPlugin {
    */
   getPivotCellFromPosition(position: CellPosition): PivotTableCell {
     const cell = this.getters.getCorrespondingFormulaCell(position);
-    if (!cell || !cell.isFormula || getNumberOfPivotFunctions(cell.compiledFormula.tokens) === 0) {
+    if (!cell || !cell.isFormula) {
       return EMPTY_PIVOT_CELL;
     }
-    const mainPosition = this.getters.getCellPosition(cell.id);
-    const result = this.getters.getFirstPivotFunction(
-      position.sheetId,
-      cell.compiledFormula.tokens
-    );
-    if (!result) {
+    const pivotInfo = this.getPivotInfoAtPosition(position);
+    if (!pivotInfo || pivotInfo.type === "error") {
       return EMPTY_PIVOT_CELL;
     }
-    let { functionName, args } = result;
-    const formulaId = args[0];
-    if (!formulaId) {
+    if (pivotInfo.type === "static") {
+      return pivotInfo.pivotCell;
+    }
+
+    const mainPosition = this.getters.getArrayFormulaSpreadingOn(position) || position;
+    if (!this.checkIfCellStartsWithPivotFunction(mainPosition)) {
       return EMPTY_PIVOT_CELL;
     }
-    const pivotId = this.getters.getPivotId(formulaId.toString());
-    if (!pivotId) {
-      return EMPTY_PIVOT_CELL;
+
+    const offsetRow = position.row - mainPosition.row;
+    const offsetCol = position.col - mainPosition.col;
+    const pivot = this.getPivot(pivotInfo.pivotId);
+    const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotInfo.pivotStyle);
+    return pivotCells[offsetCol][offsetRow];
+  }
+
+  private checkIfCellStartsWithPivotFunction(position: CellPosition): boolean {
+    const cell = this.getters.getCell(position);
+    if (!cell || !cell.isFormula) {
+      return false;
     }
-    const pivot = this.getPivot(pivotId);
-    if (!pivot.isValid()) {
-      return EMPTY_PIVOT_CELL;
+    const tokens = cell.compiledFormula.tokens;
+    for (let i = 1; i < tokens.length; i++) {
+      if (tokens[i].type === "SPACE") continue;
+      return tokens[i].type === "SYMBOL" && tokens[i].value.toUpperCase().startsWith("PIVOT");
     }
-    if (
-      functionName === "PIVOT" &&
-      !cell.content.replaceAll(" ", "").toUpperCase().startsWith("=PIVOT")
-    ) {
-      return EMPTY_PIVOT_CELL;
-    }
-    if (functionName === "PIVOT") {
-      const pivotStyle = getPivotStyleFromFnArgs(
-        this.getters.getPivotCoreDefinition(pivotId),
-        toScalar(args[1]),
-        toScalar(args[2]),
-        toScalar(args[3]),
-        toScalar(args[4]),
-        toScalar(args[5]),
-        this.getters.getLocale()
-      );
-      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
-      const pivotCol = position.col - mainPosition.col;
-      const pivotRow = position.row - mainPosition.row;
-      return pivotCells[pivotCol][pivotRow];
-    }
-    try {
-      const offsetRow = position.row - mainPosition.row;
-      const offsetCol = position.col - mainPosition.col;
-      args = args.map((arg) => (isMatrix(arg) ? arg[offsetCol][offsetRow] : arg));
-      if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
-        const domain = pivot.parseArgsToPivotDomain(
-          args.slice(1, -2).map((value) => ({ value } as FunctionResultObject))
-        );
-        return {
-          type: "MEASURE_HEADER",
-          domain,
-          measure: args.at(-1)?.toString() || "",
-        };
-      } else if (functionName === "PIVOT.HEADER") {
-        const domain = pivot.parseArgsToPivotDomain(
-          args.slice(1).map((value) => ({ value } as FunctionResultObject))
-        );
-        const colRowDomain = domainToColRowDomain(pivot, domain);
-        return {
-          type: "HEADER",
-          domain,
-          dimension: colRowDomain.colDomain.length ? "COL" : "ROW",
-        };
-      }
-      const [measure, ...domainArgs] = args.slice(1);
-      const domain = pivot.parseArgsToPivotDomain(
-        domainArgs.map((value) => ({ value } as FunctionResultObject))
-      );
-      return {
-        type: "VALUE",
-        domain,
-        measure: measure?.toString() || "",
-      };
-    } catch (_) {
-      return EMPTY_PIVOT_CELL;
-    }
+    return false;
   }
 
   generateNewCalculatedMeasureName(measures: PivotCoreMeasure[]) {

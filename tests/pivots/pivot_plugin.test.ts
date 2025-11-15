@@ -208,7 +208,7 @@ describe("Pivot plugin", () => {
   test("getPivotCellFromPosition can handle vectorization", () => {
     // prettier-ignore
     const grid = {
-      A1: "Stage", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","Stage",SEQUENCE(2))',
+      A1: "Stage", B1: "Price", C1: '=PIVOT.VALUE(1,"price:sum","Stage",SEQUENCE(2))',
       A2: "1",     B2: "10",
       A3: "2",     B3: "30",
     };

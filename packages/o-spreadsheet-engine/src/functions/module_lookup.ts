@@ -10,8 +10,8 @@ import {
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
-import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
+import { AddFunctionDescription, EvalContext } from "../types/functions";
+import { Arg, FunctionResultObject, Matrix, Maybe, PivotCacheItem, Zone } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -786,6 +786,13 @@ export const XLOOKUP = {
 // Pivot functions
 //--------------------------------------------------------------------------
 
+function addPivotMetaDataToContext(context: EvalContext, item: PivotCacheItem) {
+  const { __originCellPosition: position } = context;
+  if (position) {
+    context.sendEvaluationMessage({ type: "addPivotToPosition", position, item });
+  }
+}
+
 // PIVOT.VALUE
 
 export const PIVOT_VALUE = {
@@ -804,8 +811,13 @@ export const PIVOT_VALUE = {
     const _pivotFormulaId = toString(formulaId);
     const _measure = toString(measureName);
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
-    assertMeasureExist(pivotId, _measure, this.getters);
-    assertDomainLength(domainArgs);
+    try {
+      assertMeasureExist(pivotId, _measure, this.getters);
+      assertDomainLength(domainArgs);
+    } catch (e) {
+      addPivotMetaDataToContext(this, { type: "error", pivotId });
+      return e;
+    }
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
 
@@ -817,6 +829,7 @@ export const PIVOT_VALUE = {
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
+      addPivotMetaDataToContext(this, { type: "error", pivotId });
       return error;
     }
 
@@ -825,6 +838,7 @@ export const PIVOT_VALUE = {
         "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
         `=PIVOT(${_pivotFormulaId})`
       );
+      addPivotMetaDataToContext(this, { type: "error", pivotId });
       return {
         value: CellErrorType.GenericError,
         message: _t("Dimensions don't match the pivot definition") + ". " + suggestion,
@@ -834,6 +848,12 @@ export const PIVOT_VALUE = {
     if (this.getters.getActiveSheetId() === this.__originSheetId) {
       this.getters.getPivotPresenceTracker(pivotId)?.trackValue(_measure, domain);
     }
+    addPivotMetaDataToContext(this, {
+      type: "static",
+      pivotId,
+      pivotCell: { type: "VALUE", measure: _measure, domain },
+    });
+
     return pivot.getPivotCellValueAndFormat(_measure, domain);
   },
 } satisfies AddFunctionDescription;
@@ -853,13 +873,19 @@ export const PIVOT_HEADER = {
   ) {
     const _pivotFormulaId = toString(pivotId);
     const _pivotId = getPivotId(_pivotFormulaId, this.getters);
-    assertDomainLength(domainArgs);
+    try {
+      assertDomainLength(domainArgs);
+    } catch (e) {
+      addPivotMetaDataToContext(this, { type: "error", pivotId: _pivotId });
+      return e;
+    }
     const pivot = this.getters.getPivot(_pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
     addPivotDependencies(this, coreDefinition, []);
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
+      addPivotMetaDataToContext(this, { type: "error", pivotId: _pivotId });
       return error;
     }
     if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
@@ -867,6 +893,7 @@ export const PIVOT_HEADER = {
         "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
         `=PIVOT(${_pivotFormulaId})`
       );
+      addPivotMetaDataToContext(this, { type: "error", pivotId: _pivotId });
       return {
         value: CellErrorType.GenericError,
         message: _t("Dimensions don't match the pivot definition") + ". " + suggestion,
@@ -876,11 +903,32 @@ export const PIVOT_HEADER = {
     if (this.getters.getActiveSheetId() === this.__originSheetId) {
       this.getters.getPivotPresenceTracker(_pivotId)?.trackHeader(domain);
     }
+
     const lastNode = domain.at(-1);
     if (lastNode?.field === "measure") {
-      return pivot.getPivotMeasureValue(toString(lastNode.value), domain);
+      const measure = toString(lastNode.value);
+      addPivotMetaDataToContext(this, {
+        type: "static",
+        pivotId: _pivotId,
+        pivotCell: { type: "MEASURE_HEADER", measure, domain: domain.slice(0, -1) },
+      });
+
+      return pivot.getPivotMeasureValue(measure, domain);
     }
     const { value, format } = pivot.getPivotHeaderValueAndFormat(domain);
+
+    const columns = pivot.definition.columns;
+    const isColumnHeader = columns.some((col) => col.nameWithGranularity === domain[0]?.field);
+    addPivotMetaDataToContext(this, {
+      type: "static",
+      pivotId: _pivotId,
+      pivotCell: {
+        type: "HEADER",
+        domain,
+        dimension: isColumnHeader ? "COL" : "ROW",
+      },
+    });
+
     return {
       value,
       format:
@@ -941,13 +989,16 @@ export const PIVOT = {
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
+      addPivotMetaDataToContext(this, { type: "error", pivotId });
       return error;
     }
     const table = pivot.getCollapsedTableStructure();
     if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
+      addPivotMetaDataToContext(this, { type: "error", pivotId });
       return new EvaluationError(getPivotTooBigErrorMessage(table.numberOfCells, this.locale));
     }
     const cells = table.getPivotCells(pivotStyle);
+    addPivotMetaDataToContext(this, { type: "dynamic", pivotStyle, pivotId });
 
     let headerRows = 0;
     if (pivotStyle.displayColumnHeaders) {

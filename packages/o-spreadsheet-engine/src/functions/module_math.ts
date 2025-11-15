@@ -1,6 +1,5 @@
 import { splitReference } from "../helpers";
 import { toZone } from "../helpers/zones";
-import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
 import { EvaluatedCell } from "../types/cells";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
@@ -1386,6 +1385,12 @@ export const SUBTOTAL = {
       code -= 100;
       acceptHiddenCells = false;
     }
+
+    const { __originCellPosition: position } = this;
+    if (position) {
+      this.sendEvaluationMessage({ type: "addSubTotalToPosition", position });
+    }
+
     if (code < 1 || code > 11) {
       return new EvaluationError(
         _t("The function code (%s) must be between 1 to 11 or 101 to 111.", code)
@@ -1410,7 +1415,7 @@ export const SUBTOTAL = {
 
         for (let col = left; col <= right; col++) {
           const cell = this.getters.getCell({ sheetId, col, row });
-          if (!cell || !isSubtotalCell(cell)) {
+          if (!cell || !this.getters.isSubtotalCell({ sheetId, col, row })) {
             evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
           }
         }

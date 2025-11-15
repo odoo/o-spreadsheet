@@ -1,48 +1,54 @@
-import { Cell } from "../../types/cells";
+import { CellPosition } from "../..";
+import { PositionMap } from "../../helpers/cells/position_map";
+import {
+  evaluationListenerRegistry,
+  EvaluationMessage,
+} from "../../helpers/pivot/evaluation_listener_registry";
 import { Command, invalidSubtotalFormulasCommands } from "../../types/commands";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export class SubtotalEvaluationPlugin extends UIPlugin {
-  private subtotalCells: Set<string> = new Set();
+  static getters = ["isSubtotalCell"] as const;
+
+  private subtotalPositions = new PositionMap<boolean>();
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    evaluationListenerRegistry.replace("SubtotalEvaluationPlugin", {
+      handleEvaluationMessage: this.handleEvaluationMessage.bind(this),
+    });
+  }
 
   handle(cmd: Command) {
-    switch (cmd.type) {
-      case "START": {
-        this.subtotalCells.clear();
-        for (const sheetId of this.getters.getSheetIds()) {
-          const cells = this.getters.getCells(sheetId);
-          for (const cellId in cells) {
-            const cell = cells[cellId];
-            if (isSubtotalCell(cell)) {
-              this.subtotalCells.add(cell.id);
-            }
-          }
-        }
-        break;
-      }
-      case "UPDATE_CELL": {
-        if (!("content" in cmd)) return;
-        const cell = this.getters.getCell(cmd);
-        if (!cell) return;
-        if (isSubtotalCell(cell)) {
-          this.subtotalCells.add(cell.id);
-        } else {
-          this.subtotalCells.delete(cell.id);
-        }
-        break;
-      }
-    }
     if (invalidSubtotalFormulasCommands.has(cmd.type)) {
-      this.dispatch("EVALUATE_CELLS", { cellIds: Array.from(this.subtotalCells) });
+      this.dispatch("EVALUATE_CELLS", {
+        cellIds: this.getSubtotalCellIds(),
+      });
     }
   }
-}
 
-export function isSubtotalCell(cell: Cell): boolean {
-  return (
-    cell.isFormula &&
-    cell.compiledFormula.tokens.some(
-      (t) => t.type === "SYMBOL" && t.value.toUpperCase() === "SUBTOTAL"
-    )
-  );
+  handleEvaluationMessage(message: EvaluationMessage) {
+    if (message.type === "invalidateAllCells") {
+      this.subtotalPositions = new PositionMap<boolean>();
+    } else if (message.type === "invalidateCell") {
+      this.subtotalPositions.delete(message.position);
+    } else if (message.type === "addSubTotalToPosition") {
+      this.subtotalPositions.set(message.position, true);
+    }
+  }
+
+  isSubtotalCell(position: CellPosition): boolean {
+    return this.subtotalPositions.has(position);
+  }
+
+  private getSubtotalCellIds(): string[] {
+    const cellIds: string[] = [];
+    for (const position of this.subtotalPositions.keys()) {
+      const cellId = this.getters.getCell(position)?.id;
+      if (cellId) {
+        cellIds.push(cellId);
+      }
+    }
+    return cellIds;
+  }
 }

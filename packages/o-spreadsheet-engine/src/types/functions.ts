@@ -1,3 +1,4 @@
+import { EvaluationMessage } from "../helpers/pivot/evaluation_listener_registry";
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
@@ -66,6 +67,7 @@ export type EvalContext = {
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
   lookupCaches?: LookupCaches;
+  sendEvaluationMessage: (message: EvaluationMessage) => void;
 };
 
 /**
