@@ -7,16 +7,14 @@
     height: fit-content;
     margin-top: -1px;
     margin-bottom: -1px;
-    border: 1px solid;
     font-family: var(--os-default-font);
 
     &.o-topbar-composer-inactive {
-      border-color: var(--os-separator-color);
-      border-right: none;
+      border-right: none !important;
     }
 
     &.o-topbar-composer-active {
-      border-color: var(--os-selection-border-color);
+      border-color: var(--os-selection-border-color) !important;
       z-index: var(--os-components-importance-top-bar-composer);
     }
   }

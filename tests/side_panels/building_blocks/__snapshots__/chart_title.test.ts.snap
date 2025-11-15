@@ -72,7 +72,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         </span>
         
         <div
-          class="o-divider"
+          class="o-divider border-start"
         />
         
         <div
@@ -112,7 +112,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         
         
         <div
-          class="o-divider"
+          class="o-divider border-start"
         />
         <div
           class="o-dropdown"
@@ -142,7 +142,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         </div>
         
         <div
-          class="o-divider"
+          class="o-divider border-start"
         />
         <div
           class="o-color-picker-widget"

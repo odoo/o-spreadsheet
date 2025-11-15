@@ -2,10 +2,10 @@
 
 exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 <div
-  class="o-sidePanel h-100 bg-white"
+  class="o-sidePanel h-100 bg-white border-top border-start"
 >
   <div
-    class="o-sidePanelHeader d-flex align-items-center justify-content-between"
+    class="o-sidePanelHeader d-flex align-items-center justify-content-between border-bottom"
   >
     <div
       class="o-collapse-panel o-sidePanelAction rounded"
@@ -250,7 +250,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                   title="Changing the pivot definition requires to reload the data. It may take some time."
                 >
                   <input
-                    class="me-2 flex-shrink-0"
+                    class="me-2 flex-shrink-0 border"
                     type="checkbox"
                   />
                   <span
@@ -336,7 +336,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         role="button"
                       >
                         <input
-                          class="me-2 flex-shrink-0"
+                          class="me-2 flex-shrink-0 border"
                           name="displayTotals"
                           type="checkbox"
                         />
@@ -360,7 +360,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         role="button"
                       >
                         <input
-                          class="me-2 flex-shrink-0"
+                          class="me-2 flex-shrink-0 border"
                           name="displayColumnHeaders"
                           type="checkbox"
                         />
@@ -384,7 +384,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         role="button"
                       >
                         <input
-                          class="me-2 flex-shrink-0"
+                          class="me-2 flex-shrink-0 border"
                           name="displayMeasuresRow"
                           type="checkbox"
                         />
@@ -407,10 +407,10 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 
 exports[`Spreadsheet pivot side panel It should display only the selection input when the dataSet is not valid 1`] = `
 <div
-  class="o-sidePanel h-100 bg-white"
+  class="o-sidePanel h-100 bg-white border-top border-start"
 >
   <div
-    class="o-sidePanelHeader d-flex align-items-center justify-content-between"
+    class="o-sidePanelHeader d-flex align-items-center justify-content-between border-bottom"
   >
     <div
       class="o-collapse-panel o-sidePanelAction rounded"
@@ -640,7 +640,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                   title="Changing the pivot definition requires to reload the data. It may take some time."
                 >
                   <input
-                    class="me-2 flex-shrink-0"
+                    class="me-2 flex-shrink-0 border"
                     type="checkbox"
                   />
                   <span
@@ -726,7 +726,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         role="button"
                       >
                         <input
-                          class="me-2 flex-shrink-0"
+                          class="me-2 flex-shrink-0 border"
                           name="displayTotals"
                           type="checkbox"
                         />
@@ -750,7 +750,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         role="button"
                       >
                         <input
-                          class="me-2 flex-shrink-0"
+                          class="me-2 flex-shrink-0 border"
                           name="displayColumnHeaders"
                           type="checkbox"
                         />
@@ -774,7 +774,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         role="button"
                       >
                         <input
-                          class="me-2 flex-shrink-0"
+                          class="me-2 flex-shrink-0 border"
                           name="displayMeasuresRow"
                           type="checkbox"
                         />

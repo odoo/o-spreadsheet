@@ -11,7 +11,7 @@
         <canvas t-ref="canvas" class="w-100 h-100"/>
       </div>
       <div
-        class="o-table-style-edit-button position-absolute d-none bg-white"
+        class="o-table-style-edit-button position-absolute d-none bg-white border"
         t-if="isStyleEditable"
         t-on-click="this.editTableStyle"
         title="Edit custom table style">

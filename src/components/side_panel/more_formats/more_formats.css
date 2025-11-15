@@ -1,14 +1,12 @@
 .o-spreadsheet {
   .o-more-formats-panel {
     .o-format-proposals {
-      border: 1px solid var(--os-gray-300);
       max-height: 320px;
       font-size: 12px;
     }
 
     .o-format-examples {
-      background: light-dark(var(--os-gray-100), var(--os-gray-200));
-      border: 1px solid var(--os-gray-300);
+      background: light-dark(var(--os-gray-100), var(--os-gray-300));
     }
 
     table {

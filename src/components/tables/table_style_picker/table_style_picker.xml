@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylePicker">
-    <div class="o-table-style-picker d-flex flew-row justify-content-between ps-1">
+    <div class="o-table-style-picker d-flex flew-row justify-content-between ps-1 border rounded">
       <div class="d-flex flex-row overflow-hidden ps-2">
         <t t-foreach="getDisplayedTableStyles()" t-as="styleId" t-key="styleId">
           <TableStylePreview
@@ -14,7 +14,7 @@
         </t>
       </div>
       <div
-        class="o-table-style-picker-arrow d-flex align-items-center px-1"
+        class="o-table-style-picker-arrow d-flex align-items-center px-1 border-start"
         t-on-click.stop="onArrowButtonClick">
         <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
       </div>

@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-BottomBarSheet">
     <Ripple>
       <div
-        class="o-sheet d-flex align-items-center user-select-none text-nowrap "
+        class="o-sheet d-flex align-items-center user-select-none text-nowrap border-start border-end"
         tabindex="-1"
         composerFocusableElement="true"
         t-on-pointerdown="(ev) => this.onMouseDown(ev)"

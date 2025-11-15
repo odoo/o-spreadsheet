@@ -423,7 +423,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
     
   </div>
   <div
-    class="o-separator"
+    class="o-separator border-bottom"
   />
   <div
     class="o-color-picker-section-name o-color-picker-toggler"
@@ -478,7 +478,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       class="o-hue-container"
     >
       <div
-        class="o-hue-picker"
+        class="o-hue-picker border rounded"
       />
       <div
         class="o-hue-slider pe-none"
@@ -497,10 +497,11 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       class="o-custom-input-preview"
     >
       <input
+        class="border rounded"
         type="text"
       />
       <div
-        class="o-color-preview"
+        class="o-color-preview border rounded"
         style="background-color:#000000; "
       />
     </div>
@@ -508,7 +509,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       class="o-custom-input-buttons"
     >
       <button
-        class="o-add-button"
+        class="o-add-button border rounded"
       >
          Add 
       </button>
@@ -516,13 +517,13 @@ exports[`Color Picker buttons Full component rendering 1`] = `
   </div>
   
   <div
-    class="o-separator"
+    class="o-separator border-bottom"
   />
   <div
     class="o-buttons"
   >
     <button
-      class="o-cancel"
+      class="o-cancel border rounded"
     >
       No Color
     </button>

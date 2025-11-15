@@ -7,7 +7,7 @@ exports[`Checkbox Can render a checkbox 1`] = `
     role="button"
   >
     <input
-      class="me-2 flex-shrink-0"
+      class="me-2 flex-shrink-0 border"
       type="checkbox"
     />
     

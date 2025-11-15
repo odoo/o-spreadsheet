@@ -4,7 +4,6 @@
       cursor: pointer;
     }
 
-    border-bottom: 1px solid var(--os-gray-300);
     height: 80px;
     padding: 10px;
     position: relative;
@@ -18,7 +17,6 @@
       display: none;
     }
     .o-cf-preview-icon {
-      border: 1px solid var(--os-gray-300);
       position: absolute;
       height: 50px;
       width: 50px;

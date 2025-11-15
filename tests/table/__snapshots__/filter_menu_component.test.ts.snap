@@ -21,7 +21,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     class="o-filter-menu-content"
   >
     <div
-      class="o-separator"
+      class="o-separator border-bottom"
     />
     <div>
       <div
@@ -153,7 +153,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
             </i>
           </div>
           <div
-            class="o-filter-menu-list d-flex flex-column"
+            class="o-filter-menu-list d-flex flex-column border"
           >
             <div
               class="o-filter-menu-item o-filter-menu-value"
@@ -165,7 +165,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 title="(Blanks)"
               >
                 <input
-                  class="me-2 flex-shrink-0"
+                  class="me-2 flex-shrink-0 border"
                   name="(Blanks)"
                   type="checkbox"
                 />
@@ -188,7 +188,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 title="1"
               >
                 <input
-                  class="me-2 flex-shrink-0"
+                  class="me-2 flex-shrink-0 border"
                   name="1"
                   type="checkbox"
                 />
@@ -211,7 +211,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 title="2"
               >
                 <input
-                  class="me-2 flex-shrink-0"
+                  class="me-2 flex-shrink-0 border"
                   name="2"
                   type="checkbox"
                 />

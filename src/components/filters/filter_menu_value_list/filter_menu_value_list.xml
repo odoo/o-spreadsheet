@@ -18,7 +18,7 @@
       </i>
     </div>
     <div
-      class="o-filter-menu-list d-flex flex-column"
+      class="o-filter-menu-list d-flex flex-column border"
       t-ref="filterValueList"
       t-on-click="this.clearScrolledToValue"
       t-on-scroll="this.clearScrolledToValue">

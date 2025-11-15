@@ -13,13 +13,13 @@
         </t>
       </select>
       <div
-        class="o-pivot-measure-display-description mt-3 ps-3"
+        class="o-pivot-measure-display-description mt-3 ps-3 border-start"
         t-esc="measureDisplayDescription[store.measureDisplay.type]"
       />
     </Section>
 
     <Section t-if="store.doesDisplayNeedsField" title.translate="Base field:">
-      <div class="o-pivot-measure-display-field w-100 py-1 px-3">
+      <div class="o-pivot-measure-display-field w-100 py-1 px-3 border">
         <t t-if="store.fields.length">
           <RadioSelection
             choices="fieldChoices"
@@ -37,7 +37,7 @@
 
     <t t-set="values" t-value="store.values"/>
     <Section t-if="store.doesDisplayNeedsValue and values.length" title.translate="Base item:">
-      <div class="o-pivot-measure-display-value w-100 py-1 px-3">
+      <div class="o-pivot-measure-display-value w-100 py-1 px-3 border">
         <RadioSelection
           choices="values"
           selectedValue="store.measureDisplay.value"
