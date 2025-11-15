@@ -3129,6 +3129,18 @@ describe("SUBTOTAL formula", () => {
     expect(gridResult.A7).toBe(4);
   });
 
+  test("SUBTOTAL ignores spilled SUBTOTAL", () => {
+    const grid = {
+      A1: "1",
+      A2: "1",
+      A3: "=SUBTOTAL(9, A1:A2) + A1:A2",
+      A5: "=SUBTOTAL(9, A4)",
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A3).toBe(3);
+    expect(gridResult.A5).toBe(0);
+  });
+
   describe("ignoring filtered rows", () => {
     test("write the SUBTOTAL formula after updating filter", () => {
       const model = new Model();
