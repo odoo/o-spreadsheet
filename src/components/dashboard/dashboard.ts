@@ -21,7 +21,9 @@ import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
-interface Props {}
+interface Props {
+  getGridSize: () => DOMDimension;
+}
 
 css/* scss */ `
   .o-dashboard-clickable-cell {
@@ -111,9 +113,13 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.cellPopovers.close();
   }
 
-  onGridResized({ height, width }: DOMDimension) {
+  onGridResized() {
+    const { height, width } = this.props.getGridSize();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const { right } = this.env.model.getters.getSheetZone(sheetId);
+    const maxWidth = this.env.model.getters.getColDimensions(sheetId, right).end;
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      width: width,
+      width: Math.min(maxWidth, width),
       height: height,
       gridOffsetX: 0,
       gridOffsetY: 0,
