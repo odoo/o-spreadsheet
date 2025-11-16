@@ -226,6 +226,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
         toScalar(args[3]),
         toScalar(args[4]),
         toScalar(args[5]),
+        toScalar(args[6]),
         this.getters.getLocale()
       );
       const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
@@ -296,7 +297,12 @@ export class PivotUIPlugin extends CoreViewPlugin {
   getPivotCellSortDirection(position: CellPosition): SortDirection | "none" | undefined {
     const pivotId = this.getters.getPivotIdFromPosition(position);
     const pivotCell = this.getters.getPivotCellFromPosition(position);
-    if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
+    if (
+      pivotCell.type === "EMPTY" ||
+      pivotCell.type === "HEADER" ||
+      pivotCell.type === "ROW_GROUP_NAME" ||
+      !pivotId
+    ) {
       return undefined;
     }
     const pivot = this.getters.getPivot(pivotId);
