@@ -8,6 +8,7 @@ import {
   FormatToken,
   PercentToken,
   RepeatCharToken,
+  ScientificToken,
   StringToken,
   TextPlaceholderToken,
   ThousandsSeparatorToken,
@@ -40,11 +41,13 @@ export interface NumberInternalFormat {
     | StringToken
     | CharToken
     | PercentToken
+    | ScientificToken
     | ThousandsSeparatorToken
     | RepeatCharToken
   )[];
   readonly percentSymbols: number;
   readonly thousandsSeparator: boolean;
+  readonly scientific: boolean;
   /** A thousand separator after the last digit in the format means that we divide the number by a thousand */
   readonly magnitude: number;
   /**
@@ -57,6 +60,7 @@ export interface NumberInternalFormat {
     | StringToken
     | CharToken
     | PercentToken
+    | ScientificToken
     | ThousandsSeparatorToken
     | RepeatCharToken
   )[];
@@ -151,6 +155,7 @@ function areValidNumberFormatTokens(
   | DecimalPointToken
   | ThousandsSeparatorToken
   | PercentToken
+  | ScientificToken
   | StringToken
   | CharToken
   | RepeatCharToken
@@ -161,6 +166,7 @@ function areValidNumberFormatTokens(
       token.type === "DECIMAL_POINT" ||
       token.type === "THOUSANDS_SEPARATOR" ||
       token.type === "PERCENT" ||
+      token.type === "SCIENTIFIC" ||
       token.type === "STRING" ||
       token.type === "CHAR" ||
       token.type === "REPEATED_CHAR"
@@ -188,6 +194,7 @@ function parseNumberFormatTokens(
 
   let parsedPart = integerPart;
   let percentSymbols = 0;
+  let scientific = false;
   let magnitude = 0;
   let lastIndexOfDigit = tokens.findLastIndex((token) => token.type === "DIGIT");
   let hasThousandSeparator = false;
@@ -211,6 +218,9 @@ function parseNumberFormatTokens(
         } else {
           throw new Error("Multiple decimal points in a number format");
         }
+        break;
+      case "SCIENTIFIC":
+        scientific = true;
         break;
       case "REPEATED_CHAR":
       case "CHAR":
@@ -247,6 +257,7 @@ function parseNumberFormatTokens(
     integerPart,
     decimalPart,
     percentSymbols,
+    scientific,
     thousandsSeparator: hasThousandSeparator,
     magnitude,
   };
@@ -348,6 +359,9 @@ function numberInternalFormatToTokenList(internalFormat: NumberInternalFormat): 
   if (internalFormat.decimalPart) {
     tokens.push({ type: "DECIMAL_POINT", value: "." });
     tokens.push(...internalFormat.decimalPart);
+  }
+  if (internalFormat.scientific) {
+    tokens.push({ type: "SCIENTIFIC", value: "e" });
   }
 
   return tokens;

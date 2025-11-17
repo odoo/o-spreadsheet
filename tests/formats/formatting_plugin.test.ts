@@ -251,6 +251,21 @@ describe("formatting values (with formatters)", () => {
     expect(getCell(model, "A1")?.format).toBe(";;;@");
   });
 
+  test("SET_DECIMAL on scientific format", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1234");
+
+    setFormat(model, "A1", "0.00e");
+    setDecimal(model, "A1", 1);
+    expect(getCell(model, "A1")?.format).toBe("0.000e");
+    expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.234e+03");
+
+    setDecimal(model, "A1", -1);
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe("0.0e");
+    expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.2e+03");
+  });
+
   test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", () => {
     const model = new Model();
     setCellContent(model, "A1", "10.123456789123");
