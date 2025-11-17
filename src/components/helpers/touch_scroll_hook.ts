@@ -10,10 +10,9 @@ export const resetTimeoutDuration = 100;
 
 export function useTouchScroll(
   ref: Ref<HTMLElement>,
-
   updateScroll: (offsetX: number, offsetY: number) => void,
-
-  canMoveUp: () => boolean
+  canMoveUp: () => boolean,
+  canMoveDown: () => boolean
 ) {
   let lastX = 0;
   let lastY = 0;
@@ -57,13 +56,13 @@ export function useTouchScroll(
     lastX = clientX;
     lastY = clientY;
     lastTime = currentTime;
-
-    if (canMoveUp()) {
+    if ((deltaY < 0 && canMoveUp()) || (deltaY > 0 && canMoveDown())) {
       if (event.cancelable) {
         event.preventDefault();
       }
       event.stopPropagation();
     }
+
     resetTimeout = setTimeout(() => {
       velocityX = 0;
       velocityY = 0;
