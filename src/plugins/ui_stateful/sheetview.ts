@@ -109,6 +109,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getFigureUI",
     "getPositionAnchorOffset",
     "getGridOffset",
+    "getMaximumSheetOffset",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -396,7 +397,7 @@ export class SheetViewPlugin extends UIPlugin {
     return { x, y, width, height };
   }
 
-  private getMaximumSheetOffset(): { maxOffsetX: Pixel; maxOffsetY: Pixel } {
+  getMaximumSheetOffset(): { maxOffsetX: Pixel; maxOffsetY: Pixel } {
     const sheetId = this.getters.getActiveSheetId();
     const { width, height } = this.getMainViewportRect();
     const viewport = this.getMainInternalViewport(sheetId);
