@@ -30,6 +30,7 @@ export const TEST_CHART_DATA = {
     background: BACKGROUND_CHART_COLOR,
     stacked: false,
     legendPosition: "top" as const,
+    humanize: true,
   },
   combo: {
     type: "combo" as const,
@@ -43,6 +44,7 @@ export const TEST_CHART_DATA = {
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
     legendPosition: "top" as const,
+    humanize: true,
   },
   scorecard: {
     type: "scorecard" as const,
@@ -51,11 +53,13 @@ export const TEST_CHART_DATA = {
     title: { text: "hello" },
     baselineDescr: { text: "description" },
     baselineMode: "difference" as const,
+    humanize: true,
   },
   gauge: {
     type: "gauge" as const,
     dataRange: "B1:B4",
     title: { text: "hello" },
+    humanize: true,
     sectionRule: {
       rangeMin: "0",
       rangeMax: "100",
