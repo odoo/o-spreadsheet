@@ -264,7 +264,7 @@ describe("Grid component", () => {
     expect(getVerticalScroll()).toBe(50);
   });
 
-  test("Event is stopped if not at the top", async () => {
+  test("Event is stopped if not at the top when scrolling upwards", async () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
@@ -273,16 +273,35 @@ describe("Grid component", () => {
     fixture.addEventListener("touchmove", mockCallback);
 
     triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150, identifier: 1 });
-    // move down; we are at the top: ev not prevented
+    // move down; we are at the top: ev is prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120, identifier: 2 });
-    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toBeCalledTimes(0);
     jest.advanceTimersByTime(10);
     // move up:; we are not at the top: ev prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 3 });
-    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toBeCalledTimes(0);
     // move up again but we are at the stop: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 4 });
-    expect(mockCallback).toBeCalledTimes(2);
+    expect(mockCallback).toBeCalledTimes(1);
+  });
+
+  test("Event is stopped if not at the top when scrolling downwards", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    const { maxOffsetY } = model.getters.getMaximumSheetOffset();
+    expect(getHorizontalScroll()).toBe(0);
+    expect(getVerticalScroll()).toBe(0);
+
+    const mockCallback = jest.fn(() => {});
+    fixture.addEventListener("touchmove", mockCallback);
+
+    triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: maxOffsetY + 10, identifier: 1 });
+    // move down, to scroll all the way down; ev is prevented
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 10, identifier: 2 });
+    expect(mockCallback).toBeCalledTimes(0);
+    jest.advanceTimersByTime(10);
+    // move down again, we are at the bottom: ev prevented
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 0, identifier: 3 });
+    expect(mockCallback).toBeCalledTimes(1);
   });
 
   test("Double clicking only opens composer when actually targetting grid overlay", async () => {
