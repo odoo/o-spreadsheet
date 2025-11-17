@@ -8,6 +8,7 @@ import {
   CellErrorType,
   CircularDependencyError,
   SplillBlockedError,
+  TooBigNumberError,
 } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
@@ -386,10 +387,9 @@ export class Evaluator {
       this.buildSafeGetSymbolValue(),
       formulaPosition
     );
-
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
-        nullValueToZeroValue(formulaReturn),
+        validateNumberValue(formulaReturn),
         this.getters.getLocale(),
         cellData,
         formulaPosition
@@ -422,7 +422,7 @@ export class Evaluator {
     );
     this.invalidatePositionsDependingOnSpread(formulaPosition.sheetId, resultZone);
     return createEvaluatedCell(
-      nullValueToZeroValue(formulaReturn[0][0]),
+      validateNumberValue(formulaReturn[0][0]),
       this.getters.getLocale(),
       cellData
     );
@@ -517,7 +517,7 @@ export class Evaluator {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
       const evaluatedCell = createEvaluatedCell(
-        nullValueToZeroValue(matrixResult[i][j]),
+        validateNumberValue(matrixResult[i][j]),
         this.getters.getLocale(),
         cell,
         position
@@ -620,6 +620,12 @@ function nullValueToZeroValue(functionResult: FunctionResultObject): FunctionRes
     return { ...functionResult, value: 0 };
   }
   return functionResult;
+}
+
+function validateNumberValue(data: FunctionResultObject): FunctionResultObject {
+  return typeof data.value === "number" && Math.abs(data.value) > Number.MAX_VALUE
+    ? new TooBigNumberError()
+    : nullValueToZeroValue(data);
 }
 
 export function updateEvalContextAndExecute(

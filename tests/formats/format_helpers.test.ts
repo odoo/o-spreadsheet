@@ -316,6 +316,20 @@ describe("formatValue on number", () => {
     expect(formatValue(-Infinity, { format: "0.0%", locale })).toBe("-∞%");
   });
 
+  test("apply various scientific format", () => {
+    expect(formatValue(0.1234, { format: "0e", locale })).toBe("1e-01");
+    expect(formatValue(0.1234, { format: "0.0e", locale })).toBe("1.2e-01");
+    expect(formatValue(0.1234, { format: "0.00e", locale })).toBe("1.23e-01");
+    expect(formatValue(0.1234, { format: "0.000e", locale })).toBe("1.234e-01");
+  });
+
+  test("apply scientific format to various number", () => {
+    expect(formatValue(-0.1234, { format: "0.00e", locale })).toBe("-1.23e-01");
+    expect(formatValue(1234, { format: "0.00e", locale })).toBe("1.23e+03");
+    expect(formatValue(0, { format: "0.00e", locale })).toBe("0.00e+00");
+    expect(formatValue(-1234, { format: "0.00e", locale })).toBe("-1.23e+03");
+  });
+
   test("can apply format with custom currencies", () => {
     expect(formatValue(1234, { format: "#,##0[$TEST]", locale })).toBe("1,234TEST");
     expect(formatValue(1234, { format: '#,##0 "TEST"', locale })).toBe("1,234 TEST");

@@ -14,7 +14,7 @@ export const getFormulaNumberRegex = memoize(function getFormulaNumberRegex(
 ) {
   decimalSeparator = escapeRegExp(decimalSeparator);
   return new RegExp(
-    `(?:^-?\\d+(?:${decimalSeparator}?\\d*(?:e(\\+|-)?\\d+)?)?|^-?${decimalSeparator}\\d+)(?!\\w|!)`
+    `(?:^-?\\d+(?:${decimalSeparator}?\\d*(?:(E|e)(\\+|-)?\\d+)?)?|^-?${decimalSeparator}\\d+)(?!\\w|!)`
   );
 });
 
@@ -24,7 +24,7 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
 
   const pIntegerAndDecimals = `(?:\\d+(?:${thousandsSeparator}\\d{3,})*(?:${decimalSeparator}\\d*)?)`; // pattern that match integer number with or without decimal digits
   const pOnlyDecimals = `(?:${decimalSeparator}\\d+)`; // pattern that match only expression with decimal digits
-  const pScientificFormat = "(?:e(?:\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
+  const pScientificFormat = "(?:(e|E)(?:\\+|-)?(?:[0-9]|[0-9][0-9]|[12][0-9]{2}|30[0-7]))?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
   const pPercentFormat = "(?:\\s*%)?"; // pattern that match percent symbol between zero and one time
   const pNumber =
     "(?:\\s*" +
