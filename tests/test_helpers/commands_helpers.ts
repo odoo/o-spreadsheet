@@ -44,6 +44,8 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { chartFactory } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_factory";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
@@ -222,7 +224,9 @@ export function createChart(
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
-  const definition = {
+
+  // definition with all possible fields filled
+  const definitionContext = {
     ...data,
     title: data.title || { text: "test" },
     dataSets: ("dataSets" in data && data.dataSets) || [],
@@ -241,6 +245,11 @@ export function createChart(
     showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
     showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
   };
+  const createChart = chartFactory(model.getters);
+  const creationContext = createChart(id, definitionContext, sheetId).getContextCreation();
+  const definition = chartRegistry
+    .get(data.type)
+    .getChartDefinitionFromContextCreation(creationContext);
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
