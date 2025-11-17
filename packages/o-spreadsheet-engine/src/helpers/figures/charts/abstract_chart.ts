@@ -24,13 +24,13 @@ export abstract class AbstractChart {
   readonly title: TitleDesign;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
-  readonly humanize: boolean;
+  readonly humanize: boolean | undefined;
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;
-    this.humanize = definition.humanize ?? true;
+    this.humanize = definition.humanize;
   }
 
   /**
