@@ -199,10 +199,19 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       () => [this.sidePanel.isMainPanelOpen, this.sidePanel.isSecondaryPanelOpen]
     );
 
-    useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
-    });
+    useTouchScroll(
+      this.gridRef,
+      this.moveCanvas.bind(this),
+      () => {
+        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        return scrollY > 0;
+      },
+      () => {
+        const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
+        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        return scrollY < maxOffsetY;
+      }
+    );
   }
 
   get highlights() {
