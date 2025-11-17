@@ -2,7 +2,8 @@
 
 exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
 <div
-  class="o-formula-assistant-container user-select-none shadow"
+  class="o-formula-assistant-container shadow"
+  tabindex="-1"
 >
   <div
     class="o-formula-assistant bg-white"
