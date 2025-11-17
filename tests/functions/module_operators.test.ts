@@ -151,6 +151,8 @@ describe("EQ formula", () => {
     expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.1+0.1+0.1)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.3+1e-16)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.3+1e-15)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.3+1E-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.3+1E-15)" })).toBe(false);
   });
 
   test("functional tests on cell arguments", () => {
@@ -264,6 +266,9 @@ describe("GT formula", () => {
     expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3+1e-16)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3-1e-16)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3-1e-15)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3+1E-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3-1E-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3-1E-15)" })).toBe(true);
   });
 });
 
@@ -323,6 +328,10 @@ describe("GTE formula", () => {
     expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3-1e-16)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3-1e-15)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3+1e-15)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3+1E-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3-1E-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3-1E-15)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3+1E-15)" })).toBe(false);
   });
 
   test("functional tests on cell arguments", () => {
@@ -458,6 +467,9 @@ describe("LT formula", () => {
     expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3+1e-16)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3-1e-16)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3+1e-15)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3+1E-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3-1E-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3+1E-15)" })).toBe(true);
   });
 });
 
@@ -560,6 +572,9 @@ describe("LTE formula", () => {
     expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3-1e-16)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3-1e-15)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3+1e-15)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3-1E-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3-1E-15)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3+1E-15)" })).toBe(true);
   });
 });
 
@@ -701,6 +716,8 @@ describe("NE formula", () => {
     expect(evaluateCell("A1", { A1: "=NE(0.3, 0.1+0.1+0.1)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=NE(0.3, 0.3+1e-16)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=NE(0.3, 0.3+1e-15)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=NE(0.3, 0.3+1E-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=NE(0.3, 0.3+1E-15)" })).toBe(true);
   });
 });
 

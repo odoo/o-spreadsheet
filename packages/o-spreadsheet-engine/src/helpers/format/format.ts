@@ -234,6 +234,14 @@ function applyInternalNumberFormat(value: number, format: NumberInternalFormat, 
     return "∞" + (format.percentSymbols ? "%" : "");
   }
 
+  let power = Math.floor(Math.log10(Math.abs(value)));
+  if (power === -Infinity) {
+    power = 0;
+  }
+  if (format.scientific) {
+    value = value / 10 ** power;
+  }
+
   const multiplier = format.percentSymbols * 2 - format.magnitude * 3;
   value = value * 10 ** multiplier;
 
@@ -251,6 +259,12 @@ function applyInternalNumberFormat(value: number, format: NumberInternalFormat, 
 
   if (format.decimalPart !== undefined) {
     formattedValue += locale.decimalSeparator + applyDecimalFormat(decimalDigits || "", format);
+  }
+
+  if (format.scientific) {
+    const powerAsString = Math.abs(power).toString().padStart(2, "0");
+    const sign = power >= 0 ? "+" : "-";
+    formattedValue += "e" + sign + powerAsString;
   }
 
   return formattedValue;

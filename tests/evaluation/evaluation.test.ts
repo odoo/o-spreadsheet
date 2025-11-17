@@ -45,6 +45,7 @@ describe("evaluateCells", () => {
       C1: "1.2e4",
       C2: "1e5",
       C3: "-1e3",
+      C4: "1E309", // too big number
       D1: "1.1.1", // not a number
     };
     expect(evaluateGrid(grid)).toEqual({
@@ -59,6 +60,7 @@ describe("evaluateCells", () => {
       C1: 12000,
       C2: 100000,
       C3: -1000,
+      C4: "1E309",
       D1: "1.1.1",
     });
   });
@@ -76,6 +78,11 @@ describe("evaluateCells", () => {
       C1: "=1.2e4",
       C2: "=1e5",
       C3: "=-1e3",
+      C4: "=1.2E4",
+      C5: "=1E5",
+      C6: "=-1E3",
+      C7: "=1E309", // too big number
+
       D1: "=1.1.1", // not a number
     };
     expect(evaluateGrid(grid)).toEqual({
@@ -90,6 +97,10 @@ describe("evaluateCells", () => {
       C1: 12000,
       C2: 100000,
       C3: -1000,
+      C4: 12000,
+      C5: 100000,
+      C6: -1000,
+      C7: "#NUM!",
       D1: "#BAD_EXPR",
     });
   });
@@ -1260,6 +1271,36 @@ describe("evaluateCells", () => {
         sheetId,
         ...toCartesian("D5"),
       });
+    });
+  });
+
+  describe("too big number", () => {
+    test("in a formula", () => {
+      const grid = {
+        A1: "1E200",
+        A2: "=POWER(A1,2)",
+      };
+      expect(evaluateCell("A2", grid)).toBe("#NUM!");
+    });
+    test("in a matrix", () => {
+      const grid = {
+        A1: "1E200",
+        B1: "1",
+        C1: "1E200",
+        C2: "1",
+        D1: "=MMULT(A1:B1,C1:C2)",
+      };
+      expect(evaluateCell("D1", grid)).toBe("#NUM!");
+    });
+    test("in a vectorization", () => {
+      const grid = {
+        A1: "1E200",
+        A2: "1",
+        B1: "1E200",
+        B2: "1",
+        C1: "=(A1:A2)*(B1:B2)",
+      };
+      expect(evaluateCell("C1", grid)).toBe("#NUM!");
     });
   });
 });

@@ -137,6 +137,9 @@ describe("parser", () => {
     expect(parse("1e3")).toMatchObject({ type: "NUMBER", value: 1e3 });
     expect(parse("1e+3")).toMatchObject({ type: "NUMBER", value: 1e3 });
     expect(parse("1e-3")).toMatchObject({ type: "NUMBER", value: 1e-3 });
+    expect(parse("1E3")).toMatchObject({ type: "NUMBER", value: 1e3 });
+    expect(parse("1E+3")).toMatchObject({ type: "NUMBER", value: 1e3 });
+    expect(parse("1E-3")).toMatchObject({ type: "NUMBER", value: 1e-3 });
   });
 
   test("can parse string without ending double quotes", () => {
