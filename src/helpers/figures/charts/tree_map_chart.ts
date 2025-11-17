@@ -99,6 +99,7 @@ export class TreeMapChart extends AbstractChart {
     const leafRange = this.dataSets.at(-1)?.dataRange;
     return {
       ...this.definition,
+      treemapColoringOptions: this.definition.coloringOptions,
       range: this.labelRange
         ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
         : [],

@@ -85,6 +85,7 @@ export class SunburstChart extends AbstractChart {
       valuesDesign: context.valuesDesign,
       groupColors: context.groupColors,
       humanize: context.humanize,
+      pieHolePercentage: context.pieHolePercentage,
     };
   }
 
