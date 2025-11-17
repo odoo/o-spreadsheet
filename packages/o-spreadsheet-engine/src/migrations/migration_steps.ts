@@ -553,6 +553,18 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.1.0", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart" && !("humanize" in figure.data)) {
+            figure.data.humanize = true;
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {
