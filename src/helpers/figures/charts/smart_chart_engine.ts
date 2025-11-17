@@ -17,6 +17,7 @@ const DEFAULT_BAR_CHART_CONFIG: BarChartDefinition = {
   legendPosition: "none",
   dataSetsHaveTitle: false,
   stacked: false,
+  humanize: true,
 };
 
 const DEFAULT_LINE_CHART_CONFIG: LineChartDefinition = {
@@ -28,6 +29,7 @@ const DEFAULT_LINE_CHART_CONFIG: LineChartDefinition = {
   stacked: false,
   cumulative: false,
   labelsAsText: false,
+  humanize: true,
 };
 
 interface ColumnInfo {
@@ -341,10 +343,19 @@ export function getSmartChartDefinition(zones: Zone[], getters: Getters): ChartD
   const nonEmptyColumns = columns.filter((col) => col.type !== "empty");
   switch (nonEmptyColumns.length) {
     case 1:
-      return buildSingleColumnChart(nonEmptyColumns[0], getters);
+      return {
+        humanize: true,
+        ...buildSingleColumnChart(nonEmptyColumns[0], getters),
+      };
     case 2:
-      return buildTwoColumnChart(nonEmptyColumns, getters);
+      return {
+        humanize: true,
+        ...buildTwoColumnChart(nonEmptyColumns, getters),
+      };
     default:
-      return buildMultiColumnChart(nonEmptyColumns, getters);
+      return {
+        humanize: true,
+        ...buildMultiColumnChart(nonEmptyColumns, getters),
+      };
   }
 }
