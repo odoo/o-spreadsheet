@@ -116,6 +116,7 @@ describe("Insert chart menu item", () => {
         legendPosition: "none",
         title: {},
         type: "bar",
+        humanize: true,
       },
     };
   });
