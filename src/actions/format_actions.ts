@@ -76,6 +76,12 @@ export const formatNumberPercent = createFormatActionSpec({
   format: "0.00%",
 });
 
+export const formatNumberScientific = createFormatActionSpec({
+  name: _t("Scientific"),
+  descriptionValue: 0.1012,
+  format: "0.00e",
+});
+
 export const formatNumberCurrency = createFormatActionSpec({
   name: _t("Currency"),
   descriptionValue: 1000.12,

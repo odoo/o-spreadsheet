@@ -29,6 +29,12 @@ numberFormatMenuRegistry
     ...ACTION_FORMAT.formatNumberPercent,
     id: "format_number_percent",
     sequence: 30,
+    separator: false,
+  })
+  .add("format_number_scientific", {
+    ...ACTION_FORMAT.formatNumberScientific,
+    id: "format_number_scientific",
+    sequence: 33,
     separator: true,
   })
   .add("format_number_currency", {
