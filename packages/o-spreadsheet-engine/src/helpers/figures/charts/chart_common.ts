@@ -371,7 +371,7 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }
 
-export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
+export function checkDataset(definition: ChartWithRangeDataSetDefinition): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =
       definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
@@ -386,7 +386,7 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
   return CommandResult.Success;
 }
 
-export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
+export function checkLabelRange(definition: ChartWithRangeDataSetDefinition): CommandResult {
   if (definition.labelRange) {
     const invalidLabels = !rangeReference.test(definition.labelRange || "");
     if (invalidLabels) {

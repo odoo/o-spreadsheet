@@ -18,7 +18,7 @@ import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
 import {
   ChartDatasetOrientation,
-  ChartWithDataSetDefinition,
+  ChartWithRangeDataSetDefinition,
   CommandResult,
   DispatchResult,
   RangeChartDataSet,
@@ -33,9 +33,15 @@ import { ChartLabelRange } from "../label_range/label_range";
 
 interface Props {
   chartId: UID;
-  definition: ChartWithDataSetDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  definition: ChartWithRangeDataSetDefinition;
+  canUpdateChart: (
+    chartId: UID,
+    definition: Partial<ChartWithRangeDataSetDefinition>
+  ) => DispatchResult;
+  updateChart: (
+    chartId: UID,
+    definition: Partial<ChartWithRangeDataSetDefinition>
+  ) => DispatchResult;
 }
 
 interface ChartPanelState {
@@ -270,7 +276,9 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
       this.dataSets = (
-        this.env.model.getters.getChartDefinition(this.props.chartId) as ChartWithDataSetDefinition
+        this.env.model.getters.getChartDefinition(
+          this.props.chartId
+        ) as ChartWithRangeDataSetDefinition
       ).dataSets;
     }
   }
