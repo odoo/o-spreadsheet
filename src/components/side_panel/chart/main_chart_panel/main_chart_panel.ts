@@ -111,11 +111,4 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   private getChartDefinition(chartId: UID): ChartDefinition {
     return this.env.model.getters.getChartDefinition(chartId);
   }
-
-  get chartSheetIsLocked(): boolean {
-    const sheetId = this.env.model.getters.getFigureSheetId(
-      this.env.model.getters.getFigureIdFromChartId(this.chartId)
-    );
-    return sheetId ? this.env.model.getters.isSheetLocked(sheetId) : false;
-  }
 }

@@ -283,4 +283,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       }
     }
   }
+
+  get isFigureResizable(): boolean {
+    return (
+      this.isSelected &&
+      !this.env.isMobile() &&
+      !this.env.isDashboard() &&
+      !this.env.model.getters.isCurrentSheetLocked()
+    );
+  }
 }

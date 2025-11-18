@@ -79,11 +79,4 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     const dataSets = this.props.definition.dataSets;
     return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
   }
-
-  get chartSheetIsLocked(): boolean {
-    const sheetId = this.env.model.getters.getFigureSheetId(
-      this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
-    );
-    return sheetId ? this.env.model.getters.isSheetLocked(sheetId) : false;
-  }
 }

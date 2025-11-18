@@ -243,6 +243,9 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   "REQUEST_UNDO",
   "REQUEST_REDO",
   "REPLACE_SEARCH",
+  "SET_ZOOM",
+  "UPDATE_CAROUSEL_ACTIVE_ITEM",
+  "DUPLICATE_PIVOT_IN_NEW_SHEET",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([

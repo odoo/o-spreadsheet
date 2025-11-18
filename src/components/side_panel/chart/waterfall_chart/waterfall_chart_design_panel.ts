@@ -114,11 +114,4 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
       zoomable,
     });
   }
-
-  get chartSheetIsLocked(): boolean {
-    const sheetId = this.env.model.getters.getFigureSheetId(
-      this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
-    );
-    return sheetId ? this.env.model.getters.isSheetLocked(sheetId) : false;
-  }
 }

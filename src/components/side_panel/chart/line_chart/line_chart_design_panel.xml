@@ -22,7 +22,7 @@
       </t>
     </GeneralDesignEditor>
     <SeriesWithAxisDesignEditor t-props="props"/>
-    <SidePanelCollapsible isInitiallyCollapsed="chartSheetIsLocked" title.translate="Axes">
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"
