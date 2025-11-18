@@ -342,22 +342,35 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   ) {
     const borders: ZoneBorder[] = [];
     const plannedBorder = newBorder ? { zone, style: newBorder } : undefined;
-    const sideToClear = {
-      left: force || !!newBorder?.left,
-      right: force || !!newBorder?.right,
-      top: force || !!newBorder?.top,
-      bottom: force || !!newBorder?.bottom,
+
+    // For each side, decide if we must clear the border on the *adjacent*
+    // existing cell when we draw on the opposite side of the new zone.
+    //
+    // Example:
+    //  - newBorder.right is set → we draw border on the RIGHT side of `zone`
+    //  - the cell on the right may already have a LEFT border on that edge
+    // In that case we clear that LEFT border, so only the new RIGHT border
+    // remains on the shared edge.
+    //
+    // existingBorderSideToClear[side] = true means we should clear the border on that
+    // side of the existing adjacent zone before adding the new border.
+    const existingBorderSideToClear = {
+      left: force || !!newBorder?.right,
+      right: force || !!newBorder?.left,
+      top: force || !!newBorder?.bottom,
+      bottom: force || !!newBorder?.top,
     };
     let editingZone: Zone[] = [zone];
     for (const existingBorder of this.borders[sheetId] ?? []) {
       const inter = intersection(existingBorder.zone, zone);
       if (!inter) {
-        // Clear adjacent borders on which you write
+        // Check if the existing border is adjacent to the new zone
         const adjacentEdge = adjacent(existingBorder.zone, zone);
-        if (adjacentEdge && sideToClear[adjacentEdge.position]) {
+        if (adjacentEdge && existingBorderSideToClear[adjacentEdge.position]) {
           for (const newZone of splitIfAdjacent(existingBorder.zone, zone)) {
             const border = this.computeBorderFromZone(newZone, existingBorder);
             const adjacentEdge = adjacent(newZone, zone);
+            // Clear the existing border on the side that touches the new zone
             switch (adjacentEdge?.position) {
               case "left":
                 border.style.left = undefined;
