@@ -147,6 +147,60 @@ describe("borders", () => {
     });
   });
 
+  test("Preserves side borders when combining external and all via command", () => {
+    const model = new Model();
+    const defaultBorder = DEFAULT_BORDER_DESC;
+
+    setZoneBorders(model, { position: "all" }, ["C3"]);
+    setBordersOnTarget(model, ["C2"], {
+      top: defaultBorder,
+      right: defaultBorder,
+      left: defaultBorder,
+    });
+    setBordersOnTarget(model, ["C4"], {
+      bottom: defaultBorder,
+      left: defaultBorder,
+      right: defaultBorder,
+    });
+    setBordersOnTarget(model, ["B3"], {
+      top: defaultBorder,
+      bottom: defaultBorder,
+      left: defaultBorder,
+    });
+    setBordersOnTarget(model, ["D3"], {
+      top: defaultBorder,
+      bottom: defaultBorder,
+      right: defaultBorder,
+    });
+
+    expect(getBorder(model, "C3")).toEqual({
+      top: defaultBorder,
+      bottom: defaultBorder,
+      left: defaultBorder,
+      right: defaultBorder,
+    });
+    expect(getBorder(model, "C2")).toEqual({
+      top: defaultBorder,
+      left: defaultBorder,
+      right: defaultBorder,
+    });
+    expect(getBorder(model, "C4")).toEqual({
+      bottom: defaultBorder,
+      left: defaultBorder,
+      right: defaultBorder,
+    });
+    expect(getBorder(model, "B3")).toEqual({
+      top: defaultBorder,
+      left: defaultBorder,
+      bottom: defaultBorder,
+    });
+    expect(getBorder(model, "D3")).toEqual({
+      top: defaultBorder,
+      bottom: defaultBorder,
+      right: defaultBorder,
+    });
+  });
+
   test("can set all borders in a zone", () => {
     const model = new Model();
 
