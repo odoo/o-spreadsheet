@@ -18,22 +18,19 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
-  AxesDesign,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
-  DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import {
   ScatterChartDefinition,
   ScatterChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -48,18 +45,22 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class ScatterChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly labelsAsText: boolean;
-  readonly aggregated?: boolean;
   readonly type = "scatter";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
-  readonly showValues?: boolean;
-  readonly zoomable?: boolean;
 
-  constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof ScatterChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "showValues",
+    "labelsAsText",
+    "aggregated",
+    "axesDesign",
+    "zoomable",
+  ] as const;
+
+  constructor(private definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,
@@ -68,15 +69,6 @@ export class ScatterChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.labelsAsText = definition.labelsAsText;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
-    this.zoomable = definition.zoomable;
   }
 
   static validateChartDefinition(
@@ -124,26 +116,17 @@ export class ScatterChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "scatter",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      labelsAsText: this.labelsAsText,
-      aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
-      showValues: this.showValues,
-      zoomable: this.zoomable,
-      humanize: this.humanize,
     };
   }
 
@@ -151,12 +134,12 @@ export class ScatterChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -179,19 +162,19 @@ export class ScatterChart extends AbstractChart {
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== "");
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
@@ -249,6 +232,6 @@ export function createScatterChartRuntime(
 
   return {
     chartJsConfig: config,
-    background: chart.background || BACKGROUND_CHART_COLOR,
+    background: definition.background || BACKGROUND_CHART_COLOR,
   };
 }

@@ -12,13 +12,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
-  ChartColorScale,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
-  DatasetDesign,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -26,7 +23,7 @@ import {
   GeoChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartTitle,
   getGeoChartData,
@@ -39,16 +36,20 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class GeoChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
   readonly type = "geo";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly colorScale?: ChartColorScale;
-  readonly missingValueColor?: Color;
-  readonly region?: string;
 
-  constructor(definition: GeoChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof GeoChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "colorScale",
+    "missingValueColor",
+    "region",
+  ] as const;
+
+  constructor(private definition: GeoChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -57,13 +58,6 @@ export class GeoChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.colorScale = definition.colorScale;
-    this.missingValueColor = definition.missingValueColor;
-    this.region = definition.region;
   }
 
   static transformDefinition(
@@ -98,12 +92,12 @@ export class GeoChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -143,24 +137,17 @@ export class GeoChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "geo",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      colorScale: this.colorScale,
-      missingValueColor: this.missingValueColor,
-      region: this.region,
-      humanize: this.humanize,
     };
   }
 
@@ -204,5 +191,5 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }

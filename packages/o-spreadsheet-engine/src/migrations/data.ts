@@ -314,6 +314,7 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
             const definition = map[cmd.chartId];
             const newDefinition = { ...definition, ...cmd.definition };
             command = { ...cmd, definition: newDefinition };
+            delete newDefinition.chartId;
             map[cmd.chartId] = newDefinition;
             break;
         }
