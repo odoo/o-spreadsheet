@@ -801,6 +801,39 @@ test("migrate version 19.2: colorScale is changed to a trio of color", () => {
   expect(model.exportData().sheets[0].figures[0].data.colorScale).toEqual(COLORSCHEMES.reds);
 });
 
+test("migrate version 19.1.1: remove extra keys from chart definition", () => {
+  const definition = {
+    type: "line",
+    title: "demo chart",
+    labelRange: "A1:A4",
+    humanize: true,
+    dataSets: [],
+    dataSetsHaveTitle: false,
+  };
+  const data = {
+    version: "18.5.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "someuuid",
+            tag: "chart",
+            data: {
+              ...definition,
+              chartId: "someuuid",
+              extraKey1: "extraValue1",
+              extraKey2: "extraValue2",
+            },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  expect(model.getters.getChartDefinition("someuuid")).toEqual(definition);
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
