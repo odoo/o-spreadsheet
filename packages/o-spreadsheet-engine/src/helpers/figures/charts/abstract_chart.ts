@@ -2,6 +2,7 @@ import {
   ChartCreationContext,
   ChartDefinition,
   ChartType,
+  ChartWithDataSetDefinition,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
@@ -25,6 +26,18 @@ export abstract class AbstractChart {
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
   readonly humanize: boolean | undefined;
+
+  static commonKeys: readonly (keyof ChartDefinition)[] = [
+    "type",
+    "title",
+    "background",
+    "humanize",
+  ];
+  static dataSetKeys: readonly (keyof ChartWithDataSetDefinition)[] = [
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+  ];
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
