@@ -5,6 +5,7 @@ import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
+import { chartRegistry } from "../registries/chart_registry";
 import { Registry } from "../registry";
 import { CustomizedDataSet, schemeToColorScale } from "../types/chart";
 import { Format } from "../types/format";
@@ -587,7 +588,28 @@ migrationStepRegistry
         }
       }
       return data;
-    }
+    },
+  })
+  .add("19.1.2", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart") {
+            const definition = figure.data;
+            const allowedDefinitionKeys = new Set(
+              chartRegistry.get(definition.type).allowedDefinitionKeys
+            );
+            allowedDefinitionKeys.add("chartId");
+            for (const key in definition) {
+              if (!allowedDefinitionKeys.has(key)) {
+                delete definition[key];
+              }
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

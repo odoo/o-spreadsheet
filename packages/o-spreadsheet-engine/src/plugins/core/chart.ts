@@ -214,7 +214,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           // instead of in figure.data
           if (figure.tag === "chart") {
             const chartId = figure.data.chartId;
-            const chart = this.createChart(figure.id, figure.data, sheet.id);
+            const definition = { ...figure.data };
+            delete definition.chartId;
+            const chart = this.createChart(figure.id, definition, sheet.id);
             this.charts[chartId] = { chart, figureId: figure.id };
           } else if (figure.tag === "carousel") {
             for (const chartId in figure.data.chartDefinitions || {}) {
