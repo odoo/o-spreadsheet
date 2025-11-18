@@ -16,19 +16,16 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
-  AxesDesign,
   ChartCreationContext,
   ChartJSRuntime,
   CustomizedDataSet,
   DataSet,
-  DatasetDesign,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -43,22 +40,26 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly labelsAsText: boolean;
-  readonly stacked: boolean;
-  readonly aggregated?: boolean;
   readonly type = "line";
-  readonly dataSetsHaveTitle: boolean;
-  readonly cumulative: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
-  readonly fillArea?: boolean;
-  readonly showValues?: boolean;
-  readonly hideDataMarkers?: boolean;
-  readonly zoomable?: boolean;
 
-  constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof LineChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "labelsAsText",
+    "stacked",
+    "aggregated",
+    "cumulative",
+    "axesDesign",
+    "fillArea",
+    "showValues",
+    "hideDataMarkers",
+    "zoomable",
+  ] as const;
+
+  constructor(private definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,
@@ -67,19 +68,6 @@ export class LineChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.labelsAsText = definition.labelsAsText;
-    this.stacked = definition.stacked;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.cumulative = definition.cumulative;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.fillArea = definition.fillArea;
-    this.showValues = definition.showValues;
-    this.hideDataMarkers = definition.hideDataMarkers;
-    this.zoomable = definition.zoomable;
   }
 
   static validateChartDefinition(
@@ -131,30 +119,17 @@ export class LineChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "line",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      labelsAsText: this.labelsAsText,
-      stacked: this.stacked,
-      aggregated: this.aggregated,
-      cumulative: this.cumulative,
-      axesDesign: this.axesDesign,
-      fillArea: this.fillArea,
-      showValues: this.showValues,
-      hideDataMarkers: this.hideDataMarkers,
-      zoomable: this.zoomable,
-      humanize: this.humanize,
     };
   }
 
@@ -162,12 +137,12 @@ export class LineChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -190,16 +165,16 @@ export class LineChart extends AbstractChart {
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
@@ -252,6 +227,6 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
 
   return {
     chartJsConfig: config,
-    background: chart.background || BACKGROUND_CHART_COLOR,
+    background: definition.background || BACKGROUND_CHART_COLOR,
   };
 }

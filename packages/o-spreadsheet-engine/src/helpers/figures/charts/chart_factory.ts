@@ -58,6 +58,11 @@ export function validateChartDefinition(
   if (!validators) {
     throw new Error("Unknown chart type.");
   }
+  const allowedKeys = new Set(validators.allowedDefinitionKeys);
+  const hasExtraKeys = !new Set(Object.keys(definition)).isSubsetOf(allowedKeys);
+  if (hasExtraKeys) {
+    return CommandResult.InvalidChartDefinition;
+  }
   return validators.validateChartDefinition(validator, definition);
 }
 
