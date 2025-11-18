@@ -60,6 +60,7 @@ chartRegistry.add("bar", {
   validateChartDefinition: BarChart.validateChartDefinition,
   transformDefinition: BarChart.transformDefinition,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: BarChart.allowedDefinitionKeys,
   sequence: 10,
 });
 chartRegistry.add("combo", {
@@ -70,6 +71,7 @@ chartRegistry.add("combo", {
   validateChartDefinition: ComboChart.validateChartDefinition,
   transformDefinition: ComboChart.transformDefinition,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
   sequence: 15,
 });
 chartRegistry.add("line", {
@@ -80,6 +82,7 @@ chartRegistry.add("line", {
   validateChartDefinition: LineChart.validateChartDefinition,
   transformDefinition: LineChart.transformDefinition,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
   sequence: 20,
 });
 chartRegistry.add("pie", {
@@ -90,6 +93,7 @@ chartRegistry.add("pie", {
   validateChartDefinition: PieChart.validateChartDefinition,
   transformDefinition: PieChart.transformDefinition,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
   sequence: 30,
 });
 chartRegistry.add("scorecard", {
@@ -100,6 +104,7 @@ chartRegistry.add("scorecard", {
   validateChartDefinition: ScorecardChart.validateChartDefinition,
   transformDefinition: ScorecardChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: ScorecardChart.allowedDefinitionKeys,
   sequence: 40,
 });
 chartRegistry.add("gauge", {
@@ -110,6 +115,7 @@ chartRegistry.add("gauge", {
   validateChartDefinition: GaugeChart.validateChartDefinition,
   transformDefinition: GaugeChart.transformDefinition,
   getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: GaugeChart.allowedDefinitionKeys,
   sequence: 50,
 });
 chartRegistry.add("scatter", {
@@ -120,6 +126,7 @@ chartRegistry.add("scatter", {
   validateChartDefinition: ScatterChart.validateChartDefinition,
   transformDefinition: ScatterChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: ScatterChart.allowedDefinitionKeys,
   sequence: 60,
 });
 chartRegistry.add("waterfall", {
@@ -130,6 +137,7 @@ chartRegistry.add("waterfall", {
   validateChartDefinition: WaterfallChart.validateChartDefinition,
   transformDefinition: WaterfallChart.transformDefinition,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: WaterfallChart.allowedDefinitionKeys,
   sequence: 70,
 });
 chartRegistry.add("pyramid", {
@@ -140,6 +148,7 @@ chartRegistry.add("pyramid", {
   validateChartDefinition: PyramidChart.validateChartDefinition,
   transformDefinition: PyramidChart.transformDefinition,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: PyramidChart.allowedDefinitionKeys,
   sequence: 80,
   dataSeriesLimit: 2,
 });
@@ -151,6 +160,7 @@ chartRegistry.add("radar", {
   validateChartDefinition: RadarChart.validateChartDefinition,
   transformDefinition: RadarChart.transformDefinition,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: RadarChart.allowedDefinitionKeys,
   sequence: 80,
 });
 chartRegistry.add("geo", {
@@ -161,6 +171,7 @@ chartRegistry.add("geo", {
   validateChartDefinition: GeoChart.validateChartDefinition,
   transformDefinition: GeoChart.transformDefinition,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: GeoChart.allowedDefinitionKeys,
   sequence: 90,
   dataSeriesLimit: 1,
 });
@@ -172,6 +183,7 @@ chartRegistry.add("funnel", {
   validateChartDefinition: FunnelChart.validateChartDefinition,
   transformDefinition: FunnelChart.transformDefinition,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: FunnelChart.allowedDefinitionKeys,
   sequence: 100,
   dataSeriesLimit: 1,
 });
@@ -183,6 +195,7 @@ chartRegistry.add("sunburst", {
   validateChartDefinition: SunburstChart.validateChartDefinition,
   transformDefinition: SunburstChart.transformDefinition,
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: SunburstChart.allowedDefinitionKeys,
   sequence: 30,
 });
 chartRegistry.add("treemap", {
@@ -193,6 +206,7 @@ chartRegistry.add("treemap", {
   validateChartDefinition: TreeMapChart.validateChartDefinition,
   transformDefinition: TreeMapChart.transformDefinition,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: TreeMapChart.allowedDefinitionKeys,
   sequence: 100,
 });
 chartRegistry.add("calendar", {
@@ -205,6 +219,7 @@ chartRegistry.add("calendar", {
   validateChartDefinition: CalendarChart.validateChartDefinition,
   transformDefinition: CalendarChart.transformDefinition,
   getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
+  allowedDefinitionKeys: CalendarChart.allowedDefinitionKeys,
   sequence: 110,
   dataSeriesLimit: 1,
 });
