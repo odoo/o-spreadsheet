@@ -74,6 +74,7 @@ import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_st
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
   ColorGenerator,
+  DateTime,
   UuidGenerator,
   colorToRGBA,
   computeTextWidth,
@@ -84,14 +85,18 @@ import {
   formatValue,
   getUniqueText,
   isDateTime,
+  isDateTimeFormat,
   isDefined,
+  isFormula,
   isInside,
   isMarkdownLink,
   isNumber,
+  jsDateToNumber,
   lazy,
   lettersToNumber,
   markdownLink,
   mergeContiguousZones,
+  numberToJsDate,
   numberToLetters,
   overlap,
   parseMarkdownLink,
@@ -329,6 +334,7 @@ export const registries = {
 
 import "./registries/chart_types";
 
+import { parseFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format_parser";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -336,6 +342,7 @@ import {
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
+import { Composer } from "./components/composer/composer/composer";
 import { TopBar } from "./components/top_bar/top_bar";
 
 export const helpers = {
@@ -401,6 +408,12 @@ export const helpers = {
   isDateTime,
   createCustomFields,
   schemeToColorScale,
+  isDateTimeFormat,
+  jsDateToNumber,
+  numberToJsDate,
+  DateTime,
+  parseFormat,
+  isFormula,
 };
 
 export const links = {
@@ -469,6 +482,7 @@ export const components = {
   FullScreenFigure,
   NumberInput,
   TopBar,
+  Composer,
 };
 
 export const hooks = {
