@@ -44,6 +44,9 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+// import { chartFactory } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_factory";
+// import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
@@ -222,6 +225,8 @@ export function createChart(
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
+
+  // definition with all possible fields filled
   const definition = {
     ...data,
     title: data.title || { text: "test" },
@@ -241,6 +246,13 @@ export function createChart(
     showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
     showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
   };
+
+  const keys = new Set(chartRegistry.get(data.type).allowedDefinitionKeys);
+  for (const key of Object.keys(definition)) {
+    if (!keys.has(key)) {
+      delete definition[key];
+    }
+  }
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
@@ -471,15 +483,25 @@ export function updateChart(
   definition: Partial<ChartDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const def: ChartDefinition = {
-    ...model.getters.getChartDefinition(chartId),
-    ...definition,
-  } as ChartDefinition;
+  const currentDefinition = model.getters.getChartDefinition(chartId);
+  let updatedDef: ChartDefinition;
+  if (definition.type && definition.type !== currentDefinition.type) {
+    const context = model.getters.getContextCreationChart(chartId);
+    const converted = chartRegistry
+      .get(definition.type!)
+      .getChartDefinitionFromContextCreation(context ?? {});
+    updatedDef = { ...converted, ...definition } as ChartDefinition;
+  } else {
+    updatedDef = {
+      ...currentDefinition,
+      ...definition,
+    } as ChartDefinition;
+  }
   return model.dispatch("UPDATE_CHART", {
     figureId: model.getters.getFigureIdFromChartId(chartId),
     chartId,
     sheetId,
-    definition: def,
+    definition: updatedDef,
   });
 }
 

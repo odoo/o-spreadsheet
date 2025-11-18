@@ -183,6 +183,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       chartId: "2",
@@ -195,6 +196,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
     expect(data.sheets[0].figures[2].data).toEqual({
       chartId: "3",
@@ -207,6 +209,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
     expect(data.sheets[0].figures[3].data).toEqual({
       chartId: "4",
@@ -219,6 +222,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
   });
   test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {
@@ -779,6 +783,39 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
   };
   const model = new Model(data);
   expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
+});
+
+test("migrate version 19.1.1: remove extra keys from chart definition", () => {
+  const definition = {
+    type: "line",
+    title: "demo chart",
+    labelRange: "A1:A4",
+    humanize: true,
+    dataSets: [],
+    dataSetsHaveTitle: false,
+  };
+  const data = {
+    version: "18.5.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "someuuid",
+            tag: "chart",
+            data: {
+              ...definition,
+              chartId: "someuuid",
+              extraKey1: "extraValue1",
+              extraKey2: "extraValue2",
+            },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  expect(model.getters.getChartDefinition("someuuid")).toEqual(definition);
 });
 
 describe("Import", () => {
