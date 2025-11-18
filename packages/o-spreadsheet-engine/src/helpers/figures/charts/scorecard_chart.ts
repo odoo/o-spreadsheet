@@ -171,6 +171,17 @@ export class ScorecardChart extends AbstractChart {
   readonly humanize: boolean;
   readonly type = "scorecard";
 
+  static allowedDefinitionKeys: readonly (keyof ScorecardChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "keyValue",
+    "keyDescr",
+    "baseline",
+    "baselineMode",
+    "baselineDescr",
+    "baselineColorUp",
+    "baselineColorDown",
+  ] as const;
+
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
@@ -249,7 +260,7 @@ export class ScorecardChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      ...this,
+      ...this.getDefinition(),
       range: this.keyValue
         ? [{ dataRange: this.getters.getRangeString(this.keyValue, this.sheetId) }]
         : undefined,

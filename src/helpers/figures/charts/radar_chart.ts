@@ -19,7 +19,6 @@ import {
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
-  LegendPosition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   RadarChartDefinition,
@@ -27,16 +26,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  DatasetDesign,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -51,18 +41,22 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class RadarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly stacked: boolean;
-  readonly aggregated?: boolean;
   readonly type = "radar";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly fillArea?: boolean;
-  readonly showValues?: boolean;
-  readonly hideDataMarkers?: boolean;
 
-  constructor(definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof RadarChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "showValues",
+    "aggregated",
+    "stacked",
+    "fillArea",
+    "hideDataMarkers",
+  ] as const;
+
+  constructor(private definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -71,15 +65,6 @@ export class RadarChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.stacked = definition.stacked;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.fillArea = definition.fillArea;
-    this.showValues = definition.showValues;
-    this.hideDataMarkers = definition.hideDataMarkers;
   }
 
   static transformDefinition(
@@ -119,12 +104,12 @@ export class RadarChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -164,40 +149,31 @@ export class RadarChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "radar",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      stacked: this.stacked,
-      aggregated: this.aggregated,
-      fillArea: this.fillArea,
-      showValues: this.showValues,
-      hideDataMarkers: this.hideDataMarkers,
-      humanize: this.humanize,
     };
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
     };
@@ -241,5 +217,5 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }
