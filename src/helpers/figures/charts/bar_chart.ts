@@ -20,17 +20,14 @@ import {
   BarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import {
-  AxesDesign,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
-  DatasetDesign,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
-import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { ApplyRangeChange, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
@@ -48,19 +45,23 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly stacked: boolean;
-  readonly aggregated?: boolean;
   readonly type = "bar";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
-  readonly horizontal?: boolean;
-  readonly showValues?: boolean;
-  readonly zoomable?: boolean;
 
-  constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof BarChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "horizontal",
+    "axesDesign",
+    "stacked",
+    "aggregated",
+    "showValues",
+    "zoomable",
+  ] as const;
+
+  constructor(private definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -69,16 +70,6 @@ export class BarChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.stacked = definition.stacked;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.horizontal = definition.horizontal;
-    this.showValues = definition.showValues;
-    this.zoomable = definition.zoomable;
   }
 
   static transformDefinition(
@@ -119,12 +110,12 @@ export class BarChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -164,41 +155,32 @@ export class BarChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "bar",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      stacked: this.stacked,
-      aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
-      horizontal: this.horizontal,
-      showValues: this.showValues,
-      zoomable: this.horizontal ? undefined : this.zoomable,
-      humanize: this.humanize,
+      zoomable: this.definition.horizontal ? undefined : this.definition.zoomable,
     };
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
@@ -232,7 +214,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      indexAxis: chart.horizontal ? "y" : "x",
+      indexAxis: definition.horizontal ? "y" : "x",
       layout: getChartLayout(definition, chartData),
       scales: getBarChartScales(definition, chartData),
       plugins: {
@@ -244,5 +226,5 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }

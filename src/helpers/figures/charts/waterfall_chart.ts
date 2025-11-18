@@ -13,30 +13,17 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
-  AxesDesign,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
-  LegendPosition,
-  VerticalAxisPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
-import {
   WaterfallChartDefinition,
   WaterfallChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -51,24 +38,28 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class WaterfallChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
-  readonly legendPosition: LegendPosition;
-  readonly aggregated?: boolean;
   readonly type = "waterfall";
-  readonly dataSetsHaveTitle: boolean;
-  readonly showSubTotals: boolean;
-  readonly firstValueAsSubtotal?: boolean;
-  readonly showConnectorLines: boolean;
-  readonly positiveValuesColor?: Color;
-  readonly negativeValuesColor?: Color;
-  readonly subTotalValuesColor?: Color;
-  readonly dataSetDesign: CustomizedDataSet[];
-  readonly axesDesign?: AxesDesign;
-  readonly showValues?: boolean;
-  readonly zoomable?: boolean;
 
-  constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof WaterfallChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "verticalAxisPosition",
+    "aggregated",
+    "showSubTotals",
+    "showConnectorLines",
+    "firstValueAsSubtotal",
+    "positiveValuesColor",
+    "negativeValuesColor",
+    "subTotalValuesColor",
+    "zoomable",
+    "axesDesign",
+    "showValues",
+  ] as const;
+
+  constructor(private definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -77,21 +68,6 @@ export class WaterfallChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.showSubTotals = definition.showSubTotals;
-    this.showConnectorLines = definition.showConnectorLines;
-    this.positiveValuesColor = definition.positiveValuesColor;
-    this.negativeValuesColor = definition.negativeValuesColor;
-    this.subTotalValuesColor = definition.subTotalValuesColor;
-    this.firstValueAsSubtotal = definition.firstValueAsSubtotal;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
-    this.zoomable = definition.zoomable;
   }
 
   static transformDefinition(
@@ -134,12 +110,12 @@ export class WaterfallChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -179,32 +155,17 @@ export class WaterfallChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "waterfall",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      showSubTotals: this.showSubTotals,
-      showConnectorLines: this.showConnectorLines,
-      positiveValuesColor: this.positiveValuesColor,
-      negativeValuesColor: this.negativeValuesColor,
-      subTotalValuesColor: this.subTotalValuesColor,
-      firstValueAsSubtotal: this.firstValueAsSubtotal,
-      axesDesign: this.axesDesign,
-      showValues: this.showValues,
-      zoomable: this.zoomable,
-      humanize: this.humanize,
     };
   }
 
@@ -256,5 +217,8 @@ export function createWaterfallChartRuntime(
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return {
+    chartJsConfig: config,
+    background: definition.background || BACKGROUND_CHART_COLOR,
+  };
 }

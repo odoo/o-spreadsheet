@@ -19,22 +19,13 @@ import {
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import {
   PieChartDefinition,
   PieChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -48,16 +39,21 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class PieChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
   readonly type = "pie";
-  readonly aggregated?: boolean;
-  readonly dataSetsHaveTitle: boolean;
-  readonly isDoughnut?: boolean;
-  readonly showValues?: boolean;
-  readonly pieHolePercentage?: number;
 
-  constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof PieChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "aggregated",
+    "isDoughnut",
+    "pieHolePercentage",
+    "showValues",
+  ] as const;
+
+  constructor(private definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -66,13 +62,6 @@ export class PieChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.isDoughnut = definition.isDoughnut;
-    this.showValues = definition.showValues;
-    this.pieHolePercentage = definition.pieHolePercentage;
   }
 
   static transformDefinition(
@@ -113,7 +102,7 @@ export class PieChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      ...this,
+      ...this.getDefinition(),
       range: this.dataSets.map((ds: DataSet) => ({
         dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
       })),
@@ -129,22 +118,14 @@ export class PieChart extends AbstractChart {
     targetSheetId?: UID
   ): PieChartDefinition {
     return {
-      type: "pie",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: dataSets.map((ds: DataSet) => ({
         dataRange: this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId),
       })),
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      isDoughnut: this.isDoughnut,
-      showValues: this.showValues,
-      pieHolePercentage: this.pieHolePercentage,
-      humanize: this.humanize,
     };
   }
 
@@ -169,15 +150,16 @@ export class PieChart extends AbstractChart {
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
     return {
-      ...this.getDefinition(),
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      ...definition,
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
     };
@@ -203,7 +185,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const chartData = getPieChartData(definition, chart.dataSets, chart.labelRange, getters);
 
   const config: ChartConfiguration<"doughnut" | "pie"> = {
-    type: chart.isDoughnut ? "doughnut" : "pie",
+    type: definition.isDoughnut ? "doughnut" : "pie",
     data: {
       labels: chartData.labels,
       datasets: getPieChartDatasets(definition, chartData),
@@ -211,7 +193,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     options: {
       ...CHART_COMMON_OPTIONS,
       cutout:
-        chart.isDoughnut && definition.pieHolePercentage !== undefined
+        definition.isDoughnut && definition.pieHolePercentage !== undefined
           ? definition.pieHolePercentage + "%"
           : undefined,
       layout: getChartLayout(definition, chartData),
@@ -224,5 +206,5 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }
