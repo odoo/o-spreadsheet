@@ -13,7 +13,6 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
-  BarChartDefinition,
   ChartCreationContext,
   CustomizedDataSet,
   ExcelChartDefinition,
@@ -22,14 +21,10 @@ import {
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
-  CalendarChartGranularity,
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
 import {
-  AxesDesign,
-  ChartColorScale,
-  Color,
   CommandResult,
   DataSet,
   Getters,
@@ -61,17 +56,23 @@ function checkDateGranularity(definition: CalendarChartDefinition): CommandResul
 export class CalendarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
   readonly type = "calendar";
-  readonly showValues?: boolean;
-  readonly colorScale?: ChartColorScale;
-  readonly axesDesign?: AxesDesign;
-  readonly horizontalGroupBy: CalendarChartGranularity;
-  readonly verticalGroupBy: CalendarChartGranularity;
-  readonly legendPosition: LegendPosition;
-  readonly missingValueColor?: Color;
 
-  constructor(definition: CalendarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof CalendarChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "dataSets",
+    "labelRange",
+    "dataSetsHaveTitle",
+    "showValues",
+    "colorScale",
+    "missingValueColor",
+    "axesDesign",
+    "horizontalGroupBy",
+    "verticalGroupBy",
+    "legendPosition",
+  ] as const;
+
+  constructor(private definition: CalendarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -80,27 +81,19 @@ export class CalendarChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.showValues = definition.showValues;
-    this.colorScale = definition.colorScale;
-    this.axesDesign = definition.axesDesign;
-    this.horizontalGroupBy = definition.horizontalGroupBy;
-    this.verticalGroupBy = definition.verticalGroupBy;
-    this.legendPosition = definition.legendPosition;
-    this.missingValueColor = definition.missingValueColor;
   }
 
   static transformDefinition(
     chartSheetId: UID,
-    definition: BarChartDefinition,
+    definition: CalendarChartDefinition,
     applyChange: RangeAdapter
-  ): BarChartDefinition {
+  ): CalendarChartDefinition {
     return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(
     validator: Validator,
-    definition: BarChartDefinition
+    definition: CalendarChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(
       definition,
@@ -176,21 +169,12 @@ export class CalendarChart extends AbstractChart {
       dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
     }));
     return {
-      type: "calendar",
-      background: this.background,
+      ...this.definition,
       dataSets: ranges,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      showValues: this.showValues,
-      colorScale: this.colorScale,
-      axesDesign: this.axesDesign,
-      horizontalGroupBy: this.horizontalGroupBy,
-      verticalGroupBy: this.verticalGroupBy,
-      legendPosition: this.legendPosition,
-      missingValueColor: this.missingValueColor,
     };
   }
 
@@ -243,5 +227,5 @@ export function createCalendarChartRuntime(
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }

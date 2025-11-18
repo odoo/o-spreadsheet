@@ -16,11 +16,6 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
-  AxesDesign,
-  CustomizedDataSet,
-  LegendPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import {
   ComboChartDataSet,
   ComboChartDefinition,
   ComboChartRuntime,
@@ -29,8 +24,8 @@ import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import {
   ChartCreationContext,
-  Color,
   CommandResult,
+  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
   Getters,
@@ -52,18 +47,22 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class ComboChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly aggregated?: boolean;
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: ComboChartDataSet[];
-  readonly axesDesign?: AxesDesign;
   readonly type = "combo";
-  readonly showValues?: boolean;
-  readonly hideDataMarkers?: boolean;
-  readonly zoomable?: boolean;
 
-  constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof ComboChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "aggregated",
+    "axesDesign",
+    "showValues",
+    "hideDataMarkers",
+    "zoomable",
+  ] as const;
+
+  constructor(private definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -72,15 +71,6 @@ export class ComboChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
-    this.hideDataMarkers = definition.hideDataMarkers;
-    this.zoomable = definition.zoomable;
   }
 
   static transformDefinition(
@@ -102,12 +92,12 @@ export class ComboChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.getDefinition(),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -127,41 +117,32 @@ export class ComboChart extends AbstractChart {
     const ranges: ComboChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
-        type: this.dataSetDesign?.[i]?.type ?? (i ? "line" : "bar"),
+        type: this.definition.dataSets?.[i]?.type ?? (i ? "line" : "bar"),
       });
     }
     return {
-      type: "combo",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
-      showValues: this.showValues,
-      hideDataMarkers: this.hideDataMarkers,
-      zoomable: this.zoomable,
-      humanize: this.humanize,
     };
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
@@ -248,5 +229,5 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }
