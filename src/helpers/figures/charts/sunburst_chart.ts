@@ -17,14 +17,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
-  ChartStyle,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -38,17 +36,22 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class SunburstChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
   readonly type = "sunburst";
-  readonly dataSetsHaveTitle: boolean;
-  readonly showValues?: boolean;
-  readonly showLabels?: boolean;
-  readonly valuesDesign?: ChartStyle;
-  readonly groupColors?: (Color | undefined | null)[];
-  readonly pieHolePercentage?: number;
 
-  constructor(definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
+  static allowedDefinitionKeys: readonly (keyof SunburstChartDefinition)[] = [
+    ...AbstractChart.commonKeys,
+    "legendPosition",
+    "dataSets",
+    "dataSetsHaveTitle",
+    "labelRange",
+    "showValues",
+    "showLabels",
+    "valuesDesign",
+    "groupColors",
+    "pieHolePercentage",
+  ] as const;
+
+  constructor(private definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -57,14 +60,6 @@ export class SunburstChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.showValues = definition.showValues;
-    this.showLabels = definition.showLabels;
-    this.valuesDesign = definition.valuesDesign;
-    this.groupColors = definition.groupColors;
-    this.pieHolePercentage = definition.pieHolePercentage;
   }
 
   static transformDefinition(
@@ -102,6 +97,7 @@ export class SunburstChart extends AbstractChart {
       valuesDesign: context.valuesDesign,
       groupColors: context.groupColors,
       humanize: context.humanize,
+      pieHolePercentage: context.pieHolePercentage,
     };
   }
 
@@ -112,7 +108,7 @@ export class SunburstChart extends AbstractChart {
   getContextCreation(): ChartCreationContext {
     const leafRange = this.dataSets.at(-1)?.dataRange;
     return {
-      ...this,
+      ...this.getDefinition(),
       range: this.labelRange
         ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
         : [],
@@ -129,23 +125,14 @@ export class SunburstChart extends AbstractChart {
     targetSheetId?: UID
   ): SunburstChartDefinition {
     return {
-      type: "sunburst",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: dataSets.map((ds: DataSet) => ({
         dataRange: this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId),
       })),
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      showValues: this.showValues,
-      showLabels: this.showLabels,
-      valuesDesign: this.valuesDesign,
-      groupColors: this.groupColors,
-      pieHolePercentage: this.pieHolePercentage,
-      humanize: this.humanize,
     };
   }
 
@@ -201,7 +188,8 @@ export function createSunburstChartRuntime(
       datasets: getSunburstChartDatasets(definition, chartData),
     },
     options: {
-      cutout: chart.pieHolePercentage === undefined ? "25%" : `${chart.pieHolePercentage}%`,
+      cutout:
+        definition.pieHolePercentage === undefined ? "25%" : `${definition.pieHolePercentage}%`,
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
       layout: getChartLayout(definition, chartData),
       plugins: {
@@ -210,7 +198,7 @@ export function createSunburstChartRuntime(
         tooltip: getSunburstChartTooltip(definition, chartData),
         sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
         sunburstHoverPlugin: { enabled: true },
-        background: { color: chart.background },
+        background: { color: definition.background },
       },
     },
   };
