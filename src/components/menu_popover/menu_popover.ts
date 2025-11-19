@@ -245,17 +245,15 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseOver(menu: Action, ev: MouseEvent) {
-    if (this.isEnabled(menu)) {
-      if (this.isParentMenu(this.subMenu, menu)) {
-        this.openingTimeOut.clear();
-        return;
-      }
-      const currentTarget = ev.currentTarget as HTMLElement;
-      if (this.isRoot(menu)) {
-        this.openingTimeOut.schedule(() => {
-          this.openSubMenu(menu, currentTarget);
-        }, TIMEOUT_DELAY);
-      }
+    if (this.isParentMenu(this.subMenu, menu)) {
+      this.openingTimeOut.clear();
+      return;
+    }
+    const currentTarget = ev.currentTarget as HTMLElement;
+    if (this.isRoot(menu)) {
+      this.openingTimeOut.schedule(() => {
+        this.openSubMenu(menu, currentTarget);
+      }, TIMEOUT_DELAY);
     }
   }
 

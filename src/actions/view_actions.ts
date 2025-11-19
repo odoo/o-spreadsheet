@@ -131,7 +131,6 @@ export const unFreezeRows: ActionSpec = {
     env.model.dispatch("UNFREEZE_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
-  isReadonlyAllowed: true,
   isVisible: (env) =>
     !!env.model.getters.getPaneDivisions(env.model.getters.getActiveSheetId()).ySplit,
 };
@@ -139,13 +138,11 @@ export const unFreezeRows: ActionSpec = {
 export const freezeFirstRow: ActionSpec = {
   name: _t("1 row"),
   execute: (env) => interactiveFreezeColumnsRows(env, "ROW", 1),
-  isReadonlyAllowed: true,
 };
 
 export const freezeSecondRow: ActionSpec = {
   name: _t("2 rows"),
   execute: (env) => interactiveFreezeColumnsRows(env, "ROW", 2),
-  isReadonlyAllowed: true,
 };
 
 export const freezeCurrentRow: ActionSpec = {
@@ -154,7 +151,6 @@ export const freezeCurrentRow: ActionSpec = {
     const { bottom } = env.model.getters.getSelectedZone();
     interactiveFreezeColumnsRows(env, "ROW", bottom + 1);
   },
-  isReadonlyAllowed: true,
 };
 
 export const unFreezeCols: ActionSpec = {
@@ -163,7 +159,6 @@ export const unFreezeCols: ActionSpec = {
     env.model.dispatch("UNFREEZE_COLUMNS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
-  isReadonlyAllowed: true,
   isVisible: (env) =>
     !!env.model.getters.getPaneDivisions(env.model.getters.getActiveSheetId()).xSplit,
 };
@@ -171,13 +166,11 @@ export const unFreezeCols: ActionSpec = {
 export const freezeFirstCol: ActionSpec = {
   name: _t("1 column"),
   execute: (env) => interactiveFreezeColumnsRows(env, "COL", 1),
-  isReadonlyAllowed: true,
 };
 
 export const freezeSecondCol: ActionSpec = {
   name: _t("2 columns"),
   execute: (env) => interactiveFreezeColumnsRows(env, "COL", 2),
-  isReadonlyAllowed: true,
 };
 
 export const freezeCurrentCol: ActionSpec = {
@@ -186,7 +179,6 @@ export const freezeCurrentCol: ActionSpec = {
     const { right } = env.model.getters.getSelectedZone();
     interactiveFreezeColumnsRows(env, "COL", right + 1);
   },
-  isReadonlyAllowed: true,
 };
 
 export const viewGridlines: ActionSpec = {
