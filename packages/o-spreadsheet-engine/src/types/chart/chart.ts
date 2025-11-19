@@ -1,5 +1,5 @@
 import { Point } from "chart.js";
-import { Align, Color, VerticalAlign } from "../misc";
+import { Align, Color, UID, VerticalAlign } from "../misc";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -58,10 +58,17 @@ export type ChartDefinition =
   | SunburstChartDefinition
   | TreeMapChartDefinition;
 
-export type ChartWithDataSetDefinition = Extract<
-  ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
->;
+// export type ChartWithDataSetDefinition = Extract<
+//   ChartDefinition,
+//   { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
+// >;
+export interface ChartWithDataSetDefinition {
+  readonly datasetsDesign: Record<UID, DataSetDesign>;
+}
+
+// const a: ChartWithDataSetDefinition = {};
+
+// a.
 
 export type ChartWithRangeDataSetDefinition = Extract<
   ChartDefinition,
@@ -102,12 +109,6 @@ export interface DatasetValues {
   readonly hidden?: boolean;
 }
 
-export interface DatasetDesign {
-  readonly backgroundColor?: string;
-  readonly yAxisId?: string;
-  readonly label?: string;
-}
-
 export interface AxisDesign {
   readonly title?: TitleDesign;
 }
@@ -141,11 +142,14 @@ export interface TrendConfiguration {
   window?: number;
 }
 
-type CustomizedDataSet = {
+export type DataSetDesign = {
   readonly trend?: TrendConfiguration;
-} & DatasetDesign;
+  readonly backgroundColor?: string;
+  readonly yAxisId?: string;
+  readonly label?: string;
+};
 
-export type RangeChartDataSet = CustomizedDataSet & {
+export type RangeChartDataSet = DataSetDesign & {
   readonly dataRange: string;
 };
 

@@ -1,9 +1,12 @@
 import type { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
-import { ChartRangeDefinition } from "./common_chart";
+import { Color, UID } from "../misc";
+import { DataSetDesign } from "./chart";
+import { ChartDataSource, CommonChartDefinition } from "./common_chart";
 
-export interface LineChartDefinition extends ChartRangeDefinition {
+export interface LineChartDefinition extends CommonChartDefinition {
   readonly type: "line";
+  readonly datasetsDesign: Record<UID, DataSetDesign>;
+  readonly dataSource: ChartDataSource;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
   readonly aggregated?: boolean;

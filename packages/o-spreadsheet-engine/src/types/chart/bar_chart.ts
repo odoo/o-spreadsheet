@@ -1,12 +1,14 @@
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
-import { ChartRangeDefinition } from "./index";
+import { Color, UID } from "../misc";
+import { ChartDataSource, CommonChartDefinition, DataSetDesign } from "./index";
 
-export interface BarChartDefinition extends ChartRangeDefinition {
+export interface BarChartDefinition extends CommonChartDefinition {
   readonly type: "bar";
   readonly stacked: boolean;
   readonly horizontal?: boolean;
   readonly zoomable?: boolean;
+  readonly datasetsDesign: Record<UID, DataSetDesign>;
+  readonly dataSource: ChartDataSource;
 }
 
 export type BarChartRuntime = {

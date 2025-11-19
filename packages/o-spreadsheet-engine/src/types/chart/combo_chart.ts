@@ -1,16 +1,17 @@
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
-import { RangeChartDataSet } from "./chart";
-import { ChartRangeDefinition } from "./common_chart";
+import { Color, UID } from "../misc";
+import { DataSetDesign } from "./chart";
+import { ChartDataSource, CommonChartDefinition } from "./common_chart";
 
-export interface ComboChartDefinition extends ChartRangeDefinition {
-  readonly dataSets: ComboChartDataSet[];
+export interface ComboChartDefinition extends CommonChartDefinition {
+  readonly datasetsDesign: Record<UID, ComboDataSetDesign>;
+  readonly dataSource: ChartDataSource;
   readonly type: "combo";
   readonly hideDataMarkers?: boolean;
   readonly zoomable?: boolean;
 }
 
-export type ComboChartDataSet = RangeChartDataSet & { type?: "bar" | "line" };
+export type ComboDataSetDesign = DataSetDesign & { type?: "bar" | "line" };
 
 export type ComboChartRuntime = {
   chartJsConfig: ChartConfiguration;
