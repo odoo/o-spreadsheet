@@ -42,6 +42,7 @@ import { Alias, PaneDivision, UID } from "./misc";
  *  - pivot table location (XLSXPivotTableLocation): §18.10.1.49 (location)
  *  - pivot table style info (XLSXPivotTableStyleInfo): §18.10.7.74 (pivotTableStyleInfo)
  *  - rows (XLSXRow): §18.3.1.73 (row)
+ *  - sheet Protection (XLSXSheetProtection): $18.3.1.85
  *  - sheet (XLSXWorksheet): §18.3.1.99 (worksheet)
  *  - sheet format (XLSXSheetFormat): §18.3.1.81 (sheetFormatPr)
  *  - sheet properties (XLSXSheetProperties): §18.3.1.82 (sheetPr)
@@ -241,6 +242,7 @@ export interface XLSXWorksheet {
   hyperlinks: XLSXHyperLink[];
   tables: XLSXTable[];
   pivotTables: XLSXPivotTable[];
+  isLocked: boolean;
 }
 
 export interface XLSXSheetView {

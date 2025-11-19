@@ -64,7 +64,7 @@
           />
         </div>
       </div>
-      <t t-if="isSelected and !env.isMobile()">
+      <t t-if="isFigureResizable">
         <div
           class="o-fig-anchor o-top pe-auto"
           t-att-style="this.getResizerPosition('top')"
