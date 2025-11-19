@@ -36,17 +36,10 @@ css/* scss */ `
       }
       .o-cf-preview-icon {
         border: 1px solid lightgrey;
-        position: absolute;
         height: 50px;
         width: 50px;
       }
       .o-cf-preview-description {
-        left: 65px;
-        margin-bottom: auto;
-        margin-right: 8px;
-        margin-top: auto;
-        position: relative;
-        width: 142px;
         .o-cf-preview-description-rule {
           margin-bottom: 4px;
           font-weight: 600;
@@ -58,16 +51,11 @@ css/* scss */ `
           font-size: 12px;
         }
       }
-      .o-cf-delete {
-        left: 90%;
-        top: 39%;
-        position: absolute;
-      }
       &:not(:hover):not(.o-cf-dragging) .o-cf-drag-handle {
         display: none !important;
       }
       .o-cf-drag-handle {
-        left: -8px;
+        left: 2px;
         cursor: move;
         .o-icon {
           width: 6px;
