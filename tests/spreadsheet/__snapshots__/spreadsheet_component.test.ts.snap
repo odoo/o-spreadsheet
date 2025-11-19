@@ -642,11 +642,13 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           >
             <button
               class="o-button o-button-grey"
+              tabindex="-1"
             >
                Add 
             </button>
             <input
               class="o-grid-add-rows-input o-input mt-0 me-2"
+              tabindex="-1"
               type="text"
               value="100"
             />

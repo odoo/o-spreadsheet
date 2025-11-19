@@ -15,9 +15,9 @@
           t-on-wheel.prevent.stop=""
           t-on-click.stop=""
           t-on-focus.stop="onInputFocused"
+          t-on-blur="onInputBlurred"
           t-att-value="currentFontSize"
           t-on-change="setSizeFromInput"
-          t-ref="inputFontSize"
         />
         <span>
           <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>

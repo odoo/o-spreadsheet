@@ -49,7 +49,6 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 
   dropdown: State = useState({ isOpen: false });
 
-  private inputRef = useRef("inputFontSize");
   private rootEditorRef = useRef("FontSizeEditor");
 
   setup() {
@@ -70,7 +69,7 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
     const isOpen = this.dropdown.isOpen;
     if (!isOpen) {
       this.props.onToggle();
-      this.inputRef.el!.focus();
+      this.dropdown.isOpen = true;
     } else {
       this.closeFontList();
     }
@@ -109,6 +108,11 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
       }
       this.props.onToggle();
     }
+  }
+
+  onInputBlurred(ev: FocusEvent) {
+    this.closeFontList();
+    this.props.onToggle();
   }
 }
 
