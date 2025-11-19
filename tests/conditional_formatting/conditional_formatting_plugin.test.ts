@@ -6,6 +6,7 @@ import {
 import { CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src/types";
 import {
   activateSheet,
+  addCfRule,
   addColumns,
   addRows,
   changeCFPriority,
@@ -1089,18 +1090,11 @@ describe("conditional formats types", () => {
         ["highway to hell", true],
         [`="highway to hell"`, true],
       ])("a string %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "beginsWithText",
-              values: ["hi"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "beginsWithText",
+          values: ["hi"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1113,18 +1107,11 @@ describe("conditional formats types", () => {
         ["422", true],
         ["=422", true],
       ])("a number %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "beginsWithText",
-              values: ["42"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "beginsWithText",
+          values: ["42"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1133,18 +1120,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator isBetween", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isBetween",
-            values: ["1", "3"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isBetween",
+        values: ["1", "3"],
+        style: { fillColor: "#ff0f0f" },
       });
 
       setCellContent(model, "A1", "0");
@@ -1179,18 +1159,11 @@ describe("conditional formats types", () => {
         ["ahi", true],
         [`="ahi"`, true],
       ])("a string %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "containsText",
-              values: ["hi"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "containsText",
+          values: ["hi"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1204,18 +1177,11 @@ describe("conditional formats types", () => {
         ["2422", true],
         [`="2422"`, true],
       ])("a number %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "containsText",
-              values: ["42"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "containsText",
+          values: ["42"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1224,18 +1190,11 @@ describe("conditional formats types", () => {
 
       test("applies conditional formatting correctly when formula returns a 1x1 matrix", () => {
         setCellContent(model, "A1", "test");
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "containsText",
-              values: ['=IF(TRUE, $A$1, "something else")'],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1:A2"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "containsText",
+          values: ['=IF(TRUE, $A$1, "something else")'],
+          style: { fillColor: "#ff0f0f" },
         });
 
         expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
@@ -1251,18 +1210,11 @@ describe("conditional formats types", () => {
         ["hi", true],
         ["ahi", true],
       ])("a string %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "endsWithText",
-              values: ["hi"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "endsWithText",
+          values: ["hi"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1275,18 +1227,11 @@ describe("conditional formats types", () => {
         ["442", true],
         ["=442", true],
       ])("a number %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "endsWithText",
-              values: ["42"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "endsWithText",
+          values: ["42"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1295,18 +1240,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["12"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["12"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "5");
       expect(getStyle(model, "A1")).toEqual({});
@@ -1321,18 +1259,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan with simple reference", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["=A2"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1:B2"),
-        sheetId,
+      addCfRule(model, "A1:B2", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["=A2"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
@@ -1345,18 +1276,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan with full-fixed simple reference", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["=$A$2"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1:B2"),
-        sheetId,
+      addCfRule(model, "A1:B2", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["=$A$2"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "3");
       setCellContent(model, "B1", "1");
@@ -1369,18 +1293,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan with column-fixed simple reference", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["=$A2"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1:B2"),
-        sheetId,
+      addCfRule(model, "A1:B2", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["=$A2"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "3");
       setCellContent(model, "B1", "3");
@@ -1393,18 +1310,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan with row-fixed simple reference", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["=A$2"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1:B2"),
-        sheetId,
+      addCfRule(model, "A1:B2", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["=A$2"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "3");
       setCellContent(model, "B1", "1");
@@ -1417,18 +1327,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan with formula", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["=SUM(A1:B2)/4"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1:B2"),
-        sheetId,
+      addCfRule(model, "A1:B2", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["=SUM(A1:B2)/4"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
@@ -1443,18 +1346,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator GreaterThan with formula and fixed row/col", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterThan",
-            values: ["=SUM($A$1:$B$2)/4"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1:B2"),
-        sheetId,
+      addCfRule(model, "A1:B2", {
+        type: "CellIsRule",
+        operator: "isGreaterThan",
+        values: ["=SUM($A$1:$B$2)/4"],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
@@ -1471,36 +1367,22 @@ describe("conditional formats types", () => {
     });
 
     test("CF with spreading formula is disabled", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "notContainsText",
-            values: ["=MUNIT(3)"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "notContainsText",
+        values: ["=MUNIT(3)"],
+        style: { fillColor: "#ff0f0f" },
       });
 
       expect(getStyle(model, "A1")).toEqual({});
     });
 
     test("Operator GreaterThanOrEqual", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isGreaterOrEqualTo",
-            values: ["12"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isGreaterOrEqualTo",
+        values: ["12"],
+        style: { fillColor: "#ff0f0f" },
       });
 
       setCellContent(model, "A1", "5");
@@ -1518,18 +1400,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator LessThan", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isLessThan",
-            values: ["10"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isLessThan",
+        values: ["10"],
+        style: { fillColor: "#ff0f0f" },
       });
 
       setCellContent(model, "A1", "11");
@@ -1545,18 +1420,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator LessThanOrEqual", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isLessOrEqualTo",
-            values: ["10"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isLessOrEqualTo",
+        values: ["10"],
+        style: { fillColor: "#ff0f0f" },
       });
 
       setCellContent(model, "A1", "11");
@@ -1574,18 +1442,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator isNotBetween", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isNotBetween",
-            values: ["5", "10"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isNotBetween",
+        values: ["5", "10"],
+        style: { fillColor: "#ff0f0f" },
       });
 
       setCellContent(model, "A1", "4");
@@ -1611,18 +1472,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator textNotContains", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "notContainsText",
-            values: ["qsdf"],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "notContainsText",
+        values: ["qsdf"],
+        style: { fillColor: "#ff0f0f" },
       });
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
@@ -1646,18 +1500,11 @@ describe("conditional formats types", () => {
         ["highway to hell", true],
         [`="highway to hell"`, true],
       ])("a string %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "beginsWithText",
-              values: ["hi"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "beginsWithText",
+          values: ["hi"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1670,18 +1517,11 @@ describe("conditional formats types", () => {
         ["422", true],
         ["=422", true],
       ])("a number %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "beginsWithText",
-              values: ["42"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "beginsWithText",
+          values: ["42"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1696,18 +1536,11 @@ describe("conditional formats types", () => {
         ["aaa", true],
         ["42", true],
       ])("a string %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isNotEqual",
-              values: ["hi"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isNotEqual",
+          values: ["hi"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1721,18 +1554,11 @@ describe("conditional formats types", () => {
         ["aaa", true],
         ["422", true],
       ])("a number %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isNotEqual",
-              values: ["42"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isNotEqual",
+          values: ["42"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1746,18 +1572,11 @@ describe("conditional formats types", () => {
         ["aaa", true],
         ["42", true],
       ])("a date %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isNotEqual",
-              values: ["12/12/2021"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isNotEqual",
+          values: ["12/12/2021"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1772,18 +1591,11 @@ describe("conditional formats types", () => {
         ["aaa", false],
         ["42", false],
       ])("a string %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isEqual",
-              values: ["hi"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isEqual",
+          values: ["hi"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1797,18 +1609,11 @@ describe("conditional formats types", () => {
         ["aaa", false],
         ["422", false],
       ])("a number %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isEqual",
-              values: ["42"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isEqual",
+          values: ["42"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1822,18 +1627,11 @@ describe("conditional formats types", () => {
         ["aaa", false],
         ["42", false],
       ])("a date %s", (cellContent, shouldMatch) => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isEqual",
-              values: ["12/12/2021"],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isEqual",
+          values: ["12/12/2021"],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
@@ -1841,18 +1639,11 @@ describe("conditional formats types", () => {
       });
 
       test("With a formula value that can be parsed as a number", () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isEqual",
-              values: ['="42"'],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isEqual",
+          values: ['="42"'],
+          style: { fillColor: "#ff0f0f" },
         });
         setCellContent(model, "A1", "42");
         expect(getStyle(model, "A1")).toEqual({});
@@ -1862,18 +1653,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator IsEmpty", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isEmpty",
-            values: [],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isEmpty",
+        values: [],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "");
       expect(getStyle(model, "A1")).toEqual({
@@ -1904,18 +1688,11 @@ describe("conditional formats types", () => {
     });
 
     test("Operator IsNotEmpty", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: "isNotEmpty",
-            values: [],
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "isNotEmpty",
+        values: [],
+        style: { fillColor: "#ff0f0f" },
       });
       setCellContent(model, "A1", "");
       expect(getStyle(model, "A1")).toEqual({});
@@ -1927,6 +1704,102 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
+    });
+
+    test("Operator dateIs", () => {
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "dateIs",
+        dateValue: "exactDate",
+        values: ["10/10/2022"],
+        style: { fillColor: "#ff0f0f" },
+      });
+
+      setCellContent(model, "A1", "11/10/2022");
+      expect(getStyle(model, "A1")).toEqual({});
+
+      setCellContent(model, "A1", "10/10/2022");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator dateIsAfter", () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "dateIsAfter",
+        dateValue: "today",
+        values: ["10/10/2022"],
+        style: { fillColor: "#ff0f0f" },
+      });
+
+      setCellContent(model, "A1", "01/01/2021");
+      expect(getStyle(model, "A1")).toEqual({});
+
+      setCellContent(model, "A1", "01/02/2021");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      jest.useRealTimers();
+    });
+
+    test("Operator dateIsBefore", () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "dateIsBefore",
+        dateValue: "lastYear",
+        values: ["10/10/2022"],
+        style: { fillColor: "#ff0f0f" },
+      });
+
+      setCellContent(model, "A1", "01/01/2020");
+      expect(getStyle(model, "A1")).toEqual({});
+
+      setCellContent(model, "A1", "12/31/2019");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      jest.useRealTimers();
+    });
+
+    test("Operator dateIsOnOrBefore", () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "dateIsOnOrBefore",
+        dateValue: "today",
+        values: ["10/10/2022"],
+        style: { fillColor: "#ff0f0f" },
+      });
+
+      setCellContent(model, "A1", "01/02/2021");
+      expect(getStyle(model, "A1")).toEqual({});
+
+      setCellContent(model, "A1", "01/01/2021");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      jest.useRealTimers();
+    });
+
+    test("Operator dateIsOnOrAfter", () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+
+      addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: "dateIsOnOrAfter",
+        dateValue: "lastYear",
+        values: ["10/10/2022"],
+        style: { fillColor: "#ff0f0f" },
+      });
+
+      setCellContent(model, "A1", "12/31/2019");
+      expect(getStyle(model, "A1")).toEqual({});
+
+      setCellContent(model, "A1", "01/01/2020");
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      jest.useRealTimers();
     });
 
     test.each([
@@ -1955,18 +1828,11 @@ describe("conditional formats types", () => {
       ["isBetween", ["1", "1"]],
       ["isNotBetween", ["1", "1"]],
     ])("%s operator with valid number of arguments: %s", (operator: string, values: string[]) => {
-      const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: operator as ConditionalFormattingOperatorValues,
-            values: values,
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      const result = addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: operator as ConditionalFormattingOperatorValues,
+        values: values,
+        style: { fillColor: "#ff0f0f" },
       });
       expect(result).toBeSuccessfullyDispatched();
     });
@@ -1996,18 +1862,11 @@ describe("conditional formats types", () => {
       ["isBetween", ["", "1"]],
       ["isNotBetween", ["", "1"]],
     ])("%s operator with missing first argument %s", (operator: string, values: string[]) => {
-      const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: {
-            type: "CellIsRule",
-            operator: operator as ConditionalFormattingOperatorValues,
-            values: values,
-            style: { fillColor: "#ff0f0f" },
-          },
-          id: "11",
-        },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
+      const result = addCfRule(model, "A1", {
+        type: "CellIsRule",
+        operator: operator as ConditionalFormattingOperatorValues,
+        values: values,
+        style: { fillColor: "#ff0f0f" },
       });
       expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
     });
@@ -2015,18 +1874,11 @@ describe("conditional formats types", () => {
     test.each(["=$c:$2", "=suùù("])(
       "Invalid formula ('%s') cannot be set as CF value",
       (formula: string) => {
-        const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            rule: {
-              type: "CellIsRule",
-              operator: "isGreaterThan",
-              values: [formula],
-              style: { fillColor: "#ff0f0f" },
-            },
-            id: "11",
-          },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+        const result = addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: "isGreaterThan",
+          values: [formula],
+          style: { fillColor: "#ff0f0f" },
         });
         expect(result).toBeCancelledBecause(CommandResult.ValueCellIsInvalidFormula);
       }
@@ -2038,18 +1890,11 @@ describe("conditional formats types", () => {
     ["isNotBetween", ["1"]],
     ["isNotBetween", ["1", ""]],
   ])("%s operator with missing second argument %s", (operator: string, values: string[]) => {
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        rule: {
-          type: "CellIsRule",
-          operator: operator as ConditionalFormattingOperatorValues,
-          values: values,
-          style: { fillColor: "#ff0f0f" },
-        },
-        id: "11",
-      },
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
+    const result = addCfRule(model, "A1", {
+      type: "CellIsRule",
+      operator: operator as ConditionalFormattingOperatorValues,
+      values: values,
+      style: { fillColor: "#ff0f0f" },
     });
     expect(result).toBeCancelledBecause(CommandResult.SecondArgMissing);
   });
@@ -2057,18 +1902,11 @@ describe("conditional formats types", () => {
     ["isBetween", ["", ""]],
     ["isNotBetween", ["", ""]],
   ])("%s operator with both arguments missing %s", (operator: string, values: string[]) => {
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        rule: {
-          type: "CellIsRule",
-          operator: operator as ConditionalFormattingOperatorValues,
-          values: values,
-          style: { fillColor: "#ff0f0f" },
-        },
-        id: "11",
-      },
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
+    const result = addCfRule(model, "A1", {
+      type: "CellIsRule",
+      operator: operator as ConditionalFormattingOperatorValues,
+      values: values,
+      style: { fillColor: "#ff0f0f" },
     });
     expect(result).toBeCancelledBecause(
       CommandResult.FirstArgMissing,
@@ -2077,18 +1915,11 @@ describe("conditional formats types", () => {
   });
 
   test("CF with cell referencing empty cell is treated as zero", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        rule: {
-          values: ["0"],
-          operator: "isEqual",
-          type: "CellIsRule",
-          style: { fillColor: "#FF0FFF" },
-        },
-        id: "11",
-      },
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
+    addCfRule(model, "A1", {
+      values: ["0"],
+      operator: "isEqual",
+      type: "CellIsRule",
+      style: { fillColor: "#FF0FFF" },
     });
     setCellContent(model, "A1", "=B1");
     expect(getStyle(model, "A1")).toEqual({

@@ -1,4 +1,5 @@
 import { ICON_SETS, IconSetType } from "../../components/icons/icons";
+import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { colorNumberToHex } from "../../helpers/color";
 import {
   CellIsRule,
@@ -12,6 +13,7 @@ import {
   IconThreshold,
   ThresholdType,
 } from "../../types/conditional_formatting";
+import { DEFAULT_LOCALE } from "../../types/locale";
 import { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_ICONSET_MAP } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
@@ -116,6 +118,54 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
     case "isBetween":
     case "isNotBetween":
       return [values[0], values[1]];
+    case "dateIs":
+      switch (rule.dateValue) {
+        case "exactDate": {
+          const value = values[0].startsWith("=")
+            ? values[0].slice(1)
+            : (parseLiteral(values[0], DEFAULT_LOCALE) || "").toString();
+          const roundedValue = `ROUNDDOWN(${value},0)`;
+          return [`AND(${firstCell}>=${roundedValue},${firstCell}<${roundedValue}+1)`];
+        }
+        case "today":
+          return [`AND(${firstCell}>=TODAY(),${firstCell}<TODAY()+1)`];
+        case "yesterday":
+          return [`AND(${firstCell}>=TODAY()-1,${firstCell}<TODAY())`];
+        case "tomorrow":
+          return [`AND(${firstCell}>=TODAY()+1,${firstCell}<TODAY()+2)`];
+        case "lastWeek":
+          return [`AND(${firstCell}>=TODAY()-7,${firstCell}<TODAY())`];
+        case "lastMonth":
+          return [`AND(${firstCell}>=EDATE(TODAY(),-1),${firstCell}<TODAY())`];
+        case "lastYear":
+          return [`AND(${firstCell}>=EDATE(TODAY(),-12),${firstCell}<TODAY())`];
+        case undefined:
+          throw new Error("dateValue should be defined");
+      }
+    case "dateIsBefore":
+    case "dateIsAfter":
+    case "dateIsOnOrAfter":
+    case "dateIsOnOrBefore":
+      switch (rule.dateValue) {
+        case "exactDate":
+          return values[0].startsWith("=")
+            ? [values[0].slice(1)]
+            : [(parseLiteral(values[0], DEFAULT_LOCALE) || "").toString()];
+        case "today":
+          return ["TODAY()"];
+        case "yesterday":
+          return ["TODAY()-1"];
+        case "tomorrow":
+          return ["TODAY()+1"];
+        case "lastWeek":
+          return ["TODAY()-7"];
+        case "lastMonth":
+          return ["EDATE(TODAY(),-1)"];
+        case "lastYear":
+          return ["EDATE(TODAY(),-12)"];
+        case undefined:
+          throw new Error("dateValue should be defined");
+      }
   }
 }
 
@@ -141,7 +191,12 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
     case "isLessOrEqualTo":
     case "isBetween":
     case "isNotBetween":
+    case "dateIsBefore":
+    case "dateIsAfter":
+    case "dateIsOnOrAfter":
+    case "dateIsOnOrBefore":
       return [["type", "cellIs"]];
+    case "dateIs":
     case "customFormula":
       return [["type", "expression"]];
   }

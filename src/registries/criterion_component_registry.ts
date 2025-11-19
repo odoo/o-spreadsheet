@@ -13,8 +13,8 @@ export type CriterionCategory = "text" | "date" | "number" | "misc" | "list";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {
   list: 10,
   text: 20,
-  date: 30,
-  number: 40,
+  number: 30,
+  date: 40,
   misc: 50,
 };
 
