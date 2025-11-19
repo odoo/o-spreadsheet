@@ -228,6 +228,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
+    ev.preventDefault();
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(col, row, {
       expandZone: ev.shiftKey,
