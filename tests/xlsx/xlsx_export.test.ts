@@ -7,11 +7,12 @@ import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
 import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { CustomizedDataSet, Dimension } from "../../src/types";
+import { ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
 
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import {
+  addCfRule,
   createChart,
   createGaugeChart,
   createImage,
@@ -688,6 +689,80 @@ describe("Test XLSX export", () => {
         ],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    describe("Date conditional formats", () => {
+      const dateRule: ConditionalFormatRule = {
+        type: "CellIsRule",
+        operator: "dateIs",
+        values: [],
+        style: { fillColor: "#B6D7A8" },
+        dateValue: "exactDate",
+      };
+
+      test.each([
+        [{ dateValue: "today" }, "AND(A1>=TODAY(),A1<TODAY()+1)"],
+        [{ dateValue: "yesterday" }, "AND(A1>=TODAY()-1,A1<TODAY())"],
+        [{ dateValue: "tomorrow" }, "AND(A1>=TODAY()+1,A1<TODAY()+2)"],
+        [{ dateValue: "lastWeek" }, "AND(A1>=TODAY()-7,A1<TODAY())"],
+        [{ dateValue: "lastMonth" }, "AND(A1>=EDATE(TODAY(),-1),A1<TODAY())"],
+        [{ dateValue: "lastYear" }, "AND(A1>=EDATE(TODAY(),-12),A1<TODAY())"],
+        [
+          { dateValue: "exactDate", values: ["01/10/1900"] },
+          "AND(A1>=ROUNDDOWN(11,0),A1<ROUNDDOWN(11,0)+1)", // 11 is 01/10/1900 in date number
+        ],
+        [
+          { dateValue: "exactDate", values: ["=A1+1"] },
+          "AND(A1>=ROUNDDOWN(A1+1,0),A1<ROUNDDOWN(A1+1,0)+1)",
+        ],
+      ])("Can export a dateIs conditional format %s", async (rule, expectedFormula) => {
+        const model = new Model();
+        addCfRule(model, "A1", { ...dateRule, ...rule } as ConditionalFormatRule, "cf1");
+
+        const exportedXlsx = await model.exportXLSX();
+        const sheet = exportedXlsx.files.find((f) => f["contentType"] === "sheet")!["content"];
+        const xml = parseXML(sheet);
+
+        const rules = xml.querySelectorAll("conditionalFormatting > cfRule");
+        expect(rules.length).toBe(1);
+        expect(rules[0].getAttribute("type")).toBe("expression");
+        expect(rules[0].querySelector("formula")?.textContent).toBe(expectedFormula);
+      });
+
+      test.each([
+        [{ dateValue: "today", operator: "dateIsBefore" }, "lessThan", "TODAY()"],
+        [{ dateValue: "tomorrow", operator: "dateIsOnOrBefore" }, "lessThanOrEqual", "TODAY()+1"],
+        [{ dateValue: "yesterday", operator: "dateIsAfter" }, "greaterThan", "TODAY()-1"],
+        [{ dateValue: "lastWeek", operator: "dateIsOnOrAfter" }, "greaterThanOrEqual", "TODAY()-7"],
+        [{ dateValue: "lastMonth", operator: "dateIsAfter" }, "greaterThan", "EDATE(TODAY(),-1)"],
+        [{ dateValue: "lastYear", operator: "dateIsAfter" }, "greaterThan", "EDATE(TODAY(),-12)"],
+        [
+          { dateValue: "exactDate", operator: "dateIsBefore", values: ["01/10/1900"] },
+          "lessThan",
+          "11", // 01/10/1900 in date number
+        ],
+        [
+          { dateValue: "exactDate", operator: "dateIsBefore", values: ["=DATE(2025,12,30)"] },
+          "lessThan",
+          "DATE(2025,12,30)",
+        ],
+      ])(
+        "Can export a other date conditional formats %s",
+        async (rule, expectedOperator, expectedFormula) => {
+          const model = new Model();
+          addCfRule(model, "A1", { ...dateRule, ...rule } as ConditionalFormatRule, "cf1");
+
+          const exportedXlsx = await model.exportXLSX();
+          const sheet = exportedXlsx.files.find((f) => f["contentType"] === "sheet")!["content"];
+          const xml = parseXML(sheet);
+
+          const rules = xml.querySelectorAll("conditionalFormatting > cfRule");
+          expect(rules.length).toBe(1);
+          expect(rules[0].getAttribute("type")).toBe("cellIs");
+          expect(rules[0].getAttribute("operator")).toBe(expectedOperator);
+          expect(rules[0].querySelector("formula")?.textContent).toBe(expectedFormula);
+        }
+      );
     });
 
     test("Data validation", async () => {

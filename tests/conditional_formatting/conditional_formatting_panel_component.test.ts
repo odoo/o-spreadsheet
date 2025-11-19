@@ -277,6 +277,28 @@ describe("UI of conditional formats", () => {
       });
     });
 
+    test("can edit a date CellIsRule", async () => {
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
+      await nextTick();
+
+      await changeRuleOperatorType(fixture, "dateIs");
+      expect(".o-composer").toHaveClass("active");
+      editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "10/10/2025");
+
+      await click(fixture, selectors.ruleEditor.editor.bold);
+      await click(fixture, selectors.buttonSave);
+
+      const sheetId = model.getters.getActiveSheetId();
+      const cf = model.getters.getConditionalFormats(sheetId).find((c) => c.id === "1");
+      expect(cf?.rule).toEqual({
+        operator: "dateIs",
+        dateValue: "exactDate",
+        style: { bold: true, fillColor: "#FF0000" },
+        type: "CellIsRule",
+        values: ["10/10/2025"],
+      });
+    });
+
     test("Can cycle on reference (with F4) in a CellIsRule editor input", async () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       await changeRuleOperatorType(fixture, "beginsWithText");
