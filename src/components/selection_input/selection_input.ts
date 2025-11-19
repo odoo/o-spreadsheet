@@ -100,6 +100,13 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       () => this.focusedInput.el?.focus(),
       () => [this.focusedInput.el]
     );
+    useEffect(() => {
+      // Check the offsetParent to know if the input or an ancestor is `display: none` (eg. when changing side panel tab)
+      if (this.store.hasFocus && this.selectionRef.el?.offsetParent === null) {
+        this.reset();
+      }
+    });
+
     this.store = useLocalStore(
       SelectionInputStore,
       this.props.ranges,
