@@ -7,12 +7,12 @@
         t-key="dateValue.value"
         t-att-value="dateValue.value"
         t-esc="dateValue.title"
-        t-att-selected="dateValue.value === props.criterion.dateValue"
+        t-att-selected="dateValue.value === currentDateValue"
       />
     </select>
 
     <CriterionInput
-      t-if="props.criterion.dateValue === 'exactDate'"
+      t-if="currentDateValue === 'exactDate'"
       value="props.criterion.values[0]"
       onValueChanged.bind="onValueChanged"
       criterionType="props.criterion.type"
