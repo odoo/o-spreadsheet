@@ -24,6 +24,7 @@ import { SidePanelStore } from "../../../src/components/side_panel/side_panel/si
 import { toHex, toZone } from "../../../src/helpers";
 import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
+import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
   CHART_TYPES,
   ChartDefinition,
@@ -1119,6 +1120,22 @@ describe("charts", () => {
     const designTab = fixture.querySelector(".o-sidePanel-tab.inactive")!;
     await click(designTab);
     expect(chartPanel.scrollTop).toBe(100);
+  });
+
+  test("selection input is closed when switching tab", async () => {
+    createTestChart("basicChart");
+    await mountChartSidePanel();
+    const highlightStore = env.getStore(HighlightStore);
+
+    await simulateClick(".o-selection-input input");
+    expect(".o-selection-ok").toHaveCount(1);
+    expect(highlightStore.highlights.length).toBe(1);
+
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await nextTick(); // the check is done in a `useEffect`, we need to wait for the next render
+
+    expect(".o-selection-ok").toHaveCount(0);
+    expect(highlightStore.highlights.length).toBe(0);
   });
 
   describe.each(TEST_CHART_TYPES)("selecting other chart will adapt sidepanel", (chartType) => {

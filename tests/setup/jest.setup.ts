@@ -116,6 +116,31 @@ beforeEach(() => {
       // @ts-ignore
       this._setProperty("color", color);
     });
+
+  // offsetParent should return the nearest positioned ancestor, or null if an ancestor has `display: none`
+  jest
+    .spyOn(HTMLElement.prototype, "offsetParent", "get")
+    .mockImplementation(function (this: HTMLElement) {
+      for (let element: HTMLElement | null = this; element; element = element.parentElement) {
+        if (getComputedStyle(element).display === "none" || element.classList.contains("d-none")) {
+          return null;
+        }
+      }
+
+      if (
+        getComputedStyle(this).position === "fixed" ||
+        this.classList.contains("position-fixed")
+      ) {
+        return null;
+      }
+
+      if (this.tagName.toLowerCase() in ["html", "body"]) {
+        return null;
+      }
+
+      return this.parentElement; // should be nearest positioned ancestor, but simplified for tests
+    });
+
   patchSessionMove();
   /** this is the magic shit
    * ensures that we properly load every files from the library but
