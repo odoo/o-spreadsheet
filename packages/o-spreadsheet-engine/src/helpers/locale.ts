@@ -276,6 +276,11 @@ function changeCFRuleLocale(
         case "isLessThan":
         case "isLessOrEqualTo":
         case "customFormula":
+        case "dateIs":
+        case "dateIsBefore":
+        case "dateIsAfter":
+        case "dateIsOnOrAfter":
+        case "dateIsOnOrBefore":
           rule.values = rule.values.map((v) => changeContentLocale(v));
           return rule;
         case "beginsWithText":
