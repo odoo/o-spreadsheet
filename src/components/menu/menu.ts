@@ -118,10 +118,15 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   }
 
   isEnabled(menu: Action) {
-    if (menu.isEnabled(this.env)) {
-      return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+    const children = menu.children?.(this.env);
+    if (children.length) {
+      return children.some((child) => this.isEnabled(child));
+    } else {
+      if (menu.isEnabled(this.env)) {
+        return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+      }
+      return false;
     }
-    return false;
   }
 
   get menuStyle() {

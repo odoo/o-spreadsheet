@@ -1,7 +1,7 @@
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { ActionSpec, createActions } from "../../actions/action";
+import { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { isDateTimeFormat, memoize } from "../../helpers";
 import { Format } from "../../types";
@@ -138,7 +138,7 @@ export const formatNumberMenuItemSpec: ActionSpec = {
       if (customFormats.length > 0) {
         customFormats[customFormats.length - 1].separator = true;
       }
-      return createActions([...numberFormatMenuRegistry.getAll(), ...customFormats]);
+      return [...numberFormatMenuRegistry.getAll(), ...customFormats];
     },
   ],
 };

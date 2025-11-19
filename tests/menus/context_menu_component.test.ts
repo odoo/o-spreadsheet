@@ -449,33 +449,51 @@ describe("Context MenuPopover internal tests", () => {
     expect(menuItem2?.classList).toContain("o-menu-item-active");
   });
 
-  test("submenu does not open when disabled", async () => {
-    const menuItems: Action[] = createActions([
-      makeTestMenuItem("root", {
-        isEnabled: () => false,
-        children: [makeTestMenuItem("subMenu")],
-      }),
-    ]);
-    await renderContextMenu(300, 300, { menuItems });
-    expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
-    await simulateClick(".o-menu div[data-name='root']");
-    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
-  });
+  describe("IsEnabled is ignored on parent menu items", () => {
+    test("submenu opens even if the parent is disabled", async () => {
+      const menuItems: Action[] = createActions([
+        makeTestMenuItem("root", {
+          isEnabled: () => false,
+          children: [makeTestMenuItem("subMenu")],
+        }),
+      ]);
+      await renderContextMenu(300, 300, { menuItems });
+      expect(fixture.querySelector(".o-menu div[data-name='root']")!).not.toHaveClass("disabled");
+      await simulateClick(".o-menu div[data-name='root']");
+      expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    });
 
-  test("submenu does not open when hovering write only parent", async () => {
-    const menuItems: Action[] = createActions([
-      makeTestMenuItem("root", {
-        isReadonlyAllowed: false,
-        isEnabled: () => true,
-        children: [makeTestMenuItem("subMenu")],
-      }),
-    ]);
-    await renderContextMenu(300, 300, { menuItems });
-    model.updateMode("readonly");
-    await nextTick();
-    expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
-    await mouseOverMenuElement(".o-menu div[data-name='root']");
-    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
+    test("in readonly, submenu opens if the children are readonly and the parent write only", async () => {
+      const menuItems: Action[] = createActions([
+        makeTestMenuItem("root", {
+          isReadonlyAllowed: false,
+          isEnabled: () => false,
+          children: [makeTestMenuItem("subMenu", { isReadonlyAllowed: true })],
+        }),
+      ]);
+      await renderContextMenu(300, 300, { menuItems });
+      model.updateMode("readonly");
+      await nextTick();
+      expect(fixture.querySelector(".o-menu div[data-name='root']")!).not.toHaveClass("disabled");
+      await mouseOverMenuElement(".o-menu div[data-name='root']");
+      expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    });
+
+    test("in readonly, submenu opens if the children are readonly and the parent write only", async () => {
+      const menuItems: Action[] = createActions([
+        makeTestMenuItem("root", {
+          isReadonlyAllowed: false,
+          isEnabled: () => true,
+          children: [makeTestMenuItem("subMenu")],
+        }),
+      ]);
+      await renderContextMenu(300, 300, { menuItems });
+      model.updateMode("readonly");
+      await nextTick();
+      expect(fixture.querySelector(".o-menu div[data-name='root']")!).toHaveClass("disabled");
+      await mouseOverMenuElement(".o-menu div[data-name='root']");
+      expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    });
   });
 
   test("submenu does not close when sub item hovered", async () => {
