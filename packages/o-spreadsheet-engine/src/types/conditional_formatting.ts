@@ -1,3 +1,4 @@
+import { DateCriterionValue } from "./generic_criterion";
 import { Style, UID } from "./misc";
 import { Range } from "./range";
 
@@ -54,6 +55,7 @@ export interface CellIsRule extends SingleColorRule {
   operator: ConditionalFormattingOperatorValues;
   // can be one value for all operator except between, then it is 2 values
   values: string[];
+  dateValue?: DateCriterionValue;
 }
 export interface ExpressionRule extends SingleColorRule {
   type: "ExpressionRule";
@@ -154,38 +156,31 @@ export interface Top10Rule extends SingleColorRule {
 }
 //https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.conditionalformattingoperatorvalues?view=openxml-2.8.1
 // Note: IsEmpty and IsNotEmpty does not exist on the specification
-export type ConditionalFormattingOperatorValues =
-  | "beginsWithText"
-  | "isBetween"
-  | "containsText"
-  | "isEmpty"
-  | "isNotEmpty"
-  | "endsWithText"
-  | "isEqual"
-  | "isGreaterThan"
-  | "isGreaterOrEqualTo"
-  | "isLessThan"
-  | "isLessOrEqualTo"
-  | "isNotBetween"
-  | "notContainsText"
-  | "isNotEqual"
-  | "customFormula";
+
+const cfOperators = [
+  "containsText",
+  "notContainsText",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "beginsWithText",
+  "endsWithText",
+  "isNotEmpty",
+  "isEmpty",
+  "isNotEqual",
+  "isEqual",
+  "customFormula",
+  "dateIs",
+  "dateIsBefore",
+  "dateIsAfter",
+  "dateIsOnOrBefore",
+  "dateIsOnOrAfter",
+] as const;
+
+export type ConditionalFormattingOperatorValues = (typeof cfOperators)[number];
 
 export const availableConditionalFormatOperators: Set<ConditionalFormattingOperatorValues> =
-  new Set([
-    "containsText",
-    "notContainsText",
-    "isGreaterThan",
-    "isGreaterOrEqualTo",
-    "isLessThan",
-    "isLessOrEqualTo",
-    "isBetween",
-    "isNotBetween",
-    "beginsWithText",
-    "endsWithText",
-    "isNotEmpty",
-    "isEmpty",
-    "isNotEqual",
-    "isEqual",
-    "customFormula",
-  ]);
+  new Set(cfOperators);
