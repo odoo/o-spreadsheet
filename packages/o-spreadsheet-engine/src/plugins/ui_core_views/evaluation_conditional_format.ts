@@ -21,6 +21,7 @@ import {
   IconSetRule,
   IconThreshold,
 } from "../../types/conditional_formatting";
+import { EvaluatedCriterion, EvaluatedDateCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
@@ -373,9 +374,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       return false;
     }
 
-    const evaluatedCriterion = {
+    const evaluatedCriterion: EvaluatedCriterion | EvaluatedDateCriterion = {
       type: rule.operator,
       values: evaluatedCriterionValues.map(toScalar),
+      dateValue: rule.dateValue || "exactDate",
     };
     return evaluator.isValueValid(cell.value ?? "", evaluatedCriterion, this.getters, sheetId);
   }

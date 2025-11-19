@@ -1,3 +1,4 @@
+import { DateCriterionValue } from "./generic_criterion";
 import { Style, UID } from "./misc";
 import { Range } from "./range";
 
@@ -54,6 +55,7 @@ export interface CellIsRule extends SingleColorRule {
   operator: ConditionalFormattingOperatorValues;
   // can be one value for all operator except between, then it is 2 values
   values: string[];
+  dateValue?: DateCriterionValue;
 }
 export interface ExpressionRule extends SingleColorRule {
   type: "ExpressionRule";
@@ -169,6 +171,11 @@ export type ConditionalFormattingOperatorValues =
   | "isNotBetween"
   | "notContainsText"
   | "isNotEqual"
+  | "dateIs"
+  | "dateIsBefore"
+  | "dateIsAfter"
+  | "dateIsOnOrBefore"
+  | "dateIsOnOrAfter"
   | "customFormula";
 
 export const availableConditionalFormatOperators: Set<ConditionalFormattingOperatorValues> =
@@ -188,4 +195,9 @@ export const availableConditionalFormatOperators: Set<ConditionalFormattingOpera
     "isNotEqual",
     "isEqual",
     "customFormula",
+    "dateIs",
+    "dateIsBefore",
+    "dateIsAfter",
+    "dateIsOnOrBefore",
+    "dateIsOnOrAfter",
   ]);

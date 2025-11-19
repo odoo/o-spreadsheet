@@ -1,5 +1,4 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { DateCriterionValue, GenericDateCriterion } from "../../../../types";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";
@@ -18,19 +17,15 @@ export class DateCriterionForm extends CriterionForm<GenericDateCriterion> {
   static template = "o-spreadsheet-DataValidationDateCriterion";
   static components = { CriterionInput };
 
-  setup() {
-    super.setup();
-    const setupDefault = (props: this["props"]) => {
-      if (props.criterion.dateValue === undefined) {
-        this.updateCriterion({ dateValue: "exactDate" });
-      }
-    };
-    onWillUpdateProps(setupDefault);
-    onWillStart(() => setupDefault(this.props));
+  get currentDateValue() {
+    return this.props.criterion.dateValue || "exactDate";
   }
 
   onValueChanged(value: string) {
-    this.updateCriterion({ values: [value] });
+    this.updateCriterion({
+      values: [value],
+      dateValue: this.currentDateValue,
+    });
   }
 
   onDateValueChanged(ev: Event) {
