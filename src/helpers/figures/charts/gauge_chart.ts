@@ -143,6 +143,15 @@ export class GaugeChart extends AbstractChart {
   readonly background?: Color;
   readonly type = "gauge";
 
+  static allowedDefinitionKeys: readonly (keyof GaugeChartDefinition)[] = [
+    "type",
+    "title",
+    "background",
+    "humanize",
+    "dataRange",
+    "sectionRule",
+  ] as const;
+
   constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataRange = createValidRange(this.getters, this.sheetId, definition.dataRange);
@@ -267,7 +276,7 @@ export class GaugeChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      ...this,
+      ...this.getDefinition(),
       range: this.dataRange
         ? [{ dataRange: this.getters.getRangeString(this.dataRange, this.sheetId) }]
         : undefined,

@@ -58,7 +58,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "horizontal": undefined,
+          "horizontal": false,
           "showValues": false,
         },
         "legend": {

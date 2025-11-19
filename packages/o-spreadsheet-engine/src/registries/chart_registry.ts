@@ -27,6 +27,7 @@ export interface ChartBuilder {
     applyRange: RangeAdapter
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
+  allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
 }

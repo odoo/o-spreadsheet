@@ -15,5 +15,8 @@ export interface Validator {
    */
   chainValidations<T>(...validations: Validation<T>[]): Validation<T>;
 
-  checkValidations<T>(command: T, ...validations: Validation<T>[]): CommandResult | CommandResult[];
+  checkValidations<T>(
+    command: T,
+    ...validations: Validation<NoInfer<T>>[]
+  ): CommandResult | CommandResult[];
 }
