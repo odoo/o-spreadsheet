@@ -166,7 +166,9 @@ export function getRangeValues(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): (CellValue | undefined)[] {
-  return model.getters.getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc));
+  return model.getters
+    .getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc))
+    .map((cell) => cell.value);
 }
 
 /**
