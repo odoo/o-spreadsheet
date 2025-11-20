@@ -180,7 +180,7 @@ export function getLineChartDatasets(
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
-    let dataValues: (number | { x: number | undefined; y: number })[] = data.map((cell) =>
+    let dataValues: (number | { x: number; y: number })[] = data.map((cell) =>
       cell.type === CellValueType.number ? cell.value : 0
     );
 
