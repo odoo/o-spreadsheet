@@ -296,7 +296,8 @@ export const enum DIRECTION {
 
 export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
 export type ApplyRangeChangeResult =
-  | { changeType: Exclude<ChangeType, "NONE">; range: Range }
+  | { changeType: Exclude<ChangeType, "NONE" | "CHANGE">; range: Range }
+  | { changeType: "CHANGE"; range: Range; newName: string }
   | { changeType: "NONE" };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 
