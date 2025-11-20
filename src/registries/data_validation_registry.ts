@@ -14,7 +14,7 @@ import {
   isDateStrictlyBefore,
   isNotNull,
   isNumberBetween,
-  jsDateToRoundNumber,
+  jsDateToNumber,
   valueToDateNumber,
 } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
@@ -174,7 +174,7 @@ dataValidationEvaluatorRegistry.add("dateIs", {
     }
 
     if (["lastWeek", "lastMonth", "lastYear"].includes(criterion.dateValue)) {
-      const today = jsDateToRoundNumber(DateTime.now());
+      const today = Math.floor(jsDateToNumber(DateTime.now()));
       return isDateBetween(dateValue, today, criterionValue);
     }
 
