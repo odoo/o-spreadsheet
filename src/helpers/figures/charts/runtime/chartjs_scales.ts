@@ -7,11 +7,8 @@ import {
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
-import {
-  COLORSCHEMES,
-  getColorScale,
-  relativeLuminance,
-} from "@odoo/o-spreadsheet-engine/helpers/color";
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { COLORSCHEMES, getColorScale, relativeLuminance } from "@odoo/o-spreadsheet-engine/helpers/color";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -153,7 +150,10 @@ export function getCalendarColorScale(
   if (!dataSetsValues.length || definition.legendPosition === "none") {
     return undefined;
   }
-  const allValues = dataSetsValues.flatMap((ds) => ds.data).filter(isDefined);
+  const allValues = dataSetsValues
+    .flatMap((ds) => ds.data)
+    .filter(isNumberCell)
+    .map((cell) => cell.value);
   const minValue = Math.min(...allValues);
   const maxValue = Math.max(...allValues);
   let colorScale: Color[] = [];
@@ -329,7 +329,9 @@ export function getPyramidChartScales(
   scales!.x!.ticks!.callback = (value: number) => scalesXCallback(Math.abs(value));
 
   const maxValue = Math.max(
-    ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+    ...dataSetsValues.map((dataSet) =>
+      Math.max(...dataSet.data.filter(isNumberCell).map((x) => Math.abs(x.value)))
+    )
   );
   scales!.x!.suggestedMin = -maxValue;
   scales!.x!.suggestedMax = maxValue;
@@ -343,7 +345,9 @@ export function getRadarChartScales(
 ): ChartScales {
   const { locale, axisFormats, dataSetsValues } = args;
   const minValue = Math.min(
-    ...dataSetsValues.map((ds) => Math.min(...ds.data.filter((x) => !isNaN(x))))
+    ...dataSetsValues.map((ds) =>
+      Math.min(...ds.data.filter(isNumberCell).map((x) => x.value as number))
+    )
   );
   return {
     r: {
@@ -422,12 +426,20 @@ export function getFunnelChartScales(
       border: { display: false },
       ticks: {
         callback: function (tickValue, index, ticks) {
-          const value = dataSet.data?.[index];
-          const baseValue = dataSet.data?.[0];
-          if (!baseValue || value === undefined) {
+          const valueCell = dataSet.data?.[index];
+          const baseValueCell = dataSet.data?.[0];
+          if (
+            !baseValueCell?.value ||
+            valueCell?.value === null ||
+            !isNumberCell(valueCell) ||
+            !isNumberCell(baseValueCell)
+          ) {
             return "";
           }
-          return formatValue(value / baseValue, { format: "0%", locale: args.locale });
+          return formatValue(valueCell.value / baseValueCell.value, {
+            format: "0%",
+            locale: args.locale,
+          });
         },
       },
       grid: { display: false },
