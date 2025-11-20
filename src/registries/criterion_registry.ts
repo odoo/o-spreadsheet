@@ -12,7 +12,7 @@ import {
   isDateStrictlyAfter,
   isDateStrictlyBefore,
   isNumberBetween,
-  jsDateToRoundNumber,
+  jsDateToNumber,
   valueToDateNumber,
 } from "../helpers";
 import { detectLink } from "../helpers/links";
@@ -162,7 +162,7 @@ criterionEvaluatorRegistry.add("dateIs", {
     }
 
     if (["lastWeek", "lastMonth", "lastYear"].includes(criterion.dateValue)) {
-      const today = jsDateToRoundNumber(DateTime.now());
+      const today = Math.floor(jsDateToNumber(DateTime.now()));
       return isDateBetween(dateValue, today, criterionValue);
     }
 
