@@ -41,11 +41,13 @@ import {
   CellValue,
   CellValueType,
   DEFAULT_LOCALE,
+  EmptyCell,
   EvaluatedCell,
   Format,
   GenericDefinition,
   Getters,
   Locale,
+  NumberCell,
   Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
@@ -950,7 +952,7 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   }
   const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
 
-  let currentValues: EvaluatedCell[] = [];
+  let currentValues: (NumberCell | EmptyCell)[] = [];
   const leafDatasetIndex = dataSets.length - 1;
 
   for (let i = 0; i < minLength; i++) {
@@ -975,7 +977,7 @@ export function makeDatasetsCumulative(
   order: "asc" | "desc"
 ): DatasetValues[] {
   return datasets.map((dataset) => {
-    const data: number[] = [];
+    const data: (NumberCell | EmptyCell)[] = [];
     let accumulator = 0;
     const indexes =
       order === "asc" ? range(0, dataset.data.length) : range(0, dataset.data.length).reverse();
@@ -983,12 +985,12 @@ export function makeDatasetsCumulative(
       const cell = dataset.data[i];
       if (cell.type === CellValueType.number) {
         accumulator += cell.value;
-        data[i] = accumulator;
+        data[i] = { ...cell, value: accumulator };
       } else {
-        data[i] = cell.value;
+        data[i] = EMPTY_CELL;
       }
     }
-    return { ...dataset, data: data.map((value) => createEvaluatedCell({ value })) };
+    return { ...dataset, data };
   });
 }
 

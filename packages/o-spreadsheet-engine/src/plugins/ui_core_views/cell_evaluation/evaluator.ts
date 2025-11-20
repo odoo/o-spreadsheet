@@ -2,7 +2,7 @@ import { compile } from "../../../formulas/compiler";
 
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 
-import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
+import { CellValueType, EmptyCell, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   BadExpressionError,
   CellErrorType,
@@ -45,7 +45,9 @@ const MAX_ITERATION = 30;
 const ERROR_CYCLE_CELL = Object.freeze(
   createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
 );
-export const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
+export const EMPTY_CELL: EmptyCell = Object.freeze(
+  createEvaluatedCell({ value: null })
+) as EmptyCell;
 
 export class Evaluator {
   private readonly getters: Getters;
