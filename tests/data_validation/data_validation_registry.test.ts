@@ -25,12 +25,12 @@ describe("Data validation registry", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  beforeAll(() => {
+  beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("01/01/2021 12:00:00"));
   });
 
-  afterAll(() => {
+  afterEach(() => {
     jest.useRealTimers();
   });
 
@@ -193,16 +193,22 @@ describe("Data validation registry", () => {
       ["tomorrow", "01/02/2021", true],
       ["yesterday", "12/31/2020", true],
       ["yesterday", "01/01/2021", false],
-      ["lastWeek", "12/25/2020", true],
+      ["lastWeek", "01/01/2021", true],
+      ["lastWeek", "12/25/2020", false],
+      ["lastWeek", "12/25/2020 00:00:01", false],
+      ["lastWeek", "12/25/2020 23:59:59", false],
       ["lastWeek", "12/26/2020", true],
       ["lastWeek", "12/20/2020", false],
-      ["lastMonth", "12/01/2020", true],
-      ["lastMonth", "12/31/2020", true],
+      ["lastMonth", "12/01/2020", false],
+      ["lastMonth", "12/02/2020", true],
+      ["lastMonth", "01/01/2021", true],
+      ["lastMonth", "01/02/2021", false],
       ["lastMonth", "11/30/2020", false],
-      ["lastYear", "01/01/2020", true],
+      ["lastYear", "01/01/2020", false],
+      ["lastYear", "01/02/2020", true],
       ["lastYear", "12/31/2020", true],
       ["lastYear", "12/31/2019", false],
-    ])("Valid values %s %", (dateValue: any, testValue, expectedResult) => {
+    ])("Valid values %s %s", (dateValue: any, testValue, expectedResult) => {
       const dateCriterion: DataValidationDateCriterion = {
         ...criterion,
         dateValue: dateValue as DateCriterionValue,
@@ -211,6 +217,47 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(dateNumber, dateCriterion, getters, sheetId)).toEqual(
         expectedResult
       );
+    });
+
+    test("Last month/year work on edge cases", () => {
+      const testCriterion: DataValidationDateCriterion = { ...criterion, dateValue: "lastMonth" };
+
+      const isValueValid = (dateString: string) => {
+        const dateNumber = parseLiteral(dateString, DEFAULT_LOCALE);
+        return evaluator.isValueValid(dateNumber, testCriterion, getters, sheetId);
+      };
+
+      // Last day of month
+      jest.setSystemTime(new Date("2021-05-31 12:00:00"));
+      testCriterion.dateValue = "lastMonth";
+      expect(isValueValid("06/01/2021")).toEqual(false);
+      expect(isValueValid("05/31/2021")).toEqual(true);
+      expect(isValueValid("05/01/2021")).toEqual(true);
+      expect(isValueValid("04/30/2021")).toEqual(false);
+
+      // // Day in the end of march. There is no "31" in February, so last month is from today to March 1
+      jest.setSystemTime(new Date("2021-03-30 12:00:00"));
+      testCriterion.dateValue = "lastMonth";
+      expect(isValueValid("03/31/2021")).toEqual(false);
+      expect(isValueValid("03/30/2021")).toEqual(true);
+      expect(isValueValid("03/01/2021")).toEqual(true);
+      expect(isValueValid("02/28/2021")).toEqual(false);
+
+      // // Last day of year
+      jest.setSystemTime(new Date("2021-12-31 12:00:00"));
+      testCriterion.dateValue = "lastYear";
+      expect(isValueValid("12/31/2020")).toEqual(false);
+      expect(isValueValid("01/01/2021")).toEqual(true);
+      expect(isValueValid("12/31/2021")).toEqual(true);
+      expect(isValueValid("01/01/2022")).toEqual(false);
+
+      // Leap year. There is no 29 Feb in last year, so last year is from today to 28 Feb of last year
+      jest.setSystemTime(new Date("2020-02-29 12:00:00"));
+      testCriterion.dateValue = "lastYear";
+      expect(isValueValid("03/01/2020")).toEqual(false);
+      expect(isValueValid("02/29/2020")).toEqual(true);
+      expect(isValueValid("02/28/2019")).toEqual(true);
+      expect(isValueValid("02/27/2022")).toEqual(false);
     });
 
     test.each([
@@ -251,13 +298,14 @@ describe("Data validation registry", () => {
       ["tomorrow", "01/02/2021", false],
       ["yesterday", "12/30/2020", true],
       ["yesterday", "12/31/2020", false],
-      ["lastWeek", "12/25/2020", false],
+      ["lastWeek", "12/25/2020", true],
       ["lastWeek", "12/26/2020", false],
-      ["lastWeek", "12/20/2020", true],
-      ["lastMonth", "12/01/2020", false],
+      ["lastWeek", "12/27/2020", false],
+      ["lastMonth", "12/01/2020", true],
+      ["lastMonth", "12/02/2020", false],
       ["lastMonth", "12/31/2020", false],
-      ["lastMonth", "11/30/2020", true],
-      ["lastYear", "01/01/2020", false],
+      ["lastYear", "01/01/2020", true],
+      ["lastYear", "01/02/2020", false],
       ["lastYear", "12/31/2020", false],
     ])("Valid values %s %s", (dateValue: any, testValue, expectedResult) => {
       const dateCriterion: DataValidationDateCriterion = {
@@ -311,10 +359,13 @@ describe("Data validation registry", () => {
       ["yesterday", "12/31/2020", true],
       ["yesterday", "01/01/2021", false],
       ["lastWeek", "12/25/2020", true],
-      ["lastWeek", "12/26/2020", false],
+      ["lastWeek", "12/26/2020", true],
+      ["lastWeek", "12/27/2020", false],
       ["lastMonth", "12/01/2020", true],
+      ["lastMonth", "12/02/2020", true],
       ["lastMonth", "12/31/2020", false],
       ["lastYear", "01/01/2020", true],
+      ["lastYear", "01/02/2020", true],
       ["lastYear", "12/31/2020", false],
     ])("Valid values %s %s", (dateValue: any, testValue, expectedResult) => {
       const dateCriterion: DataValidationDateCriterion = {
@@ -365,11 +416,14 @@ describe("Data validation registry", () => {
       ["yesterday", "12/31/2020", false],
       ["yesterday", "01/01/2021", true],
       ["lastWeek", "12/25/2020", false],
-      ["lastWeek", "12/26/2020", true],
+      ["lastWeek", "12/26/2020", false],
+      ["lastWeek", "12/27/2020", true],
       ["lastMonth", "12/01/2020", false],
-      ["lastMonth", "12/02/2020", true],
+      ["lastMonth", "12/02/2020", false],
+      ["lastMonth", "12/31/2020", true],
       ["lastYear", "01/01/2020", false],
-      ["lastYear", "01/02/2020", true],
+      ["lastYear", "01/02/2020", false],
+      ["lastYear", "12/31/2020", true],
     ])("Valid values %s %s", (dateValue: any, testValue, expectedResult) => {
       const dateCriterion: DataValidationDateCriterion = {
         ...criterion,
@@ -422,15 +476,15 @@ describe("Data validation registry", () => {
       ["yesterday", "12/30/2020", false],
       ["yesterday", "12/31/2020", true],
       ["yesterday", "01/01/2021", true],
-      ["lastWeek", "12/24/2020", false],
-      ["lastWeek", "12/25/2020", true],
+      ["lastWeek", "12/25/2020", false],
       ["lastWeek", "12/26/2020", true],
-      ["lastMonth", "11/30/2020", false],
-      ["lastMonth", "12/01/2020", true],
+      ["lastWeek", "12/27/2020", true],
+      ["lastMonth", "12/01/2020", false],
       ["lastMonth", "12/02/2020", true],
-      ["lastYear", "12/31/2019", false],
-      ["lastYear", "01/01/2020", true],
+      ["lastMonth", "12/31/2020", true],
+      ["lastYear", "01/01/2020", false],
       ["lastYear", "01/02/2020", true],
+      ["lastYear", "12/31/2020", true],
     ])("Valid values %s %s", (dateValue: any, testValue, expectedResult) => {
       const dateCriterion: DataValidationDateCriterion = {
         ...criterion,
