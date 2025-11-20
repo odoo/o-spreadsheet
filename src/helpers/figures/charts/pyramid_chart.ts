@@ -32,6 +32,7 @@ import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import {
   ApplyRangeChange,
+  CellValueType,
   Color,
   CommandResult,
   Getters,
@@ -197,7 +198,13 @@ export class PyramidChart extends AbstractChart {
     const chartData = getPyramidChartData(definition, this.dataSets, this.labelRange, getters);
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
-      ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+      ...dataSetsValues.map((dataSet) =>
+        Math.max(
+          ...dataSet.data.map((cell) =>
+            cell.type === CellValueType.number ? Math.abs(cell.value) : -Infinity
+          )
+        )
+      )
     );
     return {
       ...definition,

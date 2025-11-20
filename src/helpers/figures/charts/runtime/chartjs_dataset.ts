@@ -180,17 +180,17 @@ export function getLineChartDatasets(
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
-    let dataValues: (number | { x: number; y: number })[] = data.map((cell) =>
-      cell.type === CellValueType.number ? cell.value : 0
-    );
+    let dataValues: (number | { x: number; y: number })[] = [];
 
     const color = colors.next();
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       dataValues = data.map((y, index) => ({
         x: labels[index] === "" ? NaN : Number(labels[index]),
-        y: y.value,
+        y: y.type === CellValueType.number ? y.value : NaN,
       }));
+    } else {
+      dataValues = data.map((cell) => (cell.type === CellValueType.number ? cell.value : 0));
     }
 
     const dataset: ChartDataset<"line"> = {

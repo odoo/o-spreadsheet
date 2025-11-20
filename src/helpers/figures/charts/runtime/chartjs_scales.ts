@@ -307,12 +307,20 @@ export function getFunnelChartScales(
       border: { display: false },
       ticks: {
         callback: function (tickValue, index, ticks) {
-          const value = dataSet.data?.[index].value;
-          const baseValue = dataSet.data?.[0].value;
-          if (!baseValue || value === null) {
+          const valueCell = dataSet.data?.[index];
+          const baseValueCell = dataSet.data?.[0];
+          if (
+            !baseValueCell?.value ||
+            valueCell?.value === null ||
+            valueCell.type !== CellValueType.number ||
+            baseValueCell.type !== CellValueType.number
+          ) {
             return "";
           }
-          return formatValue(value / baseValue, { format: "0%", locale: args.locale });
+          return formatValue(valueCell.value / baseValueCell.value, {
+            format: "0%",
+            locale: args.locale,
+          });
         },
       },
       grid: { display: false },
