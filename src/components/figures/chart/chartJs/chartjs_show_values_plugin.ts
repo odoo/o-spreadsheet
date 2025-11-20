@@ -34,7 +34,7 @@ export const chartShowValuesPlugin: Plugin = {
     ctx.save();
     const { left, top, height, width } = chart.chartArea;
     ctx.beginPath();
-    ctx.rect(left, top, width, height);
+    ctx.rect(left - 10, top - 10, width + 20, height + 20);
     ctx.clip();
 
     ctx.textAlign = "center";
@@ -52,6 +52,9 @@ export const chartShowValuesPlugin: Plugin = {
         options.horizontal
           ? drawHorizontalBarChartValues(chart, options, ctx)
           : drawLineOrBarOrRadarChartValues(chart, options, ctx);
+        break;
+      case "bubble":
+        drawBubbleChartValues(chart, options, ctx);
         break;
       case "funnel":
         drawHorizontalBarChartValues(chart, options, ctx);
@@ -97,6 +100,8 @@ function drawLineOrBarOrRadarChartValues(
       let yPosition = 0;
       if (chart.config.type === "line" || chart.config.type === "radar") {
         yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      } else if (chart.config.type === "bubble") {
+        yPosition = point.y;
       } else {
         const yZeroLine = yAxisScale.getPixelForValue(0);
         const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
@@ -127,6 +132,44 @@ function drawLineOrBarOrRadarChartValues(
       ctx.strokeStyle = options.background || "#ffffff";
       const valueToDisplay = options.callback(Number(value), dataset, i);
       drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBubbleChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+  const textsPositions: Record<number, number[]> = {};
+
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = parsedValue.y;
+      if (isNaN(value)) {
+        continue;
+      }
+
+      const point = dataset.data[i];
+      const xPosition = point.x;
+      let yPosition = Math.max(Math.min(point.y, yMax), yMin);
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < 13) {
+          yPosition = value < 0 ? otherPosition + 13 : otherPosition - 13;
+        }
+      }
+      textsPositions[xPosition].push(yPosition);
+      ctx.fillStyle = chartFontColor(point.options.backgroundColor);
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      ctx.fillText(valueToDisplay, xPosition, yPosition);
     }
   }
 }
