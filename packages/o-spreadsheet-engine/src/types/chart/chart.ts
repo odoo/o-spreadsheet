@@ -3,7 +3,7 @@ import { Align, Color, UID, VerticalAlign } from "../misc";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
-import { LegendPosition } from "./common_chart";
+import { ChartDataSource, LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
@@ -72,7 +72,7 @@ export interface ChartWithDataSetDefinition {
 
 export type ChartWithRangeDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: RangeChartDataSet[] }
+  { dataSource: ChartDataSource }
 >;
 
 export type ChartWithAxisDefinition = Extract<
@@ -207,6 +207,7 @@ export interface ExcelChartDefinition {
 
 export interface ChartCreationContext {
   readonly range?: RangeChartDataSet[];
+  readonly datasetsDesign?: Record<UID, DataSetDesign>;
   readonly hierarchicalRanges?: RangeChartDataSet[];
   readonly title?: TitleDesign;
   readonly background?: Color;

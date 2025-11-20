@@ -1,13 +1,10 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
-  checkDataset,
-  checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -23,7 +20,7 @@ import {
   TreeMapChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
-import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { ApplyRangeChange, Getters, Range, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -47,9 +44,8 @@ export class TreeMapChart extends AbstractChart {
   static allowedDefinitionKeys: readonly (keyof TreeMapChartDefinition)[] = [
     ...AbstractChart.commonKeys,
     "legendPosition",
-    "dataSets",
-    "dataSetsHaveTitle",
-    "labelRange",
+    "datasetsDesign",
+    "dataSource",
     "showHeaders",
     "headerDesign",
     "showLabels",
@@ -67,21 +63,6 @@ export class TreeMapChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: TreeMapChartDefinition,
-    applyChange: RangeAdapter
-  ): TreeMapChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: TreeMapChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {

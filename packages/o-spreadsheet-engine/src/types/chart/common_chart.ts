@@ -1,10 +1,12 @@
 import { Color, UID } from "../misc";
-import { AxesDesign, TitleDesign } from "./chart";
+import { AxesDesign, DataSetDesign, TitleDesign } from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";
 export type LegendPosition = "top" | "bottom" | "left" | "right" | "none";
 
 export interface CommonChartDefinition {
+  readonly datasetsDesign: Record<UID, DataSetDesign>;
+  readonly dataSource: ChartDataSource;
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

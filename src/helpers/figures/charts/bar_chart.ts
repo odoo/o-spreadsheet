@@ -1,16 +1,13 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  checkDataset,
-  checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -25,9 +22,8 @@ import {
   ExcelChartDefinition,
   RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
-import { ApplyRangeChange, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { ApplyRangeChange, UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
@@ -50,9 +46,8 @@ export class BarChart extends AbstractChart {
   static allowedDefinitionKeys: readonly (keyof BarChartDefinition)[] = [
     ...AbstractChart.commonKeys,
     "legendPosition",
-    "dataSets",
-    "dataSetsHaveTitle",
-    "labelRange",
+    "datasetsDesign",
+    "dataSource",
     "horizontal",
     "axesDesign",
     "stacked",
@@ -70,21 +65,6 @@ export class BarChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: BarChartDefinition,
-    applyChange: RangeAdapter
-  ): BarChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: BarChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {

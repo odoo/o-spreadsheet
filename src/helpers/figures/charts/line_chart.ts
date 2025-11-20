@@ -1,16 +1,13 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  checkDataset,
-  checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -25,7 +22,7 @@ import {
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { ApplyRangeChange, Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -45,9 +42,8 @@ export class LineChart extends AbstractChart {
   static allowedDefinitionKeys: readonly (keyof LineChartDefinition)[] = [
     ...AbstractChart.commonKeys,
     "legendPosition",
-    "dataSets",
-    "dataSetsHaveTitle",
-    "labelRange",
+    "datasetsDesign",
+    "dataSource",
     "labelsAsText",
     "stacked",
     "aggregated",
@@ -68,21 +64,6 @@ export class LineChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: LineChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: LineChartDefinition,
-    applyChange: RangeAdapter
-  ): LineChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {

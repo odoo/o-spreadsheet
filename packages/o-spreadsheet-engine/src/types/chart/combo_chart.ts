@@ -1,12 +1,11 @@
 import { ChartConfiguration } from "chart.js";
-import { Color, UID } from "../misc";
+import { Color } from "../misc";
 import { DataSetDesign } from "./chart";
-import { ChartDataSource, CommonChartDefinition } from "./common_chart";
+import { CommonChartDefinition } from "./common_chart";
 
 export interface ComboChartDefinition extends CommonChartDefinition {
-  readonly datasetsDesign: Record<UID, ComboDataSetDesign>;
-  readonly dataSource: ChartDataSource;
   readonly type: "combo";
+  readonly datasetsDesign: Record<string, ComboDataSetDesign>;
   readonly hideDataMarkers?: boolean;
   readonly zoomable?: boolean;
 }

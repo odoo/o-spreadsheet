@@ -2,8 +2,8 @@ import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
+  ChartDataSource,
   ChartWithDataSetDefinition,
-  ChartWithRangeDataSetDefinition,
   DataSet,
   DatasetValues,
   ExcelChartDataset,
@@ -325,32 +325,36 @@ export function toExcelLabelRange(
  * with an executed command
  */
 export function transformChartDefinitionWithDataSetsWithZone<
-  T extends ChartWithRangeDataSetDefinition
+  T extends { dataSource: ChartDataSource }
 >(chartSheetId: UID, definition: T, applyChange: RangeAdapter): T {
-  let labelRange: string | undefined;
-  if (definition.labelRange) {
-    const adaptedRange = adaptStringRange(chartSheetId, definition.labelRange, applyChange);
-    if (adaptedRange !== CellErrorType.InvalidReference) {
-      labelRange = adaptedRange;
+  switch (definition.dataSource.type) {
+    case "cells": {
+      const dataSource = definition.dataSource;
+      let labelRange: string | undefined;
+      if (dataSource.labelRange) {
+        const adaptedRange = adaptStringRange(chartSheetId, dataSource.labelRange, applyChange);
+        if (adaptedRange !== CellErrorType.InvalidReference) {
+          labelRange = adaptedRange;
+        }
+      }
+      const dataSets: RangeChartDataSet[] = [];
+      for (const dataSet of dataSource.dataSets) {
+        const newDataSet = { ...dataSet };
+        const adaptedRange = adaptStringRange(chartSheetId, dataSet.dataRange, applyChange);
+        if (adaptedRange !== CellErrorType.InvalidReference) {
+          newDataSet.dataRange = adaptedRange;
+          dataSets.push(newDataSet);
+        }
+      }
+      return {
+        ...definition,
+        dataSets,
+        labelRange,
+      };
     }
+    case "pivot":
+      return definition;
   }
-
-  const dataSets: RangeChartDataSet[] = [];
-  for (const dataSet of definition.dataSets) {
-    const newDataSet = { ...dataSet };
-    const adaptedRange = adaptStringRange(chartSheetId, dataSet.dataRange, applyChange);
-
-    if (adaptedRange !== CellErrorType.InvalidReference) {
-      newDataSet.dataRange = adaptedRange;
-      dataSets.push(newDataSet);
-    }
-  }
-
-  return {
-    ...definition,
-    dataSets,
-    labelRange,
-  };
 }
 
 /**
@@ -371,29 +375,30 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }
 
-export function checkDataset(definition: ChartWithRangeDataSetDefinition): CommandResult {
-  if (definition.dataSets) {
-    const invalidRanges =
-      definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
-    if (invalidRanges) {
-      return CommandResult.InvalidDataSet;
+export function checkChartDataSource(dataSource: ChartDataSource): CommandResult {
+  switch (dataSource.type) {
+    case "cells": {
+      const invalidRanges =
+        dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
+      if (invalidRanges) {
+        return CommandResult.InvalidDataSet;
+      }
+      const zones = dataSource.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
+      if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
+        return CommandResult.InvalidDataSet;
+      }
+      if (dataSource.labelRange) {
+        const invalidLabels = !rangeReference.test(dataSource.labelRange || "");
+        if (invalidLabels) {
+          return CommandResult.InvalidLabelRange;
+        }
+      }
+      return CommandResult.Success;
     }
-    const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
-    if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
-      return CommandResult.InvalidDataSet;
+    case "pivot": {
+      return CommandResult.Success;
     }
   }
-  return CommandResult.Success;
-}
-
-export function checkLabelRange(definition: ChartWithRangeDataSetDefinition): CommandResult {
-  if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
-    if (invalidLabels) {
-      return CommandResult.InvalidLabelRange;
-    }
-  }
-  return CommandResult.Success;
 }
 
 export function shouldRemoveFirstLabel(

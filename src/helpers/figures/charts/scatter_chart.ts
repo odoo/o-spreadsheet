@@ -1,10 +1,8 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  checkDataset,
-  checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -12,7 +10,6 @@ import {
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -30,7 +27,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { ApplyRangeChange, Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -50,9 +47,8 @@ export class ScatterChart extends AbstractChart {
   static allowedDefinitionKeys: readonly (keyof ScatterChartDefinition)[] = [
     ...AbstractChart.commonKeys,
     "legendPosition",
-    "dataSets",
-    "dataSetsHaveTitle",
-    "labelRange",
+    "datasetsDesign",
+    "dataSource",
     "showValues",
     "labelsAsText",
     "aggregated",
@@ -69,21 +65,6 @@ export class ScatterChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: ScatterChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: ScatterChartDefinition,
-    applyChange: RangeAdapter
-  ): ScatterChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScatterChartDefinition {

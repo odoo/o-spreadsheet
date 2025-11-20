@@ -1,13 +1,10 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
-  checkDataset,
-  checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -23,7 +20,7 @@ import {
   WaterfallChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
-import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { ApplyRangeChange, Getters, Range, UID } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -68,21 +65,6 @@ export class WaterfallChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: WaterfallChartDefinition,
-    applyChange: RangeAdapter
-  ): WaterfallChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: WaterfallChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): WaterfallChartDefinition {

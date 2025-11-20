@@ -7,6 +7,7 @@ import { Getters } from "../../../types/getters";
 import { RangeAdapter, UID } from "../../../types/misc";
 import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
+import { checkChartDataSource } from "./chart_common";
 import { generateMasterChartConfig } from "./runtime/chart_zoom";
 
 /**
@@ -64,6 +65,13 @@ export function validateChartDefinition(
     return CommandResult.InvalidChartDefinition;
   }
   return validators.validateChartDefinition(validator, definition);
+}
+
+export function validateChartWithDataSource(alidator: Validator, definition: ChartDefinition) {
+  if ("dataSource" in definition) {
+    return checkChartDataSource(definition.dataSource);
+  }
+  return CommandResult.Success;
 }
 
 /**
