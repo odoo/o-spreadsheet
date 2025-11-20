@@ -8,15 +8,21 @@ import {
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import {
+  createDataSets,
+  shouldRemoveFirstLabel,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { isNumber } from "@odoo/o-spreadsheet-engine/helpers/numbers";
+import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
   AxisType,
   BarChartDefinition,
+  ChartData,
+  ChartDataSource,
   ChartRuntimeGenerationArgs,
   DataSet,
   DatasetValues,
@@ -34,17 +40,43 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import { Point } from "chart.js";
 import {
   CellValue,
   DEFAULT_LOCALE,
+  EvaluatedCell,
   Format,
   GenericDefinition,
   Getters,
   Locale,
   Range,
+  UID,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
+
+function extractChartData(dataSource: ChartDataSource, sheetId: UID, getters: Getters): ChartData {
+  switch (dataSource.type) {
+    case "cells": {
+      const dataSets = createDataSets(
+        getters,
+        dataSource.dataSets,
+        sheetId,
+        dataSource.dataSetsHaveTitle
+      );
+      const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
+      const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+      const labels = labelValues.formattedValues;
+      const dataSetsValues = getChartDatasetValues(getters, dataSets);
+      return {
+        dataSetsValues,
+        axisFormats,
+        labels,
+      };
+    }
+    case "pivot": {
+      throw new Error("Not implemented yet");
+    }
+  }
+}
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -52,9 +84,6 @@ export function getBarChartData(
   labelRange: Range | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
@@ -661,15 +690,17 @@ function fixEmptyLabelsForDateCharts(
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
+export function getData(getters: Getters, ds: DataSet): (EvaluatedCell | undefined)[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
     if (dataZone === undefined) {
       return [];
     }
-    const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
-    return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
+    const { sheetId, zone } = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
+    return getters
+      .getEvaluatedCellsInZone(sheetId, zone)
+      .map((cell) => (cell.value === "" ? undefined : cell));
   }
   return [];
 }

@@ -1,5 +1,11 @@
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
-import { ChartCreationContext, ChartDefinition, ChartRuntime, ChartType } from "../types/chart";
+import {
+  ChartCreationContext,
+  ChartData,
+  ChartDefinition,
+  ChartRuntime,
+  ChartType,
+} from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
@@ -15,6 +21,7 @@ export interface ChartBuilder<T extends ChartDefinition> {
    * Check if this factory should be used
    */
   match: (type: T["type"]) => boolean;
+  extractData: (definition: T, sheetId: UID, getters: CoreGetters) => ChartData;
   createChart: (definition: T, sheetId: UID, getters: CoreGetters) => AbstractChart;
   getChartRuntime: (chart: AbstractChart, getters: Getters) => ChartRuntime;
   validateChartDefinition(validator: Validator, definition: T): CommandResult | CommandResult[];

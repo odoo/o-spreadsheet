@@ -21,6 +21,7 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
+import { EvaluatedCell } from "../cells";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Range } from "../range";
@@ -105,7 +106,7 @@ export interface LabelValues {
 
 export interface DatasetValues {
   readonly label?: string;
-  readonly data: any[];
+  readonly data: EvaluatedCell[];
   readonly hidden?: boolean;
 }
 
@@ -241,10 +242,12 @@ export interface ChartCreationContext {
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
 
-export interface ChartRuntimeGenerationArgs {
+export interface ChartData {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;
   labels: string[];
+}
+export interface ChartRuntimeGenerationArgs extends ChartData {
   locale: Locale;
   trendDataSetsValues?: (Point[] | undefined)[];
   axisType?: AxisType;
