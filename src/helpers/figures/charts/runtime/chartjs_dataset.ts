@@ -57,7 +57,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
 import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import {
+  CellValueType,
+  ChartRuntimeGenerationArgs,
+  Color,
+  GenericDefinition,
+} from "../../../../types";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -175,16 +180,19 @@ export function getLineChartDatasets(
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
+    let dataValues: (number | { x: string; y: number })[] = data.map((cell) =>
+      cell.type === CellValueType.number ? cell.value : 0
+    );
 
     const color = colors.next();
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
-      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
+      dataValues = data.map((y, index) => ({ x: labels[index] || undefined, y: y.value }));
     }
 
     const dataset: ChartDataset<"line"> = {
       label,
-      data,
+      data: dataValues,
       hidden,
       tension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
@@ -315,7 +323,7 @@ export function getRadarChartDatasets(
     const borderColor = colors.next();
     const dataset: ChartDataset<"radar"> = {
       label,
-      data,
+      data: data.map((cell) => cell.value),
       hidden,
       borderColor,
       backgroundColor: borderColor,
@@ -354,7 +362,10 @@ export function getGeoChartDatasets(
         }
         const featureId = args.geoFeatureNameToId(regionName, labels[i]);
         if (featureId) {
-          labelsAndValues[featureId] = { value: dataSetsValues[0].data[i], label: labels[i] };
+          labelsAndValues[featureId] = {
+            value: dataSetsValues[0].data[i].value ?? 0,
+            label: labels[i],
+          };
         }
       }
     }
@@ -391,7 +402,9 @@ export function getFunnelChartDatasets(
 
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
-    data: data.map((value) => (value <= 0 ? [0, 0] : [-value, value])),
+    data: data.map((cell) =>
+      cell.type === CellValueType.number && cell.value <= 0 ? [0, 0] : [-cell.value, cell.value]
+    ),
     backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
     yAxisID: "y",
     xAxisID: "x",

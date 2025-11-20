@@ -21,7 +21,7 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-import { EvaluatedCell } from "../cells";
+import { EmptyCell, NumberCell } from "../cells";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Range } from "../range";
@@ -94,7 +94,7 @@ export interface LabelValues {
 
 export interface DatasetValues {
   readonly label?: string;
-  readonly data: EvaluatedCell[];
+  readonly data: (NumberCell | EmptyCell)[];
   readonly hidden?: boolean;
 }
 

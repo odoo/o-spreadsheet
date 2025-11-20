@@ -978,13 +978,14 @@ export function makeDatasetsCumulative(
     const data: number[] = [];
     let accumulator = 0;
     const indexes =
-      order === "asc" ? Object.keys(dataset.data) : Object.keys(dataset.data).reverse();
+      order === "asc" ? range(0, dataset.data.length) : range(0, dataset.data.length).reverse();
     for (const i of indexes) {
-      if (!isNaN(parseFloat(dataset.data[i]))) {
-        accumulator += parseFloat(dataset.data[i]);
+      const cell = dataset.data[i];
+      if (cell.type === CellValueType.number) {
+        accumulator += cell.value;
         data[i] = accumulator;
       } else {
-        data[i] = dataset.data[i].value;
+        data[i] = cell.value;
       }
     }
     return { ...dataset, data: data.map((value) => createEvaluatedCell({ value })) };
