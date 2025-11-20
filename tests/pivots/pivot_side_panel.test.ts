@@ -57,6 +57,20 @@ describe("Pivot side panel", () => {
     expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
   });
 
+  test("Can change the active panel tab with the panel props", async () => {
+    env.openSidePanel("PivotSidePanel", { pivotId: "2", openTab: "design" });
+    await nextTick();
+    expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" }); // defaults to configuration
+    await nextTick();
+    expect(".o-sidePanel-tab.o-panel-design").toHaveClass("inactive");
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "2", openTab: "design" });
+    await nextTick();
+    expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
+  });
+
   test("It should close the side panel when clicking on delete in the editor", async () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();

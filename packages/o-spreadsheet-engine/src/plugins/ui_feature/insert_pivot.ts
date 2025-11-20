@@ -1,11 +1,12 @@
-import { PIVOT_TABLE_CONFIG } from "../../constants";
+import { PIVOT_INSERT_TABLE_STYLE_ID, PIVOT_STATIC_TABLE_CONFIG } from "../../constants";
 import { getUniqueText, sanitizeSheetName } from "../../helpers/misc";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
+import { pivotTableStyleIdToTableStyleId } from "../../helpers/pivot_table_presets";
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { Command, CommandResult } from "../../types/commands";
-import { CellPosition, HeaderIndex, UID, Zone } from "../../types/misc";
+import { CellPosition, HeaderIndex, UID } from "../../types/misc";
 import { PivotTableCell, PivotTableData } from "../../types/pivot";
 import { UIPlugin } from "../ui_plugin";
 
@@ -66,6 +67,7 @@ export class InsertPivotPlugin extends UIPlugin {
         measures: [],
         name: _t("New pivot"),
         type: "SPREADSHEET",
+        style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       },
     });
 
@@ -144,23 +146,14 @@ export class InsertPivotPlugin extends UIPlugin {
     const pivotTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
     const numberOfHeaders = pivotTable.columns.length - 1;
     this.resizeSheet(sheetId, col, row, pivotTable);
-    const pivotFormulaId = this.getters.getPivotFormulaId(pivotId);
-
-    let zone: Zone;
 
     if (mode === "dynamic") {
       this.dispatch("UPDATE_CELL", {
         sheetId,
         col,
         row,
-        content: `=PIVOT(${pivotFormulaId})`,
+        content: `=PIVOT(${this.getters.getPivotFormulaId(pivotId)})`,
       });
-      zone = {
-        left: col,
-        right: col,
-        top: row,
-        bottom: row,
-      };
     } else {
       this.dispatch("INSERT_PIVOT", {
         sheetId,
@@ -169,20 +162,19 @@ export class InsertPivotPlugin extends UIPlugin {
         pivotId,
         table: pivotTable.export(),
       });
-      zone = {
+      const zone = {
         left: col,
         right: col + pivotTable.getNumberOfDataColumns(),
         top: row,
         bottom: row + numberOfHeaders + pivotTable.rows.length,
       };
+      this.dispatch("CREATE_TABLE", {
+        tableType: "static",
+        sheetId,
+        ranges: [this.getters.getRangeDataFromZone(sheetId, zone)],
+        config: { ...PIVOT_STATIC_TABLE_CONFIG, numberOfHeaders },
+      });
     }
-
-    this.dispatch("CREATE_TABLE", {
-      tableType: mode,
-      sheetId,
-      ranges: [this.getters.getRangeDataFromZone(sheetId, zone)],
-      config: { ...PIVOT_TABLE_CONFIG, numberOfHeaders },
-    });
   }
 
   private resizeSheet(
@@ -220,7 +212,10 @@ export class InsertPivotPlugin extends UIPlugin {
   }
 
   splitPivotFormula(sheetId: UID, col: HeaderIndex, row: HeaderIndex, pivotId: UID) {
-    const spreadZone = this.getters.getSpreadZone({ sheetId, col, row });
+    const position: CellPosition = { sheetId, col, row };
+    const spreadZone = this.getters.getSpreadZone(position);
+    const table = this.getters.getTable(position);
+
     if (!spreadZone) {
       return;
     }
@@ -240,15 +235,17 @@ export class InsertPivotPlugin extends UIPlugin {
       });
     }
 
-    const table = this.getters.getCoreTable({ sheetId, col, row });
-    if (table?.type === "dynamic") {
-      const zone = positionToZone({ col, row });
+    if (this.getters.getCoreTable(position)) {
+      this.dispatch("REMOVE_TABLE", { sheetId, target: [positionToZone(position)] });
+    }
+
+    if (table?.isPivotTable) {
       const rangeData = this.getters.getRangeDataFromZone(sheetId, spreadZone);
-      this.dispatch("UPDATE_TABLE", {
-        sheetId,
-        zone,
-        newTableRange: rangeData,
+      this.dispatch("CREATE_TABLE", {
         tableType: "static",
+        sheetId,
+        ranges: [rangeData],
+        config: { ...table.config, styleId: pivotTableStyleIdToTableStyleId(table.config.styleId) },
       });
     }
   }

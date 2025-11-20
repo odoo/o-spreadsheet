@@ -20,6 +20,7 @@ import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
+  blendColors,
   computeRotationPosition,
   computeTextFont,
   computeTextFontSizeInPixels,
@@ -197,7 +198,7 @@ export class GridRenderer extends SpreadsheetStore {
 
     if (areGridLinesVisible) {
       for (const box of boxes) {
-        if (box.skipCellGridLines) continue;
+        if (box.style.hideGridLines) continue;
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
@@ -211,7 +212,7 @@ export class GridRenderer extends SpreadsheetStore {
       const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        ctx.fillRect(box.x - 0.5, box.y - 0.5, box.width + 1, box.height + 1);
       }
       if (box.dataBarFill) {
         ctx.fillStyle = box.dataBarFill.color;
@@ -219,22 +220,22 @@ export class GridRenderer extends SpreadsheetStore {
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
       }
+      if (box.overlayColor) {
+        ctx.fillStyle = blendColors(style.fillColor || "#ffffff", box.overlayColor);
+        ctx.fillRect(box.x - 0.5, box.y - 0.5, box.width + 1, box.height + 1);
+      }
       if (box?.chip) {
         ctx.save();
         ctx.beginPath();
         ctx.rect(box.x, box.y, box.width, box.height);
         ctx.clip();
         const chip = box.chip;
-        ctx.fillStyle = chip.color;
+        ctx.fillStyle = box.overlayColor ? blendColors(chip.color, box.overlayColor) : chip.color;
         const radius = 10;
         ctx.beginPath();
         ctx.roundRect(chip.x, chip.y, chip.width, chip.height, radius);
         ctx.fill();
         ctx.restore();
-      }
-      if (box.overlayColor) {
-        ctx.fillStyle = box.overlayColor;
-        ctx.fillRect(box.x, box.y, box.width, box.height);
       }
       if (box.isError) {
         ctx.fillStyle = "red";

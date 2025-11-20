@@ -1,6 +1,5 @@
-import { splitReference } from "../helpers";
+import { doesCellContainFormula, splitReference } from "../helpers";
 import { toZone } from "../helpers/zones";
-import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
 import { EvaluatedCell } from "../types/cells";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
@@ -1410,7 +1409,7 @@ export const SUBTOTAL = {
 
         for (let col = left; col <= right; col++) {
           const cell = this.getters.getCell({ sheetId, col, row });
-          if (!cell || !isSubtotalCell(cell)) {
+          if (!cell || !doesCellContainFormula(cell, "SUBTOTAL")) {
             evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
           }
         }
