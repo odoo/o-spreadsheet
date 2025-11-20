@@ -6,17 +6,27 @@ function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate
   const today = DateTime.now();
   switch (dateValue) {
     case "today":
-      return jsDateToNumber(today);
-    case "yesterday":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setDate(today.getDate() - 1)));
-    case "tomorrow":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setDate(today.getDate() + 1)));
+      return Math.floor(jsDateToNumber(today));
+    case "yesterday": {
+      today.setDate(today.getDate() - 1);
+      return Math.floor(jsDateToNumber(today));
+    }
+    case "tomorrow": {
+      today.setDate(today.getDate() + 1);
+      return Math.floor(jsDateToNumber(today));
+    }
     case "lastWeek":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setDate(today.getDate() - 7)));
-    case "lastMonth":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setMonth(today.getMonth() - 1)));
+      today.setDate(today.getDate() - 6);
+      return Math.floor(jsDateToNumber(today));
+    case "lastMonth": {
+      today.setDate(today.getDate() + 1);
+      today.setMonth(today.getMonth() - 1);
+      return Math.floor(jsDateToNumber(today));
+    }
     case "lastYear":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setFullYear(today.getFullYear() - 1)));
+      today.setDate(today.getDate() + 1);
+      today.setFullYear(today.getFullYear() - 1);
+      return Math.floor(jsDateToNumber(today));
   }
 }
 
