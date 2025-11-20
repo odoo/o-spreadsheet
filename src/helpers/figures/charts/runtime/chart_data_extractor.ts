@@ -952,7 +952,7 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   }
   const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
 
-  let currentValues: (NumberCell | EmptyCell)[] = [];
+  let currentValues: EvaluatedCell[] = [];
   const leafDatasetIndex = dataSets.length - 1;
 
   for (let i = 0; i < minLength; i++) {

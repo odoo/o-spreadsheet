@@ -136,20 +136,20 @@ export function getWaterfallDatasetAndLabels(
       continue;
     }
     for (let i = 0; i < dataSetsValue.data.length; i++) {
-      const data = dataSetsValue.data[i];
+      const cell = dataSetsValue.data[i];
       labelsWithSubTotals.push(labels[i]);
-      if (isNaN(Number(data))) {
+      if (cell.type !== CellValueType.number) {
         datasetValues.push([lastValue, lastValue]);
         backgroundColor.push("");
         continue;
       }
-      datasetValues.push([lastValue, data + lastValue]);
-      let color = data >= 0 ? positiveColor : negativeColor;
+      datasetValues.push([lastValue, cell.value + lastValue]);
+      let color = cell.value >= 0 ? positiveColor : negativeColor;
       if (i === 0 && dataSetsValue === dataSetsValues[0] && definition.firstValueAsSubtotal) {
         color = subTotalColor;
       }
       backgroundColor.push(color);
-      lastValue += data;
+      lastValue += cell.value;
     }
     if (definition.showSubTotals) {
       labelsWithSubTotals.push(_t("Subtotal"));
@@ -247,7 +247,7 @@ export function getPieChartDatasets(
       backgroundColor,
       hoverOffset: 10,
     };
-    dataSets!.push(dataset);
+    dataSets.push(dataset);
   }
   return dataSets;
 }
@@ -403,7 +403,7 @@ export function getFunnelChartDatasets(
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
     data: data.map((cell) =>
-      cell.type === CellValueType.number && cell.value <= 0 ? [0, 0] : [-cell.value, cell.value]
+      cell.type === CellValueType.number && cell.value <= 0 ? [0, 0] : [-cell?.value, cell.value]
     ),
     backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
     yAxisID: "y",
