@@ -1,5 +1,6 @@
 import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
@@ -189,7 +190,11 @@ export class PyramidChart extends AbstractChart {
     const chartData = getPyramidChartData(definition, this.dataSets, this.labelRange, getters);
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
-      ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+      ...dataSetsValues.map((dataSet) =>
+        Math.max(
+          ...dataSet.data.map((cell) => (isNumberCell(cell) ? Math.abs(cell.value) : -Infinity))
+        )
+      )
     );
     return {
       ...definition,

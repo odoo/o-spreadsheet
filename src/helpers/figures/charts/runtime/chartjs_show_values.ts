@@ -1,3 +1,4 @@
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   chartFontColor,
   formatChartDatasetValue,
@@ -40,11 +41,10 @@ export function getCalendarChartShowValues(
 ): ChartShowValuesPluginOptions {
   const { locale, axisFormats } = args;
   let background = (_value, dataset, index) => definition.background;
-  const values =
-    args.dataSetsValues
-      .flat()
-      .map((dsv) => dsv?.data.filter((v) => v !== null && v !== undefined))
-      .flat() || [];
+  const values = args.dataSetsValues
+    .flat()
+    .flatMap((dsv) => dsv?.data.filter(isNumberCell))
+    .map((cell) => cell.value);
   if (values.length) {
     const min = Math.min(...values);
     const max = Math.max(...values);
