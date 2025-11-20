@@ -21,7 +21,7 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-import { Align, Color, VerticalAlign } from "../..";
+import { Align, Color, FunctionResultObject, VerticalAlign } from "../..";
 import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
@@ -104,7 +104,7 @@ export interface LabelValues {
 
 export interface DatasetValues {
   readonly label?: string;
-  readonly data: any[];
+  readonly data: FunctionResultObject[];
   readonly hidden?: boolean;
 }
 
