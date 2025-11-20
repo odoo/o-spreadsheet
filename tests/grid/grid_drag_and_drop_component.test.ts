@@ -9,14 +9,17 @@ import {
   addColumns,
   addRows,
   createSheet,
-  deleteSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
   hideRows,
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
-import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  edgeScrollDelay,
+  triggerKeyboardEvent,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 // As we test an isolated component, grid and gridOverlay won't exist
@@ -416,7 +419,7 @@ test("Drag&drop is stopped when the calling component is unmounted", async () =>
   jest.advanceTimersByTime(advanceTimer);
   expect(selectedCol).toEqual(1);
   expect(mouseUpFn).toHaveBeenCalledTimes(1);
-  expect(spyRemoveEventListener).toHaveBeenCalledTimes(4);
+  expect(spyRemoveEventListener).toHaveBeenCalledTimes(5);
 });
 
 test("Drag&drop is stopped when mouseup is called on an element that stops pointer events", async () => {
@@ -454,27 +457,15 @@ test("drag And Drop is based on the current active sheet", async () => {
   });
 });
 
-test("drag And Drop is stopped if the current sheet is deleted", async () => {
-  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
-  createSheet(model, { sheetId: "sh2", activate: true });
-  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
-  await nextTick();
-
-  expect(model.getters.getActiveMainViewport()).toMatchObject({
-    left: 6,
-    right: 16,
-  });
-  const { height } = model.getters.getSheetViewDimension();
-  triggerMouseEvent(".o-fake-grid", "pointerdown", DEFAULT_CELL_WIDTH, 0.5 * height);
-  deleteSheet(model, "sh2");
-  await nextTick();
-  triggerMouseEvent(".o-fake-grid", "pointermove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
-  const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_WIDTH, 1);
-
-  jest.advanceTimersByTime(advanceTimer);
-  triggerMouseEvent(".o-fake-grid", "pointerup", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
-  expect(model.getters.getActiveMainViewport()).toMatchObject({
-    left: 6,
-    right: 16,
-  });
+test("keyboard inputs are blocked during Drag And Drop", async () => {
+  const target = document.querySelector(".o-fake-grid")!;
+  triggerMouseEvent(".o-fake-grid", "pointerdown");
+  let ev = triggerKeyboardEvent(target, "keydown", { key: "A" });
+  expect(ev.defaultPrevented).toBeTruthy();
+  triggerMouseEvent(".o-fake-grid", "pointermove");
+  ev = triggerKeyboardEvent(target, "keydown", { key: "A" });
+  expect(ev.defaultPrevented).toBeTruthy();
+  triggerMouseEvent(".o-fake-grid", "pointerup");
+  ev = triggerKeyboardEvent(target, "keydown", { key: "A" });
+  expect(ev.defaultPrevented).toBeFalsy();
 });

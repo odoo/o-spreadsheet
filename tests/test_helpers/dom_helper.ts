@@ -218,7 +218,7 @@ export function getGridIconEventPosition(model: Model, xc: string) {
 
 export async function clickGridIcon(model: Model, xc: string) {
   const { x, y } = getGridIconEventPosition(model, xc);
-  triggerMouseEvent(".o-grid-overlay", "pointerdown", x, y);
+  simulateClick(".o-grid-overlay", x, y);
   await nextTick();
 }
 
@@ -297,6 +297,7 @@ export function triggerKeyboardEvent(
 ) {
   const ev = new KeyboardEvent(type, { bubbles: true, cancelable: true, ...eventArgs });
   dispatchEvent(selector, ev);
+  return ev;
 }
 
 function dispatchEvent(selector: string | EventTarget, ev: Event) {
