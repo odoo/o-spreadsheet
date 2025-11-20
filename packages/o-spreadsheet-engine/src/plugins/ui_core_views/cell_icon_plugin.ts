@@ -60,6 +60,9 @@ export class CellIconPlugin extends CoreViewPlugin {
   }
 
   private computeCellIcons(position: CellPosition): GridIcon[] {
+    if (position.col === 0 && position.row === 0) {
+      console.log("uwu");
+    }
     const icons: IconsOfCell = { left: undefined, right: undefined, center: undefined };
     const callbacks = iconsOnCellRegistry.getAll();
     for (const callback of callbacks) {

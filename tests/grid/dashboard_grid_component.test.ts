@@ -1,3 +1,4 @@
+import { CHECKBOX_CHECKED } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -6,7 +7,8 @@ import {
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { Spreadsheet } from "../../src";
+import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
+import { Align, Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import {
@@ -220,5 +222,54 @@ describe("Grid component in dashboard mode", () => {
     expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
       "hello Magical Françoise"
     );
+  });
+
+  test("Clickable cell size is reduced based on the icon on the cell", async () => {
+    let horizontalAlign: Exclude<Align, undefined> = "center";
+    addToRegistry(clickableCellRegistry, "fake", {
+      condition: (position, getters) => {
+        return position.row === 0 && position.col === 0;
+      },
+      execute: () => () => {},
+      sequence: 5,
+    });
+    addToRegistry(iconsOnCellRegistry, "test_icon", (getters, position) => {
+      if (position.col !== 0 || position.row !== 0) {
+        return undefined;
+      }
+      console.log("computing icon for", horizontalAlign);
+      return {
+        horizontalAlign: horizontalAlign,
+        size: 20,
+        margin: 2,
+        type: "debug_icon",
+        position,
+        priority: 1,
+        svg: CHECKBOX_CHECKED,
+        onClick: () => {},
+      };
+    });
+    model.updateMode("dashboard");
+    await nextTick();
+
+    horizontalAlign = "center";
+    expect("div.o-dashboard-clickable-cell").toHaveCount(0);
+
+    horizontalAlign = "right";
+    model.dispatch("EVALUATE_CELLS");
+    await nextTick();
+    expect("div.o-dashboard-clickable-cell").toHaveStyle({
+      x: "0px",
+      width: DEFAULT_CELL_WIDTH - 20 - 2 + "px",
+      height: DEFAULT_CELL_HEIGHT + "px",
+    });
+
+    horizontalAlign = "left";
+    model.dispatch("EVALUATE_CELLS");
+    await nextTick();
+    expect("div.o-dashboard-clickable-cell").toHaveStyle({
+      width: DEFAULT_CELL_WIDTH - 20 - 2 + "px",
+      height: DEFAULT_CELL_HEIGHT + "px",
+    });
   });
 });
