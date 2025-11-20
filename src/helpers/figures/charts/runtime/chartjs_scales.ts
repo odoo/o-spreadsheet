@@ -299,9 +299,9 @@ export function getFunnelChartScales(
       border: { display: false },
       ticks: {
         callback: function (tickValue, index, ticks) {
-          const value = dataSet.data?.[index];
-          const baseValue = dataSet.data?.[0];
-          if (!baseValue || value === undefined) {
+          const value = dataSet.data?.[index].value;
+          const baseValue = dataSet.data?.[0].value;
+          if (!baseValue || value === null) {
             return "";
           }
           return formatValue(value / baseValue, { format: "0%", locale: args.locale });

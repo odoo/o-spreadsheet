@@ -45,7 +45,7 @@ const MAX_ITERATION = 30;
 const ERROR_CYCLE_CELL = Object.freeze(
   createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
 );
-const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
+export const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
 
 export class Evaluator {
   private readonly getters: Getters;
