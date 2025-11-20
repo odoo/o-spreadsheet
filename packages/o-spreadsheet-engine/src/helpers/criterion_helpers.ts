@@ -1,4 +1,4 @@
-import { DateTime, jsDateToNumber, valueToDateNumber } from "../helpers/dates";
+import { DateTime, getDaysInMonth, jsDateToNumber, valueToDateNumber } from "../helpers/dates";
 import { formatValue } from "../helpers/format/format";
 import { DateCriterionValue, EvaluatedDateCriterion } from "../types/generic_criterion";
 import { Locale } from "../types/locale";
@@ -8,17 +8,39 @@ function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate
   const today = DateTime.now();
   switch (dateValue) {
     case "today":
-      return jsDateToNumber(today);
-    case "yesterday":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setDate(today.getDate() - 1)));
-    case "tomorrow":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setDate(today.getDate() + 1)));
+      return Math.floor(jsDateToNumber(today));
+    case "yesterday": {
+      today.setDate(today.getDate() - 1);
+      return Math.floor(jsDateToNumber(today));
+    }
+    case "tomorrow": {
+      today.setDate(today.getDate() + 1);
+      return Math.floor(jsDateToNumber(today));
+    }
     case "lastWeek":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setDate(today.getDate() - 7)));
-    case "lastMonth":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setMonth(today.getMonth() - 1)));
+      today.setDate(today.getDate() - 6);
+      return Math.floor(jsDateToNumber(today));
+    case "lastMonth": {
+      const lastMonth = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
+      const dateInLastMonth = new DateTime(today.getFullYear(), lastMonth, 1);
+      if (today.getDate() > getDaysInMonth(dateInLastMonth)) {
+        today.setDate(1);
+      } else {
+        today.setDate(today.getDate() + 1);
+        today.setMonth(today.getMonth() - 1);
+      }
+      return Math.floor(jsDateToNumber(today));
+    }
     case "lastYear":
-      return jsDateToNumber(DateTime.fromTimestamp(today.setFullYear(today.getFullYear() - 1)));
+      // Handle leap year case
+      if (today.getMonth() === 1 && today.getDate() === 29) {
+        today.setDate(28);
+        today.setFullYear(today.getFullYear() - 1);
+      } else {
+        today.setDate(today.getDate() + 1);
+        today.setFullYear(today.getFullYear() - 1);
+      }
+      return Math.floor(jsDateToNumber(today));
   }
 }
 
