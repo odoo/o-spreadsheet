@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { isSameColor } from "../../src/helpers/color";
+import { isSameColor, toHex } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { positions } from "../../src/helpers/zones";
@@ -39,6 +39,7 @@ declare global {
       toHaveCount(count: number): R;
       toHaveClass(className: string): R;
       toHaveAttribute(attribute: string, value: string): R;
+      toHaveStyle(style: Record<string, string>): R;
     }
   }
 }
@@ -294,6 +295,32 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
             element.getAttribute(attribute),
             "Expected value",
             "Received value",
+            false
+          )}`;
+    return { pass, message };
+  },
+  toHaveStyle(target: DOMTarget, expectedStyle: Record<string, string>) {
+    const element = getTarget(target);
+    if (!(element instanceof HTMLElement)) {
+      const message = element ? "Target is not an HTML element" : "Target not found";
+      return { pass: false, message: () => message };
+    }
+    const receivedStyle: Record<string, string> = {};
+    for (const key of Object.keys(expectedStyle)) {
+      receivedStyle[key] = element.style.getPropertyValue(key);
+      if (receivedStyle[key].startsWith("rgb")) {
+        receivedStyle[key] = toHex(receivedStyle[key]);
+      }
+    }
+    const pass = this.equals(receivedStyle, expectedStyle, [this.utils.iterableEquality]);
+    const message = () =>
+      pass
+        ? ""
+        : `expect(target).toHaveStyle(expected);\n\n${this.utils.printDiffOrStringify(
+            expectedStyle,
+            receivedStyle,
+            "Expected style",
+            "Received style",
             false
           )}`;
     return { pass, message };

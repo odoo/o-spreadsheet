@@ -64,21 +64,51 @@ export class ClickableCellsStore extends SpreadsheetStore {
   get clickableCells(): ClickableCell[] {
     const cells: ClickableCell[] = [];
     const getters = this.getters;
-    const sheetId = getters.getActiveSheetId();
     for (const position of this.getters.getVisibleCellPositions()) {
       const item = this.getClickableItem(position);
       if (!item) {
         continue;
       }
       const title = typeof item.title === "function" ? item.title(position, getters) : item.title;
-      const zone = getters.expandZone(sheetId, positionToZone(position));
+      const rect = this.getClickableCellRect(position);
+      if (!rect) {
+        continue;
+      }
       cells.push({
-        coordinates: getters.getVisibleRect(zone),
+        coordinates: rect,
         position,
         action: item.execute,
         title: title || "",
       });
     }
     return cells;
+  }
+
+  private getClickableCellRect(position: CellPosition): Rect | undefined {
+    const zone = this.getters.expandZone(position.sheetId, positionToZone(position));
+    const clickableRect = this.getters.getVisibleRect(zone);
+
+    const icons = this.getters.getCellIcons(position);
+    const iconsAtPosition = {
+      center: icons.find((icon) => icon.horizontalAlign === "center"),
+      left: icons.find((icon) => icon.horizontalAlign === "left"),
+      right: icons.find((icon) => icon.horizontalAlign === "right"),
+    };
+    if (iconsAtPosition.center?.onClick) {
+      return undefined;
+    }
+    if (iconsAtPosition.right?.onClick) {
+      const cellRect = this.getters.getRect(zone);
+      const iconRect = this.getters.getCellIconRect(iconsAtPosition.right, cellRect);
+      clickableRect.width -= iconRect.width + iconsAtPosition.right.margin;
+    }
+    if (iconsAtPosition.left?.onClick) {
+      const cellRect = this.getters.getRect(zone);
+      const iconRect = this.getters.getCellIconRect(iconsAtPosition.left, cellRect);
+      clickableRect.x += iconRect.width + iconsAtPosition.left.margin;
+      clickableRect.width -= iconRect.width + iconsAtPosition.left.margin;
+    }
+
+    return clickableRect;
   }
 }
