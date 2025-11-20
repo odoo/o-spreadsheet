@@ -188,7 +188,7 @@ export function getLineChartDatasets(
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       dataValues = data.map((y, index) => ({
-        x: labels[index] === "" ? undefined : Number(labels[index]),
+        x: labels[index] === "" ? NaN : Number(labels[index]),
         y: y.value,
       }));
     }
