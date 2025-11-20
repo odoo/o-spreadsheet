@@ -14,27 +14,16 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
-  TitleDesign,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import {
   TreeMapChartDefinition,
   TreeMapChartRuntime,
-  TreeMapColoringOptions,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -53,18 +42,9 @@ export class TreeMapChart extends AbstractChart {
   };
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
   readonly type = "treemap";
-  readonly dataSetsHaveTitle: boolean;
-  readonly showHeaders?: boolean;
-  readonly headerDesign?: TitleDesign;
-  readonly showValues?: boolean;
-  readonly showLabels?: boolean;
-  readonly valuesDesign?: TitleDesign;
-  readonly coloringOptions?: TreeMapColoringOptions;
 
-  constructor(definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -73,15 +53,6 @@ export class TreeMapChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.showHeaders = definition.showHeaders;
-    this.headerDesign = definition.headerDesign;
-    this.showValues = definition.showValues;
-    this.showLabels = definition.showLabels;
-    this.valuesDesign = definition.valuesDesign;
-    this.coloringOptions = definition.coloringOptions;
   }
 
   static transformDefinition(
@@ -100,7 +71,7 @@ export class TreeMapChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
-    const dataSets: CustomizedDataSet[] = [];
+    const dataSets: RangeChartDataSet[] = [];
     if (context.hierarchicalRanges?.length) {
       dataSets.push(...context.hierarchicalRanges);
     } else if (context.auxiliaryRange) {
@@ -127,7 +98,8 @@ export class TreeMapChart extends AbstractChart {
   getContextCreation(): ChartCreationContext {
     const leafRange = this.dataSets.at(-1)?.dataRange;
     return {
-      ...this,
+      ...this.definition,
+      treemapColoringOptions: this.definition.coloringOptions,
       range: this.labelRange
         ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
         : [],
@@ -166,26 +138,16 @@ export class TreeMapChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): TreeMapChartDefinition {
-    const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
+    const ranges: RangeChartDataSet[] = dataSets.map((dataSet) => ({
       dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
     }));
     return {
-      type: "treemap",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      showValues: this.showValues,
-      showHeaders: this.showHeaders,
-      headerDesign: this.headerDesign,
-      showLabels: this.showLabels,
-      valuesDesign: this.valuesDesign,
-      coloringOptions: this.coloringOptions,
-      humanize: this.humanize,
     };
   }
 
@@ -232,5 +194,8 @@ export function createTreeMapChartRuntime(
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return {
+    chartJsConfig: config,
+    background: chart.getDefinition().background || BACKGROUND_CHART_COLOR,
+  };
 }

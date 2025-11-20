@@ -16,29 +16,18 @@ import {
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
-  AxesDesign,
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
-  DatasetDesign,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import {
   PyramidChartDefinition,
   PyramidChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
@@ -53,18 +42,9 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class PyramidChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly aggregated?: boolean;
   readonly type = "pyramid";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
-  readonly horizontal = true;
-  readonly stacked = true;
-  readonly showValues?: boolean;
 
-  constructor(definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -73,13 +53,6 @@ export class PyramidChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -116,15 +89,15 @@ export class PyramidChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.definition,
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -161,39 +134,32 @@ export class PyramidChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): PyramidChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
+    const ranges: RangeChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "pyramid",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
       horizontal: true,
       stacked: true,
-      showValues: this.showValues,
-      humanize: this.humanize,
     };
   }
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+    const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
     const chartData = getPyramidChartData(definition, this.dataSets, this.labelRange, getters);
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
@@ -202,8 +168,8 @@ export class PyramidChart extends AbstractChart {
     return {
       ...definition,
       horizontal: true,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
@@ -253,5 +219,5 @@ export function createPyramidChartRuntime(
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }

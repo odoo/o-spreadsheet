@@ -1,8 +1,8 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { CommonChartDefinition, VerticalAxisPosition } from "./common_chart";
+import { ChartRangeDefinition, VerticalAxisPosition } from "./common_chart";
 
-export interface WaterfallChartDefinition extends CommonChartDefinition {
+export interface WaterfallChartDefinition extends ChartRangeDefinition {
   readonly type: "waterfall";
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly aggregated?: boolean;

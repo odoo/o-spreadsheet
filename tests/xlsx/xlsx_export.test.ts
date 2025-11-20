@@ -7,7 +7,7 @@ import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
 import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { CustomizedDataSet, Dimension } from "../../src/types";
+import { Dimension, RangeChartDataSet } from "../../src/types";
 
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
@@ -1132,7 +1132,7 @@ describe("Test XLSX export", () => {
       ["radar", [{ dataRange: "Sheet1!B1:B4" }]],
     ])(
       "simple %s chart with dataset %s",
-      async (chartType: string, dataSets: CustomizedDataSet[]) => {
+      async (chartType: string, dataSets: RangeChartDataSet[]) => {
         const model = new Model(chartData);
         createChart(
           model,

@@ -12,30 +12,15 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
-  FunnelChartColors,
-  FunnelChartDefinition,
-  FunnelChartRuntime,
-  LegendPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  AxesDesign,
   ChartCreationContext,
-  CustomizedDataSet,
   DataSet,
-  DatasetDesign,
   ExcelChartDefinition,
+  RangeChartDataSet,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -49,19 +34,9 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 export class FunnelChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly aggregated?: boolean;
   readonly type = "funnel";
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
-  readonly horizontal = true;
-  readonly showValues?: boolean;
-  readonly funnelColors?: FunnelChartColors;
-  readonly cumulative?: boolean;
 
-  constructor(definition: FunnelChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: FunnelChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -70,16 +45,6 @@ export class FunnelChart extends AbstractChart {
       definition.dataSetsHaveTitle
     );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
-    this.horizontal = true;
-    this.funnelColors = definition.funnelColors;
-    this.cumulative = definition.cumulative;
   }
 
   static transformDefinition(
@@ -117,15 +82,15 @@ export class FunnelChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
+    const range: RangeChartDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
     return {
-      ...this,
+      ...this.definition,
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
@@ -162,30 +127,20 @@ export class FunnelChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): FunnelChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
+    const ranges: RangeChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.dataSetDesign?.[i],
+        ...this.definition.dataSets?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
     return {
-      type: "funnel",
+      ...this.definition,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
       dataSets: ranges,
-      legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      horizontal: this.horizontal,
-      axesDesign: this.axesDesign,
-      showValues: this.showValues,
-      funnelColors: this.funnelColors,
-      cumulative: this.cumulative,
-      humanize: this.humanize,
     };
   }
 
@@ -232,5 +187,5 @@ export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): 
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
 }

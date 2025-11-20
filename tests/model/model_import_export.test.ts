@@ -183,6 +183,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       chartId: "2",
@@ -195,6 +196,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
     expect(data.sheets[0].figures[2].data).toEqual({
       chartId: "3",
@@ -207,6 +209,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
     expect(data.sheets[0].figures[3].data).toEqual({
       chartId: "4",
@@ -219,6 +222,7 @@ describe("Migrations", () => {
       legendPosition: "top",
       stacked: false,
       humanize: true,
+      verticalAxisPosition: "left",
     });
   });
   test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {

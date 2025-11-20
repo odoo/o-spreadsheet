@@ -1,7 +1,7 @@
 import { formatChartDatasetValue } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import {
+  ChartDefinition,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   SunburstChartDefaults,
   SunburstChartDefinition,
   WaterfallChartDefinition,
@@ -11,7 +11,7 @@ import { ChartShowValuesPluginOptions } from "../../../../components/figures/cha
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 
 export function getChartShowValues(
-  definition: ChartWithDataSetDefinition,
+  definition: ChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -46,7 +46,7 @@ export function getSunburstShowValues(
 }
 
 export function getPyramidChartShowValues(
-  definition: ChartWithDataSetDefinition,
+  definition: ChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -93,7 +93,7 @@ export function getWaterfallChartShowValues(
   };
 }
 
-function getDatasetAxisId(definition: ChartWithDataSetDefinition, dataset: ChartMeta): string {
+function getDatasetAxisId(definition: ChartDefinition, dataset: ChartMeta): string {
   if (dataset.rAxisID) {
     return dataset.rAxisID;
   }
