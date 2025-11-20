@@ -587,6 +587,16 @@ describe("Composer interactions", () => {
     createTable(model, "A1");
     expect(getTable(model, "A1")).toBeTruthy();
   });
+
+  test("keyboard inputs are disabled when selecting a range for the composer", async () => {
+    await typeInComposerGrid("=");
+    gridMouseEvent(model, "pointerdown", "C8");
+    gridMouseEvent(model, "pointermove", "B8");
+    await keyDown({ key: "A" });
+    gridMouseEvent(model, "pointerup", "B8");
+    await nextTick();
+    expect(composerStore.currentContent).toBe("=B8:C8");
+  });
 });
 
 describe("Grid composer", () => {
