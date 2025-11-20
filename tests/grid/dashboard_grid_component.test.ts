@@ -1,4 +1,5 @@
-import { Spreadsheet } from "../../src";
+import { Align, Spreadsheet } from "../../src";
+import { CHECKBOX_CHECKED } from "../../src/components/icons/icons";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -9,6 +10,7 @@ import {
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
+import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
 import {
   createTableWithFilter,
   selectCell,
@@ -220,5 +222,75 @@ describe("Grid component in dashboard mode", () => {
     expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
       "hello Magical Françoise"
     );
+  });
+
+  const TEST_GRID_ICON: GridIcon = {
+    horizontalAlign: "left",
+    size: 20,
+    margin: 2,
+    type: "debug_icon",
+    position: { sheetId: "s1", col: 0, row: 0 },
+    priority: 1,
+    svg: CHECKBOX_CHECKED,
+    onClick: () => {},
+  };
+
+  test("Clickable cell size is reduced based on the icon on the cell", async () => {
+    let horizontalAlign: Exclude<Align, undefined> = "center";
+
+    addToRegistry(clickableCellRegistry, "fake", {
+      condition: (position, getters) => position.row === 0 && position.col === 0,
+      execute: () => () => {},
+      sequence: 5,
+    });
+    addToRegistry(iconsOnCellRegistry, "test_icon", (getters, position) =>
+      position.col === 0 && position.row === 0 ? { ...TEST_GRID_ICON, horizontalAlign } : undefined
+    );
+
+    model.updateMode("dashboard");
+    await nextTick();
+
+    expect("div.o-dashboard-clickable-cell").toHaveCount(0); // because center icon => no clickable cell
+
+    horizontalAlign = "right";
+    model.dispatch("EVALUATE_CELLS");
+    await nextTick();
+    expect("div.o-dashboard-clickable-cell").toHaveStyle({
+      left: "0px",
+      width: DEFAULT_CELL_WIDTH - TEST_GRID_ICON.size - TEST_GRID_ICON.margin + "px",
+      height: DEFAULT_CELL_HEIGHT + "px",
+    });
+
+    horizontalAlign = "left";
+    model.dispatch("EVALUATE_CELLS");
+    await nextTick();
+    expect("div.o-dashboard-clickable-cell").toHaveStyle({
+      left: 20 + 2 + "px",
+      width: DEFAULT_CELL_WIDTH - TEST_GRID_ICON.size - TEST_GRID_ICON.margin + "px",
+      height: DEFAULT_CELL_HEIGHT + "px",
+    });
+  });
+
+  test("Clickable cell size is not reduced if the icon has no onClick action", async () => {
+    addToRegistry(clickableCellRegistry, "fake", {
+      condition: (position, getters) => position.row === 0 && position.col === 0,
+      execute: () => () => {},
+      sequence: 5,
+    });
+    addToRegistry(iconsOnCellRegistry, "test_icon", (getters, position) =>
+      position.col === 0 && position.row === 0
+        ? { ...TEST_GRID_ICON, onClick: undefined }
+        : undefined
+    );
+
+    model.updateMode("dashboard");
+    await nextTick();
+    await nextTick(); // Need to wait one render to have correct grid position with the resize observers
+
+    expect("div.o-dashboard-clickable-cell").toHaveStyle({
+      left: "0px",
+      width: DEFAULT_CELL_WIDTH + "px",
+      height: DEFAULT_CELL_HEIGHT + "px",
+    });
   });
 });
