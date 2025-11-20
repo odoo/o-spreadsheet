@@ -5,14 +5,14 @@ import {
   getDateNumberCriterionValues,
 } from "../helpers/criterion_helpers";
 import {
-  areDatesSameDay,
   DateTime,
+  areDatesSameDay,
   isDateAfter,
   isDateBefore,
   isDateBetween,
   isDateStrictlyAfter,
   isDateStrictlyBefore,
-  jsDateToRoundNumber,
+  jsDateToNumber,
   valueToDateNumber,
 } from "../helpers/dates";
 import { formatValue } from "../helpers/format/format";
@@ -165,7 +165,7 @@ criterionEvaluatorRegistry.add("dateIs", {
     }
 
     if (["lastWeek", "lastMonth", "lastYear"].includes(criterion.dateValue)) {
-      const today = jsDateToRoundNumber(DateTime.now());
+      const today = Math.floor(jsDateToNumber(DateTime.now()));
       return isDateBetween(dateValue, today, criterionValue);
     }
 

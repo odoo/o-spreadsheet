@@ -1730,7 +1730,7 @@ describe("conditional formats types", () => {
         type: "CellIsRule",
         operator: "dateIsAfter",
         dateValue: "today",
-        values: ["10/10/2022"],
+        values: [],
         style: { fillColor: "#ff0f0f" },
       });
 
@@ -1750,11 +1750,11 @@ describe("conditional formats types", () => {
         type: "CellIsRule",
         operator: "dateIsBefore",
         dateValue: "lastYear",
-        values: ["10/10/2022"],
+        values: [],
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "01/01/2020");
+      setCellContent(model, "A1", "01/02/2020");
       expect(getStyle(model, "A1")).toEqual({});
 
       setCellContent(model, "A1", "12/31/2019");
@@ -1770,7 +1770,7 @@ describe("conditional formats types", () => {
         type: "CellIsRule",
         operator: "dateIsOnOrBefore",
         dateValue: "today",
-        values: ["10/10/2022"],
+        values: [],
         style: { fillColor: "#ff0f0f" },
       });
 
@@ -1790,14 +1790,14 @@ describe("conditional formats types", () => {
         type: "CellIsRule",
         operator: "dateIsOnOrAfter",
         dateValue: "lastYear",
-        values: ["10/10/2022"],
+        values: [],
         style: { fillColor: "#ff0f0f" },
       });
 
       setCellContent(model, "A1", "12/31/2019");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "01/01/2020");
+      setCellContent(model, "A1", "02/01/2020");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       jest.useRealTimers();
     });
