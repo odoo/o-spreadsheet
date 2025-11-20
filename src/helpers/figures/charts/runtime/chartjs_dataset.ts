@@ -83,7 +83,7 @@ export function getBarChartDatasets(
     const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar"> = {
       label,
-      data,
+      data: data.map((cell) => (cell.type === CellValueType.number ? cell.value : 0)),
       hidden,
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
@@ -242,7 +242,7 @@ export function getPieChartDatasets(
     if (hidden) continue;
     const dataset: ChartDataset<"pie"> = {
       label,
-      data,
+      data: data.filter((cell) => cell.type === CellValueType.number).map((cell) => cell.value),
       borderColor: definition.background || "#FFFFFF",
       backgroundColor,
       hoverOffset: 10,
@@ -275,7 +275,7 @@ export function getComboChartDatasets(
     const type = design?.type ?? "line";
     const dataset: ChartDataset<"bar" | "line"> = {
       label: label,
-      data,
+      data: data.map((cell) => (cell.type === CellValueType.number ? cell.value : null)),
       hidden,
       borderColor: color,
       backgroundColor: color,
@@ -323,7 +323,7 @@ export function getRadarChartDatasets(
     const borderColor = colors.next();
     const dataset: ChartDataset<"radar"> = {
       label,
-      data: data.map((cell) => cell.value),
+      data: data.map((cell) => (cell.type === CellValueType.number ? cell.value : null)),
       hidden,
       borderColor,
       backgroundColor: borderColor,
@@ -357,13 +357,14 @@ export function getGeoChartDatasets(
     const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
     if (dataSetsValues[0]) {
       for (let i = 0; i < dataSetsValues[0].data.length; i++) {
-        if (!labels[i] || dataSetsValues[0].data[i] === undefined) {
+        const cell = dataSetsValues[0].data[i];
+        if (!labels[i] || cell === undefined) {
           continue;
         }
         const featureId = args.geoFeatureNameToId(regionName, labels[i]);
         if (featureId) {
           labelsAndValues[featureId] = {
-            value: dataSetsValues[0].data[i].value ?? 0,
+            value: cell.type === CellValueType.number ? cell.value : 0,
             label: labels[i],
           };
         }
@@ -402,9 +403,13 @@ export function getFunnelChartDatasets(
 
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
-    data: data.map((cell) =>
-      cell.type === CellValueType.number && cell.value <= 0 ? [0, 0] : [-cell?.value, cell.value]
-    ),
+    data: data.map((cell) => {
+      if (cell.type !== CellValueType.number) {
+        return 0;
+      }
+      const value = cell.value;
+      return value <= 0 ? [0, 0] : [-value, value];
+    }),
     backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
     yAxisID: "y",
     xAxisID: "x",
