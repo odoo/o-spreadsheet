@@ -260,10 +260,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
   /**
    * Return the value of each cell in the range.
    */
-  getRangeValues(range: Range): CellValue[] {
+  getRangeValues(range: Range): EvaluatedCell[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
-    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).value);
+    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p));
   }
 
   /**
