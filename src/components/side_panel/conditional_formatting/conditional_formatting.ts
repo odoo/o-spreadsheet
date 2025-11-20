@@ -38,7 +38,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
 
   setup() {
     this.activeSheetId = this.env.model.getters.getActiveSheetId();
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.activeSheetId;
     const rules = this.env.model.getters.getRulesSelection(sheetId, this.props.selection || []);
     if (rules.length === 1) {
       const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
@@ -47,18 +47,18 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
       }
     }
     onWillUpdateProps((nextProps: Props) => {
-      const newActiveSheetId = this.env.model.getters.getActiveSheetId();
-      if (newActiveSheetId !== this.activeSheetId) {
-        this.activeSheetId = newActiveSheetId;
-        this.switchToList();
-      } else if (nextProps.selection !== this.props.selection) {
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        const rules = this.env.model.getters.getRulesSelection(sheetId, nextProps.selection || []);
-        if (rules.length === 1) {
-          const cf = this.conditionalFormats.find((c) => c.id === rules[0]);
-          if (cf) {
-            this.editConditionalFormat(cf);
-          }
+      if (this.state.mode === "list") {
+        this.activeSheetId = this.env.model.getters.getActiveSheetId();
+      }
+      if (nextProps.selection !== this.props.selection) {
+        const rules = this.env.model.getters.getRulesSelection(
+          this.activeSheetId,
+          nextProps.selection || []
+        );
+        const cf =
+          rules.length === 1 ? this.conditionalFormats.find((c) => c.id === rules[0]) : undefined;
+        if (cf) {
+          this.editConditionalFormat(cf);
         } else {
           this.switchToList();
         }
@@ -69,9 +69,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   get conditionalFormats(): ConditionalFormat[] {
-    const cfs = this.env.model.getters.getConditionalFormats(
-      this.env.model.getters.getActiveSheetId()
-    );
+    const cfs = this.env.model.getters.getConditionalFormats(this.activeSheetId);
     return cfs.map((cf) => ({
       ...cf,
       rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
@@ -79,6 +77,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   private switchToList() {
+    this.activeSheetId = this.env.model.getters.getActiveSheetId();
     this.state.mode = "list";
     this.state.editedCfId = undefined;
     this.originalEditedCf = undefined;

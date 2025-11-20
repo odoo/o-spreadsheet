@@ -18,6 +18,7 @@
       criterionType="props.criterion.type"
       disableFormulas="props.disableFormulas"
       focused="props.autofocus"
+      sheetId="props.sheetId"
     />
   </t>
 </templates>

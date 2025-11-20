@@ -8,6 +8,7 @@ import {
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
 import { toZone } from "../../src/helpers";
 import { IsValueInListCriterion, UID } from "../../src/types";
 import {
@@ -30,12 +31,12 @@ import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   getDataValidationRules,
+  mountComponentWithPortalTarget,
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-import { mountDataValidationPanel } from "./data_validation_generics_side_panel_component.test";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -46,6 +47,13 @@ beforeEach(async () => {
   model = new Model();
   sheetId = model.getters.getActiveSheetId();
 });
+
+async function mountDataValidationPanel(model?: Model) {
+  return mountComponentWithPortalTarget(DataValidationPanel, {
+    model: model || new Model(),
+    props: { onCloseSidePanel: () => {} },
+  });
+}
 
 describe("Edit criterion in side panel", () => {
   describe("Value in list", () => {
