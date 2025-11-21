@@ -1,5 +1,6 @@
 import { demoData } from "./data.js";
 import { currenciesData } from "./currencies.js";
+import { geoJsonService } from "./geo_json/geo_json_service.js";
 
 const { xml, Component, whenReady, useSubEnv, useState } = owl;
 
@@ -130,9 +131,13 @@ class Demo extends Component {
     });
 
     this.model = new Model(demoData, {
-      evalContext: { env: this.env },
+      external: {
+        loadCurrencies: async () => currenciesData,
+        geoJsonService: geoJsonService,
+      },
+      custom: {},
       mode: "normal",
-    });
+    },);
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;
   }

@@ -6,8 +6,12 @@ html {
   height: 100%;
 }
 body {
-  height: 100%;
   margin: 0px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu,
+    "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji" !important;
+  height: 100dvh !important;
+  width: 100dvw !important;
 }
 .o-spreadsheet {
   width: 100%;
