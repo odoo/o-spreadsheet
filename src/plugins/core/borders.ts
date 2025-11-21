@@ -462,9 +462,17 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   import(data: WorkbookData) {
     if (Object.keys(data.borders || {}).length) {
       for (const sheet of data.sheets) {
+        const borderType: Record<UID, Zone[]> = {};
         for (const zoneXc in sheet.borders) {
           const borderId = sheet.borders[zoneXc];
-          this.addBorder(sheet.id, toZone(zoneXc), data.borders[borderId]);
+          if (!borderId) continue;
+          if (!(borderId in borderType)) borderType[borderId] = [];
+          borderType[borderId].push(toZone(zoneXc));
+        }
+        for (const borderId in borderType) {
+          const zones = recomputeZones(borderType[borderId]);
+          const border = data.borders[borderId];
+          this.addBorders(sheet.id, zones, border);
         }
       }
     }

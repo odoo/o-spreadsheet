@@ -438,6 +438,10 @@ describe("Migrations", () => {
           style: "thin",
           color: "#000",
         },
+        horizontal: {
+          style: "thin",
+          color: "#000",
+        },
       },
     });
   });
@@ -494,7 +498,9 @@ describe("Migrations", () => {
 
   test("migrate version 21: style,format and borders by zones", () => {
     const style = { bold: true };
-    const border = { top: { style: "thin", color: "#000" } as BorderDescr };
+    const border = {
+      top: { style: "thin", color: "#000" } as BorderDescr,
+    };
     const model = new Model({
       version: 20,
       sheets: [
@@ -511,7 +517,7 @@ describe("Migrations", () => {
     });
     expect(getCell(model, "A1")?.format).toBe("0.00%");
     expect(getCell(model, "A1")?.style).toEqual(style);
-    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "A1")).toEqual({ top: { style: "thin", color: "#000" } });
     const data = model.exportData();
     expect(data.version).toBe(getCurrentVersion());
     expect(data.sheets[0].cells).toEqual({ A1: "hi" });
@@ -520,7 +526,9 @@ describe("Migrations", () => {
     expect(data.sheets[0].borders).toEqual({ A1: 1 });
     expect(data.formats).toEqual({ 1: "0.00%" });
     expect(data.styles).toEqual({ 1: style });
-    expect(data.borders).toEqual({ 1: border });
+    expect(data.borders).toEqual({
+      1: { top: { style: "thin", color: "#000" }, horizontal: { style: "thin", color: "#000" } },
+    });
   });
 
   test("Migrate version 22: add inflection operator to gauge chart", () => {
