@@ -17,5 +17,64 @@
       placeholder.translate="Add a Title"
       defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
+    <Section
+      t-if="!isCategoricalAxis"
+      class="'pt-0 o-axis-bounds-section'"
+      title.translate="Axis range">
+      <div class="d-flex">
+        <div class="w-50">
+          <span class="o-section-subtitle my-0">Minimum</span>
+          <input
+            t-if="isTimeAxis"
+            t-att-type="axisBoundsInputType"
+            class="o-input w-100"
+            data-testid="time-axis-min-input"
+            t-att-value="axisMin"
+            t-att-step="axisBoundsInputStep"
+            t-on-change="updateTimeAxisMin"
+          />
+          <NumberInput
+            t-else=""
+            class="'o-input w-100 axis-min-input'"
+            value="axisMin"
+            onChange.bind="updateAxisMin"
+            placeholder.translate="Axis lower bound"
+          />
+        </div>
+        <div class="w-50 ms-3">
+          <span class="o-section-subtitle my-0">Maximum</span>
+          <input
+            t-if="isTimeAxis"
+            t-att-type="axisBoundsInputType"
+            class="o-input w-100"
+            data-testid="time-axis-max-input"
+            t-att-value="axisMax"
+            t-att-step="axisBoundsInputStep"
+            t-on-change="updateTimeAxisMax"
+          />
+          <NumberInput
+            t-else=""
+            class="'o-input w-100 axis-max-input'"
+            value="axisMax"
+            onChange.bind="updateAxisMax"
+            placeholder.translate="Axis upper bound"
+          />
+        </div>
+      </div>
+    </Section>
+    <Section class="'pt-0'" t-if="!isCategoricalAxis" title.translate="Gridlines">
+      <Checkbox
+        className="'o-axis-grid-major'"
+        label="majorGridLabel"
+        value="isMajorGridEnabled"
+        onChange.bind="toggleMajorGrid"
+      />
+      <Checkbox
+        className="'o-axis-grid-minor'"
+        label="minorGridLabel"
+        value="isMinorGridEnabled"
+        onChange.bind="toggleMinorGrid"
+      />
+    </Section>
   </t>
 </templates>
