@@ -405,23 +405,20 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
-    useEffect(
-      () => {
-        /**
-         * Only refocus the grid if the active element is not a child of the spreadsheet
-         * (i.e. activeElement is outside of the spreadsheetRef component)
-         * and spreadsheet is a child of that element. Anything else means that the focus
-         * is on an element that needs to keep it.
-         */
-        if (
-          !this.spreadsheetRef.el!.contains(document.activeElement) &&
-          document.activeElement?.contains(this.spreadsheetRef.el!)
-        ) {
-          this.focusGrid();
-        }
-      },
-      () => [this.env.model.getters.getActiveSheetId()]
-    );
+    useEffect(() => {
+      /**
+       * Only refocus the grid if the active element is not a child of the spreadsheet
+       * (i.e. activeElement is outside of the spreadsheetRef component)
+       * and spreadsheet is a child of that element. Anything else means that the focus
+       * is on an element that needs to keep it.
+       */
+      if (
+        !this.spreadsheetRef.el!.contains(document.activeElement) &&
+        document.activeElement?.contains(this.spreadsheetRef.el!)
+      ) {
+        this.focusGrid();
+      }
+    });
 
     useExternalListener(window as any, "resize", () => this.render(true));
 
