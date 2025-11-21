@@ -173,7 +173,7 @@ export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements Hea
     const cell = this.getters.getCell(position);
 
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, colSize);
+    return getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {

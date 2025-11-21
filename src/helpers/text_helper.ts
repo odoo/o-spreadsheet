@@ -8,7 +8,9 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
-import { Cell, Pixel, PixelPosition, Style } from "../types";
+import { Cell, DEFAULT_LOCALE, Locale, Pixel, PixelPosition, Style } from "../types";
+import { parseLiteral } from "./cells";
+import { formatValue } from "./format";
 import { isMarkdownLink, parseMarkdownLink } from "./misc";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
@@ -21,12 +23,18 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
 export function getDefaultCellHeight(
   ctx: CanvasRenderingContext2D,
   cell: Cell | undefined,
+  locale: Locale,
   colSize: number
 ) {
   if (!cell || (!cell.isFormula && !cell.content)) {
     return DEFAULT_CELL_HEIGHT;
   }
-  const content = cell.isFormula ? "" : cell.content;
+  const content = cell.isFormula
+    ? ""
+    : formatValue(parseLiteral(cell.content, locale), {
+        format: cell.format,
+        locale: DEFAULT_LOCALE,
+      });
   return getCellContentHeight(ctx, content, cell.style, colSize);
 }
 
