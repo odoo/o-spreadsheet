@@ -6,7 +6,7 @@ import {
 } from "../../src/constants";
 import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Cell, CommandResult, Sheet, Wrapping } from "../../src/types";
+import { Cell, CommandResult, DEFAULT_LOCALE, Sheet, Wrapping } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -22,15 +22,21 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setFormat,
   setStyle,
   unMerge,
   undo,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 
 const ctx = document.createElement("canvas").getContext("2d")!;
-function getDefaultCellHeight(cell: Cell | undefined, colSize = DEFAULT_CELL_WIDTH) {
-  return Math.round(getDefaultCellHeightHelper(ctx, cell, colSize));
+function getDefaultCellHeight(
+  cell: Cell | undefined,
+  colSize = DEFAULT_CELL_WIDTH,
+  locale = DEFAULT_LOCALE
+) {
+  return Math.round(getDefaultCellHeightHelper(ctx, cell, locale, colSize));
 }
 
 describe("Model resizer", () => {
@@ -442,6 +448,37 @@ describe("Model resizer", () => {
 
       expect(wrappedCellHeight).toBeGreaterThan(initialCellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(wrappedCellHeight);
+    });
+
+    test("wrapped formatted text updates the row size", () => {
+      setStyle(model, "C1", { fontSize: 10, wrapping: "wrap" });
+      resizeColumns(model, ["C"], 100);
+      setCellContent(model, "C1", "200");
+
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+
+      setFormat(model, "C1", "0[$long escaped string in the format that will be wrapped]");
+      const cell = getCell(model, "C1");
+      const expectedHeight = getDefaultCellHeight(cell, 100);
+      expect(expectedHeight).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(expectedHeight);
+    });
+
+    test("updating locale updates the row size", () => {
+      setStyle(model, "C1", { fontSize: 10, wrapping: "wrap" });
+      resizeColumns(model, ["C"], 100);
+      setCellContent(model, "C1", "2000");
+      setFormat(model, "C1", "#,##");
+
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+      const locale = { ...DEFAULT_LOCALE, thousandsSeparator: "garbageLongThousandSeparator" };
+      updateLocale(model, locale);
+
+      const cell = getCell(model, "C1");
+      const expectedHeight = getDefaultCellHeight(cell, 100, model.getters.getLocale());
+      expect(getCellContent(model, "C1")).toBe("2garbageLongThousandSeparator000");
+      expect(expectedHeight).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(expectedHeight);
     });
 
     test.each<Wrapping>(["overflow", "clip"])(
