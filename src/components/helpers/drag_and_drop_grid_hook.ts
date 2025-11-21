@@ -26,6 +26,10 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let scrollDirection: DnDDirection = "all";
   const getters = env.model.getters;
 
+  const blockKeyboard = (ev: KeyboardEvent) => ev.preventDefault();
+  const cleanUpBlockKeyboard = () =>
+    removeEventListener("keydown", blockKeyboard, { capture: true });
+
   let cleanUpFns: (() => void)[] = [];
 
   const cleanUp = () => {
@@ -156,7 +160,9 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     pointerMoveCallback = onPointerMove;
     pointerUpCallback = onPointerUp;
 
-    cleanUpFns.push(startDnd(pointerMoveHandler, pointerUpHandler));
+    // block keyboard events during pointer interaction to avoid conflicts
+    addEventListener("keydown", blockKeyboard, { capture: true });
+    cleanUpFns.push(startDnd(pointerMoveHandler, pointerUpHandler), cleanUpBlockKeyboard);
   };
 
   onWillUnmount(() => {
