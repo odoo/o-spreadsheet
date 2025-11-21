@@ -7,13 +7,15 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
-import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { createEvaluatedCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { isNumber } from "@odoo/o-spreadsheet-engine/helpers/numbers";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { EMPTY_CELL } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation/evaluator";
 import {
   AxisType,
   BarChartDefinition,
@@ -37,14 +39,21 @@ import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/t
 import { Point } from "chart.js";
 import {
   CellValue,
+  CellValueType,
   DEFAULT_LOCALE,
+  EmptyCell,
+  EvaluatedCell,
   Format,
   GenericDefinition,
   Getters,
   Locale,
+  NumberCell,
   Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
+
+const ZERO = Object.freeze(createEvaluatedCell({ value: 0 }));
+const ONE = Object.freeze(createEvaluatedCell({ value: 1 }));
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -105,11 +114,17 @@ export function getPyramidChartData(
 
   const pyramidDatasetValues: DatasetValues[] = [];
   if (barDataset[0]) {
-    const pyramidData = barDataset[0].data.map((value) => (value > 0 ? value : 0));
+    const pyramidData = barDataset[0].data.map((cell) =>
+      cell.type === CellValueType.number && cell.value > 0 ? cell : ZERO
+    );
     pyramidDatasetValues.push({ ...barDataset[0], data: pyramidData });
   }
   if (barDataset[1]) {
-    const pyramidData = barDataset[1].data.map((value) => (value > 0 ? -value : 0));
+    const pyramidData = barDataset[1].data.map((cell) =>
+      cell.type === CellValueType.number && cell.value > 0
+        ? createEvaluatedCell({ value: -cell.value })
+        : ZERO
+    );
     pyramidDatasetValues.push({ ...barDataset[1], data: pyramidData });
   }
 
@@ -632,7 +647,7 @@ function keepOnlyPositiveValues(
     dataSetsValues: datasets.map((ds) => ({
       ...ds,
       data: filteredIndexes.map((i) =>
-        typeof ds.data[i] === "number" && ds.data[i] > 0 ? ds.data[i] : null
+        ds.data[i].type === CellValueType.number && ds.data[i].value > 0 ? ds.data[i] : EMPTY_CELL
       ),
     })),
   };
@@ -651,7 +666,7 @@ function fixEmptyLabelsForDateCharts(
     if (!newLabels[i]) {
       newLabels[i] = findNextDefinedValue(newLabels, i);
       for (const ds of newDatasets) {
-        ds.data[i] = undefined;
+        ds.data[i] = EMPTY_CELL;
       }
     }
   }
@@ -661,15 +676,17 @@ function fixEmptyLabelsForDateCharts(
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
+export function getData(getters: Getters, ds: DataSet): EvaluatedCell[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
     if (dataZone === undefined) {
       return [];
     }
-    const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
-    return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
+    const { sheetId, zone } = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
+    return getters
+      .getEvaluatedCellsInZone(sheetId, zone)
+      .map((cell) => (cell.value === "" ? EMPTY_CELL : cell));
   }
   return [];
 }
@@ -697,7 +714,7 @@ function filterInvalidDataPoints(
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
       data: dataPointsIndexes.map((i) =>
-        typeof dataset.data[i] === "number" ? dataset.data[i] : null
+        dataset.data[i].type === CellValueType.number ? dataset.data[i] : EMPTY_CELL
       ),
     })),
   };
@@ -714,17 +731,17 @@ function filterInvalidHierarchicalPoints(
     values.length,
     ...hierarchy.map((dataset) => dataset.data?.length || 0)
   );
-  const isEmpty = (value: CellValue) => value === undefined || value === null || value === "";
+  const isEmpty = (value: CellValue) => value === null || value === "";
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const groups = hierarchy.map((dataset) => dataset.data?.[dataPointIndex]);
-    if (isEmpty(groups[0])) {
+    if (isEmpty(groups[0]?.value)) {
       return false;
     }
     // Filter points with empty group in the middle
     let hasFoundEmptyGroup = false;
     for (const group of groups) {
-      hasFoundEmptyGroup ||= isEmpty(group);
-      if (hasFoundEmptyGroup && !isEmpty(group)) {
+      hasFoundEmptyGroup ||= isEmpty(group.value);
+      if (hasFoundEmptyGroup && !isEmpty(group.value)) {
         return false;
       }
     }
@@ -783,7 +800,9 @@ function aggregateDataForLabels(
   for (const indexOfLabel of range(0, labels.length)) {
     const label = labels[indexOfLabel];
     for (const indexOfDataset of range(0, datasets.length)) {
-      labelMap[label][indexOfDataset] += parseNumber(datasets[indexOfDataset].data[indexOfLabel]);
+      labelMap[label][indexOfDataset] += parseNumber(
+        datasets[indexOfDataset].data[indexOfLabel].value
+      );
     }
   }
 
@@ -791,7 +810,9 @@ function aggregateDataForLabels(
     labels: Array.from(labelSet),
     dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
       ...dataset,
-      data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
+      data: Array.from(labelSet).map((label) =>
+        createEvaluatedCell({ value: labelMap[label][indexOfDataset] })
+      ),
     })),
   };
 }
@@ -890,14 +911,14 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
 
     let data = ds.dataRange ? getData(getters, ds) : [];
     if (
-      data.every((e) => !e || (typeof e === "string" && !isEvaluationError(e))) &&
-      data.filter((e) => typeof e === "string").length > 1
+      data.every((cell) => !cell.value || cell.type === CellValueType.text) &&
+      data.filter((cell) => cell.type === CellValueType.text).length > 1
     ) {
       // Convert categorical data into counts
-      data = data.map((e) => (e && !isEvaluationError(e) ? 1 : null));
+      data = data.map((cell) => (cell && cell.type !== CellValueType.error ? ONE : EMPTY_CELL));
     } else if (
       data.every(
-        (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
+        (cell) => cell.value === null || !isNumber(cell.value.toString(), DEFAULT_LOCALE) // bizarre
       )
     ) {
       hidden = true;
@@ -931,20 +952,20 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   }
   const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
 
-  let currentValues: (CellValue | undefined)[] = [];
+  let currentValues: EvaluatedCell[] = [];
   const leafDatasetIndex = dataSets.length - 1;
 
   for (let i = 0; i < minLength; i++) {
     for (let dsIndex = 0; dsIndex < dataSetsData.length; dsIndex++) {
-      let value = dataSetsData[dsIndex][i];
-      if ((value === undefined || value === null) && dsIndex !== leafDatasetIndex) {
-        value = currentValues[dsIndex];
+      let cell = dataSetsData[dsIndex][i];
+      if (cell.value === null && dsIndex !== leafDatasetIndex) {
+        cell = currentValues[dsIndex];
       }
-      if (value !== currentValues[dsIndex]) {
+      if (cell.value !== currentValues[dsIndex].value) {
         currentValues = currentValues.slice(0, dsIndex);
-        currentValues[dsIndex] = value;
+        currentValues[dsIndex] = cell;
       }
-      datasetValues[dsIndex].data.push(value ?? null);
+      datasetValues[dsIndex].data.push(cell);
     }
   }
 
@@ -956,16 +977,17 @@ export function makeDatasetsCumulative(
   order: "asc" | "desc"
 ): DatasetValues[] {
   return datasets.map((dataset) => {
-    const data: number[] = [];
+    const data: (NumberCell | EmptyCell)[] = [];
     let accumulator = 0;
     const indexes =
-      order === "asc" ? Object.keys(dataset.data) : Object.keys(dataset.data).reverse();
+      order === "asc" ? range(0, dataset.data.length) : range(0, dataset.data.length).reverse();
     for (const i of indexes) {
-      if (!isNaN(parseFloat(dataset.data[i]))) {
-        accumulator += parseFloat(dataset.data[i]);
-        data[i] = accumulator;
+      const cell = dataset.data[i];
+      if (cell.type === CellValueType.number) {
+        accumulator += cell.value;
+        data[i] = { ...cell, value: accumulator };
       } else {
-        data[i] = dataset.data[i];
+        data[i] = EMPTY_CELL;
       }
     }
     return { ...dataset, data };

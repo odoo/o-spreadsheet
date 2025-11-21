@@ -1,4 +1,3 @@
-import { range } from "../../helpers/misc";
 import { CellPosition, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { UIPlugin } from "../ui_plugin";
@@ -78,10 +77,12 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
     dimension: Dimension,
     { last, first }: { first: HeaderIndex; last: HeaderIndex }
   ): HeaderIndex {
-    const lastVisibleIndex = range(last, first, -1).find(
-      (index) => !this.isHeaderHidden(sheetId, dimension, index)
-    );
-    return lastVisibleIndex || first;
+    for (let header = last; header >= first; header--) {
+      if (!this.isHeaderHidden(sheetId, dimension, header)) {
+        return header;
+      }
+    }
+    return first;
   }
 
   findFirstVisibleColRowIndex(sheetId: UID, dimension: Dimension) {

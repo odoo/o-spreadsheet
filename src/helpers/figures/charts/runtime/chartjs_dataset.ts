@@ -57,7 +57,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
 import { isDefined, range } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import {
+  CellValueType,
+  ChartRuntimeGenerationArgs,
+  Color,
+  GenericDefinition,
+} from "../../../../types";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -78,7 +83,7 @@ export function getBarChartDatasets(
     const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar"> = {
       label,
-      data,
+      data: data.map((cell) => (cell.type === CellValueType.number ? cell.value : 0)),
       hidden,
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
@@ -131,20 +136,20 @@ export function getWaterfallDatasetAndLabels(
       continue;
     }
     for (let i = 0; i < dataSetsValue.data.length; i++) {
-      const data = dataSetsValue.data[i];
+      const cell = dataSetsValue.data[i];
       labelsWithSubTotals.push(labels[i]);
-      if (isNaN(Number(data))) {
+      if (cell.type !== CellValueType.number) {
         datasetValues.push([lastValue, lastValue]);
         backgroundColor.push("");
         continue;
       }
-      datasetValues.push([lastValue, data + lastValue]);
-      let color = data >= 0 ? positiveColor : negativeColor;
+      datasetValues.push([lastValue, cell.value + lastValue]);
+      let color = cell.value >= 0 ? positiveColor : negativeColor;
       if (i === 0 && dataSetsValue === dataSetsValues[0] && definition.firstValueAsSubtotal) {
         color = subTotalColor;
       }
       backgroundColor.push(color);
-      lastValue += data;
+      lastValue += cell.value;
     }
     if (definition.showSubTotals) {
       labelsWithSubTotals.push(_t("Subtotal"));
@@ -175,16 +180,22 @@ export function getLineChartDatasets(
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
+    let dataValues: (number | { x: number; y: number })[] = [];
 
     const color = colors.next();
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
-      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
+      dataValues = data.map((y, index) => ({
+        x: labels[index] === "" ? NaN : Number(labels[index]),
+        y: y.type === CellValueType.number ? y.value : NaN,
+      }));
+    } else {
+      dataValues = data.map((cell) => (cell.type === CellValueType.number ? cell.value : 0));
     }
 
     const dataset: ChartDataset<"line"> = {
       label,
-      data,
+      data: dataValues,
       hidden,
       tension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
@@ -234,12 +245,12 @@ export function getPieChartDatasets(
     if (hidden) continue;
     const dataset: ChartDataset<"pie"> = {
       label,
-      data,
+      data: data.filter((cell) => cell.type === CellValueType.number).map((cell) => cell.value),
       borderColor: definition.background || "#FFFFFF",
       backgroundColor,
       hoverOffset: 10,
     };
-    dataSets!.push(dataset);
+    dataSets.push(dataset);
   }
   return dataSets;
 }
@@ -267,7 +278,7 @@ export function getComboChartDatasets(
     const type = design?.type ?? "line";
     const dataset: ChartDataset<"bar" | "line"> = {
       label: label,
-      data,
+      data: data.map((cell) => (cell.type === CellValueType.number ? cell.value : null)),
       hidden,
       borderColor: color,
       backgroundColor: color,
@@ -315,7 +326,7 @@ export function getRadarChartDatasets(
     const borderColor = colors.next();
     const dataset: ChartDataset<"radar"> = {
       label,
-      data,
+      data: data.map((cell) => (cell.type === CellValueType.number ? cell.value : null)),
       hidden,
       borderColor,
       backgroundColor: borderColor,
@@ -349,12 +360,16 @@ export function getGeoChartDatasets(
     const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
     if (dataSetsValues[0]) {
       for (let i = 0; i < dataSetsValues[0].data.length; i++) {
-        if (!labels[i] || dataSetsValues[0].data[i] === undefined) {
+        const cell = dataSetsValues[0].data[i];
+        if (!labels[i] || cell === undefined) {
           continue;
         }
         const featureId = args.geoFeatureNameToId(regionName, labels[i]);
         if (featureId) {
-          labelsAndValues[featureId] = { value: dataSetsValues[0].data[i], label: labels[i] };
+          labelsAndValues[featureId] = {
+            value: cell.type === CellValueType.number ? cell.value : 0,
+            label: labels[i],
+          };
         }
       }
     }
@@ -391,7 +406,13 @@ export function getFunnelChartDatasets(
 
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
-    data: data.map((value) => (value <= 0 ? [0, 0] : [-value, value])),
+    data: data.map((cell) => {
+      if (cell.type !== CellValueType.number) {
+        return 0;
+      }
+      const value = cell.value;
+      return value <= 0 ? [0, 0] : [-value, value];
+    }),
     backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
     yAxisID: "y",
     xAxisID: "x",

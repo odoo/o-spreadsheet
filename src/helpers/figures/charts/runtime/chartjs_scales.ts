@@ -41,7 +41,7 @@ import {
   range,
   removeFalsyAttributes,
 } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
-import { LocaleFormat } from "../../../../types";
+import { CellValueType, LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 
 type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
@@ -206,7 +206,11 @@ export function getPyramidChartScales(
   scales!.x!.ticks!.callback = (value: number) => scalesXCallback(Math.abs(value));
 
   const maxValue = Math.max(
-    ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+    ...dataSetsValues.map((dataSet) =>
+      Math.max(
+        ...dataSet.data.filter((x) => x.type === CellValueType.number).map((x) => Math.abs(x.value))
+      )
+    )
   );
   scales!.x!.suggestedMin = -maxValue;
   scales!.x!.suggestedMax = maxValue;
@@ -220,7 +224,11 @@ export function getRadarChartScales(
 ): ChartScales {
   const { locale, axisFormats, dataSetsValues } = args;
   const minValue = Math.min(
-    ...dataSetsValues.map((ds) => Math.min(...ds.data.filter((x) => !isNaN(x))))
+    ...dataSetsValues.map((ds) =>
+      Math.min(
+        ...ds.data.filter((x) => x.type === CellValueType.number).map((x) => x.value as number)
+      )
+    )
   );
   return {
     r: {
@@ -299,12 +307,20 @@ export function getFunnelChartScales(
       border: { display: false },
       ticks: {
         callback: function (tickValue, index, ticks) {
-          const value = dataSet.data?.[index];
-          const baseValue = dataSet.data?.[0];
-          if (!baseValue || value === undefined) {
+          const valueCell = dataSet.data?.[index];
+          const baseValueCell = dataSet.data?.[0];
+          if (
+            !baseValueCell?.value ||
+            valueCell?.value === null ||
+            valueCell.type !== CellValueType.number ||
+            baseValueCell.type !== CellValueType.number
+          ) {
             return "";
           }
-          return formatValue(value / baseValue, { format: "0%", locale: args.locale });
+          return formatValue(valueCell.value / baseValueCell.value, {
+            format: "0%",
+            locale: args.locale,
+          });
         },
       },
       grid: { display: false },
