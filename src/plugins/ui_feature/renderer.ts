@@ -670,7 +670,9 @@ export class RendererPlugin extends UIPlugin {
     const style = this.getters.getCellComputedStyle(position);
     const wrapping = style.wrapping || "overflow";
     const maxWidth =
-      wrapping === "wrap" && !showFormula ? width - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+      wrapping === "wrap" && !showFormula
+        ? width - 2 * MIN_CELL_TEXT_MARGIN - iconBoxWidth - headerIconWidth
+        : undefined;
     const multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
     const textWidth = Math.max(
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)

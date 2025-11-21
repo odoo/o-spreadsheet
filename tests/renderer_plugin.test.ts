@@ -7,7 +7,10 @@ import {
   CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  DEFAULT_FONT_SIZE,
   FILTERS_COLOR,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
@@ -15,7 +18,7 @@ import {
   NEWLINE,
   SELECTION_BORDER_COLOR,
 } from "../src/constants";
-import { fontSizeInPixels, toHex, toZone } from "../src/helpers";
+import { computeTextFontSizeInPixels, fontSizeInPixels, toHex, toZone } from "../src/helpers";
 import { Mode } from "../src/model";
 import { RendererPlugin } from "../src/plugins/ui_feature";
 import { Align, BorderPosition, Box, GridRenderingContext, Viewport, Zone } from "../src/types";
@@ -23,6 +26,7 @@ import { MockCanvasRenderingContext2D } from "./setup/canvas.mock";
 import {
   addColumns,
   addDataValidation,
+  addIconCF,
   copy,
   createFilter,
   deleteColumns,
@@ -33,6 +37,7 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setFormat,
   setSelection,
   setStyle,
   setZoneBorders,
@@ -1770,6 +1775,36 @@ describe("renderer", () => {
 
       model.drawGrid(ctx);
       expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordThat", "IsTooLon", "g"]);
+    });
+
+    test("Wrapped text takes cell icons into account", () => {
+      const cellContentWidth = DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN;
+      const overFlowingContent = "a".repeat(cellContentWidth);
+      setCellContent(model, "A1", "0");
+      setFormat(model, `[$${overFlowingContent}]`, target("A1"));
+      setStyle(model, "A1", { wrapping: "wrap" });
+
+      model.drawGrid(ctx);
+      expect(renderedTexts[0]).toEqual("a".repeat(cellContentWidth));
+
+      addIconCF(model, "A1", ["3", "7"], "arrows");
+      renderedTexts = [];
+      model.drawGrid(ctx);
+
+      const cfIconWidth =
+        MIN_CF_ICON_MARGIN + computeTextFontSizeInPixels({ fontSize: DEFAULT_FONT_SIZE });
+      expect(renderedTexts[0]).toEqual("a".repeat(cellContentWidth - cfIconWidth));
+      expect(renderedTexts[1]).toEqual("a".repeat(cfIconWidth));
+
+      createFilter(model, "A1:A5");
+      renderedTexts = [];
+      model.drawGrid(ctx);
+
+      const filterIconWidth = GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
+      expect(renderedTexts[0]).toEqual(
+        "a".repeat(cellContentWidth - cfIconWidth - filterIconWidth)
+      );
+      expect(renderedTexts[1]).toEqual("a".repeat(cfIconWidth + filterIconWidth));
     });
 
     test("Texts with newlines are displayed over multiple lines", () => {
