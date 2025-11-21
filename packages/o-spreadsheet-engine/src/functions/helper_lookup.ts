@@ -1,8 +1,11 @@
+import { Token } from "../formulas/tokenizer";
+import { getCanonicalSymbolName } from "../helpers";
 import { isZoneInside, positionToZone, zoneToXc } from "../helpers/zones";
 import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
 import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { EvalContext } from "../types/functions";
+import { Getters } from "../types/getters";
 import { FunctionResultObject, Maybe, UID } from "../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 import { Range } from "../types/range";
@@ -65,8 +68,11 @@ export function addPivotDependencies(
 
   for (const measure of forMeasures) {
     if (measure.computedBy) {
-      const formula = evalContext.getters.getMeasureCompiledFormula(measure);
-      dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
+      // const formula = evalContext.getters.getMeasureCompiledFormula(measure);
+      // @ts-ignore
+      const a = getPivotMeasureDependencies(evalContext.getters, coreDefinition, measure);
+      dependencies.push(...truc(evalContext.getters, coreDefinition, measure));
+      // dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
     }
   }
   const originPosition = evalContext.__originCellPosition;
@@ -77,4 +83,75 @@ export function addPivotDependencies(
     evalContext.updateDependencies?.(originPosition);
     evalContext.addDependencies?.(originPosition, dependencies);
   }
+}
+
+function truc(
+  getters: Getters,
+  definition: PivotCoreDefinition,
+  measure: PivotCoreMeasure,
+  exploredMeasures: Set<string> = new Set()
+): Range[] {
+  const rangeList: Range[] = [];
+  const formula = getters.getMeasureCompiledFormula(measure);
+  for (const token of formula.tokens) {
+    if (token.type !== "SYMBOL") {
+      continue;
+    }
+    const existingMeasure = definition.measures.find(
+      (measureCandidate) =>
+        getCanonicalSymbolName(measureCandidate.id) === token.value &&
+        measure.id !== measureCandidate.id
+    );
+
+    if (!existingMeasure || exploredMeasures.has(existingMeasure.id) || !existingMeasure.computedBy)
+      continue;
+
+    rangeList.push(...truc(getters, definition, existingMeasure, exploredMeasures));
+  }
+  // rangeList.push(...getRangesFromTokens(definition, formula.tokens, getters));
+  rangeList.push(...formula.dependencies.filter((range) => !range.invalidXc));
+  exploredMeasures.add(measure.id);
+  return rangeList;
+}
+
+function getPivotMeasureDependencies(
+  getters: Getters,
+  definition: PivotCoreDefinition,
+  measure: PivotCoreMeasure
+): Range[] {
+  const formula = getters.getMeasureCompiledFormula(measure);
+  const res = getRangesFromTokens(definition, formula.tokens, getters);
+  res.push(...formula.dependencies.filter((range) => !range.invalidXc));
+  return res;
+  const rangeList: Range[] = [];
+  // get formula indirect dependencies
+
+  rangeList.push(...getRangesFromTokens(definition, formula.tokens, getters));
+
+  // const { columns, rows } = definition;
+
+  rangeList.concat(formula.dependencies.filter((range) => !range.invalidXc));
+  return rangeList;
+}
+
+function getRangesFromTokens(
+  definition: PivotCoreDefinition,
+  formulaTokens: Token[],
+  getters: Getters
+): Range[] {
+  const rangeList: Range[] = [];
+  for (const token of formulaTokens) {
+    if (token.type !== "SYMBOL") {
+      continue;
+    }
+    const existingMeasure = definition.measures.find(
+      (measure) => measure.id === token.value.slice(1, -1)
+    );
+    if (existingMeasure && existingMeasure.computedBy) {
+      const formula = getters.getMeasureCompiledFormula(existingMeasure);
+      rangeList.push(...getRangesFromTokens(definition, formula.tokens, getters));
+      rangeList.push(...formula.dependencies.filter((range) => !range.invalidXc));
+    }
+  }
+  return rangeList;
 }
