@@ -9,7 +9,13 @@ import { featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CollaborationMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model, UIPlugin } from "../../src";
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
-import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
+import {
+  Command,
+  CommandResult,
+  CoreCommand,
+  DataValidationCriterion,
+  DEFAULT_LOCALE,
+} from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
@@ -36,9 +42,9 @@ import {
   setCellContent,
   setFormat,
   setStyle,
-  unMerge,
   undo,
   ungroupHeaders,
+  unMerge,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import {
@@ -55,7 +61,6 @@ import {
   createEqualCF,
   getDataValidationRules,
   target,
-  toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
@@ -974,7 +979,8 @@ describe("Multi users synchronisation", () => {
       getDefaultCellHeight(
         ctx,
         getCell(alice, "A1"),
-        alice.getters.getCellStyle(toCellPosition("sheet2", "A1")),
+        getCellStyle(alice, "A1", "sheet2"),
+        DEFAULT_LOCALE,
         colSize
       )
     );
