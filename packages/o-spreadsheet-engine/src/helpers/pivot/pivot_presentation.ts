@@ -6,7 +6,7 @@ import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
 import { Getters } from "../../types/getters";
-import { FunctionResultObject, isMatrix, SortDirection } from "../../types/misc";
+import { FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import {
   DimensionTree,
@@ -51,6 +51,7 @@ type DomainGroups<T> = { [colDomain: string]: { [rowDomain: string]: T } };
 export default function (PivotClass: PivotUIConstructor) {
   class PivotPresentationLayer extends PivotClass {
     private getters: Getters;
+    private pivotId: UID;
     private cache: Record<string, FunctionResultObject> = {};
     private rankAsc: CacheForMeasureAndField<DomainGroups<number> | undefined> = {};
     private rankDesc: CacheForMeasureAndField<DomainGroups<number> | undefined> = {};
@@ -61,9 +62,10 @@ export default function (PivotClass: PivotUIConstructor) {
       DomainGroups<number | undefined> | undefined
     > = {};
 
-    constructor(custom: ModelConfig["custom"], params: PivotParams) {
+    constructor(pivotId: UID, custom: ModelConfig["custom"], params: PivotParams) {
       super(custom, params);
       this.getters = params.getters;
+      this.pivotId = pivotId;
     }
 
     markAsDirtyForEvaluation(): void {
@@ -118,7 +120,7 @@ export default function (PivotClass: PivotUIConstructor) {
           return handleError(error, measure.aggregator.toUpperCase());
         }
       }
-      const formula = this.getters.getMeasureCompiledFormula(measure);
+      const formula = this.getters.getMeasureCompiledFormula(this.pivotId, measure);
       const getSymbolValue = (symbolName: string) => {
         const { columns, rows } = this.definition;
         if (columns.find((col) => col.nameWithGranularity === symbolName)) {

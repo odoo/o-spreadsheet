@@ -1180,4 +1180,35 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A5").value).toEqual("");
     expect(getEvaluatedCell(model, "A6").value).toEqual(0);
   });
+
+  test("measure takes indirect dependency into account for recalculation", () => {
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+      A3: "42",
+      A4: '=PIVOT.VALUE(1, "calculated")',
+      A5: '=PIVOT.VALUE(1, "basedOnCalculated")',
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:A2", {
+      measures: [
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: "=A3", sheetId },
+        },
+        {
+          id: "basedOnCalculated",
+          fieldName: "basedOnCalculated",
+          aggregator: "sum",
+          computedBy: { formula: "=calculated", sheetId },
+        },
+      ],
+    });
+    setCellContent(model, "A3", "43");
+    expect(getEvaluatedCell(model, "A4").value).toEqual(43);
+    expect(getEvaluatedCell(model, "A5").value).toEqual(43);
+  });
 });

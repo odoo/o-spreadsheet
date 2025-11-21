@@ -323,7 +323,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
     const definition = this.getters.getPivotCoreDefinition(pivotId);
     if (!(pivotId in this.pivots)) {
       const Pivot = withPivotPresentationLayer(pivotRegistry.get(definition.type).ui);
-      this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });
+      this.pivots[pivotId] = new Pivot(pivotId, this.custom, { definition, getters: this.getters });
     } else if (recreate) {
       this.pivots[pivotId].onDefinitionChange(definition);
     }
