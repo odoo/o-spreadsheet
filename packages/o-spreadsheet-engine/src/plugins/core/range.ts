@@ -327,7 +327,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const updatedDependencies = compiledFormula.dependencies.map((dep) => {
       const range = this.getters.getRangeFromSheetXC(sheetId, dep);
       const changedRange = applyChange(range);
-      if (changedRange.changeType === "CHANGE" && "newName" in changedRange) {
+      if (changedRange.changeType === "RENAME" && "newName" in changedRange) {
         newSheetNames[range.sheetId] = changedRange.newName;
       }
       return changedRange.changeType === "NONE" ? range : changedRange.range;

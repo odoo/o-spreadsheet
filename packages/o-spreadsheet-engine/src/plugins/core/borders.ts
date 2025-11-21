@@ -134,7 +134,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       const change = applyChange(this.getters.getRangeFromZone(sheetId, border.zone));
       switch (change.changeType) {
         case "RESIZE":
-        case "CHANGE":
+        case "RENAME":
         case "MOVE":
           newBorders.push({ ...border, zone: change.range.unboundedZone });
           break;

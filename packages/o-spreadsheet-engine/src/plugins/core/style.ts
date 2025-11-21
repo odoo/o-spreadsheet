@@ -113,7 +113,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       const change = applyChange(this.getters.getRangeFromZone(sheetId, style.zone));
       switch (change.changeType) {
         case "RESIZE":
-        case "CHANGE":
+        case "RENAME":
         case "MOVE":
           newStyles.push({ style: style.style, zone: change.range.unboundedZone });
           break;

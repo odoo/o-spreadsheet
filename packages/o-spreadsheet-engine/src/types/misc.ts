@@ -294,10 +294,10 @@ export const enum DIRECTION {
   RIGHT = "right",
 }
 
-export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "RENAME" | "NONE";
 export type ApplyRangeChangeResult =
-  | { changeType: Exclude<ChangeType, "NONE" | "CHANGE">; range: Range }
-  | { changeType: "CHANGE"; range: Range; newName: string }
+  | { changeType: Exclude<ChangeType, "NONE" | "RENAME">; range: Range }
+  | { changeType: "RENAME"; range: Range; newName: string }
   | { changeType: "NONE" };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 
