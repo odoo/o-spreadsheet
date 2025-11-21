@@ -53,6 +53,7 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
+      case "UPDATE_LOCALE":
         for (const sheetId of this.getters.getSheetIds()) {
           this.initializeSheet(sheetId);
         }
@@ -190,7 +191,7 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     const cell = this.getters.getCell(position);
 
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, colSize);
+    return getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {
