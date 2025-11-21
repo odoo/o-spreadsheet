@@ -673,10 +673,15 @@ export class RendererPlugin extends UIPlugin {
       wrapping === "wrap" && !showFormula
         ? width - 2 * MIN_CELL_TEXT_MARGIN - iconBoxWidth - headerIconWidth
         : undefined;
-    const multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
+    console.log(maxWidth);
+    let multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
+    if (maxWidth !== undefined && maxWidth < 0) {
+      multiLineText = [""];
+    }
     const textWidth = Math.max(
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );
+    console.log(multiLineText, textWidth);
 
     const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);

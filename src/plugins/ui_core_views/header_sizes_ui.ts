@@ -115,6 +115,7 @@ export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements Hea
   }
 
   getRowSize(sheetId: UID, row: HeaderIndex): Pixel {
+    console.trace();
     return Math.round(
       this.getters.getUserRowSize(sheetId, row) ??
         this.tallestCellInRow[sheetId][row]?.size ??
@@ -171,6 +172,12 @@ export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements Hea
     }
 
     const cell = this.getters.getCell(position);
+
+    // ADRM TODO: Mmmh it's wrong, the available size to the text depend on the icons, which depend on the evaluation.
+    // But we do'nt have the evaluation when we are here ... so do everything in finalize ? (Edit: nope, not possible, viewport depends on this before the finalize)
+    // But then history.update in finalize ??? Or no history, adn undo/redo becomes very expensive ...
+    // Or most likely ignore the bug, and will be fixed somewhere in the future when this plugin will start handling evaluated values.
+    // console.log(this.getters.getConditionalIcon(position));
 
     const colSize = this.getters.getColSize(position.sheetId, position.col);
     return getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize);
