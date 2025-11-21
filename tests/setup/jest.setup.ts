@@ -87,6 +87,24 @@ beforeEach(() => {
       const blob = new window.Blob([data], { type });
       setTimeout(() => callback(blob), 0);
     });
+
+  // offsetParent should return the nearest positioned ancestor, or null if an ancestor has `display: none`
+  jest
+    .spyOn(HTMLElement.prototype, "offsetParent", "get")
+    .mockImplementation(function (this: HTMLElement) {
+      let parentEl: HTMLElement | null = this.parentElement;
+      while (parentEl) {
+        if (
+          getComputedStyle(parentEl).display === "none" ||
+          parentEl.classList.contains("d-none")
+        ) {
+          return null;
+        }
+        parentEl = parentEl.parentElement;
+      }
+      return this.parentElement; // should be nearest positioned ancestor, but simplified for tests
+    });
+
   patchSessionMove();
 });
 
