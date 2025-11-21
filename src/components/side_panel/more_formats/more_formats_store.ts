@@ -125,12 +125,19 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   get numberFormatProposals() {
-    const numberFormats = ["0.00", "0", "#,##0", "#,##0.00", "0%", "0.00%", "0.00;(0.00);-"].map(
-      (format) => ({
-        label: formatValue(-1234.56, { format, locale: this.getters.getLocale() }),
-        format,
-      })
-    );
+    const numberFormats = [
+      "0.00",
+      "0",
+      "#,##0",
+      "#,##0.00",
+      "0%",
+      "0.00%",
+      "0.00e",
+      "0.00;(0.00);-",
+    ].map((format) => ({
+      label: formatValue(-1234.56, { format, locale: this.getters.getLocale() }),
+      format,
+    }));
 
     return [
       { label: _t("Automatic"), format: undefined },
