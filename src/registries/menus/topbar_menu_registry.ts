@@ -22,7 +22,6 @@ topbarMenuRegistry
   .add("file", {
     name: _t("File"),
     sequence: 10,
-    isReadonlyAllowed: true,
   })
   .addChild("settings", ["file"], {
     name: _t("Settings"),
@@ -39,7 +38,6 @@ topbarMenuRegistry
   .add("edit", {
     name: _t("Edit"),
     sequence: 20,
-    isReadonlyAllowed: true,
   })
   .addChild("undo", ["edit"], {
     ...ACTION_EDIT.undo,
@@ -126,7 +124,6 @@ topbarMenuRegistry
   .add("view", {
     name: _t("View"),
     sequence: 30,
-    isReadonlyAllowed: true,
   })
   .addChild("unfreeze_panes", ["view"], {
     ...ACTION_VIEW.unFreezePane,
@@ -225,7 +222,6 @@ topbarMenuRegistry
   .add("insert", {
     name: _t("Insert"),
     sequence: 40,
-    isReadonlyAllowed: true,
   })
   .addChild("insert_row", ["insert"], {
     ...ACTION_INSERT.insertRow,
@@ -346,7 +342,6 @@ topbarMenuRegistry
   .add("format", {
     name: _t("Format"),
     sequence: 50,
-    isReadonlyAllowed: true,
   })
   .addChild("format_number", ["format"], {
     ...formatNumberMenuItemSpec,
@@ -441,7 +436,6 @@ topbarMenuRegistry
   .add("data", {
     name: _t("Data"),
     sequence: 60,
-    isReadonlyAllowed: true,
   })
   .addChild("sort_range", ["data"], {
     ...ACTION_DATA.sortRange,
