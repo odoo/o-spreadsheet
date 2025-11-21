@@ -339,6 +339,19 @@ describe("TopBar component", () => {
     expect(getStyle(model, "A1").fontSize).toBe(8);
   });
 
+  test("Tab from font size editor closes the dropdown", async () => {
+    const { fixture } = await mountSpreadsheet();
+    const input = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+    input.focus();
+    await nextTick();
+    expect(fixture.querySelector(".o-dropdown-content.o-text-options")).toBeTruthy();
+    input.blur();
+    await nextTick();
+    expect(fixture.querySelector(".o-dropdown-content.o-text-options")).toBeFalsy();
+    const composerEl = fixture.querySelector<HTMLElement>(".o-grid-composer .o-composer")!;
+    expect(document.activeElement).toBe(composerEl);
+  });
+
   test("prevents default behavior of mouse wheel event on font size input", async () => {
     await mountParent();
     const fontSizeInput = fixture.querySelector("input.o-font-size") as HTMLInputElement;
