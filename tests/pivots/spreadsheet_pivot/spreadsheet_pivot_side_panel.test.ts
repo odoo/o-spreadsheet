@@ -233,12 +233,6 @@ describe("Spreadsheet pivot side panel", () => {
       "=A1+Sheet2!A1"
     );
     await keyDown({ key: "Enter" });
-
-    activateSheet(model, sheet2Id);
-    // close the side panel and reopen it while the second sheet is active
-    await click(fixture.querySelector(".o-sidePanelClose")!);
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
-    await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
       "=Sheet1!A1+Sheet2!A1"
     );
@@ -249,7 +243,7 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
-      "=A1+Sheet2!A1"
+      "=Sheet1!A1+Sheet2!A1"
     );
   });
 

@@ -1,12 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingEditor">
     <div class="o-cf-ruleEditor">
-      <Section class="'o-cf-range pb-0'" title.translate="Apply to range">
+      <Section class="'o-cf-range pb-0'" title="this.rangeTitle">
         <div class="o-selection-cf">
           <SelectionInput
             ranges="state.ranges"
             class="'o-range'"
             isInvalid="isRangeValid"
+            availableOnSheetId="this.props.sheetId"
             onSelectionChanged.bind="onRangeUpdate"
             onSelectionConfirmed.bind="onRangeConfirmed"
             required="true"
