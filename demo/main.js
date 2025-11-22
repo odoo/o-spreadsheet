@@ -326,13 +326,13 @@ class Demo extends Component {
 }
 
 Demo.template = xml/* xml */ `
-  <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content">
+  <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content w-100 h-100">
     <div class="p-3 border-bottom">A header</div>
-    <div class="flex-fill" style="height: 100dvh !important;width: 100dvw !important;">
+    <div class="flex-fill">
       <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
     </div>
   </div>
-  <div t-else="" style="height: 100dvh !important;width: 100dvw !important;">
+  <div t-else="" class="w-100 h-100">
     <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser"/>
   </div>
 `;
