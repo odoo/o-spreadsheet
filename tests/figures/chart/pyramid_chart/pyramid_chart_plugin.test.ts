@@ -78,7 +78,11 @@ describe("population pyramid chart", () => {
 
       createChart(
         model,
-        { type: "pyramid", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },
+        {
+          type: "pyramid",
+          dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
+          dataSetsHaveTitle: false,
+        },
         "id"
       );
       const runtime = model.getters.getChartRuntime("id") as any;
