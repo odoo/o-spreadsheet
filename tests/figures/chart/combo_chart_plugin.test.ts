@@ -45,7 +45,8 @@ describe("combo chart", () => {
 
   test("both axis and tooltips formats are based on their data set", () => {
     const model = new Model();
-
+    setCellContent(model, "B1", "1000");
+    setCellContent(model, "C1", "2000");
     setCellFormat(model, "B1", "0.00%"); // first data set
     setCellFormat(model, "C1", "0.00[$$]"); // second data set
 
