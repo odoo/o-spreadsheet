@@ -10,7 +10,7 @@ import {
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
-import { Format, FormattedValue } from "../../../types/format";
+import { Format } from "../../../types/format";
 import {
   CellPosition,
   FunctionResultObject,
@@ -148,7 +148,6 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "evaluateFormulaResult",
     "evaluateCompiledFormula",
     "getCorrespondingFormulaCell",
-    "getRangeFormattedValues",
     "getRangeValues",
     "getEvaluatedCell",
     "getEvaluatedCells",
@@ -244,15 +243,6 @@ export class EvaluationPlugin extends CoreViewPlugin {
     getSymbolValue: GetSymbolValue
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
-  }
-
-  /**
-   * Return the value of each cell in the range as they are displayed in the grid.
-   */
-  getRangeFormattedValues(range: Range): FormattedValue[] {
-    const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
-    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).formattedValue);
   }
 
   /**
