@@ -618,6 +618,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     >
                       <path
                         d="M5 2h1v12h1.5l-2 2-2-2H5m6-5h1v5h1.5l-2 2-2-2H11M8 2l7 2.8V6L8 8.8l-.43-1.12 1.9-.7V3.8l-1.9-.7L8 1.98m2.7 2.25v2.3l2.8-1.1z"
+                        fill="currentColor"
                       />
                     </svg>
                   </span>
@@ -1670,6 +1671,7 @@ exports[`components take the small screen into account 1`] = `
                     >
                       <path
                         d="M5 2h1v12h1.5l-2 2-2-2H5m6-5h1v5h1.5l-2 2-2-2H11M8 2l7 2.8V6L8 8.8l-.43-1.12 1.9-.7V3.8l-1.9-.7L8 1.98m2.7 2.25v2.3l2.8-1.1z"
+                        fill="currentColor"
                       />
                     </svg>
                   </span>
