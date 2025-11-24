@@ -33,6 +33,7 @@ import {
   getElComputedStyle,
   gridMouseEvent,
   keyDown,
+  keyUp,
   rightClickCell,
   selectColumnByClicking,
   simulateClick,
@@ -358,6 +359,15 @@ describe("Composer interactions", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     await clickCell(model, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("should switch topbar composer from editing to inactive when pressing Escape on cell A1 containing '=A2'", async () => {
+    setCellContent(model, "A1", "=A2");
+    await click(fixture, ".o-spreadsheet-topbar .o-composer");
+    expect(composerStore.editionMode).toBe("editing");
+    keyDown({ key: "Escape" });
+    keyUp({ key: "Escape" });
     expect(composerStore.editionMode).toBe("inactive");
   });
 
