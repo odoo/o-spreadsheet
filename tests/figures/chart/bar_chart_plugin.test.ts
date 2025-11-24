@@ -76,6 +76,7 @@ describe("bar chart", () => {
           type: "bar",
           dataSets: [{ dataRange: "A1", yAxisId: "y" }],
           axesDesign: { x: { title: { text: "xAxis" } }, y: { title: { text: "yAxis" } } },
+          dataSetsHaveTitle: false,
         },
         "id"
       );
