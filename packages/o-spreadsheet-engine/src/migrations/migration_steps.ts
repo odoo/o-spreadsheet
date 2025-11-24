@@ -555,7 +555,7 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("19.2", {
+  .add("19.1.0", {
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
