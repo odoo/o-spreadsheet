@@ -781,7 +781,7 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
   expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
 });
 
-test("migrate version 19.2: colorScale is changed to a trio of color", () => {
+test("migrate version 19.1.0: colorScale is changed to a trio of color", () => {
   const data = {
     version: "18.5.1",
     sheets: [
