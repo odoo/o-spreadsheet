@@ -1013,9 +1013,10 @@ function getChartLabelValues(
       !labelRange.invalidSheetName &&
       !getters.isColHidden(labelRange.sheetId, left)
     ) {
+      const cells = getters.getRangeValues(labelRange);
       return {
-        formattedValues: getters.getRangeFormattedValues(labelRange),
-        values: getters.getRangeValues(labelRange).map(({ value }) => String(value ?? "")),
+        formattedValues: cells.map(({ formattedValue }) => formattedValue),
+        values: cells.map(({ value }) => String(value ?? "")),
       };
     }
   }
