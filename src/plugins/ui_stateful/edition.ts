@@ -144,7 +144,9 @@ export class EditionPlugin extends UIPlugin {
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
         this.selectionStart = cmd.start;
         this.selectionEnd = cmd.end;
-        this.mode = "editing";
+        if (this.isSelectingForComposer()) {
+          this.mode = "editing";
+        }
         break;
       case "STOP_COMPOSER_RANGE_SELECTION":
         if (this.isSelectingForComposer()) {

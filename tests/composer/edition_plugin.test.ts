@@ -103,6 +103,13 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
+  test("should keep edition mode inactive when selection changes while composer is inactive", () => {
+    const model = new Model();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
   test("should switch to editing mode when composer cursor selection changes", () => {
     const model = new Model();
     model.dispatch("START_EDITION", { text: "=sum(" });
