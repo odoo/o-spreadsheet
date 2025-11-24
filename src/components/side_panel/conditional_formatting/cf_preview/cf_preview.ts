@@ -1,6 +1,6 @@
 import { ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { HIGHLIGHT_COLOR, TEXT_BODY } from "@odoo/o-spreadsheet-engine/constants";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef } from "@odoo/owl";
@@ -40,8 +40,9 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
         ? baseString + minColor + ", " + midColor + ", " + maxColor + ")"
         : baseString + minColor + ", " + maxColor + ")";
     } else if (rule.type === "DataBarRule") {
-      const color = colorNumberToHex(rule.color);
-      return `background-image: linear-gradient(to right, ${color} 50%, white 50%)`;
+      const barColor = colorNumberToHex(rule.color);
+      const gradient = `background-image: linear-gradient(to right, ${barColor} 50%, white 50%)`;
+      return `${gradient}; color: ${TEXT_BODY};`;
     }
     return "";
   }
