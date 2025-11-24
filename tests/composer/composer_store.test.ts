@@ -126,6 +126,12 @@ describe("edition", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
+  test("should keep edition mode inactive when selection changes while composer is inactive", () => {
+    expect(composerStore.editionMode).toBe("inactive");
+    composerStore.changeComposerCursorSelection(0, 0);
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
   test("should switch to editing mode when composer cursor selection changes", () => {
     composerStore.startEdition("=sum(");
     expect(composerStore.editionMode).toBe("selecting");
