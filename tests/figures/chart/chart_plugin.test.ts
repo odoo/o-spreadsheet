@@ -2106,6 +2106,7 @@ describe("Chart design configuration", () => {
     test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell with format",
       (chartType) => {
+        setCellContent(model, "A2", "10");
         setCellFormat(model, "A2", "[$$]#,##0.00");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         expect(
@@ -2134,8 +2135,10 @@ describe("Chart design configuration", () => {
           },
           "42"
         );
+        setCellContent(model, "A2", "10");
+        setCellContent(model, "B2", "20");
         setCellFormat(model, "A2", "[$$]#,#");
-        setCellFormat(model, "B1", "0%");
+        setCellFormat(model, "B2", "0%");
 
         const config = model.getters.getChartRuntime("42") as any;
         const scales = config.chartJsConfig?.options?.scales;
