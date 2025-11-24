@@ -158,7 +158,9 @@ export function getRangeFormattedValues(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): FormattedValue[] {
-  return model.getters.getRangeFormattedValues(model.getters.getRangeFromSheetXC(sheetId, xc));
+  return model.getters
+    .getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc))
+    .map((cell) => cell.formattedValue);
 }
 
 export function getRangeValues(
