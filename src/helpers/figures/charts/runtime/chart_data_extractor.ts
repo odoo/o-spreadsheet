@@ -85,8 +85,8 @@ export function getBarChartData(
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
-  const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
+  const leftAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "left");
+  const rightAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "right");
   const axisFormats = definition.horizontal
     ? { x: leftAxisFormat || rightAxisFormat }
     : { y: leftAxisFormat, y1: rightAxisFormat };
@@ -216,6 +216,7 @@ export function getCalendarChartData(
   const locale = getters.getLocale() || DEFAULT_LOCALE;
 
   ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues, locale));
+  const axisFormats = { y: getChartDatasetFormat(dataSets, dataSetsValues, "left") };
 
   ({ labels, dataSetsValues } = computeValuesAndLabels(
     labels,
@@ -224,8 +225,6 @@ export function getCalendarChartData(
     definition.verticalGroupBy ?? "hour_number",
     locale
   ));
-
-  const axisFormats = { y: getChartDatasetFormat(getters, dataSets, "left") };
 
   return {
     dataSetsValues,
@@ -295,8 +294,8 @@ export function getLineChartData(
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "asc");
   }
 
-  const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
-  const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
+  const leftAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "left");
+  const rightAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "right");
   const labelsFormat = getChartLabelFormat(getters, labelRange, removeFirstLabel);
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat, x: labelsFormat };
 
@@ -346,7 +345,7 @@ export function getPieChartData(
 
   ({ dataSetsValues, labels } = keepOnlyPositiveValues(labels, dataSetsValues));
 
-  const dataSetFormat = getChartDatasetFormat(getters, dataSets, "left");
+  const dataSetFormat = getChartDatasetFormat(dataSets, dataSetsValues, "left");
 
   return {
     dataSetsValues,
@@ -376,8 +375,8 @@ export function getRadarChartData(
   }
 
   const dataSetFormat =
-    getChartDatasetFormat(getters, dataSets, "left") ||
-    getChartDatasetFormat(getters, dataSets, "right");
+    getChartDatasetFormat(dataSets, dataSetsValues, "left") ||
+    getChartDatasetFormat(dataSets, dataSetsValues, "right");
   const axisFormats = { r: dataSetFormat };
 
   return {
@@ -404,8 +403,8 @@ export function getGeoChartData(
   ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
 
   const format =
-    getChartDatasetFormat(getters, dataSets, "left") ||
-    getChartDatasetFormat(getters, dataSets, "right");
+    getChartDatasetFormat(dataSets, dataSetsValues, "left") ||
+    getChartDatasetFormat(dataSets, dataSetsValues, "right");
 
   return {
     dataSetsValues,
@@ -440,8 +439,8 @@ export function getFunnelChartData(
   }
 
   const format =
-    getChartDatasetFormat(getters, dataSets, "left") ||
-    getChartDatasetFormat(getters, dataSets, "right");
+    getChartDatasetFormat(dataSets, dataSetsValues, "left") ||
+    getChartDatasetFormat(dataSets, dataSetsValues, "right");
 
   return {
     dataSetsValues,
@@ -954,17 +953,20 @@ function aggregateDataForLabels(
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
   const parseNumber = (value: CellValue) => (typeof value === "number" ? value : 0);
   const labelSet = new Set(labels);
-  const labelMap: { [key: string]: number[] } = {};
+  const labelMap: { [key: string]: { value: number; format?: Format }[] } = {};
   labelSet.forEach((label) => {
-    labelMap[label] = new Array(datasets.length).fill(0);
+    labelMap[label] = new Array(datasets.length);
   });
 
   for (const indexOfLabel of range(0, labels.length)) {
     const label = labels[indexOfLabel];
     for (const indexOfDataset of range(0, datasets.length)) {
-      labelMap[label][indexOfDataset] += parseNumber(
-        datasets[indexOfDataset].data[indexOfLabel]?.value
-      );
+      const cell = datasets[indexOfDataset].data[indexOfLabel];
+      if (!labelMap[label][indexOfDataset]) {
+        labelMap[label][indexOfDataset] = { ...cell, value: parseNumber(cell?.value) };
+      } else {
+        labelMap[label][indexOfDataset].value += parseNumber(cell?.value);
+      }
     }
   }
 
@@ -972,7 +974,7 @@ function aggregateDataForLabels(
     labels: Array.from(labelSet),
     dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
       ...dataset,
-      data: Array.from(labelSet).map((label) => ({ value: labelMap[label][indexOfDataset] })),
+      data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
     })),
   };
 }
@@ -1043,15 +1045,18 @@ function getChartLabelValues(
  * found in the dataset ranges that isn't a date format.
  */
 function getChartDatasetFormat(
-  getters: Getters,
-  allDataSets: DataSet[],
+  dataSetDefinitions: DataSet[],
+  dataSetValues: DatasetValues[],
   axis: "left" | "right"
 ): Format | undefined {
-  const dataSets = allDataSets.filter((ds) => (axis === "right") === !!ds.rightYAxis);
+  const dataSets = dataSetValues.filter(
+    (ds, i) => (axis === "right") === !!dataSetDefinitions[i].rightYAxis
+  );
   for (const ds of dataSets) {
-    const formatsInDataset = getters.getRangeFormats(ds.dataRange);
-    const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
-    if (format) return format;
+    const cell = ds.data.find(({ format }) => format !== undefined && !isDateTimeFormat(format));
+    if (cell) {
+      return cell.format;
+    }
   }
   return undefined;
 }
