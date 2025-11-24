@@ -150,7 +150,6 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getCorrespondingFormulaCell",
     "getRangeFormattedValues",
     "getRangeValues",
-    "getRangeFormats",
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
@@ -269,6 +268,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p));
   }
 
+<<<<<<< HEAD
   /**
    * Return the format of each cell in the range.
    */
@@ -280,6 +280,8 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
   }
 
+=======
+>>>>>>> 36957c47b ([REF] charts: format doesn't depend on ranges)
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
     return this.evaluator.getEvaluatedCell(position);
   }

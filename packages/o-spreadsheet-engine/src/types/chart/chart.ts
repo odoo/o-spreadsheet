@@ -254,7 +254,7 @@ export interface ChartRuntimeGenerationArgs {
 export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
   Omit<T, "dataSets" | "type">
 > & {
-  dataSets?: Omit<T["dataSets"][number], "dataRange">[];
+  dataSets: Omit<T["dataSets"][number], "dataRange">[];
 };
 
 export interface ChartColorScale {
