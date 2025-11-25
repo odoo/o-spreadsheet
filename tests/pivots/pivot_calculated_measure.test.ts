@@ -1,10 +1,12 @@
 import {
   activateSheet,
-  addColumns,
+  addRows,
   createSheet,
   deleteSheet,
+  redo,
   setCellContent,
   setFormat,
+  undo,
 } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell, getEvaluatedGrid } from "../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
@@ -1063,16 +1065,21 @@ describe("Pivot calculated measure", () => {
       ],
     });
     expect(getEvaluatedCell(model, "A4").value).toEqual(42);
-    addColumns(model, "before", "A", 1);
+    addRows(model, "before", 2, 1);
     expect(model.getters.getPivotCoreDefinition("1").measures).toEqual([
       {
         id: "calculated",
         fieldName: "calculated",
         aggregator: "sum",
-        computedBy: { formula: "=B3", sheetId },
+        computedBy: { formula: "=A4", sheetId },
       },
     ]);
-    expect(getEvaluatedCell(model, "B4").value).toEqual(42);
+    expect(getEvaluatedCell(model, "A5").value).toEqual(42);
+
+    undo(model);
+    expect(getEvaluatedCell(model, "A4").value).toEqual(42);
+    redo(model);
+    expect(getEvaluatedCell(model, "A5").value).toEqual(42);
   });
 
   test("references becomes invalid when sheet is deleted", () => {
