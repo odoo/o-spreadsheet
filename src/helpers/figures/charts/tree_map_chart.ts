@@ -14,6 +14,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -185,11 +186,12 @@ export class TreeMapChart extends AbstractChart {
 }
 
 export function createTreeMapChartRuntime(
+  getters: Getters,
   chart: TreeMapChart,
-  getters: Getters
+  data: ChartData
 ): TreeMapChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getHierarchalChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "treemap",

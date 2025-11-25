@@ -9,12 +9,7 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
   get canTreatLabelsAsText() {
     const chart = this.env.model.getters.getChart(this.props.chartId);
     if (chart && chart instanceof ScatterChart) {
-      return canChartParseLabels(
-        chart.getDefinition(),
-        chart.dataSets,
-        chart.labelRange,
-        this.env.model.getters
-      );
+      return canChartParseLabels(this.env.model.getters, chart.sheetId, chart.getDefinition());
     }
     return false;
   }
