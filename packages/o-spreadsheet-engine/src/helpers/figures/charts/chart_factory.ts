@@ -36,8 +36,9 @@ export function chartRuntimeFactory(getters: Getters) {
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
-    const runtime = builder.getChartRuntime(chart, getters);
     const definition = chart.getDefinition();
+    const data = builder.extractData(definition, chart.sheetId, getters);
+    const runtime = builder.getChartRuntime(getters, chart, data);
     if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
       const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
       runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);

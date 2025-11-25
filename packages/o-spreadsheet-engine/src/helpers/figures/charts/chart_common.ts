@@ -33,7 +33,7 @@ import { adaptStringRange } from "../../formulas";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
-import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
+import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -400,25 +400,11 @@ export function checkLabelRange(definition: ChartWithDataSetDefinition): Command
 }
 
 export function shouldRemoveFirstLabel(
-  labelRange: Range | undefined,
-  dataset: DataSet | undefined,
+  numberOfLabels: number,
+  numberOfDataPoints: number | undefined,
   dataSetsHaveTitle: boolean
 ) {
-  if (!dataSetsHaveTitle) {
-    return false;
-  }
-  if (!labelRange) {
-    return false;
-  }
-  if (!dataset) {
-    return true;
-  }
-  const datasetLength = getZoneArea(dataset.dataRange.zone);
-  const labelLength = getZoneArea(labelRange.zone);
-  if (labelLength < datasetLength) {
-    return false;
-  }
-  return true;
+  return dataSetsHaveTitle && (!numberOfDataPoints || numberOfLabels >= numberOfDataPoints);
 }
 
 export function getChartPositionAtCenterOfViewport(
