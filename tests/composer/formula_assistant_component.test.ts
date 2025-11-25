@@ -319,6 +319,35 @@ describe("formula assistant", () => {
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC3 ( f3ArgA, f3ArgB1, [f3ArgB2], ...  )"
         );
+
+        await typeInComposer(", ,", false);
+        expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
+          "FUNC3 ( f3ArgA, ... , [f3ArgB2], [f3ArgB3], ...  )"
+        );
+      });
+
+      test("function with repeatable argument optional", async () => {
+        await typeInComposer("=FUNC3BIS(");
+        expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
+          "FUNC3BIS ( f3bisArgA, [f3bisArgB1], [f3bisArgB2], ...  )"
+        );
+
+        await typeInComposer(", ,", false);
+        expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
+          "FUNC3BIS ( f3bisArgA, ... , [f3bisArgB2], [f3bisArgB3], ...  )"
+        );
+      });
+
+      test("function with multiple repeatable arguments", async () => {
+        await typeInComposer("=UPTOWNFUNC(");
+        expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
+          "UPTOWNFUNC ( f4ArgA, f4ArgB1, f4ArgC1, ...  )"
+        );
+
+        await typeInComposer(", , ,", false);
+        expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
+          "UPTOWNFUNC ( f4ArgA, ... , [f4ArgB2, f4ArgC2], ...  )"
+        );
       });
 
       test("arguments separator is localized", async () => {
