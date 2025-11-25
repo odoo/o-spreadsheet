@@ -1,6 +1,7 @@
 import { astToFormula } from "../../formulas/formula_formatter";
 import { Token } from "../../formulas/tokenizer";
 import { toScalar } from "../../functions/helper_matrices";
+import { deepCopy } from "../../helpers";
 import { deepEquals, getUniqueText } from "../../helpers/misc";
 import {
   getFirstPivotFunction,
@@ -65,9 +66,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
       for (const pivotId of this.getters.getPivotIds()) {
-        if (!pivotRegistry.get(this.getters.getPivotCoreDefinition(pivotId).type).externalData) {
-          this.setupPivot(pivotId, { recreate: true });
-        }
+        this.setupPivot(pivotId, { recreate: true });
       }
     }
     switch (cmd.type) {
@@ -320,7 +319,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   }
 
   setupPivot(pivotId: UID, { recreate } = { recreate: false }) {
-    const definition = this.getters.getPivotCoreDefinition(pivotId);
+    const definition = deepCopy(this.getters.getPivotCoreDefinition(pivotId));
     if (!(pivotId in this.pivots)) {
       const Pivot = withPivotPresentationLayer(pivotRegistry.get(definition.type).ui);
       this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });

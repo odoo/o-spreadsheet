@@ -1,5 +1,4 @@
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
-import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model } from "../../src";
@@ -1025,7 +1024,6 @@ describe("Collaborative local history", () => {
   });
 
   test("remove pivot, new user joins, then undo", () => {
-    pivotRegistry.get("SPREADSHEET").externalData = true; // simulate external pivot
     const network = new MockTransportService();
     const data = {
       revisionId: DEFAULT_REVISION_ID,
@@ -1073,7 +1071,6 @@ describe("Collaborative local history", () => {
     const bob = new Model(data, configBob, messages);
     undo(alice);
     expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
-    pivotRegistry.get("SPREADSHEET").externalData = false;
   });
 
   test("Concurrently undo a command on which another is based", () => {
