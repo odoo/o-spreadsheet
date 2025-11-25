@@ -745,7 +745,7 @@ criterionEvaluatorRegistry.add("top10", {
 
     const numberValues: number[] = [];
     for (const range of criterionRanges) {
-      for (const value of getters.getRangeValues(range)) {
+      for (const { value } of getters.getRangeValues(range)) {
         if (typeof value === "number") {
           numberValues.push(value);
         }

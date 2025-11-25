@@ -3,7 +3,6 @@ import {
   deepCopy,
   DEFAULT_LOCALE,
   findNextDefinedValue,
-  isNumber,
   range,
 } from "@odoo/o-spreadsheet-engine";
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
@@ -22,7 +21,12 @@ import {
   isTextCell,
 } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { DAYS, isDateTimeFormat, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import {
+  DAYS,
+  formatValue,
+  isDateTimeFormat,
+  MONTHS,
+} from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
@@ -74,8 +78,10 @@ export function getBarChartData(
   labelRange: Range | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  const locale = getters.getLocale();
+  let labels = getChartLabelValues(getters, dataSets, labelRange).map(({ value, format }) =>
+    formatValue(value, { format, locale })
+  );
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
@@ -142,7 +148,7 @@ function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): strin
 }
 
 function computeValuesAndLabels(
-  timeValues: CellValue[],
+  timeValues: FunctionResultObject[],
   values: FunctionResultObject[],
   horizontalGroupBy: CalendarChartGranularity,
   verticalGroupBy: CalendarChartGranularity,
@@ -156,8 +162,8 @@ function computeValuesAndLabels(
     const xValue = toNumber(
       createDate(
         { granularity: horizontalGroupBy, type: "date", displayName: "date" },
-        timeValues[i],
-        DEFAULT_LOCALE
+        timeValues[i].value,
+        locale
       ),
       locale
     );
@@ -168,8 +174,8 @@ function computeValuesAndLabels(
     const yValue = toNumber(
       createDate(
         { granularity: verticalGroupBy, type: "date", displayName: "date" },
-        timeValues[i],
-        DEFAULT_LOCALE
+        timeValues[i].value,
+        locale
       ),
       locale
     );
@@ -197,7 +203,7 @@ function computeValuesAndLabels(
 
   return {
     dataSetsValues,
-    labels: xValues.map((v) => getDateTimeLabel(v, horizontalGroupBy)),
+    labels: xValues.map((v) => ({ value: getDateTimeLabel(v, horizontalGroupBy) })),
   };
 }
 
@@ -208,7 +214,7 @@ export function getCalendarChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.values;
+  let labels = labelValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
@@ -216,7 +222,7 @@ export function getCalendarChartData(
 
   const locale = getters.getLocale() || DEFAULT_LOCALE;
 
-  ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues, locale));
+  ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues));
   const axisFormats = { y: getChartDatasetFormat(definition.dataSets, dataSetsValues, "left") };
 
   ({ labels, dataSetsValues } = computeValuesAndLabels(
@@ -230,7 +236,7 @@ export function getCalendarChartData(
   return {
     dataSetsValues,
     axisFormats,
-    labels,
+    labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
   };
@@ -273,7 +279,12 @@ export function getLineChartData(
 ): ChartRuntimeGenerationArgs {
   const axisType = getChartAxisType(definition, dataSets, labelRange, getters);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+  let labels =
+    axisType === "linear"
+      ? labelValues.map(({ value }) => String(value ?? ""))
+      : labelValues.map(({ value, format }) =>
+          formatValue(value, { format, locale: getters.getLocale() })
+        );
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   const removeFirstLabel = shouldRemoveFirstLabel(
     labelRange,
@@ -332,7 +343,9 @@ export function getPieChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let labels = labelValues.map(({ value, format }) =>
+    formatValue(value, { format, locale: getters.getLocale() })
+  );
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
@@ -364,7 +377,9 @@ export function getRadarChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let labels = labelValues.map(({ value, format }) =>
+    formatValue(value, { format, locale: getters.getLocale() })
+  );
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
@@ -396,7 +411,9 @@ export function getGeoChartData(
 ): GeoChartRuntimeGenerationArgs {
   const dataSets = fullDataSets.slice(0, 1);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let labels = labelValues.map(({ value, format }) =>
+    formatValue(value, { format, locale: getters.getLocale() })
+  );
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
@@ -425,7 +442,9 @@ export function getFunnelChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let labels = labelValues.map(({ value, format }) =>
+    formatValue(value, { format, locale: getters.getLocale() })
+  );
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
@@ -458,7 +477,7 @@ export function getHierarchalChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   // In hierarchical charts, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
-  let labels = getChartLabelValues(getters, dataSets, labelRange).values;
+  let labels = getChartLabelValues(getters, dataSets, labelRange);
   let dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
   const removeFirstLabel = shouldRemoveFirstLabel(
     labelRange,
@@ -474,7 +493,7 @@ export function getHierarchalChartData(
   return {
     dataSetsValues,
     axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
-    labels,
+    labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
   };
 }
@@ -860,10 +879,9 @@ function filterInvalidDataPoints(
  * - have no label and a non-numeric value
  */
 function filterInvalidCalendarDataPoints(
-  labels: string[],
-  datasets: DatasetValues[],
-  locale: Locale
-): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  labels: LabelValues,
+  datasets: DatasetValues[]
+): { labels: LabelValues; dataSetsValues: DatasetValues[] } {
   const numberOfDataPoints = Math.max(
     labels.length,
     ...datasets.map((dataset) => dataset.data?.length || 0)
@@ -871,7 +889,7 @@ function filterInvalidCalendarDataPoints(
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return label && isNumber(label, DEFAULT_LOCALE) && isNumberCell(values[0]);
+    return isNumberCell(label) && isNumberCell(values[0]);
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
@@ -886,9 +904,9 @@ function filterInvalidCalendarDataPoints(
  * Filter the data points that have either no value, a negative value, no root group or null group values in the middle
  */
 function filterInvalidHierarchicalPoints(
-  values: string[],
+  values: LabelValues,
   hierarchy: DatasetValues[]
-): { labels: string[]; dataSetsValues: DatasetValues[] } {
+): { labels: LabelValues; dataSetsValues: DatasetValues[] } {
   const numberOfDataPoints = Math.max(
     values.length,
     ...hierarchy.map((dataset) => dataset.data?.length || 0)
@@ -907,7 +925,7 @@ function filterInvalidHierarchicalPoints(
         return false;
       }
     }
-    return values[dataPointIndex] && !isNaN(Number(values[dataPointIndex]));
+    return values[dataPointIndex] && isNumberCell(values[dataPointIndex]);
   });
   return {
     labels: dataPointsIndexes.map((i) => values[i]),
@@ -921,14 +939,14 @@ function filterInvalidHierarchicalPoints(
 /**
  * If the values are a mix of positive and negative values, keep only the positive ones
  */
-function filterValuesWithDifferentSigns(values: string[], hierarchy: DatasetValues[]) {
+function filterValuesWithDifferentSigns(values: LabelValues, hierarchy: DatasetValues[]) {
   const positivePointsIndexes: number[] = [];
   const negativePointsIndexes: number[] = [];
 
   for (let i = 0; i < values.length; i++) {
-    if (Number(values[i]) <= 0) {
+    if (Number(values[i].value) <= 0) {
       negativePointsIndexes.push(i);
-    } else if (Number(values[i]) > 0) {
+    } else if (Number(values[i].value) > 0) {
       positivePointsIndexes.push(i);
     }
   }
@@ -1006,7 +1024,7 @@ function getChartLabelValues(
   dataSets: DataSet[],
   labelRange?: Range
 ): LabelValues {
-  let labels: LabelValues = { values: [], formattedValues: [] };
+  let labels: LabelValues = [];
   if (labelRange) {
     const { left } = labelRange.zone;
     if (
@@ -1014,31 +1032,20 @@ function getChartLabelValues(
       !labelRange.invalidSheetName &&
       !getters.isColHidden(labelRange.sheetId, left)
     ) {
-      const cells = getters.getRangeValues(labelRange);
-      labels = {
-        formattedValues: cells.map(({ formattedValue }) => formattedValue),
-        values: cells.map(({ value }) => String(value ?? "")),
-      };
+      labels = getters.getRangeValues(labelRange);
     } else if (dataSets[0]) {
       const ranges = getData(getters, dataSets[0]);
-      labels = {
-        formattedValues: range(0, ranges.length).map((r) => r.toString()),
-        values: labels.formattedValues,
-      };
+      labels = range(0, ranges.length).map((r) => ({ value: r.toString() }));
     }
   } else if (dataSets.length === 1) {
     const dataLength = getData(getters, dataSets[0]).length;
     for (let i = 0; i < dataLength; i++) {
-      labels.formattedValues.push("");
-      labels.values.push("");
+      labels.push({ value: "" });
     }
   } else {
     if (dataSets[0]) {
       const ranges = getData(getters, dataSets[0]);
-      labels = {
-        formattedValues: range(0, ranges.length).map((r) => r.toString()),
-        values: labels.formattedValues,
-      };
+      labels = range(0, ranges.length).map((r) => ({ value: r.toString() }));
     }
   }
   return labels;
