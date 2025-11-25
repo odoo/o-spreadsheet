@@ -14,7 +14,8 @@ import { CellErrorType } from "../../../types/errors";
 import { RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
-import { toExcelDataset, toExcelLabelRange } from "./chart_common";
+import { getZoneArea } from "../../zones";
+import { shouldRemoveFirstLabel, toExcelDataset, toExcelLabelRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -110,15 +111,19 @@ export abstract class AbstractChart {
    */
   abstract getContextCreation(): ChartCreationContext;
 
-  protected getCommonDataSetAttributesForExcel(
-    labelRange: Range | undefined,
-    dataSets: DataSet[],
-    shouldRemoveFirstLabel: boolean
-  ) {
+  protected getCommonDataSetAttributesForExcel(labelRange: Range | undefined, dataSets: DataSet[]) {
     const excelDataSets: ExcelChartDataset[] = dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const excelLabelRange = toExcelLabelRange(this.getters, labelRange, shouldRemoveFirstLabel);
+    const definition = this.getDefinition();
+    const datasetLength = dataSets[0] ? getZoneArea(dataSets[0].dataRange.zone) : undefined;
+    const labelLength = labelRange ? getZoneArea(labelRange.zone) : 0;
+    const _shouldRemoveFirstLabel = shouldRemoveFirstLabel(
+      labelLength,
+      datasetLength,
+      "dataSetsHaveTitle" in definition ? definition.dataSetsHaveTitle : false
+    );
+    const excelLabelRange = toExcelLabelRange(this.getters, labelRange, _shouldRemoveFirstLabel);
     return {
       dataSets: excelDataSets,
       labelRange: excelLabelRange,
