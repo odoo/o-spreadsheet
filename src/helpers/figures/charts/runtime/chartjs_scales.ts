@@ -118,6 +118,7 @@ export function getCalendarChartScales(
       grid: {
         display: false,
       },
+      border: { display: false },
     },
     x: {
       title: getChartAxisTitleRuntime(definition.axesDesign?.x),
@@ -129,6 +130,7 @@ export function getCalendarChartScales(
       ticks: {
         color: fontColor,
       },
+      border: { display: false },
     },
   };
 }
