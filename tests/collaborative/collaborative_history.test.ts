@@ -1,7 +1,6 @@
 import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { pivotRegistry } from "../../src/helpers/pivot/pivot_registry";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
@@ -1019,7 +1018,6 @@ describe("Collaborative local history", () => {
   });
 
   test("remove pivot, new user joins, then undo", () => {
-    pivotRegistry.get("SPREADSHEET").externalData = true; // simulate external pivot
     const network = new MockTransportService();
     const data = {
       revisionId: DEFAULT_REVISION_ID,
@@ -1067,7 +1065,6 @@ describe("Collaborative local history", () => {
     const bob = new Model(data, configBob, messages);
     undo(alice);
     expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
-    pivotRegistry.get("SPREADSHEET").externalData = false;
   });
 
   test("Concurrently undo a command on which another is based", () => {
