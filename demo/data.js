@@ -439,6 +439,8 @@ export const demoData = {
         V30: "Qualified",
         V31: "Proposition",
         V32: "Won",
+        V36: "Date of sale",
+        V37: "=TODAY() + ROUND(RANDARRAY(50)*30)",
         W1: "Movie Name",
         W2: "Avengers: Endgame",
         W3: "The Dark Knight",
@@ -466,6 +468,8 @@ export const demoData = {
         W30: "=RANDBETWEEN(10, 40)",
         W31: "=RANDBETWEEN(10, 40)",
         W32: "=RANDBETWEEN(10, 40)",
+        W36: "Sale Amount",
+        W37: "=ROUND(RANDARRAY(50)*10000)",
         X1: "Revenue",
         X2: "2798000000",
         X3: "1006000000",
@@ -493,6 +497,7 @@ export const demoData = {
       styles: {},
       formats: {
         "X1:X23": 3,
+        "W37:W86": 7,
       },
       borders: {},
       conditionalFormats: [],
@@ -841,7 +846,7 @@ export const demoData = {
             legendPosition: "top",
             labelRange: "Sheet1!A27:A35",
             title: {
-              text: "Line",
+              text: "Pyramid",
             },
             horizontal: true,
             stacked: true,
@@ -951,6 +956,32 @@ export const demoData = {
             },
           },
         },
+        {
+          id: "15",
+          tag: "chart",
+          width: 500,
+          height: 300,
+          data: {
+            type: "calendar",
+            dataSets: [
+              {
+                dataRange: "W36:W86",
+              },
+            ],
+            dataSetsHaveTitle: true,
+            labelRange: "V36:V86",
+            title: {},
+            horizontalGroupBy: "iso_week_number",
+            verticalGroupBy: "day_of_week",
+            legendPosition: "none",
+          },
+          offset: {
+            x: 550,
+            y: 2225,
+          },
+          col: 0,
+          row: 0,
+        },
       ],
       tables: [
         {
@@ -996,6 +1027,21 @@ export const demoData = {
             bandedColumns: false,
             automaticAutofill: true,
             styleId: "TableStyleMedium5",
+          },
+        },
+        {
+          range: "V36:W86",
+          type: "static",
+          config: {
+            hasFilters: false,
+            totalRow: false,
+            firstColumn: true,
+            lastColumn: false,
+            numberOfHeaders: 1,
+            bandedRows: true,
+            bandedColumns: false,
+            automaticAutofill: true,
+            styleId: "TableStyleMedium2",
           },
         },
       ],
@@ -3530,7 +3576,7 @@ export const demoData = {
   formats: {
     1: "0.00%",
     2: "#,##0.00",
-    3: '$#,##0,,"K"',
+    3: '$#,##0,,"m"',
     4: "m/d/yyyy",
     5: "hh:mm:ss a",
     6: "d/m/yyyy",
