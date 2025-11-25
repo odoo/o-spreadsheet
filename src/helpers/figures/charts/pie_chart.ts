@@ -1,5 +1,6 @@
 import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { setColorAlpha } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
@@ -25,7 +26,15 @@ import {
   PieChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
-import type { ChartConfiguration } from "chart.js";
+import type {
+  ActiveElement,
+  Chart,
+  ChartConfiguration,
+  ChartDataset,
+  ChartEvent,
+  LegendElement,
+  LegendItem,
+} from "chart.js";
 import {
   ApplyRangeChange,
   Color,
@@ -56,6 +65,7 @@ export class PieChart extends AbstractChart {
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;
   readonly pieHolePercentage?: number;
+  lastHoveredIndex: number | undefined = undefined;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -196,6 +206,59 @@ export class PieChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
     return new PieChart(definition, this.sheetId, this.getters);
   }
+
+  highlightItem(index: number, dataSets: ChartDataset[]) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor as Color[] | undefined;
+      if (!backgroundColors) {
+        return;
+      }
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, i === index ? 1 : 0.4);
+      });
+    });
+  }
+
+  unHighlightItems(dataSets: ChartDataset[]) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor as Color[] | undefined;
+      if (!backgroundColors) {
+        return;
+      }
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, 1);
+      });
+    });
+  }
+
+  onHoverLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"doughnut" | "pie">) {
+    if (item.index === undefined) {
+      return;
+    }
+    const datasets = legend.chart.data.datasets;
+    this.highlightItem(item.index, datasets);
+    legend.chart.update();
+  }
+
+  onLeaveLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"doughnut" | "pie">) {
+    const datasets = legend.chart.data.datasets;
+    this.unHighlightItems(datasets);
+    legend.chart.update();
+  }
+
+  onHover(evt: ChartEvent, items: ActiveElement[], chart: Chart) {
+    const datasets = chart.data.datasets;
+    if (items[0]) {
+      if (items[0].index !== this.lastHoveredIndex) {
+        this.highlightItem(items[0].index, datasets);
+        this.lastHoveredIndex = items[0].index;
+      }
+    } else if (this.lastHoveredIndex !== undefined) {
+      this.unHighlightItems(datasets);
+      this.lastHoveredIndex = undefined;
+    }
+    chart.update();
+  }
 }
 
 export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
@@ -217,11 +280,32 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
       layout: getChartLayout(definition, chartData),
       plugins: {
         title: getChartTitle(definition, getters),
-        legend: getPieChartLegend(definition, chartData),
+        legend: {
+          ...getPieChartLegend(definition, chartData),
+          onHover: chart.onHoverLegend.bind(chart),
+          onLeave: chart.onLeaveLegend.bind(chart),
+        },
         tooltip: getPieChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        //@ts-ignore
+        ["eventPlugin"]: {
+          events: ["mouseout"],
+        },
       },
+      onHover: chart.onHover.bind(chart),
     },
+    plugins: [
+      {
+        id: "eventPlugin",
+        afterEvent(c, args, _) {
+          if (args.event.type === "mouseout") {
+            chart.unHighlightItems(c.data.datasets);
+            c.update();
+            chart.lastHoveredIndex = undefined;
+          }
+        },
+      },
+    ],
   };
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

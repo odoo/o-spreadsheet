@@ -90,6 +90,7 @@ export function getPieChartLegend(
             pointStyle: "rect" as const,
             lineWidth: 2,
             fontColor,
+            index: index,
           })) || []
         ).filter((label) => label.text),
       filter: (legendItem, data) => {
@@ -97,6 +98,29 @@ export function getPieChartLegend(
           ? !data.datasets[legendItem.datasetIndex!].hidden
           : true;
       },
+    },
+    onClick: (event, legendItem, legend) => {
+      if (event.type !== "click") {
+        return;
+      }
+      const index = legendItem.index;
+      if (!legend.legendItems || index === undefined) {
+        return;
+      }
+      const chart = legend.chart;
+      chart.toggleDataVisibility(index);
+      /*chart.data.datasets.forEach((dataset, datasetIndex) => {
+        if (dataset.data && dataset.data.length > index) {
+          // Update hidden state for all datasets at the given index
+          const meta = chart.getDatasetMeta(datasetIndex);
+          if (!meta.hidden) {
+            meta.data[index].backgroundColor = "transparent";
+          }
+        }
+      });*/
+      chart.update();
+      event.native!.preventDefault();
+      event.native!.stopPropagation();
     },
   };
 }

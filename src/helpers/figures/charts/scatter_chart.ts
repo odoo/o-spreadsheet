@@ -1,5 +1,6 @@
 import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { setColorAlpha } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
@@ -32,7 +33,15 @@ import {
   ScatterChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
-import { ChartConfiguration } from "chart.js";
+import {
+  ActiveElement,
+  Chart,
+  ChartConfiguration,
+  ChartDataset,
+  ChartEvent,
+  LegendElement,
+  LegendItem,
+} from "chart.js";
 import {
   ApplyRangeChange,
   Color,
@@ -50,6 +59,7 @@ import {
   getScatterChartDatasets,
   getScatterChartLegend,
   getScatterChartScales,
+  INTERACTIVE_LEGEND_CONFIG,
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
@@ -66,6 +76,7 @@ export class ScatterChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
   readonly zoomable?: boolean;
+  lastHoveredIndex: number | undefined = undefined;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -225,6 +236,54 @@ export class ScatterChart extends AbstractChart {
     );
     return new ScatterChart(definition, sheetId, this.getters);
   }
+
+  highlightItem(index: number, dataSets: ChartDataset<"line">[]) {
+    dataSets.forEach((dataset, i) => {
+      const color = setColorAlpha(dataset.pointBackgroundColor as string, i === index ? 1 : 0.4);
+      dataset.borderColor = color;
+      dataset.pointBackgroundColor = color;
+    });
+  }
+
+  unHighlightItems(dataSets: ChartDataset<"line">[]) {
+    dataSets.forEach((dataset) => {
+      const color = setColorAlpha(dataset.pointBackgroundColor as string, 1);
+      dataset.borderColor = color;
+      dataset.pointBackgroundColor = setColorAlpha(color, 1);
+    });
+  }
+
+  onHoverLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"line">) {
+    const index = item.datasetIndex;
+    if (index === undefined) {
+      return;
+    }
+    const datasets = legend.chart.data.datasets;
+    this.highlightItem(index, datasets);
+    INTERACTIVE_LEGEND_CONFIG.onHover?.(evt);
+    legend.chart.update();
+  }
+
+  onLeaveLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"line">) {
+    const datasets = legend.chart.data.datasets;
+    this.unHighlightItems(datasets);
+    INTERACTIVE_LEGEND_CONFIG.onLeave?.(evt);
+    legend.chart.update();
+  }
+
+  onHover(evt: ChartEvent, items: ActiveElement[], chart: Chart<"line">) {
+    const datasets = chart.data.datasets;
+    if (items[0]) {
+      if (items[0].index !== this.lastHoveredIndex) {
+        this.highlightItem(items[0].index, datasets);
+        this.lastHoveredIndex = items[0].index;
+      }
+    } else if (this.lastHoveredIndex !== undefined) {
+      this.unHighlightItems(datasets);
+      this.lastHoveredIndex = undefined;
+    }
+    chart.update();
+  }
 }
 
 export function createScatterChartRuntime(
@@ -248,7 +307,11 @@ export function createScatterChartRuntime(
       scales: getScatterChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition, getters),
-        legend: getScatterChartLegend(definition, chartData),
+        legend: {
+          ...getScatterChartLegend(definition, chartData),
+          onHover: chart.onHoverLegend.bind(chart),
+          onLeave: chart.onLeaveLegend.bind(chart),
+        },
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
       },
