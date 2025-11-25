@@ -30,7 +30,6 @@ type PivotDefinitionConstructor = new (
 export interface PivotRegistryItem {
   ui: PivotUIConstructor;
   definition: PivotDefinitionConstructor;
-  externalData: boolean;
   dateGranularities: string[];
   datetimeGranularities: string[];
   isMeasureCandidate: (field: PivotField) => boolean;
@@ -55,7 +54,6 @@ const dateGranularities = [
 pivotRegistry.add("SPREADSHEET", {
   ui: SpreadsheetPivot,
   definition: SpreadsheetPivotRuntimeDefinition,
-  externalData: false,
   dateGranularities: [...dateGranularities],
   datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
