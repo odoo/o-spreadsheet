@@ -1089,6 +1089,7 @@ test("import then export (figures)", () => {
         areGridLinesVisible: true,
         isVisible: true,
         headerGroups: { COL: [], ROW: [] },
+        isLocked: false,
       },
     ],
     pivots: {},

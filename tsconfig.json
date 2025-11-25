@@ -8,5 +8,5 @@
       "@odoo/o-spreadsheet-engine/*": ["./packages/o-spreadsheet-engine/src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "packages/o-spreadsheet-engine/src/plugins/ui_feature/lock_sheet.ts"]
 }

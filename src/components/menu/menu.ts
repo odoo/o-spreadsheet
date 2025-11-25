@@ -118,7 +118,13 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   }
 
   isEnabled(menu: Action) {
-    if (menu.isEnabled(this.env)) {
+    const children = menu.children?.(this.env);
+    // to discuss, implies a new a way to define isEnabled for a menu with children
+    // could either apply to the parent or to the children and both sould counter act
+    const areChildrenEnabled = children.length
+      ? children.some((child) => this.isEnabled(child))
+      : true;
+    if (menu.isEnabled(this.env) && areChildrenEnabled) {
       return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
     }
     return false;

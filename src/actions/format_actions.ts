@@ -166,6 +166,7 @@ export const increaseDecimalPlaces: ActionSpec = {
       target: env.model.getters.getSelectedZones(),
       step: 1,
     }),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const decreaseDecimalPlaces: ActionSpec = {
@@ -177,6 +178,7 @@ export const decreaseDecimalPlaces: ActionSpec = {
       target: env.model.getters.getSelectedZones(),
       step: -1,
     }),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatBold: ActionSpec = {
@@ -185,6 +187,7 @@ export const formatBold: ActionSpec = {
   execute: (env) => setStyle(env, { bold: !env.model.getters.getCurrentStyle().bold }),
   icon: "o-spreadsheet-Icon.BOLD",
   isActive: (env) => !!env.model.getters.getCurrentStyle().bold,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatItalic: ActionSpec = {
@@ -193,6 +196,7 @@ export const formatItalic: ActionSpec = {
   execute: (env) => setStyle(env, { italic: !env.model.getters.getCurrentStyle().italic }),
   icon: "o-spreadsheet-Icon.ITALIC",
   isActive: (env) => !!env.model.getters.getCurrentStyle().italic,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatUnderline: ActionSpec = {
@@ -201,6 +205,7 @@ export const formatUnderline: ActionSpec = {
   execute: (env) => setStyle(env, { underline: !env.model.getters.getCurrentStyle().underline }),
   icon: "o-spreadsheet-Icon.UNDERLINE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().underline,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatRotation: ActionSpec = {
@@ -249,22 +254,26 @@ export const formatStrikethrough: ActionSpec = {
     setStyle(env, { strikethrough: !env.model.getters.getCurrentStyle().strikethrough }),
   icon: "o-spreadsheet-Icon.STRIKE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().strikethrough,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatFontSize: ActionSpec = {
   name: _t("Font size"),
   children: fontSizeMenuBuilder(),
   icon: "o-spreadsheet-Icon.FONT_SIZE",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatAlignment: ActionSpec = {
   name: _t("Alignment"),
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatAlignmentHorizontal: ActionSpec = {
   name: _t("Horizontal align"),
   icon: (env) => getHorizontalAlignmentIcon(env),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatAlignmentLeft: ActionSpec = {
@@ -294,6 +303,7 @@ export const formatAlignmentRight: ActionSpec = {
 export const formatAlignmentVertical: ActionSpec = {
   name: _t("Vertical align"),
   icon: (env) => getVerticalAlignmentIcon(env),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatAlignmentTop: ActionSpec = {
@@ -320,11 +330,13 @@ export const formatAlignmentBottom: ActionSpec = {
 export const formatWrappingIcon: ActionSpec = {
   name: _t("Wrapping"),
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatWrapping: ActionSpec = {
   name: _t("Wrapping"),
   icon: (env) => getWrapModeIcon(env),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
 };
 
 export const formatWrappingOverflow: ActionSpec = {
@@ -361,7 +373,7 @@ export const fillColor: ActionSpec = {
 export const formatCF: ActionSpec = {
   name: _t("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.isSmall && !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 
@@ -373,6 +385,7 @@ export const clearFormat: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
 };
 
