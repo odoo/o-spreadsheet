@@ -94,7 +94,7 @@ export function getBarChartScales(
 export function getCalendarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
   datasets: ChartDataset[]
-): DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> {
+): DeepPartial<ScaleChartOptions<"calendar">["scales"]> {
   const yLabels = datasets.map((dataset) => dataset.label || "");
   const fontColor = chartFontColor(definition.background);
   return {
