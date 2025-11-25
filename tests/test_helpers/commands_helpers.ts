@@ -241,6 +241,8 @@ export function createChart(
     cumulative: ("cumulative" in data && data.cumulative) || false,
     showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
     showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
+    horizontalGroupBy: ("horizontalGroupBy" in data && data.horizontalGroupBy) || "day_of_week",
+    verticalGroupBy: ("verticalGroupBy" in data && data.verticalGroupBy) || "month_number",
   };
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
@@ -349,8 +351,8 @@ export function createCalendarChart(
       labelRange: data.labelRange,
       type: "calendar",
       background: data.background,
-      horizontalGroupBy: data.horizontalGroupBy,
-      verticalGroupBy: data.verticalGroupBy,
+      horizontalGroupBy: data.horizontalGroupBy ?? "day_of_week",
+      verticalGroupBy: data.verticalGroupBy ?? "month_number",
       legendPosition: data.legendPosition || "top",
       colorScale: data.colorScale,
     },

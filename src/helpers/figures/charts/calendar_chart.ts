@@ -50,16 +50,10 @@ import {
 } from "./runtime";
 
 function checkDateGranularity(definition: CalendarChartDefinition): CommandResult {
-  if (
-    definition.horizontalGroupBy &&
-    !CALENDAR_CHART_GRANULARITIES.includes(definition.horizontalGroupBy)
-  ) {
+  if (!CALENDAR_CHART_GRANULARITIES.includes(definition.horizontalGroupBy)) {
     return CommandResult.InvalidChartDefinition;
   }
-  if (
-    definition.verticalGroupBy &&
-    !CALENDAR_CHART_GRANULARITIES.includes(definition.verticalGroupBy)
-  ) {
+  if (!CALENDAR_CHART_GRANULARITIES.includes(definition.verticalGroupBy)) {
     return CommandResult.InvalidChartDefinition;
   }
   return CommandResult.Success;
@@ -91,8 +85,8 @@ export class CalendarChart extends AbstractChart {
     this.showValues = definition.showValues;
     this.colorScale = definition.colorScale;
     this.axesDesign = definition.axesDesign;
-    this.horizontalGroupBy = definition.horizontalGroupBy ?? "day_of_week";
-    this.verticalGroupBy = definition.verticalGroupBy ?? "month_number";
+    this.horizontalGroupBy = definition.horizontalGroupBy;
+    this.verticalGroupBy = definition.verticalGroupBy;
     this.legendPosition = definition.legendPosition;
     this.missingValueColor = definition.missingValueColor;
   }
@@ -132,6 +126,8 @@ export class CalendarChart extends AbstractChart {
       showValues: context.showValues,
       axesDesign: context.axesDesign,
       legendPosition,
+      horizontalGroupBy: "day_of_week",
+      verticalGroupBy: "month_number",
     };
   }
 
