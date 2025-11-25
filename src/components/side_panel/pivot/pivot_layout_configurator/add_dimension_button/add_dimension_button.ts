@@ -17,6 +17,7 @@ import { Popover } from "../../../../popover";
 interface Props {
   onFieldPicked: (field: string) => void;
   fields: PivotField[];
+  computeFuzzySearchKey: (field: PivotField) => string;
 }
 
 export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
@@ -25,7 +26,11 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     onFieldPicked: Function,
     fields: Array,
+    computeFuzzySearchKey: { type: Function, optional: true },
     slots: { type: Object, optional: true },
+  };
+  static defaultProps = {
+    computeFuzzySearchKey: (field: PivotField) => field.string,
   };
 
   private buttonRef = useRef("button");
@@ -61,7 +66,9 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   get proposals(): AutoCompleteProposal[] {
     let fields: PivotField[];
     if (this.search.input) {
-      fields = fuzzyLookup(this.search.input, this.props.fields, (field) => field.string);
+      fields = fuzzyLookup(this.search.input, this.props.fields, (field) =>
+        this.props.computeFuzzySearchKey(field)
+      );
     } else {
       fields = this.props.fields;
     }
@@ -69,7 +76,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
       const text = field.string;
       return {
         text,
-        fuzzySearchKey: text,
+        fuzzySearchKey: this.props.computeFuzzySearchKey(field),
         htmlContent: getHtmlContentFromPattern(
           this.search.input,
           text,
