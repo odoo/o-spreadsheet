@@ -15,6 +15,7 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   BarChartRuntime,
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   ExcelChartDefinition,
   LegendPosition,
@@ -199,11 +200,12 @@ export class CalendarChart extends AbstractChart {
 }
 
 export function createCalendarChartRuntime(
+  getters: Getters,
   chart: CalendarChart,
-  getters: Getters
+  data: ChartData
 ): BarChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getCalendarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getCalendarChartData(definition, data, getters);
   const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
   const config: ChartConfiguration<"bar"> = {

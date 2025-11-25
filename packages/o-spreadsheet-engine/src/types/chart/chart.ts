@@ -236,6 +236,11 @@ export interface ChartCreationContext {
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
 
+export interface ChartData {
+  dataSetsValues: DatasetValues[];
+  labelValues: LabelValues;
+}
+
 export interface ChartRuntimeGenerationArgs {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;

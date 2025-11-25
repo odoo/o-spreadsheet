@@ -14,6 +14,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -170,9 +171,13 @@ export class GeoChart extends AbstractChart {
   }
 }
 
-export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoChartRuntime {
+export function createGeoChartRuntime(
+  getters: Getters,
+  chart: GeoChart,
+  data: ChartData
+): GeoChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getGeoChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getGeoChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "choropleth",

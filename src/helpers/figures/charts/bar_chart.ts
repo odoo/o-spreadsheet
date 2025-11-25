@@ -9,7 +9,6 @@ import {
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -21,6 +20,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -170,12 +170,11 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      this.dataSets
     );
     return {
       ...definition,
@@ -202,9 +201,13 @@ export class BarChart extends AbstractChart {
   }
 }
 
-export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
+export function createBarChartRuntime(
+  getters: Getters,
+  chart: BarChart,
+  data: ChartData
+): BarChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getBarChartData(definition, data, getters);
 
   const config: ChartConfiguration<"bar" | "line"> = {
     type: "bar",

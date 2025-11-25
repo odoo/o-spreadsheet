@@ -8,7 +8,6 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -16,6 +15,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -149,12 +149,11 @@ export class PieChart extends AbstractChart {
     return new PieChart(definition, sheetId, this.getters);
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      this.dataSets
     );
     return {
       ...definition,
@@ -180,9 +179,13 @@ export class PieChart extends AbstractChart {
   }
 }
 
-export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
+export function createPieChartRuntime(
+  getters: Getters,
+  chart: PieChart,
+  data: ChartData
+): PieChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getPieChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getPieChartData(definition, data, getters);
 
   const config: ChartConfiguration<"doughnut" | "pie"> = {
     type: definition.isDoughnut ? "doughnut" : "pie",

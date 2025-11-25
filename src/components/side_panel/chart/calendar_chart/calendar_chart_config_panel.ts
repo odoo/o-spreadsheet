@@ -5,9 +5,8 @@ import {
   CalendarChartDefinition,
   CalendarChartGranularity,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { createValidRange, isDateTime } from "../../../../helpers";
-import { createDataSets } from "../../../../helpers/figures/charts";
-import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
+import { isDateTime } from "../../../../helpers";
+import { getBarChartData, getChartData } from "../../../../helpers/figures/charts/runtime";
 import { DEFAULT_LOCALE } from "../../../../types";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";
@@ -37,24 +36,9 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     const sheetId = this.env.model.getters.getFigureSheetId(
       this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
     )!;
-    const dataSets = createDataSets(
-      this.env.model.getters,
-      this.props.definition.dataSets,
-      sheetId,
-      this.props.definition.dataSetsHaveTitle
-    );
-    if (dataSets.length === 0) {
-      return [];
-    }
-    const labelRange = createValidRange(
-      this.env.model.getters,
-      sheetId,
-      this.props.definition.labelRange
-    );
     const data = getBarChartData(
       this.props.definition,
-      dataSets,
-      labelRange,
+      getChartData(this.env.model.getters, sheetId, this.props.definition),
       this.env.model.getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));
