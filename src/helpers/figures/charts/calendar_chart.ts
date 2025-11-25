@@ -14,7 +14,6 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   BarChartDefinition,
-  BarChartRuntime,
   ChartCreationContext,
   CustomizedDataSet,
   ExcelChartDefinition,
@@ -24,6 +23,7 @@ import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
   CalendarChartGranularity,
+  CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
 import {
@@ -221,13 +221,13 @@ export class CalendarChart extends AbstractChart {
 export function createCalendarChartRuntime(
   chart: CalendarChart,
   getters: Getters
-): BarChartRuntime {
+): CalendarChartRuntime {
   const definition = chart.getDefinition();
   const chartData = getCalendarChartData(definition, chart.dataSets, chart.labelRange, getters);
   const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
-  const config: ChartConfiguration<"bar"> = {
-    type: "bar",
+  const config: ChartConfiguration<"calendar"> = {
+    type: "calendar",
     data: {
       labels,
       datasets,
@@ -244,6 +244,7 @@ export function createCalendarChartRuntime(
         chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
         chartColorScalePlugin: getCalendarColorScale(definition, chartData),
       },
+      chartBackground: definition.background || BACKGROUND_CHART_COLOR,
     },
   };
 
