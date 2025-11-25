@@ -194,7 +194,10 @@ export class SheetViewPlugin extends UIPlugin {
         this.selection.observe(this, {
           handleEvent: this.handleEvent.bind(this),
         });
-        this.resetViewports(this.getters.getActiveSheetId());
+        for (const sheetId of this.getters.getSheetIds()) {
+          this.sheetsWithDirtyViewports.add(sheetId);
+        }
+        this.shouldAdjustViewports = true;
         break;
       case "UNDO":
       case "REDO":

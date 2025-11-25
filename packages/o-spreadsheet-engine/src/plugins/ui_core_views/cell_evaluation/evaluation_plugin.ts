@@ -2,7 +2,7 @@ import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
-import { cellPositions, positions } from "../../../helpers/zones";
+import { cellPositions, positions, positionToZone, zoneToXc } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
@@ -159,6 +159,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
+    "getCellsChangedAfterLastEvaluation",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -423,5 +424,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
       return spreadingFormulaCell;
     }
     return undefined;
+  }
+
+  getCellsChangedAfterLastEvaluation(): CellPosition[] {
+    console.log(
+      this.evaluator.cellsChangedAfterLastEvaluation.keys().map((p) => zoneToXc(positionToZone(p)))
+    );
+    return this.evaluator.cellsChangedAfterLastEvaluation.keys();
   }
 }

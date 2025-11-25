@@ -37,6 +37,8 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
 
+  isFinalized = false;
+
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       // Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
@@ -134,7 +136,14 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     return;
   }
 
+  finalize(): void {
+    this.isFinalized = true;
+  }
+
   getRowSize(sheetId: UID, row: HeaderIndex): Pixel {
+    if (!this.isFinalized) {
+      throw new Error("HeaderSizeUIPlugin: getRowSize called before finalize");
+    }
     return Math.round(
       this.getters.getUserRowSize(sheetId, row) ??
         this.tallestCellInRow[sheetId][row]?.size ??

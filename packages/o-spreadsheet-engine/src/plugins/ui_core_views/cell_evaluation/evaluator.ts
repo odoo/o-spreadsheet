@@ -55,6 +55,7 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  cellsChangedAfterLastEvaluation: PositionMap<EvaluatedCell> = new PositionMap();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -154,6 +155,7 @@ export class Evaluator {
 
   evaluateCells(positions: CellPosition[]) {
     const start = performance.now();
+    this.cellsChangedAfterLastEvaluation = new PositionMap();
     const rangesToCompute = new RangeSet();
     rangesToCompute.addManyPositions(positions);
     const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
@@ -309,6 +311,7 @@ export class Evaluator {
             const evaluatedCell = this.computeCell(position);
             if (evaluatedCell !== EMPTY_CELL) {
               this.evaluatedCells.set(position, evaluatedCell);
+              this.cellsChangedAfterLastEvaluation.set(position, evaluatedCell);
             }
           }
         }
@@ -325,7 +328,9 @@ export class Evaluator {
       const { left, bottom, right, top } = range.zone;
       for (let col = left; col <= right; col++) {
         for (let row = top; row <= bottom; row++) {
-          this.evaluatedCells.delete({ sheetId: range.sheetId, col, row });
+          const position = { sheetId: range.sheetId, col, row };
+          this.evaluatedCells.delete(position);
+          this.cellsChangedAfterLastEvaluation.set(position, EMPTY_CELL);
         }
       }
     }
@@ -374,6 +379,7 @@ export class Evaluator {
     const evaluatedCell = this.computeCell(position);
     if (!this.evaluatedCells.has(position)) {
       this.evaluatedCells.set(position, evaluatedCell);
+      this.cellsChangedAfterLastEvaluation.set(position, evaluatedCell);
     }
     return evaluatedCell;
   }
@@ -526,6 +532,7 @@ export class Evaluator {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
       }
       this.evaluatedCells.set(position, evaluatedCell);
+      this.cellsChangedAfterLastEvaluation.set(position, evaluatedCell);
     };
     return spreadValues;
   }
@@ -545,6 +552,7 @@ export class Evaluator {
           continue;
         }
         this.evaluatedCells.delete(resultPosition);
+        this.cellsChangedAfterLastEvaluation.set(resultPosition, EMPTY_CELL);
       }
     }
     const sheetId = position.sheetId;

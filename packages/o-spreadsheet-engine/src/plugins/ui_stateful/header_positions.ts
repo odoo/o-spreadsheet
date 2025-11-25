@@ -17,10 +17,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
 
     switch (cmd.type) {
       case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
-        }
-        break;
       case "UPDATE_CELL":
       case "SET_FORMATTING":
       case "CLEAR_FORMATTING":
@@ -72,6 +68,9 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
    * Returns the size, start and end coordinates of a column on an unfolded sheet
    */
   getColDimensions(sheetId: UID, col: HeaderIndex): HeaderDimensions {
+    if (this.isDirty) {
+      throw new Error("Cannot call getColDimensions called before finalize");
+    }
     const start = this.headerPositions[sheetId]["COL"][col];
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
@@ -86,6 +85,9 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
    * Returns the size, start and end coordinates of a row an unfolded sheet
    */
   getRowDimensions(sheetId: UID, row: HeaderIndex): HeaderDimensions {
+    if (this.isDirty) {
+      throw new Error("Cannot call getRowDimensions called before finalize");
+    }
     const start = this.headerPositions[sheetId]["ROW"][row];
     const size = this.getters.getRowSize(sheetId, row);
     const isRowHidden = this.getters.isRowHidden(sheetId, row);
@@ -109,6 +111,10 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     index: HeaderIndex,
     sheetId: UID = this.getters.getActiveSheetId()
   ): Pixel {
+    if (this.isDirty) {
+      throw new Error("Cannot call getColRowOffset called before finalize");
+    }
+
     const referencePosition = this.headerPositions[sheetId][dimension][referenceIndex];
     const position = this.headerPositions[sheetId][dimension][index];
     return position - referencePosition;
