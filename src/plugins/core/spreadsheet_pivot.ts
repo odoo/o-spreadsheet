@@ -48,6 +48,10 @@ export class SpreadsheetPivotCorePlugin extends CorePlugin {
         const range = this.getters.getRangeFromZone(sheetId, zone);
         const adaptedRange = adaptPivotRange(range, applyChange);
 
+        if (adaptedRange === range) {
+          return;
+        }
+
         const dataSet = adaptedRange && {
           sheetId: adaptedRange.sheetId,
           zone: adaptedRange.zone,
