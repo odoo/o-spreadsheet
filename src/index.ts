@@ -159,7 +159,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/registries/repeat_transform_registry";
 import { errorTypes } from "@odoo/o-spreadsheet-engine/types/errors";
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
-import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
@@ -421,7 +420,6 @@ export const components = {
   ChartPanel,
   ChartFigure,
   ChartJsComponent,
-  ClickableCellSortIcon,
   ZoomableChartJsComponent,
   Grid,
   GridOverlay,

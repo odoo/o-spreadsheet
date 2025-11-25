@@ -219,6 +219,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_CAROUSEL_ACTIVE_ITEM",
 
   "UPDATE_PIVOT",
+  "SET_HOVERED_CELL",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
@@ -1126,6 +1127,11 @@ export interface ToggleCheckboxCommand extends TargetDependentCommand {
   type: "TOGGLE_CHECKBOX";
 }
 
+export interface SetHoveredCellCommand {
+  type: "SET_HOVERED_CELL";
+  cellPosition: CellPosition | undefined;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1288,7 +1294,8 @@ export type LocalCommand =
   | AddNewChartToCarouselCommand
   | AddFigureChartToCarouselCommand
   | UpdateCarouselActiveItemCommand
-  | PopOutChartFromCarouselCommand;
+  | PopOutChartFromCarouselCommand
+  | SetHoveredCellCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

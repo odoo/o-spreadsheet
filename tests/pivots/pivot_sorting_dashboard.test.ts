@@ -1,7 +1,4 @@
 import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
-import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import { toCartesian } from "../../src/helpers";
 import { createTable, setStyle } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";
@@ -30,13 +27,9 @@ describe("Dashboard Pivot Sorting", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     const pivotId = model.getters.getPivotIds()[0];
-    const { env, fixture } = await mountSpreadsheet({ model });
+    const { fixture } = await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
-    expect(env.getStore(ClickableCellsStore).clickableCells).toMatchObject([
-      { position: toCellPosition(sheetId, "B5") },
-    ]);
     expect(".o-dashboard-clickable-cell").toHaveCount(1);
     expect(".o-dashboard-clickable-cell .fa-sort").toHaveCount(1);
     expect(getCellIcons(model, "B5")).toHaveLength(0);
@@ -160,7 +153,7 @@ describe("Dashboard Pivot Sorting", () => {
     createTable(model, "A4", {}, "dynamic");
     const table = model.getters.getTable(toCellPosition(model.getters.getActiveSheetId(), "B5"))!;
     const tableStyle = model.getters.getTableStyle(table.config.styleId);
-    const { env } = await mountSpreadsheet({ model });
+    await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
     expect(
@@ -171,7 +164,8 @@ describe("Dashboard Pivot Sorting", () => {
     ).toBeSameColorAs(TEXT_BODY_MUTED);
 
     // hover the row -> background should follow the overlay color
-    env.getStore(HoveredTableStore).hover(toCartesian("B5"));
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_HOVERED_CELL", { cellPosition: toCellPosition(sheetId, "B5") });
     await nextTick();
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "background-color")

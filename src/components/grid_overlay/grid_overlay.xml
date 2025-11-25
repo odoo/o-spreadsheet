@@ -8,6 +8,7 @@
       class="o-grid-overlay overflow-hidden o-zoomable"
       t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
       t-att-style="style"
+      t-att-title="title"
       t-on-pointerdown="onPointerDown"
       t-on-pointermove="onPointerMove"
       t-on-click="onClick"

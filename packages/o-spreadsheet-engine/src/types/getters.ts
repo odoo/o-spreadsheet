@@ -29,6 +29,7 @@ import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
+import { HoveredCellPlugin } from "../plugins/ui_stateful/hovered_cell_plugin";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 import { SheetViewPlugin } from "../plugins/ui_stateful/sheetview";
 // -----------------------------------------------------------------------------
@@ -72,4 +73,5 @@ export type Getters = {
   PluginGetters<typeof CheckboxTogglePlugin> &
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
-  PluginGetters<typeof CarouselUIPlugin>;
+  PluginGetters<typeof CarouselUIPlugin> &
+  PluginGetters<typeof HoveredCellPlugin>;

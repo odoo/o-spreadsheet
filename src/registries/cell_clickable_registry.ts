@@ -3,7 +3,6 @@ import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { ComponentConstructor } from "@odoo/owl";
-import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { CellPosition, Getters, SortDirection } from "../types";
 
@@ -20,6 +19,9 @@ export const clickableCellRegistry = new Registry<CellClickableItem>();
 
 clickableCellRegistry.add("link", {
   condition: (position: CellPosition, getters: Getters) => {
+    // if (!getters.isDashboard()) {
+    //   return false;
+    // }
     return !!getters.getEvaluatedCell(position).link;
   },
   execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) =>
@@ -38,21 +40,14 @@ clickableCellRegistry.add("link", {
 
 clickableCellRegistry.add("dashboard_pivot_sorting", {
   condition: (position: CellPosition, getters: Getters) => {
-    if (!getters.isDashboard()) {
-      return false;
-    }
+    // if (!getters.isDashboard()) {
+    //   return false;
+    // }
     const pivotCell = getters.getPivotCellFromPosition(position);
     return canSortPivot(getters, position) && pivotCell.type === "MEASURE_HEADER";
   },
   execute: (position: CellPosition, env: SpreadsheetChildEnv) => {
     sortPivot(env, position, getNextSortDirection(env.model.getters, position));
-  },
-  component: ClickableCellSortIcon,
-  componentProps: (position: CellPosition, getters: Getters) => {
-    return {
-      position,
-      sortDirection: getters.getPivotCellSortDirection(position),
-    };
   },
   sequence: 2,
 });

@@ -55,6 +55,7 @@ import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
 import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
+import { HoveredCellPlugin } from "./ui_stateful/hovered_cell_plugin";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { SheetViewPlugin } from "./ui_stateful/sheetview";
 
@@ -110,7 +111,9 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin)
-  .add("carousel_ui", CarouselUIPlugin);
+  .add("carousel_ui", CarouselUIPlugin)
+  .add("hovered_cell", HoveredCellPlugin)
+  .add("cell_icon", CellIconPlugin);
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
@@ -121,5 +124,4 @@ export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("data_validation_ui", EvaluationDataValidationPlugin)
   .add("dynamic_tables", DynamicTablesPlugin)
   .add("custom_colors", CustomColorsPlugin)
-  .add("pivot_ui", PivotUIPlugin)
-  .add("cell_icon", CellIconPlugin);
+  .add("pivot_ui", PivotUIPlugin);

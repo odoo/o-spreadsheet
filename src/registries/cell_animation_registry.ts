@@ -110,11 +110,15 @@ cellAnimationRegistry.add("iconFadeIn", {
   id: "iconFadeIn",
   easingFn: "easeInCubic",
   hasAnimation: (oldBox, newBox) => {
-    return Boolean(
-      (!oldBox?.icons?.left && newBox?.icons?.left) ||
-        (!oldBox?.icons?.right && newBox?.icons?.right) ||
-        (!oldBox?.icons?.center && newBox?.icons?.center)
-    );
+    const shouldAnimateIcon = (side: "left" | "right" | "center") => {
+      const oldIcon = oldBox?.icons?.[side];
+      const newIcon = newBox?.icons?.[side];
+      if (newIcon?.preventIconAnimation) {
+        return false;
+      }
+      return Boolean(!oldIcon && newIcon);
+    };
+    return shouldAnimateIcon("left") || shouldAnimateIcon("right") || shouldAnimateIcon("center");
   },
   updateAnimation: function (progress, animatedBox, oldBox, newBox) {
     const iconOpacity = EASING_FN[this.easingFn](progress);
@@ -134,11 +138,15 @@ cellAnimationRegistry.add("iconFadeOut", {
   id: "iconFadeOut",
   easingFn: "easeOutCubic",
   hasAnimation: (oldBox, newBox) => {
-    return Boolean(
-      (oldBox?.icons?.left && !newBox?.icons?.left) ||
-        (oldBox?.icons?.right && !newBox?.icons?.right) ||
-        (oldBox?.icons?.center && !newBox?.icons?.center)
-    );
+    const shouldAnimateIcon = (side: "left" | "right" | "center") => {
+      const oldIcon = oldBox?.icons?.[side];
+      const newIcon = newBox?.icons?.[side];
+      if (oldIcon?.preventIconAnimation) {
+        return false;
+      }
+      return Boolean(oldIcon && !newIcon);
+    };
+    return shouldAnimateIcon("left") || shouldAnimateIcon("right") || shouldAnimateIcon("center");
   },
   updateAnimation: function (progress, animatedBox, oldBox, newBox) {
     const iconOpacity = 1 - EASING_FN[this.easingFn](progress);
@@ -330,13 +338,17 @@ cellAnimationRegistry.add("iconChange", {
   id: "iconChange",
   easingFn: "easeOutCubic",
   hasAnimation: (oldBox, newBox) => {
+    const shouldAnimateIcon = (side: "left" | "right" | "center") => {
+      const oldIcon = oldBox?.icons?.[side];
+      const newIcon = newBox?.icons?.[side];
+      if (newIcon?.preventIconAnimation || oldIcon?.preventIconAnimation) {
+        return false;
+      }
+      return oldIcon?.svg?.name !== newIcon?.svg?.name;
+    };
     return (
       !hasIconLayoutChange(newBox, oldBox) &&
-      Boolean(
-        oldBox?.icons?.center?.svg?.name !== newBox?.icons?.center?.svg?.name ||
-          oldBox?.icons?.left?.svg?.name !== newBox?.icons?.left?.svg?.name ||
-          oldBox?.icons?.right?.svg?.name !== newBox?.icons?.right?.svg?.name
-      )
+      (shouldAnimateIcon("left") || shouldAnimateIcon("right") || shouldAnimateIcon("center"))
     );
   },
   updateAnimation: function (progress, animatedBox, oldBox, newBox) {
@@ -411,6 +423,9 @@ function hasIconLayoutChange(
   oldBox: RenderingBox | undefined
 ): boolean {
   const hasLayoutChange = (newIcon: GridIcon | undefined, oldIcon: GridIcon | undefined) => {
+    if (newIcon?.preventIconAnimation || oldIcon?.preventIconAnimation) {
+      return false;
+    }
     if (oldIcon && newIcon) {
       return !!(
         newIcon.horizontalAlign !== oldIcon.horizontalAlign ||
