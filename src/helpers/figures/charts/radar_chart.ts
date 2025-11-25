@@ -8,7 +8,6 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -16,6 +15,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -169,12 +169,11 @@ export class RadarChart extends AbstractChart {
     };
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      this.dataSets
     );
     return {
       ...definition,
@@ -200,9 +199,13 @@ export class RadarChart extends AbstractChart {
   }
 }
 
-export function createRadarChartRuntime(chart: RadarChart, getters: Getters): RadarChartRuntime {
+export function createRadarChartRuntime(
+  getters: Getters,
+  chart: RadarChart,
+  data: ChartData
+): RadarChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getRadarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getRadarChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "radar",
