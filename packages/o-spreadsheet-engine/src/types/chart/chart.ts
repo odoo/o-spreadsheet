@@ -97,10 +97,7 @@ export type ChartJSRuntime =
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
-export interface LabelValues {
-  readonly values: string[];
-  readonly formattedValues: string[];
-}
+export type LabelValues = FunctionResultObject[];
 
 export interface DatasetValues {
   readonly label?: string;
