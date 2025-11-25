@@ -174,6 +174,8 @@ describe("calendar chart", () => {
       legendPosition: "left",
       labelRange: "Sheet1!A1:A4",
       showValues: false,
+      horizontalGroupBy: "day_of_week",
+      verticalGroupBy: "month_number",
       axesDesign: {},
     });
   });

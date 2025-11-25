@@ -19,10 +19,10 @@ export type CalendarChartGranularity = (typeof CALENDAR_CHART_GRANULARITIES)[num
 
 export interface CalendarChartDefinition extends CommonChartDefinition {
   readonly type: "calendar";
+  readonly horizontalGroupBy: CalendarChartGranularity;
+  readonly verticalGroupBy: CalendarChartGranularity;
   readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
-  readonly horizontalGroupBy?: CalendarChartGranularity;
-  readonly verticalGroupBy?: CalendarChartGranularity;
 }
 
 export type CalendarChartRuntime = {
