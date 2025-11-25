@@ -1,4 +1,11 @@
-import { _t, deepCopy, findNextDefinedValue, isNumber, range } from "@odoo/o-spreadsheet-engine";
+import {
+  _t,
+  deepCopy,
+  DEFAULT_LOCALE,
+  findNextDefinedValue,
+  isNumber,
+  range,
+} from "@odoo/o-spreadsheet-engine";
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   evaluatePolynomial,
@@ -8,7 +15,12 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
-import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  isErrorCell,
+  isNumberCell,
+  isTextCell,
+} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { DAYS, isDateTimeFormat, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
@@ -41,14 +53,19 @@ import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/t
 import { Point } from "chart.js";
 import {
   CellValue,
-  DEFAULT_LOCALE,
+  CellValueType,
   Format,
+  FunctionResultObject,
   GenericDefinition,
   Getters,
   Locale,
   Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
+
+const EMPTY = Object.freeze({ value: null });
+const ZERO = Object.freeze({ value: 0 });
+const ONE = Object.freeze({ value: 1 });
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -68,8 +85,8 @@ export function getBarChartData(
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
-  const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
+  const leftAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "left");
+  const rightAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "right");
   const axisFormats = definition.horizontal
     ? { x: leftAxisFormat || rightAxisFormat }
     : { y: leftAxisFormat, y1: rightAxisFormat };
@@ -125,12 +142,12 @@ function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): strin
 
 function computeValuesAndLabels(
   timeValues: CellValue[],
-  values: CellValue[],
+  values: FunctionResultObject[],
   horizontalGroupBy: CalendarChartGranularity,
   verticalGroupBy: CalendarChartGranularity,
   locale: Locale
 ) {
-  const grouping = {};
+  const grouping: Record<string, Record<string, { value: number }>> = {};
   const xValues: number[] = [];
   const yValues: number[] = [];
   const previousYValues: number[] = [];
@@ -160,9 +177,12 @@ function computeValuesAndLabels(
       previousYValues.push(yValue);
     }
     if (!(yValue in grouping[xValue])) {
-      grouping[xValue][yValue] = 0;
+      grouping[xValue][yValue] = { value: 0 };
     }
-    grouping[xValue][yValue] += values[i];
+    const cell = values[i];
+    if (isNumberCell(cell)) {
+      grouping[xValue][yValue].value += cell.value;
+    }
   }
 
   xValues.sort((a, b) => a - b);
@@ -196,6 +216,7 @@ export function getCalendarChartData(
   const locale = getters.getLocale() || DEFAULT_LOCALE;
 
   ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues, locale));
+  const axisFormats = { y: getChartDatasetFormat(dataSets, dataSetsValues, "left") };
 
   ({ labels, dataSetsValues } = computeValuesAndLabels(
     labels,
@@ -204,8 +225,6 @@ export function getCalendarChartData(
     definition.verticalGroupBy ?? "hour_number",
     locale
   ));
-
-  const axisFormats = { y: getChartDatasetFormat(getters, dataSets, "left") };
 
   return {
     dataSetsValues,
@@ -227,11 +246,15 @@ export function getPyramidChartData(
 
   const pyramidDatasetValues: DatasetValues[] = [];
   if (barDataset[0]) {
-    const pyramidData = barDataset[0].data.map((value) => (value > 0 ? value : 0));
+    const pyramidData = barDataset[0].data.map((cell) =>
+      isNumberCell(cell) && cell.value > 0 ? cell : ZERO
+    );
     pyramidDatasetValues.push({ ...barDataset[0], data: pyramidData });
   }
   if (barDataset[1]) {
-    const pyramidData = barDataset[1].data.map((value) => (value > 0 ? -value : 0));
+    const pyramidData = barDataset[1].data.map((cell) =>
+      isNumberCell(cell) && cell.value > 0 ? { value: -cell.value } : ZERO
+    );
     pyramidDatasetValues.push({ ...barDataset[1], data: pyramidData });
   }
 
@@ -271,8 +294,8 @@ export function getLineChartData(
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "asc");
   }
 
-  const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
-  const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
+  const leftAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "left");
+  const rightAxisFormat = getChartDatasetFormat(dataSets, dataSetsValues, "right");
   const labelsFormat = getChartLabelFormat(getters, labelRange, removeFirstLabel);
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat, x: labelsFormat };
 
@@ -322,7 +345,7 @@ export function getPieChartData(
 
   ({ dataSetsValues, labels } = keepOnlyPositiveValues(labels, dataSetsValues));
 
-  const dataSetFormat = getChartDatasetFormat(getters, dataSets, "left");
+  const dataSetFormat = getChartDatasetFormat(dataSets, dataSetsValues, "left");
 
   return {
     dataSetsValues,
@@ -352,8 +375,8 @@ export function getRadarChartData(
   }
 
   const dataSetFormat =
-    getChartDatasetFormat(getters, dataSets, "left") ||
-    getChartDatasetFormat(getters, dataSets, "right");
+    getChartDatasetFormat(dataSets, dataSetsValues, "left") ||
+    getChartDatasetFormat(dataSets, dataSetsValues, "right");
   const axisFormats = { r: dataSetFormat };
 
   return {
@@ -380,8 +403,8 @@ export function getGeoChartData(
   ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
 
   const format =
-    getChartDatasetFormat(getters, dataSets, "left") ||
-    getChartDatasetFormat(getters, dataSets, "right");
+    getChartDatasetFormat(dataSets, dataSetsValues, "left") ||
+    getChartDatasetFormat(dataSets, dataSetsValues, "right");
 
   return {
     dataSetsValues,
@@ -416,8 +439,8 @@ export function getFunnelChartData(
   }
 
   const format =
-    getChartDatasetFormat(getters, dataSets, "left") ||
-    getChartDatasetFormat(getters, dataSets, "right");
+    getChartDatasetFormat(dataSets, dataSetsValues, "left") ||
+    getChartDatasetFormat(dataSets, dataSetsValues, "right");
 
   return {
     dataSetsValues,
@@ -455,13 +478,17 @@ export function getHierarchalChartData(
   };
 }
 
-export function getTrendDatasetForBarChart(config: TrendConfiguration, data: any[]) {
+export function getTrendDatasetForBarChart(
+  config: TrendConfiguration,
+  data: FunctionResultObject[]
+) {
   const filteredValues: number[] = [];
   const filteredLabels: number[] = [];
   const labels: number[] = [];
   for (let i = 0; i < data.length; i++) {
-    if (typeof data[i] === "number") {
-      filteredValues.push(data[i]);
+    const cell = data[i];
+    if (isNumberCell(cell)) {
+      filteredValues.push(cell.value);
       filteredLabels.push(i + 1);
     }
     labels.push(i + 1);
@@ -474,7 +501,7 @@ export function getTrendDatasetForBarChart(config: TrendConfiguration, data: any
 
 export function getTrendDatasetForLineChart(
   config: TrendConfiguration,
-  data: any[],
+  data: FunctionResultObject[],
   labels: string[],
   axisType: AxisType,
   locale: Locale
@@ -491,8 +518,9 @@ export function getTrendDatasetForLineChart(
   switch (axisType) {
     case "category":
       for (let i = 0; i < datasetLength; i++) {
-        if (typeof data[i] === "number") {
-          filteredValues.push(data[i]);
+        const cell = data[i];
+        if (isNumberCell(cell)) {
+          filteredValues.push(cell.value);
           filteredLabels.push(i + 1);
         }
         trendLabels.push(i + 1);
@@ -504,8 +532,9 @@ export function getTrendDatasetForLineChart(
         if (isNaN(label)) {
           continue;
         }
-        if (typeof data[i] === "number") {
-          filteredValues.push(data[i]);
+        const cell = data[i];
+        if (isNumberCell(cell)) {
+          filteredValues.push(cell.value);
           filteredLabels.push(label);
         }
         trendLabels.push(label);
@@ -514,8 +543,9 @@ export function getTrendDatasetForLineChart(
     case "time":
       for (let i = 0; i < data.length; i++) {
         const date = toNumber({ value: labels[i] }, locale);
-        if (data[i] !== null) {
-          filteredValues.push(data[i]);
+        const cell = data[i];
+        if (isNumberCell(cell)) {
+          filteredValues.push(cell.value);
           filteredLabels.push(date);
         }
         trendLabels.push(date);
@@ -710,10 +740,10 @@ function canBeLinearChart(
     labels.shift();
   }
 
-  if (labels.some((label) => isNaN(Number(label)) && label)) {
+  if (labels.some((label) => label.type !== CellValueType.number && label.value)) {
     return false;
   }
-  if (labels.every((label) => !label)) {
+  if (labels.every((label) => !label.value)) {
     return false;
   }
 
@@ -747,14 +777,14 @@ function keepOnlyPositiveValues(
     ...datasets.map((dataset) => dataset.data?.length || 0)
   );
   const filteredIndexes = range(0, numberOfDataPoints).filter((i) =>
-    datasets.some((ds) => typeof ds.data[i] === "number" && ds.data[i] > 0)
+    datasets.some((ds) => isNumberCell(ds.data[i]) && ds.data[i].value > 0)
   );
   return {
     labels: filteredIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((ds) => ({
       ...ds,
       data: filteredIndexes.map((i) =>
-        typeof ds.data[i] === "number" && ds.data[i] > 0 ? ds.data[i] : null
+        isNumberCell(ds.data[i]) && ds.data[i].value > 0 ? ds.data[i] : EMPTY
       ),
     })),
   };
@@ -773,7 +803,7 @@ function fixEmptyLabelsForDateCharts(
     if (!newLabels[i]) {
       newLabels[i] = findNextDefinedValue(newLabels, i);
       for (const ds of newDatasets) {
-        ds.data[i] = undefined;
+        ds.data[i] = EMPTY;
       }
     }
   }
@@ -783,7 +813,7 @@ function fixEmptyLabelsForDateCharts(
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
+export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
@@ -791,7 +821,7 @@ export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[
       return [];
     }
     const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
-    return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
+    return getters.getRangeValues(dataRange).map((cell) => (cell.value === "" ? EMPTY : cell));
   }
   return [];
 }
@@ -812,15 +842,13 @@ function filterInvalidDataPoints(
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return label || values.some((value) => typeof value === "number");
+    return label || values.some(isNumberCell);
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
-      data: dataPointsIndexes.map((i) =>
-        typeof dataset.data[i] === "number" ? dataset.data[i] : null
-      ),
+      data: dataPointsIndexes.map((i) => (isNumberCell(dataset.data[i]) ? dataset.data[i] : EMPTY)),
     })),
   };
 }
@@ -842,15 +870,13 @@ function filterInvalidCalendarDataPoints(
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return label && isNumber(label, DEFAULT_LOCALE) && typeof values[0] === "number";
+    return label && isNumber(label, DEFAULT_LOCALE) && isNumberCell(values[0]);
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
-      data: dataPointsIndexes.map((i) =>
-        typeof dataset.data[i] === "number" ? dataset.data[i] : null
-      ),
+      data: dataPointsIndexes.map((i) => (isNumberCell(dataset.data[i]) ? dataset.data[i] : EMPTY)),
     })),
   };
 }
@@ -866,17 +892,17 @@ function filterInvalidHierarchicalPoints(
     values.length,
     ...hierarchy.map((dataset) => dataset.data?.length || 0)
   );
-  const isEmpty = (value: CellValue) => value === undefined || value === null || value === "";
+  const isEmpty = (value: CellValue) => value === null || value === "";
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const groups = hierarchy.map((dataset) => dataset.data?.[dataPointIndex]);
-    if (isEmpty(groups[0])) {
+    if (isEmpty(groups[0]?.value)) {
       return false;
     }
     // Filter points with empty group in the middle
     let hasFoundEmptyGroup = false;
     for (const group of groups) {
-      hasFoundEmptyGroup ||= isEmpty(group);
-      if (hasFoundEmptyGroup && !isEmpty(group)) {
+      hasFoundEmptyGroup ||= isEmpty(group?.value);
+      if (hasFoundEmptyGroup && !isEmpty(group?.value)) {
         return false;
       }
     }
@@ -925,17 +951,22 @@ function aggregateDataForLabels(
   labels: string[],
   datasets: DatasetValues[]
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
-  const parseNumber = (value) => (typeof value === "number" ? value : 0);
+  const parseNumber = (value: CellValue) => (typeof value === "number" ? value : 0);
   const labelSet = new Set(labels);
-  const labelMap: { [key: string]: number[] } = {};
+  const labelMap: { [key: string]: { value: number; format?: Format }[] } = {};
   labelSet.forEach((label) => {
-    labelMap[label] = new Array(datasets.length).fill(0);
+    labelMap[label] = new Array(datasets.length);
   });
 
   for (const indexOfLabel of range(0, labels.length)) {
     const label = labels[indexOfLabel];
     for (const indexOfDataset of range(0, datasets.length)) {
-      labelMap[label][indexOfDataset] += parseNumber(datasets[indexOfDataset].data[indexOfLabel]);
+      const cell = datasets[indexOfDataset].data[indexOfLabel];
+      if (!labelMap[label][indexOfDataset]) {
+        labelMap[label][indexOfDataset] = { ...cell, value: parseNumber(cell?.value) };
+      } else {
+        labelMap[label][indexOfDataset].value += parseNumber(cell?.value);
+      }
     }
   }
 
@@ -980,9 +1011,10 @@ function getChartLabelValues(
       !labelRange.invalidSheetName &&
       !getters.isColHidden(labelRange.sheetId, left)
     ) {
+      const cells = getters.getRangeValues(labelRange);
       labels = {
-        formattedValues: getters.getRangeFormattedValues(labelRange),
-        values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
+        formattedValues: cells.map(({ formattedValue }) => formattedValue),
+        values: cells.map(({ value }) => String(value ?? "")),
       };
     } else if (dataSets[0]) {
       const ranges = getData(getters, dataSets[0]);
@@ -1014,15 +1046,18 @@ function getChartLabelValues(
  * found in the dataset ranges that isn't a date format.
  */
 function getChartDatasetFormat(
-  getters: Getters,
-  allDataSets: DataSet[],
+  dataSetDefinitions: DataSet[],
+  dataSetValues: DatasetValues[],
   axis: "left" | "right"
 ): Format | undefined {
-  const dataSets = allDataSets.filter((ds) => (axis === "right") === !!ds.rightYAxis);
+  const dataSets = dataSetValues.filter(
+    (ds, i) => (axis === "right") === !!dataSetDefinitions[i].rightYAxis
+  );
   for (const ds of dataSets) {
-    const formatsInDataset = getters.getRangeFormats(ds.dataRange);
-    const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
-    if (format) return format;
+    const cell = ds.data.find(({ format }) => format !== undefined && !isDateTimeFormat(format));
+    if (cell) {
+      return cell.format;
+    }
   }
   return undefined;
 }
@@ -1042,16 +1077,12 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
 
     let data = ds.dataRange ? getData(getters, ds) : [];
     if (
-      data.every((e) => !e || (typeof e === "string" && !isEvaluationError(e))) &&
-      data.filter((e) => typeof e === "string").length > 1
+      data.every((cell) => !cell.value || isTextCell(cell)) &&
+      data.filter(isTextCell).length > 1
     ) {
       // Convert categorical data into counts
-      data = data.map((e) => (e && !isEvaluationError(e) ? 1 : null));
-    } else if (
-      data.every(
-        (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
-      )
-    ) {
+      data = data.map((cell) => (!isErrorCell(cell) ? ONE : EMPTY));
+    } else if (data.every((cell) => !isNumberCell(cell))) {
       hidden = true;
     }
     datasetValues.push({ data, label, hidden });
@@ -1083,24 +1114,24 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   }
   const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
 
-  let currentValues: (CellValue | undefined)[] = [];
+  let currentValues: FunctionResultObject[] = [];
   const leafDatasetIndex = dataSets.length - 1;
 
   for (let i = 0; i < minLength; i++) {
     for (let dsIndex = 0; dsIndex < dataSetsData.length; dsIndex++) {
-      let value = dataSetsData[dsIndex][i];
-      if ((value === undefined || value === null) && dsIndex !== leafDatasetIndex) {
-        value = currentValues[dsIndex];
+      let cell = dataSetsData[dsIndex][i];
+      if ((cell === undefined || cell.value === null) && dsIndex !== leafDatasetIndex) {
+        cell = currentValues[dsIndex];
       }
-      if (value !== currentValues[dsIndex]) {
+      if (cell?.value !== currentValues[dsIndex]?.value) {
         currentValues = currentValues.slice(0, dsIndex);
-        currentValues[dsIndex] = value;
+        currentValues[dsIndex] = cell;
       }
-      datasetValues[dsIndex].data.push(value ?? null);
+      datasetValues[dsIndex].data.push(cell ?? EMPTY);
     }
   }
 
-  return datasetValues.filter((ds) => ds.data.some((d) => d !== null));
+  return datasetValues.filter((ds) => ds.data.some((d) => d.value !== null));
 }
 
 export function makeDatasetsCumulative(
@@ -1108,16 +1139,17 @@ export function makeDatasetsCumulative(
   order: "asc" | "desc"
 ): DatasetValues[] {
   return datasets.map((dataset) => {
-    const data: number[] = [];
+    const data: { value: number | null; format?: Format }[] = [];
     let accumulator = 0;
     const indexes =
-      order === "asc" ? Object.keys(dataset.data) : Object.keys(dataset.data).reverse();
+      order === "asc" ? range(0, dataset.data.length) : range(0, dataset.data.length).reverse();
     for (const i of indexes) {
-      if (!isNaN(parseFloat(dataset.data[i]))) {
-        accumulator += parseFloat(dataset.data[i]);
-        data[i] = accumulator;
+      const cell = dataset.data[i];
+      if (isNumberCell(cell)) {
+        accumulator += cell.value;
+        data[i] = { ...cell, value: accumulator };
       } else {
-        data[i] = dataset.data[i];
+        data[i] = EMPTY;
       }
     }
     return { ...dataset, data };
