@@ -198,7 +198,6 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     };
   }
 
-  // TODO: Handle date + number with calendar chart when implemented (and change the docstring)
   if (columns[0].type === "date" && columns[1].type === "number") {
     return {
       ...DEFAULT_LINE_CHART_CONFIG,
