@@ -10,30 +10,27 @@ import { Registry } from "./registry";
 /**
  * Instantiate a chart object based on a definition
  */
-export interface ChartBuilder {
+export interface ChartBuilder<T extends ChartDefinition, D> {
   /**
    * Check if this factory should be used
    */
-  match: (type: ChartType) => boolean;
-  createChart: (definition: ChartDefinition, sheetId: UID, getters: CoreGetters) => AbstractChart;
-  getChartRuntime: (chart: AbstractChart, getters: Getters) => ChartRuntime;
-  validateChartDefinition(
-    validator: Validator,
-    definition: ChartDefinition
-  ): CommandResult | CommandResult[];
-  transformDefinition(
-    chartSheetId: UID,
-    definition: ChartDefinition,
-    applyRange: RangeAdapter
-  ): ChartDefinition;
-  getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
+  match: (type: T["type"]) => boolean;
+  createChart: (definition: T, sheetId: UID, getters: CoreGetters) => AbstractChart;
+  extractData: (definition: T, sheetId: UID, getters: Getters) => D;
+  getChartRuntime: (getters: Getters, chart: AbstractChart, data: NoInfer<D>) => ChartRuntime;
+  validateChartDefinition(validator: Validator, definition: T): CommandResult | CommandResult[];
+  transformDefinition(chartSheetId: UID, definition: T, applyRange: RangeAdapter): T;
+  getChartDefinitionFromContextCreation(context: ChartCreationContext): T;
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
 }
 
-/**
- * This registry is intended to map a cell content (raw string) to
- * an instance of a cell.
- */
-export const chartRegistry = new Registry<ChartBuilder>();
+interface ChartRegistry extends Registry<ChartBuilder<ChartDefinition, unknown>> {
+  add<T extends ChartType, D>(
+    type: T,
+    builder: ChartBuilder<Extract<ChartDefinition, { type: NoInfer<T> }>, D>
+  ): this;
+}
+
+export const chartRegistry: ChartRegistry = new Registry();

@@ -290,7 +290,7 @@ export class GaugeChart extends AbstractChart {
   }
 }
 
-export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
+export function createGaugeChartRuntime(getters: Getters, chart: GaugeChart): GaugeChartRuntime {
   const locale = getters.getLocale();
   const chartColors = chart.sectionRule.colors;
 
