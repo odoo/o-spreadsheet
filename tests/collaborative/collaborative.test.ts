@@ -1110,3 +1110,31 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
   expect([alice, bob]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   featurePluginRegistry.remove("myUIPlugin");
 });
+
+test("Export of figures should be in the same order in all users", () => {
+  const { network, alice, bob, charlie } = setupCollaborativeEnv();
+  charlie.dispatch("CREATE_FIGURE", {
+    figureId: "figureId",
+    tag: "tag",
+    offset: { x: 0, y: 0 },
+    col: 4,
+    row: 7,
+    size: { width: 100, height: 100 },
+    sheetId: "Sheet1",
+  });
+  redo(charlie);
+
+  charlie.dispatch("UPDATE_CELL", { col: 4, row: 7, content: "2", sheetId: "Sheet1" });
+  undo(charlie);
+  alice.dispatch("DUPLICATE_SHEET", {
+    sheetId: "Sheet1",
+    sheetIdTo: "duplicateSheetId",
+    sheetNameTo: "Copy of Sheet1",
+  });
+  network.concurrent(() => {
+    redo(charlie);
+    bob.dispatch("DELETE_FIGURE", { figureId: "figureId", sheetId: "Sheet1" });
+  });
+  expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+  expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+});
