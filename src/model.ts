@@ -244,9 +244,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
 
-    this.coreHandlers.push(this.range);
-    this.handlers.push(this.range);
-
     this.corePluginConfig = this.setupCorePluginConfig();
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
@@ -365,6 +362,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.coreGetters[name] = plugin[name].bind(plugin);
     }
     plugin.import(data);
+
+    if (plugin.adaptRanges) {
+      if (!this.coreHandlers.includes(this.range)) {
+        this.coreHandlers.push(this.range);
+        this.handlers.push(this.range);
+      }
+      // Bind adaptRanges to a version of `this` where `dispatch` always throws
+      const pluginWithThrowingDispatch = Object.create(plugin);
+      pluginWithThrowingDispatch.dispatch = () => {
+        throw new Error("dispatch is not allowed in adaptRanges context");
+      };
+      this.range.addRangeProvider(plugin.adaptRanges.bind(pluginWithThrowingDispatch));
+    }
+
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
@@ -456,7 +467,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return {
       getters: this.coreGetters,
       stateObserver: this.state,
-      range: this.range,
       dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.canDispatch,
       custom: this.config.custom,
