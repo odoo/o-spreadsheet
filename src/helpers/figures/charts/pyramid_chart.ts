@@ -10,7 +10,6 @@ import {
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -18,6 +17,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -32,6 +32,7 @@ import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types
 import {
   getBarChartDatasets,
   getBarChartLegend,
+  getChartData,
   getChartTitle,
   getPyramidChartData,
   getPyramidChartScales,
@@ -171,10 +172,10 @@ export class PyramidChart extends AbstractChart {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      this.dataSets
     );
-    const chartData = getPyramidChartData(definition, this.dataSets, this.labelRange, getters);
+    const data = getChartData(getters, this.sheetId, definition);
+    const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
       ...dataSetsValues.map((dataSet) =>
@@ -211,11 +212,12 @@ export class PyramidChart extends AbstractChart {
 }
 
 export function createPyramidChartRuntime(
+  getters: Getters,
   chart: PyramidChart,
-  getters: Getters
+  data: ChartData
 ): PyramidChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getPyramidChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getPyramidChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "bar",
