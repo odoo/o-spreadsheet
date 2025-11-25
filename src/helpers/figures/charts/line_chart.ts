@@ -9,7 +9,6 @@ import {
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -17,6 +16,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   ChartJSRuntime,
   CustomizedDataSet,
   DataSet,
@@ -164,12 +164,11 @@ export class LineChart extends AbstractChart {
     return new LineChart(definition, this.sheetId, this.getters);
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      this.dataSets
     );
     return {
       ...definition,
@@ -202,9 +201,13 @@ export class LineChart extends AbstractChart {
   }
 }
 
-export function createLineChartRuntime(chart: LineChart, getters: Getters): ChartJSRuntime {
+export function createLineChartRuntime(
+  getters: Getters,
+  chart: LineChart,
+  data: ChartData
+): ChartJSRuntime {
   const definition = chart.getDefinition();
-  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getLineChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "line",

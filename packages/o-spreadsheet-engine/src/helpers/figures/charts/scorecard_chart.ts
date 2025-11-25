@@ -448,8 +448,8 @@ export function drawScoreChart(
 }
 
 export function createScorecardChartRuntime(
-  chart: ScorecardChart,
-  getters: Getters
+  getters: Getters,
+  chart: ScorecardChart
 ): ScorecardChartRuntime {
   let formattedKeyValue = "";
   let keyValueCell: EvaluatedCell | undefined;

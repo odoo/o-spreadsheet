@@ -9,7 +9,6 @@ import {
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -25,6 +24,7 @@ import { ChartConfiguration } from "chart.js";
 import {
   ApplyRangeChange,
   ChartCreationContext,
+  ChartData,
   CommandResult,
   CustomizedDataSet,
   DataSet,
@@ -133,12 +133,11 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      this.dataSets
     );
     return {
       ...definition,
@@ -207,9 +206,13 @@ export class ComboChart extends AbstractChart {
   }
 }
 
-export function createComboChartRuntime(chart: ComboChart, getters: Getters): ComboChartRuntime {
+export function createComboChartRuntime(
+  getters: Getters,
+  chart: ComboChart,
+  data: ChartData
+): ComboChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getBarChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "bar",
