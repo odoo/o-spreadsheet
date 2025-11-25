@@ -41,6 +41,7 @@ import { createFunnelChartRuntime, FunnelChart } from "../helpers/figures/charts
 import { createGeoChartRuntime, GeoChart } from "../helpers/figures/charts/geo_chart";
 import { createPyramidChartRuntime, PyramidChart } from "../helpers/figures/charts/pyramid_chart";
 import { createRadarChartRuntime, RadarChart } from "../helpers/figures/charts/radar_chart";
+import { getChartData, getHierarchicalData } from "../helpers/figures/charts/runtime";
 import { createScatterChartRuntime, ScatterChart } from "../helpers/figures/charts/scatter_chart";
 import {
   createSunburstChartRuntime,
@@ -56,6 +57,7 @@ chartRegistry.add("bar", {
   match: (type) => type === "bar",
   createChart: (definition, sheetId, getters) =>
     new BarChart(definition as BarChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createBarChartRuntime,
   validateChartDefinition: BarChart.validateChartDefinition,
   transformDefinition: BarChart.transformDefinition,
@@ -67,6 +69,7 @@ chartRegistry.add("combo", {
   match: (type) => type === "combo",
   createChart: (definition, sheetId, getters) =>
     new ComboChart(definition as ComboChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createComboChartRuntime,
   validateChartDefinition: ComboChart.validateChartDefinition,
   transformDefinition: ComboChart.transformDefinition,
@@ -78,6 +81,7 @@ chartRegistry.add("line", {
   match: (type) => type === "line",
   createChart: (definition, sheetId, getters) =>
     new LineChart(definition as LineChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createLineChartRuntime,
   validateChartDefinition: LineChart.validateChartDefinition,
   transformDefinition: LineChart.transformDefinition,
@@ -89,6 +93,7 @@ chartRegistry.add("pie", {
   match: (type) => type === "pie",
   createChart: (definition, sheetId, getters) =>
     new PieChart(definition as PieChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createPieChartRuntime,
   validateChartDefinition: PieChart.validateChartDefinition,
   transformDefinition: PieChart.transformDefinition,
@@ -100,6 +105,7 @@ chartRegistry.add("scorecard", {
   match: (type) => type === "scorecard",
   createChart: (definition, sheetId, getters) =>
     new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => undefined, // totally custom. Handled in createScorecardChartRuntime
   getChartRuntime: createScorecardChartRuntime,
   validateChartDefinition: ScorecardChart.validateChartDefinition,
   transformDefinition: ScorecardChart.transformDefinition,
@@ -111,6 +117,7 @@ chartRegistry.add("gauge", {
   match: (type) => type === "gauge",
   createChart: (definition, sheetId, getters) =>
     new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => undefined, // totally custom. Handled in createScorecardChartRuntime
   getChartRuntime: createGaugeChartRuntime,
   validateChartDefinition: GaugeChart.validateChartDefinition,
   transformDefinition: GaugeChart.transformDefinition,
@@ -122,6 +129,7 @@ chartRegistry.add("scatter", {
   match: (type) => type === "scatter",
   createChart: (definition, sheetId, getters) =>
     new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createScatterChartRuntime,
   validateChartDefinition: ScatterChart.validateChartDefinition,
   transformDefinition: ScatterChart.transformDefinition,
@@ -133,6 +141,7 @@ chartRegistry.add("waterfall", {
   match: (type) => type === "waterfall",
   createChart: (definition, sheetId, getters) =>
     new WaterfallChart(definition as WaterfallChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createWaterfallChartRuntime,
   validateChartDefinition: WaterfallChart.validateChartDefinition,
   transformDefinition: WaterfallChart.transformDefinition,
@@ -144,6 +153,7 @@ chartRegistry.add("pyramid", {
   match: (type) => type === "pyramid",
   createChart: (definition, sheetId, getters) =>
     new PyramidChart(definition as PyramidChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createPyramidChartRuntime,
   validateChartDefinition: PyramidChart.validateChartDefinition,
   transformDefinition: PyramidChart.transformDefinition,
@@ -156,6 +166,7 @@ chartRegistry.add("radar", {
   match: (type) => type === "radar",
   createChart: (definition, sheetId, getters) =>
     new RadarChart(definition as RadarChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createRadarChartRuntime,
   validateChartDefinition: RadarChart.validateChartDefinition,
   transformDefinition: RadarChart.transformDefinition,
@@ -167,6 +178,7 @@ chartRegistry.add("geo", {
   match: (type) => type === "geo",
   createChart: (definition, sheetId, getters) =>
     new GeoChart(definition as GeoChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createGeoChartRuntime,
   validateChartDefinition: GeoChart.validateChartDefinition,
   transformDefinition: GeoChart.transformDefinition,
@@ -179,6 +191,7 @@ chartRegistry.add("funnel", {
   match: (type) => type === "funnel",
   createChart: (definition, sheetId, getters) =>
     new FunnelChart(definition as FunnelChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
   getChartRuntime: createFunnelChartRuntime,
   validateChartDefinition: FunnelChart.validateChartDefinition,
   transformDefinition: FunnelChart.transformDefinition,
@@ -191,6 +204,7 @@ chartRegistry.add("sunburst", {
   match: (type) => type === "sunburst",
   createChart: (definition, sheetId, getters) =>
     new SunburstChart(definition as SunburstChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
   getChartRuntime: createSunburstChartRuntime,
   validateChartDefinition: SunburstChart.validateChartDefinition,
   transformDefinition: SunburstChart.transformDefinition,
@@ -202,6 +216,7 @@ chartRegistry.add("treemap", {
   match: (type) => type === "treemap",
   createChart: (definition, sheetId, getters) =>
     new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
+  extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
   getChartRuntime: createTreeMapChartRuntime,
   validateChartDefinition: TreeMapChart.validateChartDefinition,
   transformDefinition: TreeMapChart.transformDefinition,
@@ -213,9 +228,8 @@ chartRegistry.add("calendar", {
   match: (type) => type === "calendar",
   createChart: (definition, sheetId, getters) =>
     new CalendarChart(definition as CalendarChartDefinition, sheetId, getters),
-  getChartRuntime: (chart, getters) => {
-    return createCalendarChartRuntime(chart as CalendarChart, getters);
-  },
+  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  getChartRuntime: createCalendarChartRuntime,
   validateChartDefinition: CalendarChart.validateChartDefinition,
   transformDefinition: CalendarChart.transformDefinition,
   getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
