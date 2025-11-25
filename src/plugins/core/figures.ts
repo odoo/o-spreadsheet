@@ -124,7 +124,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         }
         break;
       case "DUPLICATE_SHEET": {
-        for (const figureId in this.figures[cmd.sheetId]) {
+        for (const figure of this.getFigures(cmd.sheetId)) {
+          const figureId = figure.id;
           const fig = this.figures[cmd.sheetId]?.[figureId];
           if (!fig) {
             continue;
