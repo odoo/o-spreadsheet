@@ -17,6 +17,7 @@ import {
 } from "../../helpers/index";
 import { CellErrorType } from "../../types/errors";
 import {
+  AdaptRangeFn,
   AdaptSheetName,
   ApplyRangeChange,
   ApplyRangeChangeResult,
@@ -28,7 +29,6 @@ import {
   Dimension,
   Range,
   RangeData,
-  RangeProvider,
   RangeStringOptions,
   UID,
   UnboundedZone,
@@ -37,7 +37,7 @@ import {
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
-  private providers: Array<RangeProvider["adaptRanges"]> = [];
+  private providers: Array<AdaptRangeFn> = [];
   private isAdaptingRanges: boolean = false;
   constructor(getters: CoreGetters) {
     this.getters = getters;
@@ -125,7 +125,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param provider a function bound to a plugin that will loop over its internal data structure to find
    * all ranges
    */
-  addRangeProvider(provider: RangeProvider["adaptRanges"]) {
+  addRangeProvider(provider: AdaptRangeFn) {
     this.providers.push(provider);
   }
 
