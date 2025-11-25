@@ -735,11 +735,16 @@ describe("Spreadsheet pivot side panel", () => {
   test("Invalid pivot dimensions are displayed as such in the side panel", async () => {
     setCellContent(model, "A1", "ValidDimension");
     setCellContent(model, "A2", "10");
-    addPivot(model, "A1:A2", {
-      columns: [{ fieldName: "ValidDimension" }],
-      rows: [{ fieldName: "InvalidDimension" }],
-    });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    addPivot(
+      model,
+      "A1:A2",
+      {
+        columns: [{ fieldName: "ValidDimension" }],
+        rows: [{ fieldName: "InvalidDimension" }],
+      },
+      "2"
+    );
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     const pivotDimensionEls = fixture.querySelectorAll<HTMLElement>(".pivot-dimension")!;
     const validDimensionEl = pivotDimensionEls[0];
