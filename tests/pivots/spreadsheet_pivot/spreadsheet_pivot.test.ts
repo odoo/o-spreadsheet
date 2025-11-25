@@ -2,6 +2,7 @@ import { CellErrorType, FunctionResultObject, Model } from "../../../src";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { DEFAULT_LOCALES } from "../../../src/types/locale";
 import {
+  addRows,
   createSheet,
   deleteContent,
   deleteSheet,
@@ -648,6 +649,22 @@ describe("Spreadsheet Pivot", () => {
     expect(getCellError(model, "A1")).toBe(
       "The pivot cannot be created because the dataset is missing."
     );
+  });
+
+  test("Modifying a sheet structure adapts the pivot range", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "A26", `=pivot(1)`);
+    expect(model.getters.getPivot("1").isValid()).toBeTruthy();
+    expect(getEvaluatedCell(model, "A26").value).toEqual("(#1) My pivot");
+    addRows(model, "before", 0, 1);
+    expect(model.getters.getPivot("1").isValid()).toBeTruthy();
+    expect(getEvaluatedCell(model, "A27").value).toEqual("(#1) My pivot");
+    undo(model);
+    expect(model.getters.getPivot("1").isValid()).toBeTruthy();
+    expect(getEvaluatedCell(model, "A26").value).toEqual("(#1) My pivot");
+    redo(model);
+    expect(model.getters.getPivot("1").isValid()).toBeTruthy();
+    expect(getEvaluatedCell(model, "A27").value).toEqual("(#1) My pivot");
   });
 
   test("Sum with a field that contains a string should work", () => {
