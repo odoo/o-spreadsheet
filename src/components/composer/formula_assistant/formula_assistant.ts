@@ -72,16 +72,19 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
         if (displayBrackets) {
           result.push({ content: "]" });
         }
-        result.push({ content: argSeparator + "[" });
-        for (let idx = 0; idx < repeatingArgNames.length; idx++) {
-          const name = repeatingArgNames[idx];
-          result.push({ content: name + ((repeatingArgGroupIndex ?? 0) + 2) });
-          // Add separator after each element except the last
-          if (idx < repeatingArgNames.length - 1) {
-            result.push({ content: argSeparator });
+        if (functionDescription.nbrArgRepeating <= 1) {
+          result.push({ content: argSeparator + "[" });
+          for (let idx = 0; idx < repeatingArgNames.length; idx++) {
+            const name = repeatingArgNames[idx];
+            result.push({ content: name + ((repeatingArgGroupIndex ?? 0) + 2) });
+            // Add separator after each element except the last
+            if (idx < repeatingArgNames.length - 1) {
+              result.push({ content: argSeparator });
+            }
           }
+          result.push({ content: "]" });
         }
-        result.push({ content: "]" + argSeparator + "... " });
+        result.push({ content: argSeparator + "... " });
 
         // Skip the processed repeating args
         i += functionDescription.nbrArgRepeating - 1;
