@@ -17,8 +17,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import { getZoneArea } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
@@ -166,10 +168,15 @@ export class ScatterChart extends AbstractChart {
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== "");
+
+    const datasetLength = this.dataSets[0]
+      ? getZoneArea(this.dataSets[0].dataRange.zone)
+      : undefined;
+    const labelLength = this.labelRange ? getZoneArea(this.labelRange.zone) : 0;
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], definition.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(labelLength, datasetLength, definition.dataSetsHaveTitle)
     );
     return {
       ...definition,
@@ -203,11 +210,12 @@ export class ScatterChart extends AbstractChart {
 }
 
 export function createScatterChartRuntime(
+  getters: Getters,
   chart: ScatterChart,
-  getters: Getters
+  data: ChartData
 ): ScatterChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getLineChartData(definition, data, getters);
 
   const config: ChartConfiguration<"line"> = {
     // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart

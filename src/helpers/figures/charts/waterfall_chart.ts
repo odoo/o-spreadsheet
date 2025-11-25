@@ -14,6 +14,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -190,11 +191,12 @@ export class WaterfallChart extends AbstractChart {
 }
 
 export function createWaterfallChartRuntime(
+  getters: Getters,
   chart: WaterfallChart,
-  getters: Getters
+  data: ChartData
 ): WaterfallChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getBarChartData(definition, data, getters);
 
   const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
   const config: ChartConfiguration = {

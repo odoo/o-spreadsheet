@@ -15,6 +15,7 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -177,9 +178,13 @@ export class FunnelChart extends AbstractChart {
   }
 }
 
-export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): FunnelChartRuntime {
+export function createFunnelChartRuntime(
+  getters: Getters,
+  chart: FunnelChart,
+  data: ChartData
+): FunnelChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getFunnelChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getFunnelChartData(definition, data, getters);
 
   const config: ChartConfiguration = {
     type: "funnel",

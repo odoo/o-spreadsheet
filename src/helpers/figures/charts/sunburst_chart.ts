@@ -18,6 +18,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
+  ChartData,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
@@ -177,11 +178,12 @@ export class SunburstChart extends AbstractChart {
 }
 
 export function createSunburstChartRuntime(
+  getters: Getters,
   chart: SunburstChart,
-  getters: Getters
+  data: ChartData
 ): SunburstChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getHierarchalChartData(definition, data, getters);
 
   const config: ChartConfiguration<"doughnut"> = {
     type: "doughnut",
