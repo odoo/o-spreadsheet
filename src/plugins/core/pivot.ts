@@ -324,18 +324,19 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       if (!pivot) {
         continue;
       }
-      for (const measure of pivot.definition.measures) {
+      const def = deepCopy(pivot.definition);
+
+      for (const measure of def.measures) {
         if (measure.computedBy?.formula === formulaString) {
-          const measureIndex = pivot.definition.measures.indexOf(measure);
-          this.history.update(
-            "pivots",
-            pivotId,
-            "definition",
-            "measures",
-            measureIndex,
-            "computedBy",
-            { formula: newFormulaString, sheetId }
-          );
+          const measureIndex = def.measures.indexOf(measure);
+          if (measureIndex !== -1) {
+            def.measures[measureIndex].computedBy = {
+              formula: newFormulaString,
+              sheetId,
+            };
+          }
+
+          this.dispatch("UPDATE_PIVOT", { pivotId, pivot: def });
         }
       }
     }
