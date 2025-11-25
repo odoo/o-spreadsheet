@@ -3,7 +3,7 @@ import { ChartColorScale, CommonChartDefinition } from ".";
 import { Color } from "../misc";
 import { Granularity } from "../pivot";
 
-export const CALENDAR_CHART_GRANULARITIES: Granularity[] = [
+export const CALENDAR_CHART_GRANULARITIES = [
   "year",
   "quarter_number",
   "month_number",
@@ -13,7 +13,7 @@ export const CALENDAR_CHART_GRANULARITIES: Granularity[] = [
   "hour_number",
   "minute_number",
   "second_number",
-];
+] satisfies Granularity[];
 
 export type CalendarChartGranularity = (typeof CALENDAR_CHART_GRANULARITIES)[number];
 
