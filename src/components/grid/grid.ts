@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
+import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
   INSERT_COLUMNS_BEFORE_ACTION,
@@ -361,6 +362,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     "Ctrl+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
     "Ctrl+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
+    "Ctrl+Enter": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_ZONE"),
     "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
@@ -408,6 +410,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     "Shift+PageUp": () => {
       this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
+    },
+    "Shift+F11": () => {
+      insertSheet.execute?.(this.env);
+    },
+    "Alt+T": () => {
+      insertTable.execute?.(this.env);
     },
     PageDown: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
     PageUp: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),

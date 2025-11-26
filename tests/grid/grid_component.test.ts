@@ -942,6 +942,9 @@ describe("Grid component", () => {
       expect(model.getters.getActiveSheetId()).toBe("third");
     });
 
+    // test("Pressing Shift+F11 insert a new sheet", () => {
+    //  });
+
     test("pressing Ctrl+K opens the link editor", async () => {
       await keyDown({ key: "k", ctrlKey: true });
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();

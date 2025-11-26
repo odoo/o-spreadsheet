@@ -104,6 +104,13 @@ export class ClipboardPlugin extends UIPlugin {
         }
         break;
       }
+      case "COPY_PASTE_CELLS_ON_ZONE": {
+        const zones = this.getters.getSelectedZones();
+        if (zones.length > 1) {
+          return CommandResult.InvalidCopyPasteSelection;
+        }
+        break;
+      }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const copiedData = this.copy(cut, "shiftCells");
@@ -203,6 +210,22 @@ export class ClipboardPlugin extends UIPlugin {
             ...zone,
             right: multipleColsInSelection ? zone.left : zone.left - 1,
             left: multipleColsInSelection ? zone.left : zone.left - 1,
+          };
+          this.originSheetId = this.getters.getActiveSheetId();
+          const copiedData = this.copy([copyTarget]);
+          this.paste([zone], copiedData, {
+            isCutOperation: false,
+            selectTarget: true,
+          });
+        }
+        break;
+      case "COPY_PASTE_CELLS_ON_ZONE":
+        {
+          const zone = this.getters.getSelectedZone();
+          const copyTarget = {
+            ...zone,
+            right: zone.left,
+            bottom: zone.top,
           };
           this.originSheetId = this.getters.getActiveSheetId();
           const copiedData = this.copy([copyTarget]);
