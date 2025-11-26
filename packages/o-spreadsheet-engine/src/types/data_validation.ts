@@ -138,6 +138,13 @@ export type IsValueInRangeCriterion = {
   displayStyle: "arrow" | "plainText" | "chip";
 };
 
+export type Top10Criterion = {
+  type: "top10";
+  values: string[];
+  isPercent?: boolean;
+  isBottom?: boolean;
+};
+
 export type CustomFormulaCriterion = {
   type: "customFormula";
   values: string[];
