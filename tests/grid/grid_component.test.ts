@@ -24,9 +24,11 @@ import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { NotificationStore } from "../../src/stores/notification_store";
 import { Align, ClipboardMIMEType } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -961,6 +963,14 @@ describe("Grid component", () => {
       expect(model.getters.getActiveSheetId()).toBe("third");
     });
 
+    test("Pressing Shift+F11 insert a new sheet", () => {
+      expect(model.getters.getSheetIds()).toHaveLength(1);
+      keyDown({ key: "F11", shiftKey: true });
+      const sheetIds = model.getters.getSheetIds();
+      expect(sheetIds).toHaveLength(2);
+      expect(model.getters.getActiveSheetId()).toBe(sheetIds[1]);
+    });
+
     test("pressing Ctrl+K opens the link editor", async () => {
       await keyDown({ key: "k", ctrlKey: true });
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
@@ -1810,7 +1820,7 @@ describe("Copy paste keyboard shortcut", () => {
   const fileStore = new FileStore();
   beforeEach(async () => {
     clipboardData = new MockClipboardData();
-    ({ parent, model, fixture } = await mountSpreadsheet({
+    ({ parent, model, fixture, env } = await mountSpreadsheet({
       model: new Model({}, { external: { fileStore } }),
     }));
     sheetId = model.getters.getActiveSheetId();
@@ -1988,6 +1998,7 @@ describe("Copy paste keyboard shortcut", () => {
     keyDown({ key: "D", ctrlKey: true });
     expect(getCell(model, "B2")?.content).toBe("b1");
 
+    setCellContent(model, "B2", "b2");
     setCellContent(model, "C1", "c1");
     setCellContent(model, "D1", "d1");
     setSelection(model, ["B2:D2"]);
@@ -1995,6 +2006,15 @@ describe("Copy paste keyboard shortcut", () => {
     expect(getCell(model, "B2")?.content).toBe("b1");
     expect(getCell(model, "C2")?.content).toBe("c1");
     expect(getCell(model, "D2")?.content).toBe("d1");
+  });
+
+  test("raise error if copied zone contains merged cells", () => {
+    setCellContent(model, "A1", "a1");
+    merge(model, "A2:A3");
+    setSelection(model, ["A1:A3"]);
+    handleCopyPasteResult(env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+    const notificationStore = env.getStore(NotificationStore);
+    expect(notificationStore.raiseError).toHaveBeenCalled();
   });
 
   test("can copy and paste cell(s) on left using CTRL+R", async () => {
@@ -2011,6 +2031,24 @@ describe("Copy paste keyboard shortcut", () => {
     expect(getCell(model, "B2")?.content).toBe("a2");
     expect(getCell(model, "B3")?.content).toBe("a3");
     expect(getCell(model, "B4")?.content).toBe("a4");
+  });
+
+  test("can copy and paste cell(s) on zone using CTRL+ENTER", async () => {
+    setCellContent(model, "A1", "a1");
+    setSelection(model, ["A1:B2"]);
+    keyDown({ key: "Enter", ctrlKey: true });
+    expect(getCell(model, "A1")?.content).toBe("a1");
+    expect(getCell(model, "A2")?.content).toBe("a1");
+    expect(getCell(model, "B1")?.content).toBe("a1");
+    expect(getCell(model, "B2")?.content).toBe("a1");
+  });
+
+  test("Alt+T -> Table", async () => {
+    setSelection(model, ["A1:A5"]);
+    await keyDown({ key: "T", altKey: true });
+    expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+      range: { zone: toZone("A1:A5") },
+    });
   });
 
   test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {
