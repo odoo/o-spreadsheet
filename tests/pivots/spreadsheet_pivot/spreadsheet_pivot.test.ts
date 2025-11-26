@@ -24,7 +24,7 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
+import { createModelFromGrid, getGrid } from "../../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
@@ -2259,6 +2259,232 @@ describe("Spreadsheet Pivot", () => {
     expect(model.getters.getPivotIds()).toEqual(["1"]);
     expect(model.getters.getPivotCoreDefinition("1")).toBeTruthy();
     expect(model.getters.getPivot("1")).toBeTruthy();
+  });
+
+  describe("Pivot tabular form", () => {
+    test("Can display a pivot in simple tabular form with either the pivot style of formula arg", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      const tabularPivotGrid = {
+        A25:"My pivot",      B25: "",                  C25: "Total",
+        A26: "Stage",        B26: "Active",            C26: "Expected Revenue",
+        A27: "New",          B27: "FALSE",             C27: 91000,
+        A28: "New",          B28: "TRUE",              C28: 30500,
+        A29: "Proposition",  B29: "FALSE",             C29: 80600,
+        A30: "Proposition",  B30: "TRUE",              C30: 9000,
+        A31: "Qualified",    B31: "FALSE",             C31: 83500,
+        A32: "Qualified",    B32: "TRUE",              C32: 3800,
+        A33: "Won",          B33: "FALSE",             C33: 2000,
+        A34: "Won",          B34: "TRUE",              C34: 19800,
+        A35: "Total",        B35: "",                  C35: 320200,
+      }
+      expect(getGrid(model)).toMatchObject(tabularPivotGrid);
+
+      updatePivot(model, "1", { style: { tabularForm: false } });
+      expect(getGrid(model)).not.toMatchObject(tabularPivotGrid);
+
+      setCellContent(model, "A25", "=PIVOT(1, , , , , , TRUE)");
+      expect(getGrid(model)).toMatchObject(tabularPivotGrid);
+    });
+
+    test("Pivot in tabular form has no indent/collapse icons", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      for (const position of positions(toZone("A25:B35"))) {
+        const cellPosition = { ...position, sheetId: model.getters.getActiveSheetId() };
+        expect(model.getters.getCellIcons(cellPosition)).toEqual([]);
+      }
+    });
+
+    test("Can display a pivot in tabular form with columns", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [{ fieldName: "Salesperson", order: "asc" }],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGrid(model)).toMatchObject({
+        A25:"My pivot",      B25: "",        C25: "Eden",              D25: "Kevin",             E25: "Total",
+        A26: "Stage",        B26: "Active",  C26: "Expected Revenue",  D26: "Expected Revenue",  E26: "Expected Revenue",
+        A27: "New",          B27: "FALSE",   C27: "",                  D27: 91000,               E27: 91000,
+        A28: "New",          B28: "TRUE",    C28: 24000,               D28: 6500,                E28: 30500,
+        A29: "Proposition",  B29: "FALSE",   C29: 15000,               D29: 65600,               E29: 80600,
+        A30: "Proposition",  B30: "TRUE",    C30: "",                  D30: 9000,                E30: 9000,
+        A31: "Qualified",    B31: "FALSE",   C31: 36000,               D31: 47500,               E31: 83500,
+        A32: "Qualified",    B32: "TRUE",    C32: "",                  D32: 3800,                E32: 3800,
+        A33: "Won",          B33: "FALSE",   C33: 2000,                D33: "",                  E33: 2000,
+        A34: "Won",          B34: "TRUE",    C34: "",                  D34: 19800,               E34: 19800,
+        A35: "Total",        B35: "",        C35: 77000,               D35: 243200,              E35: 320200,
+      });
+    });
+
+    test("Can display a pivot in tabular form with multiple measures", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [
+          { id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" },
+          { id: "Opportunity:count", fieldName: "Opportunity", aggregator: "count" },
+        ],
+        style: { tabularForm: true },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGrid(model)).toMatchObject({
+        A25:"My pivot",      B25: "",        C25: "Total",             D25: "",
+        A26: "Stage",        B26: "Active",  C26: "Expected Revenue",  D26: "Opportunity",
+        A27: "New",          B27: "FALSE",   C27: 91000,               D27: 4,
+        A28: "New",          B28: "TRUE",    C28: 30500,               D28: 3,
+        A29: "Proposition",  B29: "FALSE",   C29: 80600,               D29: 3,
+        A30: "Proposition",  B30: "TRUE",    C30: 9000,                D30: 2,
+        A31: "Qualified",    B31: "FALSE",   C31: 83500,               D31: 4,
+        A32: "Qualified",    B32: "TRUE",    C32: 3800,                D32: 1,
+        A33: "Won",          B33: "FALSE",   C33: 2000,                D33: 1,
+        A34: "Won",          B34: "TRUE",    C34: 19800,               D34: 3,
+        A35: "Total",        B35: "",        C35: 320200,              D35: 21,
+      });
+    });
+
+    test("Can display a pivot in tabular form without column title", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true, displayColumnHeaders: false },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGrid(model)).toMatchObject({
+        A25: "Stage",        B25: "Active",  C25: "Expected Revenue",
+        A26: "New",          B26: "FALSE",   C26: 91000,
+        A27: "New",          B27: "TRUE",    C27: 30500,
+        A28: "Proposition",  B28: "FALSE",   C28: 80600,
+        A29: "Proposition",  B29: "TRUE",    C29: 9000,
+        A30: "Qualified",    B30: "FALSE",   C30: 83500,
+        A31: "Qualified",    B31: "TRUE",    C31: 3800,
+        A32: "Won",          B32: "FALSE",   C32: 2000,
+        A33: "Won",          B33: "TRUE",    C33: 19800,
+        A34: "Total",        B34: "",        C34: 320200,
+      });
+    });
+
+    test("Can display a pivot in tabular form without measure title", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true, displayMeasuresRow: false },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGrid(model)).toMatchObject({
+        A25:"My pivot",      B25: "",       C25: "Total",
+        A26: "New",          B26: "FALSE",  C26: 91000,
+        A27: "New",          B27: "TRUE",   C27: 30500,
+        A28: "Proposition",  B28: "FALSE",  C28: 80600,
+        A29: "Proposition",  B29: "TRUE",   C29: 9000,
+        A30: "Qualified",    B30: "FALSE",  C30: 83500,
+        A31: "Qualified",    B31: "TRUE",   C31: 3800,
+        A32: "Won",          B32: "FALSE",  C32: 2000,
+        A33: "Won",          B33: "TRUE",   C33: 19800,
+        A34: "Total",        B34: "",       C34: 320200,
+      });
+    });
+
+    test("Can display a pivot in tabular form without totals", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true, displayTotals: false },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGrid(model, "A25:C35")).toMatchObject({
+        A25:"My pivot",      B25: "",                  C25: "Total",
+        A26: "Stage",        B26: "Active",            C26: "Expected Revenue",
+        A27: "New",          B27: "FALSE",             C27: 91000,
+        A28: "New",          B28: "TRUE",              C28: 30500,
+        A29: "Proposition",  B29: "FALSE",             C29: 80600,
+        A30: "Proposition",  B30: "TRUE",              C30: 9000,
+        A31: "Qualified",    B31: "FALSE",             C31: 83500,
+        A32: "Qualified",    B32: "TRUE",              C32: 3800,
+        A33: "Won",          B33: "FALSE",             C33: 2000,
+        A34: "Won",          B34: "TRUE",              C34: 19800,
+        A35: "",             B35: "",                  C35: "",
+      });
+    });
+
+    test("Can display a pivot in tabular form with limited number of columns/rows", () => {
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [{ fieldName: "Salesperson", order: "asc" }],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true, numberOfColumns: 1, numberOfRows: 2 },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGrid(model, "A25:D29")).toMatchObject({
+        A25:"My pivot",      B25: "",        C25: "Eden",              D25: "",
+        A26: "Stage",        B26: "Active",  C26: "Expected Revenue",  D26: "",
+        A27: "New",          B27: "FALSE",   C27: "",                  D27: "",
+        A28: "New",          B28: "TRUE",    C28: 24000,               D28: "",
+        A29: "",             B29: "",        C29: "",                  D29: "",
+      });
+    });
   });
 });
 
