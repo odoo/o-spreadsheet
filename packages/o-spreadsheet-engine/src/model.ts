@@ -183,9 +183,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
     this.coreGetters.adaptFormulaStringDependencies =
       this.range.adaptFormulaStringDependencies.bind(this.range);
-    this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
-      this.range
-    );
 
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",

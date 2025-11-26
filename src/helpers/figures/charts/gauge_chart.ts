@@ -24,7 +24,10 @@ import {
   adaptFormulaStringRanges,
   adaptStringRange,
 } from "@odoo/o-spreadsheet-engine/helpers/formulas";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import {
+  createValidRange,
+  duplicateRangeInDuplicatedSheet,
+} from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   GaugeChartDefinition,
@@ -222,7 +225,12 @@ export class GaugeChart extends AbstractChart {
     );
 
     const adaptFormula = (formula: string) =>
-      this.getters.copyFormulaStringForSheet(this.sheetId, newSheetId, formula, "moveReference");
+      this.getters.adaptFormulaStringDependencies(newSheetId, formula, (range) => {
+        return {
+          changeType: "CHANGE",
+          range: duplicateRangeInDuplicatedSheet(this.sheetId, newSheetId, range),
+        };
+      });
 
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
 
@@ -232,7 +240,12 @@ export class GaugeChart extends AbstractChart {
 
   copyInSheetId(sheetId: UID): GaugeChart {
     const adaptFormula = (formula: string) =>
-      this.getters.copyFormulaStringForSheet(this.sheetId, sheetId, formula, "keepSameReference");
+      this.getters.adaptFormulaStringDependencies(this.sheetId, formula, (range) => {
+        return {
+          changeType: "CHANGE",
+          range: { ...range, prefixSheet: range.sheetId === this.sheetId }, // just force the original sheet name prefix
+        };
+      });
 
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
     const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sectionRule, sheetId);
