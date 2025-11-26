@@ -12,6 +12,7 @@ import { CustomizedDataSet, Dimension } from "../../src/types";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import {
+  addCfRule,
   createChart,
   createGaugeChart,
   createImage,
@@ -688,6 +689,29 @@ describe("Test XLSX export", () => {
         ],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("Can export top10 conditional format", async () => {
+      const model = new Model();
+      addCfRule(model, "A1:A4", {
+        type: "CellIsRule",
+        operator: "top10",
+        values: ["2"], // top 2
+        isBottom: true,
+        isPercent: true,
+        style: { fillColor: "#B6D7A8" },
+      });
+
+      const exportedXlsx = await model.exportXLSX();
+      const sheet = exportedXlsx.files.find((f) => f["contentType"] === "sheet")!["content"];
+      const xml = parseXML(sheet);
+
+      const rules = xml.querySelectorAll("conditionalFormatting > cfRule");
+      expect(rules.length).toBe(1);
+      expect(rules[0].getAttribute("type")).toBe("top10");
+      expect(rules[0].getAttribute("rank")).toBe("2");
+      expect(rules[0].getAttribute("bottom")).toBe("1");
+      expect(rules[0].getAttribute("percent")).toBe("1");
     });
 
     test("Data validation", async () => {

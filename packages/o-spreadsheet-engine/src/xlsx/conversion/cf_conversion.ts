@@ -1,5 +1,6 @@
 import { ICON_SETS } from "../../components/icons/icons";
 import {
+  CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   ConditionalFormat,
@@ -34,6 +35,7 @@ export function convertConditionalFormats(
     const rule = cf.cfRules[0];
     let operator: ConditionalFormattingOperatorValues | undefined;
     const values: string[] = [];
+    const cfAdditionalProperties: Partial<CellIsRule> = {};
 
     if (
       rule.dxfId === undefined &&
@@ -45,7 +47,6 @@ export function convertConditionalFormats(
       case "containsErrors":
       case "notContainsErrors":
       case "duplicateValues":
-      case "top10":
       case "uniqueValues":
       case "timePeriod":
         // Not supported
@@ -93,6 +94,17 @@ export function convertConditionalFormats(
           values.push(prefixFormulaWithEqual(rule.formula[1]));
         }
         break;
+      case "top10":
+        if (rule.rank === undefined) continue;
+        operator = CF_OPERATOR_TYPE_CONVERSION_MAP[rule.type];
+        values.push(rule.rank.toString());
+        if (rule.percent) {
+          cfAdditionalProperties.isPercent = true;
+        }
+        if (rule.bottom) {
+          cfAdditionalProperties.isBottom = true;
+        }
+        break;
     }
     if (operator && rule.dxfId !== undefined) {
       cfs.push({
@@ -103,6 +115,7 @@ export function convertConditionalFormats(
           type: "CellIsRule",
           operator: operator,
           values: values,
+          ...cfAdditionalProperties,
           style: convertStyle(
             { fontStyle: dxfs[rule.dxfId].font, fillStyle: dxfs[rule.dxfId].fill },
             warningManager
