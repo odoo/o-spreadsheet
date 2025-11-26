@@ -42,7 +42,7 @@
         </SidePanelCollapsible>
 
         <div class="o-filter-menu-buttons d-flex justify-content-end">
-          <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Cancel</button>
+          <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Discard</button>
           <button class="o-button primary o-filter-menu-confirm" t-on-click="confirm">
             Confirm
           </button>
