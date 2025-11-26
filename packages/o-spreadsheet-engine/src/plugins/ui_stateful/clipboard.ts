@@ -95,14 +95,33 @@ export class ClipboardPlugin extends UIPlugin {
         if (zones.length > 1 || (zones[0].top === 0 && zones[0].bottom === 0)) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        break;
+        const zone = this.getters.getSelectedZone();
+        const copiedData = this.getCopiedDataAbove(zone);
+        return this.isPasteAllowed(zones, copiedData, {
+          isCutOperation: false,
+        });
       }
       case "COPY_PASTE_CELLS_ON_LEFT": {
         const zones = this.getters.getSelectedZones();
         if (zones.length > 1 || (zones[0].left === 0 && zones[0].right === 0)) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        break;
+        const zone = this.getters.getSelectedZone();
+        const copiedData = this.getCopiedDataOnLeft(zone);
+        return this.isPasteAllowed(zones, copiedData, {
+          isCutOperation: false,
+        });
+      }
+      case "COPY_PASTE_CELLS_ON_ZONE": {
+        const zones = this.getters.getSelectedZones();
+        if (zones.length > 1) {
+          return CommandResult.InvalidCopyPasteSelection;
+        }
+        const zone = this.getters.getSelectedZone();
+        const copiedData = this.getCopiedDataOnLeft(zone);
+        return this.isPasteAllowed(zones, copiedData, {
+          isCutOperation: false,
+        });
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
@@ -181,14 +200,8 @@ export class ClipboardPlugin extends UIPlugin {
       case "COPY_PASTE_CELLS_ABOVE":
         {
           const zone = this.getters.getSelectedZone();
-          const multipleRowsInSelection = zone.top !== zone.bottom;
-          const copyTarget = {
-            ...zone,
-            bottom: multipleRowsInSelection ? zone.top : zone.top - 1,
-            top: multipleRowsInSelection ? zone.top : zone.top - 1,
-          };
           this.originSheetId = this.getters.getActiveSheetId();
-          const copiedData = this.copy([copyTarget]);
+          const copiedData = this.getCopiedDataAbove(zone);
           this.paste([zone], copiedData, {
             isCutOperation: false,
             selectTarget: true,
@@ -198,14 +211,19 @@ export class ClipboardPlugin extends UIPlugin {
       case "COPY_PASTE_CELLS_ON_LEFT":
         {
           const zone = this.getters.getSelectedZone();
-          const multipleColsInSelection = zone.left !== zone.right;
-          const copyTarget = {
-            ...zone,
-            right: multipleColsInSelection ? zone.left : zone.left - 1,
-            left: multipleColsInSelection ? zone.left : zone.left - 1,
-          };
           this.originSheetId = this.getters.getActiveSheetId();
-          const copiedData = this.copy([copyTarget]);
+          const copiedData = this.getCopiedDataOnLeft(zone);
+          this.paste([zone], copiedData, {
+            isCutOperation: false,
+            selectTarget: true,
+          });
+        }
+        break;
+      case "COPY_PASTE_CELLS_ON_ZONE":
+        {
+          const zone = this.getters.getSelectedZone();
+          this.originSheetId = this.getters.getActiveSheetId();
+          const copiedData = this.getCopiedDataAboveOnLeft(zone);
           this.paste([zone], copiedData, {
             isCutOperation: false,
             selectTarget: true,
@@ -289,6 +307,35 @@ export class ClipboardPlugin extends UIPlugin {
           this.status = "invisible";
         }
     }
+  }
+
+  private getCopiedDataAbove(zone: Zone) {
+    const multipleRowsInSelection = zone.top !== zone.bottom;
+    const copyTarget = {
+      ...zone,
+      bottom: multipleRowsInSelection ? zone.top : zone.top - 1,
+      top: multipleRowsInSelection ? zone.top : zone.top - 1,
+    };
+    return this.copy([copyTarget]);
+  }
+
+  private getCopiedDataOnLeft(zone: Zone) {
+    const multipleColsInSelection = zone.left !== zone.right;
+    const copyTarget = {
+      ...zone,
+      right: multipleColsInSelection ? zone.left : zone.left - 1,
+      left: multipleColsInSelection ? zone.left : zone.left - 1,
+    };
+    return this.copy([copyTarget]);
+  }
+
+  private getCopiedDataAboveOnLeft(zone: Zone) {
+    const copyTarget = {
+      ...zone,
+      right: zone.left,
+      bottom: zone.top,
+    };
+    return this.copy([copyTarget]);
   }
 
   private convertTextToClipboardData(clipboardData: string): {} {

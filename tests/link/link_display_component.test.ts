@@ -96,14 +96,15 @@ describe("link display component", () => {
   test("right-click on a linked cell should show 'Edit Link' instead of 'Insert Link' in the context menu", async () => {
     setCellContent(model, "A1", "HELLO");
     await rightClickCell(model, "A1");
-    expect(
-      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link']")?.textContent
-    ).toBe("Insert link");
+    expect(".o-menu .o-menu-item[data-name='insert_link'] .o-menu-item-name").toHaveText(
+      "Insert link"
+    );
 
     setCellContent(model, "A1", "[label](url.com)");
     await rightClickCell(model, "A1");
     expect(
-      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link']")?.textContent
+      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link'] .o-menu-item-name")
+        ?.textContent
     ).toBe("Edit link");
   });
 
