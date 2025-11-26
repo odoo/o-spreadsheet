@@ -18,7 +18,7 @@ import {
 import { formatValue } from "../helpers/format/format";
 import { detectLink } from "../helpers/links";
 import { localizeContent } from "../helpers/locale";
-import { isNumberBetween } from "../helpers/misc";
+import { clip, isNumberBetween } from "../helpers/misc";
 import { rangeReference } from "../helpers/references";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
@@ -30,6 +30,7 @@ import {
   DateIsNotBetweenCriterion,
   DateIsOnOrAfterCriterion,
   DateIsOnOrBeforeCriterion,
+  Top10Criterion,
 } from "../types/data_validation";
 import { CellErrorType } from "../types/errors";
 import {
@@ -41,22 +42,34 @@ import {
 import { Getters } from "../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../types/locale";
 import { UID } from "../types/misc";
+import { Range } from "../types/range";
 import { Registry } from "./registry";
 
-export type CriterionEvaluator = {
+export type CriterionEvaluator<T = unknown> = {
   type: GenericCriterionType;
   /**
    * Checks if a value is valid for the given criterion.
    *
    * The value and the criterion values should be in canonical form (non-localized), and formulas should
    * be evaluated.
+   *
+   * For more complex criteria (like "top10"), a computation cache may be returned to avoid recomputing the entire criterion
+   * on every value it applies to.
    */
   isValueValid: (
     value: CellValue,
     criterion: EvaluatedCriterion,
-    getters: Getters,
-    sheetId: UID
+    preComputedCriterion?: T
   ) => boolean;
+  /**
+   * For more complex criteria (like "top10"), we might want to pre-compute some data before evaluating the criterion for
+   * each cell, to avoid recomputing everything each time.
+   */
+  preComputeCriterion?: (
+    criterion: GenericCriterion,
+    criterionRanges: Range[],
+    getters: Getters
+  ) => T;
   /**
    * Returns the error string to display when the value is not valid.
    *
@@ -617,20 +630,20 @@ criterionEvaluatorRegistry.add("isValueInList", {
 });
 
 criterionEvaluatorRegistry.add("isValueInRange", {
-  type: "isValueInList",
-  isValueValid: (
-    value: CellValue,
-    criterion: EvaluatedCriterion,
-    getters: Getters,
-    sheetId: UID
-  ) => {
+  type: "isValueInRange",
+  preComputeCriterion: (criterion, criterionRanges: Range[], getters: Getters): Set<String> => {
+    if (criterionRanges.length === 0) {
+      return new Set();
+    }
+    const sheetId = criterionRanges[0].sheetId;
+    const criterionValues = getters.getDataValidationRangeValues(sheetId, criterion);
+    return new Set(criterionValues.map((value) => value.value.toString().toLowerCase()));
+  },
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion, valuesSet: Set<String>) => {
     if (!value) {
       return false;
     }
-    const criterionValues = getters.getDataValidationRangeValues(sheetId, criterion);
-    return criterionValues
-      .map((value) => value.value.toLowerCase())
-      .includes(value.toString().toLowerCase());
+    return valuesSet.has(value.toString().toLowerCase());
   },
   getErrorString: (criterion: EvaluatedCriterion) =>
     _t("The value must be a value in the range %s", String(criterion.values[0])),
@@ -640,7 +653,7 @@ criterionEvaluatorRegistry.add("isValueInRange", {
   allowedValues: "onlyLiterals",
   name: _t("Value in range"),
   getPreview: (criterion) => _t("Value in range %s", criterion.values[0]),
-});
+} satisfies CriterionEvaluator<Set<String>>);
 
 criterionEvaluatorRegistry.add("customFormula", {
   type: "customFormula",
@@ -716,6 +729,73 @@ criterionEvaluatorRegistry.add("isNotEmpty", {
   getPreview: () => _t("Is not empty"),
 });
 
+criterionEvaluatorRegistry.add("top10", {
+  type: "top10",
+  preComputeCriterion: (
+    criterion: Top10Criterion,
+    criterionRanges: Range[],
+    getters: Getters
+  ): number | undefined => {
+    let value = tryToNumber(criterion.values[0], DEFAULT_LOCALE);
+    if (value === undefined || value <= 0) {
+      return undefined;
+    }
+
+    const numberValues: number[] = [];
+    for (const range of criterionRanges) {
+      for (const value of getters.getRangeValues(range)) {
+        if (typeof value === "number") {
+          numberValues.push(value);
+        }
+      }
+    }
+
+    const sortedValues = numberValues.sort((a, b) => a - b);
+    if (criterion.isPercent) {
+      value = clip(value, 1, 100);
+    }
+
+    let index = 0;
+    if (criterion.isBottom && !criterion.isPercent) {
+      index = value - 1;
+    } else if (criterion.isBottom && criterion.isPercent) {
+      index = Math.floor((sortedValues.length * value) / 100) - 1;
+    } else if (!criterion.isBottom && criterion.isPercent) {
+      index = sortedValues.length - Math.floor((sortedValues.length * value) / 100);
+    } else {
+      index = sortedValues.length - value;
+    }
+
+    index = clip(index, 0, sortedValues.length - 1);
+    return sortedValues[index];
+  },
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion<Top10Criterion>, threshold) => {
+    if (typeof value !== "number" || threshold === undefined) {
+      return false;
+    }
+    return criterion.isBottom ? value <= threshold : value >= threshold;
+  },
+  getErrorString: (criterion: EvaluatedCriterion<Top10Criterion>) => {
+    const args = {
+      value: String(criterion.values[0]),
+      percentSymbol: criterion.isPercent ? "%" : "",
+    };
+    return criterion.isBottom
+      ? _t("The value must be in bottom %(value)s%(percentSymbol)s", args)
+      : _t("The value must be in top %(value)s%(percentSymbol)s", args);
+  },
+  isCriterionValueValid: (value) => checkValueIsPositiveNumber(value),
+  criterionValueErrorString: DVTerms.CriterionError.positiveNumber,
+  numberOfValues: () => 1,
+  name: _t("Is in Top/Bottom ranking"),
+  getPreview: (criterion: Top10Criterion) => {
+    const args = { value: criterion.values[0], percentSymbol: criterion.isPercent ? "%" : "" };
+    return criterion.isBottom
+      ? _t("Value is in bottom %(value)s%(percentSymbol)s", args)
+      : _t("Value is in top %(value)s%(percentSymbol)s", args);
+  },
+} satisfies CriterionEvaluator<number | undefined>);
+
 function getNumberCriterionlocalizedValues(
   criterion: EvaluatedCriterion,
   locale: Locale
@@ -747,4 +827,9 @@ function checkValueIsDate(value: string): boolean {
 function checkValueIsNumber(value: string): boolean {
   const valueAsNumber = tryToNumber(value, DEFAULT_LOCALE);
   return valueAsNumber !== undefined;
+}
+
+function checkValueIsPositiveNumber(value: string): boolean {
+  const valueAsNumber = tryToNumber(value, DEFAULT_LOCALE);
+  return valueAsNumber !== undefined && valueAsNumber > 0;
 }

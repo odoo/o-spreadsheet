@@ -27,6 +27,7 @@ import {
   createColorScale,
   createEqualCF,
   createModelFromGrid,
+  setGrid,
   toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
@@ -1800,6 +1801,22 @@ describe("conditional formats types", () => {
       setCellContent(model, "A1", "01/01/2020");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       jest.useRealTimers();
+    });
+
+    test("Operator top10", () => {
+      const cfStyle = { fillColor: "#ff0f0f", italic: true };
+      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40" });
+      addCfRule(model, "A1:A4", {
+        type: "CellIsRule",
+        operator: "top10",
+        values: ["2"], // top 2
+        style: cfStyle,
+      });
+
+      expect(getStyle(model, "A1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({});
+      expect(getStyle(model, "A3")).toEqual(cfStyle);
+      expect(getStyle(model, "A4")).toEqual(cfStyle);
     });
 
     test.each([

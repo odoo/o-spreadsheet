@@ -82,6 +82,8 @@ export function convertOperator(operator: ConditionalFormattingOperatorValues): 
       return "greaterThanOrEqual";
     case "dateIsOnOrBefore":
       return "lessThanOrEqual";
+    case "top10":
+      return "top10";
   }
 }
 

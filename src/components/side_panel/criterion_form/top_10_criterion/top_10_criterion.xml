@@ -1,0 +1,21 @@
+<templates>
+  <t t-name="o-spreadsheet-Top10CriterionForm">
+    <div class="o-top-10-criterion d-flex flex-row align-items-center gap-2 w-100 mt-2">
+      <select class="o-top-10-select-values o-input flex-shrink-0" t-on-change="updateIsBottom">
+        <option value="top" t-att-selected="!props.criterion.isBottom">Top</option>
+        <option value="bottom" t-att-selected="props.criterion.isBottom">Bottom</option>
+      </select>
+      <CriterionInput
+        value="props.criterion.values[0]"
+        onValueChanged.bind="onValueChanged"
+        criterionType="props.criterion.type"
+        disableFormulas="true"
+        focused="props.autofocus"
+      />
+      <select class="o-top-10-select-mode o-input flex-shrink-0" t-on-change="updateIsPercent">
+        <option value="values" t-att-selected="!props.criterion.isPercent">Values</option>
+        <option value="percent" t-att-selected="props.criterion.isPercent">Percent</option>
+      </select>
+    </div>
+  </t>
+</templates>

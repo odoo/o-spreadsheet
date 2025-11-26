@@ -3,6 +3,8 @@ import { CellValue } from "./cells";
 export interface GenericCriterion {
   type: GenericCriterionType;
   values: string[];
+  isPercent?: boolean;
+  isBottom?: boolean;
 }
 
 export type GenericDateCriterion = GenericCriterion & { dateValue: DateCriterionValue };
@@ -36,7 +38,8 @@ export type GenericCriterionType =
   | "beginsWithText"
   | "endsWithText"
   | "isNotEmpty"
-  | "isEmpty";
+  | "isEmpty"
+  | "top10";
 
 export type DateCriterionValue =
   | "today"
