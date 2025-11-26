@@ -860,6 +860,10 @@ export interface CopyPasteCellsOnLeftCommand {
   type: "COPY_PASTE_CELLS_ON_LEFT";
 }
 
+export interface CopyPasteCellsOnZoneCommand {
+  type: "COPY_PASTE_CELLS_ON_ZONE";
+}
+
 export interface RepeatPasteCommand {
   type: "REPEAT_PASTE";
   target: Zone[];
@@ -1237,6 +1241,7 @@ export type LocalCommand =
   | PasteCommand
   | CopyPasteCellsAboveCommand
   | CopyPasteCellsOnLeftCommand
+  | CopyPasteCellsOnZoneCommand
   | RepeatPasteCommand
   | CleanClipBoardHighlightCommand
   | AutoFillCellCommand
