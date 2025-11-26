@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
+import { insertSheet } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
   INSERT_COLUMNS_BEFORE_ACTION,
@@ -408,6 +409,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     "Shift+PageUp": () => {
       this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
+    },
+    "Shift+F11": () => {
+      insertSheet.execute?.(this.env);
     },
     PageDown: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
     PageUp: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),

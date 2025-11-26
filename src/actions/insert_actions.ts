@@ -275,6 +275,7 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
 
 export const insertLink: ActionSpec = {
   name: _t("Link"),
+  description: "Ctrl+K",
   execute: ACTIONS.INSERT_LINK,
   icon: "o-spreadsheet-Icon.INSERT_LINK",
 };
@@ -336,6 +337,7 @@ export const insertDropdown: ActionSpec = {
 
 export const insertSheet: ActionSpec = {
   name: _t("Insert sheet"),
+  description: "Shift+F11",
   execute: (env) => {
     const activeSheetId = env.model.getters.getActiveSheetId();
     const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
