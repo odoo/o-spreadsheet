@@ -137,7 +137,6 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "REDO",
   "ADD_MERGE",
   "REMOVE_MERGE",
-  "DUPLICATE_SHEET",
   "UPDATE_LOCALE",
   "ADD_PIVOT",
   "UPDATE_PIVOT",
