@@ -202,7 +202,7 @@ export function makeTestEnv(
   const notificationStore = container.get(NotificationStore);
   notificationStore.updateNotificationCallbacks({
     notifyUser: mockEnv.notifyUser || (() => {}),
-    raiseError: mockEnv.raiseError || (() => {}),
+    raiseError: mockEnv.raiseError || (jest.fn() as unknown as (message: string) => void),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
   });
 
