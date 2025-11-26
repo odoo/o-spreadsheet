@@ -353,18 +353,20 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   get genericCriterion(): GenericDateCriterion | GenericCriterion {
     return {
+      ...this.state.rules.cellIs,
       type: this.state.rules.cellIs.operator,
-      values: this.state.rules.cellIs.values,
-      dateValue: this.state.rules.cellIs.dateValue,
     };
   }
 
-  onRuleValuesChanged(rule: CellIsRule) {
-    this.state.rules.cellIs.values = rule.values;
-    this.state.rules.cellIs.dateValue = rule.dateValue;
-    this.updateConditionalFormat({
-      rule: { ...this.state.rules.cellIs, values: rule.values, dateValue: rule.dateValue },
-    });
+  onRuleValuesChanged(criterion: GenericCriterion) {
+    const newRule: CellIsRule = {
+      ...criterion,
+      operator: criterion.type as ConditionalFormattingOperatorValues,
+      type: "CellIsRule",
+      style: this.state.rules.cellIs.style,
+    };
+    this.state.rules.cellIs = newRule;
+    this.updateConditionalFormat({ rule: newRule });
   }
 
   /*****************************************************************************

@@ -16,7 +16,7 @@ import {
   DataValidationCriterionType,
   DataValidationRule,
 } from "../../types/data_validation";
-import { EvaluatedCriterion } from "../../types/generic_criterion";
+import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, HeaderIndex, Lazy, Matrix, Offset, Style, UID } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
@@ -50,6 +50,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   ] as const;
 
   validationResults: Record<UID, SheetValidationResult> = {};
+  criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
   handle(cmd: CoreViewCommand) {
     if (
@@ -58,12 +59,14 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
       this.validationResults = {};
+      this.criterionPreComputeResult = {};
       return;
     }
     switch (cmd.type) {
       case "ADD_DATA_VALIDATION_RULE":
       case "REMOVE_DATA_VALIDATION_RULE":
         delete this.validationResults[cmd.sheetId];
+        delete this.criterionPreComputeResult[cmd.sheetId];
         break;
     }
   }
@@ -115,7 +118,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
 
   getDataValidationRangeValues(
     sheetId: UID,
-    criterion: EvaluatedCriterion
+    criterion: GenericCriterion
   ): { value: string; label: string }[] {
     const range = this.getters.getRangeFromSheetXC(sheetId, String(criterion.values[0]));
     const values: { label: string; value: string }[] = [];
@@ -244,7 +247,20 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     }
     const evaluatedCriterion = { ...criterion, values: evaluatedCriterionValues.map(toScalar) };
 
-    if (evaluator.isValueValid(cellValue, evaluatedCriterion, this.getters, sheetId)) {
+    if (!this.criterionPreComputeResult[sheetId]) {
+      this.criterionPreComputeResult[sheetId] = {};
+    }
+    let preComputedCriterion = this.criterionPreComputeResult[sheetId][rule.id];
+    if (preComputedCriterion === undefined) {
+      preComputedCriterion = evaluator.preComputeCriterion?.(
+        rule.criterion,
+        rule.ranges,
+        this.getters
+      );
+      this.criterionPreComputeResult[sheetId][rule.id] = preComputedCriterion;
+    }
+
+    if (evaluator.isValueValid(cellValue, evaluatedCriterion, preComputedCriterion)) {
       return undefined;
     }
 

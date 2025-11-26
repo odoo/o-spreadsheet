@@ -283,6 +283,7 @@ function changeCFRuleLocale(
         case "dateIsAfter":
         case "dateIsOnOrAfter":
         case "dateIsOnOrBefore":
+        case "top10":
           rule.values = rule.values.map((v) => changeContentLocale(v));
           return rule;
         case "beginsWithText":

@@ -114,6 +114,14 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           const formulas = cf.rule.values.map((value) =>
             value.startsWith("=") ? compile(value) : undefined
           );
+          const evaluator = criterionEvaluatorRegistry.get(cf.rule.operator);
+          const criterion = { ...cf.rule, type: cf.rule.operator };
+          const ranges = cf.ranges.map((xc) => this.getters.getRangeFromSheetXC(sheetId, xc));
+          const preComputedCriterion = evaluator.preComputeCriterion?.(
+            criterion,
+            ranges,
+            this.getters
+          );
           for (const ref of cf.ranges) {
             const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
             for (let row = zone.top; row <= zone.bottom; row++) {
@@ -131,7 +139,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                   }
                   return value;
                 });
-                if (this.getRuleResultForTarget(target, { ...cf.rule, values })) {
+                if (
+                  this.getRuleResultForTarget(target, { ...cf.rule, values }, preComputedCriterion)
+                ) {
                   if (!computedStyle[col]) computedStyle[col] = [];
                   // we must combine all the properties of all the CF rules applied to the given cell
                   computedStyle[col][row] = Object.assign(
@@ -354,7 +364,11 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     }
   }
 
-  private getRuleResultForTarget(target: CellPosition, rule: CellIsRule): boolean {
+  private getRuleResultForTarget(
+    target: CellPosition,
+    rule: CellIsRule,
+    preComputedCriterion: unknown
+  ): boolean {
     const cell: EvaluatedCell = this.getters.getEvaluatedCell(target);
     if (cell.type === CellValueType.error) {
       return false;
@@ -375,10 +389,11 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     }
 
     const evaluatedCriterion: EvaluatedCriterion | EvaluatedDateCriterion = {
+      ...rule,
       type: rule.operator,
       values: evaluatedCriterionValues.map(toScalar),
       dateValue: rule.dateValue || "exactDate",
     };
-    return evaluator.isValueValid(cell.value ?? "", evaluatedCriterion, this.getters, sheetId);
+    return evaluator.isValueValid(cell.value ?? "", evaluatedCriterion, preComputedCriterion);
   }
 }

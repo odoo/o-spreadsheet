@@ -166,6 +166,8 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
         case undefined:
           throw new Error("dateValue should be defined");
       }
+    case "top10":
+      return [];
   }
 }
 
@@ -199,6 +201,14 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
     case "dateIs":
     case "customFormula":
       return [["type", "expression"]];
+    case "top10": {
+      return [
+        ["type", "top10"],
+        ["rank", rule.values[0]],
+        ["percent", rule.isPercent ? "1" : "0"],
+        ["bottom", rule.isBottom ? "1" : "0"],
+      ];
+    }
   }
 }
 

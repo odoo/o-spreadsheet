@@ -9,13 +9,15 @@ import {
   DataValidationCriterion,
   DateCriterionValue,
   EvaluatedCriterion,
+  GenericCriterion,
   GenericDateCriterion,
   Getters,
+  Top10Criterion,
   UID,
 } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { toCellPosition } from "../test_helpers/helpers";
+import { setGrid, toCellPosition } from "../test_helpers/helpers";
 
 describe("Data validation registry", () => {
   let model: Model;
@@ -65,7 +67,7 @@ describe("Data validation registry", () => {
     expect(evaluator.criterionValueErrorString.toString()).toEqual("The value must be a number");
   }
 
-  function testErrorStringEqual(criterion: DataValidationCriterion, errorStr: string) {
+  function testErrorStringEqual(criterion: GenericCriterion, errorStr: string) {
     const evaluator = criterionEvaluatorRegistry.get(criterion.type);
     expect(evaluator.getErrorString(criterion, getters, sheetId).toString()).toEqual(errorStr);
   }
@@ -204,9 +206,7 @@ describe("Data validation registry", () => {
         dateValue: dateValue as DateCriterionValue,
       };
       const dateNumber = parseLiteral(testValue, DEFAULT_LOCALE);
-      expect(evaluator.isValueValid(dateNumber, dateCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(evaluator.isValueValid(dateNumber, dateCriterion)).toEqual(expectedResult);
     });
 
     test.each([
@@ -261,9 +261,7 @@ describe("Data validation registry", () => {
         dateValue: dateValue as DateCriterionValue,
       };
       const dateNumber = parseLiteral(testValue, DEFAULT_LOCALE);
-      expect(evaluator.isValueValid(dateNumber, dateCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(evaluator.isValueValid(dateNumber, dateCriterion)).toEqual(expectedResult);
     });
 
     test.each([
@@ -318,9 +316,7 @@ describe("Data validation registry", () => {
         dateValue: dateValue as DateCriterionValue,
       };
       const dateNumber = parseLiteral(testValue, DEFAULT_LOCALE);
-      expect(evaluator.isValueValid(dateNumber, dateCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(evaluator.isValueValid(dateNumber, dateCriterion)).toEqual(expectedResult);
     });
 
     test.each([
@@ -372,9 +368,7 @@ describe("Data validation registry", () => {
         dateValue: dateValue as DateCriterionValue,
       };
       const dateNumber = parseLiteral(testValue, DEFAULT_LOCALE);
-      expect(evaluator.isValueValid(dateNumber, dateCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(evaluator.isValueValid(dateNumber, dateCriterion)).toEqual(expectedResult);
     });
 
     test.each([
@@ -433,9 +427,7 @@ describe("Data validation registry", () => {
         dateValue: dateValue as DateCriterionValue,
       };
       const dateNumber = parseLiteral(testValue, DEFAULT_LOCALE);
-      expect(evaluator.isValueValid(dateNumber, dateCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(evaluator.isValueValid(dateNumber, dateCriterion)).toEqual(expectedResult);
     });
 
     test.each([
@@ -471,9 +463,7 @@ describe("Data validation registry", () => {
       ["01/11/2021", false],
     ])("Valid values %s", (dateValue, expectedResult) => {
       const dateNumber = parseLiteral(dateValue, DEFAULT_LOCALE);
-      expect(evaluator.isValueValid(dateNumber, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(evaluator.isValueValid(dateNumber, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -689,6 +679,100 @@ describe("Data validation registry", () => {
       testErrorStringEqual(criterion, "The value must be one of: a, B, c"));
   });
 
+  describe("Value in top10", () => {
+    const top10Criterion: Top10Criterion = {
+      type: "top10",
+      values: ["3"],
+    };
+    const evaluator = criterionEvaluatorRegistry.get("top10");
+
+    test("Can do top X", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(top10Criterion, [range], getters);
+      expect(evaluator.isValueValid(50, top10Criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(40, top10Criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(30, top10Criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(20, top10Criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(10, top10Criterion, preComputedResult)).toEqual(false);
+    });
+
+    test("Can do bottom X", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const criterion = { ...top10Criterion, isBottom: true };
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(40, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(30, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
+    });
+
+    test("Can do top X percents", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const criterion = { ...top10Criterion, isPercent: true, values: ["40"] };
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(40, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(30, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(false);
+    });
+
+    test("Can do bottom X percents", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const criterion = { ...top10Criterion, isBottom: true, isPercent: true, values: ["40"] };
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(40, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(30, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
+    });
+
+    test("Top/bottom 1% highlight the topmost/bottommost value", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      let criterion = { ...top10Criterion, isBottom: true, isPercent: true, values: ["1"] };
+
+      let preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(40, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(30, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
+
+      criterion = { ...criterion, isBottom: false };
+      preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(40, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(30, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(false);
+    });
+
+    test("Error string", () => {
+      testErrorStringEqual(top10Criterion, "The value must be in top 3");
+      testErrorStringEqual({ ...top10Criterion, isBottom: true }, "The value must be in bottom 3");
+      testErrorStringEqual({ ...top10Criterion, isPercent: true }, "The value must be in top 3%");
+      testErrorStringEqual(
+        { ...top10Criterion, isBottom: true, isPercent: true },
+        "The value must be in bottom 3%"
+      );
+    });
+  });
+
   describe("Custom formula", () => {
     const evaluator = criterionEvaluatorRegistry.get("customFormula");
 
@@ -704,7 +788,7 @@ describe("Data validation registry", () => {
       // Criterion value will be a formula, but will be evaluated by the EvaluationDataValidationPlugin before
       // being passed to the evaluator. The cell value is ignored, only the criterion formula result is of interest.
       const criterion: EvaluatedCriterion = { type: "customFormula", values: [criterionValue] };
-      expect(evaluator.isValueValid("", criterion, getters, sheetId)).toEqual(expectedResult);
+      expect(evaluator.isValueValid("", criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>

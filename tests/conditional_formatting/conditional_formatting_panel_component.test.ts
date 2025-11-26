@@ -453,6 +453,28 @@ describe("UI of conditional formats", () => {
       });
     });
 
+    test("can edit a top10 rule", async () => {
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+
+      await changeRuleOperatorType(fixture, "top10");
+      await setInputValueAndTrigger(".o-top-10-criterion .o-top-10-select-values", "bottom");
+      await setInputValueAndTrigger(".o-top-10-criterion .o-dv-input input", "3");
+      await setInputValueAndTrigger(".o-top-10-criterion .o-top-10-select-mode", "percent");
+      await click(fixture, selectors.ruleEditor.editor.bold);
+      await click(fixture, selectors.buttonSave);
+
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getConditionalFormats(sheetId)[2]?.rule).toMatchObject({
+        type: "CellIsRule",
+        operator: "top10",
+        isBottom: true,
+        isPercent: true,
+        values: ["3"],
+        style: { bold: true },
+      });
+    });
+
     test("cannot create a new CF with invalid range", async () => {
       await click(fixture, selectors.buttonAdd);
       await nextTick();

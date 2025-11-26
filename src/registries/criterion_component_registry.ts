@@ -5,16 +5,18 @@ import { Action, ActionSpec, createActions } from "../actions/action";
 import { DateCriterionForm } from "../components/side_panel/criterion_form/date_criterion/date_criterion";
 import { DoubleInputCriterionForm } from "../components/side_panel/criterion_form/double_input_criterion/double_input_criterion";
 import { SingleInputCriterionForm } from "../components/side_panel/criterion_form/single_input_criterion/single_input_criterion";
+import { Top10CriterionForm } from "../components/side_panel/criterion_form/top_10_criterion/top_10_criterion";
 import { ListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
 import { GenericCriterionType } from "../types";
 
-export type CriterionCategory = "text" | "date" | "number" | "misc" | "list";
+export type CriterionCategory = "text" | "date" | "number" | "misc" | "list" | "relative";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {
   list: 10,
   text: 20,
   number: 30,
   date: 40,
+  relative: 45,
   misc: 50,
 };
 
@@ -228,6 +230,13 @@ criterionComponentRegistry.add("isNotEmpty", {
   component: undefined,
   category: "misc",
   sequence: 6,
+});
+
+criterionComponentRegistry.add("top10", {
+  type: "top10",
+  component: Top10CriterionForm,
+  category: "relative",
+  sequence: 7,
 });
 
 export function getCriterionMenuItems(
