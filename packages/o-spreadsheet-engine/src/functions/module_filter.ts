@@ -99,7 +99,6 @@ export const FILTER = {
   description: _t(
     "Returns a filtered version of the source range, returning only rows or columns that meet the specified conditions."
   ),
-  // TODO modify args description when vectorization on formulas is available
   args: [
     arg("range (any, range<any>)", _t("The data to be filtered.")),
     arg(
