@@ -5,6 +5,7 @@ import {
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEETNAME_CHARS,
+  MESSAGE_VERSION,
 } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
@@ -16,6 +17,8 @@ import {
   DEFAULT_LOCALES,
   IconSetRule,
 } from "../../src/types";
+import { LineChartDefinition } from "../../src/types/chart";
+import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,
   resizeColumns,
@@ -1129,4 +1132,89 @@ test("Can import spreadsheet with only version", () => {
   new Model({ version: 1 });
   // We expect the model to be loaded without traceback
   expect(true).toBeTruthy();
+});
+
+test("Update chart revisions contain the full definition pre 18.5.1", () => {
+  const initialMessages: StateUpdateMessage[] = [
+    {
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "1",
+      clientId: "bob",
+      commands: [
+        {
+          type: "UPDATE_CHART",
+          figureId: "fig1",
+          chartId: "fig1",
+          //@ts-ignore the old command would handle a partial definition
+          definition: { dataSets: [{ dataRange: "A1:A3" }] },
+        },
+        {
+          type: "CREATE_CHART",
+          sheetId: "sheet1",
+          figureId: "fig2",
+          chartId: "fig2",
+          col: 0,
+          row: 0,
+          offset: {
+            x: 0,
+            y: 0,
+          },
+          size: {
+            width: 100,
+            height: 100,
+          },
+          definition: {
+            title: { text: "" },
+            dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+            type: "bar",
+            stacked: false,
+            dataSetsHaveTitle: false,
+            legendPosition: "none",
+          },
+        },
+        {
+          type: "UPDATE_CHART",
+          figureId: "fig2",
+          chartId: "fig2",
+          //@ts-ignore the old command would handle a partial definition
+          definition: { dataSets: [{ dataRange: "B1:B3" }] },
+        },
+      ],
+      serverRevisionId: "initial_revision",
+    },
+  ];
+  const data = {
+    revisionId: "initial_revision",
+    version: "18.4.3",
+    sheets: [
+      {
+        id: "sheet1",
+        figures: [
+          {
+            id: "fig1",
+            tag: "chart",
+            width: 400,
+            height: 300,
+            x: 100,
+            y: 100,
+            data: {
+              type: "line",
+              dataSetsHaveTitle: false,
+              dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+              legendPosition: "top",
+              title: "Line",
+              stacked: false,
+              cumulative: false,
+            },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data, {}, initialMessages);
+  const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
+  expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
+  const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
+  expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
 });

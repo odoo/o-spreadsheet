@@ -278,17 +278,23 @@ function dropCommands(initialMessages: StateUpdateMessage[], commandType: string
 }
 
 function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: StateUpdateMessage[]) {
+  /**
+   * Revisions created after version 18.5.1 contain the full chart definition in the command
+   * if the data was alreay updated to 18.5.1, then those older revision cannot (by definition) be reaplied
+   * and should not be replayed.
+   * FIXME: every command should be versionned when upgraded to allow finer tuning.
+   */
+  if (!data.version || compareVersions(String(data.version), "18.5.1") >= 0) {
+    return initialMessages;
+  }
   const messages: StateUpdateMessage[] = [];
   const map = {};
   for (const sheet of data.sheets || []) {
     sheet.figures?.forEach((figure) => {
       if (figure.tag === "chart") {
         // chart definition
-        if (data.version && compareVersions(String(data.version), "18.5.1") <= 0) {
-          map[figure.data.chartId] = figure.data;
-        } else {
-          map[figure.id] = figure.data;
-        }
+
+        map[figure.id] = figure.data;
       }
     });
   }
