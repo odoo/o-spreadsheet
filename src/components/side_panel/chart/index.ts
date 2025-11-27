@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
+import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
 import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 import { ComboChartDesignPanel } from "./combo_chart/combo_chart_design_panel";
@@ -50,7 +51,7 @@ chartSidePanelComponentRegistry
   })
   .add("bar", {
     configuration: BarConfigPanel,
-    design: GenericZoomableChartDesignPanel,
+    design: BarChartDesignPanel,
   })
   .add("combo", {
     configuration: GenericChartConfigPanel,

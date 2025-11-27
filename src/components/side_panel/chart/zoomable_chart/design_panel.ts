@@ -22,7 +22,7 @@ interface Props {
 
 export class GenericZoomableChartDesignPanel<
   P extends Props = Props
-> extends ChartWithAxisDesignPanel<Props> {
+> extends ChartWithAxisDesignPanel<P> {
   static template = "o-spreadsheet-GenericZoomableChartDesignPanel";
   static components = {
     ...ChartWithAxisDesignPanel.components,
