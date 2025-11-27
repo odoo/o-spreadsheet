@@ -102,6 +102,9 @@ describe("tokenizer", () => {
     expect(tokenize("1e3")).toEqual([{ type: "NUMBER", value: "1e3" }]);
     expect(tokenize("1e+3")).toEqual([{ type: "NUMBER", value: "1e+3" }]);
     expect(tokenize("1e-3")).toEqual([{ type: "NUMBER", value: "1e-3" }]);
+    expect(tokenize("1E3")).toEqual([{ type: "NUMBER", value: "1E3" }]);
+    expect(tokenize("1E+3")).toEqual([{ type: "NUMBER", value: "1E+3" }]);
+    expect(tokenize("1E-3")).toEqual([{ type: "NUMBER", value: "1E-3" }]);
   });
 
   test("debug formula token", () => {

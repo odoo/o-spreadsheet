@@ -25,6 +25,11 @@ export interface PercentToken {
   value: "%";
 }
 
+export interface ScientificToken {
+  type: "SCIENTIFIC";
+  value: "e";
+}
+
 export interface ThousandsSeparatorToken {
   type: "THOUSANDS_SEPARATOR";
   value: ",";
@@ -51,6 +56,7 @@ export type FormatToken =
   | StringToken
   | CharToken
   | PercentToken
+  | ScientificToken
   | ThousandsSeparatorToken
   | TextPlaceholderToken
   | DatePartToken
@@ -77,6 +83,7 @@ export function tokenizeFormat(str: string): FormatToken[][] {
       tokenizeThousandsSeparator(chars) ||
       tokenizeDecimalPoint(chars) ||
       tokenizePercent(chars) ||
+      tokenizeScientific(chars) ||
       tokenizeDatePart(chars) ||
       tokenizeTextPlaceholder(chars) ||
       tokenizeRepeatedChar(chars);
@@ -169,6 +176,14 @@ function tokenizePercent(chars: TokenizingChars): FormatToken | null {
   if (chars.current === "%") {
     chars.shift();
     return { type: "PERCENT", value: "%" };
+  }
+  return null;
+}
+
+function tokenizeScientific(chars: TokenizingChars): FormatToken | null {
+  if (chars.current === "e") {
+    chars.shift();
+    return { type: "SCIENTIFIC", value: "e" };
   }
   return null;
 }
