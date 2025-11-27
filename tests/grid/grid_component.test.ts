@@ -1986,27 +1986,31 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     keyDown({ key: "D", ctrlKey: true });
-    expect(model.dispatch("COPY_PASTE_CELLS_ABOVE")).toBeSuccessfullyDispatched();
+    expect(getCell(model, "B2")?.content).toBe("b1");
 
     setCellContent(model, "C1", "c1");
     setCellContent(model, "D1", "d1");
     setSelection(model, ["B2:D2"]);
     keyDown({ key: "D", ctrlKey: true });
-    expect(model.dispatch("COPY_PASTE_CELLS_ABOVE")).toBeSuccessfullyDispatched();
+    expect(getCell(model, "B2")?.content).toBe("b1");
+    expect(getCell(model, "C2")?.content).toBe("c1");
+    expect(getCell(model, "D2")?.content).toBe("d1");
   });
 
   test("can copy and paste cell(s) on left using CTRL+R", async () => {
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "B1", "b1");
-    selectCell(model, "B1");
-    keyDown({ key: "R", ctrlKey: true });
-    expect(model.dispatch("COPY_PASTE_CELLS_ON_LEFT")).toBeSuccessfullyDispatched();
-
     setCellContent(model, "A2", "a2");
-    setCellContent(model, "A3", "a3");
-    setSelection(model, ["B1:B3"]);
+    setCellContent(model, "B2", "b2");
+    selectCell(model, "B2");
     keyDown({ key: "R", ctrlKey: true });
-    expect(model.dispatch("COPY_PASTE_CELLS_ON_LEFT")).toBeSuccessfullyDispatched();
+    expect(getCell(model, "B2")?.content).toBe("a2");
+
+    setCellContent(model, "A3", "a3");
+    setCellContent(model, "A4", "a4");
+    setSelection(model, ["B2:B4"]);
+    keyDown({ key: "R", ctrlKey: true });
+    expect(getCell(model, "B2")?.content).toBe("a2");
+    expect(getCell(model, "B3")?.content).toBe("a3");
+    expect(getCell(model, "B4")?.content).toBe("a4");
   });
 
   test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {
