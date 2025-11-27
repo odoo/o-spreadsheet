@@ -28,7 +28,11 @@ import {
 import { canUngroupHeaders } from "../../actions/view_actions";
 import { isInside } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
-import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
+import {
+  handleCopyPasteResult,
+  interactivePaste,
+  interactivePasteFromOS,
+} from "../../helpers/ui/paste_interactive";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -360,9 +364,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
-    "Ctrl+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
-    "Ctrl+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
-    "Ctrl+Enter": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_ZONE"),
+    "Ctrl+D": () => {
+      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ABOVE" });
+    },
+    "Ctrl+R": () => {
+      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_LEFT" });
+    },
+    "Ctrl+Enter": () => {
+      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+    },
     "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
