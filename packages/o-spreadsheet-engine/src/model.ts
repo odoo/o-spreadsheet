@@ -622,7 +622,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   /**
    * As the name of this method strongly implies, it is useful when we need to
-   * export date out of the model.
+   * export data out of the model.
    */
   exportData(): WorkbookData {
     let data = createEmptyWorkbookData();
