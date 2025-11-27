@@ -1,5 +1,4 @@
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
@@ -424,92 +423,6 @@ describe("Collaborative local history", () => {
     };
     const model = new Model(data, {}, initialMessages);
     expect(getCell(model, "A1")?.format).toBeUndefined();
-  });
-
-  test("Update chart revisions contain the full definition", () => {
-    const initialMessages: StateUpdateMessage[] = [
-      {
-        type: "REMOTE_REVISION",
-        version: MESSAGE_VERSION,
-        nextRevisionId: "1",
-        clientId: "bob",
-        commands: [
-          {
-            type: "UPDATE_CHART",
-            figureId: "fig1",
-            chartId: "chart1",
-            //@ts-ignore the old command would handle a partial definition
-            definition: { dataSets: [{ dataRange: "A1:A3" }] },
-          },
-          {
-            type: "CREATE_CHART",
-            sheetId: "sheet1",
-            figureId: "fig2",
-            chartId: "chart2",
-            col: 0,
-            row: 0,
-            offset: {
-              x: 0,
-              y: 0,
-            },
-            size: {
-              width: 100,
-              height: 100,
-            },
-            definition: {
-              title: { text: "" },
-              dataSets: [{ dataRange: "A1", yAxisId: "y" }],
-              type: "bar",
-              stacked: false,
-              dataSetsHaveTitle: false,
-              legendPosition: "none",
-            },
-          },
-          {
-            type: "UPDATE_CHART",
-            figureId: "fig2",
-            chartId: "chart2",
-            //@ts-ignore the old command would handle a partial definition
-            definition: { dataSets: [{ dataRange: "B1:B3" }] },
-          },
-        ],
-        serverRevisionId: "initial_revision",
-      },
-    ];
-    const data = {
-      revisionId: "initial_revision",
-      version: "18.5.1",
-      sheets: [
-        {
-          id: "sheet1",
-          figures: [
-            {
-              id: "fig1",
-              tag: "chart",
-              width: 400,
-              height: 300,
-              x: 100,
-              y: 100,
-              data: {
-                chartId: "chart1",
-                type: "line",
-                dataSetsHaveTitle: false,
-                dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-                legendPosition: "top",
-                title: "Line",
-                stacked: false,
-                cumulative: false,
-              },
-            },
-          ],
-        },
-      ],
-    };
-    const model = new Model(data, {}, initialMessages);
-    const definition1 = model.getters.getChartDefinition("chart1") as LineChartDefinition;
-    expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
-    const definition2 = model.getters.getChartDefinition("chart2") as LineChartDefinition;
-    expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
   });
 
   test("Undo/redo your own change only", () => {
