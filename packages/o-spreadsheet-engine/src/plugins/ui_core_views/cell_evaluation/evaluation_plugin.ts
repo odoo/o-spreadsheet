@@ -33,6 +33,7 @@ import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { FormulaCellWithDependencies } from "../../core/cell";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
+import { RangeSet } from "./range_set";
 
 //#region
 
@@ -173,7 +174,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   private shouldRebuildDependenciesGraph = true;
 
   private evaluator: Evaluator;
-  private positionsToUpdate: CellPosition[] = [];
+  private positionsToUpdate: RangeSet = new RangeSet();
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
@@ -200,7 +201,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
           return;
         }
         const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
-        this.positionsToUpdate.push(position);
+        this.positionsToUpdate.addPosition(position);
 
         if ("content" in cmd) {
           this.evaluator.updateDependencies(position);
@@ -211,14 +212,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
           return;
         }
         for (const zone of cmd.target) {
-          this.positionsToUpdate.push(...cellPositions(cmd.sheetId, zone));
+          this.positionsToUpdate.add({ sheetId: cmd.sheetId, zone });
         }
         break;
       case "EVALUATE_CELLS":
         if (cmd.cellIds) {
-          for (let i = 0; i < cmd.cellIds.length; i++) {
-            this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
-          }
+          this.positionsToUpdate.addManyPositions(cmd.cellIds.map(this.getters.getCellPosition));
         } else {
           this.evaluator.evaluateAllCells();
         }
@@ -231,10 +230,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
-    } else if (this.positionsToUpdate.length) {
+    } else if (!this.positionsToUpdate.isEmpty()) {
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
-    this.positionsToUpdate = [];
+    this.positionsToUpdate = new RangeSet();
   }
 
   // ---------------------------------------------------------------------------
@@ -317,7 +316,9 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): CellPosition[] {
     const inter = intersection(zone, this.getters.getSheetEvaluatedZone(sheetId));
-    if (!inter) return [];
+    if (!inter) {
+      return [];
+    }
     if (isBound(inter) && getZoneArea(inter) < 1000) {
       return cellPositions(sheetId, inter).filter(
         (pos) => this.getters.getEvaluatedCell(pos).value !== null

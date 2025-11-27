@@ -74,7 +74,9 @@ export class Evaluator {
   }
 
   getEvaluatedZone(sheetId: UID): Zone | undefined {
-    if (this.evaluatedZone[sheetId]) return this.evaluatedZone[sheetId];
+    if (this.evaluatedZone[sheetId]) {
+      return this.evaluatedZone[sheetId];
+    }
     this.evaluatedZone[sheetId] = positionsUnion(this.evaluatedCells.keysForSheet(sheetId));
     return this.evaluatedZone[sheetId];
   }
@@ -104,6 +106,14 @@ export class Evaluator {
 
   getEvaluatedPositionsInSheet(sheetId: UID): CellPosition[] {
     return this.evaluatedCells.keysForSheet(sheetId);
+  }
+
+  getArrayFormulaSpreadingOnRange(range: BoundedRange): CellPosition[] {
+    const arrayFormulas = this.spreadingRelations.searchFormulaPositionsSpreadingOn(
+      range.sheetId,
+      range.zone
+    );
+    return arrayFormulas.filter((position) => !this.blockedArrayFormulas.has(position));
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
@@ -158,36 +168,23 @@ export class Evaluator {
     return new PositionSet(this.getters.getSheetIds());
   }
 
-  evaluateCells(positions: CellPosition[]) {
+  evaluateCells(rangesToCompute: RangeSet) {
     const start = performance.now();
-    const rangesToCompute = new RangeSet();
-    rangesToCompute.addManyPositions(positions);
-    const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
+    rangesToCompute.addMany(this.getArrayFormulasImpactedByChangesOf(rangesToCompute));
     rangesToCompute.addMany(this.getCellsDependingOn(rangesToCompute));
-    rangesToCompute.addMany(arrayFormulasPositions);
-    rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.formatCache = new PositionMap<Format>();
     this.getters.addCellFormatInRanges(rangesToCompute, this.formatCache);
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
   }
 
-  private getArrayFormulasImpactedByChangesOf(positions: Iterable<CellPosition>): RangeSet {
+  private getArrayFormulasImpactedByChangesOf(ranges: RangeSet): RangeSet {
     const impactedRanges = new RangeSet();
-
-    for (const position of positions) {
-      const content = this.getters.getCell(position)?.content;
-      const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
-      if (arrayFormulaPosition !== undefined) {
-        // take into account new collisions.
-        impactedRanges.addPosition(arrayFormulaPosition);
-      }
-      if (!content) {
-        // The previous content could have blocked some array formulas
-        impactedRanges.addPosition(position);
-      }
+    for (const range of ranges) {
+      impactedRanges.add(range);
+      impactedRanges.addManyPositions(this.getArrayFormulaSpreadingOnRange(range));
     }
-    for (const range of [...impactedRanges]) {
+    for (const range of impactedRanges) {
       impactedRanges.addMany(this.getArrayFormulasBlockedBy(range.sheetId, range.zone));
     }
     return impactedRanges;
