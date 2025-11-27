@@ -5,6 +5,7 @@ import { TreeMapChartRuntime } from "../../../../src/types/chart/tree_map_chart"
 import {
   createSunburstChart,
   createTreeMapChart,
+  hideColumns,
   setCellContent,
   setFormat,
   updateChart,
@@ -430,6 +431,28 @@ describe("TreeMap chart", () => {
       expect(getColor(getTreeMapElement({ value: 3000, depth: 1, isLeaf: true }))).toEqual(
         "#778899"
       );
+    });
+
+    test("TreeMap color scale with no visible data", () => {
+      const grid = {
+        A1: "Year",
+        B1: "2025",
+      };
+      setGrid(model, grid);
+      const chartId = createTreeMapChart(model, {
+        dataSets: [{ dataRange: "A1" }],
+        labelRange: "B1",
+        dataSetsHaveTitle: false,
+        coloringOptions: {
+          type: "colorScale",
+          minColor: "#112233",
+          midColor: "#445566",
+          maxColor: "#778899",
+        },
+      });
+      expect(getTreeMapDatasetConfig(chartId).tree).toHaveLength(1);
+      hideColumns(model, ["B"]);
+      expect(getTreeMapDatasetConfig(chartId).tree).toHaveLength(0);
     });
 
     test("TreeMap category colors with single level", () => {
