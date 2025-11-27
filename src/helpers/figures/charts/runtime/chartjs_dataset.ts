@@ -751,6 +751,9 @@ function getTreeMapGroupColors(
 }
 
 function getTreeMapColorScale(tree: SunburstTreeNode[], coloringOption: TreeMapColorScaleOptions) {
+  if (tree.length === 0) {
+    return undefined;
+  }
   const treeNodesByLevel = pyramidizeTree(tree);
   const nodes = treeNodesByLevel[treeNodesByLevel.length - 1];
   const minValue = Math.min(...nodes.map((node) => node.value));
