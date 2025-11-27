@@ -215,7 +215,7 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, isMatrix } from "./types";
+import { AddFunctionDescription, isMatrix, schemeToColorScale } from "./types";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -400,6 +400,7 @@ export const helpers = {
   isNumber,
   isDateTime,
   createCustomFields,
+  schemeToColorScale,
 };
 
 export const links = {

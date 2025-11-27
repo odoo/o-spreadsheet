@@ -11,13 +11,14 @@ import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { CellIsRule, Model } from "../../src";
-import { COLORSCHEMES, toCartesian, toZone } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import {
   BorderDescr,
   ColorScaleRule,
   DEFAULT_LOCALE,
   DEFAULT_LOCALES,
   IconSetRule,
+  schemeToColorScale,
 } from "../../src/types";
 import {
   activateSheet,
@@ -35,6 +36,7 @@ import {
   getEvaluatedCell,
   getMerges,
 } from "../test_helpers/getters_helpers";
+import { mockGeoJsonService } from "../test_helpers/helpers";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
@@ -784,24 +786,51 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
   expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
 });
 
-test("migrate version 19.1.0: colorScale is changed to a trio of color", () => {
+test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
+  const getChartDefinition = (chartId, scheme) => ({
+    chartId,
+    type: "geo",
+    colorScale: scheme,
+    labelRange: "",
+    dataSets: [],
+    legendPosition: "top",
+    title: { text: "Demo Geo Chart" },
+  });
+  const sheetId = "sh1";
   const data = {
     version: "18.5.1",
     sheets: [
       {
-        id: "sh1",
+        id: sheetId,
         figures: [
           {
             id: "someuuid",
             tag: "chart",
-            data: { type: "geo", colorScale: "reds", labelRange: "", dataSets: [] },
+            data: getChartDefinition("chartId1", "reds"),
+          },
+          {
+            id: "someuuid",
+            tag: "carousel",
+            data: {
+              chartDefinitions: { chartId2: getChartDefinition("chartId2", "greens") },
+            },
           },
         ],
       },
     ],
   };
-  const model = new Model(data);
-  expect(model.exportData().sheets[0].figures[0].data.colorScale).toEqual(COLORSCHEMES.reds);
+  const model = new Model(data, { external: { geoJsonService: mockGeoJsonService } });
+  const exportedData = model.exportData();
+  expect(exportedData.sheets[0].figures[0].data.colorScale).toEqual(schemeToColorScale("reds"));
+  expect(exportedData.sheets[0].figures[1].data.chartDefinitions["chartId2"].colorScale).toEqual(
+    schemeToColorScale("greens")
+  );
+
+  // check runtime as well for safety as geo charts depend on geo service to
+  // build their runtime and use their color scale
+  const chartIds = model.getters.getChartIds(sheetId);
+  expect(model.getters.getChartRuntime(chartIds[0])).toBeDefined();
+  expect(model.getters.getChartRuntime(chartIds[1])).toBeDefined();
 });
 
 describe("Import", () => {
