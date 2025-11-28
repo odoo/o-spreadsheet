@@ -296,7 +296,6 @@ describe("Import xlsx data", () => {
       case "notContainsErrors":
       case "timePeriod":
       case "aboveAverage":
-      case "top10":
       case "uniqueValues":
       case "duplicateValues":
       case "dataBar":
@@ -324,6 +323,12 @@ describe("Import xlsx data", () => {
         if (["between", "notBetween"].includes(cellIsOperator)) {
           values.push("4");
         }
+        break;
+      case "top10":
+        operator = "top10";
+        values.push("50");
+        expect(cf.rule["isPercent"]).toBe(true);
+        expect(cf.rule["isBottom"]).toBe(true);
         break;
     }
     expect(cf.rule.type).toEqual("CellIsRule");

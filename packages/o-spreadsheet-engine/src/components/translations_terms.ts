@@ -143,6 +143,7 @@ export const DVTerms = {
     dateValue: _t("The value must be a date"),
     validRange: _t("The value must be a valid range"),
     validFormula: _t("The formula must be valid"),
+    positiveNumber: _t("The value must be a positive number"),
   },
   Errors: {
     [CommandResult.InvalidRange]: _t("The range is invalid."),
