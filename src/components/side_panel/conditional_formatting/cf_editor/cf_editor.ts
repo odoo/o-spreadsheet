@@ -26,6 +26,7 @@ import {
   ConditionalFormattingOperatorValues,
   DataBarRule,
   GenericCriterion,
+  GenericDateCriterion,
   IconSetRule,
   IconThreshold,
   ThresholdType,
@@ -328,6 +329,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   editOperator(operator: ConditionalFormattingOperatorValues) {
     this.state.rules.cellIs.operator = operator;
+    if (operator.includes("date") && !this.state.rules.cellIs.dateValue) {
+      this.state.rules.cellIs.dateValue = "exactDate";
+    }
     this.updateConditionalFormat({ rule: this.state.rules.cellIs, suppressErrors: true });
     this.closeMenus();
   }
@@ -347,16 +351,20 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     return criterionComponentRegistry.get(this.state.rules.cellIs.operator).component;
   }
 
-  get genericCriterion(): GenericCriterion {
+  get genericCriterion(): GenericDateCriterion | GenericCriterion {
     return {
       type: this.state.rules.cellIs.operator,
       values: this.state.rules.cellIs.values,
+      dateValue: this.state.rules.cellIs.dateValue,
     };
   }
 
   onRuleValuesChanged(rule: CellIsRule) {
     this.state.rules.cellIs.values = rule.values;
-    this.updateConditionalFormat({ rule: { ...this.state.rules.cellIs, values: rule.values } });
+    this.state.rules.cellIs.dateValue = rule.dateValue;
+    this.updateConditionalFormat({
+      rule: { ...this.state.rules.cellIs, values: rule.values, dateValue: rule.dateValue },
+    });
   }
 
   /*****************************************************************************
