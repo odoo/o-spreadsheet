@@ -7,7 +7,8 @@
       <button
         t-on-click="onConfirm"
         t-att-disabled="state.errorFlag"
-        class="o-button flex-grow-0 me-2">
+        class="o-button flex-grow-0 me-2"
+        tabindex="-1">
         Add
       </button>
       <input
@@ -19,6 +20,7 @@
         t-on-keydown.stop="onKeydown"
         t-on-pointerdown.stop=""
         t-on-input.stop="onInput"
+        tabindex="-1"
       />
       <span>more rows at the bottom</span>
       <ValidationMessages t-if="state.errorFlag" messages="errorMessages" msgType="'error'"/>

@@ -5,7 +5,7 @@
         class=" o-font-size-editor d-flex align-items-center"
         t-att-class="props.class"
         title="Font Size"
-        t-on-click="this.toggleFontList">
+        t-on-click.stop="this.toggleFontList">
         <input
           type="number"
           min="1"
