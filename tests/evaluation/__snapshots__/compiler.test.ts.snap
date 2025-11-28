@@ -92,6 +92,15 @@ return ctx['ADD'](_3, _4);
 }"
 `;
 
+exports[`expression compiler expression with ref# 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx
+) {
+// =|R|#
+const _1 = range(deps[0], true);
+return ctx['SPILLED.RANGE'](_1);
+}"
+`;
+
 exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
