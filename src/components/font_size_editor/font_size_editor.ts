@@ -1,6 +1,8 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
 import { clip } from "../../helpers/index";
+import { Store, useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
@@ -62,7 +64,10 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   private rootEditorRef = useRef("FontSizeEditor");
   private fontSizeListRef = useRef("fontSizeList");
 
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+
   setup() {
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
   }
 
@@ -123,6 +128,13 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
         target.value = `${this.props.currentFontSize}`;
       }
       this.props.onToggle?.();
+    }
+    if (ev.key === "Tab") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.closeFontList();
+      this.DOMFocusableElementStore.focus();
+      return;
     }
   }
 }
