@@ -9,6 +9,8 @@ import {
   useState,
 } from "@odoo/owl";
 import { clip } from "../../helpers/index";
+import { Store, useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 
@@ -56,7 +58,11 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
   private rootEditorRef = useRef("NumberEditor");
   private valueListRef = useRef("numberList");
 
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+
   setup() {
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
+
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps) => {
       if (this.inputRef.el && document.activeElement !== this.inputRef.el) {
@@ -132,6 +138,13 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
         target.value = `${this.props.currentValue}`;
       }
       this.props.onToggle?.();
+    }
+    if (ev.key === "Tab") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.closeList();
+      this.DOMFocusableElementStore.focus();
+      return;
     }
   }
 }
