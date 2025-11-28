@@ -1,6 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-FunctionDescriptionProvider">
-    <div class="o-formula-assistant-container user-select-none shadow">
+    <div
+      class="o-formula-assistant-container shadow"
+      tabindex="-1"
+      t-on-pointerdown=""
+      t-on-pointerup.stop=""
+      t-on-keydown.stop=""
+      t-on-click.stop="">
       <t t-set="context" t-value="getContext()"/>
       <div class="o-formula-assistant bg-white" t-if="context.functionDescription.name">
         <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
@@ -15,6 +21,7 @@
           <div
             class="collapsor px-2 d-flex align-items-center rounded"
             t-att-class="state.isCollapsed ? 'collapsed' : ''"
+            t-on-pointerdown.prevent=""
             t-on-click="() => this.toggle()">
             <span class="collapsor-arrow d-inline-block">
               <t t-call="o-spreadsheet-Icon.ANGLE_DOWN"/>
