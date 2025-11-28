@@ -5,7 +5,7 @@
         class="o-number-editor d-flex align-items-center"
         t-att-class="props.class"
         t-att-title="props.title"
-        t-on-click="this.toggleList">
+        t-on-click.stop="this.toggleList">
         <input
           type="number"
           t-att-min="props.min"
