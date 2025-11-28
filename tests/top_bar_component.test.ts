@@ -30,6 +30,7 @@ import {
   doubleClick,
   getElComputedStyle,
   getTextNodes,
+  keyDown,
   simulateClick,
   triggerMouseEvent,
 } from "./test_helpers/dom_helper";
@@ -449,6 +450,26 @@ describe("TopBar component", () => {
     await click(fixture, '.o-text-options [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
+  });
+
+  test("Tab from font size editor closes the dropdown and moves focus to grid", async () => {
+    const { fixture } = await mountSpreadsheet();
+    const input = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+    input.focus();
+    await nextTick();
+    expect(fixture.querySelector(".o-popover .o-text-options")).toBeTruthy();
+    await keyDown({ key: "Tab" });
+    expect(fixture.querySelector(".o-popover .o-text-options")).toBeFalsy();
+    const composerEl = fixture.querySelector<HTMLElement>(".o-grid-composer .o-composer")!;
+    expect(document.activeElement).toBe(composerEl);
+  });
+
+  test("Clicking the number editor dropdown arrow focuses the input", async () => {
+    const { fixture } = await mountSpreadsheet();
+    const input = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+    const icon = fixture.querySelectorAll(".o-number-editor .o-icon")[0] as HTMLElement;
+    await click(icon);
+    expect(document.activeElement).toBe(input);
   });
 
   test("prevents default behavior of mouse wheel event on font size input", async () => {
