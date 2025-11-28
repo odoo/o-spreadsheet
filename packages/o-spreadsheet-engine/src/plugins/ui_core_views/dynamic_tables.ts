@@ -10,7 +10,7 @@ import {
   union,
   zoneToXc,
 } from "../../helpers/zones";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { Command, doesInvalidateEvalution } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreTable, DynamicTable, Filter, Table } from "../../types/table";
 import { ExcelWorkbookData } from "../../types/workbook_data";
@@ -34,11 +34,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   tables: Record<UID, Table[]> = {};
 
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
+    if (doesInvalidateEvalution(cmd) || cmd.type === "EVALUATE_CELLS") {
       this.tables = {};
       return;
     }

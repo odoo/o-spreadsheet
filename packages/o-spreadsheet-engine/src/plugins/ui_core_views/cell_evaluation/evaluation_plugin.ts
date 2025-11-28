@@ -2,7 +2,14 @@ import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
-import { cellPositions, positions } from "../../../helpers/zones";
+import {
+  cellPositions,
+  getZoneArea,
+  intersection,
+  isBound,
+  isInside,
+  positions,
+} from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
@@ -26,6 +33,7 @@ import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { FormulaCellWithDependencies } from "../../core/cell";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
+import { RangeSet } from "./range_set";
 
 //#region
 
@@ -156,6 +164,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCellsInZone",
     "getEvaluatedCellsPositionInZone",
     "getEvaluatedCellsPositions",
+    "getSheetEvaluatedZone",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
@@ -164,7 +173,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   private shouldRebuildDependenciesGraph = true;
 
   private evaluator: Evaluator;
-  private positionsToUpdate: CellPosition[] = [];
+  private positionsToUpdate: RangeSet = new RangeSet();
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
@@ -191,17 +200,23 @@ export class EvaluationPlugin extends CoreViewPlugin {
           return;
         }
         const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
-        this.positionsToUpdate.push(position);
+        this.positionsToUpdate.addPosition(position);
 
         if ("content" in cmd) {
           this.evaluator.updateDependencies(position);
         }
         break;
+      case "SET_FORMATTING":
+        if (!("format" in cmd) || this.shouldRebuildDependenciesGraph) {
+          return;
+        }
+        for (const zone of cmd.target) {
+          this.positionsToUpdate.add({ sheetId: cmd.sheetId, zone });
+        }
+        break;
       case "EVALUATE_CELLS":
         if (cmd.cellIds) {
-          for (let i = 0; i < cmd.cellIds.length; i++) {
-            this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
-          }
+          this.positionsToUpdate.addManyPositions(cmd.cellIds.map(this.getters.getCellPosition));
         } else {
           this.evaluator.evaluateAllCells();
         }
@@ -214,10 +229,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
-    } else if (this.positionsToUpdate.length) {
+    } else if (this.positionsToUpdate.size()) {
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
-    this.positionsToUpdate = [];
+    this.positionsToUpdate = new RangeSet();
   }
 
   // ---------------------------------------------------------------------------
@@ -292,11 +307,17 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return cellPositions(sheetId, zone).map(this.getters.getEvaluatedCell);
   }
 
-  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): [CellPosition, EvaluatedCell][] {
-    return cellPositions(sheetId, zone).map((position) => [
-      position,
-      this.getters.getEvaluatedCell(position),
-    ]);
+  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): CellPosition[] {
+    const inter = intersection(zone, this.getters.getSheetEvaluatedZone(sheetId));
+    if (!inter) return [];
+    if (isBound(inter) && getZoneArea(inter) < 1000) {
+      return cellPositions(sheetId, inter).filter(
+        (pos) => this.getters.getEvaluatedCell(pos).value !== null
+      );
+    }
+    return this.evaluator
+      .getEvaluatedPositionsInSheet(sheetId)
+      .filter((pos) => isInside(pos.col, pos.row, inter));
   }
 
   /**
@@ -308,6 +329,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     return this.evaluator.getArrayFormulaSpreadingOn(position);
+  }
+
+  getSheetEvaluatedZone(sheetId: UID): Zone {
+    return this.evaluator.getEvaluatedZone(sheetId) || { top: 0, left: 0, bottom: 0, right: 0 };
   }
 
   /**
