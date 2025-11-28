@@ -1,5 +1,5 @@
 import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
-import { Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
+import { DOMRectPosition, Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
 
 const macRegex = /Mac/i;
 
@@ -14,12 +14,27 @@ export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event):
   return !!ev.target && parent!.contains(ev.target as Node);
 }
 
-export function gridOverlayPosition() {
+export function gridOverlayPosition(zoom = 1): DOMRectPosition {
   const spreadsheetElement = document.querySelector(".o-grid-overlay");
-  if (spreadsheetElement) {
-    return spreadsheetElement.getBoundingClientRect();
+  const result = spreadsheetElement && zoomCorrectedElementPosition(spreadsheetElement, zoom);
+  if (!result) {
+    throw new Error("Can't find spreadsheet position");
   }
-  throw new Error("Can't find spreadsheet position");
+  return result;
+}
+
+export function zoomCorrectedElementPosition(
+  el: Element,
+  zoomLevel: number
+): DOMRectPosition | null {
+  const targetEl = el.classList.contains("o-zoomable") ? el : el.closest(".o-zoomable");
+  if (!targetEl) return null;
+  const rect = targetEl!.getBoundingClientRect();
+  const zoom = isBrowserSafari() ? zoomLevel : 1;
+  return {
+    top: rect.top * zoom,
+    left: rect.left * zoom,
+  };
 }
 
 export function getRefBoundingRect(ref: Ref<HTMLElement>): Rect {
@@ -216,6 +231,10 @@ export function downloadFile(dataUrl: string, fileName: string) {
  */
 export function isBrowserFirefox() {
   return /Firefox/i.test(navigator.userAgent);
+}
+
+export function isBrowserSafari() {
+  return /Safari/i.test(navigator.userAgent);
 }
 
 // Mobile detection

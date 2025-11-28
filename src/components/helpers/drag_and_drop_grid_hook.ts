@@ -45,7 +45,8 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     }
 
     const sheetId = getters.getActiveSheetId();
-    const position = gridOverlayPosition();
+    const zoomLevel = env.model.getters.getViewportZoomLevel();
+    const position = gridOverlayPosition(zoomLevel);
     const zoomedMouseEvent = withZoom(env, currentEv, position);
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     const { top, left, bottom, right } = getters.getActiveMainViewport();
@@ -145,7 +146,8 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     startScrollDirection: DnDDirection = "all"
   ) => {
     cleanUp();
-    const position = gridOverlayPosition();
+    const zoomLevel = env.model.getters.getViewportZoomLevel();
+    const position = gridOverlayPosition(zoomLevel);
     scrollDirection = startScrollDirection;
     startingX = initialPointerCoordinates.clientX - position.left;
     startingY = initialPointerCoordinates.clientY - position.top;

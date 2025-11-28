@@ -29,7 +29,7 @@ import { unregisterChartJsExtensions } from "../figures/chart/chartJs/chart_js_e
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
-import { isMobileOS } from "../helpers/dom_helpers";
+import { isBrowserSafari, isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -283,25 +283,29 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   getGridSize() {
+    const el = this.spreadsheetRef.el;
+    if (!el) {
+      return { width: 0, height: 0 };
+    }
+
     const zoom = this.env.model.getters.getViewportZoomLevel();
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
-    const topBarHeight =
-      this.spreadsheetRef.el
-        ?.querySelector(".o-spreadsheet-topbar-wrapper")
-        ?.getBoundingClientRect().height || 0;
-    const bottomBarHeight =
-      this.spreadsheetRef.el
-        ?.querySelector(".o-spreadsheet-bottombar-wrapper")
-        ?.getBoundingClientRect().height || 0;
 
-    const gridWidth =
-      this.spreadsheetRef.el?.querySelector(".o-grid")?.getBoundingClientRect().width || 0;
-    const gridHeight =
-      (this.spreadsheetRef.el?.getBoundingClientRect().height || 0) -
-      (this.spreadsheetRef.el?.querySelector(".o-column-groups")?.getBoundingClientRect().height ||
-        0) -
-      topBarHeight -
-      bottomBarHeight;
+    // Safari messes up the computation of getBoundingClientRect on elements subjected to a zoom
+    // See https://bugs.webkit.org/show_bug.cgi?id=77998
+    const zoomCorrection = isBrowserSafari() ? zoom : 1;
+
+    const getHeight = (s: string) => el.querySelector(s)?.getBoundingClientRect().height || 0;
+    const getWidth = (s: string) => el.querySelector(s)?.getBoundingClientRect().width || 0;
+
+    const rect = el.getBoundingClientRect();
+    const topBarHeight = getHeight(".o-spreadsheet-topbar-wrapper");
+    const bottomBarHeight = getHeight(".o-spreadsheet-bottombar-wrapper");
+    const colGroupHeight = getHeight(".o-column-groups") * zoomCorrection;
+    const gridWidth = getWidth(".o-grid") * zoomCorrection;
+
+    const gridHeight = rect.height - colGroupHeight - topBarHeight - bottomBarHeight;
+
     return {
       width: Math.max(gridWidth / zoom - scrollbarWidth, 0),
       height: Math.max(gridHeight / zoom - scrollbarWidth, 0),
