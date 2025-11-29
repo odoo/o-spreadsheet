@@ -97,13 +97,15 @@ describe("link display component", () => {
     setCellContent(model, "A1", "HELLO");
     await rightClickCell(model, "A1");
     expect(
-      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link']")?.textContent
+      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link'] .o-menu-item-name")
+        ?.textContent
     ).toBe("Insert link");
 
     setCellContent(model, "A1", "[label](url.com)");
     await rightClickCell(model, "A1");
     expect(
-      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link']")?.textContent
+      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link'] .o-menu-item-name")
+        ?.textContent
     ).toBe("Edit link");
   });
 
