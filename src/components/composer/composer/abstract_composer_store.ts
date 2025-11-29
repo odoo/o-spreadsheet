@@ -975,7 +975,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       let currentToken = tokenAtCursor;
       // check previous token
       while (
-        !["ARG_SEPARATOR", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type) ||
+        !["ARG_SEPARATOR", "ARRAY_ROW_SEPARATOR", "LEFT_PAREN", "LEFT_BRACE", "OPERATOR"].includes(
+          currentToken.type
+        ) ||
         POSTFIX_UNARY_OPERATORS.includes(currentToken.value)
       ) {
         if (currentToken.type !== "SPACE" || count < 1) {
@@ -990,7 +992,13 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       // check next token
       while (
         currentToken &&
-        !["ARG_SEPARATOR", "RIGHT_PAREN", "OPERATOR"].includes(currentToken.type)
+        ![
+          "ARG_SEPARATOR",
+          "ARRAY_ROW_SEPARATOR",
+          "RIGHT_PAREN",
+          "RIGHT_BRACE",
+          "OPERATOR",
+        ].includes(currentToken.type)
       ) {
         if (currentToken.type !== "SPACE") {
           return false;

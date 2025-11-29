@@ -151,6 +151,12 @@ describe("edition", () => {
     expect(getCellText(model, "A1")).toBe('=sum("((((((((")');
   });
 
+  test("Composer preserves manually typed array literals", () => {
+    composerStore.startEdition("={1,2}");
+    composerStore.stopEdition();
+    expect(getCell(model, "A1")?.content).toBe("={1,2}");
+  });
+
   test("select cells in another sheet", () => {
     const sheet2 = "42";
     createSheet(model, { sheetId: sheet2 });

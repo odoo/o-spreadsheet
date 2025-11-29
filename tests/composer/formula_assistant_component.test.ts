@@ -322,7 +322,10 @@ describe("formula assistant", () => {
       });
 
       test("arguments separator is localized", async () => {
-        updateLocale(parent.env.model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";" });
+        updateLocale(parent.env.model, {
+          ...DEFAULT_LOCALE,
+          formulaArgSeparator: ";",
+        });
         await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC1 ( f1ArgA; f1ArgB )"

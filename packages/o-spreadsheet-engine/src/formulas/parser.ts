@@ -91,6 +91,11 @@ export interface ASTSymbol extends ASTBase {
   value: string;
 }
 
+export interface ASTArray extends ASTBase {
+  type: "ARRAY";
+  value: AST[][];
+}
+
 interface ASTEmpty extends ASTBase {
   type: "EMPTY";
   value: "";
@@ -101,6 +106,7 @@ export type AST =
   | ASTUnaryOperation
   | ASTFuncall
   | ASTSymbol
+  | ASTArray
   | ASTNumber
   | ASTBoolean
   | ASTString
@@ -219,6 +225,8 @@ function parseOperand(tokens: TokenList): AST {
         tokenStartIndex: current.tokenIndex,
         tokenEndIndex: rightParen.tokenIndex,
       };
+    case "LEFT_BRACE":
+      return parseArrayLiteral(tokens, current);
     case "OPERATOR":
       const operator = current.value;
       if (UNARY_OPERATORS_PREFIX.includes(operator)) {
@@ -274,6 +282,33 @@ function consumeOrThrow(tokens: TokenList, type, message?: string) {
     throw new BadExpressionError(message);
   }
   return token;
+}
+
+function parseArrayLiteral(tokens: TokenList, leftBrace: RichToken): ASTArray {
+  const rows: AST[][] = [];
+  let currentRow: AST[] = [parseExpression(tokens)]; // there must be at least one element
+
+  while (tokens.current?.type !== "RIGHT_BRACE") {
+    const nextToken = tokens.shift();
+    if (!nextToken) {
+      throw new BadExpressionError(_t("Missing closing brace"));
+    } else if (nextToken.type === "ARG_SEPARATOR") {
+      currentRow.push(parseExpression(tokens));
+    } else if (nextToken.type === "ARRAY_ROW_SEPARATOR") {
+      rows.push(currentRow);
+      currentRow = [parseExpression(tokens)];
+    } else {
+      throw new BadExpressionError(_t("Unexpected token: %s", nextToken.value));
+    }
+  }
+  const rightBrace = consumeOrThrow(tokens, "RIGHT_BRACE", _t("Missing closing brace"));
+  rows.push(currentRow);
+  return {
+    type: "ARRAY",
+    value: rows,
+    tokenStartIndex: leftBrace.tokenIndex,
+    tokenEndIndex: rightBrace.tokenIndex,
+  };
 }
 
 function parseExpression(tokens: TokenList, parent_priority: number = 0): AST {
@@ -376,6 +411,13 @@ function* astIterator(ast: AST): Iterable<AST> {
         yield* astIterator(arg);
       }
       break;
+    case "ARRAY":
+      for (const row of ast.value) {
+        for (const cell of row) {
+          yield* astIterator(cell);
+        }
+      }
+      break;
     case "UNARY_OPERATION":
       yield* astIterator(ast.operand);
       break;
@@ -396,6 +438,11 @@ export function mapAst<T extends AST["type"]>(
       return {
         ...ast,
         args: ast.args.map((child) => mapAst(child, fn)),
+      };
+    case "ARRAY":
+      return {
+        ...ast,
+        value: ast.value.map((row) => row.map((cell) => mapAst(cell, fn))),
       };
     case "UNARY_OPERATION":
       return {
