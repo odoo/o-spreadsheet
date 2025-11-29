@@ -2,45 +2,26 @@ import { TABLE_HOVER_BACKGROUND_COLOR } from "@odoo/o-spreadsheet-engine/constan
 import { PositionMap } from "@odoo/o-spreadsheet-engine/helpers/cells/position_map";
 import { range } from "../../helpers";
 import { SpreadsheetStore } from "../../stores";
-import { Color, Command, Position } from "../../types";
+import { Color, Command } from "../../types";
 
 export class HoveredTableStore extends SpreadsheetStore {
-  mutators = ["clear", "hover"] as const;
-
-  col: number | undefined;
-  row: number | undefined;
-
   overlayColors: PositionMap<Color> = new PositionMap();
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.clear();
+      case "SET_HOVERED_CELL":
+        this.computeOverlay();
+        break;
     }
-  }
-
-  hover(position: Partial<Position>) {
-    if (!this.getters.isDashboard() || (position.col === this.col && position.row === this.row)) {
-      return "noStateChange";
-    }
-    this.col = position.col;
-    this.row = position.row;
-    this.computeOverlay();
-    return;
-  }
-
-  clear() {
-    this.col = undefined;
-    this.row = undefined;
   }
 
   private computeOverlay() {
     this.overlayColors = new PositionMap();
-    const { col, row } = this;
-    if (col === undefined || row === undefined) {
+    const { col, row, sheetId } = this.getters.getHoveredCell() || {};
+    if (col === undefined || row === undefined || sheetId === undefined) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
     const table = this.getters.getTable({ sheetId, col, row });
     if (!table) {
       return;

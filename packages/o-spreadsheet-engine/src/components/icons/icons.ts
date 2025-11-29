@@ -133,6 +133,20 @@ export function getHoveredCaretDownSvg(color: Style): ImageSVG {
   };
 }
 
+export function getPivotSortSvg(style: Style): ImageSVG {
+  return {
+    name: "PIVOT_SORT_ICON",
+    width: 512,
+    height: 512,
+    paths: [
+      {
+        fillColor: style.textColor || TEXT_BODY_MUTED,
+        path: "M120 216 h270 l-135 -130 M120 296 h270 l-135 130",
+      },
+    ],
+  };
+}
+
 const CHIP_CARET_DOWN_PATH = "M40 185 h270 l-135 128";
 
 export function getChipSvg(chipStyle: Style): ImageSVG {

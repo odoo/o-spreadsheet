@@ -8,6 +8,7 @@ import {
   getHoveredCaretDownSvg,
   getHoveredChipSvg,
   getPivotIconSvg,
+  getPivotSortSvg,
   ICONS,
 } from "../components/icons/icons";
 import {
@@ -38,6 +39,7 @@ export interface GridIcon {
   hoverSvg?: ImageSVG;
   priority: number;
   onClick?: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  preventIconAnimation?: boolean;
 }
 
 type ImageSvgCallback = (getters: Getters, position: CellPosition) => GridIcon | undefined;
@@ -175,9 +177,9 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
 });
 
 iconsOnCellRegistry.add("pivot_dashboard_sorting", (getters, position) => {
-  if (!getters.isDashboard()) {
-    return undefined;
-  }
+  // if (!getters.isDashboard()) {
+  //   return undefined;
+  // }
   const pivotCell = getters.getPivotCellFromPosition(position);
   if (pivotCell.type !== "MEASURE_HEADER") {
     return undefined;
@@ -195,6 +197,33 @@ iconsOnCellRegistry.add("pivot_dashboard_sorting", (getters, position) => {
     margin: GRID_ICON_MARGIN,
     svg: sortDirection === "asc" ? getCaretUpSvg(cellStyle) : getCaretDownSvg(cellStyle),
     position,
-    onClick: undefined, // click is managed by ClickableCellSortIcon
+    preventIconAnimation: true,
+    onClick: undefined, // click is managed by clickable cell
+  };
+});
+
+iconsOnCellRegistry.add("pivot_dashboard_sorting_none", (getters, position) => {
+  if (!deepEquals(position, getters.getHoveredCell())) {
+    return undefined;
+  }
+  const pivotCell = getters.getPivotCellFromPosition(position);
+  if (pivotCell.type !== "MEASURE_HEADER") {
+    return undefined;
+  }
+
+  // if( !getters.isDashboard()) {
+  //   return undefined;
+  // }
+  const cellStyle = getters.getCellComputedStyle(position);
+  return {
+    type: `pivot_dashboard_sorting_none`,
+    priority: 5,
+    horizontalAlign: "right",
+    size: 17,
+    margin: GRID_ICON_MARGIN,
+    svg: getPivotSortSvg(cellStyle),
+    position,
+    preventIconAnimation: true,
+    onClick: undefined, // click is managed by clickable cell
   };
 });

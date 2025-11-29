@@ -14,7 +14,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
 import { Model } from "../../src";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import { fontSizeInPixels, getContextFontSize, toHex, toZone } from "../../src/helpers";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
@@ -478,7 +477,7 @@ describe("renderer", () => {
   });
 
   test("fill style of hovered clickable cells goes over regular fill style", () => {
-    const { drawGridRenderer, model, container } = setRenderer(
+    const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const background = "#DC6CDF";
@@ -510,7 +509,8 @@ describe("renderer", () => {
     expect(fillStyles).toEqual([{ color: background, h: 23, w: 96, x: 0, y: 0 }]);
 
     fillStyles = [];
-    container.get(HoveredTableStore).hover({ col: 0, row: 0 });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_HOVERED_CELL", { cellPosition: { sheetId, col: 0, row: 0 } });
     drawGridRenderer(ctx);
 
     expect(fillStyles).toEqual([

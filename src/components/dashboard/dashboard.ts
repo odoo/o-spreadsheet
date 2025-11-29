@@ -1,12 +1,12 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
+import { Component, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, Ref } from "../../types/index";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
-import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
+import { getRefBoundingRect } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -14,7 +14,6 @@ import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
-import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}
 
@@ -34,14 +33,12 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
-  clickableCellsStore!: Store<ClickableCellsStore>;
 
   private gridRef!: Ref<HTMLElement>;
 
   setup() {
     this.gridRef = useRef("grid");
     this.hoveredCell = useStore(DelayedHoveredCellStore);
-    this.clickableCellsStore = useStore(ClickableCellsStore);
 
     useChildSubEnv({
       getPopoverContainerRect: () =>
@@ -81,30 +78,6 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       height: "100%",
       width: "100%",
     });
-  }
-
-  getCellClickableStyle(coordinates: Rect) {
-    return cssPropertiesToCss({
-      top: `${coordinates.y}px`,
-      left: `${coordinates.x}px`,
-      width: `${coordinates.width}px`,
-      height: `${coordinates.height}px`,
-    });
-  }
-
-  /**
-   * Get all the boxes for the cell in the sheet view that are clickable.
-   * This function is used to render an overlay over each clickable cell in
-   * order to display a pointer cursor.
-   *
-   */
-  getClickableCells(): ClickableCell[] {
-    return toRaw(this.clickableCellsStore.clickableCells);
-  }
-
-  selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
-    const { position, action } = clickableCell;
-    action(position, this.env, isMiddleClickOrCtrlClick(ev));
   }
 
   onClosePopover() {
