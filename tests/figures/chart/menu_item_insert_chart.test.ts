@@ -502,7 +502,7 @@ describe("Smart chart type detection", () => {
     [["number", "percentage"], { type: "pie" }],
     [["date", "percentage"], { type: "pie" }],
     [["number", "number"], { type: "scatter" }],
-    [["date", "number"], { type: "line" }],
+    [["date", "number"], { type: "calendar" }],
     [["text", "number"], { type: "bar" }],
     [["text_repeated", "number"], { type: "treemap" }],
     [["text", "date"], { type: "bar" }],
