@@ -48,4 +48,26 @@ describe("Add dimension button", () => {
     await keyDown({ key: "Enter" });
     expect(onFieldPicked).toHaveBeenCalledWith("Amount");
   });
+
+  test("Can give a custom fuzzy search key compute", async () => {
+    const computeFuzzySearchKey = jest.fn();
+    const { fixture } = await mountAddDimensionButton({
+      fields: [
+        { name: "Amount", type: "integer", string: "Amount" },
+        { name: "Product", type: "char", string: "Product" },
+      ],
+      computeFuzzySearchKey,
+    });
+    await click(fixture.querySelector(".add-dimension")!);
+    expect(computeFuzzySearchKey).toHaveBeenNthCalledWith(1, {
+      name: "Amount",
+      type: "integer",
+      string: "Amount",
+    });
+    expect(computeFuzzySearchKey).toHaveBeenNthCalledWith(2, {
+      name: "Product",
+      type: "char",
+      string: "Product",
+    });
+  });
 });
