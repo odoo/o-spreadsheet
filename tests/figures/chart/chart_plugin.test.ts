@@ -439,7 +439,7 @@ describe("datasource tests", function () {
 
       const config = getChartConfiguration(model, "43");
       // In line/bars charts we want to keep invalid data that have a label to have a discontinuous line/empty space between bars
-      expect(config.data?.datasets![0].data).toEqual([null, 12]);
+      expect(config.data?.datasets![0].data).toEqual([NaN, 12]);
     }
   );
 
@@ -1943,8 +1943,8 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["P1", "", ""]);
-    expect(data.datasets![0].data).toEqual([null, 10, null]);
-    expect(data.datasets![1].data).toEqual([null, null, 20]);
+    expect(data.datasets![0].data).toEqual([NaN, 10, NaN]);
+    expect(data.datasets![1].data).toEqual([NaN, NaN, 20]);
   });
 
   test("value without matching index in the label set", () => {
@@ -2106,6 +2106,7 @@ describe("Chart design configuration", () => {
     test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell with format",
       (chartType) => {
+        setCellContent(model, "A2", "10");
         setCellFormat(model, "A2", "[$$]#,##0.00");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         expect(
@@ -2134,8 +2135,10 @@ describe("Chart design configuration", () => {
           },
           "42"
         );
+        setCellContent(model, "A2", "10");
+        setCellContent(model, "B2", "20");
         setCellFormat(model, "A2", "[$$]#,#");
-        setCellFormat(model, "B1", "0%");
+        setCellFormat(model, "B2", "0%");
 
         const config = model.getters.getChartRuntime("42") as any;
         const scales = config.chartJsConfig?.options?.scales;
@@ -2836,7 +2839,10 @@ describe("Linear/Time charts", () => {
     setCellContent(model, "C3", "");
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels![1]).toEqual("1/17/1900");
-    expect(data.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
+    expect(data.datasets![0].data![1]).toEqual({
+      y: NaN,
+      x: toNumber("1/17/1900", model.getters.getLocale()),
+    });
   });
 
   test("date chart: rows datasets/labels are supported", () => {
@@ -2856,8 +2862,8 @@ describe("Linear/Time charts", () => {
 
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([
-      { y: 1, x: "2" },
-      { y: 10, x: "01/02/1900" },
+      { y: 1, x: 2 },
+      { y: 10, x: toNumber("01/02/1900", model.getters.getLocale()) },
     ]);
     expect(chart.options?.scales?.x?.type).toEqual("time");
   });
@@ -2881,8 +2887,8 @@ describe("Linear/Time charts", () => {
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels).toEqual(["0", "1"]);
     expect(data.datasets![0].data).toEqual([
-      { y: 0, x: "0" },
-      { y: 1, x: "1" },
+      { y: 0, x: 0 },
+      { y: 1, x: 1 },
     ]);
   });
 
@@ -2901,7 +2907,7 @@ describe("Linear/Time charts", () => {
     setCellContent(model, "C3", "");
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels![1]).toEqual("");
-    expect(data.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
+    expect(data.datasets![0].data![1]).toEqual({ y: 11, x: NaN });
   });
 
   test("can create linear chart with non-number header in the label range", () => {
@@ -2920,7 +2926,7 @@ describe("Linear/Time charts", () => {
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.options?.scales?.x?.type).toEqual("linear");
     expect(chart.data!.labels).toEqual(["1"]);
-    expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: "1" }]);
+    expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: 1 }]);
   });
 
   test("ChartJS configuration for linear chart", () => {
@@ -2942,10 +2948,10 @@ describe("Linear/Time charts", () => {
       datasets: [
         {
           data: [
-            { x: "20", y: 10 },
-            { x: "19", y: 11 },
-            { x: "18", y: 12 },
-            { x: "17", y: 13 },
+            { x: 20, y: 10 },
+            { x: 19, y: 11 },
+            { x: 18, y: 12 },
+            { x: 17, y: 13 },
           ],
         },
       ],
@@ -2980,10 +2986,10 @@ describe("Linear/Time charts", () => {
       datasets: [
         {
           data: [
-            { x: "1/19/1900", y: 10 },
-            { x: "1/18/1900", y: 11 },
-            { x: "1/17/1900", y: 12 },
-            { x: "1/16/1900", y: 13 },
+            { x: toNumber("1/19/1900", model.getters.getLocale()), y: 10 },
+            { x: toNumber("1/18/1900", model.getters.getLocale()), y: 11 },
+            { x: toNumber("1/17/1900", model.getters.getLocale()), y: 12 },
+            { x: toNumber("1/16/1900", model.getters.getLocale()), y: 13 },
           ],
         },
       ],
@@ -3267,8 +3273,8 @@ describe("Cumulative Data line chart", () => {
     );
 
     const chartData = getChartConfiguration(model, "1").data!.datasets![0].data;
-    const initialData = [11, 12, 13, null, 30]; // null if for the non-number value with a label
-    const expectedCumulativeData = [11, 23, 36, null, 66];
+    const initialData = [11, 12, 13, NaN, 30]; // NaN if for the non-number value with a label
+    const expectedCumulativeData = [11, 23, 36, NaN, 66];
 
     expect(chartData).toEqual(initialData);
 
@@ -3296,8 +3302,8 @@ describe("Cumulative Data line chart", () => {
 
     const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
     expect(runtime.chartJsConfig.data!.datasets![0].data).toEqual([
-      { x: "1", y: 10 },
-      { x: "2", y: 30 },
+      { x: 1, y: 10 },
+      { x: 2, y: 30 },
     ]);
   });
 });
@@ -3335,7 +3341,7 @@ describe("Pie chart invalid values", () => {
       },
       "1"
     );
-    const expectedData = [null, null, null, 42]; // negative & non-number values are replaced by null
+    const expectedData = [NaN, NaN, NaN, 42]; // negative & non-number values are replaced by NaN
     const expectedLabels = ["P2", "P3", "P4", ""];
 
     const data = getChartConfiguration(model, "1").data;
