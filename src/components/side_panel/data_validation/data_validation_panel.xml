@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationPanel">
     <div class="o-data-validation">
-      <t t-if="state.mode === 'list'">
+      <t t-if="state.mode === 'list' || !ruleExist(state.activeRule)">
         <div class="o-dv-preview-list">
           <t t-foreach="validationRules" t-as="rule" t-key="rule.id">
             <DataValidationPreview
@@ -15,7 +15,11 @@
         </div>
       </t>
       <t t-else="">
-        <DataValidationEditor rule="localizeDVRule(state.activeRule)" onExit.bind="onExitEditMode"/>
+        <DataValidationEditor
+          rule="localizeDVRule(state.activeRule)"
+          onExit.bind="onExitEditMode"
+          sheetId="state.sheetId"
+        />
       </t>
     </div>
   </t>

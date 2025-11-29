@@ -1,3 +1,4 @@
+import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
 import { UID } from "../../src/types";
@@ -8,12 +9,20 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
+import {
+  click,
+  clickCell,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../test_helpers/dom_helper";
 import {
   editStandaloneComposer,
   getDataValidationRules,
   mountComponentWithPortalTarget,
+  mountSpreadsheet,
   nextTick,
+  spyModelDispatch,
+  toRangesData,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -22,7 +31,7 @@ extendMockGetBoundingClientRect({
   "o-dv-type": () => dataValidationSelectBoundingRect,
 });
 
-export async function mountDataValidationPanel(model?: Model) {
+async function mountDataValidationPanel(model?: Model) {
   return mountComponentWithPortalTarget(DataValidationPanel, {
     model: model || new Model(),
     props: { onCloseSidePanel: () => {} },
@@ -165,7 +174,66 @@ describe("data validation sidePanel component", () => {
     expect(fixture.querySelector(".o-selection-input .o-invalid")).toBeTruthy();
     const errorMessageEl = fixture.querySelector(".o-validation-error");
     expect(errorMessageEl).toBeTruthy();
-    expect(errorMessageEl?.textContent).toContain("The range is invalid.");
+    expect(errorMessageEl?.textContent).toContain('Invalid ranges: "A1:HOLA"');
+  });
+
+  test("Out of sheet range", async () => {
+    createSheet(model, { sheetId: "ID", name: "Sheet2", activate: false });
+    await simulateClick(".o-dv-add");
+    await nextTick();
+
+    setInputValueAndTrigger(".o-selection-input input", "Sheet2!A1");
+
+    const composer = ".o-dv-settings .o-composer";
+    await editStandaloneComposer(composer, "=SUM(1,2)");
+
+    await simulateClick(".o-dv-save");
+    const errorMessageEl = fixture.querySelector(".o-validation-error");
+    expect(errorMessageEl).toBeTruthy();
+    expect(errorMessageEl?.textContent).toContain(
+      'Ranges "Sheet2!A1" should target the sheet on which the conditional format is defined (Sheet1)'
+    );
+  });
+
+  test("cannot edit a CF range on another sheet", async () => {
+    createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+    await simulateClick(".o-dv-add");
+    await nextTick();
+
+    model.dispatch("ACTIVATE_NEXT_SHEET");
+    await nextTick();
+
+    const range = fixture.querySelector<HTMLInputElement>(".o-selection-input input");
+    expect(range?.disabled).toBeTruthy();
+  });
+
+  test("Edit a DV formula on another sheet is properly adapted on confirm", async () => {
+    createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    setInputValueAndTrigger(".o-selection-input input", "A1");
+
+    model.dispatch("ACTIVATE_NEXT_SHEET");
+    await nextTick();
+
+    const composer = ".o-dv-settings .o-composer";
+    await editStandaloneComposer(composer, "=A1");
+    await nextTick();
+
+    const dispatch = spyModelDispatch(model);
+
+    await simulateClick(".o-dv-save");
+    expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_DATA_VALIDATION_RULE", {
+      rule: {
+        id: expect.any(String),
+        criterion: {
+          type: "containsText",
+          values: ["=Sheet2!A1"],
+        },
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
   });
 
   test("Can remove a valid, invalid or empty range", async () => {
@@ -422,5 +490,38 @@ describe("data validation sidePanel component", () => {
         },
       ]);
     });
+  });
+});
+
+describe("Integration tests", () => {
+  let fixture: HTMLElement;
+  let parent: Component;
+  let model: Model;
+
+  beforeEach(async () => {
+    ({ model, fixture, parent } = await mountSpreadsheet());
+  });
+
+  test("cannot edit a range on another sheet", async () => {
+    createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+
+    parent.env.openSidePanel("DataValidation");
+    await nextTick();
+
+    await click(fixture, ".o-dv-add");
+    await nextTick();
+
+    clickCell(model, "A1");
+    await nextTick();
+
+    fixture.querySelector<HTMLInputElement>(".o-selection-input input")?.focus();
+
+    model.dispatch("ACTIVATE_NEXT_SHEET");
+    await nextTick();
+
+    clickCell(model, "C5");
+    await nextTick();
+    const range = fixture.querySelector<HTMLInputElement>(".o-selection-input input");
+    expect(range?.value).toBe("A1");
   });
 });

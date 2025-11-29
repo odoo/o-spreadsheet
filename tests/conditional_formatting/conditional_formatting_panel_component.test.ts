@@ -2,7 +2,6 @@ import { ConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/core
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
-import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toHex, toZone } from "../../src/helpers";
 import {
@@ -24,6 +23,7 @@ import {
   DOMTarget,
   click,
   clickAndDrag,
+  clickCell,
   getTarget,
   keyDown,
   setInputValueAndTrigger,
@@ -442,8 +442,70 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonSave);
       expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
       const errorString = document.querySelector(selectors.error);
-      expect(errorString!.textContent).toBe("The range is invalid");
+      expect(errorString!.textContent).toBe('Invalid ranges: "hello"');
     });
+
+    test("cannot create a new CF with out of sheet range", async () => {
+      createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "Sheet2!A1");
+
+      const dispatch = spyModelDispatch(model);
+      await click(fixture, selectors.buttonSave);
+      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
+      const errorString = document.querySelector(selectors.error);
+      expect(errorString).toBeTruthy();
+      expect(errorString?.textContent).toContain(
+        'Ranges "Sheet2!A1" should target the sheet on which the conditional format is defined (Sheet1)'
+      );
+    });
+
+    test("cannot edit a CF range on another sheet", async () => {
+      createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+
+      model.dispatch("ACTIVATE_NEXT_SHEET");
+      await nextTick();
+
+      const range = fixture.querySelector<HTMLInputElement>(selectors.ruleEditor.range);
+      expect(range?.disabled).toBeTruthy();
+    });
+
+    test("Edit a CF formula on another sheet is properly adapted on confirm", async () => {
+      createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+      setInputValueAndTrigger(selectors.ruleEditor.range, "A1");
+
+      model.dispatch("ACTIVATE_NEXT_SHEET");
+      await nextTick();
+
+      await changeRuleOperatorType(fixture, "beginsWithText");
+      editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=A1");
+      await nextTick();
+
+      const dispatch = spyModelDispatch(model);
+
+      await click(fixture, selectors.buttonSave);
+      expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: expect.any(String),
+          rule: {
+            operator: "beginsWithText",
+            style: expect.anything(),
+            type: "CellIsRule",
+            values: ["=Sheet2!A1"],
+          },
+        },
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+    });
+
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
@@ -888,7 +950,7 @@ describe("UI of conditional formats", () => {
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
-    expect(errorMessages()).toEqual(["Minimum must be smaller then Maximum"]);
+    expect(errorMessages()).toEqual(["Minimum must be smaller than maximum"]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
       "o-invalid"
     );
@@ -916,9 +978,9 @@ describe("UI of conditional formats", () => {
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
     expect(errorMessages()).toEqual([
-      "Minimum must be smaller then Maximum",
-      "Minimum must be smaller then Midpoint",
-      "Midpoint must be smaller then Maximum",
+      "Minimum must be smaller than maximum",
+      "Minimum must be smaller than midpoint",
+      "Midpoint must be smaller than maximum",
     ]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
       "o-invalid"
@@ -946,7 +1008,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
-    expect(errorMessages()).toEqual(["Midpoint must be smaller then Maximum"]);
+    expect(errorMessages()).toEqual(["Midpoint must be smaller than maximum"]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
       "o-invalid"
     );
@@ -1056,7 +1118,7 @@ describe("UI of conditional formats", () => {
     await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=hello()");
     await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM(1,2)");
 
-    expect(errorMessages()).toEqual(["Invalid Minpoint formula"]);
+    expect(errorMessages()).toEqual(["Invalid minpoint formula"]);
     expect(isInputInvalid(selectors.colorScaleEditor.minValueComposer)).toBe(true);
     expect(fixture.querySelector(selectors.colorScaleEditor.midValue)).toBe(null);
     expect(isInputInvalid(selectors.colorScaleEditor.maxValueComposer)).toBe(false);
@@ -1077,7 +1139,7 @@ describe("UI of conditional formats", () => {
     editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=hello()");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3");
 
-    expect(errorMessages()).toEqual(["Invalid Midpoint formula"]);
+    expect(errorMessages()).toEqual(["Invalid midpoint formula"]);
     expect(isInputInvalid(selectors.colorScaleEditor.minValue)).toBe(false);
     expect(isInputInvalid(selectors.colorScaleEditor.midValueComposer)).toBe(true);
     expect(isInputInvalid(selectors.colorScaleEditor.maxValue)).toBe(false);
@@ -1112,7 +1174,7 @@ describe("UI of conditional formats", () => {
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=suùù(");
     await click(fixture, selectors.buttonSave);
     expect(fixture.querySelector(".o-invalid")).not.toBeNull();
-    expect(errorMessages()).toEqual(["At least one of the provided values is an invalid formula"]);
+    expect(errorMessages()).toEqual(['Invalid formulas: "=suùù()"']);
   });
 
   test("changing rule type resets errors", async () => {
@@ -1158,7 +1220,7 @@ describe("UI of conditional formats", () => {
     await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=hello()");
     await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM(1,2)");
 
-    expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
+    expect(errorMessages()).toEqual(["Invalid maxpoint formula"]);
   });
 
   test("Hides the 'No Color' button when the color picker is opened for the color scale", async () => {
@@ -1562,7 +1624,7 @@ describe("Integration tests", () => {
     expect(ranges[1]["value"]).toBe("C3");
   });
 
-  test("switching sheet resets CF Editor to list", async () => {
+  test("switching sheet doesn't resets CF Editor to list", async () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
@@ -1578,29 +1640,31 @@ describe("Integration tests", () => {
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
-    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeDefined();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
   });
 
-  test("CF standalone composer becomes inactive on sheet change", async () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
-      ranges: toRangesData(sheetId, "A1:A2"),
-      sheetId,
-    });
-    createSheet(model, { sheetId: "42" });
+  test("cannot edit a range on another sheet", async () => {
+    createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+
     const zone = toZone("A1:A2");
     parent.env.openSidePanel("ConditionalFormatting", { selection: [zone] });
     await nextTick();
-    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=", {
-      confirm: false,
-    });
-    const composerFocusStore = parent.env.getStore(ComposerFocusStore);
-    expect(composerFocusStore.activeComposer.id).toBe("standaloneComposer");
-    expect(composerFocusStore.activeComposer.editionMode).toBe("selecting");
-    activateSheet(model, "42");
+
+    await click(fixture, selectors.buttonAdd);
     await nextTick();
-    expect(composerFocusStore.activeComposer.editionMode).toBe("inactive");
+
+    clickCell(model, "A1");
+    await nextTick();
+
+    fixture.querySelector<HTMLInputElement>(selectors.ruleEditor.range)?.focus();
+
+    model.dispatch("ACTIVATE_NEXT_SHEET");
+    await nextTick();
+
+    clickCell(model, "C5");
+    await nextTick();
+    const range = fixture.querySelector<HTMLInputElement>(selectors.ruleEditor.range);
+    expect(range?.value).toBe("A1");
   });
 });
