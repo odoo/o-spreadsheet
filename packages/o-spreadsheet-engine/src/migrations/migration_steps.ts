@@ -1,5 +1,4 @@
 import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
-import { COLORSCHEMES } from "../helpers/color";
 import { toXC } from "../helpers/coordinates";
 import { getItemId } from "../helpers/data_normalization";
 import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
@@ -7,7 +6,7 @@ import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registry";
-import { CustomizedDataSet } from "../types/chart";
+import { CustomizedDataSet, schemeToColorScale } from "../types/chart";
 import { Format } from "../types/format";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { Zone } from "../types/misc";
@@ -561,7 +560,16 @@ migrationStepRegistry
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart" && figure.data.type === "geo") {
             if ("colorScale" in figure.data && typeof figure.data.colorScale === "string") {
-              figure.data.colorScale = COLORSCHEMES[figure.data.colorScale];
+              figure.data.colorScale = schemeToColorScale(figure.data.colorScale);
+            }
+          }
+          if (figure.tag === "carousel") {
+            for (const definition of Object.values<any>(figure.data.chartDefinitions) || []) {
+              if (definition.type === "geo") {
+                if ("colorScale" in definition && typeof definition.colorScale === "string") {
+                  definition.colorScale = schemeToColorScale(definition.colorScale);
+                }
+              }
             }
           }
         }
