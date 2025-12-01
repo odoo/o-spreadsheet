@@ -15,6 +15,7 @@ import {
   useRef,
   useSubEnv,
 } from "@odoo/owl";
+import { unregisterChartJsExtensions } from "../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/chart_js_extension";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -25,7 +26,6 @@ import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../.
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
-import { unregisterChartJsExtensions } from "../figures/chart/chartJs/chart_js_extension";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";

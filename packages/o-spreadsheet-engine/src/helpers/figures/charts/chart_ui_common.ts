@@ -7,6 +7,11 @@ import {
 } from "../../../types/chart";
 import { Figure } from "../../../types/figure";
 import { deepCopy } from "../../misc";
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+  unregisterChartJsExtensions,
+} from "./chart_js_extension";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
@@ -39,8 +44,15 @@ export async function chartToImageUrl(
       console.log("Chart.js library is not loaded");
       return imageUrl;
     }
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     if (!globalThis.Chart.registry.controllers.get(type)) {
       console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
       return imageUrl;
     }
 
@@ -55,6 +67,9 @@ export async function chartToImageUrl(
       imageUrl = await canvasToObjectUrl(canvas);
     } finally {
       chart.destroy();
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
     }
   }
   // TODO: make a registry of chart types to their rendering functions
@@ -87,8 +102,15 @@ export async function chartToImageFile(
       console.log("Chart.js library is not loaded");
       return chartBlob;
     }
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
     if (!globalThis.Chart.registry.controllers.get(type)) {
       console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
       return chartBlob;
     }
 
@@ -103,6 +125,9 @@ export async function chartToImageFile(
       chartBlob = await canvasToBlob(canvas);
     } finally {
       chart.destroy();
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
     }
   } else {
     if (!globalThis.OffscreenCanvas)

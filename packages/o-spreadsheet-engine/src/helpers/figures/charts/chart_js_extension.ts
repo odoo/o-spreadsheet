@@ -1,5 +1,5 @@
-import { GlobalChart } from "@odoo/o-spreadsheet-engine";
-import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { Registry } from "../../../registry";
+import { GlobalChart } from "../../../types/chart/chartjs";
 
 export const chartJsExtensionRegistry = new Registry<{
   register: (chart: GlobalChart) => void;
