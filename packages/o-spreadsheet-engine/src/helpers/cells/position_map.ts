@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../../types/misc";
+import { CellPosition, UID, Zone } from "../../types/misc";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};
@@ -20,9 +20,11 @@ export class PositionMap<T> {
     map[sheetId][col][row] = value;
   }
 
-  setMany(values: Iterable<[CellPosition, T]>) {
-    for (const [position, value] of values) {
-      this.set(position, value);
+  setMany(sheetId: UID, zone: Zone, value: T) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        this.set({ sheetId, col, row }, value);
+      }
     }
   }
 

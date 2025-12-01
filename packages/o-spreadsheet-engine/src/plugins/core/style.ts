@@ -240,13 +240,8 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     const styles = new PositionMap<Style>();
     for (const { zone: z, style } of this.styles[sheetId] ?? []) {
       const inter = intersection(z, zone);
-      if (!inter) {
-        continue;
-      }
-      for (let col = inter.left; col <= inter.right; col++) {
-        for (let row = inter.top; row <= inter.bottom; row++) {
-          styles.set({ sheetId, col, row }, style);
-        }
+      if (inter) {
+        styles.setMany(sheetId, inter, style);
       }
     }
     return styles;

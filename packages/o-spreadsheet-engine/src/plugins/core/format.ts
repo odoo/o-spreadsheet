@@ -232,13 +232,8 @@ export class CoreFormatPlugin extends CorePlugin<FormatPluginState> implements F
       for (const zone of zones) {
         for (const { zone: z, format } of this.formats[sheetId] ?? []) {
           const inter = intersection(z, zone);
-          if (!inter) {
-            continue;
-          }
-          for (let col = inter.left; col <= inter.right; col++) {
-            for (let row = inter.top; row <= inter.bottom; row++) {
-              startingMap.set({ sheetId, col, row }, format);
-            }
+          if (inter) {
+            startingMap.setMany(sheetId, inter, format);
           }
         }
       }
