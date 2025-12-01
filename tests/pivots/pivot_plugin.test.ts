@@ -247,6 +247,14 @@ describe("Pivot plugin", () => {
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
 
+  test("cannot add a pivot with an existing id", () => {
+    const model = new Model();
+    const createResult1 = addPivot(model, "A1:A2", {}, "1");
+    expect(createResult1.isSuccessful).toBe(true);
+    const createResult2 = addPivot(model, "A1:A2", {}, "1");
+    expect(createResult2).toBeCancelledBecause(CommandResult.PivotIdTaken);
+  });
+
   test("cannot duplicate a pivot with a wrong id", () => {
     const model = new Model();
     const updateResult = model.dispatch("DUPLICATE_PIVOT", {
