@@ -2,7 +2,14 @@ import { deepEquals } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
-import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
+import {
+  intersection,
+  isInside,
+  isZoneInside,
+  positionToZone,
+  toZone,
+  zoneToXc,
+} from "../../helpers/zones";
 import {
   AddColumnsRowsCommand,
   CommandResult,
@@ -316,19 +323,28 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       return CommandResult.NoChanges;
     }
     for (const zone of recomputeZones(target)) {
-      const styles = hasStyle && this.getCellStyleInZone(sheetId, zone);
-      const formats = hasFormat && this.getters.getCellFormatInZone(sheetId, zone);
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const position = { sheetId, col, row };
-          const oldStyle = styles && styles.get(position);
-          const oldFormat = formats && formats.get(position);
-          if (
-            (hasStyle && !deepEquals(oldStyle, cmd.style)) ||
-            (hasFormat && oldFormat !== cmd.format)
-          ) {
-            return CommandResult.Success;
-          }
+      if (hasStyle) {
+        const currentStyle = this.getZoneStyles(sheetId, zone);
+        if (
+          currentStyle.find(
+            (style) => !cmd.style || !deepEquals({ ...style.style, ...cmd.style }, style.style)
+          )
+        ) {
+          return CommandResult.Success;
+        }
+        const currentStyleZone = recomputeZones(currentStyle.map((format) => format.zone));
+        if (currentStyleZone.length !== 1 || !isZoneInside(zone, currentStyleZone[0])) {
+          return CommandResult.Success;
+        }
+      }
+      if (hasFormat) {
+        const currentFormat = this.getters.getZoneFormats(sheetId, zone);
+        if (currentFormat.find((format) => format.format !== cmd.format)) {
+          return CommandResult.Success;
+        }
+        const currentFormatZone = recomputeZones(currentFormat.map((format) => format.zone));
+        if (currentFormatZone.length !== 1 || !isZoneInside(zone, currentFormatZone[0])) {
+          return CommandResult.Success;
         }
       }
     }
