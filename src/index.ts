@@ -122,6 +122,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { chartJsExtensionRegistry } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import {
   areDomainArgsFieldsValid,
   createCustomFields,
@@ -165,7 +166,6 @@ import {
 import { errorTypes } from "@odoo/o-spreadsheet-engine/types/errors";
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
-import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { GaugeChartComponent } from "./components/figures/chart/gauge/gauge_chart_component";
