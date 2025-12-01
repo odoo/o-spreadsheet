@@ -251,6 +251,28 @@ describe("Composer hover", () => {
     expect(".o-speech-bubble").toHaveText("1");
   });
 
+  test("Hovering an unfinished formula add the missing braces before evaluating", async () => {
+    await typeInComposer("={1,2,3");
+    await hoverComposerContent("=");
+    expect(".o-speech-bubble").toHaveText("{1,2,3}");
+  });
+
+  test("Hovering an unfinished formula add the missing parenthesis then braces before evaluating", async () => {
+    await typeInComposer("={1,2,SUM(3,4");
+    await hoverComposerContent("=");
+    expect(".o-speech-bubble").toHaveText("{1,2,7}");
+    await hoverComposerContent("SUM");
+    expect(".o-speech-bubble").toHaveText("7");
+  });
+
+  test("Hovering an unfinished formula add the missing braces then parenthesis before evaluating", async () => {
+    await typeInComposer("=SUM(1,2,{3,4");
+    await hoverComposerContent("=");
+    expect(".o-speech-bubble").toHaveText("10");
+    await hoverComposerContent("{");
+    expect(".o-speech-bubble").toHaveText("{3,4}");
+  });
+
   test("Hovering elements do nothing if the selection start and end are different", async () => {
     await typeInComposer("=12");
     composerStore.changeComposerCursorSelection(0, 2);
