@@ -125,6 +125,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
+    if (!globalThis.Chart) {
+      throw new Error("Chart.js library is not loaded");
+    }
     const chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     this.isBarChart = chartData.type === "bar";
     this.chartId = `${chartData.type}-${this.props.chartId}`;
@@ -144,7 +147,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     this.masterChart?.destroy();
     const masterChartCtx = (this.masterChartCanvas!.el as HTMLCanvasElement).getContext("2d")!;
 
-    this.masterChart = new window.Chart(
+    this.masterChart = new globalThis.Chart(
       masterChartCtx,
       this.getMasterChartConfiguration(chartRuntime["masterChartConfig"] as ChartConfiguration<any>)
     );
@@ -155,6 +158,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
+    if (!globalThis.Chart) {
+      throw new Error("Chart.js library is not loaded");
+    }
     const chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     const newDatasetBoundaries = this.getAxisLimitsFromDataset(chartData);
     if (
@@ -182,7 +188,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       );
       if (!this.masterChart) {
         const masterChartCtx = (this.masterChartCanvas!.el as HTMLCanvasElement).getContext("2d")!;
-        this.masterChart = new window.Chart(masterChartCtx, masterChartConfig);
+        this.masterChart = new globalThis.Chart(masterChartCtx, masterChartConfig);
       } else {
         this.masterChart.data = masterChartConfig.data;
         this.masterChart.config.options = masterChartConfig.options;

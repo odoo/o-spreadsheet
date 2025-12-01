@@ -8,7 +8,6 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
-import * as Chart from "chart.js";
 import * as ChartGeo from "chartjs-chart-geo";
 
 export {
@@ -47,7 +46,6 @@ export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
 
 declare global {
   interface Window {
-    Chart: typeof Chart & typeof Chart.Chart;
     ChartGeo: typeof ChartGeo;
   }
 }

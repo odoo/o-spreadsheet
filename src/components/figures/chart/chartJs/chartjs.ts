@@ -43,7 +43,6 @@ chartJsExtensionRegistry.add("funnelElement", {
 chartJsExtensionRegistry.add("funnelTooltipPositioner", {
   register: (Chart) =>
     (Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner),
-  // @ts-expect-error
   unregister: (Chart) => (Chart.Tooltip.positioners.funnelTooltipPositioner = undefined),
 });
 chartJsExtensionRegistry.add("sunburstLabelsPlugin", {
@@ -131,6 +130,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
+    if (!globalThis.Chart) {
+      throw new Error("Chart.js library is not loaded");
+    }
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     if (this.shouldAnimate && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
@@ -142,7 +144,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData);
+    this.chart = new globalThis.Chart(ctx, chartData);
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
