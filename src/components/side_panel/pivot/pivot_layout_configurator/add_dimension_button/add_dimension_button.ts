@@ -61,7 +61,9 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   get proposals(): AutoCompleteProposal[] {
     let fields: PivotField[];
     if (this.search.input) {
-      fields = fuzzyLookup(this.search.input, this.props.fields, (field) => field.string);
+      fields = fuzzyLookup(this.search.input, this.props.fields, (field) =>
+        field.string === field.name ? field.string : field.string + field.name
+      );
     } else {
       fields = this.props.fields;
     }
