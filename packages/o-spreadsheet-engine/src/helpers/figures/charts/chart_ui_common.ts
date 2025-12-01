@@ -35,9 +35,19 @@ export async function chartToImageUrl(
   const canvas = createRenderingSurface(figure.width, figure.height);
   let imageUrl: string | undefined;
   if ("chartJsConfig" in runtime) {
+    if (!globalThis.Chart) {
+      console.log("Chart.js library is not loaded");
+      return imageUrl;
+    }
+    if (!globalThis.Chart.registry.controllers.get(type)) {
+      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+      return imageUrl;
+    }
+
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new globalThis.Chart!(
+
+    const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
       config as ChartConfiguration
     );
@@ -73,9 +83,22 @@ export async function chartToImageFile(
   const canvas = createRenderingSurface(figure.width, figure.height);
   let chartBlob: Blob | null = null;
   if ("chartJsConfig" in runtime) {
+    if (!globalThis.Chart) {
+      console.log("Chart.js library is not loaded");
+      return chartBlob;
+    }
+    if (!globalThis.Chart.registry.controllers.get(type)) {
+      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+      return chartBlob;
+    }
+
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new (globalThis as any).Chart(canvas, config as ChartConfiguration);
+
+    const chart = new globalThis.Chart(
+      canvas as unknown as HTMLCanvasElement,
+      config as ChartConfiguration
+    );
     try {
       chartBlob = await canvasToBlob(canvas);
     } finally {
