@@ -122,6 +122,27 @@ describe("Spreadsheet integrations tests", () => {
     expect(onConfirm).toHaveBeenCalledWith("=SUM(A1)");
   });
 
+  test("Brackets are closed when composer is confirmed", async () => {
+    await openSidePanelWithComposer();
+    await editStandaloneComposer(composerSelector, "={1,2");
+    await keyDown({ key: "Enter" });
+    expect(onConfirm).toHaveBeenCalledWith("={1,2}");
+  });
+
+  test("Bracket then parenthesis are closed when composer is confirmed", async () => {
+    await openSidePanelWithComposer();
+    await editStandaloneComposer(composerSelector, "=SUM(A1,{2,3");
+    await keyDown({ key: "Enter" });
+    expect(onConfirm).toHaveBeenCalledWith("=SUM(A1,{2,3})");
+  });
+
+  test("Parenthesis then bracket are closed when composer is confirmed", async () => {
+    await openSidePanelWithComposer();
+    await editStandaloneComposer(composerSelector, "={A1,SUM(2,3");
+    await keyDown({ key: "Enter" });
+    expect(onConfirm).toHaveBeenCalledWith("={A1,SUM(2,3)}");
+  });
+
   test("Standalone composer lose focus and is confirmed when clicking on another composer", async () => {
     await openSidePanelWithComposer();
     await editStandaloneComposer(composerSelector, "Hi !", { confirm: false });

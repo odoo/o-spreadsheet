@@ -316,9 +316,18 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return;
     }
 
-    const missingParenthesis = this.getNumberOfMissingParenthesis(tokens);
-    if (missingParenthesis > 0) {
-      tokens.push(...Array(missingParenthesis).fill({ value: ")", type: "RIGHT_PAREN" }));
+    const missingSymbols = this.getMissingSymbols(this.currentTokens);
+    for (const symb of missingSymbols) {
+      const typeOfSymb = symb === ")" ? "RIGHT_PAREN" : "RIGHT_BRACE";
+      const lastStart = tokens[tokens.length - 1].start;
+      const start = lastStart + 1;
+      tokens.push({
+        value: symb,
+        type: typeOfSymb,
+        start: start,
+        end: start + symb.length,
+        length: 1,
+      });
     }
 
     let hoveredContextTokens = tokens;
@@ -441,10 +450,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       if (content) {
         if (isFormula(content)) {
-          const missing = this.getNumberOfMissingParenthesis(this.currentTokens);
-          if (missing > 0) {
-            content += concat(new Array(missing).fill(")"));
-          }
+          const missingSymbols = this.getMissingSymbols(this.currentTokens);
+          content += concat(missingSymbols);
         }
       }
       this.confirmEdition(content);
@@ -1005,9 +1012,25 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return false;
   }
 
-  private getNumberOfMissingParenthesis(tokens: EnrichedToken[]): number {
-    const left = tokens.filter((t) => t.type === "LEFT_PAREN").length;
-    const right = tokens.filter((t) => t.type === "RIGHT_PAREN").length;
-    return left - right;
+  private getMissingSymbols(tokens: EnrichedToken[]): (")" | "}")[] {
+    const stack: (")" | "}")[] = [];
+    for (const symb of tokens) {
+      switch (symb.type) {
+        case "LEFT_PAREN":
+          stack.push(")");
+          break;
+        case "LEFT_BRACE":
+          stack.push("}");
+          break;
+        case "RIGHT_PAREN":
+        case "RIGHT_BRACE":
+          if (stack.length > 0 && stack.at(-1) === symb.value) {
+            stack.pop();
+          }
+          break;
+      }
+    }
+    stack.reverse();
+    return stack;
   }
 }

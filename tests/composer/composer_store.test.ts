@@ -145,6 +145,23 @@ describe("edition", () => {
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
+  test("Stopping the edition should complete the missing bracket of a formula", async () => {
+    composerStore.startEdition("={1,2");
+    composerStore.stopEdition();
+    expect(getCellText(model, "A1")).toBe("={1,2}");
+  });
+  test("Stopping the edition should complete the missing bracket then parenthesis of a formula", async () => {
+    composerStore.startEdition("=SUM(1,2,{3,4");
+    composerStore.stopEdition();
+    expect(getCellText(model, "A1")).toBe("=SUM(1,2,{3,4})");
+  });
+
+  test("Stopping the edition should complete the missing parenthesis then bracket of a formula", async () => {
+    composerStore.startEdition("={1,2,SUM(3,4");
+    composerStore.stopEdition();
+    expect(getCellText(model, "A1")).toBe("={1,2,SUM(3,4)}");
+  });
+
   test("Stopping the edition should not complete parenthesis in a string", async () => {
     composerStore.startEdition('=sum("((((((((")');
     composerStore.stopEdition();

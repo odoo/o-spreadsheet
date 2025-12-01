@@ -498,6 +498,24 @@ describe("Composer interactions", () => {
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
+  test("={1,2 + click outside composer should add the missing bracket", async () => {
+    await typeInComposerGrid("={1,2");
+    await clickCell(model, "B2");
+    expect(getCellText(model, "A1")).toBe("={1,2}");
+  });
+
+  test("=SUM(1,2,{3,4 + click outside composer should add the missing bracket then parenthesis", async () => {
+    await typeInComposerGrid("=SUM(1,2,{3,4");
+    await clickCell(model, "B2");
+    expect(getCellText(model, "A1")).toBe("=SUM(1,2,{3,4})");
+  });
+
+  test("={1,2,SUM(3,4 + click outside composer should add the missing parenthesis then bracket", async () => {
+    await typeInComposerGrid("={1,2,SUM(3,4");
+    await clickCell(model, "B2");
+    expect(getCellText(model, "A1")).toBe("={1,2,SUM(3,4)}");
+  });
+
   test("Autocomplete should not appear when typing '=S', clicking outside, and editing back", async () => {
     await typeInComposerGrid("=S");
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(10);
