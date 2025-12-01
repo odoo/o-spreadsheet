@@ -46,6 +46,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "ADD_PIVOT": {
+        if (cmd.pivotId in this.pivots) {
+          return CommandResult.PivotIdTaken;
+        }
         return this.checkValidations(
           cmd.pivot,
           this.checkDuplicatedMeasureIds,

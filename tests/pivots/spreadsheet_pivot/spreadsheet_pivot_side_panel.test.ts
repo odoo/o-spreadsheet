@@ -743,11 +743,16 @@ describe("Spreadsheet pivot side panel", () => {
   test("Invalid pivot dimensions are displayed as such in the side panel", async () => {
     setCellContent(model, "A1", "ValidDimension");
     setCellContent(model, "A2", "10");
-    addPivot(model, "A1:A2", {
-      columns: [{ fieldName: "ValidDimension" }],
-      rows: [{ fieldName: "InvalidDimension" }],
-    });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    addPivot(
+      model,
+      "A1:A2",
+      {
+        columns: [{ fieldName: "ValidDimension" }],
+        rows: [{ fieldName: "InvalidDimension" }],
+      },
+      "2"
+    );
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     const pivotDimensionEls = fixture.querySelectorAll<HTMLElement>(".pivot-dimension")!;
     const validDimensionEl = pivotDimensionEls[0];
@@ -875,9 +880,9 @@ describe("Spreadsheet pivot side panel", () => {
           measures: [{ id: "Amount", fieldName: "Amount", aggregator: "sum" }],
           sortedColumn,
         },
-        "1"
+        "2"
       );
-      env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+      env.openSidePanel("PivotSidePanel", { pivotId: "2" });
       await nextTick();
     });
 
@@ -888,12 +893,12 @@ describe("Spreadsheet pivot side panel", () => {
     });
 
     test("Does not display sorting for pivot with no sorting or invalid sorting ", async () => {
-      updatePivot(model, "1", { sortedColumn: undefined });
-      env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+      updatePivot(model, "2", { sortedColumn: undefined });
+      env.openSidePanel("PivotSidePanel", { pivotId: "2" });
       await nextTick();
       expect(".o-sidePanel .o-pivot-sort").toHaveCount(0);
 
-      updatePivot(model, "1", {
+      updatePivot(model, "2", {
         sortedColumn: { order: "asc", measure: "Yolo", domain: [] },
       });
       await nextTick();
@@ -901,16 +906,16 @@ describe("Spreadsheet pivot side panel", () => {
     });
 
     test("Pivot sorting is removed when removing the sorted measure", async () => {
-      expect(model.getters.getPivotCoreDefinition("1").sortedColumn).toEqual(sortedColumn);
+      expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
       click(fixture, ".pivot-measure .fa-trash");
-      expect(model.getters.getPivotCoreDefinition("1").sortedColumn).toBeUndefined();
+      expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
 
     test("Pivot sorting is removed when removing a column", async () => {
-      expect(model.getters.getPivotCoreDefinition("1").sortedColumn).toEqual(sortedColumn);
+      expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
       const column = fixture.querySelectorAll(".pivot-dimension")[0];
       click(column, ".fa-trash");
-      expect(model.getters.getPivotCoreDefinition("1").sortedColumn).toBeUndefined();
+      expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
   });
 
