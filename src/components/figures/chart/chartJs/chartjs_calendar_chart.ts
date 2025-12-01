@@ -12,10 +12,13 @@ export function getCalendarChartController(): ChartComponent & {
   prototype: BarController;
   new (chart: Chart, datasetIndex: number): BarController;
 } {
-  return class CalendarChartController extends window.Chart.BarController {
+  if (!globalThis.Chart) {
+    throw new Error("Chart.js library is not loaded");
+  }
+  return class CalendarChartController extends globalThis.Chart.BarController {
     static id = "calendar";
     static defaults = {
-      ...window.Chart?.BarController.defaults,
+      ...globalThis.Chart?.BarController.defaults,
       dataElementType: "bar",
       animations: {
         numbers: { type: "number", properties: [] }, // Disable number animations (width, height, ...)

@@ -37,7 +37,10 @@ export async function chartToImageUrl(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new (globalThis as any).Chart(canvas, config as ChartConfiguration);
+    const chart = new globalThis.Chart!(
+      canvas as unknown as HTMLCanvasElement,
+      config as ChartConfiguration
+    );
     try {
       imageUrl = await canvasToObjectUrl(canvas);
     } finally {
