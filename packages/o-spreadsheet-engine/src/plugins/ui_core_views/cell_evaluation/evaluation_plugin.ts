@@ -226,11 +226,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   finalize() {
+    const positionSize = this.positionsToUpdate.positionSize();
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
-    } else if (!this.positionsToUpdate.isEmpty()) {
+    } else if (positionSize > 10_000) {
+      this.evaluator.evaluateAllCells();
+    } else if (positionSize) {
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
     this.positionsToUpdate = new RangeSet();
