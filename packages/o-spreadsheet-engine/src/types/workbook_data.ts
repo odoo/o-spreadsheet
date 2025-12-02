@@ -84,6 +84,7 @@ export interface WorkbookData {
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;
   customTableStyles: { [key: string]: TableStyleData };
+  namedRanges: { [name: string]: string };
 }
 
 export interface ExcelWorkbookData extends WorkbookData {

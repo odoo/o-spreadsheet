@@ -66,10 +66,44 @@ exports[`TopBar component simple rendering 1`] = `
       <!-- Toolbar -->
       
       <div
-        class="o-toolbar-tools d-flex ms-4 flex-grow-1"
+        class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
       >
         <div
-          class="d-flex tool-container"
+          class="d-flex h-100 o-named-range-selector-container align-items-center ms-2 me-1"
+        >
+          <div
+            class="o-named-range-selector d-flex align-items-center rounded p-1 my-1"
+          >
+            <div
+              class="position-relative"
+            >
+              <input
+                class="w-100 os-input"
+                type="text"
+              />
+              
+            </div>
+            
+            <div
+              class="o-hoverable-button"
+            >
+              <div
+                class="o-icon fa-small"
+              >
+                <i
+                  class="fa fa-caret-down"
+                />
+              </div>
+            </div>
+          </div>
+          
+          
+          <div
+            class="o-topbar-divider border-end"
+          />
+        </div>
+        <div
+          class="d-flex tool-container h-100"
           id="edit"
         >
           <span
@@ -185,7 +219,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container"
+          class="d-flex tool-container h-100"
           id="numberFormat"
         >
           <span
@@ -275,7 +309,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container"
+          class="d-flex tool-container h-100"
           id="fontSize"
         >
           <div
@@ -312,7 +346,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container"
+          class="d-flex tool-container h-100"
           id="textStyle"
         >
           <span
@@ -410,7 +444,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container"
+          class="d-flex tool-container h-100"
           id="cellStyle"
         >
           <div
@@ -489,7 +523,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container"
+          class="d-flex tool-container h-100"
           id="alignment"
         >
           <div
@@ -635,7 +669,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container"
+          class="d-flex tool-container h-100"
           id="misc"
         >
           <div

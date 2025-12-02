@@ -8,11 +8,18 @@
       background-color: var(--os-composer-assistant-background);
     }
     & > div {
-      padding: 1px 5px 5px 5px;
+      padding: 2px 5px 2px 5px;
       .o-autocomplete-description {
         padding-left: 5px;
         font-size: 11px;
       }
+    }
+
+    .o-icon {
+      width: 13px;
+      height: 13px;
+      font-size: 13px;
+      color: var(--os-text-body-muted);
     }
   }
 }

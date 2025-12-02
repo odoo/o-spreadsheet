@@ -25,7 +25,7 @@ import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
-import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
+import { excludeTopLeft, getZoneArea, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
 import { Getters } from "../../../types/getters";
@@ -120,6 +120,10 @@ export class Evaluator {
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
     this.formulaDependencies().addDependencies(position, dependencies);
+    this.computeDependencies(dependencies);
+  }
+
+  private computeDependencies(dependencies: Range[]) {
     for (const range of dependencies) {
       // ensure that all ranges are computed
       this.compilationParams.ensureRange(range, false);
@@ -560,13 +564,25 @@ export class Evaluator {
    * and error handling.
    */
   private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
-    const getSymbolValue = (symbolName: string) => {
+    const getSymbolValue = (symbolName: string, isRange: boolean, isMeta: boolean) => {
       if (this.symbolsBeingComputed.has(symbolName)) {
         return ERROR_CYCLE_CELL;
       }
       this.symbolsBeingComputed.add(symbolName);
       try {
-        const symbolValue = getContextualSymbolValue?.(symbolName);
+        const namedRange = this.getters.getNamedRange(symbolName);
+        if (namedRange) {
+          const ctx = this.compilationParams.evalContext;
+          ctx.__originCellPosition
+            ? this.addDependencies(ctx.__originCellPosition, [namedRange.range])
+            : this.computeDependencies([namedRange.range]);
+
+          const isMultiCellZone = getZoneArea(namedRange.range.zone) > 1;
+          return isMultiCellZone || isRange
+            ? this.compilationParams.ensureRange(namedRange.range, isMeta)
+            : this.compilationParams.referenceDenormalizer(namedRange.range, isMeta);
+        }
+        const symbolValue = getContextualSymbolValue?.(symbolName, isRange, isMeta);
         if (symbolValue) {
           return symbolValue;
         }
