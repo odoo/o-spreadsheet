@@ -577,8 +577,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   private updateComposerRange(oldZone: Zone, newZone: Zone | UnboundedZone) {
     const activeSheetId = this.getters.getActiveSheetId();
 
-    const tokentAtCursor = this.tokenAtCursor;
-    const tokens = tokentAtCursor ? [tokentAtCursor, ...this.currentTokens] : this.currentTokens;
+    // There may be multiple references in the formula that match the highlighted
+    // zone we want to update. We only want to update one reference.
+    const tokenAtCursor = this.tokenAtCursor;
+    const tokens = tokenAtCursor ? [tokenAtCursor, ...this.currentTokens] : this.currentTokens;
     const previousRefToken = tokens
       .filter((token) => token.type === "REFERENCE")
       .find((token) => {
@@ -830,7 +832,19 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const editionSheetId = this.sheetId;
     const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")
-      .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
+      .map((token) => {
+        if (!token.value.endsWith("#")) {
+          return this.getters.getRangeFromSheetXC(editionSheetId, token.value);
+        }
+        const reference = token.value.slice(0, -1);
+        const range = this.getters.getRangeFromSheetXC(editionSheetId, reference);
+        const spreadZone = this.getters.getSpreadZone({
+          sheetId: range.sheetId,
+          col: range.zone.left,
+          row: range.zone.top,
+        });
+        return this.getters.getRangeFromZone(editionSheetId, spreadZone!);
+      });
     return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
   }
 
