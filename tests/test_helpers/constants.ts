@@ -519,6 +519,21 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "Sheet1",
     chartId: "chartId",
   },
+  CREATE_NAMED_RANGE: {
+    type: "CREATE_NAMED_RANGE",
+    name: "MyNamedRange",
+    ranges: toRangesData("sheetId", "A1"),
+  },
+  UPDATE_NAMED_RANGE: {
+    type: "UPDATE_NAMED_RANGE",
+    oldRangeName: "MyNamedRange",
+    newRangeName: "MyNewNamedRange",
+    ranges: toRangesData("sheetId", "A1"),
+  },
+  DELETE_NAMED_RANGE: {
+    type: "DELETE_NAMED_RANGE",
+    name: "MyNamedRange",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
@@ -554,6 +569,8 @@ export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
   TEST_COMMANDS.ADD_DATA_VALIDATION_RULE,
   TEST_COMMANDS.CREATE_TABLE,
+  TEST_COMMANDS.CREATE_NAMED_RANGE,
+  TEST_COMMANDS.UPDATE_NAMED_RANGE,
 ];
 
 export const EN_LOCALE = DEFAULT_LOCALE;

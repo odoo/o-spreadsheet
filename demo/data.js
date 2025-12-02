@@ -48,8 +48,8 @@ export const demoData = {
         C5: "42",
         C7: "3",
         C9: "= SUM( C4:C5 )",
-        C10: "=SUM(C4:C7)",
-        C11: "=-(3 + C7 *SUM(C4:C7))",
+        C10: "=SUM(MyNamedRange)",
+        C11: "=-(3 + C7 *SUM(MyNamedRange))",
         C12: "=SUM(C9:C11)",
         C14: "=C14",
         C15: "=(+",
@@ -3898,6 +3898,9 @@ export const demoData = {
   },
   pivotNextId: 2,
   customTableStyles: {},
+  namedRanges: {
+    MyNamedRange: "Sheet1!C4:D10",
+  },
 };
 
 // Performance dataset

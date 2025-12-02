@@ -11,16 +11,19 @@
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === proposal_index}"
           t-on-click="() => this.props.onValueSelected(proposal)"
           t-on-pointermove="() => this.props.onValueHovered(proposal_index)">
-          <div class="o-autocomplete-value text-truncate">
-            <t t-set="htmlContent" t-value="proposal.htmlContent || [{ value: proposal.text}]"/>
-            <span
-              t-foreach="htmlContent"
-              t-as="content"
-              t-key="content_index"
-              t-att-class="content.classes?.join(' ')"
-              t-att-style="getCss(content)"
-              t-esc="content.value"
-            />
+          <div class="d-flex align-items-center gap-2">
+            <div t-if="proposal.icon" t-call="{{proposal.icon}}"/>
+            <div class="o-autocomplete-value text-truncate">
+              <t t-set="htmlContent" t-value="proposal.htmlContent || [{ value: proposal.text}]"/>
+              <span
+                t-foreach="htmlContent"
+                t-as="content"
+                t-key="content_index"
+                t-att-class="content.classes?.join(' ')"
+                t-att-style="getCss(content)"
+                t-esc="content.value"
+              />
+            </div>
           </div>
           <div
             class="o-autocomplete-description text-truncate"

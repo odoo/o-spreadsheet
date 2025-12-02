@@ -1,0 +1,14 @@
+<templates>
+  <t t-name="o-spreadsheet-NamedRangesPanel">
+    <div class="o-named-ranges">
+      <div class="o-named-range-list">
+        <t t-foreach="namedRanges" t-as="namedRange" t-key="namedRange_index">
+          <NamedRangePreview namedRange="namedRange"/>
+        </t>
+      </div>
+      <div class="o-named-range-add o-button-link p-4 float-end" t-on-click="addNewNamedRange">
+        + Add a new named range
+      </div>
+    </div>
+  </t>
+</templates>
