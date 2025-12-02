@@ -1,11 +1,19 @@
 import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
 import { concat, parseNumber, unquote } from "../helpers";
+import { canBeNamedRangeToken } from "../helpers/formulas";
 import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { FormulaToExecute, LiteralValues, UID } from "../types/misc";
+import {
+  ApplyRangeChange,
+  ApplyRenameNamedRange,
+  FormulaToExecute,
+  LiteralValues,
+  NamedRange,
+  UID,
+} from "../types/misc";
 import { Range, RangeStringOptions } from "../types/range";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
@@ -135,6 +143,19 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     );
   }
 
+  getNamedRangesInFormula(getters: CoreGetters): NamedRange[] {
+    const namedRanges: NamedRange[] = [];
+    for (let i = 0; i < this.tokens.length; i++) {
+      if (canBeNamedRangeToken(this.tokens, i)) {
+        const namedRange = getters.getNamedRange(this.tokens[i].value);
+        if (namedRange) {
+          namedRanges.push(namedRange);
+        }
+      }
+    }
+    return namedRanges;
+  }
+
   usesSymbol(symbol: string) {
     return this.symbols.some((s) => collator.compare(s, symbol) === 0);
   }
@@ -172,6 +193,64 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     return (
       firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === tokenValue
     );
+  }
+
+  adaptCompiledFormula(
+    applyChange: ApplyRangeChange,
+    applyUpdateNamedRange: ApplyRenameNamedRange
+  ): CompiledFormula {
+    const newDependencies: Range[] = [];
+    let hasChanges = false;
+    for (const range of this.rangeDependencies) {
+      const change = applyChange(range);
+      newDependencies.push(change.range);
+      if (change.changeType !== "NONE") {
+        hasChanges = true;
+      }
+    }
+
+    const tokenChanges = this.renameNamedRangeTokens(applyUpdateNamedRange);
+
+    if (hasChanges || tokenChanges) {
+      return new CompiledFormula(
+        this.sheetId,
+        tokenChanges?.newTokens || this.tokens,
+        this.literalValues,
+        tokenChanges?.newSymbols || this.symbols,
+        newDependencies,
+        this.isBadExpression,
+        compilationCacheKey(tokenChanges?.newTokens || this.tokens),
+        this.execute
+      );
+    }
+    return this;
+  }
+
+  /** Change the symbols and tokens on a named range change. Return undefined if nothing has changed. */
+  private renameNamedRangeTokens(
+    applyUpdateNamedRange: ApplyRenameNamedRange
+  ): { newSymbols: string[]; newTokens: Token[] } | undefined {
+    let hasChanged = false;
+    const newTokens: Token[] = [];
+    const newSymbols: string[] = [];
+    for (let i = 0; i < this.tokens.length; i++) {
+      let newToken = this.tokens[i];
+
+      if (canBeNamedRangeToken(this.tokens, i)) {
+        const newName = applyUpdateNamedRange(this.tokens[i].value);
+        if (newName !== this.tokens[i].value) {
+          hasChanged = true;
+          newToken = { ...this.tokens[i], value: newName };
+        }
+      }
+
+      newTokens.push(newToken);
+      if (newToken.type === "SYMBOL") {
+        newSymbols.push(newToken.value);
+      }
+    }
+
+    return hasChanged ? { newSymbols, newTokens } : undefined;
   }
 
   static IsBadExpression(formula: string): boolean {
@@ -450,7 +529,9 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(`getSymbolValue(this.symbols[${symbolIndex}])`);
+          return code.return(
+            `getSymbolValue(this.symbols[${symbolIndex}], ${hasRange}, ${isMeta})`
+          );
         case "EMPTY":
           return code.return("undefined");
       }

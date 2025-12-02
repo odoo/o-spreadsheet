@@ -1,4 +1,5 @@
 import {
+  ApplyRenameNamedRange,
   BasePlugin,
   CoreGetters,
   RangeAdapterFunctions,
@@ -21,10 +22,7 @@ import {
   adaptChartRange,
   duplicateLabelRangeInDuplicatedSheet,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import {
-  adaptFormulaStringRanges,
-  adaptStringRange,
-} from "@odoo/o-spreadsheet-engine/helpers/formulas";
+import { adaptFormulaString, adaptStringRange } from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -169,7 +167,8 @@ export class GaugeChart extends AbstractChart {
   static transformDefinition(
     chartSheetId: UID,
     definition: GaugeChartDefinition,
-    applyChange: RangeAdapter
+    applyChange: RangeAdapter,
+    namedRangeAdapter: ApplyRenameNamedRange
   ): GaugeChartDefinition {
     let dataRange: string | undefined;
     if (definition.dataRange) {
@@ -182,8 +181,9 @@ export class GaugeChart extends AbstractChart {
         dataRange = adaptedRange;
       }
     }
+
     const adaptFormula = (formula: string) =>
-      adaptFormulaStringRanges(chartSheetId, formula, applyChange);
+      adaptFormulaString(chartSheetId, formula, applyChange, namedRangeAdapter);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,

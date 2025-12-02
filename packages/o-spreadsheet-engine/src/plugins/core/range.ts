@@ -1,11 +1,13 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { rangeReference, splitReference } from "../../helpers";
-import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
+import { adaptFormulaString, adaptStringRange } from "../../helpers/formulas";
 import {
   createInvalidRange,
   createRange,
   createRangeFromXc,
   duplicateRangeInDuplicatedSheet,
+  getIdentityRangeAdapter,
+  getNamedRangeAdapter,
   getRangeAdapter,
   getRangeString,
   isFullColRange,
@@ -19,8 +21,10 @@ import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types
 import { CoreGetters } from "../../types/core_getters";
 import { CellErrorType } from "../../types/errors";
 import {
+  AdaptSheetName,
   ApplyRangeChange,
   ApplyRangeChangeResult,
+  ApplyRenameNamedRange,
   Dimension,
   RangeAdapter,
   RangeAdapterFunctions,
@@ -71,9 +75,33 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     if (this.isAdaptingRanges) {
       throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
     }
-    const rangeAdapter = getRangeAdapter(cmd);
-    if (rangeAdapter) {
-      this.executeOnAllRanges(rangeAdapter);
+
+    let rangeAdapter: RangeAdapter | undefined;
+    let applyRenameNamedRange: ApplyRenameNamedRange | undefined;
+
+    switch (cmd.type) {
+      case "UPDATE_NAMED_RANGE":
+        rangeAdapter = getIdentityRangeAdapter();
+        applyRenameNamedRange = getNamedRangeAdapter(cmd);
+        break;
+      default: {
+        rangeAdapter = getRangeAdapter(cmd);
+        applyRenameNamedRange = (name) => name;
+      }
+    }
+
+    if (rangeAdapter && applyRenameNamedRange) {
+      const applyChange = this.verifyRangeRemoved(rangeAdapter.applyChange);
+      const adapterFunctions: RangeAdapterFunctions = {
+        applyChange,
+        adaptRangeString: (defaultSheetId: UID, sheetXC: string) =>
+          adaptStringRange(defaultSheetId, sheetXC, rangeAdapter),
+        adaptFormulaString: (defaultSheetId: UID, formula: string) =>
+          adaptFormulaString(defaultSheetId, formula, rangeAdapter, applyRenameNamedRange),
+        adaptCompiledFormula: (compiledFormula) =>
+          compiledFormula.adaptCompiledFormula(applyChange, applyRenameNamedRange),
+      };
+      this.executeOnAllRanges(adapterFunctions, rangeAdapter.sheetId, rangeAdapter.sheetName);
     }
   }
 
@@ -95,15 +123,12 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     };
   }
 
-  private executeOnAllRanges(rangeAdapter: RangeAdapter) {
+  private executeOnAllRanges(
+    adapterFunctions: RangeAdapterFunctions,
+    sheetId: UID,
+    sheetName: AdaptSheetName
+  ) {
     this.isAdaptingRanges = true;
-    const adapterFunctions: RangeAdapterFunctions = {
-      applyChange: this.verifyRangeRemoved(rangeAdapter.applyChange),
-      adaptRangeString: (defaultSheetId: UID, sheetXC: string) =>
-        adaptStringRange(defaultSheetId, sheetXC, rangeAdapter),
-      adaptFormulaString: (defaultSheetId: UID, formula: string) =>
-        adaptFormulaStringRanges(defaultSheetId, formula, rangeAdapter),
-    };
     for (const provider of this.providers) {
       provider(adapterFunctions);
     }
@@ -195,13 +220,17 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
    */
-  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
-    if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
+  getRangeFromSheetXC(defaultSheetId: UID | undefined, sheetXC: string): Range {
+    if (!rangeReference.test(sheetXC)) {
       return createInvalidRange(sheetXC);
     }
 
     const { sheetName } = splitReference(sheetXC);
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
+    if (!sheetId || !this.getters.tryGetSheet(sheetId)) {
+      return createInvalidRange(sheetXC);
+    }
+
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 
@@ -211,7 +240,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   /**
    * Gets the string that represents the range as it is at the moment of the call.
    * The string will be prefixed with the sheet name if the call specified a sheet id in `forSheetId`
-   * different from the sheet on which the range has been created.
+   * different than the sheet on which the range has been created or if `forSheetId` is not specified.
    *
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
@@ -221,7 +250,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
    */
   getRangeString(
     range: Range,
-    forSheetId: UID,
+    forSheetId?: UID,
     options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
   ): string {
     if (!range) {

@@ -1,4 +1,4 @@
-import { CoreGetters } from "../index";
+import { ApplyRenameNamedRange, CoreGetters } from "../index";
 import { Registry } from "../registries/registry";
 import {
   AddColumnsRowsCommand,
@@ -119,7 +119,7 @@ export function isFullRowRange(range: Range): boolean {
 
 export function getRangeString(
   range: Range,
-  forSheetId: UID,
+  forSheetId: UID | undefined,
   getSheetName: (sheetId: UID) => string,
   options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
 ): string {
@@ -132,7 +132,8 @@ export function getRangeString(
   if (range.zone.left < 0 || range.zone.top < 0) {
     return CellErrorType.InvalidReference;
   }
-  const prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
+  const prefixSheet =
+    !forSheetId || range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
   let sheetName: string = "";
   if (prefixSheet) {
     if (range.invalidSheetName) {
@@ -294,6 +295,26 @@ export function orderRange(range: Range): Range {
 
 export function getRangeAdapter(cmd: CoreCommand): RangeAdapter | undefined {
   return rangeAdapterRegistry.get(cmd.type)?.(cmd);
+}
+
+export function getIdentityRangeAdapter(): RangeAdapter {
+  return {
+    applyChange: (range) => ({ changeType: "NONE", range }),
+    sheetId: "ignoredSheetId",
+    sheetName: { old: "ignoredSheetName", current: "ignoredSheetName" },
+  };
+}
+
+export function getNamedRangeAdapter(cmd: CoreCommand): ApplyRenameNamedRange | undefined {
+  if (cmd.type !== "UPDATE_NAMED_RANGE") {
+    return;
+  }
+  const lowerCaseOldName = cmd.oldRangeName.toLowerCase();
+  return (currentRangeName: string) => {
+    return currentRangeName.toLowerCase() === lowerCaseOldName
+      ? cmd.newRangeName
+      : currentRangeName;
+  };
 }
 
 type GetRangeAdapter<C extends CoreCommand> = (cmd: C) => RangeAdapter;

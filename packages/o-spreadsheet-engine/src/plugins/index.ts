@@ -11,6 +11,7 @@ import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
+import { NamedRangesPlugin } from "./core/named_range";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { SheetPlugin } from "./core/sheet";
@@ -75,6 +76,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin)
   .add("carousel", CarouselPlugin)
   .add("image", ImagePlugin)
+  .add("named_ranges", NamedRangesPlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
   .add("tableStyle", TableStylePlugin);

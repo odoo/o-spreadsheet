@@ -536,6 +536,21 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "UNLOCK_SHEET",
     sheetId: "Sheet1",
   },
+  CREATE_NAMED_RANGE: {
+    type: "CREATE_NAMED_RANGE",
+    name: "MyNamedRange",
+    ranges: toRangesData("sheetId", "A1"),
+  },
+  UPDATE_NAMED_RANGE: {
+    type: "UPDATE_NAMED_RANGE",
+    oldRangeName: "MyNamedRange",
+    newRangeName: "MyNewNamedRange",
+    ranges: toRangesData("sheetId", "A1"),
+  },
+  DELETE_NAMED_RANGE: {
+    type: "DELETE_NAMED_RANGE",
+    name: "MyNamedRange",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [

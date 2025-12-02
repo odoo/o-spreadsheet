@@ -484,6 +484,16 @@ topbarMenuRegistry
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
+  })
+  .addChild("named_range", ["data"], {
+    name: _t("Named ranges"),
+    execute: (env) => {
+      env.openSidePanel("NamedRangesPanel");
+    },
+    isEnabled: (env) => !env.isSmall,
+    isEnabledOnLockedSheet: true,
+    icon: "o-spreadsheet-Icon.NAMED_RANGE",
+    sequence: 35,
     separator: true,
   })
   .addChild("add_remove_data_filter", ["data"], {
