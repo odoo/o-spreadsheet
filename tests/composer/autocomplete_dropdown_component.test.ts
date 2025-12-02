@@ -5,7 +5,7 @@ import { registries } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { autoCompleteProviders } from "../../src/registries/auto_completes";
 import { Store } from "../../src/store_engine";
-import { addDataValidation, selectCell } from "../test_helpers/commands_helpers";
+import { addDataValidation, createNamedRange, selectCell } from "../test_helpers/commands_helpers";
 import {
   click,
   getElStyle,
@@ -417,6 +417,20 @@ describe("Functions autocomplete", () => {
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
     });
+  });
+
+  test("Function autocomplete also shows named ranges", async () => {
+    createNamedRange(model, "SuperRange", "B1:B10");
+    await typeInComposer("=S");
+
+    const autocompleteValues = fixture.querySelectorAll(".o-autocomplete-value");
+    expect(autocompleteValues).toHaveLength(3);
+    expect(autocompleteValues[0]).toHaveText("SUM");
+    expect(autocompleteValues[1]).toHaveText("SZZ");
+    expect(autocompleteValues[2]).toHaveText("SuperRange");
+
+    await simulateClick(autocompleteValues[2]);
+    expect(composerEl.textContent).toBe("=SuperRange");
   });
 });
 

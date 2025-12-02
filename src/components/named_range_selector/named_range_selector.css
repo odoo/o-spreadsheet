@@ -1,0 +1,21 @@
+.o-spreadsheet {
+  .o-named-range-selector-container {
+    width: 100px;
+
+    /* ADRM TODO: the whole container probably should be in topbar css */
+    margin-top: -1px;
+    margin-bottom: -1px;
+
+    .o-named-range-selector {
+      font-size: 13px;
+      &:hover {
+        background-color: var(--os-button-hover-bg);
+        color: var(--os-button-hover-text-color);
+
+        .o-icon {
+          color: var(--os-button-hover-text-color);
+        }
+      }
+    }
+  }
+}

@@ -2,9 +2,9 @@ import { COMPOSER_ASSISTANT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { getHtmlContentFromPattern } from "../../components/helpers/html_content_helpers";
 import { isFormula } from "../../helpers";
-import { autoCompleteProviders } from "./auto_complete_registry";
+import { AutoCompleteProposal, autoCompleteProviders } from "./auto_complete_registry";
 
-autoCompleteProviders.add("functions", {
+autoCompleteProviders.add("functions_and_named_ranges", {
   sequence: 100,
   autoSelectFirstProposal: true,
   maxDisplayedProposals: 10,
@@ -16,7 +16,7 @@ autoCompleteProviders.add("functions", {
     if (!isFormula(this.composer.currentContent)) {
       return [];
     }
-    const values = Object.entries(functionRegistry.content)
+    const values: AutoCompleteProposal[] = Object.entries(functionRegistry.content)
       .filter(([_, { hidden }]) => !hidden)
       .map(([text, { description }]) => {
         return {
@@ -29,10 +29,26 @@ autoCompleteProviders.add("functions", {
             "o-semi-bold"
           ),
         };
-      })
-      .sort((a, b) => {
-        return a.text.length - b.text.length || a.text.localeCompare(b.text);
       });
+
+    values.push(
+      ...this.getters.getNamedRanges().map((namedRange) => {
+        return {
+          text: namedRange.rangeName,
+          description: this.getters.getRangeString(namedRange.range),
+          icon: "o-spreadsheet-Icon.NAMED_RANGE",
+          htmlContent: getHtmlContentFromPattern(
+            searchTerm,
+            namedRange.rangeName,
+            COMPOSER_ASSISTANT_COLOR,
+            "o-semi-bold"
+          ),
+        };
+      })
+    );
+    values.sort((a, b) => {
+      return a.text.length - b.text.length || a.text.localeCompare(b.text);
+    });
     return values;
   },
   selectProposal(tokenAtCursor, proposal) {

@@ -576,6 +576,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
+    // ADRM TODO: ask Lucas. And add the additional argument everywhere.
     const compiledFormula = compile(content);
     if (compiledFormula.dependencies.length) {
       return this.createFormulaCellWithDependencies(id, compiledFormula, format, sheetId);

@@ -17,8 +17,4 @@
   .fa-small {
     font-size: 14px;
   }
-
-  .o-icon.fx-icon {
-    color: var(--os-composer-placeholder-color);
-  }
 }

@@ -10,6 +10,7 @@ import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
+import { NamedRangesPlugin } from "../plugins/core/named_range";
 import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
@@ -85,4 +86,5 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof SettingsPlugin> &
   PluginGetters<typeof HeaderGroupingPlugin> &
   PluginGetters<typeof DataValidationPlugin> &
+  PluginGetters<typeof NamedRangesPlugin> &
   PluginGetters<typeof PivotCorePlugin>;

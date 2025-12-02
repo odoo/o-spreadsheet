@@ -17,6 +17,10 @@
       border-color: var(--os-selection-border-color) !important;
       z-index: var(--os-components-importance-top-bar-composer);
     }
+
+    .o-icon.fx-icon {
+      color: var(--os-composer-placeholder-color);
+    }
   }
 
   .user-select-text {

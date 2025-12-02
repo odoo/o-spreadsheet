@@ -93,7 +93,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     if (ast.type === "EMPTY") {
       throw new BadExpressionError(_t("Invalid formula"));
     }
-    const compiledAST = compileAST(ast);
+    const compiledAST = compileAST(ast, false, false);
     const code = new FunctionCodeBuilder();
     code.append(`// ${cacheKey}`);
     code.append(compiledAST);
@@ -204,7 +204,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
             tokenStartIndex: 0,
             tokenEndIndex: 0,
           };
-          return compileAST(arrayFunctionCall);
+          return compileAST(arrayFunctionCall, false, false);
         }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
@@ -224,7 +224,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(`getSymbolValue(this.symbols[${symbolIndex}])`);
+          return code.return(
+            `getSymbolValue(this.symbols[${symbolIndex}], ${hasRange}, ${isMeta}, ref, range, ctx)`
+          );
         case "EMPTY":
           return code.return("undefined");
       }

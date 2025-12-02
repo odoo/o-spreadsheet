@@ -469,27 +469,25 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   onBlur(ev: FocusEvent) {
-    if (this.props.composerStore.editionMode === "inactive") {
-      return;
-    }
-    const target = ev.relatedTarget;
-    if (!target || !(target instanceof HTMLElement)) {
-      this.props.composerStore.stopEdition();
-      return;
-    }
-
-    if (this.containerRef.el?.contains(ev.relatedTarget as Node)) {
-      return;
-    }
-
-    if (target.attributes.getNamedItem("composerFocusableElement")) {
-      this.contentHelper.el.focus();
-      return;
-    }
-    if (target.classList.contains("o-composer")) {
-      return;
-    }
-    this.props.composerStore.stopEdition();
+    // if (this.props.composerStore.editionMode === "inactive") {
+    //   return;
+    // }
+    // const target = ev.relatedTarget;
+    // if (!target || !(target instanceof HTMLElement)) {
+    //   this.props.composerStore.stopEdition();
+    //   return;
+    // }
+    // if (this.containerRef.el?.contains(ev.relatedTarget as Node)) {
+    //   return;
+    // }
+    // if (target.attributes.getNamedItem("composerFocusableElement")) {
+    //   this.contentHelper.el.focus();
+    //   return;
+    // }
+    // if (target.classList.contains("o-composer")) {
+    //   return;
+    // }
+    // this.props.composerStore.stopEdition();
   }
 
   /**

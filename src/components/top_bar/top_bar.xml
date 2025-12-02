@@ -64,7 +64,10 @@
             </div>
           </div>
         </div>
-        <TopBarComposer t-if="!env.isSmall"/>
+        <div class="d-flex">
+          <NamedRangeSelector/>
+          <TopBarComposer t-if="!env.isSmall"/>
+        </div>
       </t>
       <div
         t-if="this.fingerprints.isEnabled"
