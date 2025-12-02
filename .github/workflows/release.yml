@@ -27,8 +27,16 @@ jobs:
         with:
           tag: ${{ fromJSON(steps.parse.outputs.data).version }}
           body: ${{ fromJSON(steps.parse.outputs.data).body }}
+<<<<<<< 468dc613fc17d08d69e2c4ffaf8e5cc45541c5b1
           artifacts: "./dist/*.*"
           makeLatest: false
+||||||| 6b7c8085ad82f836da1caae405901921b100ddf9
+          artifacts: "./dist/*.*"
+          makeLatest: true
+=======
+          artifacts: "./dist/*.*,./dist/o_spreadsheet.css"
+          makeLatest: true
+>>>>>>> ffdd8e13907ae20046510e57287191247436f398
           prerelease: ${{ fromJSON(steps.parse.outputs.data).prerelease }}
       - name: Publish
         run: npm publish
