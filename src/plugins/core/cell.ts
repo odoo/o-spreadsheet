@@ -1,8 +1,15 @@
-import { DEFAULT_STYLE } from "../../constants";
+import { DEFAULT_NUMBER_STYLE, DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones, toZone } from "../../helpers";
+import {
+  deepEquals,
+  isExcelCompatible,
+  isNumber,
+  isTextFormat,
+  recomputeZones,
+  toZone,
+} from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { getItemId, groupItemIdsByZones } from "../../helpers/data_normalization";
 import {
@@ -25,6 +32,7 @@ import {
   CommandResult,
   CompiledFormula,
   CoreCommand,
+  DEFAULT_LOCALE,
   ExcelCellData,
   ExcelWorkbookData,
   Format,
@@ -328,7 +336,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-        const style = this.removeDefaultStyleValues(cell.style);
+        const style = this.extractCustomStyle(cell);
         if (Object.keys(style).length) {
           const styleId = getItemId<Style>(style, styles);
           positionsByStyle[styleId] ??= [];
@@ -371,10 +379,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
         if (cell?.style) {
           sheet.cells[xc] ??= {} as ExcelCellData;
-          sheet.cells[xc]!.style = getItemId<Style>(
-            this.removeDefaultStyleValues(cell.style),
-            data.styles
-          );
+          sheet.cells[xc]!.style = getItemId<Style>(this.extractCustomStyle(cell), data.styles);
         }
       }
     }
@@ -398,10 +403,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private removeDefaultStyleValues(style: Style | undefined): Style {
-    const cleanedStyle = { ...style };
-    for (const property in DEFAULT_STYLE) {
-      if (cleanedStyle[property] === DEFAULT_STYLE[property]) {
+  private extractCustomStyle(cell: Cell): Style {
+    const cleanedStyle = { ...cell.style };
+    const defaultStyle = isNumber(cell.content, DEFAULT_LOCALE)
+      ? DEFAULT_NUMBER_STYLE
+      : DEFAULT_STYLE;
+    for (const property in cleanedStyle) {
+      if (
+        (property !== "align" || !cell.isFormula) &&
+        cleanedStyle[property] === defaultStyle[property]
+      ) {
         delete cleanedStyle[property];
       }
     }
