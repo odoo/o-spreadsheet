@@ -241,15 +241,15 @@ describe("Table plugin", () => {
         sheetNameTo: "Copy of Sheet1",
       });
       expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([
-        { zone: "A1:A3", value: ["C"] },
+        { zone: "A1:A3", value: ["c"] },
       ]);
       updateFilter(model, "A1", ["D"], sheet2Id);
 
       expect(getFilterHiddenValues(model, sheetId)).toMatchObject([
-        { zone: "A1:A3", value: ["C"] },
+        { zone: "A1:A3", value: ["c"] },
       ]);
       expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([
-        { zone: "A1:A3", value: ["D"] },
+        { zone: "A1:A3", value: ["d"] },
       ]);
     });
 
@@ -313,7 +313,7 @@ describe("Table plugin", () => {
       setCellContent(model, "B5", "Something Else");
       expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:B5");
       expect(getFilterHiddenValues(model)).toEqual([
-        { zone: "A1:A5", value: ["C"] },
+        { zone: "A1:A5", value: ["c"] },
         { zone: "B1:B5", value: [] },
       ]);
     });
@@ -325,7 +325,7 @@ describe("Table plugin", () => {
       setCellContent(model, "C3", "Something Else");
       expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("B1:C3");
       expect(getFilterHiddenValues(model)).toEqual([
-        { zone: "B1:B3", value: ["C"] },
+        { zone: "B1:B3", value: ["c"] },
         { zone: "C1:C3", value: [] },
       ]);
     });
@@ -421,10 +421,10 @@ describe("Table plugin", () => {
         addColumns(model, "before", "A", 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("D3:G6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "D3:D6", value: ["C"] },
-          { zone: "E3:E6", value: ["D"] },
-          { zone: "F3:F6", value: ["E"] },
-          { zone: "G3:G6", value: ["F"] },
+          { zone: "D3:D6", value: ["c"] },
+          { zone: "E3:E6", value: ["d"] },
+          { zone: "F3:F6", value: ["e"] },
+          { zone: "G3:G6", value: ["f"] },
         ]);
       });
 
@@ -432,10 +432,10 @@ describe("Table plugin", () => {
         addColumns(model, "before", "C", 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("D3:G6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "D3:D6", value: ["C"] },
-          { zone: "E3:E6", value: ["D"] },
-          { zone: "F3:F6", value: ["E"] },
-          { zone: "G3:G6", value: ["F"] },
+          { zone: "D3:D6", value: ["c"] },
+          { zone: "E3:E6", value: ["d"] },
+          { zone: "F3:F6", value: ["e"] },
+          { zone: "G3:G6", value: ["f"] },
         ]);
       });
 
@@ -443,11 +443,11 @@ describe("Table plugin", () => {
         addColumns(model, "after", "C", 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:G6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
+          { zone: "C3:C6", value: ["c"] },
           { zone: "D3:D6", value: [] },
-          { zone: "E3:E6", value: ["D"] },
-          { zone: "F3:F6", value: ["E"] },
-          { zone: "G3:G6", value: ["F"] },
+          { zone: "E3:E6", value: ["d"] },
+          { zone: "F3:F6", value: ["e"] },
+          { zone: "G3:G6", value: ["f"] },
         ]);
       });
 
@@ -455,11 +455,11 @@ describe("Table plugin", () => {
         addColumns(model, "before", "F", 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:G6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
           { zone: "F3:F6", value: [] },
-          { zone: "G3:G6", value: ["F"] },
+          { zone: "G3:G6", value: ["f"] },
         ]);
       });
 
@@ -467,10 +467,10 @@ describe("Table plugin", () => {
         addColumns(model, "after", "F", 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
-          { zone: "F3:F6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
+          { zone: "F3:F6", value: ["f"] },
         ]);
       });
 
@@ -478,10 +478,10 @@ describe("Table plugin", () => {
         addColumns(model, "after", "H", 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
-          { zone: "F3:F6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
+          { zone: "F3:F6", value: ["f"] },
         ]);
       });
     });
@@ -491,10 +491,10 @@ describe("Table plugin", () => {
         deleteColumns(model, ["A"]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("B3:E6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "B3:B6", value: ["C"] },
-          { zone: "C3:C6", value: ["D"] },
-          { zone: "D3:D6", value: ["E"] },
-          { zone: "E3:E6", value: ["F"] },
+          { zone: "B3:B6", value: ["c"] },
+          { zone: "C3:C6", value: ["d"] },
+          { zone: "D3:D6", value: ["e"] },
+          { zone: "E3:E6", value: ["f"] },
         ]);
       });
 
@@ -502,9 +502,9 @@ describe("Table plugin", () => {
         deleteColumns(model, ["C"]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:E6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["D"] },
-          { zone: "D3:D6", value: ["E"] },
-          { zone: "E3:E6", value: ["F"] },
+          { zone: "C3:C6", value: ["d"] },
+          { zone: "D3:D6", value: ["e"] },
+          { zone: "E3:E6", value: ["f"] },
         ]);
       });
 
@@ -512,9 +512,9 @@ describe("Table plugin", () => {
         deleteColumns(model, ["D"]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:E6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["E"] },
-          { zone: "E3:E6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["e"] },
+          { zone: "E3:E6", value: ["f"] },
         ]);
       });
 
@@ -522,9 +522,9 @@ describe("Table plugin", () => {
         deleteColumns(model, ["F"]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:E6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
         ]);
       });
 
@@ -532,10 +532,10 @@ describe("Table plugin", () => {
         deleteColumns(model, ["H"]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
-          { zone: "F3:F6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
+          { zone: "F3:F6", value: ["f"] },
         ]);
       });
 
@@ -550,10 +550,10 @@ describe("Table plugin", () => {
         addRows(model, "before", 0, 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C4:F7"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C4:C7", value: ["C"] },
-          { zone: "D4:D7", value: ["D"] },
-          { zone: "E4:E7", value: ["E"] },
-          { zone: "F4:F7", value: ["F"] },
+          { zone: "C4:C7", value: ["c"] },
+          { zone: "D4:D7", value: ["d"] },
+          { zone: "E4:E7", value: ["e"] },
+          { zone: "F4:F7", value: ["f"] },
         ]);
       });
 
@@ -561,10 +561,10 @@ describe("Table plugin", () => {
         addRows(model, "before", 2, 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C4:F7"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C4:C7", value: ["C"] },
-          { zone: "D4:D7", value: ["D"] },
-          { zone: "E4:E7", value: ["E"] },
-          { zone: "F4:F7", value: ["F"] },
+          { zone: "C4:C7", value: ["c"] },
+          { zone: "D4:D7", value: ["d"] },
+          { zone: "E4:E7", value: ["e"] },
+          { zone: "F4:F7", value: ["f"] },
         ]);
       });
 
@@ -572,10 +572,10 @@ describe("Table plugin", () => {
         addRows(model, "after", 2, 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F7"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C7", value: ["C"] },
-          { zone: "D3:D7", value: ["D"] },
-          { zone: "E3:E7", value: ["E"] },
-          { zone: "F3:F7", value: ["F"] },
+          { zone: "C3:C7", value: ["c"] },
+          { zone: "D3:D7", value: ["d"] },
+          { zone: "E3:E7", value: ["e"] },
+          { zone: "F3:F7", value: ["f"] },
         ]);
       });
 
@@ -583,10 +583,10 @@ describe("Table plugin", () => {
         addRows(model, "before", 5, 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F7"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C7", value: ["C"] },
-          { zone: "D3:D7", value: ["D"] },
-          { zone: "E3:E7", value: ["E"] },
-          { zone: "F3:F7", value: ["F"] },
+          { zone: "C3:C7", value: ["c"] },
+          { zone: "D3:D7", value: ["d"] },
+          { zone: "E3:E7", value: ["e"] },
+          { zone: "F3:F7", value: ["f"] },
         ]);
       });
 
@@ -594,10 +594,10 @@ describe("Table plugin", () => {
         addRows(model, "after", 5, 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
-          { zone: "F3:F6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
+          { zone: "F3:F6", value: ["f"] },
         ]);
       });
 
@@ -605,10 +605,10 @@ describe("Table plugin", () => {
         addRows(model, "after", 7, 1);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
-          { zone: "F3:F6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
+          { zone: "F3:F6", value: ["f"] },
         ]);
       });
     });
@@ -618,10 +618,10 @@ describe("Table plugin", () => {
         deleteRows(model, [0]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C2:F5"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C2:C5", value: ["C"] },
-          { zone: "D2:D5", value: ["D"] },
-          { zone: "E2:E5", value: ["E"] },
-          { zone: "F2:F5", value: ["F"] },
+          { zone: "C2:C5", value: ["c"] },
+          { zone: "D2:D5", value: ["d"] },
+          { zone: "E2:E5", value: ["e"] },
+          { zone: "F2:F5", value: ["f"] },
         ]);
       });
 
@@ -629,10 +629,10 @@ describe("Table plugin", () => {
         deleteRows(model, [3]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F5"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C5", value: ["C"] },
-          { zone: "D3:D5", value: ["D"] },
-          { zone: "E3:E5", value: ["E"] },
-          { zone: "F3:F5", value: ["F"] },
+          { zone: "C3:C5", value: ["c"] },
+          { zone: "D3:D5", value: ["d"] },
+          { zone: "E3:E5", value: ["e"] },
+          { zone: "F3:F5", value: ["f"] },
         ]);
       });
 
@@ -640,10 +640,10 @@ describe("Table plugin", () => {
         deleteRows(model, [5]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F5"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C5", value: ["C"] },
-          { zone: "D3:D5", value: ["D"] },
-          { zone: "E3:E5", value: ["E"] },
-          { zone: "F3:F5", value: ["F"] },
+          { zone: "C3:C5", value: ["c"] },
+          { zone: "D3:D5", value: ["d"] },
+          { zone: "E3:E5", value: ["e"] },
+          { zone: "F3:F5", value: ["f"] },
         ]);
       });
 
@@ -651,10 +651,10 @@ describe("Table plugin", () => {
         deleteRows(model, [7]);
         expect(model.getters.getTables(sheetId)[0].range.zone).toEqual(toZone("C3:F6"));
         expect(getFilterHiddenValues(model)).toEqual([
-          { zone: "C3:C6", value: ["C"] },
-          { zone: "D3:D6", value: ["D"] },
-          { zone: "E3:E6", value: ["E"] },
-          { zone: "F3:F6", value: ["F"] },
+          { zone: "C3:C6", value: ["c"] },
+          { zone: "D3:D6", value: ["d"] },
+          { zone: "E3:E6", value: ["e"] },
+          { zone: "F3:F6", value: ["f"] },
         ]);
       });
 
