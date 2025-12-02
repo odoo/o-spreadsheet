@@ -59,6 +59,7 @@ let spreadsheetHeight = 1000;
 const moreToolsContainerWidth = 50;
 const moreToolsWidth = 50;
 const toolWidth = 100;
+const namedRangeWidth = 150;
 
 beforeEach(() => {
   extendMockGetBoundingClientRect({
@@ -67,6 +68,10 @@ beforeEach(() => {
     "o-topbar-responsive": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
     "o-toolbar-tools": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: topBarToolsHeight }),
     "tool-container": () => ({ x: 0, y: 0, width: toolWidth, height: topBarToolsHeight }),
+    "o-named-range-selector-container": () => ({
+      width: namedRangeWidth,
+      height: topBarToolsHeight,
+    }),
     "more-tools-container": () => ({
       x: 0,
       y: 0,
@@ -1102,20 +1107,15 @@ test("Clicking on a topbar button triggers two renders", async () => {
 describe("Responsive Top bar behaviour", () => {
   const categories = topBarToolBarRegistry.getCategories();
   describe("items are hidden when the screen is resized", () => {
-    const topbarToolsWidthThresholds = [750, 650];
-    const widthThresholds = topbarToolsWidthThresholds.map((threshold, index) => [
-      threshold,
-      index,
-    ]);
-
-    test.each(widthThresholds)("Screen slightly smaller than %spx ", async (threshold, index) => {
+    test.each([750, 650])("Screen slightly smaller than %spx ", async (threshold) => {
       spreadsheetWidth = threshold - 1;
       await mountParent();
       await nextTick();
       const tools = [...fixture.querySelectorAll(".o-toolbar-tools .tool-container")].filter(
         (element) => !element.classList.contains("d-none")
       );
-      expect(tools.length).toBe(categories.length - (index + 1));
+      const availableWidth = spreadsheetWidth - moreToolsContainerWidth - namedRangeWidth;
+      expect(tools.length).toBe(Math.floor(availableWidth / toolWidth));
     });
 
     test("toolbar items hidden are available in a popover", async () => {
@@ -1170,7 +1170,7 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking the grid", async () => {
-    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
     const { fixture } = await mountSpreadsheet();
     await nextTick();
     await click(fixture, ".more-tools");
@@ -1181,7 +1181,7 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking visible tools", async () => {
-    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
     await mountParent();
     await nextTick();
     await click(fixture, ".more-tools");
@@ -1191,7 +1191,7 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking top bar menus", async () => {
-    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
     await mountParent();
     await nextTick();
     await click(fixture, ".more-tools");

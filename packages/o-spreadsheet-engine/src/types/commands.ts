@@ -141,6 +141,9 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "RENAME_PIVOT",
   "REMOVE_PIVOT",
   "DUPLICATE_PIVOT",
+  "CREATE_NAMED_RANGE",
+  "UPDATE_NAMED_RANGE",
+  "DELETE_NAMED_RANGE",
 ]);
 
 export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
@@ -336,6 +339,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** MISC */
   "UPDATE_LOCALE",
+  "CREATE_NAMED_RANGE",
+  "UPDATE_NAMED_RANGE",
+  "DELETE_NAMED_RANGE",
 
   /** PIVOT */
   "ADD_PIVOT",
@@ -876,6 +882,22 @@ export interface UnlockSheetCommand extends SheetDependentCommand {
   type: "UNLOCK_SHEET";
 }
 
+export interface CreateNamedRangeCommand extends RangesDependentCommand {
+  type: "CREATE_NAMED_RANGE";
+  name: string;
+}
+
+export interface UpdateNamedRangeCommand extends RangesDependentCommand {
+  type: "UPDATE_NAMED_RANGE";
+  oldRangeName: string;
+  newRangeName: string;
+}
+
+export interface DeleteNamedRangeCommand {
+  type: "DELETE_NAMED_RANGE";
+  name: string;
+}
+
 //#endregion
 
 //#region Local Commands
@@ -1266,6 +1288,9 @@ export type CoreCommand =
 
   /** MISC */
   | UpdateLocaleCommand
+  | CreateNamedRangeCommand
+  | UpdateNamedRangeCommand
+  | DeleteNamedRangeCommand
 
   /** PIVOT */
   | AddPivotCommand
@@ -1516,6 +1541,10 @@ export const enum CommandResult {
   InvalidCarouselItem = "InvalidCarouselItem",
   SheetLocked = "SheetLocked",
   InvalidZoomLevel = "InvalidZoomLevel",
+  NamedRangeNameAlreadyExists = "NamedRangeNameAlreadyExists",
+  NamedRangeNameWithInvalidCharacter = "NamedRangeNameWithInvalidCharacter",
+  NamedRangeNameLooksLikeCellReference = "NamedRangeNameLooksLikeCellReference",
+  NamedRangeNotFound = "NamedRangeNotFound",
 }
 
 export interface CommandHandler<T> {

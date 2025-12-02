@@ -12,6 +12,7 @@ import {
   addColumns,
   copy,
   createGaugeChart,
+  createNamedRange,
   createSheet,
   deleteSheet,
   duplicateSheet,
@@ -22,6 +23,7 @@ import {
   setFormat,
   undo,
   updateChart,
+  updateNamedRange,
 } from "../../../test_helpers/commands_helpers";
 
 let model: Model;
@@ -195,6 +197,22 @@ describe("datasource tests", function () {
         rangeMax: "=C8",
         lowerInflectionPoint: { operator: "<", type: "percentage", value: "=Boom!A2" },
         upperInflectionPoint: { operator: "<", type: "number", value: "=SUM(Magic!B1:C4)" },
+      });
+    });
+
+    test("gauge formulas are adapted when renaming a named range", () => {
+      createNamedRange(model, "MyNamedRange", "A8");
+      updateChart(model, "chartId", {
+        sectionRule: {
+          ...randomSectionRule,
+          lowerInflectionPoint: { operator: "<", type: "number", value: "=MyNamedRange" },
+        },
+      });
+
+      updateNamedRange(model, "MyNamedRange", "BoomNamedRange", "A8");
+      const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
+      expect(chart.sectionRule).toMatchObject({
+        lowerInflectionPoint: { operator: "<", type: "number", value: "=BoomNamedRange" },
       });
     });
   });

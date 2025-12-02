@@ -10,6 +10,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  createNamedRange,
   createSheet,
   deleteCells,
   deleteColumns,
@@ -815,6 +816,17 @@ describe("Columns", () => {
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:G3"));
     });
   });
+
+  test("Named ranges are updated", () => {
+    model = new Model();
+    createNamedRange(model, "Hey", "B2:C3");
+
+    addColumns(model, "before", "B", 2);
+    expect(model.getters.getNamedRange("Hey")).toMatchObject({ range: { zone: toZone("D2:E3") } });
+
+    deleteColumns(model, ["D"]);
+    expect(model.getters.getNamedRange("Hey")).toMatchObject({ range: { zone: toZone("D2:D3") } });
+  });
 });
 
 //------------------------------------------------------------------------------
@@ -1487,6 +1499,17 @@ describe("Rows", () => {
       expect(model.getters.getNumberRows("1")).toBe(3);
       expect(model.getters.getNumberRows("2")).toBe(5);
     });
+  });
+
+  test("Named ranges are updated", () => {
+    model = new Model();
+    createNamedRange(model, "Hey", "B2:C3");
+
+    addRows(model, "before", 1, 2);
+    expect(model.getters.getNamedRange("Hey")).toMatchObject({ range: { zone: toZone("B4:C5") } });
+
+    deleteRows(model, [3, 4]);
+    expect(model.getters.getNamedRange("Hey")).toBeUndefined();
   });
 });
 

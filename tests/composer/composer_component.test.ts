@@ -5,6 +5,7 @@ import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Store } from "../../src/store_engine";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
+  createNamedRange,
   createSheet,
   createSheetWithName,
   merge,
@@ -1644,6 +1645,19 @@ describe("composer highlights color", () => {
     expect(highlights[0].range.zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
     expect(highlights[1].range.sheetId).toBe("42");
     expect(highlights[1].range.zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
+  });
+
+  test("named ranges are highlighted but not interactive", async () => {
+    createNamedRange(model, "MyRange", "A1:B2");
+    createNamedRange(model, "MyRange2", "A1:A2");
+    setCellContent(model, "A1", "=MyRange + B2 + MyRange2");
+    await startComposition();
+    expect(composerStore.highlights.length).toBe(3);
+    expect(composerStore.highlights).toMatchObject([
+      { range: { zone: toZone("A1:B2") }, color: colors[0], interactive: false },
+      { range: { zone: toZone("B2") }, color: colors[1], interactive: true },
+      { range: { zone: toZone("A1:A2") }, color: colors[2], interactive: false },
+    ]);
   });
 });
 

@@ -2,7 +2,6 @@ import { transform } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
-  AddConditionalFormatCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
   MoveRangeCommand,
@@ -58,7 +57,6 @@ describe("OT with DELETE_SHEET", () => {
   describe.each([
     ...OT_TESTS_SINGLE_CELL_COMMANDS,
     ...TEST_COMMANDS_TARGET_DEPENDENT,
-    ...TEST_COMMANDS_RANGE_DEPENDENT,
     ...TEST_COMMANDS_ZONE_DEPENDENT,
     addColumns,
     addRows,
@@ -146,28 +144,37 @@ describe("OT with DELETE_SHEET", () => {
   });
 
   describe("Delete sheet with range dependant command", () => {
-    const addCF: AddConditionalFormatCommand = { ...TEST_COMMANDS.ADD_CONDITIONAL_FORMAT };
+    test.each(TEST_COMMANDS_RANGE_DEPENDENT.filter((cmd) => "sheetId" in cmd))(
+      "Delete the sheet of the command",
+      (cmd) => {
+        const cmdToTransform = {
+          ...cmd,
+          sheetId: deletedSheetId,
+          ranges: toRangesData(sheetId, "A1:B1"),
+        };
+        const result = transform(cmdToTransform, deleteSheet);
+        expect(result).toBeUndefined();
+      }
+    );
 
-    test("Delete the sheet of the command", () => {
-      const cmd = { ...addCF, sheetId: deletedSheetId, ranges: toRangesData(sheetId, "A1:B1") };
-      const result = transform(cmd, deleteSheet);
+    test.each(TEST_COMMANDS_RANGE_DEPENDENT)("Delete the sheet of the ranges", (cmd) => {
+      const cmdToTransform = {
+        ...cmd,
+        sheetId: sheetId,
+        ranges: toRangesData(deletedSheetId, "A1:B1"),
+      };
+      const result = transform(cmdToTransform, deleteSheet);
       expect(result).toBeUndefined();
     });
 
-    test("Delete the sheet of the ranges", () => {
-      const cmd = { ...addCF, sheetId: sheetId, ranges: toRangesData(deletedSheetId, "A1:B1") };
-      const result = transform(cmd, deleteSheet);
-      expect(result).toBeUndefined();
-    });
-
-    test("Delete the sheet of some of the ranges", () => {
-      const cmd = {
-        ...addCF,
+    test.each(TEST_COMMANDS_RANGE_DEPENDENT)("Delete the sheet of some of the ranges", (cmd) => {
+      const cmdToTransform = {
+        ...cmd,
         sheetId: sheetId,
         ranges: [...toRangesData(deletedSheetId, "A1:B1"), ...toRangesData(sheetId, "A1:B1")],
       };
-      const result = transform(cmd, deleteSheet);
-      expect(result).toEqual({ ...cmd, ranges: toRangesData(sheetId, "A1:B1") });
+      const result = transform(cmdToTransform, deleteSheet);
+      expect(result).toEqual({ ...cmdToTransform, ranges: toRangesData(sheetId, "A1:B1") });
     });
   });
 
