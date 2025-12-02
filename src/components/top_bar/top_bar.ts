@@ -22,6 +22,7 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
 import { Popover, PopoverProps } from "../popover";
 import { TopBarToolStore } from "./top_bar_tool_store";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
@@ -51,6 +52,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     MenuPopover,
     TopBarComposer,
     Popover,
+    NamedRangeSelector,
   };
 
   toolsCategories = topBarToolBarRegistry.getCategories();

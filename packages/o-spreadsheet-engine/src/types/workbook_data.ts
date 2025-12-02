@@ -11,11 +11,13 @@ import {
   Dimension,
   HeaderGroup,
   HeaderIndex,
+  NamedRange,
   PaneDivision,
   Pixel,
   PixelPosition,
   Style,
   UID,
+  UnboundedZone,
 } from "./misc";
 import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
@@ -84,6 +86,7 @@ export interface WorkbookData {
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;
   customTableStyles: { [key: string]: TableStyleData };
+  namedRanges: NamedRangeData[];
 }
 
 export interface ExcelWorkbookData extends WorkbookData {
@@ -113,6 +116,11 @@ export interface TableData {
 
 export interface DataValidationRuleData extends Omit<DataValidationRule, "ranges"> {
   ranges: string[];
+}
+
+export interface NamedRangeData extends Omit<NamedRange, "range"> {
+  zone: UnboundedZone;
+  sheetId: UID;
 }
 
 export interface ExcelTableData {

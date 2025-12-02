@@ -24,17 +24,20 @@ import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
-import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
+import { excludeTopLeft, getZoneArea, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
+import { EvalContext } from "../../../types/functions";
 import { Getters } from "../../../types/getters";
 import {
   CellPosition,
+  EnsureRange,
   FunctionResultObject,
   GetSymbolValue,
   isMatrix,
   Matrix,
   RangeCompiledFormula,
+  ReferenceDenormalizer,
   UID,
   Zone,
 } from "../../../types/misc";
@@ -115,6 +118,10 @@ export class Evaluator {
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
     this.formulaDependencies().addDependencies(position, dependencies);
+    this.computeDependencies(dependencies);
+  }
+
+  private computeDependencies(dependencies: Range[]) {
     for (const range of dependencies) {
       const sheetId = range.sheetId;
       const { left, bottom, right, top } = range.zone;
@@ -557,13 +564,38 @@ export class Evaluator {
    * and error handling.
    */
   private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
-    const getSymbolValue = (symbolName: string) => {
+    const getSymbolValue = (
+      symbolName: string,
+      isRange: boolean,
+      isMeta: boolean,
+      refFn: ReferenceDenormalizer,
+      range: EnsureRange,
+      ctx: EvalContext
+    ) => {
       if (this.symbolsBeingComputed.has(symbolName)) {
         return ERROR_CYCLE_CELL;
       }
       this.symbolsBeingComputed.add(symbolName);
       try {
-        const symbolValue = getContextualSymbolValue?.(symbolName);
+        const namedRange = this.getters.getNamedRange(symbolName);
+        if (namedRange) {
+          ctx.__originCellPosition
+            ? this.addDependencies(ctx.__originCellPosition, [namedRange.range])
+            : this.computeDependencies([namedRange.range]);
+
+          const isMultiCellZone = getZoneArea(namedRange.range.zone) > 1;
+          return isMultiCellZone || isRange
+            ? range(namedRange.range, isMeta)
+            : refFn(namedRange.range, isMeta);
+        }
+        const symbolValue = getContextualSymbolValue?.(
+          symbolName,
+          isRange,
+          isMeta,
+          refFn,
+          range,
+          ctx
+        );
         if (symbolValue) {
           return symbolValue;
         }
