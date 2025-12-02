@@ -24,12 +24,14 @@ import {
   copy,
   createChart,
   createFigure,
+  createNamedRange,
   createSheet,
   createTable,
   createTableStyle,
   createTableWithFilter,
   deleteContent,
   deleteFigure,
+  deleteNamedRange,
   deleteRows,
   deleteSheet,
   duplicateSheet,
@@ -53,6 +55,7 @@ import {
   ungroupHeaders,
   unMerge,
   updateCell,
+  updateNamedRange,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import {
@@ -953,6 +956,89 @@ describe("Multi users synchronisation", () => {
         { id: "id2", ranges: ["A3:A7"], criterion, isBlocking: false },
       ]
     );
+  });
+
+  describe("Named ranges", () => {
+    test("Create two named ranges with the same name concurrently", () => {
+      network.concurrent(() => {
+        createNamedRange(alice, "MyRange", "A1:A5");
+        createNamedRange(bob, "MyRange", "B1:B5");
+      });
+
+      const expectedNamedRange = alice.getters.getNamedRange("MyRange");
+      expect(expectedNamedRange).toMatchObject({ range: { zone: toZone("A1:A5") } });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getNamedRanges(),
+        [expectedNamedRange]
+      );
+    });
+
+    test("Two concurrent named range updates", () => {
+      createNamedRange(alice, "MyRange", "A1:A5");
+      network.concurrent(() => {
+        updateNamedRange(alice, "MyRange", "NewName", "B1:B5");
+        updateNamedRange(bob, "MyRange", "OtherNewName", "C1:C5");
+      });
+
+      const expectedNamedRange = bob.getters.getNamedRange("OtherNewName");
+      expect(expectedNamedRange).toMatchObject({
+        name: "OtherNewName",
+        range: { zone: toZone("C1:C5") },
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getNamedRanges(),
+        [expectedNamedRange]
+      );
+    });
+
+    test("Renaming a named range and deleting it concurrently", () => {
+      createNamedRange(alice, "MyRange", "A1:A5");
+      network.concurrent(() => {
+        updateNamedRange(alice, "MyRange", "NewName", "B1:B5");
+        deleteNamedRange(bob, "MyRange");
+      });
+
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getNamedRanges(),
+        []
+      );
+    });
+
+    test("Renaming a named range and creating a new one with the same new name concurrently", () => {
+      createNamedRange(alice, "MyRange", "A1:A5");
+      network.concurrent(() => {
+        updateNamedRange(alice, "MyRange", "NewName", "B1:B5");
+        createNamedRange(bob, "NewName", "C1:C5");
+      });
+
+      const expectedNamedRange = alice.getters.getNamedRange("NewName");
+      expect(expectedNamedRange).toMatchObject({
+        name: "NewName",
+        range: { zone: toZone("B1:B5") },
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getNamedRanges(),
+        [expectedNamedRange]
+      );
+    });
+
+    test("Renaming two named ranges to the same name concurrently", () => {
+      createNamedRange(alice, "MyRange", "A1:A5");
+      createNamedRange(bob, "MyRange2", "C1:C5");
+      network.concurrent(() => {
+        updateNamedRange(alice, "MyRange", "NewName", "A1:A5");
+        updateNamedRange(bob, "MyRange2", "NewName", "C1:C5");
+      });
+
+      expect(alice.getters.getNamedRanges()).toMatchObject([
+        { name: "NewName", range: { zone: toZone("A1:A5") } },
+        { name: "MyRange2", range: { zone: toZone("C1:C5") } },
+      ]);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getNamedRanges(),
+        alice.getters.getNamedRanges()
+      );
+    });
   });
 
   test("do not send message while waiting an acknowledgement", () => {

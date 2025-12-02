@@ -4,11 +4,14 @@ import {
   AddColumnsRowsCommand,
   DeleteChartCommand,
   DeleteFigureCommand,
+  DeleteNamedRangeCommand,
   UpdateCarouselCommand,
   UpdateCellCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
+  UpdateNamedRangeCommand,
 } from "../../../src/types";
+import { toRangeData } from "../../test_helpers/helpers";
 
 describe("OT with figures commands", () => {
   const deleteFigure: DeleteFigureCommand = {
@@ -106,4 +109,64 @@ test("OT supports case-insensitive sheetname", () => {
     ...UpdateCellCommand,
     content: "=Sheet1!D5",
   });
+});
+
+test("OT supports named range renaming", () => {
+  const UpdateCellCommand: UpdateCellCommand = {
+    type: "UPDATE_CELL",
+    sheetId: "sh1",
+    col: 0,
+    row: 0,
+    content: "=MyNamedRange + 5",
+  };
+  const UpdateNamedRange: UpdateNamedRangeCommand = {
+    type: "UPDATE_NAMED_RANGE",
+    oldRangeName: "MyNamedRange",
+    newRangeName: "MyRenamedRange",
+    ranges: [toRangeData("sheetId", "A1:B3")],
+  };
+  expect(transform(UpdateCellCommand, UpdateNamedRange)).toEqual({
+    ...UpdateCellCommand,
+    content: "=MyRenamedRange + 5",
+  });
+});
+
+test("Delete/Update named range command are transformed on range renaming", () => {
+  const updateNamedRange: UpdateNamedRangeCommand = {
+    type: "UPDATE_NAMED_RANGE",
+    oldRangeName: "MyNamedRange",
+    newRangeName: "MyRenamedRange",
+    ranges: [toRangeData("sheetId", "A1:B3")],
+  };
+
+  // Delete named range command is transformed
+  const deleteNamedRangeCommand: DeleteNamedRangeCommand = {
+    type: "DELETE_NAMED_RANGE",
+    name: "MyNamedRange",
+  };
+  expect(transform(deleteNamedRangeCommand, updateNamedRange)).toEqual({
+    ...deleteNamedRangeCommand,
+    name: "MyRenamedRange",
+  });
+
+  // Update named range command is transformed
+  const updateNamedRangeToTransform: UpdateNamedRangeCommand = {
+    ...updateNamedRange,
+    oldRangeName: "MyNamedRange",
+    newRangeName: "SomeOtherName",
+  };
+  expect(transform(updateNamedRangeToTransform, updateNamedRange)).toEqual({
+    ...updateNamedRangeToTransform,
+    oldRangeName: "MyRenamedRange",
+    newRangeName: "SomeOtherName",
+  });
+
+  // Unrelated command is not transformed
+  const unrelatedDeleteNamedRangeCommand: DeleteNamedRangeCommand = {
+    type: "DELETE_NAMED_RANGE",
+    name: "SomeUnrelatedName",
+  };
+  expect(transform(unrelatedDeleteNamedRangeCommand, updateNamedRange)).toEqual(
+    unrelatedDeleteNamedRangeCommand
+  );
 });

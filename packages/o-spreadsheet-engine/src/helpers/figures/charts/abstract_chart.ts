@@ -10,7 +10,12 @@ import {
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
-import { RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
+import {
+  ApplyRenameNamedRange,
+  RangeAdapter,
+  RangeAdapterFunctions,
+  UID,
+} from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 import { toExcelDataset, toExcelLabelRange } from "./chart_common";
@@ -51,7 +56,8 @@ export abstract class AbstractChart {
   static transformDefinition(
     chartSheetId: UID,
     definition: ChartDefinition,
-    applyChange: RangeAdapter
+    applyChange: RangeAdapter,
+    applyRenameNamedRange: ApplyRenameNamedRange
   ): ChartDefinition {
     throw new Error("This method should be implemented by sub class");
   }

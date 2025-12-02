@@ -1,5 +1,5 @@
 import { transformDefinition } from "../../helpers/figures/charts/chart_factory";
-import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
+import { adaptFormulaString, adaptStringRange } from "../../helpers/formulas";
 import { deepCopy } from "../../helpers/misc";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
 import {
@@ -11,27 +11,32 @@ import {
   UpdateChartCommand,
   UpdatePivotCommand,
 } from "../../types/commands";
-import { RangeAdapter } from "../../types/misc";
+import { ApplyRenameNamedRange, RangeAdapter } from "../../types/misc";
 
 function updateCellCommandAdaptRange(
   cmd: UpdateCellCommand,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  namedRangeAdapter: ApplyRenameNamedRange
 ): UpdateCellCommand {
-  const content = cmd.content && adaptFormulaStringRanges(cmd.sheetId, cmd.content, applyChange);
+  const content =
+    cmd.content && adaptFormulaString(cmd.sheetId, cmd.content, applyChange, namedRangeAdapter);
   return { ...cmd, content };
 }
 specificRangeTransformRegistry.add("UPDATE_CELL", updateCellCommandAdaptRange);
 
 function addConditionalFormatCommandAdaptRange(
   cmd: AddConditionalFormatCommand,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  namedRangeAdapter: ApplyRenameNamedRange
 ): AddConditionalFormatCommand {
   const rule = cmd.cf.rule;
   cmd = { ...cmd, cf: { ...cmd.cf } };
   if (rule.type === "CellIsRule") {
     cmd.cf.rule = {
       ...rule,
-      values: rule.values.map((val) => adaptFormulaStringRanges(cmd.sheetId, val, applyChange)),
+      values: rule.values.map((val) =>
+        adaptFormulaString(cmd.sheetId, val, applyChange, namedRangeAdapter)
+      ),
     };
   } else if (rule.type === "ColorScaleRule") {
     const { minimum: min, maximum: max, midpoint: mid } = rule;
@@ -39,14 +44,19 @@ function addConditionalFormatCommandAdaptRange(
       ...rule,
       minimum: {
         ...min,
-        value: min.value && adaptFormulaStringRanges(cmd.sheetId, min.value, applyChange),
+        value:
+          min.value && adaptFormulaString(cmd.sheetId, min.value, applyChange, namedRangeAdapter),
       },
       maximum: {
         ...max,
-        value: max.value && adaptFormulaStringRanges(cmd.sheetId, max.value, applyChange),
+        value:
+          max.value && adaptFormulaString(cmd.sheetId, max.value, applyChange, namedRangeAdapter),
       },
       midpoint: mid
-        ? { ...mid, value: adaptFormulaStringRanges(cmd.sheetId, mid.value, applyChange) }
+        ? {
+            ...mid,
+            value: adaptFormulaString(cmd.sheetId, mid.value, applyChange, namedRangeAdapter),
+          }
         : undefined,
     };
   } else if (rule.type === "IconSetRule") {
@@ -55,11 +65,11 @@ function addConditionalFormatCommandAdaptRange(
       ...rule,
       upperInflectionPoint: {
         ...uip,
-        value: adaptFormulaStringRanges(cmd.sheetId, uip.value, applyChange),
+        value: adaptFormulaString(cmd.sheetId, uip.value, applyChange, namedRangeAdapter),
       },
       lowerInflectionPoint: {
         ...lip,
-        value: adaptFormulaStringRanges(cmd.sheetId, lip.value, applyChange),
+        value: adaptFormulaString(cmd.sheetId, lip.value, applyChange, namedRangeAdapter),
       },
     };
   } else if (rule.type === "DataBarRule") {
@@ -76,11 +86,12 @@ specificRangeTransformRegistry.add("ADD_CONDITIONAL_FORMAT", addConditionalForma
 
 function addDataValidationCommandAdaptRange(
   cmd: AddDataValidationCommand,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  namedRangeAdapter: ApplyRenameNamedRange
 ): AddDataValidationCommand {
   cmd = { ...cmd, rule: { ...cmd.rule, criterion: { ...cmd.rule.criterion } } };
   cmd.rule.criterion.values = cmd.rule.criterion.values.map((val) =>
-    adaptFormulaStringRanges(cmd.sheetId, val, applyChange)
+    adaptFormulaString(cmd.sheetId, val, applyChange, namedRangeAdapter)
   );
   return cmd;
 }
@@ -88,15 +99,17 @@ specificRangeTransformRegistry.add("ADD_DATA_VALIDATION_RULE", addDataValidation
 
 function addPivotCommandAdaptRange<Cmd extends AddPivotCommand | UpdatePivotCommand>(
   cmd: Cmd,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  namedRangeAdapter: ApplyRenameNamedRange
 ): Cmd {
   cmd = deepCopy(cmd);
   cmd.pivot.measures.map((measure) => {
     if (measure.computedBy) {
-      measure.computedBy.formula = adaptFormulaStringRanges(
+      measure.computedBy.formula = adaptFormulaString(
         measure.computedBy.sheetId,
         measure.computedBy.formula,
-        applyChange
+        applyChange,
+        namedRangeAdapter
       );
     }
   });
@@ -110,10 +123,11 @@ specificRangeTransformRegistry.add("UPDATE_CHART", updateChartRangesTransformati
 
 function updateChartRangesTransformation<Cmd extends UpdateChartCommand | CreateChartCommand>(
   cmd: Cmd,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  namedRangeAdapter: ApplyRenameNamedRange
 ): Cmd {
   return {
     ...cmd,
-    definition: transformDefinition(cmd.sheetId, cmd.definition, applyChange),
+    definition: transformDefinition(cmd.sheetId, cmd.definition, applyChange, namedRangeAdapter),
   };
 }

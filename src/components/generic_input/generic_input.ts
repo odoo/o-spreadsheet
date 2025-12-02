@@ -6,23 +6,31 @@ import { useAutofocus } from "../helpers/autofocus_hook";
 export interface GenericInputProps {
   value: string | number;
   onChange: (value: string) => void;
+  onInput?: (value: string) => void;
+  onFocused?: () => void;
+  onBlur?: () => void;
   class?: string;
   id?: string;
   placeholder?: string;
   autofocus?: boolean;
   selectContentOnFocus?: boolean;
+  resetOnBlur?: boolean;
 }
 
 export class GenericInput<T extends GenericInputProps> extends Component<T, SpreadsheetChildEnv> {
   static props = {
     value: [Number, String],
     onChange: Function,
+    onFocused: { type: Function, optional: true },
+    onBlur: { type: Function, optional: true },
+    onInput: { type: Function, optional: true },
     class: { type: String, optional: true },
     id: { type: String, optional: true },
     placeholder: { type: String, optional: true },
     autofocus: { type: Boolean, optional: true },
     alwaysShowBorder: { type: Boolean, optional: true },
     selectContentOnFocus: { type: Boolean, optional: true },
+    resetOnBlur: { type: Boolean, optional: true },
   };
 
   protected refName = "input";
@@ -36,7 +44,13 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       window,
       "click",
       (ev) => {
-        if (ev.target !== this.inputRef.el && this.inputRef.el?.value !== this.props.value) {
+        const el = this.inputRef.el;
+        if (!el || ev.target === el || el.value === this.props.value.toString()) {
+          return;
+        }
+        if (this.props.resetOnBlur) {
+          el.value = this.props.value.toString();
+        } else {
           this.save();
         }
       },
@@ -105,5 +119,25 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       ev.preventDefault();
       ev.stopPropagation();
     }
+  }
+
+  onFocus() {
+    this.props.onFocused?.();
+  }
+
+  onBlur() {
+    this.props.onBlur?.();
+    if (this.props.resetOnBlur) {
+      if (this.inputRef.el) {
+        this.inputRef.el.value = this.props.value.toString();
+      }
+    } else {
+      this.save();
+    }
+  }
+
+  onInput(ev: Event) {
+    const target = ev.target as HTMLInputElement;
+    this.props.onInput?.(target.value);
   }
 }
