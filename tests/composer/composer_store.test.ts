@@ -778,6 +778,28 @@ describe("edition", () => {
     expect(composerStore.currentContent).toBe("12/31/1899 12:00:00 PM");
   });
 
+  test.each(["", "0%", "#,##0", "#,##0[$ THUNE ]"])(
+    "Set Date to a cell formatted with format %s, format should be adapted",
+    (format: string) => {
+      setFormat(model, "A1", format);
+      composerStore.startEdition();
+      composerStore.setCurrentContent("12/12/2025");
+      composerStore.stopEdition();
+      expect(getEvaluatedCell(model, "A1").format).toBe("m/d/yyyy");
+    }
+  );
+
+  test.each(["@", "d/m/yyyy"])(
+    "Set date to a cell formatted with format %s, format should not be adapted",
+    (format: string) => {
+      setFormat(model, "A1", format);
+      composerStore.startEdition();
+      composerStore.setCurrentContent("12/12/2025");
+      composerStore.stopEdition();
+      expect(getEvaluatedCell(model, "A1").format).toBe(format);
+    }
+  );
+
   test("write too long formulas raises an error", async () => {
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "raiseError");
