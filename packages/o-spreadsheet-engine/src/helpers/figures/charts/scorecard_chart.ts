@@ -266,14 +266,11 @@ export class ScorecardChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
+    const definition = this.getDefinition();
     return {
-      ...this.getDefinition(),
-      range: this.keyValue
-        ? [{ dataRange: this.getters.getRangeString(this.keyValue, this.sheetId) }]
-        : undefined,
-      auxiliaryRange: this.baseline
-        ? this.getters.getRangeString(this.baseline, this.sheetId)
-        : undefined,
+      ...definition,
+      range: definition.keyValue ? [{ dataRange: definition.keyValue }] : undefined,
+      auxiliaryRange: definition.baseline,
     };
   }
 
