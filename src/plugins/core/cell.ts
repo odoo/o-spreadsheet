@@ -1,6 +1,6 @@
-import { DEFAULT_STYLE } from "../../constants";
+import { DEFAULT_NUMBER_STYLE, DEFAULT_STYLE } from "../../constants";
 import { Token, compile, tokenize } from "../../formulas";
-import { deepEquals } from "../../helpers";
+import { deepEquals, isNumber } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
@@ -23,6 +23,7 @@ import {
   CommandResult,
   CompiledFormula,
   CoreCommand,
+  DEFAULT_LOCALE,
   ExcelWorkbookData,
   Format,
   FormulaCell,
@@ -266,7 +267,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-        const style = this.removeDefaultStyleValues(cell.style);
+        const style = this.extractCustomStyle(cell);
         cells[xc] = {
           style: Object.keys(style).length ? getItemId<Style>(style, styles) : undefined,
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
@@ -295,10 +296,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.export(data);
   }
 
-  private removeDefaultStyleValues(style: Style | undefined): Style {
-    const cleanedStyle = { ...style };
-    for (const property in DEFAULT_STYLE) {
-      if (cleanedStyle[property] === DEFAULT_STYLE[property]) {
+  private extractCustomStyle(cell: Cell): Style {
+    const cleanedStyle = { ...cell.style };
+    const defaultStyle = isNumber(cell.content, DEFAULT_LOCALE)
+      ? DEFAULT_NUMBER_STYLE
+      : DEFAULT_STYLE;
+    for (const property in cleanedStyle) {
+      if (
+        (property !== "align" || !cell.isFormula) &&
+        cleanedStyle[property] === defaultStyle[property]
+      ) {
         delete cleanedStyle[property];
       }
     }
