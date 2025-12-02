@@ -41,9 +41,19 @@
               Readonly Access
             </span>
           </div>
-          <div t-else="" class="o-toolbar-tools d-flex ms-4 flex-grow-1" t-ref="toolBar">
+          <div
+            t-else=""
+            class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
+            t-ref="toolBar">
             <div
-              class="d-flex tool-container"
+              class="d-flex h-100 o-named-range-selector-container align-items-center ms-2 me-1"
+              t-ref="namedRanges"
+              t-on-click.stop="">
+              <NamedRangeSelector/>
+              <div class="o-topbar-divider border-end"/>
+            </div>
+            <div
+              class="d-flex tool-container h-100"
               t-foreach="toolsCategories"
               t-as="category"
               t-key="category"

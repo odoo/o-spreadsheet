@@ -1,0 +1,15 @@
+.o-spreadsheet {
+  .o-named-range-selector {
+    font-size: 13px;
+
+    &.selected,
+    &:hover {
+      background-color: var(--os-button-hover-bg);
+      color: var(--os-button-hover-text-color);
+
+      .o-icon {
+        color: var(--os-button-hover-text-color);
+      }
+    }
+  }
+}

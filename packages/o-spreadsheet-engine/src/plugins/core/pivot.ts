@@ -144,10 +144,22 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
         break;
       }
+      case "CREATE_NAMED_RANGE":
+      case "UPDATE_NAMED_RANGE":
+      case "DELETE_NAMED_RANGE": {
+        for (const pivotId in this.pivots) {
+          const pivot = this.pivots[pivotId];
+          if (!pivot) {
+            continue;
+          }
+          this.compileCalculatedMeasures(pivotId, pivot.definition.measures);
+        }
+      }
     }
   }
 
-  adaptRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
+  adaptRanges(adapters: RangeAdapterFunctions) {
+    const { applyChange, adaptFormulaString } = adapters;
     for (const pivotId in this.pivots) {
       const definition = deepCopy(this.pivots[pivotId]?.definition);
       if (!definition) {
@@ -171,20 +183,15 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           this.compiledMeasureFormulas[pivotId][measureId];
 
         // adapt direct dependencies
-        for (let i = 0; i < compiledFormula.rangeDependencies.length; i++) {
-          const range = compiledFormula.rangeDependencies[i];
-          const updatedRange = applyChange(range);
-          if (updatedRange.changeType !== "NONE") {
-            this.history.update(
-              "compiledMeasureFormulas",
-              pivotId,
-              measureId,
-              "formula",
-              "rangeDependencies",
-              i,
-              updatedRange.range
-            );
-          }
+        const newCompiledFormula = adapters.adaptCompiledFormula(compiledFormula);
+        if (newCompiledFormula !== compiledFormula) {
+          this.history.update(
+            "compiledMeasureFormulas",
+            pivotId,
+            measureId,
+            "formula",
+            newCompiledFormula
+          );
         }
 
         // adapt all dependencies (including indirect)
@@ -330,6 +337,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       );
     }
     rangeDependencies.push(...formula.rangeDependencies.filter((range) => !range.invalidXc));
+    rangeDependencies.push(
+      ...formula.getNamedRangesInFormula(this.getters).map((namedRange) => namedRange.range)
+    );
     return rangeDependencies;
   }
 

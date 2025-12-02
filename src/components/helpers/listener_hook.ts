@@ -26,5 +26,21 @@ export function useHoveredElement(ref: Ref<HTMLElement>) {
   const state = useState({ hovered: false });
   useRefListener(ref, "mouseenter", () => (state.hovered = true));
   useRefListener(ref, "mouseleave", () => (state.hovered = false));
+  // If a render changes the element size while the mouse is over it,
+  // the mouseleave event might not be triggered. Removing the hover state in case of a resize is not great,
+  // but it's better than having a stuck hover state.
+  const resizeObserver = new ResizeObserver(() => {
+    state.hovered = false;
+  });
+  useEffect(
+    () => {
+      resizeObserver.observe(ref.el!);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    },
+    () => [ref.el]
+  );
+
   return state;
 }
