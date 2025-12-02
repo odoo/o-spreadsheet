@@ -5,6 +5,7 @@ import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
 import { DataValidationClipboardHandler } from "./data_validation_clipboard";
+import { FormatClipboardHandler } from "./format_clipboard";
 import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { ReferenceClipboardHandler } from "./references_clipboard";
@@ -22,8 +23,9 @@ clipboardHandlersRegistries.cellHandlers
   .add("cell", CellClipboardHandler)
   .add("sheet", SheetClipboardHandler)
   .add("merge", MergeClipboardHandler)
+  .add("style", StyleClipboardHandler)
+  .add("format", FormatClipboardHandler)
   .add("table", TableClipboardHandler)
   .add("conditionalFormat", ConditionalFormatClipboardHandler)
   .add("references", ReferenceClipboardHandler)
-  .add("border", BorderClipboardHandler)
-  .add("style", StyleClipboardHandler);
+  .add("border", BorderClipboardHandler);

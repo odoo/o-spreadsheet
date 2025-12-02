@@ -9,7 +9,7 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
-import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellFormat, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 describe("Settings plugin", () => {
   let model: Model;
@@ -110,9 +110,9 @@ describe("Settings plugin", () => {
 
       const locale = { ...CUSTOM_LOCALE, dateFormat: "yyyy/mm/dd", timeFormat: "hh:mm" };
       updateLocale(model, locale);
-      expect(getCell(model, "A1")?.format).toEqual("yyyy/mm/dd");
-      expect(getCell(model, "A2")?.format).toEqual("hh:mm");
-      expect(getCell(model, "A3")?.format).toEqual("yyyy/mm/dd hh:mm");
+      expect(getCellFormat(model, "A1")).toEqual("yyyy/mm/dd");
+      expect(getCellFormat(model, "A2")).toEqual("hh:mm");
+      expect(getCellFormat(model, "A3")).toEqual("yyyy/mm/dd hh:mm");
     });
 
     test("can use dot as thousand separator", () => {
