@@ -11,23 +11,25 @@ import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 
 interface Props {
   conditionalFormat: ConditionalFormat;
-  onPreviewClick: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   class: string;
 }
 
 export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreview";
-
+  static props = {
+    conditionalFormat: Object,
+    onMouseDown: Function,
+    class: String,
+  };
   icons = ICONS;
-
   private ref = useRef("cfPreview");
 
   setup() {
     useHighlightsOnHover(this.ref, this);
   }
 
-  getPreviewImageStyle(): string {
+  get previewImageStyle(): string {
     const rule = this.props.conditionalFormat.rule;
     if (rule.type === "CellIsRule") {
       return cssPropertiesToCss(cellStyleToCss(rule.style));
@@ -47,7 +49,7 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     return "";
   }
 
-  getDescription(): string {
+  get description(): string {
     const cf = this.props.conditionalFormat;
     switch (cf.rule.type) {
       case "CellIsRule":
@@ -63,17 +65,6 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     }
   }
 
-  deleteConditionalFormat() {
-    this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
-      id: this.props.conditionalFormat.id,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-    });
-  }
-
-  onMouseDown(event: MouseEvent) {
-    this.props.onMouseDown(event);
-  }
-
   get highlights(): Highlight[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return this.props.conditionalFormat.ranges.map((range) => ({
@@ -82,11 +73,18 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
       fillAlpha: 0.06,
     }));
   }
-}
 
-ConditionalFormatPreview.props = {
-  conditionalFormat: Object,
-  onPreviewClick: Function,
-  onMouseDown: Function,
-  class: String,
-};
+  editConditionalFormat() {
+    this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
+      cf: this.props.conditionalFormat,
+      isNewCf: false,
+    });
+  }
+
+  deleteConditionalFormat() {
+    this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+      id: this.props.conditionalFormat.id,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+    });
+  }
+}
