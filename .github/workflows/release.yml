@@ -27,7 +27,7 @@ jobs:
         with:
           tag: ${{ fromJSON(steps.parse.outputs.data).version }}
           body: ${{ fromJSON(steps.parse.outputs.data).body }}
-          artifacts: "./dist/*.*"
+          artifacts: "./dist/*.*,./dist/o_spreadsheet.css"
           makeLatest: true
           prerelease: ${{ fromJSON(steps.parse.outputs.data).prerelease }}
       - name: Publish
