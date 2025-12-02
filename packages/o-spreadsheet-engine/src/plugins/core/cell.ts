@@ -510,7 +510,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
-    const format = "format" in after ? after.format : before && before.format;
+    const format = after.format !== undefined ? after.format : before && before.format;
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
