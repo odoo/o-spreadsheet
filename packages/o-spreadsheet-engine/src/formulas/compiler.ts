@@ -224,7 +224,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(`getSymbolValue(this.symbols[${symbolIndex}])`);
+          return code.return(
+            `getSymbolValue(this.symbols[${symbolIndex}], ${hasRange}, ${isMeta}, ref, range, ctx)`
+          );
         case "EMPTY":
           return code.return("undefined");
       }

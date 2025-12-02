@@ -21,7 +21,6 @@ import {
   colors,
   concat,
   fuzzyLookup,
-  getZoneArea,
   isEqual,
   isFormula,
   isNumber,
@@ -62,6 +61,11 @@ export interface ComposerSelection {
   end: number;
 }
 
+interface TypedRange {
+  type: "reference" | "named_range";
+  range: Range;
+}
+
 export abstract class AbstractComposerStore extends SpreadsheetStore {
   mutators = [
     "startEdition",
@@ -91,6 +95,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
   private autoComplete: Store<AutoCompleteStore> = new AutoCompleteStore(this.get);
+  private hasSelectedAProposal: boolean = false;
 
   hoveredTokens: EnrichedToken[] = [];
   hoveredContentEvaluation: string = "";
@@ -424,6 +429,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.editionMode = "editing";
     const { text, adjustedSelection } = this.getComposerContent({ sheetId, col, row }, selection);
     this.initialContent = text;
+    this.hasSelectedAProposal = false;
     this.setContent(str || this.initialContent, adjustedSelection ?? selection);
     this.colorIndexByRange = {};
     const zone = positionToZone({ col: this.col, row: this.row });
@@ -627,9 +633,13 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected getTokenColor(token: EnrichedToken): string {
     if (token.type === "REFERENCE") {
       const { xc, sheetName } = splitReference(token.value);
-      return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
+      return this.rangeXCColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
     }
     if (token.type === "SYMBOL") {
+      const namedRange = this.getters.getNamedRange(token.value);
+      if (namedRange) {
+        return this.rangeColor(namedRange.range) || DEFAULT_TOKEN_COLOR;
+      }
       const upperCaseValue = token.value.toUpperCase();
       if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
         return tokenColors.NUMBER;
@@ -646,18 +656,20 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
   }
 
-  private rangeColor(xc: string, sheetName?: string): Color | undefined {
+  private rangeXCColor(xc: string, sheetName?: string): Color | undefined {
     const refSheet = sheetName ? this.model.getters.getSheetIdByName(sheetName) : this.sheetId;
+    if (!refSheet) {
+      return undefined;
+    }
+    const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
+    return this.rangeColor(range);
+  }
 
-    const highlight = this.highlights.find((highlight) => {
-      if (highlight.range.sheetId !== refSheet) return false;
-
-      const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
-      let zone = range.zone;
-      zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.range.zone);
-    });
-    return highlight && highlight.color ? highlight.color : undefined;
+  private rangeColor(range: Range): Color | undefined {
+    return this.highlights.find((highlight) => {
+      if (highlight.range.sheetId !== range.sheetId) return false;
+      return isEqual(range.zone, highlight.range.zone);
+    })?.color;
   }
 
   /**
@@ -745,7 +757,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return;
     }
     const editionSheetId = this.sheetId;
-    const XCs = this.getReferencedRanges().map((range) =>
+    const XCs = this.getReferencedRanges().map(({ range }) =>
       this.getters.getRangeString(range, editionSheetId)
     );
     const colorsToKeep = {};
@@ -780,7 +792,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const colorIndex = this.colorIndexByRange[rangeString];
       return colors[colorIndex % colors.length];
     };
-    return this.getReferencedRanges().map((range) => {
+    return this.getReferencedRanges().map(({ type, range }) => {
       const rangeString = this.getters.getRangeString(range, editionSheetId);
       const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
       const zone =
@@ -790,7 +802,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return {
         range: this.model.getters.getRangeFromZone(range.sheetId, zone),
         color: rangeColor(rangeString),
-        interactive: true,
+        interactive: type === "named_range" ? false : true,
       };
     });
   }
@@ -798,12 +810,19 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   /**
    * Return ranges currently referenced in the composer
    */
-  private getReferencedRanges(): Range[] {
+  private getReferencedRanges(): TypedRange[] {
     const editionSheetId = this.sheetId;
-    const referenceRanges = this.currentTokens
-      .filter((token) => token.type === "REFERENCE")
-      .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
-    return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
+    return this.currentTokens
+      .map((token) => {
+        if (token.type === "REFERENCE") {
+          const range = this.getters.getRangeFromSheetXC(editionSheetId, token.value);
+          return { type: "reference", range };
+        } else if (token.type === "SYMBOL") {
+          return { type: "named_range", range: this.getters.getNamedRange(token.value)?.range };
+        }
+        return undefined;
+      })
+      .filter((r) => r?.range && !r.range.invalidSheetName && !r.range.invalidXc) as TypedRange[];
   }
 
   private async updateAutoCompleteProvider() {
@@ -857,7 +876,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           canBeToggled: provider.canBeToggled,
         };
       }
-      if (exactMatch && this._currentContent !== this.initialContent) {
+      if (
+        exactMatch &&
+        (this._currentContent !== this.initialContent || this.hasSelectedAProposal)
+      ) {
         // this means the user has chosen a proposal
         return;
       }
@@ -905,7 +927,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       ) {
         const proposal = autoComplete.provider.proposals[autoComplete.selectedIndex];
         if (proposal) {
-          this.autoComplete.provider?.selectProposal(proposal);
+          this.insertAutoCompleteValue(proposal);
           return;
         }
       }
@@ -915,6 +937,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   insertAutoCompleteValue(proposal: AutoCompleteProposal) {
     this.autoComplete.provider?.selectProposal(proposal);
+    this.hasSelectedAProposal = true;
   }
 
   selectAutoCompleteIndex(index: number) {

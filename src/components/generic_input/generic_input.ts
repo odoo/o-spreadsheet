@@ -6,6 +6,9 @@ import { useAutofocus } from "../helpers/autofocus_hook";
 export interface GenericInputProps {
   value: string | number;
   onChange: (value: string) => void;
+  onInput?: (value: string) => void;
+  onFocused?: () => void;
+  onBlur?: () => void;
   class?: string;
   id?: string;
   placeholder?: string;
@@ -17,6 +20,9 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   static props = {
     value: [Number, String],
     onChange: Function,
+    onFocused: { type: Function, optional: true },
+    onBlur: { type: Function, optional: true },
+    onInput: { type: Function, optional: true },
     class: { type: String, optional: true },
     id: { type: String, optional: true },
     placeholder: { type: String, optional: true },
@@ -103,5 +109,19 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       ev.preventDefault();
       ev.stopPropagation();
     }
+  }
+
+  onFocus() {
+    this.props.onFocused?.();
+  }
+
+  onBlur() {
+    this.props.onBlur?.();
+    this.save();
+  }
+
+  onInput(ev: Event) {
+    const target = ev.target as HTMLInputElement;
+    this.props.onInput?.(target.value);
   }
 }
