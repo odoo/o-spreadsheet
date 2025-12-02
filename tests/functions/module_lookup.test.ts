@@ -1,6 +1,11 @@
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { range } from "../../src/helpers";
-import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  activateSheet,
+  createNamedRange,
+  createSheet,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import {
   getCellContent,
   getCellError,
@@ -878,7 +883,7 @@ describe("VLOOKUP formula", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "1",
-      A2: "42",      B2: "2", 
+      A2: "42",      B2: "2",
     };
     expect(evaluateCell("A3", { A3: "=VLOOKUP(42, A1:B2, 2, true)", ...grid })).toBe(2);
     expect(evaluateCell("A3", { A3: "=VLOOKUP(42, A1:B2, 2, false)", ...grid })).toBe(2);
@@ -888,7 +893,7 @@ describe("VLOOKUP formula", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "1",
-      A2: "42",      B2: "2", 
+      A2: "42",      B2: "2",
     };
     expect(evaluateCell("A3", { A3: "=VLOOKUP(A1, A1:B2, 2, true)", ...grid })).toBe("#BAD_EXPR");
     expect(evaluateCell("A3", { A3: "=VLOOKUP(A1, A1:B2, 2, false)", ...grid })).toBe("#BAD_EXPR");
@@ -1099,7 +1104,7 @@ describe("HLOOKUP formula", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
-      A2: "1",       B2: "2", 
+      A2: "1",       B2: "2",
     };
     expect(evaluateCell("A3", { A3: "=HLOOKUP(42, A1:B2, 2, true)", ...grid })).toBe(2);
     expect(evaluateCell("A3", { A3: "=HLOOKUP(42, A1:B2, 2, false)", ...grid })).toBe(2);
@@ -1109,7 +1114,7 @@ describe("HLOOKUP formula", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
-      A2: "1",       B2: "2", 
+      A2: "1",       B2: "2",
     };
     expect(evaluateCell("A3", { A3: "=HLOOKUP(A1, A1:B2, 2, true)", ...grid })).toBe("#BAD_EXPR");
     expect(evaluateCell("A3", { A3: "=HLOOKUP(A1, A1:B2, 2, false)", ...grid })).toBe("#BAD_EXPR");
@@ -1288,7 +1293,7 @@ describe("XLOOKUP formula", () => {
       // prettier-ignore
       const grid = {
         A1: "=KABOUM", B1: "42",
-        A2: "1",       B2: "2", 
+        A2: "1",       B2: "2",
       };
       expect(evaluateCell("A3", { A3: "=XLOOKUP(42, A1:B1, A2:B2)", ...grid })).toBe(2);
     });
@@ -1297,7 +1302,7 @@ describe("XLOOKUP formula", () => {
       // prettier-ignore
       const grid = {
         A1: "=KABOUM", B1: "42",
-        A2: "1",       B2: "2", 
+        A2: "1",       B2: "2",
       };
       expect(evaluateCell("A3", { A3: "=XLOOKUP(A1, A1:B1, A2:B2)", ...grid })).toBe("#BAD_EXPR");
     });
@@ -1589,7 +1594,7 @@ describe("INDEX formula", () => {
     // prettier-ignore
     const grid = {
       A1: "2", B1: "42",
-      A2: "1", B2: "=KABOUM", 
+      A2: "1", B2: "=KABOUM",
     };
     expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe(42);
     expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 2, 2)", ...grid })).toBe("#BAD_EXPR");
@@ -1734,6 +1739,14 @@ describe("INDIRECT formula", () => {
     expect(grid.A5).toBe("#CYCLE");
     expect(grid.A6).toBe("#ERROR");
   });
+
+  test("INDIRECT works with named ranges", () => {
+    const model = createModelFromGrid({ A1: "1", A4: '=INDIRECT("MyNamedRange")' });
+    expect(getEvaluatedCell(model, "A4").value).toBe("#REF");
+
+    createNamedRange(model, "MyNamedRange", "A1");
+    expect(getEvaluatedCell(model, "A4").value).toBe(1);
+  });
 });
 
 describe("OFFSET formula", () => {
@@ -1764,7 +1777,7 @@ describe("OFFSET formula", () => {
     const grid = {
       A1: "A1", B1: "B1", C1: "C1",
       A2: "A2", B2: "B2", C2: "C2",
-      A3: "A3", B3: "B3", C3: "C3", 
+      A3: "A3", B3: "B3", C3: "C3",
                                     D4: "=OFFSET(A1:C3,0,0)",
     };
     const model = createModelFromGrid(grid);
@@ -1821,7 +1834,7 @@ describe("OFFSET formula", () => {
     const grid = {
       A1: "A1", B1: "B1", C1: "C1",
       A2: "A2", B2: "B2", C2: "C2",
-      A3: "A3", B3: "B3", C3: "C3", 
+      A3: "A3", B3: "B3", C3: "C3",
                                     D5: "=OFFSET(A1:C3,2,,1,3)",
     };
     const model = createModelFromGrid(grid);
@@ -1838,7 +1851,7 @@ describe("OFFSET formula", () => {
     const grid = {
       A1: "A1", B1: "B1", C1: "C1",
       A2: "A2", B2: "B2", C2: "C2",
-      A3: "A3", B3: "B3", C3: "C3", 
+      A3: "A3", B3: "B3", C3: "C3",
                                     D5: "=OFFSET(A1:C3,2,0,1,3)",
     };
     const model = createModelFromGrid(grid);
@@ -1855,7 +1868,7 @@ describe("OFFSET formula", () => {
     const grid = {
       A1: "A1", B1: "B1", C1: "C1",
       A2: "A2", B2: "B2", C2: "C2",
-      A3: "A3", B3: "B3", C3: "C3", 
+      A3: "A3", B3: "B3", C3: "C3",
                                     D5: "=OFFSET(A1:C3,,2,3,1)",
     };
     const model = createModelFromGrid(grid);
@@ -1872,7 +1885,7 @@ describe("OFFSET formula", () => {
     const grid = {
       A1: "A1", B1: "B1", C1: "C1",
       A2: "A2", B2: "B2", C2: "C2",
-      A3: "A3", B3: "B3", C3: "C3", 
+      A3: "A3", B3: "B3", C3: "C3",
                                     D5: "=OFFSET(A1:C3,0,2,3,1)",
     };
     const model = createModelFromGrid(grid);

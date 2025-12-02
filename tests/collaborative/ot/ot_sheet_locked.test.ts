@@ -50,7 +50,7 @@ describe("OT with LOCK_SHEET", () => {
   describe.each([
     ...OT_TESTS_SINGLE_CELL_COMMANDS,
     ...TEST_COMMANDS_TARGET_DEPENDENT,
-    ...TEST_COMMANDS_RANGE_DEPENDENT,
+    ...TEST_COMMANDS_RANGE_DEPENDENT.filter((cmd) => "sheetId" in cmd),
     ...TEST_COMMANDS_ZONE_DEPENDENT,
     addColumns,
     addRows,

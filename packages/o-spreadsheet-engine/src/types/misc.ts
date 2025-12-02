@@ -174,16 +174,11 @@ export interface Border {
   right?: BorderDescr;
 }
 
-export type ReferenceDenormalizer = (
-  range: Range,
-  isMeta: boolean,
-  functionName: string,
-  paramNumber: number
-) => FunctionResultObject;
+export type ReferenceDenormalizer = (range: Range, isMeta: boolean) => FunctionResultObject;
 
 export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FunctionResultObject>;
 
-export type GetSymbolValue = (symbolName: string) => Arg;
+export type GetSymbolValue = (symbolName: string, isRange: boolean, isMeta: boolean) => Arg;
 
 export type FormulaToExecute = (
   deps: Range[],
@@ -293,6 +288,7 @@ export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
 export type ApplyRangeChangeResult<T> = { changeType: ChangeType; range: T };
 export type ApplyFormulaRangeChangeResult = { changeType: ChangeType; formula: string };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult<Range>;
+export type ApplyRenameNamedRange = (currentRangeName: string) => string;
 
 export type AdaptSheetName = { old: string; current: string };
 
@@ -306,6 +302,7 @@ export type RangeAdapterFunctions = {
   applyChange: ApplyRangeChange;
   adaptRangeString: (defaultSheetId: UID, sheetXC: string) => ApplyRangeChangeResult<string>;
   adaptFormulaString: (defaultSheetId: UID, formula: string) => string;
+  adaptCompiledFormula: (compiledFormula: CompiledFormula) => CompiledFormula;
 };
 
 export type Dimension = "COL" | "ROW";
@@ -419,4 +416,9 @@ export interface ValueAndLabel<T = string> {
   value: T;
   label: string;
   separator?: boolean;
+}
+
+export interface NamedRange {
+  name: string;
+  range: Range;
 }

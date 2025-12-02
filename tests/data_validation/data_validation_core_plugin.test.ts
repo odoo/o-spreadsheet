@@ -4,6 +4,7 @@ import {
   addColumns,
   addDataValidation,
   addRows,
+  createNamedRange,
   createSheet,
   deleteColumns,
   deleteContent,
@@ -13,9 +14,10 @@ import {
   removeDataValidation,
   setCellContent,
   undo,
+  updateNamedRange,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { getDataValidationRules, toRangesData } from "../test_helpers/helpers";
+import { getDataValidationRules, toCellPosition, toRangesData } from "../test_helpers/helpers";
 
 describe("Data validation", () => {
   let model: Model;
@@ -623,5 +625,25 @@ describe("Data validation", () => {
         { id: "id5", ranges: ["D7"], criterion, isBlocking: false },
       ]);
     });
+  });
+
+  test("Can use named ranges in data validation formulas", () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isEqual",
+      values: ["=namedRange"],
+    });
+    setCellContent(model, "A1", "5");
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"))).toBe(true);
+
+    createNamedRange(model, "namedRange", "B1");
+    setCellContent(model, "B1", "5");
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"))).toBe(false);
+
+    updateNamedRange(model, "namedRange", "newRangeName", "C1");
+    setCellContent(model, "C1", "5");
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"))).toBe(false);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual([
+      "=newRangeName",
+    ]);
   });
 });

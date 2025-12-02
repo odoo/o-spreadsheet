@@ -182,6 +182,8 @@ export class GaugeChart extends AbstractChart {
         dataRange = adaptedRange;
       }
     }
+
+    // ADRM TODO: use range adapter ??
     const adaptFormula = (formula: string) =>
       adaptFormulaStringRanges(chartSheetId, formula, applyChange);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
