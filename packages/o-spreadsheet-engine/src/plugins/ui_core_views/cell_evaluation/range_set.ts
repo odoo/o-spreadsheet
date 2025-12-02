@@ -100,6 +100,14 @@ export class RangeSet {
     return size;
   }
 
+  positionSize(): number {
+    let size = 0;
+    for (const sheetId in this.setsBySheetId) {
+      size += this.setsBySheetId[sheetId].positionSize();
+    }
+    return size;
+  }
+
   isEmpty(): boolean {
     for (const sheetId in this.setsBySheetId) {
       if (!this.setsBySheetId[sheetId].isEmpty()) {

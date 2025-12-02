@@ -44,7 +44,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     style="top:0px; right:0px; width:15px; bottom:0; "
   >
     <div
-      style="width:1px; height:2300px; "
+      style="width:1px; height:4623px; "
     />
   </div>
   
@@ -53,7 +53,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     style="left:0px; bottom:0px; height:15px; right:0; "
   >
     <div
-      style="width:2496px; height:1px; "
+      style="width:5088px; height:1px; "
     />
   </div>
   

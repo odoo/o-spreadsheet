@@ -1,5 +1,4 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { HeaderSizePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/header_size";
 import { CommandResult, Model } from "../../src";
 import { numberToLetters, toZone } from "../../src/helpers";
 import {
@@ -12,12 +11,10 @@ import {
   merge,
   redo,
   setSelection,
-  setStyle,
   undo,
   unhideColumns,
   unhideRows,
 } from "../test_helpers/commands_helpers";
-import { getPlugin } from "../test_helpers/helpers";
 
 //------------------------------------------------------------------------------
 // Hide/unhide
@@ -306,21 +303,5 @@ describe("Hide Rows", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     hideRows(model, [1, 2]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1, 2]]);
-  });
-
-  test("Do not compute row of empty cell", () => {
-    model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    // Will force an UPDATE_CELL subcommand upon addRows
-    setStyle(model, "A100", { fillColor: "red" });
-    addRows(model, "after", 99, 1);
-    const plugin = getPlugin(model, HeaderSizePlugin);
-    expect(plugin.sizes[sheetId].ROW.length).toEqual(101);
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId,
-      sheetIdTo: "sheet2",
-      sheetNameTo: "Copy of Sheet1",
-    });
-    expect(plugin.sizes["sheet2"].ROW.length).toEqual(101);
   });
 });

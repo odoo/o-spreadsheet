@@ -238,7 +238,7 @@ describe("Columns", () => {
     test("On addition before first", () => {
       addColumns(model, "before", "A", 1);
       expect(model.getters.getActiveSheet().numberOfCols).toBe(5);
-      expect(model.getters.getActiveSheet().rows).toHaveLength(1);
+      expect(model.getters.getActiveSheet().numberOfRows).toBe(1);
     });
     test("On addition before", () => {
       addColumns(model, "before", "B", 2);
@@ -768,7 +768,7 @@ describe("Rows", () => {
     test("On addition before first", () => {
       addRows(model, "before", 0, 1);
       expect(model.getters.getActiveSheet().numberOfCols).toBe(1);
-      expect(model.getters.getActiveSheet().rows).toHaveLength(5);
+      expect(model.getters.getActiveSheet().numberOfRows).toBe(5);
     });
     test("On addition before", () => {
       addRows(model, "before", 1, 2);

@@ -12,6 +12,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { mapReplacer } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { createEmptyWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { ClipboardPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
@@ -1841,7 +1842,7 @@ describe("Copy paste keyboard shortcut", () => {
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData(), mapReplacer);
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,
@@ -1862,7 +1863,7 @@ describe("Copy paste keyboard shortcut", () => {
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData(), mapReplacer);
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,

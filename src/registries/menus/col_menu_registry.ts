@@ -38,7 +38,7 @@ colMenuRegistry
   .add("sort_columns", {
     ...ACTION_DATA.sortRange,
     name: (env) =>
-      env.model.getters.getActiveCols().size > 1 ? _t("Sort columns") : _t("Sort column"),
+      env.model.getters.getActiveCols().length > 1 ? _t("Sort columns") : _t("Sort column"),
     sequence: 50,
     separator: true,
   })

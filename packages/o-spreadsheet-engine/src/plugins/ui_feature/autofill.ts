@@ -11,7 +11,7 @@ import {
   GeneratorCell,
   Tooltip,
 } from "../../types/autofill";
-import { Cell, CellValueType } from "../../types/cells";
+import { CellValueType } from "../../types/cells";
 import { AutoFillCellCommand, Command, CommandResult, LocalCommand } from "../../types/commands";
 import { Getters } from "../../types/getters";
 import { Border, DIRECTION, HeaderIndex, UID, Zone } from "../../types/misc";
@@ -443,10 +443,19 @@ export class AutofillPlugin extends UIPlugin {
   /**
    * Get the rule associated to the current cell
    */
-  private getRule(cell: Cell, cells: (Cell | undefined)[]): AutofillModifier | undefined {
-    const rules = autofillRulesRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
-    const rule = rules.find((rule) => rule.condition(cell, cells));
-    return rule && this.direction && rule.generateRule(cell, cells, this.direction);
+  private getRule(cellData: AutofillData, cellsData: AutofillData[]): AutofillModifier {
+    const direction = this.direction;
+    if (!direction) {
+      return { type: "COPY_MODIFIER" };
+    }
+    const rules = autofillRulesRegistry.getAll();
+    for (const rule of rules) {
+      const modifier = rule(cellData, cellsData, direction);
+      if (modifier) {
+        return modifier;
+      }
+    }
+    return { type: "COPY_MODIFIER" };
   }
 
   /**
@@ -459,26 +468,27 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     for (const xc of source) {
       const { col, row } = toCartesian(xc);
-      const cell = this.getters.getCell({ sheetId, col, row });
+      const position = { sheetId, col, row };
+      const cell = this.getters.getCell(position);
+      const border = this.getters.getCellBorder(position);
+      const style = this.getters.getCellStyle(position);
+      const format = this.getters.getCellFormat(position);
       cellsData.push({
         col,
         row,
         cell,
+        content: cell?.content,
+        formula: cell?.isFormula ? cell.compiledFormula : undefined,
+        border,
+        style,
+        format,
         sheetId,
       });
     }
-    const cells = cellsData.map((cellData) => cellData.cell);
     for (const cellData of cellsData) {
-      let rule: AutofillModifier = { type: "COPY_MODIFIER" };
-      if (cellData && cellData.cell) {
-        const newRule = this.getRule(cellData.cell, cells);
-        rule = newRule || rule;
-      }
-      const border = this.getters.getCellBorder(cellData);
-      const style = this.getters.getCellStyle(cellData);
       nextCells.push({
-        data: { ...cellData, border, style },
-        rule,
+        data: cellData,
+        rule: this.getRule(cellData, cellsData),
       });
     }
     return new AutofillGenerator(nextCells, this.getters, this.direction!);

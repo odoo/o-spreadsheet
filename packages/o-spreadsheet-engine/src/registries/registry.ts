@@ -85,3 +85,27 @@ export class Registry<T> {
     delete this.content[key];
   }
 }
+
+export class OrderedRegistry<T> extends Registry<T> {
+  order = new Map<number, string>();
+
+  add(key: string, value: T, priority?: number): this {
+    super.add(key, value);
+    if (!priority) {
+      throw new Error("Priority is needed to add to the registry.");
+    } else if (priority in this.order) {
+      throw new Error(`Priority ${priority} is already present in this registry!`);
+    }
+    this.order.set(priority, key);
+    return this;
+  }
+
+  getLastPriority(): number {
+    return Math.max(...this.order.keys());
+  }
+
+  getAll(): T[] {
+    const priorities = [...this.order.keys()].sort((a, b) => a - b);
+    return priorities.map((p) => this.content[this.order.get(p) || 0]);
+  }
+}

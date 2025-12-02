@@ -981,7 +981,6 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
   for (const cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {
-      format: cell.format,
       value: model.getters.getEvaluatedCell({ sheetId, col, row }).value ?? "",
       content: cell.content,
     };
@@ -991,6 +990,12 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
     .entries()) {
     const xc = toXC(position.col, position.row);
     cells[xc] = { ...cells[xc], style };
+  }
+  for (const [position, format] of model.getters
+    .getCellFormatInZone(sheetId, model.getters.getSheetZone(sheetId))
+    .entries()) {
+    const xc = toXC(position.col, position.row);
+    cells[xc] = { ...cells[xc], format };
   }
   return cells;
 }
