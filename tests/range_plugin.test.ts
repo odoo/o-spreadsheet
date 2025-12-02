@@ -1,6 +1,6 @@
 import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CorePlugin, coreTypes, Model } from "../src";
-import { duplicateRangeInDuplicatedSheet } from "../src/helpers";
+import { duplicateRangeInDuplicatedSheet, zoneToXc } from "../src/helpers";
 import { ApplyRangeChange, CellErrorType, Command, Range } from "../src/types";
 import {
   addColumns,
@@ -529,6 +529,13 @@ describe("range plugin", () => {
     test("can create a range from a sheet that doesn't exist", () => {
       const r = m.getters.getRangeFromSheetXC("s2", "NOTTHERE!a1");
       expect(m.getters.getRangeString(r, "s1")).toBe("NOTTHERE!A1");
+    });
+
+    test("can create a range without giving a defaultSheetId if a sheet name is in the XC", () => {
+      let r = m.getters.getRangeFromSheetXC(undefined, "s1!A1:B2");
+      expect(zoneToXc(r.zone)).toEqual("A1:B2");
+      r = m.getters.getRangeFromSheetXC(undefined, "A1:B2");
+      expect(r.invalidXc).toBe("A1:B2");
     });
 
     test("requesting a range that doesn't exist", () => {

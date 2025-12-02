@@ -1,0 +1,17 @@
+.o-spreadsheet {
+  .o-sidePanel {
+    .o-named-range-preview {
+      input {
+        padding-left: 0px;
+      }
+
+      .o-selection-input input:not(.o-focused):not(:hover) {
+        border-color: transparent;
+      }
+
+      &:hover:not(:focus-within):not(.o-focused) .o-named-range-edit {
+        display: flex !important;
+      }
+    }
+  }
+}

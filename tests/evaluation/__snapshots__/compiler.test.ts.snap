@@ -4,8 +4,8 @@ exports[`compile functions same symbol twice 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =Hello+Hello
-const _1 = getSymbolValue(this.symbols[0]);
-const _2 = getSymbolValue(this.symbols[0]);
+const _1 = getSymbolValue(this.symbols[0], false, false, ref, range, ctx);
+const _2 = getSymbolValue(this.symbols[0], false, false, ref, range, ctx);
 return ctx['ADD'](_1, _2);
 }"
 `;
@@ -14,7 +14,7 @@ exports[`compile functions simple in a function 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =SUM(Hello)
-const _1 = getSymbolValue(this.symbols[1]);
+const _1 = getSymbolValue(this.symbols[1], true, false, ref, range, ctx);
 return ctx['SUM'](_1);
 }"
 `;
@@ -23,7 +23,7 @@ exports[`compile functions simple symbol 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =Hello
-return getSymbolValue(this.symbols[0]);
+return getSymbolValue(this.symbols[0], false, false, ref, range, ctx);
 }"
 `;
 
@@ -31,7 +31,7 @@ exports[`compile functions symbol with optional single quotes 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // ='Hello'
-return getSymbolValue(this.symbols[0]);
+return getSymbolValue(this.symbols[0], false, false, ref, range, ctx);
 }"
 `;
 
@@ -39,7 +39,7 @@ exports[`compile functions symbol with space and with single quotes 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // ='Hello world'
-return getSymbolValue(this.symbols[0]);
+return getSymbolValue(this.symbols[0], false, false, ref, range, ctx);
 }"
 `;
 
@@ -47,8 +47,8 @@ exports[`compile functions two different symbols 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =Hello+world
-const _1 = getSymbolValue(this.symbols[0]);
-const _2 = getSymbolValue(this.symbols[1]);
+const _1 = getSymbolValue(this.symbols[0], false, false, ref, range, ctx);
+const _2 = getSymbolValue(this.symbols[1], false, false, ref, range, ctx);
 return ctx['ADD'](_1, _2);
 }"
 `;

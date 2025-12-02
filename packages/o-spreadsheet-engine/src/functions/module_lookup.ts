@@ -336,7 +336,10 @@ export const INDIRECT: AddFunctionDescription = {
       this.updateDependencies?.(originPosition);
     }
 
-    const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
+    const namedRange = this.getters.getNamedRange(_reference);
+    const range = namedRange
+      ? namedRange.range
+      : this.getters.getRangeFromSheetXC(sheetId, _reference);
     if (range === undefined || range.invalidXc || range.invalidSheetName) {
       return new InvalidReferenceError();
     }

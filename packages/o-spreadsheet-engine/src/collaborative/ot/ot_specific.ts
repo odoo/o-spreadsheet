@@ -15,6 +15,7 @@ import {
   CreateTableCommand,
   DeleteChartCommand,
   DeleteFigureCommand,
+  DeleteNamedRangeCommand,
   DeleteSheetCommand,
   DuplicatePivotCommand,
   FoldHeaderGroupCommand,
@@ -33,6 +34,7 @@ import {
   UpdateCarouselCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
+  UpdateNamedRangeCommand,
   UpdatePivotCommand,
   UpdateTableCommand,
 } from "../../types/commands";
@@ -105,6 +107,12 @@ otRegistry.addTransformation(
   "REMOVE_COLUMNS_ROWS",
   ["ADD_PIVOT", "UPDATE_PIVOT"],
   pivotZoneTransformation
+);
+
+otRegistry.addTransformation(
+  "UPDATE_NAMED_RANGE",
+  ["UPDATE_NAMED_RANGE", "DELETE_NAMED_RANGE"],
+  updateNamedRangeTransformation
 );
 
 function pivotZoneTransformation(
@@ -347,4 +355,26 @@ function groupHeadersTransformation(
   }
 
   return { ...toTransform, start: Math.min(...results), end: Math.max(...results) };
+}
+
+function updateNamedRangeTransformation(
+  toTransform: UpdateNamedRangeCommand | DeleteNamedRangeCommand,
+  executed: UpdateNamedRangeCommand
+): UpdateNamedRangeCommand | DeleteNamedRangeCommand | undefined {
+  if (executed.newRangeName === executed.oldRangeName) {
+    return toTransform;
+  }
+  if (
+    toTransform.type === "DELETE_NAMED_RANGE" &&
+    toTransform.rangeName === executed.oldRangeName
+  ) {
+    return { ...toTransform, rangeName: executed.newRangeName };
+  }
+  if (
+    toTransform.type === "UPDATE_NAMED_RANGE" &&
+    toTransform.oldRangeName === executed.oldRangeName
+  ) {
+    return { ...toTransform, oldRangeName: executed.newRangeName };
+  }
+  return executed;
 }

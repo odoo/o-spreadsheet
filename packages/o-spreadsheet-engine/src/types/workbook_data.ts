@@ -11,6 +11,7 @@ import {
   Dimension,
   HeaderGroup,
   HeaderIndex,
+  NamedRange,
   PaneDivision,
   Pixel,
   PixelPosition,
@@ -84,6 +85,7 @@ export interface WorkbookData {
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;
   customTableStyles: { [key: string]: TableStyleData };
+  namedRanges: NamedRangeData[];
 }
 
 export interface ExcelWorkbookData extends WorkbookData {
@@ -113,6 +115,10 @@ export interface TableData {
 
 export interface DataValidationRuleData extends Omit<DataValidationRule, "ranges"> {
   ranges: string[];
+}
+
+export interface NamedRangeData extends Omit<NamedRange, "range"> {
+  rangeString: string;
 }
 
 export interface ExcelTableData {
