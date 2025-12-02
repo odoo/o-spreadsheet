@@ -161,6 +161,16 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
   });
 
+  test("Filters ignore whitespaces", () => {
+    setCellContent(model, "A2", "a");
+    setCellContent(model, "A3", " a");
+    setCellContent(model, "A4", "a ");
+    updateFilter(model, "A2", ["a"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+    expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
+    expect(model.getters.isRowHidden(sheetId, 3)).toEqual(true);
+  });
+
   test("Header is not filtered", () => {
     updateFilter(model, "A1", ["A1"]);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
@@ -374,6 +384,27 @@ describe("Filter criterion test", () => {
       });
 
       expect(getFilteredRows()).toEqual(expectedFilteredRows);
+    }
+  );
+
+  test.each(["beginsWithText", "endsWithText", "isEqualText"] as const)(
+    "Can filter based on a text criterion %s ignoring lowercase/uppercase and whitespaces",
+    (type) => {
+      const grid = {
+        A2: "a",
+        A3: " a",
+        A4: "a ",
+        A5: "A",
+        A6: "b",
+      };
+      setGrid(model, grid);
+      createTableWithFilter(model, "A1:A6");
+      updateFilterCriterion(model, "A1", {
+        type,
+        values: ["a"],
+      });
+
+      expect(getFilteredRows()).toEqual([5]);
     }
   );
 
