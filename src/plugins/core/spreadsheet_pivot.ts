@@ -49,7 +49,7 @@ export class SpreadsheetPivotCorePlugin extends CorePlugin {
         const adaptedRange = adaptPivotRange(range, applyChange);
 
         if (adaptedRange === range) {
-          return;
+          continue;
         }
 
         const dataSet = adaptedRange && {

@@ -2,6 +2,7 @@ import { CellErrorType, FunctionResultObject, Model } from "../../../src";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { DEFAULT_LOCALES } from "../../../src/types/locale";
 import {
+  addColumns,
   addRows,
   createSheet,
   deleteContent,
@@ -665,6 +666,22 @@ describe("Spreadsheet Pivot", () => {
     redo(model);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getEvaluatedCell(model, "A27").value).toEqual("(#1) My pivot");
+  });
+
+  test("Each pivot is adapted following a sheet structure change", () => {
+    const model = createModelWithPivot("A1:F5");
+    addPivot(model, "G1:I5", {}, "2");
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { activate: true });
+    setCellContent(model, "A1", `=pivot(1)`);
+    setCellContent(model, "A50", `=pivot(2)`);
+    expect(model.getters.getPivot("1").isValid()).toBeTruthy();
+    expect(model.getters.getPivot("2").isValid()).toBeTruthy();
+    expect(getEvaluatedCell(model, "A1").value).toEqual("(#1) My pivot");
+    expect(getEvaluatedCell(model, "A50").value).toEqual("(#2) Pivot");
+    addColumns(model, "before", "G", 1, sheetId);
+    expect(model.getters.getPivot("1").isValid()).toBeTruthy();
+    expect(model.getters.getPivot("2").isValid()).toBeTruthy();
   });
 
   test("Sum with a field that contains a string should work", () => {
