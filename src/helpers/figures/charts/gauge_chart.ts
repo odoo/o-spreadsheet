@@ -279,11 +279,10 @@ export class GaugeChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
+    const definition = this.getDefinition();
     return {
-      ...this.getDefinition(),
-      range: this.dataRange
-        ? [{ dataRange: this.getters.getRangeString(this.dataRange, this.sheetId) }]
-        : undefined,
+      ...definition,
+      range: definition.dataRange ? [{ dataRange: definition.dataRange }] : undefined,
     };
   }
 
