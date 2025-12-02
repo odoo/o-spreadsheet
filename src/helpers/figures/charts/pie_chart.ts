@@ -101,14 +101,11 @@ export class PieChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
+    const definition = this.getDefinition();
     return {
-      ...this.getDefinition(),
-      range: this.dataSets.map((ds: DataSet) => ({
-        dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
-      })),
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
+      ...definition,
+      range: definition.dataSets,
+      auxiliaryRange: definition.labelRange,
     };
   }
 

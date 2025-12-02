@@ -25,7 +25,6 @@ import {
   ChartCreationContext,
   ChartData,
   CommandResult,
-  CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
   Getters,
@@ -89,19 +88,11 @@ export class ComboChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
-    for (const [i, dataSet] of this.dataSets.entries()) {
-      range.push({
-        ...this.definition.dataSets?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
-      });
-    }
+    const definition = this.getDefinition();
     return {
-      ...this.getDefinition(),
-      range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
+      ...definition,
+      range: definition.dataSets,
+      auxiliaryRange: definition.labelRange,
     };
   }
 
