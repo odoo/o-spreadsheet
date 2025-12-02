@@ -9,6 +9,7 @@ import { getDateTimeFormat, localizeFormula } from "@odoo/o-spreadsheet-engine/h
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
+  detectDateFormat,
   formatValue,
   isDateTimeFormat,
   isFormula,
@@ -193,14 +194,21 @@ export class CellComposerStore extends AbstractComposerStore {
     let result: DispatchResult;
     if (content) {
       const sheetId = this.getters.getActiveSheetId();
-      const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
+      const position = { sheetId, col: this.col, row: this.row };
+      const cell = this.getters.getEvaluatedCell(position);
       if (cell.link && !isFormula(content)) {
         content = markdownLink(content, cell.link.url);
       }
+      const currentFormat = this.getters.getCell(position)?.format;
+      const afterFormat =
+        currentFormat === "@" || (currentFormat && isDateTimeFormat(currentFormat))
+          ? undefined
+          : detectDateFormat(content, this.getters.getLocale());
       this.addHeadersForSpreadingFormula(content);
       result = this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
+        format: afterFormat,
       });
     } else {
       result = this.model.dispatch("UPDATE_CELL", {
