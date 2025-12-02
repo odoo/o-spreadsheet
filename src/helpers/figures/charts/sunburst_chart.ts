@@ -108,16 +108,13 @@ export class SunburstChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const leafRange = this.dataSets.at(-1)?.dataRange;
+    const definition = this.getDefinition();
+    const leafRange = definition.dataSets.at(-1)?.dataRange;
     return {
-      ...this.getDefinition(),
-      range: this.labelRange
-        ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
-        : [],
-      auxiliaryRange: leafRange ? this.getters.getRangeString(leafRange, this.sheetId) : undefined,
-      hierarchicalRanges: this.dataSets.map((ds: DataSet) => ({
-        dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
-      })),
+      ...definition,
+      range: definition.labelRange ? [{ dataRange: definition.labelRange }] : [],
+      auxiliaryRange: leafRange,
+      hierarchicalRanges: definition.dataSets,
     };
   }
 
