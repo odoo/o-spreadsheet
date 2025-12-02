@@ -77,8 +77,8 @@ export function getBarChartDatasets(
   const trendDatasets: ChartDataset<"line">[] = [];
 
   for (const index in dataSetsValues) {
-    let { label, data, hidden } = dataSetsValues[index];
-    label = definition.dataSets?.[index].label || label;
+    let { label, data, hidden, dataSetId } = dataSetsValues[index];
+    label = definition.dataSets?.[dataSetId]?.label ?? label;
 
     const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar"> = {
@@ -88,7 +88,7 @@ export function getBarChartDatasets(
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
       backgroundColor,
-      yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
+      yAxisID: definition.horizontal ? "y" : definition.dataSets?.[dataSetId]?.yAxisId ?? "y",
       xAxisID: "x",
       barPercentage: 0.9,
       categoryPercentage: dataSetsValues.length > 1 ? 0.8 : 1,
@@ -96,7 +96,7 @@ export function getBarChartDatasets(
     };
     dataSets.push(dataset);
 
-    const trendConfig = definition.dataSets?.[index].trend;
+    const trendConfig = definition.dataSets?.[dataSetId]?.trend;
     const trendData = args.trendDataSetsValues?.[index];
     if (!trendConfig?.display || definition.horizontal || !trendData) {
       continue;
@@ -224,8 +224,8 @@ export function getLineChartDatasets(
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let index = 0; index < dataSetsValues.length; index++) {
-    let { label, data, hidden } = dataSetsValues[index];
-    label = definition.dataSets?.[index].label || label;
+    let { label, data, hidden, dataSetId } = dataSetsValues[index];
+    label = definition.dataSets?.[dataSetId]?.label ?? label;
     let dataValues: (number | { x: number; y: number })[] = [];
 
     const color = colors.next();
@@ -311,14 +311,14 @@ export function getComboChartDatasets(
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   const trendDatasets: ChartDataset<"line">[] = [];
   const barDatasets = dataSetsValues.filter(
-    (_, i) => (definition.dataSets?.[i].type ?? "line") === "bar"
+    ({ dataSetId }) => (definition.dataSets?.[dataSetId].type ?? "line") === "bar"
   );
 
   for (let index = 0; index < dataSetsValues.length; index++) {
-    let { label, data, hidden } = dataSetsValues[index];
-    label = definition.dataSets?.[index].label || label;
+    let { label, data, hidden, dataSetId } = dataSetsValues[index];
+    label = definition.dataSets?.[dataSetId].label || label;
 
-    const design = definition.dataSets?.[index];
+    const design = definition.dataSets?.[dataSetId];
     const color = colors.next();
 
     const type = design?.type ?? "line";
@@ -328,7 +328,7 @@ export function getComboChartDatasets(
       hidden,
       borderColor: color,
       backgroundColor: color,
-      yAxisID: definition.dataSets?.[index].yAxisId || "y",
+      yAxisID: definition.dataSets?.[dataSetId].yAxisId || "y",
       xAxisID: "x",
       type,
       order: type === "bar" ? dataSetsValues.length + index : index,
@@ -341,7 +341,7 @@ export function getComboChartDatasets(
     }
     dataSets.push(dataset);
 
-    const trendConfig = definition.dataSets?.[index].trend;
+    const trendConfig = definition.dataSets?.[dataSetId].trend;
     const trendData = args.trendDataSetsValues?.[index];
     if (!trendConfig?.display || !trendData) {
       continue;
@@ -747,10 +747,10 @@ export function getChartColorsGenerator(
   definition: GenericDefinition<ChartWithDataSetDefinition>,
   dataSetsSize: number
 ) {
-  return new ColorGenerator(
-    dataSetsSize,
-    definition.dataSets?.map((ds) => ds.backgroundColor) || []
+  const colors = definition.dataSource?.dataSets?.map(
+    (ds) => definition.dataSets?.[ds.id]?.backgroundColor
   );
+  return new ColorGenerator(dataSetsSize, colors);
 }
 
 function getTreeMapGroupColors(

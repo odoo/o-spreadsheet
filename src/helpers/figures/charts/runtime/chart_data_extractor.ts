@@ -33,8 +33,8 @@ import {
   ChartData,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
-  CustomizedDataSet,
   DataSet,
+  DataSetStyling,
   DatasetValues,
   FunnelChartDefinition,
   LabelValues,
@@ -91,9 +91,9 @@ export function getBarChartData(
 
   const trendDataSetsValues: (Point[] | undefined)[] = [];
   for (const index in dataSetsValues) {
-    const { data } = dataSetsValues[index];
+    const { data, dataSetId } = dataSetsValues[index];
 
-    const trend = definition.dataSets?.[index].trend;
+    const trend = definition.dataSets?.[dataSetId]?.trend;
     if (!trend?.display || definition.horizontal) {
       trendDataSetsValues.push(undefined);
       continue;
@@ -190,6 +190,7 @@ function computeValuesAndLabels(
     data: xValues.map((x) => grouping?.[x]?.[y]),
     label: getDateTimeLabel(y, verticalGroupBy),
     hidden: false,
+    dataSetId: "0",
   }));
 
   return {
@@ -410,7 +411,7 @@ export function getFunnelChartData(
   if (definition.cumulative) {
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "desc");
   }
-
+  definition.dataSets;
   const format =
     getChartDatasetFormat(definition.dataSets, dataSetsValues, "left") ||
     getChartDatasetFormat(definition.dataSets, dataSetsValues, "right");
@@ -916,12 +917,7 @@ export function getChartData(
   sheetId: UID,
   definition: ChartWithDataSetDefinition
 ): ChartData {
-  const dataSets = createDataSets(
-    getters,
-    definition.dataSets,
-    sheetId,
-    definition.dataSetsHaveTitle
-  );
+  const dataSets = createDataSets(getters, sheetId, definition);
   const labelRange = createValidRange(getters, sheetId, definition.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getChartDatasetValues(getters, dataSets);
@@ -943,12 +939,7 @@ export function getHierarchicalData(
   sheetId: UID,
   definition: ChartWithDataSetDefinition
 ): ChartData {
-  const dataSets = createDataSets(
-    getters,
-    definition.dataSets,
-    sheetId,
-    definition.dataSetsHaveTitle
-  );
+  const dataSets = createDataSets(getters, sheetId, definition);
   const labelRange = createValidRange(getters, sheetId, definition.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
@@ -1002,12 +993,12 @@ function getChartLabelValues(
  * found in the dataset ranges that isn't a date format.
  */
 function getChartDatasetFormat(
-  dataSetDefinitions: Pick<CustomizedDataSet, "yAxisId">[], // TODO simplify once CustomizedDataSet no longer contains ranges
+  dataSetStyling: DataSetStyling | undefined,
   dataSetValues: DatasetValues[],
   axis: "left" | "right"
 ): Format | undefined {
   const dataSets = dataSetValues.filter(
-    (ds, i) => (axis === "right") === (dataSetDefinitions[i].yAxisId === "y1")
+    (ds) => (axis === "right") === (dataSetStyling?.[ds.dataSetId]?.yAxisId === "y1")
   );
   for (const ds of dataSets) {
     const cell = ds.data.find(({ format }) => format !== undefined && !isDateTimeFormat(format));
@@ -1041,7 +1032,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     } else if (data.every((cell) => !isNumberCell(cell))) {
       hidden = true;
     }
-    datasetValues.push({ data, label, hidden });
+    datasetValues.push({ data, label, hidden, dataSetId: ds.dataSetId });
   }
   return datasetValues;
 }
@@ -1063,7 +1054,11 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   dataSets = dataSets.filter(
     (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
   );
-  const datasetValues: DatasetValues[] = dataSets.map(() => ({ data: [], label: "" }));
+  const datasetValues: DatasetValues[] = dataSets.map((ds) => ({
+    data: [],
+    label: "",
+    dataSetId: ds.dataSetId,
+  }));
   const dataSetsData = dataSets.map((ds) => getData(getters, ds));
   if (!dataSetsData.length) {
     return datasetValues;

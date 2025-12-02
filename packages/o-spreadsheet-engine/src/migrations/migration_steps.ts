@@ -602,6 +602,41 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.1.3", {
+    migrate(data: WorkbookData): any {
+      function upgrade(definition: any): any {
+        if (!("dataSets" in definition)) {
+          return definition;
+        }
+        definition = { ...definition };
+        const custo = {}; // TODO rename and type properly
+        definition.dataSource = {
+          dataSets: definition.dataSets.map((ds, i) => {
+            const dataSetId = i.toString();
+            const dataRange = ds.dataRange;
+            delete ds.dataRange;
+            custo[dataSetId] = { ...ds };
+            return { dataRange, id: dataSetId };
+          }),
+        };
+        definition.dataSets = custo;
+        return definition;
+      }
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart" && "dataSets" in figure.data) {
+            figure.data = upgrade(figure.data);
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              figure.data.chartDefinitions[chartId] = upgrade(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

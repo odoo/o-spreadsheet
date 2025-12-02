@@ -17,15 +17,25 @@ export class MainChartPanelStore extends SpreadsheetStore {
     const currentCreationContext = this.getters.getContextCreationChart(chartId);
     const savedCreationContext = this.creationContexts[chartId] || {};
 
-    let newRanges = currentCreationContext?.range;
-    if (newRanges?.every((range, i) => deepEquals(range, savedCreationContext.range?.[i]))) {
-      newRanges = Object.assign([], savedCreationContext.range, currentCreationContext?.range);
+    let newRanges = currentCreationContext?.dataSource?.dataSets;
+    // TODO FIXME: we probably shouldn't compare ids.
+    if (
+      newRanges?.every((range, i) =>
+        deepEquals(range, savedCreationContext.dataSource?.dataSets?.[i])
+      )
+    ) {
+      newRanges = Object.assign(
+        [],
+        savedCreationContext.dataSource?.dataSets,
+        currentCreationContext?.dataSource?.dataSets
+      );
     }
 
     this.creationContexts[chartId] = {
       ...savedCreationContext,
       ...currentCreationContext,
-      range: newRanges,
+      dataSource: { dataSets: newRanges ?? [] },
+      // dataSets: newRanges,
     };
     const figureId = this.getters.getFigureIdFromChartId(chartId);
     const sheetId = this.getters.getFigureSheetId(figureId);

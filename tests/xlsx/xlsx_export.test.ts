@@ -7,7 +7,7 @@ import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
 import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { CustomizedDataSet, Dimension } from "../../src/types";
+import { Dimension } from "../../src/types";
 
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
@@ -1130,22 +1130,19 @@ describe("Test XLSX export", () => {
       ["combo", [{ dataRange: "Sheet1!B1:B4" }]],
       ["pie", [{ dataRange: "Sheet1!B1:B4" }]],
       ["radar", [{ dataRange: "Sheet1!B1:B4" }]],
-    ])(
-      "simple %s chart with dataset %s",
-      async (chartType: string, dataSets: CustomizedDataSet[]) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets,
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
+    ])("simple %s chart with dataset %s", async (chartType: string, dataSets: DataSetStyling) => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets,
+          labelRange: "Sheet1!A2:A4",
+          type: chartType as "line" | "bar" | "pie" | "combo",
+        },
+        "1"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
 
     test.each(["line", "scatter", "bar", "combo", "radar"])(
       "simple %s chart with customized dataset",
