@@ -355,10 +355,10 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     // existingBorderSideToClear[side] = true means we should clear the border on that
     // side of the existing adjacent zone before adding the new border.
     const existingBorderSideToClear = {
-      left: force || !!newBorder?.right,
-      right: force || !!newBorder?.left,
-      top: force || !!newBorder?.bottom,
-      bottom: force || !!newBorder?.top,
+      left: !!newBorder?.right,
+      right: !!newBorder?.left,
+      top: !!newBorder?.bottom,
+      bottom: !!newBorder?.top,
     };
     let editingZone: Zone[] = [zone];
     for (const existingBorder of this.borders[sheetId] ?? []) {
