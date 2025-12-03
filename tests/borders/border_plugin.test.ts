@@ -10,6 +10,7 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  merge,
   moveColumns,
   moveRows,
   paste,
@@ -198,6 +199,22 @@ describe("borders", () => {
       bottom: defaultBorder,
       right: defaultBorder,
     });
+  });
+
+  test("import preserves merged cell borders", () => {
+    const b = DEFAULT_BORDER_DESC;
+    const allSides = { top: b, bottom: b, left: b, right: b };
+    const model = new Model();
+
+    setZoneBorders(model, { position: "all" }, ["B2:C3"]);
+    merge(model, "C2:C3");
+
+    const importedModel = new Model(model.exportData());
+
+    expect(getBorder(importedModel, "B2")).toEqual(allSides);
+    expect(getBorder(importedModel, "B3")).toEqual(allSides);
+    expect(getBorder(importedModel, "C2")).toEqual({ top: b, right: b });
+    expect(getBorder(importedModel, "C3")).toEqual({ bottom: b, right: b });
   });
 
   test("can set all borders in a zone", () => {
