@@ -38,6 +38,7 @@ import {
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
+  private isAdaptingRanges: boolean = false;
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -72,6 +73,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   beforeHandle(command: Command) {}
 
   handle(cmd: CoreCommand) {
+    if (this.isAdaptingRanges) {
+      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
+    }
     const rangeAdapter = getRangeAdapter(cmd);
     if (rangeAdapter?.applyChange) {
       this.executeOnAllRanges(
@@ -105,10 +109,12 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     sheetId: UID,
     sheetName: AdaptSheetName
   ) {
+    this.isAdaptingRanges = true;
     const func = this.verifyRangeRemoved(adaptRange);
     for (const provider of this.providers) {
       provider(func, sheetId, sheetName);
     }
+    this.isAdaptingRanges = false;
   }
 
   /**
