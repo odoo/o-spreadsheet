@@ -1,6 +1,6 @@
 import { ModelConfig } from "../../model";
 import { Registry } from "../../registries/registry";
-import { CoreGetters, Getters } from "../../types";
+import { ApplyRangeChange, CoreGetters, Getters, Range } from "../../types";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
@@ -33,6 +33,11 @@ export interface PivotRegistryItem {
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
   canHaveCustomGroup: (field: PivotField) => boolean;
+  adaptRanges?: (
+    getters: CoreGetters,
+    definition: PivotCoreDefinition,
+    applyChange: ApplyRangeChange
+  ) => PivotCoreDefinition;
 }
 
 export const pivotRegistry = new Registry<PivotRegistryItem>();
@@ -56,4 +61,40 @@ pivotRegistry.add("SPREADSHEET", {
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
   isGroupable: () => true,
   canHaveCustomGroup: (field: PivotField) => field.type === "char" && !field.isCustomField,
+  adaptRanges: (getters, definition, applyChange) => {
+    if (definition.type !== "SPREADSHEET" || !definition.dataSet) {
+      return definition;
+    }
+    const { sheetId, zone } = definition.dataSet;
+    const range = getters.getRangeFromZone(sheetId, zone);
+    const adaptedRange = adaptPivotRange(range, applyChange);
+
+    if (adaptedRange === range) {
+      return definition;
+    }
+
+    const dataSet = adaptedRange && {
+      sheetId: adaptedRange.sheetId,
+      zone: adaptedRange.zone,
+    };
+    return { ...definition, dataSet };
+  },
 });
+
+function adaptPivotRange(
+  range: Range | undefined,
+  applyChange: ApplyRangeChange
+): Range | undefined {
+  if (!range) {
+    return undefined;
+  }
+  const change = applyChange(range);
+  switch (change.changeType) {
+    case "NONE":
+      return range;
+    case "REMOVE":
+      return undefined;
+    default:
+      return change.range;
+  }
+}
