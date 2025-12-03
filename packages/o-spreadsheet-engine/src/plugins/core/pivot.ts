@@ -1,6 +1,7 @@
 import { compile } from "../../formulas/compiler";
 import { deepCopy, deepEquals } from "../../helpers/misc";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
+import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { CommandResult, CoreCommand } from "../../types/commands";
 import { CellPosition, UID } from "../../types/misc";
@@ -141,6 +142,18 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   }
 
   adaptRanges(applyChange: ApplyRangeChange) {
+    for (const pivotId in this.pivots) {
+      const definition = deepCopy(this.pivots[pivotId]?.definition);
+      if (!definition) {
+        continue;
+      }
+      const newDefinition = pivotRegistry
+        .get(definition.type)
+        ?.adaptRanges?.(this.getters, definition, applyChange);
+      if (newDefinition && !deepEquals(definition, newDefinition)) {
+        this.history.update("pivots", pivotId, "definition", newDefinition);
+      }
+    }
     for (const sheetId in this.compiledMeasureFormulas) {
       for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
         const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
@@ -325,19 +338,19 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       if (!pivot) {
         continue;
       }
-      const def = deepCopy(pivot.definition);
 
-      for (const measure of def.measures) {
+      for (const measure of pivot.definition.measures) {
         if (measure.computedBy?.formula === formulaString) {
-          const measureIndex = def.measures.indexOf(measure);
-          if (measureIndex !== -1) {
-            def.measures[measureIndex].computedBy = {
-              formula: newFormulaString,
-              sheetId,
-            };
-          }
-
-          this.dispatch("UPDATE_PIVOT", { pivotId, pivot: def });
+          const measureIndex = pivot.definition.measures.indexOf(measure);
+          this.history.update(
+            "pivots",
+            pivotId,
+            "definition",
+            "measures",
+            measureIndex,
+            "computedBy",
+            { formula: newFormulaString, sheetId }
+          );
         }
       }
     }
