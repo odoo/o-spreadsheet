@@ -44,6 +44,7 @@ interface RangeStringOptions {
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
+  private isAdaptingRanges: boolean = false;
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -77,6 +78,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   beforeHandle(command: Command) {}
 
   handle(cmd: Command) {
+    if (this.isAdaptingRanges) {
+      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
+    }
     switch (cmd.type) {
       case "REMOVE_COLUMNS_ROWS": {
         let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
@@ -247,10 +251,12 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID) {
+    this.isAdaptingRanges = true;
     const func = this.verifyRangeRemoved(adaptRange);
     for (const provider of this.providers) {
       provider(func, sheetId);
     }
+    this.isAdaptingRanges = false;
   }
 
   /**
