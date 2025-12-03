@@ -44,7 +44,12 @@ export class CorePlugin<State = any>
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver);
-    range.addRangeProvider(this.adaptRanges.bind(this));
+    // Bind adaptRanges to a version of `this` where `dispatch` always throws
+    const thisWithThrowingDispatch = Object.create(this);
+    thisWithThrowingDispatch.dispatch = () => {
+      throw new Error("dispatch is not allowed in adaptRanges context");
+    };
+    range.addRangeProvider(this.adaptRanges.bind(thisWithThrowingDispatch));
     this.getters = getters;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
