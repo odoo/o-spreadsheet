@@ -10,7 +10,8 @@
   "files": [
     "dist/*.js",
     "dist/*.d.ts",
-    "dist/*.xml"
+    "dist/*.xml",
+    "dist/*.css"
   ],
   "engines": {
     "node": ">=22.0.0"
