@@ -10,7 +10,8 @@
   "files": [
     "dist/*.js",
     "dist/*.d.ts",
-    "dist/*.xml"
+    "dist/*.xml",
+    "dist/*.css"
   ],
   "scripts": {
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
