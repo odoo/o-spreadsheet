@@ -1,3 +1,4 @@
+import { Color } from "@odoo/o-spreadsheet-engine";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
@@ -17,14 +18,35 @@ import {
   ChartWithDataSetDefinition,
   GenericDefinition,
   LineChartDefinition,
+  PieChartDefinition,
+  PyramidChartDefinition,
   SunburstChartDefinition,
   SunburstChartJSDataset,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
+import {
+  Chart,
+  ChartDataset,
+  ChartEvent,
+  LegendElement,
+  LegendItem,
+  LegendOptions,
+} from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
+import {
+  highlightBarChartItem,
+  highlightComboChartItem,
+  highlightLineChartItem,
+  highlightPieChartItem,
+  toggleLineBarDataVisibility,
+  togglePieDataVisibility,
+  unHighlightBarChartItems,
+  unHighlightComboChartItems,
+  unHighlightLineChartItems,
+  unHighlightPieChartItems,
+} from "../../../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/runtime/chart_highlight";
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
@@ -43,7 +65,24 @@ export function getBarChartLegend(
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   return {
-    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getInteractiveLegendConfig(
+      highlightBarChartItem,
+      unHighlightBarChartItems,
+      toggleLineBarDataVisibility
+    ),
+    ...getLegendDisplayOptions(definition, args),
+    ...getCustomLegendLabels(chartFontColor(definition.background), {
+      pointStyle: "rect",
+      lineWidth: 3,
+    }),
+  };
+}
+
+export function getPyramidChartLegend(
+  definition: GenericDefinition<PyramidChartDefinition>,
+  args: ChartRuntimeGenerationArgs
+): ChartLegend {
+  return {
     ...getLegendDisplayOptions(definition, args),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle: "rect",
@@ -60,7 +99,11 @@ export function getLineChartLegend(
   const pointStyle = filled ? "rect" : "line";
   const lineWidth = filled ? 2 : 3;
   return {
-    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getInteractiveLegendConfig(
+      highlightLineChartItem,
+      unHighlightLineChartItems,
+      toggleLineBarDataVisibility
+    ),
     ...getLegendDisplayOptions(definition, args),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle,
@@ -70,7 +113,7 @@ export function getLineChartLegend(
 }
 
 export function getPieChartLegend(
-  definition: GenericDefinition<LineChartDefinition>,
+  definition: GenericDefinition<PieChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   const { dataSetsValues } = args;
@@ -78,6 +121,11 @@ export function getPieChartLegend(
   const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
   const fontColor = chartFontColor(definition.background);
   return {
+    ...getInteractiveLegendConfig(
+      highlightPieChartItem,
+      unHighlightPieChartItems,
+      togglePieDataVisibility
+    ),
     ...getLegendDisplayOptions(definition, args),
     labels: {
       usePointStyle: true,
@@ -90,6 +138,8 @@ export function getPieChartLegend(
             pointStyle: "rect" as const,
             lineWidth: 2,
             fontColor,
+            index: index,
+            hidden: !c.getDataVisibility?.(index),
           })) || []
         ).filter((label) => label.text),
       filter: (legendItem, data) => {
@@ -106,7 +156,11 @@ export function getScatterChartLegend(
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   return {
-    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getInteractiveLegendConfig(
+      highlightLineChartItem,
+      unHighlightLineChartItems,
+      toggleLineBarDataVisibility
+    ),
     ...getLegendDisplayOptions(definition, args),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle: "circle",
@@ -122,7 +176,11 @@ export function getComboChartLegend(
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   return {
-    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getInteractiveLegendConfig(
+      highlightComboChartItem,
+      unHighlightComboChartItems,
+      toggleLineBarDataVisibility
+    ),
     ...getLegendDisplayOptions(definition, args),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       lineWidth: 3,
@@ -189,7 +247,11 @@ export function getRadarChartLegend(
   const pointStyle = fill ? "rect" : "line";
   const lineWidth = fill ? 2 : 3;
   return {
-    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getInteractiveLegendConfig(
+      highlightLineChartItem,
+      unHighlightLineChartItems,
+      toggleLineBarDataVisibility
+    ),
     ...getLegendDisplayOptions(definition, args),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle,
@@ -229,46 +291,67 @@ export function getSunburstChartLegend(
   };
 }
 
-/* Callback used to make the legend interactive
+/* Callbacks used to make the legend interactive
  * These are used to make the user able to hide/show a data series by
  * clicking on the corresponding label in the legend. The onHover and
  * onLeave callbacks are used to show a pointer when hovering an item
  * of the legend so that the user knows it is clickable.
  */
-export const INTERACTIVE_LEGEND_CONFIG = {
-  onHover: (event) => {
-    const target = event.native?.target;
-    if (!target) {
-      return;
-    }
-    //@ts-ignore
-    target.style.cursor = "pointer";
-  },
-  onLeave: (event) => {
-    const target = event.native?.target;
-    if (!target) {
-      return;
-    }
-    //@ts-ignore
-    target.style.cursor = "default";
-  },
-  onClick: (event, legendItem, legend) => {
-    if (event.type !== "click") {
-      return;
-    }
-    const index = legendItem.datasetIndex;
-    if (!legend.legendItems || index === undefined) {
-      return;
-    }
-    if (legend.chart.isDatasetVisible(index)) {
-      legend.chart.hide(index);
-    } else {
-      legend.chart.show(index);
-    }
-    event.native.preventDefault();
-    event.native.stopPropagation();
-  },
-};
+
+function getInteractiveLegendConfig(
+  highlightItem: (item: LegendItem, dataSets: ChartDataset[]) => void,
+  unHighlightItems: (dataSets: ChartDataset[]) => void,
+  toggleDataVisibility: (chart: Chart, item: LegendItem) => void
+): ChartLegend {
+  return {
+    onHover: (event: ChartEvent, item: LegendItem, legend: LegendElement<any>) => {
+      if (!item.hidden) {
+        const datasets = legend.chart.data.datasets;
+        highlightItem(item, datasets);
+        legend.chart.update();
+      }
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "pointer";
+    },
+    onLeave: (event: ChartEvent, item: LegendItem, legend: LegendElement<any>) => {
+      if (!item.hidden) {
+        const datasets = legend.chart.data.datasets;
+        unHighlightItems(datasets);
+        legend.chart.update();
+      }
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "default";
+    },
+    onClick: (event: ChartEvent, item: LegendItem, legend: LegendElement<any>) => {
+      if (event.type !== "click") {
+        return;
+      }
+      if (!legend.legendItems) {
+        return;
+      }
+      if (legend.chart.options.animation) {
+        legend.chart.options.animation = false;
+      }
+      toggleDataVisibility(legend.chart, item);
+      if (!item.hidden) {
+        unHighlightItems(legend.chart.data.datasets);
+      } else {
+        highlightItem(item, legend.chart.data.datasets);
+      }
+      legend.chart.update();
+      event.native!.preventDefault();
+      event.native!.stopPropagation();
+    },
+  };
+}
 
 function getCustomLegendLabels(
   fontColor: Color,
