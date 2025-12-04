@@ -445,6 +445,26 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "A1")!.format).toBe("0%");
   });
 
+  test.each(["", "0%", "#,##0", "#,##0[$ THUNE ]"])(
+    "Set Date to a cell formatted with format %s, format should be adapted",
+    (format: string) => {
+      const model = new Model();
+      setFormat(model, "A1", format);
+      setCellContent(model, "A1", "12/12/2025");
+      expect(getEvaluatedCell(model, "A1").format).toBe("m/d/yyyy");
+    }
+  );
+
+  test.each(["@", "d/m/yyyy"])(
+    "Set date to a cell formatted with format %s, format should not be adapted",
+    (format: string) => {
+      const model = new Model();
+      setFormat(model, "A1", format);
+      setCellContent(model, "A1", "12/12/2025");
+      expect(getEvaluatedCell(model, "A1").format).toBe(format);
+    }
+  );
+
   test.each([
     ["0%", "0.0%", "0.00%"],
     ["#,##0", "#,##0.0", "#,##0.00"],
