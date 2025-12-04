@@ -760,12 +760,12 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-top-left"
     />
     <div
-      class="o-column-groups"
+      class="o-column-groups o-zoomable"
     >
       
     </div>
     <div
-      class="o-row-groups"
+      class="o-row-groups o-zoomable"
     >
       
     </div>
@@ -1732,12 +1732,12 @@ exports[`components take the small screen into account 1`] = `
       class="o-top-left"
     />
     <div
-      class="o-column-groups"
+      class="o-column-groups o-zoomable"
     >
       
     </div>
     <div
-      class="o-row-groups"
+      class="o-row-groups o-zoomable"
     >
       
     </div>

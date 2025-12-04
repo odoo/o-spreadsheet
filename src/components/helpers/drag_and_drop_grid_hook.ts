@@ -55,11 +55,11 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;
 
-    const x = zoomedMouseEvent.clientX - position.left;
+    const x = zoomedMouseEvent.clientX - position.x;
     let colIndex = getters.getColIndex(x);
 
     if (scrollDirection !== "vertical") {
-      const previousX = previousEvClientPosition.clientX - position.left;
+      const previousX = previousEvClientPosition.clientX - position.x;
       const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
       if (edgeScrollInfoX.canEdgeScroll) {
         canEdgeScroll = true;
@@ -85,11 +85,11 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
       }
     }
 
-    const y = zoomedMouseEvent.clientY - position.top;
+    const y = zoomedMouseEvent.clientY - position.y;
     let rowIndex = getters.getRowIndex(y);
 
     if (scrollDirection !== "horizontal") {
-      const previousY = previousEvClientPosition.clientY - position.top;
+      const previousY = previousEvClientPosition.clientY - position.y;
       const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
       if (edgeScrollInfoY.canEdgeScroll) {
         canEdgeScroll = true;
@@ -149,8 +149,8 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     const zoomLevel = env.model.getters.getViewportZoomLevel();
     const position = gridOverlayPosition(zoomLevel);
     scrollDirection = startScrollDirection;
-    startingX = initialPointerCoordinates.clientX - position.left;
-    startingY = initialPointerCoordinates.clientY - position.top;
+    startingX = initialPointerCoordinates.clientX - position.x;
+    startingY = initialPointerCoordinates.clientY - position.y;
     previousEvClientPosition = {
       clientX: initialPointerCoordinates.clientX,
       clientY: initialPointerCoordinates.clientY,

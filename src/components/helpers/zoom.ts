@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { DOMRectPosition, Pixel, Rect } from "../..";
-import { zoomCorrectedElementPosition } from "./dom_helpers";
+import { DOMCoordinates, Pixel, Rect } from "../..";
+import { zoomCorrectedElementRect } from "./dom_helpers";
 
 export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
   clientX: Pixel;
@@ -20,15 +20,15 @@ export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
 export function withZoom<T extends MouseEvent>(
   env: SpreadsheetChildEnv,
   ev: T,
-  originalTargetPosition?: DOMRectPosition | null
+  originalTargetPosition?: DOMCoordinates | null
 ): ZoomedMouseEvent<T> {
   const zoomLevel = env.model.getters.getViewportZoomLevel();
   if (originalTargetPosition === undefined) {
     originalTargetPosition = getZoomTargetPosition(ev, zoomLevel);
   }
   if (!originalTargetPosition) return withNoZoom(ev);
-  const baseOffsetX = ev.clientX - originalTargetPosition.left;
-  const baseOffsetY = ev.clientY - originalTargetPosition.top;
+  const baseOffsetX = ev.clientX - originalTargetPosition.x;
+  const baseOffsetY = ev.clientY - originalTargetPosition.y;
   const offsetX = baseOffsetX / zoomLevel;
   const offsetY = baseOffsetY / zoomLevel;
   return {
@@ -65,10 +65,10 @@ export function getZoomedRect(zoom: number, rect: Rect): Rect {
 /**
  * Returns the bounding rect of the closest or self element who is targetable by a ZoomedMouseEvent
  */
-function getZoomTargetPosition(ev: MouseEvent, zoom: number): DOMRectPosition | null {
+function getZoomTargetPosition(ev: MouseEvent, zoom: number): DOMCoordinates | null {
   const target = ev.target;
   if (!target || !("classList" in target) || !(target instanceof Element)) {
     return null;
   }
-  return zoomCorrectedElementPosition(target, zoom);
+  return zoomCorrectedElementRect(target, zoom);
 }

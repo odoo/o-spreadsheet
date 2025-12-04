@@ -124,8 +124,8 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
 
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 
-    const initCol = this.env.model.getters.getColIndex(zoomedMouseEvent.clientX - position.left);
-    const initRow = this.env.model.getters.getRowIndex(zoomedMouseEvent.clientY - position.top);
+    const initCol = this.env.model.getters.getColIndex(zoomedMouseEvent.clientX - position.x);
+    const initRow = this.env.model.getters.getRowIndex(zoomedMouseEvent.clientY - position.y);
 
     const deltaColMin = -z.left;
     const deltaColMax = this.env.model.getters.getNumberCols(activeSheetId) - z.right - 1;
