@@ -12,7 +12,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { getChartDefaultOptions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
@@ -26,6 +26,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
+import { getChartMouseOutPlugin } from "../../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/runtime/chart_highlight";
 import {
   ApplyRangeChange,
   Color,
@@ -209,7 +210,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
       datasets: getPieChartDatasets(definition, chartData),
     },
     options: {
-      ...CHART_COMMON_OPTIONS,
+      ...getChartDefaultOptions("pie"),
       cutout:
         chart.isDoughnut && definition.pieHolePercentage !== undefined
           ? definition.pieHolePercentage + "%"
@@ -222,6 +223,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
       },
     },
+    plugins: [getChartMouseOutPlugin("pie")],
   };
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

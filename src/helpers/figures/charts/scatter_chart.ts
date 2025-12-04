@@ -15,7 +15,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { getChartDefaultOptions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
@@ -33,6 +33,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
+import { getChartMouseOutPlugin } from "../../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/runtime/chart_highlight";
 import {
   ApplyRangeChange,
   Color,
@@ -243,7 +244,7 @@ export function createScatterChartRuntime(
       datasets: getScatterChartDatasets(definition, chartData),
     },
     options: {
-      ...CHART_COMMON_OPTIONS,
+      ...getChartDefaultOptions("scatter"),
       layout: getChartLayout(definition, chartData),
       scales: getScatterChartScales(definition, chartData),
       plugins: {
@@ -253,6 +254,7 @@ export function createScatterChartRuntime(
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
       },
     },
+    plugins: [getChartMouseOutPlugin("scatter")],
   };
 
   return {
