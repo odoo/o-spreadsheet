@@ -19,10 +19,10 @@
           t-att-style="gridContainerStyle"
           t-on-click="this.focusGrid">
           <div class="o-top-left"/>
-          <div class="o-column-groups">
+          <div class="o-column-groups o-zoomable">
             <HeaderGroupContainer layers="colLayers" dimension="'COL'"/>
           </div>
-          <div class="o-row-groups">
+          <div class="o-row-groups o-zoomable">
             <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
           </div>
           <div class="o-group-grid overflow-hidden">
