@@ -19,10 +19,10 @@ autoCompleteProviders.add("sheet_names", {
     }
     return [];
   },
-  selectProposal(tokenAtCursor, value) {
+  selectProposal(tokenAtCursor, proposal) {
     const start = tokenAtCursor.start;
     const end = tokenAtCursor.end;
     this.composer.changeComposerCursorSelection(start, end);
-    this.composer.replaceComposerCursorSelection(value + "!");
+    this.composer.replaceComposerCursorSelection(proposal.text + "!");
   },
 });

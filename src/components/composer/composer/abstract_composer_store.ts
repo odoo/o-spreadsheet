@@ -32,6 +32,7 @@ import {
 } from "../../../helpers/index";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
+  AutoCompleteProposal,
   AutoCompleteProvider,
   AutoCompleteProviderDefinition,
   autoCompleteProviders,
@@ -902,9 +903,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         autoComplete.provider &&
         autoComplete.selectedIndex !== undefined
       ) {
-        const autoCompleteValue = autoComplete.provider.proposals[autoComplete.selectedIndex]?.text;
-        if (autoCompleteValue) {
-          this.autoComplete.provider?.selectProposal(autoCompleteValue);
+        const proposal = autoComplete.provider.proposals[autoComplete.selectedIndex];
+        if (proposal) {
+          this.autoComplete.provider?.selectProposal(proposal);
           return;
         }
       }
@@ -912,8 +913,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
-  insertAutoCompleteValue(value: string) {
-    this.autoComplete.provider?.selectProposal(value);
+  insertAutoCompleteValue(proposal: AutoCompleteProposal) {
+    this.autoComplete.provider?.selectProposal(proposal);
   }
 
   selectAutoCompleteIndex(index: number) {
