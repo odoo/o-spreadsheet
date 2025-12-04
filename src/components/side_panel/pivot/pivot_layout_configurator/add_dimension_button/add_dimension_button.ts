@@ -49,8 +49,8 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
     return {
       proposals: this.proposals,
       autoSelectFirstProposal: false,
-      selectProposal: (value) => {
-        const field = this.props.fields.find((field) => field.string === value);
+      selectProposal: (proposal) => {
+        const field = this.props.fields.find((field) => field.string === proposal.text);
         if (field) {
           this.pickField(field);
         }
@@ -111,10 +111,12 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
       case "Enter":
         const proposals = this.autoComplete.provider?.proposals;
         if (proposals?.length === 1) {
-          this.autoComplete.provider?.selectProposal(proposals[0].text || "");
+          this.autoComplete.provider?.selectProposal(proposals[0]);
         }
         const proposal = this.autoComplete.selectedProposal;
-        this.autoComplete.provider?.selectProposal(proposal?.text || "");
+        if (proposal) {
+          this.autoComplete.provider?.selectProposal(proposal);
+        }
         break;
       case "ArrowUp":
       case "ArrowDown":

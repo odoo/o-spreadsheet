@@ -43,7 +43,7 @@ describe("spreadsheet pivot auto complete", () => {
           alwaysExpanded: true,
         },
       ]);
-      composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+      composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
       await nextTick();
       expect(composer.currentContent).toBe(`=${func}(1`);
       // range selection stops
@@ -103,7 +103,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"__count"',
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue:sum"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -156,7 +156,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Stage"',
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -193,7 +193,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Stage"',
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -217,7 +217,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Created on:day"',
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Created on:day"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -324,7 +324,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Won"',
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage","New"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -434,7 +434,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "12",
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",1'
@@ -478,7 +478,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "4",
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:quarter_number",1'
@@ -509,7 +509,7 @@ describe("spreadsheet pivot auto complete", () => {
       htmlContent: [{ color: "#02c39a", value: "31" }],
       text: "31",
     });
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_month",1'
@@ -540,7 +540,7 @@ describe("spreadsheet pivot auto complete", () => {
       htmlContent: [{ color: "#02c39a", value: "53" }],
       text: "53",
     });
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:iso_week_number",0'
@@ -571,7 +571,7 @@ describe("spreadsheet pivot auto complete", () => {
       htmlContent: [{ color: "#02c39a", value: "7" }],
       text: "7",
     });
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_week",1'
@@ -602,7 +602,7 @@ describe("spreadsheet pivot auto complete", () => {
       htmlContent: [{ color: "#02c39a", value: "23" }],
       text: "23",
     });
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:hour_number",0'
@@ -633,7 +633,7 @@ describe("spreadsheet pivot auto complete", () => {
       htmlContent: [{ color: "#02c39a", value: "59" }],
       text: "59",
     });
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:minute_number",0'
@@ -664,7 +664,7 @@ describe("spreadsheet pivot auto complete", () => {
       htmlContent: [{ color: "#02c39a", value: "59" }],
       text: "59",
     });
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:second_number",0'
@@ -709,7 +709,7 @@ describe("spreadsheet pivot auto complete", () => {
     composer.startEdition("=PIVOT.HEADER(1,");
     await nextTick();
     expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -726,7 +726,7 @@ describe("spreadsheet pivot auto complete", () => {
     composer.startEdition('=PIVOT.HEADER(1,"sta');
     await nextTick();
     expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -743,7 +743,7 @@ describe("spreadsheet pivot auto complete", () => {
     composer.startEdition('=PIVOT.HEADER(1,"Stage",');
     await nextTick();
     expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"New"', '"Won"']);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage","New"');
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -784,7 +784,7 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "'Expected Revenue:sum'" }],
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe("=1+'Expected Revenue:sum'");
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -817,7 +817,7 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe("=1+Stage");
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -850,7 +850,7 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe("=Stage");
     expect(composer.isAutoCompleteDisplayed).toBe(false);
@@ -884,7 +884,7 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
-    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0]);
     await nextTick();
     expect(composer.currentContent).toBe("=Stage");
     expect(composer.isAutoCompleteDisplayed).toBe(false);

@@ -8,6 +8,7 @@ import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_toke
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
@@ -849,11 +850,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     return [...new Set(argsToFocus)];
   }
 
-  autoComplete(value: string) {
-    if (!value || (this.assistant.forcedClosed && this.props.composerStore.canBeToggled)) {
+  autoComplete(proposal: AutoCompleteProposal) {
+    if (!proposal || (this.assistant.forcedClosed && this.props.composerStore.canBeToggled)) {
       return;
     }
-    this.props.composerStore.insertAutoCompleteValue(value);
+    this.props.composerStore.insertAutoCompleteValue(proposal);
     this.processTokenAtCursor();
   }
 
