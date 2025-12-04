@@ -22,7 +22,7 @@ export interface AutoCompleteProposal {
 
 export interface AutoCompleteProvider {
   proposals: AutoCompleteProposal[];
-  selectProposal(text: string): void;
+  selectProposal(proposal: AutoCompleteProposal): void;
   autoSelectFirstProposal: boolean;
   canBeToggled?: boolean;
 }
@@ -57,7 +57,7 @@ export interface AutoCompleteProviderDefinition {
   selectProposal(
     this: { composer: ComposerStoreInterface },
     tokenAtCursor: EnrichedToken,
-    text: string
+    propsal: AutoCompleteProposal
   ): void;
 }
 

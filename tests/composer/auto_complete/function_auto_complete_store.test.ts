@@ -13,7 +13,7 @@ describe("Function auto complete", () => {
     expect(proposals).toHaveLength(10);
     expect(proposals?.[0].text).toEqual("SUM");
     expect(proposals?.[1].text).toEqual("SUMIF");
-    composer.insertAutoCompleteValue(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0]);
     expect(composer.currentContent).toEqual("=SUM(");
   });
 
@@ -25,7 +25,7 @@ describe("Function auto complete", () => {
     const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(1);
     expect(proposals?.[0].text).toBe("VLOOKUP");
-    composer.insertAutoCompleteValue(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0]);
     expect(composer.currentContent).toEqual("=VLOOKUP(");
   });
 
@@ -38,7 +38,7 @@ describe("Function auto complete", () => {
     const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(1);
     expect(proposals?.[0].text).toBe("VLOOKUP");
-    composer.insertAutoCompleteValue(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0]);
     expect(composer.currentContent).toEqual("=VLOOKUP(");
   });
 });

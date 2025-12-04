@@ -74,7 +74,7 @@ export function createAutocompleteArgumentsProvider(formulaName: string, args: A
 export function insertTokenAtArgStartingPosition(
   this: { composer: CellComposerStore },
   tokenAtCursor: EnrichedToken,
-  value: string
+  proposal: AutoCompleteProposal
 ) {
   let start = tokenAtCursor.end;
   const end = tokenAtCursor.end;
@@ -84,7 +84,7 @@ export function insertTokenAtArgStartingPosition(
   }
   this.composer.stopComposerRangeSelection();
   this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
+  this.composer.replaceComposerCursorSelection(proposal.text);
 }
 
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";

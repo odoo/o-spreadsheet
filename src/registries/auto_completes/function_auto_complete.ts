@@ -35,7 +35,7 @@ autoCompleteProviders.add("functions", {
       });
     return values;
   },
-  selectProposal(tokenAtCursor, value) {
+  selectProposal(tokenAtCursor, proposal) {
     let start = tokenAtCursor.end;
     let end = tokenAtCursor.end;
 
@@ -45,6 +45,7 @@ autoCompleteProviders.add("functions", {
     }
 
     const tokens = this.composer.currentTokens;
+    let value = proposal.text;
     value += "(";
 
     const currentTokenIndex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
