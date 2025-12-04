@@ -38,7 +38,7 @@ describe("combo chart", () => {
       axesDesign: {},
       showValues: false,
       hideDataMarkers: false,
-      zoomable: false,
+      zoomable: true,
       humanize: false,
     });
   });
