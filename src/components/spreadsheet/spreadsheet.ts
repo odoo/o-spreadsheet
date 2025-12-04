@@ -212,7 +212,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
       // const pivotId = this.model.getters.getPivotIds()[0];
       // if (pivotId) {
-      this.sidePanel.open("NamedRangesPanel");
+      // this.sidePanel.open("NamedRangesPanel");
       setTimeout(() => {
         const grid = document.querySelector<HTMLElement>(".o-grid");
         // press enter on grid

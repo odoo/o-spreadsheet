@@ -519,6 +519,23 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "Sheet1",
     chartId: "chartId",
   },
+  CREATE_NAMED_RANGE: {
+    type: "CREATE_NAMED_RANGE",
+    sheetId: "Sheet1",
+    rangeName: "MyNamedRange",
+    zone: { top: 0, left: 0, bottom: 1, right: 1 },
+  },
+  UPDATE_NAMED_RANGE: {
+    type: "UPDATE_NAMED_RANGE",
+    sheetId: "Sheet1",
+    oldRangeName: "MyNamedRange",
+    newRangeName: "MyNewNamedRange",
+    zone: { top: 0, left: 0, bottom: 1, right: 1 },
+  },
+  DELETE_NAMED_RANGE: {
+    type: "DELETE_NAMED_RANGE",
+    rangeName: "MyNamedRange",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
@@ -541,6 +558,8 @@ export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.UNFOLD_HEADER_GROUPS_IN_ZONE,
   TEST_COMMANDS.FOLD_HEADER_GROUPS_IN_ZONE,
   TEST_COMMANDS.UPDATE_TABLE,
+  TEST_COMMANDS.CREATE_NAMED_RANGE,
+  TEST_COMMANDS.UPDATE_NAMED_RANGE,
 ];
 
 export const OT_TESTS_HEADER_GROUP_COMMANDS = [

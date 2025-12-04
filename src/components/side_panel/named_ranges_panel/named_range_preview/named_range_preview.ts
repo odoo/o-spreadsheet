@@ -55,7 +55,6 @@ export class NamedRangePreview extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateNamedRangeName(newName: string) {
-    console.trace("updateNamedRangeName", newName);
     interactiveUpdateNamedRange(this.env, {
       sheetId: this.env.model.getters.getActiveSheetId(),
       oldRangeName: this.props.namedRange.rangeName,

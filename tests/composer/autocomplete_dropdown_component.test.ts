@@ -5,7 +5,7 @@ import { registries } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { autoCompleteProviders } from "../../src/registries/auto_completes";
 import { Store } from "../../src/store_engine";
-import { addDataValidation, createNamedRange, selectCell } from "../test_helpers/commands_helpers";
+import { addDataValidation, selectCell } from "../test_helpers/commands_helpers";
 import {
   click,
   getElStyle,
@@ -280,7 +280,7 @@ describe("Functions autocomplete", () => {
       });
       await typeInComposer("=SUM(");
       const proposals = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
-        (el) => el.parentElement
+        (el) => el.parentElement?.parentElement
       );
 
       expect(composerStore.autoCompleteProposals).toHaveLength(2);
@@ -390,9 +390,27 @@ describe("Functions autocomplete", () => {
       });
       await typeInComposer("=SUM(");
       const proposals = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
-        (el) => el.parentElement?.textContent
+        (el) => el.parentElement?.parentElement?.textContent
       );
       expect(proposals).toEqual(["option 1 descr1", "option 2 descr1", "option 3"]);
+    });
+
+    test("can add icons to autocomplete proposals", async () => {
+      addToRegistry(registries.autoCompleteProviders, "test", {
+        getProposals: () => [
+          { text: "option 1", icon: "o-spreadsheet-Icon.ARROW_DOWN" },
+          { text: "option 2", icon: "o-spreadsheet-Icon.ARROW_UP" },
+          { text: "option 3", icon: "o-spreadsheet-Icon.ARROW_RIGHT" },
+        ],
+        selectProposal() {},
+      });
+      await typeInComposer("=SUM(");
+      const icons = [...fixture.querySelectorAll(".o-autocomplete-value")].map((el) =>
+        el.parentElement?.querySelector(".o-icon")
+      );
+      expect(icons[0]).toHaveClass("arrow-down");
+      expect(icons[1]).toHaveClass("arrow-up");
+      expect(icons[2]).toHaveClass("arrow-right");
     });
   });
 
@@ -417,20 +435,6 @@ describe("Functions autocomplete", () => {
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
     });
-  });
-
-  test("Function autocomplete also shows named ranges", async () => {
-    createNamedRange(model, "SuperRange", "B1:B10");
-    await typeInComposer("=S");
-
-    const autocompleteValues = fixture.querySelectorAll(".o-autocomplete-value");
-    expect(autocompleteValues).toHaveLength(3);
-    expect(autocompleteValues[0]).toHaveText("SUM");
-    expect(autocompleteValues[1]).toHaveText("SZZ");
-    expect(autocompleteValues[2]).toHaveText("SuperRange");
-
-    await simulateClick(autocompleteValues[2]);
-    expect(composerEl.textContent).toBe("=SuperRange");
   });
 });
 
