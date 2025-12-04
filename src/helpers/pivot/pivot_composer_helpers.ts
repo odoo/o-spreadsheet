@@ -2,6 +2,7 @@ import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
 import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { Granularity, PivotField, PivotMeasure } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
+import { AutoCompleteProposal } from "../../registries/auto_completes";
 
 /**
  * Create a proposal entry for the composer autocomplete
@@ -41,7 +42,7 @@ export function makeMeasureProposal(measure: PivotMeasure) {
 export function insertTokenAfterArgSeparator(
   this: { composer: CellComposerStore },
   tokenAtCursor: EnrichedToken,
-  value: string
+  proposal: AutoCompleteProposal
 ) {
   let start = tokenAtCursor.end;
   const end = tokenAtCursor.end;
@@ -50,7 +51,7 @@ export function insertTokenAfterArgSeparator(
     start = tokenAtCursor.start;
   }
   this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
+  this.composer.replaceComposerCursorSelection(proposal.text);
 }
 
 /**
@@ -58,12 +59,12 @@ export function insertTokenAfterArgSeparator(
  * at the cursor position, replacing the current token if necessary.
  * Must be bound to the autocomplete provider.
  * @param {EnrichedToken} tokenAtCursor
- * @param {string} value
+ * @param {AutoCompleteProposal} proposal
  */
 export function insertTokenAfterLeftParenthesis(
   this: { composer: CellComposerStore },
   tokenAtCursor: EnrichedToken,
-  value: string
+  proposal: AutoCompleteProposal
 ) {
   let start = tokenAtCursor.end;
   const end = tokenAtCursor.end;
@@ -72,7 +73,7 @@ export function insertTokenAfterLeftParenthesis(
     start = tokenAtCursor.start;
   }
   this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
+  this.composer.replaceComposerCursorSelection(proposal.text);
 }
 
 /**
