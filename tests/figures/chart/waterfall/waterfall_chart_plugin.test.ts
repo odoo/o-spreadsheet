@@ -323,7 +323,7 @@ describe("Waterfall chart", () => {
       axesDesign: {},
       verticalAxisPosition: "left",
       showValues: false,
-      zoomable: false,
+      zoomable: true,
       humanize: false,
     });
   });
