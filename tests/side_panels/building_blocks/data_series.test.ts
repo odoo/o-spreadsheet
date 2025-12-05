@@ -10,7 +10,8 @@ async function mountDataSeries(props: ChartDataSeries["props"]) {
 describe("Data Series", () => {
   test("Can render a data series component", async () => {
     await mountDataSeries({
-      ranges: [{ dataRange: "A1:B1" }],
+      ranges: [{ dataRange: "A1:B1", dataSetId: "0" }],
+      dataSetStyles: {},
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},
     });
@@ -19,7 +20,8 @@ describe("Data Series", () => {
 
   test("Title is 'Data range' when hasSingleRange is true", async () => {
     await mountDataSeries({
-      ranges: [{ dataRange: "A1:B1" }],
+      ranges: [{ dataRange: "A1:B1", dataSetId: "0" }],
+      dataSetStyles: {},
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},
       hasSingleRange: true,
@@ -29,7 +31,8 @@ describe("Data Series", () => {
 
   test("Title is 'Data series' when hasSingleRange is false", async () => {
     await mountDataSeries({
-      ranges: [{ dataRange: "A1:B1" }],
+      ranges: [{ dataRange: "A1:B1", dataSetId: "0" }],
+      dataSetStyles: {},
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},
       hasSingleRange: false,

@@ -14,4 +14,5 @@ export interface RadarChartDefinition extends CommonChartDefinition {
 export type RadarChartRuntime = {
   chartJsConfig: ChartConfiguration;
   background: Color;
+  customisableSeries: { dataSetId: string; label: string }[];
 };

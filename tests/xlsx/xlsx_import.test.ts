@@ -829,7 +829,7 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.data.title.text === chartTitle);
     const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
-    expect(chartData.dataSets).toMatchObject(chartDatasets);
+    expect(Object.values(chartData.dataSetStyles)).toMatchObject(chartDatasets);
   });
 
   test.each([
@@ -930,8 +930,8 @@ describe("Import xlsx data", () => {
       "pie",
       "#fff",
       [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4" },
-        { dataRange: "Sheet1!C26:C35", backgroundColor: "#1F77B4" },
+        { dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4", dataSetId: "1" },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#1F77B4", dataSetId: "0" },
       ],
     ],
   ])(

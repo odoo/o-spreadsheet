@@ -1,8 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
-import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
-import { ChartWithDataSetDefinition } from "../../../../../types";
+import { ChartWithDataSetDefinition, CustomisableSeriesChartRuntime } from "../../../../../types";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
@@ -24,60 +23,59 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     slots: { type: Object, optional: true },
   };
 
-  protected state = useState({ index: 0 });
+  protected state = useState({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
+
+  private getRuntime(): CustomisableSeriesChartRuntime {
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
+    if (!runtime || !("customisableSeries" in runtime)) {
+      throw new Error(
+        "SeriesDesignEditor: chart runtime is not compatible with series customization."
+      );
+    }
+    return runtime as CustomisableSeriesChartRuntime;
+  }
 
   getDataSeries() {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
-    if (!runtime || !("chartJsConfig" in runtime)) {
-      return [];
-    }
-    return runtime.chartJsConfig.data.datasets
-      .filter((d) => !isTrendLineAxis(d["xAxisID"] ?? ""))
-      .map((d) => d.label);
+    return this.getRuntime().customisableSeries;
   }
 
   updateEditedSeries(ev: Event) {
-    this.state.index = (ev.target as HTMLSelectElement).selectedIndex;
+    this.state.dataSetId = (ev.target as HTMLSelectElement).value;
   }
 
   updateDataSeriesColor(color: string) {
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) {
-      return;
-    }
-    dataSets[this.state.index] = {
-      ...dataSets[this.state.index],
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    dataSetStyles[this.state.dataSetId] = {
+      ...dataSetStyles[this.state.dataSetId],
       backgroundColor: color,
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 
   getDataSeriesColor() {
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) {
-      return "";
-    }
-    const color = dataSets[this.state.index].backgroundColor;
-    return color
-      ? toHex(color)
-      : getNthColor(this.state.index, getColorsPalette(this.props.definition.dataSets.length));
+    const dataSetStyles = this.props.definition.dataSetStyles;
+    const color = dataSetStyles[this.state.dataSetId]?.backgroundColor;
+    const dataSeries = this.getDataSeries();
+    const index = dataSeries.findIndex((series) => series.dataSetId === this.state.dataSetId);
+    return color ? toHex(color) : getNthColor(index, getColorsPalette(dataSeries.length));
   }
 
   updateDataSeriesLabel(ev: Event) {
     const label = (ev.target as HTMLInputElement).value;
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) {
-      return;
-    }
-    dataSets[this.state.index] = {
-      ...dataSets[this.state.index],
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    dataSetStyles[this.state.dataSetId] = {
+      ...dataSetStyles[this.state.dataSetId],
       label,
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 
-  getDataSeriesLabel() {
-    const dataSets = this.props.definition.dataSets;
-    return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
+  getDataSeriesLabel(): string {
+    const dataSetStyles = this.props.definition.dataSetStyles;
+    return (
+      dataSetStyles[this.state.dataSetId]?.label ||
+      this.getDataSeries().find((series) => series.dataSetId === this.state.dataSetId)?.label ||
+      ""
+    );
   }
 }

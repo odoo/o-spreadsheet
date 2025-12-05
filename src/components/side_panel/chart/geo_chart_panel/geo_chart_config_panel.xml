@@ -9,6 +9,7 @@
 
       <ChartDataSeries
         ranges="dataRanges"
+        dataSetStyles="this.props.definition.dataSetStyles"
         onSelectionChanged.bind="onDataSeriesRangesChanged"
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"

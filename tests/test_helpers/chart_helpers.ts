@@ -1,7 +1,15 @@
-import { ComboChartDataSet } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { ComboChartDataSetStyle } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
-import { ChartCreationContext, ChartJSRuntime, CustomizedDataSet, Model, UID } from "../../src";
+import {
+  ChartCreationContext,
+  ChartJSRuntime,
+  ChartRangeDataSource,
+  CustomizedDataSet,
+  DataSetStyle,
+  Model,
+  UID,
+} from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -38,67 +46,109 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
   );
 }
 
-// export function toChartDataSource(dataSets: (CustomizedDataSet & { dataRange: string, dataSetId?: UID })[]) {
-//   for (let i = 0; i < dataSets.length; i++) {
-//     if (!dataSets[i].dataSetId) {
-//       dataSets[i].dataSetId = i.toString();
-//     }
-//   }
-//   const dataSetStyles: Record<string, CustomizedDataSet> = {};
-//   for (const { dataSetId, dataRange, ...style } of dataSets) {
-//     dataSetStyles[dataSetId!] = style;
-//   }
-//   return {
-//     dataSource: {
-//       dataSets: dataSets.map(({ dataRange, dataSetId }) => ({
-//         dataRange,
-//         dataSetId,
-//       })),
-//     },
-//     dataSetStyles,
-//   }
-// }
-export function toChartDataSource({
-  dataSets,
-  labelRange,
-}: {
-  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+interface CoucouInput {
+  dataSets: (CustomizedDataSet & {
+    dataRange: string;
+    dataSetId?: UID;
+    type?: "bar" | "line"; // for combo charts
+  })[];
   labelRange?: string;
-}): {
-  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+}
+
+interface CoucouInputWithTitle extends CoucouInput {
+  dataSetsHaveTitle: boolean;
+}
+
+interface CoucouOutput {
+  dataSource: ChartRangeDataSource;
   labelRange?: string;
-};
-export function toChartDataSource({
-  dataSets,
-  labelRange,
-}: {
-  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+  dataSetStyles: Record<string, CustomizedDataSet>;
+}
+
+interface CoucouOutputWithTitle {
+  dataSource: ChartRangeDataSource;
   labelRange?: string;
   dataSetsHaveTitle: boolean;
-}): {
-  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-  labelRange?: string;
-  dataSetsHaveTitle: boolean;
-};
-export function toChartDataSource({
-  dataSets,
-  labelRange,
-  dataSetsHaveTitle,
-}: {
-  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-  labelRange?: string;
-  dataSetsHaveTitle: boolean;
-}) {
-  const result = { dataSets, dataSetsHaveTitle, labelRange };
-  if (labelRange === undefined) {
-    delete result.labelRange;
+  dataSetStyles: DataSetStyle | ComboChartDataSetStyle;
+}
+
+export function toChartDataSource(args: CoucouInput): CoucouOutput;
+export function toChartDataSource(args: CoucouInputWithTitle): CoucouOutputWithTitle;
+export function toChartDataSource(
+  args: CoucouInput | CoucouInputWithTitle
+): CoucouOutput | CoucouOutputWithTitle {
+  const { dataSets, labelRange } = args;
+  for (let i = 0; i < dataSets.length; i++) {
+    if (!dataSets[i].dataSetId) {
+      dataSets[i].dataSetId = i.toString();
+    }
   }
-  if (dataSetsHaveTitle === undefined) {
+  const dataSetStyles: Record<string, CustomizedDataSet> = {};
+  for (const { dataSetId, dataRange, ...style } of dataSets) {
+    if (Object.keys(style).length !== 0) {
+      dataSetStyles[dataSetId!] = style;
+    }
+  }
+  const result: CoucouOutput | CoucouOutputWithTitle = {
+    dataSource: {
+      // @ts-ignore
+      dataSets: dataSets.map(({ dataRange, dataSetId }) => ({
+        dataRange,
+        dataSetId,
+      })),
+    },
+    dataSetStyles,
+  };
+  if ("dataSetsHaveTitle" in args && args.dataSetsHaveTitle !== undefined) {
     // @ts-ignore
-    delete result.dataSetsHaveTitle;
+    result.dataSetsHaveTitle = args.dataSetsHaveTitle;
+  }
+  if (labelRange !== undefined) {
+    result.labelRange = labelRange;
   }
   return result;
 }
+// export function toChartDataSource({
+//   dataSets,
+//   labelRange,
+// }: {
+//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+//   labelRange?: string;
+// }): {
+//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+//   labelRange?: string;
+// };
+// export function toChartDataSource({
+//   dataSets,
+//   labelRange,
+// }: {
+//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+//   labelRange?: string;
+//   dataSetsHaveTitle: boolean;
+// }): {
+//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+//   labelRange?: string;
+//   dataSetsHaveTitle: boolean;
+// };
+// export function toChartDataSource({
+//   dataSets,
+//   labelRange,
+//   dataSetsHaveTitle,
+// }: {
+//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+//   labelRange?: string;
+//   dataSetsHaveTitle: boolean;
+// }) {
+//   const result = { dataSets, dataSetsHaveTitle, labelRange };
+//   if (labelRange === undefined) {
+//     delete result.labelRange;
+//   }
+//   if (dataSetsHaveTitle === undefined) {
+//     // @ts-ignore
+//     delete result.dataSetsHaveTitle;
+//   }
+//   return result;
+// }
 
 export async function openChartConfigSidePanel(
   model: Model,
@@ -171,8 +221,13 @@ export function getChartTooltipValues(
 export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   background: "#123456",
   title: { text: "hello there" },
-  range: [{ dataRange: "Sheet1!B1:B4" }],
-  hierarchicalRanges: [],
+  ...toChartDataSource({
+    dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+    dataSetsHaveTitle: true,
+  }),
+  hierarchicalDataSource: {
+    dataSets: [],
+  },
   auxiliaryRange: "Sheet1!A1:A4",
   legendPosition: "bottom",
   cumulative: true,
