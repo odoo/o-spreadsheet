@@ -18,7 +18,7 @@ import {
   purgeSingleRowTables,
 } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
-import type { ChartConfiguration } from "chart.js";
+import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
@@ -917,6 +917,7 @@ export const mockChart = (options: any = {}) => {
           return ChartMock.registry.plugins.items.find((item) => item.id === key);
         },
       },
+      controllers: { get: () => ChartMock.BarController },
     };
     static Tooltip = { positioners: {} };
     constructor(ctx: unknown, chartData: ChartConfiguration) {

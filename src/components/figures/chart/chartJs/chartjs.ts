@@ -1,3 +1,7 @@
+import {
+  chartJsExtensionRegistry,
+  registerChartJSExtensions,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import { ChartJSRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
@@ -5,7 +9,6 @@ import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
-import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import { getCalendarChartController } from "./chartjs_calendar_chart";
 import { chartColorScalePlugin } from "./chartjs_colorscale_plugin";
@@ -43,7 +46,6 @@ chartJsExtensionRegistry.add("funnelElement", {
 chartJsExtensionRegistry.add("funnelTooltipPositioner", {
   register: (Chart) =>
     (Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner),
-  // @ts-expect-error
   unregister: (Chart) => (Chart.Tooltip.positioners.funnelTooltipPositioner = undefined),
 });
 chartJsExtensionRegistry.add("sunburstLabelsPlugin", {
@@ -131,6 +133,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
+    if (!globalThis.Chart) {
+      throw new Error("Chart.js library is not loaded");
+    }
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     if (this.shouldAnimate && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
@@ -142,7 +147,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData);
+    this.chart = new globalThis.Chart(ctx, chartData);
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {

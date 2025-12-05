@@ -33,6 +33,7 @@ export { Registry } from "./registry";
 export { StateObserver } from "./state_observer";
 export * from "./translation";
 export { CellValue } from "./types/cells";
+export type * from "./types/chart/chartjs";
 export { SpreadsheetClipboardData } from "./types/clipboard";
 export { CoreGetters, PluginGetters } from "./types/core_getters";
 export * from "./types/errors";

@@ -7,6 +7,11 @@ import {
 } from "../../../types/chart";
 import { Figure } from "../../../types/figure";
 import { deepCopy } from "../../misc";
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+  unregisterChartJsExtensions,
+} from "./chart_js_extension";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
@@ -35,13 +40,36 @@ export async function chartToImageUrl(
   const canvas = createRenderingSurface(figure.width, figure.height);
   let imageUrl: string | undefined;
   if ("chartJsConfig" in runtime) {
+    if (!globalThis.Chart) {
+      console.log("Chart.js library is not loaded");
+      return imageUrl;
+    }
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
+    if (!globalThis.Chart.registry.controllers.get(type)) {
+      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
+      return imageUrl;
+    }
+
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new (globalThis as any).Chart(canvas, config as ChartConfiguration);
+
+    const chart = new globalThis.Chart(
+      canvas as unknown as HTMLCanvasElement,
+      config as ChartConfiguration
+    );
     try {
       imageUrl = await canvasToObjectUrl(canvas);
     } finally {
       chart.destroy();
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
     }
   }
   // TODO: make a registry of chart types to their rendering functions
@@ -70,13 +98,36 @@ export async function chartToImageFile(
   const canvas = createRenderingSurface(figure.width, figure.height);
   let chartBlob: Blob | null = null;
   if ("chartJsConfig" in runtime) {
+    if (!globalThis.Chart) {
+      console.log("Chart.js library is not loaded");
+      return chartBlob;
+    }
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
+    if (!globalThis.Chart.registry.controllers.get(type)) {
+      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
+      return chartBlob;
+    }
+
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new (globalThis as any).Chart(canvas, config as ChartConfiguration);
+
+    const chart = new globalThis.Chart(
+      canvas as unknown as HTMLCanvasElement,
+      config as ChartConfiguration
+    );
     try {
       chartBlob = await canvasToBlob(canvas);
     } finally {
       chart.destroy();
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
     }
   } else {
     if (!globalThis.OffscreenCanvas)

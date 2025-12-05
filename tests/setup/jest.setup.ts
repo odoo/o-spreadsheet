@@ -44,6 +44,7 @@ window.Chart = Object.assign(Chart.Chart, Chart);
 declare global {
   interface Window {
     resizers: Resizers;
+    Chart: typeof Chart.Chart;
   }
 }
 
