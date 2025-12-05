@@ -162,7 +162,10 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+        dataSets: [
+          { dataRange: "B1:B4", dataSetId: expect.any(String) },
+          { dataRange: "C1:C4", dataSetId: expect.any(String) },
+        ],
         labelRange: "Sheet1!A2:A4",
       }),
       title: { text: "test" },
@@ -277,11 +280,9 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect((model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSets).toMatchObject([
-      { dataRange: "8:8" },
-      { dataRange: "A:A" },
-      { dataRange: "B:B" },
-    ]);
+    expect(
+      (model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSource.dataSets
+    ).toMatchObject([{ dataRange: "8:8" }, { dataRange: "A:A" }, { dataRange: "B:B" }]);
   });
 
   test("create chart with row datasets without series title", () => {
@@ -1088,7 +1089,10 @@ describe("datasource tests", function () {
       {
         type: "bar",
         ...toChartDataSource({
-          dataSets: [{ dataRange: "Coucou!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
+          dataSets: [
+            { dataRange: "Coucou!B1:B4", dataSetId: "0" },
+            { dataRange: "Sheet1!B1:B4", dataSetId: "1" },
+          ],
           labelRange: "Sheet1!A2:A4",
         }),
       },
@@ -1097,7 +1101,7 @@ describe("datasource tests", function () {
     const config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B4" }],
+        dataSets: [{ dataRange: "B1:B4", dataSetId: "1" }],
         labelRange: "Sheet1!A2:A4",
       }),
       title: { text: "test" },
@@ -1412,7 +1416,10 @@ describe("datasource tests", function () {
       model,
       {
         ...toChartDataSource({
-          dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+          dataSets: [
+            { dataRange: "B1:B4", dataSetId: "0" },
+            { dataRange: "C1:C4", dataSetId: "1" },
+          ],
           labelRange: "A2:A4",
         }),
         type: "line",
@@ -1423,7 +1430,7 @@ describe("datasource tests", function () {
     const def = model.getters.getChartDefinition("1") as LineChartDefinition;
     expect(def).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "A1:A4" }],
+        dataSets: [{ dataRange: "A1:A4", dataSetId: "1" }],
         labelRange: undefined,
       }),
     });
@@ -2032,7 +2039,7 @@ describe("Chart without labels", () => {
       {
         ...defaultChart,
         ...toChartDataSource({
-          dataSets: defaultChart.dataSets,
+          dataSets: defaultChart.dataSource.dataSets,
           labelRange: "B1:B2",
           dataSetsHaveTitle: false,
         }),
@@ -2086,7 +2093,7 @@ describe("Chart without labels", () => {
         ...defaultChart,
         type: "bar",
         ...toChartDataSource({
-          dataSets: defaultChart.dataSets,
+          dataSets: defaultChart.dataSource.dataSets,
           labelRange: "B1:B2",
           dataSetsHaveTitle: false,
         }),
