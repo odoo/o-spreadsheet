@@ -6,7 +6,7 @@ import {
 } from "../../src/constants";
 import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Cell, CommandResult, Sheet, Wrapping } from "../../src/types";
+import { Cell, CommandResult, DEFAULT_LOCALE, Sheet, Wrapping } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -22,15 +22,17 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setFormat,
   setStyle,
   unMerge,
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
+import { target } from "../test_helpers/helpers";
 
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(cell: Cell | undefined, colSize = DEFAULT_CELL_WIDTH) {
-  return Math.round(getDefaultCellHeightHelper(ctx, cell, colSize));
+  return Math.round(getDefaultCellHeightHelper(ctx, cell, DEFAULT_LOCALE, colSize));
 }
 
 describe("Model resizer", () => {
@@ -439,6 +441,20 @@ describe("Model resizer", () => {
 
       expect(wrappedCellHeight).toBeGreaterThan(initialCellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(wrappedCellHeight);
+    });
+
+    test("wrapped formatted text updates the row size", () => {
+      setStyle(model, "C1", { fontSize: 10, wrapping: "wrap" });
+      resizeColumns(model, ["C"], 100);
+      setCellContent(model, "C1", "200");
+
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
+
+      setFormat(model, "0[$long escaped string in the format that will be wrapped]", target("C1"));
+      const cell = getCell(model, "C1");
+      const expectedHeight = getDefaultCellHeight(cell, 100);
+      expect(expectedHeight).toBeGreaterThan(DEFAULT_CELL_HEIGHT);
+      expect(model.getters.getRowSize(sheet.id, 0)).toBe(expectedHeight);
     });
 
     test.each<Wrapping>(["overflow", "clip"])(
