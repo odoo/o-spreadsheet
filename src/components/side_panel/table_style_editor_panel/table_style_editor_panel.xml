@@ -32,7 +32,7 @@
             class="o-delete o-button-danger o-button">
             Delete
           </button>
-          <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
+          <button t-on-click="onCancel" class="o-cancel o-button">Discard</button>
           <button t-on-click="onConfirm" class="o-confirm o-button primary">Confirm</button>
         </div>
       </Section>
