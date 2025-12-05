@@ -9,6 +9,7 @@ import {
   VerticalAlign,
   Wrapping,
 } from "../../src/types";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addCfRule,
   createChart,
@@ -269,8 +270,10 @@ describe("Export data to xlsx then import it", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "line",
       },
       "1"
@@ -289,13 +292,15 @@ describe("Export data to xlsx then import it", () => {
   test.each([
     {
       title: { text: "demo chart" },
-      dataSets: [
-        { dataRange: "Sheet1!B26:B35", trend: { type: "polynomial", order: 2, display: true } },
-        { dataRange: "Sheet1!C26:C35", trend: { type: "polynomial", order: 1, display: true } },
-      ],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [
+          { dataRange: "Sheet1!B26:B35", trend: { type: "polynomial", order: 2, display: true } },
+          { dataRange: "Sheet1!C26:C35", trend: { type: "polynomial", order: 1, display: true } },
+        ],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "line" as const,
-      dataSetsHaveTitle: false,
       background: "#FFFFFF",
       legendPosition: "top" as const,
       stacked: false,
@@ -319,13 +324,15 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo chart 2" },
-      dataSets: [
-        { dataRange: "Sheet1!B27:B35", trend: { type: "exponential", display: true } },
-        { dataRange: "Sheet1!C27:C35", trend: { type: "logarithmic", display: true } },
-      ],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [
+          { dataRange: "Sheet1!B27:B35", trend: { type: "exponential", display: true } },
+          { dataRange: "Sheet1!C27:C35", trend: { type: "logarithmic", display: true } },
+        ],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "bar" as const,
-      dataSetsHaveTitle: false,
       background: "#AAAAAA",
       legendPosition: "bottom" as const,
       stacked: true,
@@ -334,10 +341,12 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo horizontal bar chart 2" },
-      dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "bar" as const,
-      dataSetsHaveTitle: false,
       background: "#AAAAAA",
       legendPosition: "top" as const,
       stacked: true,
@@ -346,10 +355,12 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "pie demo chart" },
-      dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "pie" as const,
-      dataSetsHaveTitle: false,
       background: "#FFFFFF",
       legendPosition: "right" as const,
       stacked: false,
@@ -359,10 +370,12 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "doughnut demo chart" },
-      dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "pie" as const,
-      dataSetsHaveTitle: false,
       background: "#FFFFFF",
       legendPosition: "left" as const,
       stacked: false,
@@ -372,10 +385,12 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo chart4" },
-      dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "line" as const,
-      dataSetsHaveTitle: false,
       background: "#FFFFFF",
       legendPosition: "top" as const,
       stacked: true,
@@ -384,16 +399,18 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo chart 5" },
-      dataSets: [
-        {
-          dataRange: "Sheet1!B27:B35",
-          trend: { type: "trailingMovingAverage", window: 3, display: true },
-        },
-        { dataRange: "Sheet1!C27:C35" },
-      ],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [
+          {
+            dataRange: "Sheet1!B27:B35",
+            trend: { type: "trailingMovingAverage", window: 3, display: true },
+          },
+          { dataRange: "Sheet1!C27:C35" },
+        ],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "combo" as const,
-      dataSetsHaveTitle: false,
       background: "#AAAAAA",
       legendPosition: "bottom" as const,
       stacked: true,
@@ -401,10 +418,12 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo chart6" },
-      dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      }),
       type: "radar" as const,
-      dataSetsHaveTitle: false,
       background: "#FFFFFF",
       legendPosition: "top" as const,
       labelsAsText: false,
@@ -480,8 +499,10 @@ describe("Export data to xlsx then import it", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "line",
       },
       "1",

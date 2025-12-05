@@ -1,6 +1,7 @@
 import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import { TableStyle, UID } from "../../src/types";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addCfRule,
   addEqualCf,
@@ -92,8 +93,10 @@ describe("custom colors are correctly handled when editing charts", () => {
       model,
       {
         type: "bar",
-        dataSets: [{ dataRange: "A1:A10" }],
-        labelRange: "A1",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A10" }],
+          labelRange: "A1",
+        }),
         background: "#123456",
       },
       "1",
@@ -102,10 +105,13 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
     updateChart(model, "1", {
       title: { text: "a title" },
-      dataSets: [],
+      ...toChartDataSource({
+        dataSets: [],
+        labelRange: "A1",
+        dataSetsHaveTitle: false,
+      }),
       type: "bar",
       stacked: false,
-      dataSetsHaveTitle: false,
       legendPosition: "none",
       background: "#112233",
       aggregated: false,
@@ -163,13 +169,15 @@ describe("custom colors are correctly handled when editing charts", () => {
       model,
       {
         type: "bar",
-        dataSets: [
-          {
-            dataRange: "A1:A10",
-            backgroundColor: "#112233",
-            trend: { type: "polynomial", order: 2, color: "#123456" },
-          },
-        ],
+        ...toChartDataSource({
+          dataSets: [
+            {
+              dataRange: "A1:A10",
+              backgroundColor: "#112233",
+              trend: { type: "polynomial", order: 2, color: "#123456" },
+            },
+          ],
+        }),
       },
       "1"
     );
@@ -182,8 +190,10 @@ describe("custom colors are correctly handled when editing charts", () => {
       model,
       {
         type: "bar",
-        dataSets: [{ dataRange: "A1:A10" }],
-        labelRange: "A1",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A10" }],
+          labelRange: "A1",
+        }),
         background: "#123456",
       },
       "1",

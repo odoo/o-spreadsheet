@@ -2,7 +2,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { createChart } from "../../../test_helpers";
-import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
+import { openChartConfigSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
 
@@ -17,7 +17,7 @@ describe("Pyramid chart side panel", () => {
   });
 
   test("Only first 2 ranges are enabled when changing the selection input", async () => {
-    createChart(model, { type: "pyramid", dataSets: [] }, "id");
+    createChart(model, { type: "pyramid", ...toChartDataSource({ dataSets: [] }) }, "id");
     await openChartConfigSidePanel(model, env, "id");
 
     const dataSeries = fixture.querySelector<HTMLInputElement>(".o-chart .o-data-series input")!;

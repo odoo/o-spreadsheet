@@ -6,6 +6,7 @@ import {
   getChartConfiguration,
   getChartLegendLabels,
   getChartTooltipValues,
+  toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -29,10 +30,12 @@ describe("radar chart", () => {
       type: "radar",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       fillArea: true,
       stacked: true,
@@ -45,7 +48,11 @@ describe("radar chart", () => {
   test("Dataset is filled if fillArea is set to true", () => {
     const model = new Model();
     setCellContent(model, "A2", "1");
-    createRadarChart(model, { fillArea: false, dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
+    createRadarChart(
+      model,
+      { fillArea: false, ...toChartDataSource({ dataSets: [{ dataRange: "A1:A2" }] }) },
+      "chartId"
+    );
     let runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0]?.["fill"]).toBeFalsy();
 
@@ -65,11 +72,13 @@ describe("radar chart", () => {
     createChart(
       model,
       {
-        dataSets: [
-          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
-          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
-        ],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+            { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+          ],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "radar",
       },
       "1"
@@ -105,7 +114,11 @@ describe("radar chart", () => {
 
     createRadarChart(
       model,
-      { fillArea: false, dataSets: [{ dataRange: "A1:A2" }], humanize: false },
+      {
+        fillArea: false,
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A2" }] }),
+        humanize: false,
+      },
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
@@ -133,7 +146,11 @@ describe("radar chart", () => {
     const model = new Model();
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
-    createRadarChart(model, { dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
+    createRadarChart(
+      model,
+      { ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }] }) },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.["beginAtZero"]).toBe(true);
   });
@@ -144,14 +161,22 @@ describe("radar chart", () => {
     setCellContent(model, "A3", "-7");
     setCellContent(model, "A4", "-1");
 
-    createRadarChart(model, { dataSets: [{ dataRange: "A1:A4" }] }, "chartId");
+    createRadarChart(
+      model,
+      { ...toChartDataSource({ dataSets: [{ dataRange: "A1:A4" }] }) },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.suggestedMin).toBe(-8);
   });
 
   test("Radar chart point labels are truncated properly", () => {
     const model = new Model();
-    createRadarChart(model, { dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
+    createRadarChart(
+      model,
+      { ...toChartDataSource({ dataSets: [{ dataRange: "A1:A2" }] }) },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     const callback = (runtime.chartJsConfig.options?.scales?.r as any)?.pointLabels
       ?.callback as Function;
@@ -167,8 +192,10 @@ test("Humanization is taken into account for the axis ticks of a radar chart", a
     model,
     {
       type: "radar",
-      labelRange: "A2",
-      dataSets: [{ dataRange: "B2" }],
+      ...toChartDataSource({
+        labelRange: "A2",
+        dataSets: [{ dataRange: "B2" }],
+      }),
       humanize: false,
     },
     "1"

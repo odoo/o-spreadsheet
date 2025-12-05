@@ -59,7 +59,6 @@ export class ScatterChart extends AbstractChart {
     "labelsAsText",
     "aggregated",
     "axesDesign",
-    "zoomable",
   ] as const;
 
   constructor(private definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
