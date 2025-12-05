@@ -13,7 +13,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
-import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
+import { openChartConfigSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
 let model: Model;
@@ -33,9 +33,11 @@ describe("Waterfall chart side panel", () => {
   describe("Config panel", () => {
     test("Waterfall config panel is correctly initialized", async () => {
       const chartId = createWaterfallChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
         aggregated: true,
       });
       await openChartConfigSidePanel(model, env, chartId);
@@ -48,9 +50,11 @@ describe("Waterfall chart side panel", () => {
 
     test("Can change chart values in config side panel", async () => {
       const chartId = createWaterfallChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
         aggregated: true,
       });
       await openChartConfigSidePanel(model, env, chartId);

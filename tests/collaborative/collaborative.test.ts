@@ -11,6 +11,7 @@ import { Model, UIPlugin } from "../../src";
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
 import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
   addDataValidation,
@@ -511,15 +512,10 @@ describe("Multi users synchronisation", () => {
     createChart(
       alice,
       {
-        dataSets: [
-          {
-            dataRange: "A8:D8",
-          },
-          {
-            dataRange: "A9:D9",
-          },
-        ],
-        labelRange: "B7:D7",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A8:D8" }, { dataRange: "A9:D9" }],
+          labelRange: "B7:D7",
+        }),
         type: "line",
       },
       "1"
