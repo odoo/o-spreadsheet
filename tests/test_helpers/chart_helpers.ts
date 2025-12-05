@@ -1,6 +1,7 @@
+import { ComboChartDataSet } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
-import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
+import { ChartCreationContext, ChartJSRuntime, CustomizedDataSet, Model, UID } from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -35,6 +36,68 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
   return range(0, labels.length).map((index) =>
     runtime.chartJsConfig.options.scales.x.ticks.callback.bind(fakeChart)(index)
   );
+}
+
+// export function toChartDataSource(dataSets: (CustomizedDataSet & { dataRange: string, dataSetId?: UID })[]) {
+//   for (let i = 0; i < dataSets.length; i++) {
+//     if (!dataSets[i].dataSetId) {
+//       dataSets[i].dataSetId = i.toString();
+//     }
+//   }
+//   const dataSetStyles: Record<string, CustomizedDataSet> = {};
+//   for (const { dataSetId, dataRange, ...style } of dataSets) {
+//     dataSetStyles[dataSetId!] = style;
+//   }
+//   return {
+//     dataSource: {
+//       dataSets: dataSets.map(({ dataRange, dataSetId }) => ({
+//         dataRange,
+//         dataSetId,
+//       })),
+//     },
+//     dataSetStyles,
+//   }
+// }
+export function toChartDataSource({
+  dataSets,
+  labelRange,
+}: {
+  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+  labelRange?: string;
+}): {
+  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+  labelRange?: string;
+};
+export function toChartDataSource({
+  dataSets,
+  labelRange,
+}: {
+  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+  labelRange?: string;
+  dataSetsHaveTitle: boolean;
+}): {
+  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+  labelRange?: string;
+  dataSetsHaveTitle: boolean;
+};
+export function toChartDataSource({
+  dataSets,
+  labelRange,
+  dataSetsHaveTitle,
+}: {
+  dataSets: (CustomizedDataSet | ComboChartDataSet)[];
+  labelRange?: string;
+  dataSetsHaveTitle: boolean;
+}) {
+  const result = { dataSets, dataSetsHaveTitle, labelRange };
+  if (labelRange === undefined) {
+    delete result.labelRange;
+  }
+  if (dataSetsHaveTitle === undefined) {
+    // @ts-ignore
+    delete result.dataSetsHaveTitle;
+  }
+  return result;
 }
 
 export async function openChartConfigSidePanel(

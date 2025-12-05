@@ -1,7 +1,7 @@
 import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Model } from "../../../../src";
 import { createGeoChart, setCellContent, setFormat, updateChart } from "../../../test_helpers";
-import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
+import { getChartTooltipValues, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/helpers";
 
 mockChart();
@@ -39,7 +39,9 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "A3", "Germany");
     setCellContent(model, "B2", "10");
     setCellContent(model, "B3", "20");
-    createGeoChart(model, { dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" });
+    createGeoChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" }),
+    });
 
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
@@ -54,7 +56,11 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "B2", "10");
     setCellContent(model, "B3", "20");
 
-    createGeoChart(model, { dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }, "chartId");
+    createGeoChart(
+      model,
+      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }) },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(getGeoChartNonEmptyData(runtime)).toEqual([]);
   });
@@ -65,7 +71,11 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "B2", "10");
     setCellContent(model, "B3", "20");
 
-    createGeoChart(model, { dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }, "chartId");
+    createGeoChart(
+      model,
+      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }) },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
       { value: 30, feature: { properties: { name: "France" } } },
@@ -78,8 +88,10 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "C3", "20");
 
     createGeoChart(model, {
-      dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
-      labelRange: "A1:A3",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
+        labelRange: "A1:A3",
+      }),
     });
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     const dataPoints = getGeoChartNonEmptyData(runtime);
@@ -92,7 +104,9 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "B2", "20");
     setFormat(model, "B2", "$0");
 
-    createGeoChart(model, { dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" });
+    createGeoChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
+    });
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.color?.["ticks"]?.callback?.(20)).toBe("$20");
   });
@@ -111,7 +125,9 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "B2", "20");
     setFormat(model, "B2", "$0");
 
-    createGeoChart(model, { dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" });
+    createGeoChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
+    });
     const runtime = model.getters.getChartRuntime("chartId") as any;
     const tooltipItem = { raw: { value: 20, feature: { properties: { name: "France" } } } };
     const tooltipValues = getChartTooltipValues(runtime, tooltipItem);

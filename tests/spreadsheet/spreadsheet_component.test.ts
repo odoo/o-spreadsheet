@@ -14,6 +14,7 @@ import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { unPatchSessionMove } from "../setup/session_debounce_mock";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addDataValidation,
   addRows,
@@ -414,8 +415,10 @@ describe("Composer / selectionInput interactions", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "bar",
       },
       "1"

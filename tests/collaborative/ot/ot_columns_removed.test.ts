@@ -11,6 +11,7 @@ import {
   UpdateChartCommand,
   UpdateTableCommand,
 } from "../../../src/types";
+import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
@@ -596,9 +597,11 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
   const sheetName = "Sheet1";
   const definition: BarChartDefinition = {
     type: "bar",
-    dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
-    dataSetsHaveTitle: false,
-    labelRange: "Sheet1!M1:M10",
+    ...toChartDataSource({
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
+      dataSetsHaveTitle: false,
+      labelRange: "Sheet1!M1:M10",
+    }),
     legendPosition: "top",
     stacked: false,
     title: { text: "test" },
@@ -633,15 +636,19 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
     let result = transform(toTransform, removeColumns) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
-      labelRange: "Sheet1!J1:J10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
+        labelRange: "Sheet1!J1:J10",
+      }),
     });
 
     result = transform(toTransform, removeColumnsOnSheet2) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
-      labelRange: "Sheet1!M1:M10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
+        labelRange: "Sheet1!M1:M10",
+      }),
     });
   });
 
@@ -656,15 +663,19 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
     let result = transform(toTransform, removeColumns) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
-      labelRange: "Sheet1!J1:J10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
+        labelRange: "Sheet1!J1:J10",
+      }),
     });
 
     result = transform(toTransform, removeColumnsOnSheet2) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
-      labelRange: "Sheet1!M1:M10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
+        labelRange: "Sheet1!M1:M10",
+      }),
     });
   });
 });
