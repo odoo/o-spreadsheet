@@ -95,6 +95,28 @@ describe("styles", () => {
     });
   });
 
+  test("align left is exported for number and formula but not text", () => {
+    const model = new Model();
+    setStyle(model, "A1:A3", { align: "left" });
+    setStyle(model, "B1:B3", { align: "right" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "B1", "1");
+    setCellContent(model, "A2", "TEXT");
+    setCellContent(model, "B2", "TEXT");
+    setCellContent(model, "A3", "=1");
+    setCellContent(model, "B3", "=1");
+
+    const data = model.exportData();
+    expect(data.sheets[0].cells.A1?.style).toBe(1);
+    expect(data.sheets[0].cells.A2?.style).toBe(undefined);
+    expect(data.sheets[0].cells.B1?.style).toBe(undefined);
+    expect(data.sheets[0].cells.B2?.style).toBe(2);
+    expect(data.sheets[0].cells.A3?.style).toBe(1);
+    expect(data.sheets[0].cells.B3?.style).toBe(2);
+
+    expect(data.styles).toEqual({ 1: { align: "left" }, 2: { align: "right" } });
+  });
+
   test("clearing format on a cell with no content actually remove it", () => {
     const model = new Model();
     selectCell(model, "B1");
