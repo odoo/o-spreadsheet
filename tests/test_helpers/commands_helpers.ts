@@ -22,6 +22,7 @@ import {
   ChartWithDataSetDefinition,
   ClipboardPasteOptions,
   Color,
+  ConditionalFormatRule,
   CreateFigureCommand,
   CreateSheetCommand,
   CreateTableStyleCommand,
@@ -1554,6 +1555,20 @@ export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasH
     width,
     gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
     gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
+  });
+}
+
+export function addCfRule(
+  model: Model,
+  xc: string,
+  rule: ConditionalFormatRule,
+  cfId: UID = "cfId",
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    cf: { rule, id: cfId },
+    ranges: toRangesData(sheetId, xc),
+    sheetId,
   });
 }
 

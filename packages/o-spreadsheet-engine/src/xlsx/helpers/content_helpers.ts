@@ -72,6 +72,16 @@ export function convertOperator(operator: ConditionalFormattingOperatorValues): 
       return "notEqual";
     case "customFormula":
       return "";
+    case "dateIs":
+      return "";
+    case "dateIsBefore":
+      return "lessThan";
+    case "dateIsAfter":
+      return "greaterThan";
+    case "dateIsOnOrAfter":
+      return "greaterThanOrEqual";
+    case "dateIsOnOrBefore":
+      return "lessThanOrEqual";
   }
 }
 
