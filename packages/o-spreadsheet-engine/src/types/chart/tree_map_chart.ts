@@ -1,12 +1,13 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { CustomizedDataSet, TitleDesign } from "./chart";
+import { ChartRangeDataSource, DataSetStyle, TitleDesign } from "./chart";
 import { TreemapDataPoint } from "./chartjs_tree_map_type";
 import { LegendPosition } from "./common_chart";
 
 export interface TreeMapChartDefinition {
   readonly type: "treemap";
-  readonly dataSets: CustomizedDataSet[];
+  readonly dataSetStyles: DataSetStyle;
+  readonly dataSource: ChartRangeDataSource;
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;

@@ -4,7 +4,7 @@
       <t t-set-slot="content">
         <Section class="'pt-0 pb-0'">
           <Select
-            selectedValue="state.index.toString()"
+            selectedValue="state.dataSetId"
             values="selectOptions"
             class="'data-series-selector'"
             onChange.bind="this.updateEditedSeries"
@@ -27,7 +27,7 @@
             />
           </Section>
         </Section>
-        <t t-slot="data-series-extension" index="state.index"/>
+        <t t-slot="data-series-extension" dataSetId="state.dataSetId"/>
       </t>
     </SidePanelCollapsible>
   </t>
