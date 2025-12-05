@@ -35,7 +35,7 @@ export abstract class AbstractChart {
     "humanize",
   ];
   static dataSetKeys: readonly (keyof ChartWithDataSetDefinition)[] = [
-    "dataSets",
+    "dataSetStyles",
     "dataSetsHaveTitle",
     "labelRange",
   ];

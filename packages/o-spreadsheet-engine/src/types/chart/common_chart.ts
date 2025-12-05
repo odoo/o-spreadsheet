@@ -1,11 +1,12 @@
 import { Color } from "../misc";
-import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
+import { AxesDesign, ChartRangeDataSource, DataSetStyle, TitleDesign } from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";
 export type LegendPosition = "top" | "bottom" | "left" | "right" | "none";
 
 export interface CommonChartDefinition {
-  readonly dataSets: CustomizedDataSet[];
+  readonly dataSetStyles: DataSetStyle;
+  readonly dataSource: ChartRangeDataSource;
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;

@@ -1,13 +1,13 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
+import { _t, UID } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_WINDOW_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
-  ChartJSRuntime,
   ChartWithDataSetDefinition,
   Color,
+  CustomisableSeriesChartRuntime,
   TrendConfiguration,
   ValueAndLabel,
 } from "../../../../../types";
@@ -42,50 +42,44 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
 
   axisChoices = CHART_AXIS_CHOICES;
 
-  updateDataSeriesAxis(index: number, axis: "left" | "right") {
-    const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
-      return;
-    }
-    dataSets[index] = {
-      ...dataSets[index],
+  updateDataSeriesAxis(dataSetId: UID, axis: "left" | "right") {
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    dataSetStyles[dataSetId] = {
+      ...dataSetStyles[dataSetId],
       yAxisId: axis === "left" ? "y" : "y1",
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 
-  getDataSerieAxis(index: number) {
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[index]) {
+  getDataSerieAxis(dataSetId: UID) {
+    const dataSets = this.props.definition.dataSetStyles;
+    if (!dataSets?.[dataSetId]) {
       return "left";
     }
-    return dataSets[index].yAxisId === "y1" ? "right" : "left";
+    return dataSets[dataSetId]?.yAxisId === "y1" ? "right" : "left";
   }
 
   get canHaveTwoVerticalAxis() {
     return !("horizontal" in this.props.definition && this.props.definition.horizontal);
   }
 
-  toggleDataTrend(index: number, display: boolean) {
-    const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
-      return;
-    }
-    dataSets[index] = {
-      ...dataSets[index],
+  toggleDataTrend(dataSetId: UID, display: boolean) {
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    dataSetStyles[dataSetId] = {
+      ...dataSetStyles[dataSetId],
       trend: {
         type: "polynomial",
         order: 1,
-        ...dataSets[index].trend,
+        ...dataSetStyles[dataSetId]?.trend,
         display,
       },
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 
-  getTrendLineConfiguration(index: number) {
-    const dataSets = this.props.definition.dataSets;
-    return dataSets?.[index]?.trend;
+  getTrendLineConfiguration(dataSetId: UID) {
+    const dataSets = this.props.definition.dataSetStyles;
+    return dataSets?.[dataSetId]?.trend;
   }
 
   getTrendType(config: TrendConfiguration) {
@@ -95,14 +89,14 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     return config.type === "polynomial" && config.order === 1 ? "linear" : config.type;
   }
 
-  onChangeTrendType(index: number, type: string) {
+  onChangeTrendType(dataSetId: UID, type: string) {
     let config: TrendConfiguration;
     switch (type) {
       case "linear":
       case "polynomial":
         config = {
           type: "polynomial",
-          order: type === "linear" ? 1 : this.getMaxPolynomialDegree(index),
+          order: type === "linear" ? 1 : this.getMaxPolynomialDegree(dataSetId),
         };
         break;
       case "exponential":
@@ -113,7 +107,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
       default:
         return;
     }
-    this.updateTrendLineValue(index, config);
+    this.updateTrendLineValue(dataSetId, config);
   }
 
   get trendOptions(): ValueAndLabel[] {
@@ -126,19 +120,22 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     ];
   }
 
-  getPolynomialDegrees(index: number): ValueAndLabel[] {
-    return range(1, this.getMaxPolynomialDegree(index) + 1).map((degree) => ({
+  getPolynomialDegrees(dataSetId: UID): ValueAndLabel[] {
+    return range(1, this.getMaxPolynomialDegree(dataSetId) + 1).map((degree) => ({
       value: degree.toString(),
       label: degree.toString(),
     }));
   }
 
-  onChangePolynomialDegree(index: number, value: string) {
-    this.updateTrendLineValue(index, { order: parseInt(value) });
+  onChangePolynomialDegree(dataSetId: UID, value: string) {
+    this.updateTrendLineValue(dataSetId, { order: parseInt(value) });
   }
 
-  getMaxPolynomialDegree(index) {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
+  getMaxPolynomialDegree(dataSetId: UID) {
+    const runtime = this.env.model.getters.getChartRuntime(
+      this.props.chartId
+    ) as CustomisableSeriesChartRuntime;
+    const index = runtime.customisableSeries.findIndex((series) => series.dataSetId === dataSetId);
     return Math.min(10, runtime.chartJsConfig.data.datasets[index].data.length - 1);
   }
 
@@ -146,48 +143,49 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     return DEFAULT_WINDOW_SIZE;
   }
 
-  onChangeMovingAverageWindow(index: number, value: string) {
+  onChangeMovingAverageWindow(dataSetId: UID, value: string) {
     let window = parseInt(value) || DEFAULT_WINDOW_SIZE;
     if (window <= 1) {
       window = DEFAULT_WINDOW_SIZE;
     }
-    this.updateTrendLineValue(index, { window });
+    this.updateTrendLineValue(dataSetId, { window });
   }
 
-  getDataSeriesColor(index: number) {
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[index]) {
+  getDataSeriesColor(dataSetId: UID) {
+    const dataSets = this.props.definition.dataSetStyles;
+    if (!dataSets?.[dataSetId]) {
       return "";
     }
-    const color = dataSets[index].backgroundColor;
+    const color = dataSets[dataSetId]?.backgroundColor;
+    const runtime = this.env.model.getters.getChartRuntime(
+      this.props.chartId
+    ) as CustomisableSeriesChartRuntime;
+    const index = runtime.customisableSeries.findIndex((series) => series.dataSetId === dataSetId);
     return color
       ? toHex(color)
-      : getNthColor(index, getColorsPalette(this.props.definition.dataSets.length));
+      : getNthColor(index, getColorsPalette(runtime.customisableSeries.length));
   }
 
-  getTrendLineColor(index: number) {
+  getTrendLineColor(dataSetId: UID) {
     return (
-      this.getTrendLineConfiguration(index)?.color ??
-      setColorAlpha(this.getDataSeriesColor(index), 0.5)
+      this.getTrendLineConfiguration(dataSetId)?.color ??
+      setColorAlpha(this.getDataSeriesColor(dataSetId), 0.5)
     );
   }
 
-  updateTrendLineColor(index: number, color: Color) {
-    this.updateTrendLineValue(index, { color });
+  updateTrendLineColor(dataSetId: UID, color: Color) {
+    this.updateTrendLineValue(dataSetId, { color });
   }
 
-  updateTrendLineValue(index: number, config: any) {
-    const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
-      return;
-    }
-    dataSets[index] = {
-      ...dataSets[index],
+  private updateTrendLineValue(dataSetId: UID, config: TrendConfiguration) {
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    dataSetStyles[dataSetId] = {
+      ...dataSetStyles[dataSetId],
       trend: {
-        ...dataSets[index].trend,
+        ...dataSetStyles[dataSetId]?.trend,
         ...config,
       },
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 }
