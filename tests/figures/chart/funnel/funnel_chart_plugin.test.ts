@@ -3,7 +3,10 @@ import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator } from "../../../../src/helpers";
 import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart";
 import { createFunnelChart, setCellContent, setFormat } from "../../../test_helpers";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  toChartDataSource,
+} from "../../../test_helpers/chart_helpers";
 import { setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
@@ -24,10 +27,12 @@ describe("Funnel chart", () => {
       type: "funnel",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "none",
-      dataSetsHaveTitle: true,
       aggregated: true,
       axesDesign: {},
       showValues: false,
@@ -48,9 +53,11 @@ describe("Funnel chart", () => {
     setCellContent(model, "B1", "100");
     setCellContent(model, "B2", "25");
     const chartId = createFunnelChart(model, {
-      dataSets: [{ dataRange: "B1:B2" }],
-      labelRange: "A1:A2",
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B2" }],
+        labelRange: "A1:A2",
+        dataSetsHaveTitle: false,
+      }),
     });
     const config = getFunnelRuntime(chartId).chartJsConfig;
     expect(config.data.datasets[0].data).toEqual([
@@ -65,8 +72,10 @@ describe("Funnel chart", () => {
     setCellContent(model, "B1", "10");
     setCellContent(model, "C1", "30");
     const chartId = createFunnelChart(model, {
-      dataSets: [{ dataRange: "B1" }, { dataRange: "C1" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1" }, { dataRange: "C1" }],
+        dataSetsHaveTitle: false,
+      }),
     });
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets).toHaveLength(1);
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([[-10, 10]]);
@@ -77,8 +86,10 @@ describe("Funnel chart", () => {
     setCellContent(model, "B2", "-20");
     setCellContent(model, "B3", "0");
     const chartId = createFunnelChart(model, {
-      dataSets: [{ dataRange: "B1:B3" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B3" }],
+        dataSetsHaveTitle: false,
+      }),
     });
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
       [-10, 10],
@@ -93,9 +104,11 @@ describe("Funnel chart", () => {
     setCellContent(model, "B1", "50");
     setCellContent(model, "B2", "30");
     const chartId = createFunnelChart(model, {
-      labelRange: "A1:A2",
-      dataSets: [{ dataRange: "B1:B2" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A2",
+        dataSets: [{ dataRange: "B1:B2" }],
+        dataSetsHaveTitle: false,
+      }),
     });
     const scales = getFunnelRuntime(chartId).chartJsConfig.options?.scales as any;
 
@@ -123,9 +136,11 @@ describe("Funnel chart", () => {
     setCellContent(model, "B3", "60");
     setCellContent(model, "B4", "50");
     const chartId = createFunnelChart(model, {
-      labelRange: "A1:A4",
-      dataSets: [{ dataRange: "B1:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A4",
+        dataSets: [{ dataRange: "B1:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       aggregated: true,
     });
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
@@ -137,8 +152,10 @@ describe("Funnel chart", () => {
   test("Funnel runtime with cumulative", () => {
     setGrid(model, { B1: "10", B2: "20", B3: "invalid", B4: "30" });
     const chartId = createFunnelChart(model, {
-      dataSets: [{ dataRange: "B1:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       cumulative: true,
     });
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
@@ -152,8 +169,10 @@ describe("Funnel chart", () => {
     setCellContent(model, "A2", "30");
     setFormat(model, "A2", "0[$€]");
     const chartId = createFunnelChart(model, {
-      dataSets: [{ dataRange: "A1:A2" }],
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }],
+        dataSetsHaveTitle: true,
+      }),
     });
     const runtime = getFunnelRuntime(chartId);
 
@@ -170,9 +189,11 @@ describe("Funnel chart", () => {
     setCellContent(model, "B2", "20");
     setCellContent(model, "B3", "30");
     const chartId = createFunnelChart(model, {
-      labelRange: "A1:A3",
-      dataSets: [{ dataRange: "B1:B3" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A3",
+        dataSets: [{ dataRange: "B1:B3" }],
+        dataSetsHaveTitle: false,
+      }),
       funnelColors: ["#ff0000", undefined, "#00ff00"],
     });
     const runtime = getFunnelRuntime(chartId);

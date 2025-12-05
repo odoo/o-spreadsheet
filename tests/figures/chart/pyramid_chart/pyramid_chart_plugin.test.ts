@@ -4,6 +4,7 @@ import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
   getChartTooltipValues,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -24,10 +25,12 @@ describe("population pyramid chart", () => {
       type: "pyramid",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       stacked: true,
       axesDesign: {},
@@ -80,8 +83,10 @@ describe("population pyramid chart", () => {
         model,
         {
           type: "pyramid",
-          dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
-          dataSetsHaveTitle: false,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
+            dataSetsHaveTitle: false,
+          }),
         },
         "id"
       );
@@ -107,8 +112,10 @@ describe("population pyramid chart", () => {
         model,
         {
           type: "pyramid",
-          dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
-          dataSetsHaveTitle: false,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
+            dataSetsHaveTitle: false,
+          }),
         },
         "id"
       );
@@ -122,8 +129,10 @@ describe("population pyramid chart", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
           type: "pyramid",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
+          }),
         },
         "43"
       );
@@ -144,8 +153,10 @@ test("Humanization is taken into account for the axis ticks of a pyramid chart",
     model,
     {
       type: "pyramid",
-      labelRange: "A2",
-      dataSets: [{ dataRange: "B2" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B2" }],
+        labelRange: "A2",
+      }),
       humanize: false,
     },
     "1"
