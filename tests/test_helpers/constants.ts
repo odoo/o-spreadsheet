@@ -14,18 +14,21 @@ import {
   TableStyle,
 } from "../../src/types";
 import { target, toRangesData } from "./helpers";
+import { toChartDataSource } from "./chart_helpers";
 
 export const TEST_CHART_DATA = {
   basicChart: {
     type: "bar" as const,
-    dataSets: [
-      {
-        dataRange: "B1:B4",
-        yAxisId: "y",
-      },
-    ],
-    labelRange: "A2:A4",
-    dataSetsHaveTitle: true,
+    ...toChartDataSource({
+      dataSets: [
+        {
+          dataRange: "B1:B4",
+          yAxisId: "y",
+        },
+      ],
+      labelRange: "A2:A4",
+      dataSetsHaveTitle: true,
+    }),
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
     stacked: false,
@@ -34,13 +37,15 @@ export const TEST_CHART_DATA = {
   },
   combo: {
     type: "combo" as const,
-    dataSets: [
-      {
-        dataRange: "B1:B4",
-      },
-    ],
-    labelRange: "A2:A4",
-    dataSetsHaveTitle: true,
+    ...toChartDataSource({
+      dataSets: [
+        {
+          dataRange: "B1:B4",
+        },
+      ],
+      labelRange: "A2:A4",
+      dataSetsHaveTitle: true,
+    }),
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
     legendPosition: "top" as const,
@@ -82,8 +87,10 @@ export const TEST_CHART_DATA = {
   },
   calendar: {
     type: "calendar" as const,
-    dataSets: [{ dataRange: "B1" }],
-    labelRange: "A1",
+    ...toChartDataSource({
+      dataSets: [{ dataRange: "B1" }],
+      labelRange: "A1",
+    }),
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
   },

@@ -13,6 +13,7 @@ import {
   getColorPickerValue,
   openChartConfigSidePanel,
   openChartDesignSidePanel,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
@@ -29,9 +30,11 @@ describe("Funnel chart side panel", () => {
   describe("Config panel", () => {
     test("Funnel config panel is correctly initialized", async () => {
       const chartId = createFunnelChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
         aggregated: true,
         cumulative: true,
       });
@@ -62,7 +65,9 @@ describe("Funnel chart side panel", () => {
       setCellContent(model, "A2", "50");
       setCellContent(model, "A3", "60");
       const chartId = createFunnelChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+        }),
         title: { text: "My Funnel chart" },
         showValues: true,
         funnelColors: ["#FF0000", "#00FF00"],
@@ -80,7 +85,9 @@ describe("Funnel chart side panel", () => {
       setCellContent(model, "A2", "50");
       setCellContent(model, "A3", "60");
       const chartId = createFunnelChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+        }),
         title: { text: "My Funnel chart" },
         showValues: true,
       });
@@ -102,8 +109,10 @@ describe("Funnel chart side panel", () => {
       setCellContent(model, "B2", "50");
       setCellContent(model, "B3", "60");
       const chartId = createFunnelChart(model, {
-        dataSets: [{ dataRange: "B1:B3" }],
-        labelRange: "A1:A3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B3" }],
+          labelRange: "A1:A3",
+        }),
         title: { text: "My Funnel chart" },
         showValues: true,
       });

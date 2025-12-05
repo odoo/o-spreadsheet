@@ -1,6 +1,7 @@
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Model } from "../../src";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addColumns,
   addDataValidation,
@@ -110,9 +111,11 @@ describe("Collaborative range manipulation", () => {
     createChart(
       alice,
       {
-        dataSets: [{ dataRange: "A2" }],
-        labelRange: "A1",
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A2" }],
+          labelRange: "A1",
+          dataSetsHaveTitle: false,
+        }),
         type: "line",
       },
       "1"

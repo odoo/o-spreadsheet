@@ -15,6 +15,7 @@ import {
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import {
   mockChart,
@@ -43,9 +44,11 @@ describe("Geo chart side panel", () => {
   describe("Config panel", () => {
     test("Geo chart config panel is correctly initialized", async () => {
       createGeoChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
         region: "usa",
       });
       await openChartConfigSidePanel(model, env, chartId);
@@ -58,7 +61,9 @@ describe("Geo chart side panel", () => {
 
     test("Only one data range is enabled", async () => {
       createGeoChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+        }),
       });
       await openChartConfigSidePanel(model, env, chartId);
       expect(".o-data-series input").toHaveCount(1);
