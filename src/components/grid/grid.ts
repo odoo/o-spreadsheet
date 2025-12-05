@@ -71,7 +71,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
-import { getZoomedRect, ZoomedMouseEvent } from "../helpers/zoom";
+import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
@@ -172,10 +172,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
 
-    useChildSubEnv({
-      getPopoverContainerRect: () =>
-        getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
-    });
+    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
@@ -506,9 +503,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getGridRect(): Rect {
+    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     return {
       ...getRefBoundingRect(this.gridRef),
-      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+      width: width * zoom,
+      height: height * zoom,
     };
   }
 
@@ -627,7 +627,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else if (this.env.model.getters.getActiveRows().has(row)) {
       type = "ROW";
     }
-    const { x, y, width } = this.env.model.getters.getVisibleRect(lastZone);
+    const { x, y, width } = this.env.model.getters.getVisibleRectWithZoom(lastZone);
     const gridRect = this.getGridRect();
     this.toggleContextMenu(type, gridRect.x + x + width, gridRect.y + y);
   }
@@ -649,6 +649,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.toggleContextMenu(type, x, y);
   }
 
+  /**
+   * expects x and y coordinates in true pixels (not zoomed)
+   */
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
     if (this.cellPopovers.isOpen) {
       this.cellPopovers.close();
@@ -820,7 +823,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         });
         break;
       case "right": {
-        const { x, y, width } = this.env.model.getters.getVisibleRect(zone);
+        const { x, y, width } = this.env.model.getters.getVisibleRectWithZoom(zone);
         const gridRect = this.getGridRect();
         this.toggleContextMenu("GROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
         break;
@@ -829,7 +832,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         if (!canUngroupHeaders(this.env, "COL") && !canUngroupHeaders(this.env, "ROW")) {
           return;
         }
-        const { x, y, width } = this.env.model.getters.getVisibleRect(zone);
+        const { x, y, width } = this.env.model.getters.getVisibleRectWithZoom(zone);
         const gridRect = this.getGridRect();
         this.toggleContextMenu("UNGROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
         break;
