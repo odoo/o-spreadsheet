@@ -2,6 +2,7 @@ import { LineChartRuntime, ScatterChartRuntime } from "@odoo/o-spreadsheet-engin
 import { Scale } from "chart.js";
 import { Model } from "../../../../src";
 import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
+import { toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
 
 let model: Model;
@@ -31,7 +32,12 @@ describe("Zoomable chart configuration tests", () => {
     setCellContent(model, "C2", "10");
     createChart(
       model,
-      { type: "line", dataSets: [{ dataRange: "B1:B5" }, { dataRange: "C1:C5", yAxisId: "y1" }] },
+      {
+        type: "line",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B5" }, { dataRange: "C1:C5", yAxisId: "y1" }],
+        }),
+      },
       "chartId"
     );
 
@@ -51,8 +57,10 @@ describe("Zoomable chart configuration tests", () => {
       model,
       {
         type: "line",
-        dataSets: [{ dataRange: "B1:B5" }],
-        labelRange: "A1:A5",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B5" }],
+          labelRange: "A1:A5",
+        }),
         axesDesign: { x: { title: { text: "axis title" } } },
       },
       "chartId"
@@ -76,7 +84,9 @@ describe("Zoomable chart configuration tests", () => {
       model,
       {
         type: "line",
-        dataSets: [{ dataRange: "B1:B5", trend: { display: true, type: "logarithmic" } }],
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B5", trend: { display: true, type: "logarithmic" } }],
+        }),
       },
       "chartId"
     );
@@ -91,7 +101,11 @@ describe("Zoomable chart configuration tests", () => {
   });
 
   test("Scatter chart master chart does not show lines and has smaller point size", () => {
-    createChart(model, { type: "scatter", dataSets: [{ dataRange: "A1:A5" }] }, "chartId");
+    createChart(
+      model,
+      { type: "scatter", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }) },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as ScatterChartRuntime;
 
     expect(runtime.chartJsConfig.data.datasets[0].showLine).toBe(false);

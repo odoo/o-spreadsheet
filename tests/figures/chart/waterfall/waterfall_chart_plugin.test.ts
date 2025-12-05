@@ -17,6 +17,7 @@ import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
   getChartTooltipValues,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import { nextTick } from "../../../test_helpers/helpers";
 
@@ -36,8 +37,10 @@ describe("Waterfall chart", () => {
     setCellContent(model, "A2", "-20");
     setCellContent(model, "A3", "30");
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
       showSubTotals: false,
     });
     expect(getWaterfallRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
@@ -55,9 +58,11 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C1", "30");
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A2",
-      dataSets: [{ dataRange: "B1:C2" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A2",
+        dataSets: [{ dataRange: "B1:C2" }],
+        dataSetsHaveTitle: false,
+      }),
       showSubTotals: false,
     });
     expect(getWaterfallRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
@@ -82,9 +87,11 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C1", "30");
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A2",
-      dataSets: [{ dataRange: "B1:C2" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A2",
+        dataSets: [{ dataRange: "B1:C2" }],
+        dataSetsHaveTitle: false,
+      }),
       showSubTotals: true,
     });
     expect(getWaterfallRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
@@ -113,9 +120,11 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B1", "10");
     setCellContent(model, "B3", "30");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A4",
-      dataSets: [{ dataRange: "B1:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A4",
+        dataSets: [{ dataRange: "B1:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       showSubTotals: true,
     });
     expect(getWaterfallRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
@@ -137,9 +146,11 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B3", "20");
     setCellContent(model, "B4", "10");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A4",
-      dataSets: [{ dataRange: "B1:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "A1:A4",
+        dataSets: [{ dataRange: "B1:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       showSubTotals: false,
       aggregated: true,
     });
@@ -169,9 +180,11 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B1", "10");
     setCellContent(model, "B2", "-20");
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "B1:B2" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B2" }],
+        dataSetsHaveTitle: false,
+      }),
       firstValueAsSubtotal: true,
-      dataSetsHaveTitle: false,
     });
     expect(getWaterfallRuntime(chartId).chartJsConfig.data.datasets[0].backgroundColor).toEqual([
       CHART_WATERFALL_SUBTOTAL_COLOR,
@@ -184,8 +197,10 @@ describe("Waterfall chart", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "-20");
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
       showSubTotals: true,
     });
     expect(getWaterfallRuntime(chartId).chartJsConfig.data.datasets[0].backgroundColor).toEqual([
@@ -215,8 +230,10 @@ describe("Waterfall chart", () => {
     setFormat(model, "A2", "0[$€]");
     setCellContent(model, "B2", "-40");
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "A1:B2" }],
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:B2" }],
+        dataSetsHaveTitle: true,
+      }),
       showSubTotals: false,
     });
     const runtime = getWaterfallRuntime(chartId);
@@ -312,10 +329,12 @@ describe("Waterfall chart", () => {
       type: "waterfall",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       firstValueAsSubtotal: true,
       showConnectorLines: false,
@@ -330,7 +349,9 @@ describe("Waterfall chart", () => {
 
   test("Waterfall show value is displayed as delta", () => {
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "A1:A4" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+      }),
       showSubTotals: true,
     });
     setCellContent(model, "A2", "10");
@@ -349,7 +370,9 @@ describe("Waterfall chart", () => {
 
   test("Humanization is taken into account for the axis ticks of a waterfall chart", async () => {
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "A1:A4" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+      }),
       showSubTotals: true,
       humanize: false,
     });
@@ -366,7 +389,9 @@ describe("Waterfall chart", () => {
 
   test("Waterfall chart showValues plugin takes humanization into account", async () => {
     const chartId = createWaterfallChart(model, {
-      dataSets: [{ dataRange: "A1:A4" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+      }),
       showSubTotals: true,
       humanize: false,
     });

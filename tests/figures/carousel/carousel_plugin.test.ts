@@ -1,5 +1,6 @@
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { CommandResult, Model, UID } from "../../../src";
+import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addChartFigureToCarousel,
   addNewChartToCarousel,
@@ -212,7 +213,10 @@ describe("Carousel figure", () => {
     createCarousel(model, { items: [], title }, "carouselId");
     addNewChartToCarousel(model, "carouselId");
     const chartId = model.getters.getCarousel("carouselId").items[0]["chartId"];
-    updateChart(model, chartId, { type: "pyramid", dataSets: [{ dataRange: "A1:A6" }] });
+    updateChart(model, chartId, {
+      type: "pyramid",
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
+    });
 
     createChart(model, { type: "radar" }, "chartId2", undefined, { figureId: "chartFigureId" });
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
@@ -226,7 +230,7 @@ describe("Carousel figure", () => {
     ]);
     expect(newModel.getters.getChartDefinition(chartId)).toMatchObject({
       type: "pyramid",
-      dataSets: [{ dataRange: "A1:A6" }],
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
     });
     expect(newModel.getters.getChartDefinition("chartId2")).toMatchObject({ type: "radar" });
   });
