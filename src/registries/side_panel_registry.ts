@@ -97,7 +97,7 @@ sidePanelRegistry.add("TableSidePanel", {
   Body: TablePanel,
   computeState: (getters: Getters) => {
     const table = getters.getFirstTableInSelection();
-    if (!table) {
+    if (!table || table.isPivotTable) {
       return { isOpen: false };
     }
 

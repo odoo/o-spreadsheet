@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-PivotSidePanel">
-    <div class="d-flex flex-column h-100">
+    <div class="o-pivot-panel d-flex flex-column h-100">
       <div class="o-panel d-flex">
         <div
           class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
@@ -20,7 +20,11 @@
 
       <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
         <div class="h-100" t-att-class="{ 'd-none': state.panel !== 'configuration' }">
-          <t t-component="sidePanelEditor" t-props="props"/>
+          <t
+            t-component="sidePanelEditor"
+            pivotId="props.pivotId"
+            onCloseSidePanel="props.onCloseSidePanel"
+          />
         </div>
         <div t-att-class="state.panel !== 'design' ? 'd-none' : ''">
           <PivotDesignPanel pivotId="props.pivotId"/>

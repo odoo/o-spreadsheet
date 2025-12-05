@@ -153,6 +153,15 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
+  onStylePicked(styleId: string) {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    this.env.model.dispatch("UPDATE_TABLE", {
+      sheetId,
+      zone: this.props.table.range.zone,
+      config: { styleId: styleId },
+    });
+  }
+
   deleteTable() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     this.env.model.dispatch("REMOVE_TABLE", {

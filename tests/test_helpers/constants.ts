@@ -584,6 +584,10 @@ export const TABLE_STYLE_ALL_RED: TableStyle = {
   category: "dark",
   displayName: "AllRed",
   wholeTable: { style: { fillColor: "#FF0000" }, border: { top: DEFAULT_BORDER_DESC } },
+  firstColumn: { style: { bold: true } },
+  lastColumn: { style: { bold: true } },
+  headerRow: { style: { bold: true } },
+  totalRow: { style: { bold: true } },
   templateName: "dark",
   primaryColor: "#FF0000",
 };

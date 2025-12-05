@@ -22,6 +22,10 @@ export class ArrayFormulaHighlight extends SpreadsheetStore {
     if (!zone) {
       return [];
     }
+    const pivotStyle = this.getters.getPivotStyleAtPosition(position);
+    if (pivotStyle?.pivotStyle?.tableStyleId && pivotStyle.pivotStyle.tableStyleId !== "None") {
+      return [];
+    }
     return [
       {
         range: this.model.getters.getRangeFromZone(position.sheetId, zone),

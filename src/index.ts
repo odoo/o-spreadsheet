@@ -11,7 +11,8 @@ import {
   HIGHLIGHT_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
-  PIVOT_TABLE_CONFIG,
+  PIVOT_INSERT_TABLE_STYLE_ID,
+  PIVOT_STATIC_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { getFunctionsFromTokens } from "@odoo/o-spreadsheet-engine/formulas/helpers";
@@ -532,7 +533,8 @@ export function addFunction(functionName: string, functionDescription: AddFuncti
 export const constants = {
   DEFAULT_LOCALE,
   HIGHLIGHT_COLOR,
-  PIVOT_TABLE_CONFIG,
+  PIVOT_STATIC_TABLE_CONFIG,
+  PIVOT_INSERT_TABLE_STYLE_ID,
   ChartTerms,
   FIGURE_ID_SPLITTER,
   GRID_ICON_EDGE_LENGTH,

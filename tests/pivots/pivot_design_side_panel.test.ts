@@ -50,7 +50,14 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("Pivot design panel is correctly initialized", async () => {
     updatePivot(model, "1", {
-      style: { displayColumnHeaders: false, numberOfColumns: 87, displayTotals: true },
+      style: {
+        displayColumnHeaders: false,
+        numberOfColumns: 87,
+        displayTotals: true,
+        bandedColumns: true,
+        bandedRows: false,
+        hasFilters: true,
+      },
     });
     await nextTick();
 
@@ -59,6 +66,9 @@ describe("Spreadsheet pivot side panel", () => {
     expect("input[name='displayColumnHeaders']").toHaveValue(false);
     expect("input[name='displayTotals']").toHaveValue(true);
     expect("input[name='displayMeasuresRow']").toHaveValue(true);
+    expect("input[name='bandedRows']").toHaveValue(false);
+    expect("input[name='bandedColumns']").toHaveValue(true);
+    expect("input[name='hasFilters']").toHaveValue(true);
   });
 
   test("Can edit the pivot style with the side panel", async () => {
@@ -67,6 +77,9 @@ describe("Spreadsheet pivot side panel", () => {
     await simulateClick("input[name='displayColumnHeaders']");
     await simulateClick("input[name='displayTotals']");
     await simulateClick("input[name='displayMeasuresRow']");
+    await simulateClick("input[name='bandedRows']");
+    await simulateClick("input[name='bandedColumns']");
+    await simulateClick("input[name='hasFilters']");
 
     expect(model.getters.getPivotCoreDefinition("1").style).toEqual({
       numberOfRows: 12,
@@ -74,6 +87,9 @@ describe("Spreadsheet pivot side panel", () => {
       displayColumnHeaders: false,
       displayTotals: false,
       displayMeasuresRow: false,
+      bandedRows: true,
+      bandedColumns: true,
+      hasFilters: true,
     });
   });
 
@@ -109,5 +125,19 @@ describe("Spreadsheet pivot side panel", () => {
       numberOfColumns: undefined,
     });
     jest.useRealTimers();
+  });
+
+  test("Can pick a pivot table style with both the picker and the popover", async () => {
+    await click(fixture, ".o-table-style-list-item[data-id='PivotTableStyleLight1']");
+
+    expect(model.getters.getPivotCoreDefinition("1").style?.tableStyleId).toBe(
+      "PivotTableStyleLight1"
+    );
+
+    await click(fixture, ".o-table-style-picker-arrow");
+    await click(fixture, ".o-popover .o-table-style-list-item[data-id='PivotTableStyleLight3']");
+    expect(model.getters.getPivotCoreDefinition("1").style?.tableStyleId).toBe(
+      "PivotTableStyleLight3"
+    );
   });
 });
