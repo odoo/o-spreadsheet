@@ -5,7 +5,10 @@ import {
 import { ChartCreationContext, Model } from "../../../../src";
 import { CalendarChart } from "../../../../src/helpers/figures/charts/calendar_chart";
 import { createCalendarChart, createSheet, setCellContent, setFormat } from "../../../test_helpers";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  toChartDataSource,
+} from "../../../test_helpers/chart_helpers";
 
 const STAMPS_AND_LABELS: { stamp: CalendarChartGranularity; labels: string[] }[] = [
   {
@@ -169,10 +172,12 @@ describe("calendar chart", () => {
       type: "calendar",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A1:A4",
+      }),
       legendPosition: "left",
-      labelRange: "Sheet1!A1:A4",
       showValues: false,
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
@@ -193,8 +198,10 @@ describe("calendar chart", () => {
         model,
         {
           type: "calendar" as const,
-          dataSets: [{ dataRange: "B1:B365" }],
-          labelRange: "A1:A365",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B365" }],
+            labelRange: "A1:A365",
+          }),
           verticalGroupBy: grouping.stamp,
         },
         chartId,
@@ -220,8 +227,10 @@ describe("calendar chart", () => {
         model,
         {
           type: "calendar" as const,
-          dataSets: [{ dataRange: "B1:B365" }],
-          labelRange: "A1:A365",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B365" }],
+            labelRange: "A1:A365",
+          }),
           horizontalGroupBy: grouping.stamp,
         },
         chartId,

@@ -8,6 +8,7 @@ import {
   getChartLegendLabels,
   getChartTooltipValues,
   isChartAxisStacked,
+  toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -29,10 +30,12 @@ describe("bar chart", () => {
       type: "bar",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       stacked: true,
       axesDesign: {},
@@ -74,9 +77,11 @@ describe("bar chart", () => {
         {
           horizontal: true,
           type: "bar",
-          dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+            dataSetsHaveTitle: false,
+          }),
           axesDesign: { x: { title: { text: "xAxis" } }, y: { title: { text: "yAxis" } } },
-          dataSetsHaveTitle: false,
         },
         "id"
       );
@@ -119,7 +124,9 @@ describe("bar chart", () => {
         {
           horizontal: true,
           type: "bar",
-          dataSets: [{ dataRange: "B1:B4", yAxisId: "y1" }],
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B4", yAxisId: "y1" }],
+          }),
           axesDesign: { x: { title: { text: "xAxis" } }, y1: { title: { text: "yAxis" } } },
         },
         "id"
@@ -140,11 +147,13 @@ describe("bar chart", () => {
     createChart(
       model,
       {
-        dataSets: [
-          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
-          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
-        ],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+            { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+          ],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "bar",
       },
       "1"
@@ -176,15 +185,17 @@ describe("bar chart", () => {
   test("Empty legend items are filtered out", () => {
     // prettier-ignore
     const model = createModelFromGrid({
-      A1: "",    B1: "",   C1: "Dataset 2",
-      A2: "P1",  B2: "2",  C2: "4",
+      A1: "", B1: "", C1: "Dataset 2",
+      A2: "P1", B2: "2", C2: "4",
     });
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1:C2" }],
-        labelRange: "A1:A2",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:C2" }],
+          labelRange: "A1:A2",
+          dataSetsHaveTitle: true,
+        }),
         type: "bar",
       },
       "1"
@@ -206,7 +217,9 @@ describe("bar chart", () => {
       model,
       {
         type: "bar",
-        dataSets: [{ dataRange: "A1:B3" }, { dataRange: "B1:B3" }],
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:B3" }, { dataRange: "B1:B3" }],
+        }),
       },
       "chartId"
     );
@@ -231,7 +244,9 @@ describe("bar chart", () => {
       model,
       {
         type: "bar",
-        dataSets: [{ dataRange: "A1:B3" }, { dataRange: "B1:B3" }],
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:B3" }, { dataRange: "B1:B3" }],
+        }),
       },
       "chartId"
     );
@@ -248,15 +263,17 @@ describe("bar chart", () => {
     createChart(
       model,
       {
-        dataSets: [
-          {
-            dataRange: "Sheet1!A1:A2",
-            backgroundColor: "#f00",
-            label: "serie_1",
-            trend: { type: "polynomial", order: 1, color: "#f0f", display: true },
-          },
-        ],
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [
+            {
+              dataRange: "Sheet1!A1:A2",
+              backgroundColor: "#f00",
+              label: "serie_1",
+              trend: { type: "polynomial", order: 1, color: "#f0f", display: true },
+            },
+          ],
+          dataSetsHaveTitle: false,
+        }),
         type: "bar",
       },
       "1"
@@ -269,14 +286,20 @@ describe("bar chart", () => {
 
   test("Bar spacing is adapted to the number of datasets", () => {
     const model = createModelFromGrid({ A2: "2", B2: "3" });
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
+    createChart(
+      model,
+      { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }] }) },
+      "chartId"
+    );
 
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets[0].barPercentage).toEqual(0.9);
     expect(config.data.datasets[0].categoryPercentage).toEqual(1);
 
-    updateChart(model, "chartId", { dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] });
+    updateChart(model, "chartId", {
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] }),
+    });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, 0.9]);
