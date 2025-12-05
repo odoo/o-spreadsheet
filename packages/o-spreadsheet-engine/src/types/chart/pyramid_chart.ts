@@ -9,4 +9,5 @@ export interface PyramidChartDefinition extends Omit<BarChartDefinition, "type" 
 export type PyramidChartRuntime = {
   chartJsConfig: ChartConfiguration;
   background: Color;
+  customisableSeries: { dataSetId: string; label: string }[];
 };
