@@ -205,7 +205,7 @@ export class ScorecardChart extends AbstractChart {
     return {
       background: context.background,
       type: "scorecard",
-      keyValue: context.range?.[0]?.dataRange,
+      keyValue: context.dataSource?.dataSets?.[0]?.dataRange,
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -269,7 +269,9 @@ export class ScorecardChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      range: definition.keyValue ? [{ dataRange: definition.keyValue }] : undefined,
+      dataSource: {
+        dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
+      },
       auxiliaryRange: definition.baseline,
     };
   }

@@ -23,13 +23,13 @@
     </GeneralDesignEditor>
     <SeriesWithAxisDesignEditor t-props="props">
       <t t-set-slot="general-extension" t-slot-scope="scope">
-        <t t-set="index" t-value="scope.index"/>
+        <t t-set="dataSetId" t-value="scope.dataSetId"/>
         <Section class="'pt-0 o-series-type-selection'" title.translate="Serie type">
           <RadioSelection
             choices="seriesTypeChoices"
-            selectedValue="getDataSeriesType(index)"
+            selectedValue="getDataSeriesType(dataSetId)"
             name="'seriesType'"
-            onChange="(type) => this.updateDataSeriesType(index, type)"
+            onChange="(type) => this.updateDataSeriesType(dataSetId, type)"
           />
         </Section>
       </t>

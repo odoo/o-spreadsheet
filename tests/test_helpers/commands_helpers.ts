@@ -248,7 +248,8 @@ export function createChart(
   const definition = {
     ...data,
     title: data.title || { text: "test" },
-    dataSets: ("dataSets" in data && data.dataSets) || [],
+    dataSource: data.dataSource ?? { dataSets: [] },
+    dataSetStyles: data.dataSetStyles ?? {},
     dataSetsHaveTitle:
       "dataSetsHaveTitle" in data && data.dataSetsHaveTitle !== undefined
         ? data.dataSetsHaveTitle
@@ -307,7 +308,8 @@ export function createComboChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
+      dataSource: data.dataSource ?? { dataSets: [] },
+      dataSetStyles: data.dataSetStyles ?? {},
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
       type: "combo",
@@ -340,7 +342,8 @@ export function createRadarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
+      dataSource: data.dataSource ?? { dataSets: [] },
+      dataSetStyles: data.dataSetStyles ?? {},
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
       type: "radar",
@@ -375,7 +378,8 @@ export function createCalendarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets ?? [],
+      dataSource: data.dataSource ?? { dataSets: [] },
+      dataSetStyles: data.dataSetStyles ?? {},
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
       type: "calendar",
@@ -514,7 +518,8 @@ export function createGeoChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
+      dataSource: data.dataSource ?? { dataSets: [] },
+      dataSetStyles: data.dataSetStyles ?? {},
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
       type: "geo",
