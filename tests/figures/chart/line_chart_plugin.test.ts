@@ -5,6 +5,7 @@ import {
   getChartConfiguration,
   getChartLegendLabels,
   isChartAxisStacked,
+  toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
@@ -20,10 +21,12 @@ describe("line chart", () => {
       type: "line",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       stacked: true,
       labelsAsText: true,
@@ -54,7 +57,11 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(model, { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] }, "chartId");
+    createChart(
+      model,
+      { type: "line", ...toChartDataSource({ dataSets: [{ dataRange: "Sheet1!B1:B4" }] }) },
+      "chartId"
+    );
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
 
@@ -88,7 +95,10 @@ describe("line chart", () => {
     });
     createChart(
       model,
-      { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
+      {
+        type: "line",
+        ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] }),
+      },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
@@ -127,7 +137,10 @@ describe("line chart", () => {
     });
     createChart(
       model,
-      { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
+      {
+        type: "line",
+        ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] }),
+      },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
@@ -152,9 +165,13 @@ describe("line chart", () => {
       model,
       {
         type: "line",
-        dataSets: [{ dataRange: "A1:A3", trend: { type: "polynomial", order: 1, display: true } }],
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "A1:A3", trend: { type: "polynomial", order: 1, display: true } },
+          ],
+          dataSetsHaveTitle: false,
+        }),
         fillArea: true,
-        dataSetsHaveTitle: false,
       },
       "chartId"
     );
@@ -173,11 +190,13 @@ describe("line chart", () => {
     createChart(
       model,
       {
-        dataSets: [
-          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
-          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
-        ],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+            { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+          ],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "line",
       },
       "1"

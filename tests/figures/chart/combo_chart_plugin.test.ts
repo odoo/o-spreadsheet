@@ -10,6 +10,7 @@ import {
   getChartConfiguration,
   getChartLegendLabels,
   getChartTooltipValues,
+  toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -31,10 +32,12 @@ describe("combo chart", () => {
       type: "combo",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1", type: "bar" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1", type: "bar" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       axesDesign: {},
       showValues: false,
@@ -55,12 +58,14 @@ describe("combo chart", () => {
       model,
       {
         type: "combo",
-        labelRange: "A1:A2",
-        dataSets: [
-          { dataRange: "B1:B2", yAxisId: "y" },
-          { dataRange: "C1:C2", yAxisId: "y1" },
-        ],
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          labelRange: "A1:A2",
+          dataSets: [
+            { dataRange: "B1:B2", yAxisId: "y" },
+            { dataRange: "C1:C2", yAxisId: "y1" },
+          ],
+          dataSetsHaveTitle: false,
+        }),
         humanize: false,
       },
       "1"
@@ -93,16 +98,20 @@ describe("combo chart", () => {
       model,
       {
         type: "combo",
-        labelRange: "A1:A2",
-        dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          labelRange: "A1:A2",
+          dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
+          dataSetsHaveTitle: false,
+        }),
       },
       "1"
     );
     let runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("line");
     updateChart(model, "1", {
-      dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2", type: "bar" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2", type: "bar" }],
+      }),
     });
     runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("bar");
@@ -118,11 +127,13 @@ describe("combo chart", () => {
     createChart(
       model,
       {
-        dataSets: [
-          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
-          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
-        ],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+            { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+          ],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "combo",
       },
       "1"
@@ -158,7 +169,7 @@ describe("combo chart", () => {
       { dataRange: "A1:A3", type: "bar" },
       { dataRange: "B1:B3", type: "line" },
     ];
-    createChart(model, { type: "combo", dataSets }, "chartId");
+    createChart(model, { type: "combo", ...toChartDataSource({ dataSets }) }, "chartId");
 
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
@@ -166,7 +177,7 @@ describe("combo chart", () => {
     expect(config.data.datasets[0].categoryPercentage).toEqual(1);
 
     dataSets = [...dataSets, { dataRange: "C1:C3", type: "bar" }];
-    updateChart(model, "chartId", { dataSets });
+    updateChart(model, "chartId", { ...toChartDataSource({ dataSets }) });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, undefined, 0.9]); // undefined for line dataset
