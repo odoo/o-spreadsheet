@@ -13,7 +13,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { getChartDefaultOptions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
@@ -27,6 +27,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
+import { getChartMouseOutPlugin } from "../../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/runtime/chart_highlight";
 import {
   ApplyRangeChange,
   ChartCreationContext,
@@ -230,14 +231,14 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const definition = chart.getDefinition();
   const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration = {
+  const config: ChartConfiguration<"bar" | "line"> = {
     type: "bar",
     data: {
       labels: chartData.labels,
       datasets: getComboChartDatasets(definition, chartData),
     },
     options: {
-      ...CHART_COMMON_OPTIONS,
+      ...getChartDefaultOptions("combo"),
       layout: getChartLayout(definition, chartData),
       scales: getBarChartScales(definition, chartData),
       plugins: {
@@ -247,6 +248,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
       },
     },
+    plugins: [getChartMouseOutPlugin("combo")],
   };
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

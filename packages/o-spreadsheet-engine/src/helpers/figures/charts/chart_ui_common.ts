@@ -1,4 +1,4 @@
-import { ChartConfiguration, ChartOptions } from "chart.js";
+import { ActiveElement, Chart, ChartConfiguration, ChartEvent, ChartOptions } from "chart.js";
 import {
   ChartRuntime,
   ChartType,
@@ -8,6 +8,7 @@ import {
 import { Figure } from "../../../types/figure";
 import { deepCopy } from "../../misc";
 import { drawGaugeChart } from "./gauge_chart_rendering";
+import { getHighlightsHelpers } from "./runtime/chart_highlight";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 
@@ -26,6 +27,22 @@ export const CHART_COMMON_OPTIONS = {
   animation: false,
   events: ["mousemove", "mouseout", "click", "touchstart", "touchmove", "mouseup"],
 } satisfies ChartOptions;
+
+export function getChartDefaultOptions(type: ChartType) {
+  const { highlightItem, unHighlightItems } = getHighlightsHelpers(type);
+  return {
+    ...CHART_COMMON_OPTIONS,
+    onHover: (evt: ChartEvent, items: ActiveElement[], chart: Chart) => {
+      const datasets = chart.data.datasets;
+      if (items[0]) {
+        highlightItem(items[0], datasets);
+      } else {
+        unHighlightItems(datasets);
+      }
+      chart.update();
+    },
+  };
+}
 
 export async function chartToImageUrl(
   runtime: ChartRuntime,

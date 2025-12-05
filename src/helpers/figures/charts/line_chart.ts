@@ -13,7 +13,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { getChartDefaultOptions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
@@ -28,6 +28,7 @@ import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_ch
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
+import { getChartMouseOutPlugin } from "../../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/runtime/chart_highlight";
 import {
   ApplyRangeChange,
   Color,
@@ -239,14 +240,14 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
   const definition = chart.getDefinition();
   const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration = {
+  const config: ChartConfiguration<"line"> = {
     type: "line",
     data: {
       labels: chartData.labels,
       datasets: getLineChartDatasets(definition, chartData),
     },
     options: {
-      ...CHART_COMMON_OPTIONS,
+      ...getChartDefaultOptions("combo"),
       layout: getChartLayout(definition, chartData),
       scales: getLineChartScales(definition, chartData),
       plugins: {
@@ -256,6 +257,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
       },
     },
+    plugins: [getChartMouseOutPlugin("line")],
   };
 
   return {

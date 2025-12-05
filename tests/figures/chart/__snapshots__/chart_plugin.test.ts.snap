@@ -54,6 +54,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onHover": [Function],
       "plugins": {
         "chartShowValuesPlugin": {
           "background": [Function],
@@ -128,6 +129,12 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
     },
+    "plugins": [
+      {
+        "afterEvent": [Function],
+        "id": "eventPlugin",
+      },
+    ],
     "type": "bar",
   },
   "masterChartConfig": {
@@ -185,6 +192,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onHover": [Function],
       "plugins": {
         "chartShowValuesPlugin": undefined,
         "legend": {
@@ -233,6 +241,12 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
     },
+    "plugins": [
+      {
+        "afterEvent": [Function],
+        "id": "eventPlugin",
+      },
+    ],
     "type": "bar",
   },
 }
@@ -310,6 +324,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onHover": [Function],
       "plugins": {
         "chartShowValuesPlugin": {
           "background": [Function],
@@ -384,6 +399,12 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
     },
+    "plugins": [
+      {
+        "afterEvent": [Function],
+        "id": "eventPlugin",
+      },
+    ],
     "type": "line",
   },
   "masterChartConfig": {
@@ -458,6 +479,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onHover": [Function],
       "plugins": {
         "chartShowValuesPlugin": undefined,
         "legend": {
@@ -506,6 +528,12 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
     },
+    "plugins": [
+      {
+        "afterEvent": [Function],
+        "id": "eventPlugin",
+      },
+    ],
     "type": "line",
   },
 }
