@@ -1,5 +1,5 @@
 import { DEFAULT_REVISION_ID } from "../constants";
-import { UuidGenerator } from "../helpers";
+import { deepCopy, UuidGenerator } from "../helpers";
 import { isValidLocale } from "../helpers/locale";
 import { getDuplicateSheetName, getNextSheetName } from "../helpers/sheet";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
@@ -285,6 +285,7 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
   }
   const messages: StateUpdateMessage[] = [];
   const map = {};
+  data = load(deepCopy(data));
   for (const sheet of data.sheets || []) {
     sheet.figures?.forEach((figure) => {
       if (figure.tag === "chart") {

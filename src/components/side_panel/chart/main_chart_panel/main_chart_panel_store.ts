@@ -17,15 +17,36 @@ export class MainChartPanelStore extends SpreadsheetStore {
     const currentCreationContext = this.getters.getContextCreationChart(chartId);
     const savedCreationContext = this.creationContexts[chartId] || {};
 
-    let newRanges = currentCreationContext?.range;
-    if (newRanges?.every((range, i) => deepEquals(range, savedCreationContext.range?.[i]))) {
-      newRanges = Object.assign([], savedCreationContext.range, currentCreationContext?.range);
+    let newRanges = currentCreationContext?.dataSource?.dataSets;
+    let dataSetStyles = savedCreationContext.dataSetStyles ?? currentCreationContext?.dataSetStyles;
+    const savedDataSets = savedCreationContext.dataSource?.dataSets;
+    const currentDataSets = currentCreationContext?.dataSource?.dataSets;
+    if (
+      savedDataSets &&
+      currentDataSets &&
+      currentDataSets.every((range, i) => deepEquals(range.dataRange, savedDataSets[i].dataRange))
+    ) {
+      newRanges = [];
+      dataSetStyles = {};
+      for (let i = 0; i < savedDataSets.length; i++) {
+        const ds = currentDataSets[i] ?? savedDataSets[i];
+        const style =
+          currentCreationContext?.dataSetStyles?.[ds.dataSetId] ??
+          savedCreationContext.dataSetStyles?.[ds.dataSetId];
+        const newId = i.toString();
+        newRanges.push({ ...ds, dataSetId: newId });
+        if (style) {
+          dataSetStyles[newId] = style;
+        }
+      }
     }
 
     this.creationContexts[chartId] = {
       ...savedCreationContext,
       ...currentCreationContext,
-      range: newRanges,
+      dataSource: { dataSets: newRanges ?? [] },
+      dataSetStyles,
+      // dataSets: newRanges,
     };
     const figureId = this.getters.getFigureIdFromChartId(chartId);
     const sheetId = this.getters.getFigureSheetId(figureId);
