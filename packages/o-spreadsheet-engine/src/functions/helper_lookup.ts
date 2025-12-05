@@ -4,7 +4,7 @@ import { CoreGetters } from "../types/core_getters";
 import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { EvalContext } from "../types/functions";
 import { FunctionResultObject, Maybe, UID } from "../types/misc";
-import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
+import { PivotCoreMeasure } from "../types/pivot";
 import { Range } from "../types/range";
 
 /**
@@ -40,11 +40,12 @@ export function assertDomainLength(domain: Maybe<FunctionResultObject>[]) {
 
 export function addPivotDependencies(
   evalContext: EvalContext,
-  coreDefinition: PivotCoreDefinition,
+  pivotId: UID,
   forMeasures: PivotCoreMeasure[]
 ) {
   //TODO This function can be very costly when used with PIVOT.VALUE and PIVOT.HEADER
   const dependencies: Range[] = [];
+  const coreDefinition = evalContext.getters.getPivotCoreDefinition(pivotId);
 
   if (coreDefinition.type === "SPREADSHEET" && coreDefinition.dataSet) {
     const { sheetId, zone } = coreDefinition.dataSet;
@@ -65,8 +66,7 @@ export function addPivotDependencies(
 
   for (const measure of forMeasures) {
     if (measure.computedBy) {
-      const formula = evalContext.getters.getMeasureCompiledFormula(measure);
-      dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
+      dependencies.push(...evalContext.getters.getMeasureFullDependencies(pivotId, measure));
     }
   }
   const originPosition = evalContext.__originCellPosition;
