@@ -1,11 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationEditor">
     <div class="o-dv-form w-100 h-100">
-      <Section class="'o-dv-range'" title.translate="Apply to range">
+      <Section class="'o-dv-range'" title="rangeTitle">
         <SelectionInput
           ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
           required="true"
+          availableOnSheetId="props.sheetId"
         />
       </Section>
       <Section class="'pt-0'">
@@ -24,6 +25,7 @@
             criterion="state.rule.criterion"
             onCriterionChanged.bind="onCriterionChanged"
             autofocus="state.isTypeUpdated"
+            sheetId="props.sheetId"
           />
         </div>
       </Section>
@@ -37,7 +39,7 @@
 
       <Section>
         <div class="o-sidePanelButtons">
-          <button t-on-click="props.onExit" class="o-dv-cancel o-button">Cancel</button>
+          <button t-on-click="onCancel" class="o-dv-cancel o-button">Cancel</button>
           <button t-on-click="onSave" class="o-dv-save o-button primary">Save</button>
         </div>
       </Section>

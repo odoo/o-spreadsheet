@@ -3,7 +3,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
-import { Color } from "../../types";
+import { Color, UID } from "../../types";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
@@ -13,6 +13,7 @@ interface Props {
   hasSingleRange?: boolean;
   required?: boolean;
   autofocus?: boolean;
+  availableOnSheetId?: UID;
   isInvalid?: boolean;
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
@@ -52,6 +53,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     hasSingleRange: { type: Boolean, optional: true },
     required: { type: Boolean, optional: true },
     autofocus: { type: Boolean, optional: true },
+    availableOnSheetId: { type: String, optional: true },
     isInvalid: { type: Boolean, optional: true },
     class: { type: String, optional: true },
     onSelectionChanged: { type: Function, optional: true },
@@ -62,6 +64,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
   };
+
   private state: State = useState({
     isMissing: false,
     mode: "select-range",
@@ -76,7 +79,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get canAddRange(): boolean {
-    return !this.props.hasSingleRange;
+    return !this.props.hasSingleRange && !this.isReadonly;
   }
 
   get isInvalid(): boolean {
@@ -84,11 +87,17 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isConfirmable(): boolean {
-    return this.store.isConfirmable;
+    return this.store.isConfirmable && !this.isReadonly;
   }
 
   get isResettable(): boolean {
-    return this.store.isResettable;
+    return this.store.isResettable && !this.isReadonly;
+  }
+
+  get isReadonly(): boolean {
+    return this.props.availableOnSheetId
+      ? this.env.model.getters.getActiveSheetId() !== this.props.availableOnSheetId
+      : false;
   }
 
   get hasDisabledRanges(): boolean {
@@ -112,7 +121,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       this.props.ranges,
       this.props.hasSingleRange || false,
       this.props.colors,
-      this.props.disabledRanges
+      this.props.disabledRanges,
+      this.props.availableOnSheetId
     );
     if (this.props.autofocus) {
       this.store.focusById(this.store.selectionInputs[0]?.id);
@@ -179,7 +189,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
-    if (!range.color) {
+    if (!range.color || this.isReadonly) {
       return "";
     }
     return cssPropertiesToCss({ color: range.color });
