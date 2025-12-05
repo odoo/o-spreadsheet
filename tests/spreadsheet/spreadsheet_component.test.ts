@@ -44,6 +44,7 @@ import {
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -400,8 +401,10 @@ describe("Composer / selectionInput interactions", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+        }),
         type: "bar",
       },
       "1"

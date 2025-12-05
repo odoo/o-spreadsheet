@@ -18,6 +18,7 @@ import {
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
 
@@ -38,9 +39,11 @@ describe("Sunburst chart side panel", () => {
   describe("Config panel", () => {
     test("Sunburst config panel is correctly initialized", async () => {
       const chartId = createSunburstChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
       });
       await openChartConfigSidePanel(model, env, chartId);
 
@@ -51,9 +54,11 @@ describe("Sunburst chart side panel", () => {
 
     test("Can change chart values in config side panel", async () => {
       const chartId = createSunburstChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
       });
       await openChartConfigSidePanel(model, env, chartId);
 
@@ -157,8 +162,10 @@ describe("Sunburst chart side panel", () => {
     test("Can change sunburst colors", async () => {
       setGrid(model, { A2: "G1", A3: "G2", B2: "30", B3: "20" });
       const chartId = createSunburstChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+        }),
         groupColors: [undefined, "#00FF00"],
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
