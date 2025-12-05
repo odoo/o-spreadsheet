@@ -6,6 +6,7 @@ import { chartRegistry } from "../../registries/chart_registry";
 import {
   ChartCreationContext,
   ChartDefinition,
+  DataSetStyle,
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
   TrendConfiguration,
@@ -82,19 +83,24 @@ function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImag
 
 function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
   const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
+  const dataSetsStyling: DataSetStyle = {};
   const labelRange = chartData.labelRange
     ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
     : undefined;
-  const dataSets = chartData.dataSets.map((data) => {
+  const dataSets = chartData.dataSets.map((data, i) => {
     let label: string | undefined = undefined;
     if (data.label && "text" in data.label) {
       label = data.label.text;
     }
-    return {
-      dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
+    const dataSetId = i.toString();
+    dataSetsStyling[dataSetId] = {
       label,
       backgroundColor: data.backgroundColor,
       trend: convertExcelTrendline(data.trend),
+    };
+    return {
+      dataSetId,
+      dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
     };
   });
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
@@ -102,7 +108,8 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    range: dataSets,
+    dataSource: { dataSets },
+    dataSetStyles: dataSetsStyling,
     dataSetsHaveTitle,
     auxiliaryRange: labelRange,
     title: chartData.title ?? { text: "" },

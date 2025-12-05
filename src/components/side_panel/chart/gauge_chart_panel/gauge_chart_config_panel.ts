@@ -2,7 +2,7 @@ import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_t
 import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { CommandResult, CustomizedDataSet, DispatchResult } from "../../../../types/index";
+import { CommandResult, DispatchResult } from "../../../../types/index";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
@@ -51,7 +51,7 @@ export class GaugeChartConfigPanel extends Component<
     });
   }
 
-  getDataRange(): CustomizedDataSet {
+  getDataRange() {
     return { dataRange: this.dataRange || "" };
   }
 }

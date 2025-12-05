@@ -1,3 +1,4 @@
+import { UID } from "@odoo/o-spreadsheet-engine";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
@@ -19,23 +20,24 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
     { value: "line", label: _t("Line") },
   ];
 
-  updateDataSeriesType(index: number, type: "bar" | "line") {
-    const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
+  updateDataSeriesType(dataSetId: UID, type: "bar" | "line") {
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    if (!dataSetStyles?.[dataSetId]) {
       return;
     }
-    dataSets[index] = {
-      ...dataSets[index],
+    dataSetStyles[dataSetId] = {
+      ...dataSetStyles[dataSetId],
       type,
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 
-  getDataSeriesType(index: number) {
-    const dataSets = this.props.definition.dataSets as ComboChartDefinition["dataSets"];
-    if (!dataSets?.[index]) {
+  getDataSeriesType(dataSetId: UID) {
+    const dataSetStyles = this.props.definition
+      .dataSetStyles as ComboChartDefinition["dataSetStyles"];
+    if (!dataSetStyles?.[dataSetId]) {
       return "bar";
     }
-    return dataSets[index].type ?? "line";
+    return dataSetStyles[dataSetId]?.type ?? "line";
   }
 }
