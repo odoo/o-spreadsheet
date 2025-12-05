@@ -72,6 +72,8 @@ export function convertOperator(operator: ConditionalFormattingOperatorValues): 
       return "notEqual";
     case "customFormula":
       return "";
+    case "top10":
+      return "top10";
   }
 }
 

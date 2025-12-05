@@ -1,0 +1,12 @@
+.o-spreadsheet {
+  .o-top-10-criterion {
+    .o-top-10-select-values.o-input,
+    .o-top-10-select-mode.o-input {
+      width: 60px;
+    }
+
+    .o-top-10-select-mode.o-input {
+      width: 80px;
+    }
+  }
+}

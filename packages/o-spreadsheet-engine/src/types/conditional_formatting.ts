@@ -54,6 +54,8 @@ export interface CellIsRule extends SingleColorRule {
   operator: ConditionalFormattingOperatorValues;
   // can be one value for all operator except between, then it is 2 values
   values: string[];
+  isPercent?: boolean;
+  isBottom?: boolean;
 }
 export interface ExpressionRule extends SingleColorRule {
   type: "ExpressionRule";
@@ -143,15 +145,6 @@ export interface AboveAverageRule extends SingleColorRule {
   equalAverage: boolean;
 }
 
-export interface Top10Rule extends SingleColorRule {
-  type: "Top10Rule";
-  percent: boolean;
-  bottom: boolean;
-  /*  specifies how many cells are formatted by this conditional formatting rule. The value of percent specifies whether
-      rank is a percentage or a quantity of cells. When percent is "true", rank MUST be greater than or equal to zero and
-      less than or equal to 100. Otherwise, rank MUST be greater than or equal to 1 and less than or equal to 1,000 */
-  rank: number;
-}
 //https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.conditionalformattingoperatorvalues?view=openxml-2.8.1
 // Note: IsEmpty and IsNotEmpty does not exist on the specification
 export type ConditionalFormattingOperatorValues =
@@ -169,6 +162,7 @@ export type ConditionalFormattingOperatorValues =
   | "isNotBetween"
   | "notContainsText"
   | "isNotEqual"
+  | "top10"
   | "customFormula";
 
 export const availableConditionalFormatOperators: Set<ConditionalFormattingOperatorValues> =
@@ -188,4 +182,5 @@ export const availableConditionalFormatOperators: Set<ConditionalFormattingOpera
     "isNotEqual",
     "isEqual",
     "customFormula",
+    "top10",
   ]);

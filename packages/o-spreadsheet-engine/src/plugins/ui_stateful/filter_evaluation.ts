@@ -6,6 +6,7 @@ import { toLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
+import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, FilterId, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue, Table } from "../../types/table";
@@ -175,6 +176,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
       } else {
         if (filterValue.type === "none") continue;
         const evaluator = criterionEvaluatorRegistry.get(filterValue.type);
+        const preComputedCriterion = evaluator.preComputeCriterion?.(
+          filterValue as GenericCriterion,
+          [filter.filteredRange],
+          this.getters
+        );
 
         const evaluatedCriterionValues = filterValue.values.map((value) => {
           if (!value.startsWith("=")) {
@@ -194,7 +200,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
           const position = { sheetId, col: filter.col, row };
           const value = this.getters.getEvaluatedCell(position).value ?? "";
-          if (!evaluator.isValueValid(value, evaluatedCriterion, this.getters, sheetId)) {
+          if (!evaluator.isValueValid(value, evaluatedCriterion, preComputedCriterion)) {
             hiddenRows.add(row);
           }
         }

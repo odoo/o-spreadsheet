@@ -120,6 +120,7 @@ export const CF_OPERATOR_TYPE_CONVERSION_MAP: Record<
   greaterThanOrEqual: "isGreaterOrEqualTo",
   lessThan: "isLessThan",
   lessThanOrEqual: "isLessOrEqualTo",
+  top10: "top10",
 };
 
 /** Conversion map CF types in XLSX <=> Cf types in o_spreadsheet */

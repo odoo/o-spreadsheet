@@ -116,6 +116,8 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
     case "isBetween":
     case "isNotBetween":
       return [values[0], values[1]];
+    case "top10":
+      return [];
   }
 }
 
@@ -144,6 +146,14 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
       return [["type", "cellIs"]];
     case "customFormula":
       return [["type", "expression"]];
+    case "top10": {
+      return [
+        ["type", "top10"],
+        ["rank", rule.values[0]],
+        ["percent", rule.isPercent ? "1" : "0"],
+        ["bottom", rule.isBottom ? "1" : "0"],
+      ];
+    }
   }
 }
 
