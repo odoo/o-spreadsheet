@@ -11,4 +11,5 @@ export interface BarChartDefinition extends CommonChartDefinition {
 export type BarChartRuntime = {
   chartJsConfig: ChartConfiguration<"bar" | "line">;
   masterChartConfig?: ChartConfiguration<"bar">;
+  customisableSeries: { dataSetId: string; label: string }[];
 };
