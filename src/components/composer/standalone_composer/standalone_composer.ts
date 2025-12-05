@@ -94,7 +94,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
   get containerClass(): string {
     const classes = [
       this.focus === "inactive" ? "" : "active",
-      this.props.invalid ? "o-invalid" : "",
+      this.props.invalid ? "o-invalid" : "border-bottom",
       this.props.class || "",
     ];
     return classes.join(" ");
