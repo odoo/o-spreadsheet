@@ -81,7 +81,6 @@ describe("Sunburst chart chart", () => {
     // of the usual chart structure.
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
       }),
@@ -96,7 +95,10 @@ describe("Sunburst chart chart", () => {
     });
     const chart = new SunburstChart(definition, "Sheet1", model.getters);
     expect(chart.getContextCreation()).toMatchObject({
-      range: [{ dataRange: "Sheet1!B1:B4" }],
+      hierarchicalDataSource: {
+        dataSets: [{ dataRange: "A1:A4" }],
+      },
+      dataSource: { dataSets: [{ dataRange: "Sheet1!B1:B4" }] },
       auxiliaryRange: "A1:A4",
     });
   });
