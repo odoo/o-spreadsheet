@@ -51,14 +51,7 @@ export class CorePlugin<State = any>
     uuidGenerator,
   }: CorePluginConfig) {
     super(stateObserver, dispatch, canDispatch);
-
-    // Bind adaptRanges to a version of `this` where `dispatch` always throws
-    const thisWithThrowingDispatch = Object.create(this);
-    thisWithThrowingDispatch.dispatch = () => {
-      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
-    };
-    range.addRangeProvider(this.adaptRanges.bind(thisWithThrowingDispatch));
-
+    range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
   }
