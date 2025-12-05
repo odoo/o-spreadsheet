@@ -4,19 +4,22 @@ import { PivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetPivotTable } from "../../src";
 import { toZone } from "../../src/helpers";
 import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
+import { toChartDataSource } from "./chart_helpers";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
   basicChart: {
     type: "bar" as const,
-    dataSets: [
-      {
-        dataRange: "B1:B4",
-        yAxisId: "y",
-      },
-    ],
-    labelRange: "A2:A4",
-    dataSetsHaveTitle: true,
+    ...toChartDataSource({
+      dataSets: [
+        {
+          dataRange: "B1:B4",
+          yAxisId: "y",
+        },
+      ],
+      labelRange: "A2:A4",
+      dataSetsHaveTitle: true,
+    }),
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
     stacked: false,
@@ -25,13 +28,15 @@ export const TEST_CHART_DATA = {
   },
   combo: {
     type: "combo" as const,
-    dataSets: [
-      {
-        dataRange: "B1:B4",
-      },
-    ],
-    labelRange: "A2:A4",
-    dataSetsHaveTitle: true,
+    ...toChartDataSource({
+      dataSets: [
+        {
+          dataRange: "B1:B4",
+        },
+      ],
+      labelRange: "A2:A4",
+      dataSetsHaveTitle: true,
+    }),
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
     legendPosition: "top" as const,
@@ -73,8 +78,10 @@ export const TEST_CHART_DATA = {
   },
   calendar: {
     type: "calendar" as const,
-    dataSets: [{ dataRange: "B1" }],
-    labelRange: "A1",
+    ...toChartDataSource({
+      dataSets: [{ dataRange: "B1" }],
+      labelRange: "A1",
+    }),
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
   },
