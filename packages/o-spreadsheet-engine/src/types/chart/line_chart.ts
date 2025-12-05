@@ -17,4 +17,5 @@ export type LineChartRuntime = {
   chartJsConfig: ChartConfiguration<"line">;
   masterChartConfig?: ChartConfiguration<"line">;
   background: Color;
+  customisableSeries: { dataSetId: string; label: string }[];
 };
