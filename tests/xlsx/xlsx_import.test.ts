@@ -784,6 +784,15 @@ describe("Import xlsx data", () => {
     expect(figure.tag).toEqual("chart");
   });
 
+  test("Can import charts with or without showValues", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figureLine = testSheet.figures.find((figure) => figure.data.type === "line");
+    const figuresBar = testSheet.figures.filter((figure) => figure.data.type === "bar");
+    expect(figureLine?.data.showValues).toBe(false);
+    expect(figuresBar[0].data.showValues).toBe(true);
+    expect(figuresBar[1].data.showValues).toBe(true);
+  });
+
   test.each([
     [
       "line",

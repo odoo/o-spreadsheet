@@ -74,6 +74,15 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -112,6 +121,15 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -140,6 +158,15 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -683,6 +710,15 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 <c:ser>
                     <c:idx val="0"/>
                     <c:order val="0"/>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -714,6 +750,15 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -742,6 +787,15 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -1303,6 +1357,15 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                 <c:ser>
                     <c:idx val="0"/>
                     <c:order val="0"/>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -1334,6 +1397,15 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -1362,6 +1434,15 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -1931,6 +2012,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -1969,6 +2059,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -1997,6 +2096,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -2206,15 +2314,6 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="0"/>
-                <dLbls>
-                    <c:showLegendKey val="0"/>
-                    <c:showVal val="0"/>
-                    <c:showCatName val="0"/>
-                    <c:showSerName val="0"/>
-                    <c:showPercent val="0"/>
-                    <c:showBubbleSize val="0"/>
-                    <c:showLeaderLines val="0"/>
-                </dLbls>
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
@@ -2251,7 +2350,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -2259,7 +2358,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -2312,7 +2411,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -2320,7 +2419,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -2337,6 +2436,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -2441,6 +2549,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -2492,6 +2609,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -2518,6 +2644,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -2727,7 +2862,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="0"/>
-                <dLbls>
+                <c:dLbls>
                     <c:showLegendKey val="0"/>
                     <c:showVal val="0"/>
                     <c:showCatName val="0"/>
@@ -2735,7 +2870,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                     <c:showPercent val="0"/>
                     <c:showBubbleSize val="0"/>
                     <c:showLeaderLines val="0"/>
-                </dLbls>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -2847,6 +2982,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -2898,6 +3042,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -2917,6 +3070,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:scatterChart>
@@ -3152,6 +3314,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -3203,6 +3374,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -3229,6 +3409,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
@@ -4093,6 +4282,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -4144,6 +4342,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -4170,6 +4377,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -4566,6 +4782,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -4604,6 +4829,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -4632,6 +4866,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -5125,15 +5368,6 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="50"/>
-                <dLbls>
-                    <c:showLegendKey val="0"/>
-                    <c:showVal val="0"/>
-                    <c:showCatName val="0"/>
-                    <c:showSerName val="0"/>
-                    <c:showPercent val="0"/>
-                    <c:showBubbleSize val="0"/>
-                    <c:showLeaderLines val="0"/>
-                </dLbls>
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
@@ -5183,7 +5417,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -5191,7 +5425,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -5257,7 +5491,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -5265,7 +5499,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -5282,6 +5516,15 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -5719,6 +5962,15 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -5757,6 +6009,15 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -5785,6 +6046,15 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -6365,6 +6635,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -6416,6 +6695,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -6442,6 +6730,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -6665,6 +6962,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -6703,6 +7009,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -6731,6 +7046,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -7333,7 +7657,7 @@ exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="0"/>
-                <dLbls>
+                <c:dLbls>
                     <c:showLegendKey val="0"/>
                     <c:showVal val="0"/>
                     <c:showCatName val="0"/>
@@ -7341,7 +7665,7 @@ exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
                     <c:showPercent val="0"/>
                     <c:showBubbleSize val="0"/>
                     <c:showLeaderLines val="0"/>
-                </dLbls>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -7668,6 +7992,15 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -7695,6 +8028,15 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:gapWidth val="50"/>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
@@ -7714,6 +8056,15 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -7741,6 +8092,15 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:gapWidth val="50"/>
                 <c:axId val="17781238"/>
                 <c:axId val="88853994"/>
@@ -8442,6 +8802,15 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -9040,6 +9409,15 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
                             coucou
                         </c:v>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="FF0000"/>
@@ -9068,6 +9446,15 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -9636,6 +10023,15 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -9664,6 +10060,15 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -10232,6 +10637,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -10260,6 +10674,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -10828,6 +11251,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -10866,6 +11298,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -10894,6 +11335,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -11462,6 +11912,15 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -11489,6 +11948,15 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781238"/>
                 <c:axId val="88853994"/>
             </c:barChart>
@@ -12059,6 +12527,15 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                             coucou
                         </c:v>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="FF0000"/>
@@ -12086,6 +12563,15 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -12654,6 +13140,15 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -12681,6 +13176,15 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -13249,6 +13753,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -13276,6 +13789,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -13844,6 +14366,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -13871,6 +14402,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -13878,6 +14418,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                 <c:grouping val="standard"/>
                 <!-- each data marker in the series does not have a different color -->
                 <c:varyColors val="0"/>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
@@ -13903,6 +14452,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -14510,6 +15068,15 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -14536,6 +15103,15 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781238"/>
                 <c:axId val="88853994"/>
             </c:lineChart>
@@ -15118,6 +15694,15 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
                             coucou
                         </c:v>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -15144,6 +15729,15 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -15724,6 +16318,15 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -15750,6 +16353,15 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -16330,6 +16942,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -16356,6 +16977,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -16936,6 +17566,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -16987,6 +17626,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -17013,6 +17661,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -17567,15 +18224,6 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="0"/>
-                <dLbls>
-                    <c:showLegendKey val="0"/>
-                    <c:showVal val="0"/>
-                    <c:showCatName val="0"/>
-                    <c:showSerName val="0"/>
-                    <c:showPercent val="0"/>
-                    <c:showBubbleSize val="0"/>
-                    <c:showLeaderLines val="0"/>
-                </dLbls>
                 <c:ser>
                     <c:idx val="0"/>
                     <c:order val="0"/>
@@ -17625,7 +18273,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -17633,7 +18281,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -17650,6 +18298,15 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -18073,15 +18730,6 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="0"/>
-                <dLbls>
-                    <c:showLegendKey val="0"/>
-                    <c:showVal val="0"/>
-                    <c:showCatName val="0"/>
-                    <c:showSerName val="0"/>
-                    <c:showPercent val="0"/>
-                    <c:showBubbleSize val="0"/>
-                    <c:showLeaderLines val="0"/>
-                </dLbls>
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
@@ -18131,7 +18779,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -18139,7 +18787,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -18205,7 +18853,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -18213,7 +18861,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -18230,6 +18878,15 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -18678,6 +19335,15 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -18704,6 +19370,15 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
@@ -19281,6 +19956,15 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
                             coucou
                         </c:v>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -19307,6 +19991,15 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
@@ -19886,6 +20579,15 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -19912,6 +20614,15 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
@@ -20491,6 +21202,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -20517,6 +21237,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
@@ -21096,6 +21825,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -21147,6 +21885,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -21173,6 +21920,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
@@ -21760,6 +22516,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -21779,6 +22544,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781238"/>
                 <c:axId val="88853994"/>
             </c:scatterChart>
@@ -22369,6 +23143,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
                             coucou
                         </c:v>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -22388,6 +23171,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:scatterChart>
@@ -22976,6 +23768,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -22995,6 +23796,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:scatterChart>
@@ -23583,6 +24393,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -23602,6 +24421,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:scatterChart>
@@ -24190,6 +25018,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -24241,6 +25078,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -24260,6 +25106,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:scatterChart>
@@ -24829,6 +25684,15 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -24867,6 +25731,15 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -24895,6 +25768,15 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -37046,6 +37928,15 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                 <c:ser>
                     <c:idx val="0"/>
                     <c:order val="0"/>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -37077,6 +37968,15 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -37105,6 +38005,15 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -37622,6 +38531,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -37687,6 +38605,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -37713,6 +38640,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:lineChart>
@@ -37950,6 +38886,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="4EA7F2"/>
@@ -38002,6 +38947,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:solidFill>
                             <a:srgbClr val="EA6175"/>
@@ -38030,6 +38984,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:barChart>
@@ -38239,15 +39202,6 @@ exports[`Test XLSX export references with headers should be converted to referen
             <c:doughnutChart>
                 <c:varyColors val="1"/>
                 <c:holeSize val="0"/>
-                <dLbls>
-                    <c:showLegendKey val="0"/>
-                    <c:showVal val="0"/>
-                    <c:showCatName val="0"/>
-                    <c:showSerName val="0"/>
-                    <c:showPercent val="0"/>
-                    <c:showBubbleSize val="0"/>
-                    <c:showLeaderLines val="0"/>
-                </dLbls>
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
@@ -38557,7 +39511,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -38565,7 +39519,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -39866,7 +40820,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </a:ln>
                         </c:spPr>
                     </c:dPt>
-                    <dLbls>
+                    <c:dLbls>
                         <c:showLegendKey val="0"/>
                         <c:showVal val="0"/>
                         <c:showCatName val="0"/>
@@ -39874,7 +40828,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:showPercent val="0"/>
                         <c:showBubbleSize val="0"/>
                         <c:showLeaderLines val="1"/>
-                    </dLbls>
+                    </c:dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -39891,6 +40845,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
             </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
@@ -40017,6 +40980,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -40083,6 +41055,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:xVal>
                         <!-- x-coordinate values -->
                         <c:numRef>
@@ -40102,6 +41083,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </c:numRef>
                     </c:yVal>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:scatterChart>
@@ -40337,6 +41327,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -40388,6 +41387,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
+                    <c:dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="0"/>
+                    </c:dLbls>
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
@@ -40414,6 +41422,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </c:numRef>
                     </c:val>
                 </c:ser>
+                <c:dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </c:dLbls>
                 <c:axId val="17781237"/>
                 <c:axId val="88853993"/>
             </c:radarChart>
