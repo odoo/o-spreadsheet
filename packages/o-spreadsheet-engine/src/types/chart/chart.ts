@@ -198,6 +198,7 @@ export interface ExcelChartDefinition {
     useRightAxis?: boolean;
   };
   readonly axesDesign?: AxesDesign;
+  readonly showValues?: boolean;
   readonly horizontal?: boolean;
   readonly isDoughnut?: boolean;
   readonly pieHolePercentage?: number;
