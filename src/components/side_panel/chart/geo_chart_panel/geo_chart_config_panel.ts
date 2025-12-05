@@ -12,9 +12,9 @@ export class GeoChartConfigPanel extends GenericChartConfigPanel {
     return this.getDataSeriesRanges();
   }
 
-  get disabledRanges() {
-    return this.props.definition.dataSets.map((ds, i) => i > 0);
-  }
+  // get disabledRanges() {
+  //   return this.props.definition.dataSetStyles.map((ds, i) => i > 0);
+  // }
 
   getLabelRangeOptions() {
     return [

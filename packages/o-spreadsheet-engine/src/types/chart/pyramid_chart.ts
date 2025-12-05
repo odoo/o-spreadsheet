@@ -7,4 +7,5 @@ export interface PyramidChartDefinition extends Omit<BarChartDefinition, "type" 
 
 export type PyramidChartRuntime = {
   chartJsConfig: ChartConfiguration;
+  customisableSeries: { dataSetId: string; label: string }[];
 };
