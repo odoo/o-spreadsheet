@@ -236,6 +236,7 @@ class Demo extends Component {
         const input = document.createElement("input");
         input.setAttribute("type", "file");
         input.setAttribute("style", "display: none");
+        input.setAttribute("accept", ".json");
         document.body.appendChild(input);
         input.addEventListener("change", async () => {
           if (input.files.length <= 0) {
