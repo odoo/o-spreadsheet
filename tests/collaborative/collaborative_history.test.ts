@@ -6,6 +6,7 @@ import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addColumns,
   addRows,
@@ -494,8 +495,10 @@ describe("Collaborative local history", () => {
               data: {
                 chartId: "chart1",
                 type: "line",
-                dataSetsHaveTitle: false,
-                dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+                ...toChartDataSource({
+                  dataSetsHaveTitle: false,
+                  dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+                }),
                 legendPosition: "top",
                 title: "Line",
                 stacked: false,
