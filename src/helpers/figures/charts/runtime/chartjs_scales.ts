@@ -244,7 +244,7 @@ export function getWaterfallChartScales(
 ): ChartScales {
   const { locale, axisFormats } = args;
   const format = axisFormats?.y || axisFormats?.y1;
-  definition.dataSets;
+  definition.dataSetStyles;
   const scales: ChartScales = {
     x: {
       ...getChartAxis(definition, "bottom", "labels", { locale }),

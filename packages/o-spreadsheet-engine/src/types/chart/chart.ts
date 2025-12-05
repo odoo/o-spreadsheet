@@ -21,7 +21,7 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-import { Align, Color, FunctionResultObject, VerticalAlign } from "../..";
+import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../..";
 import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
@@ -64,7 +64,7 @@ export type ChartDefinition =
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
+  { dataSetStyles: DataSetStyle; labelRange?: string; humanize?: boolean }
 >;
 
 export type ChartWithColorScaleDefinition = Extract<
@@ -97,10 +97,16 @@ export type ChartJSRuntime =
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
+export type CustomisableSeriesChartRuntime = Extract<
+  ChartRuntime,
+  { customisableSeries: { dataSetId: string; label: string }[] }
+>;
+
 export type LabelValues = FunctionResultObject[];
 
 export interface DatasetValues {
-  readonly label?: string;
+  readonly dataSetId: UID;
+  readonly label: string;
   readonly data: FunctionResultObject[];
   readonly hidden?: boolean;
 }
@@ -144,16 +150,22 @@ export interface TrendConfiguration {
   window?: number;
 }
 
+export type DataSetStyle = Record<UID, CustomizedDataSet>;
+
 export type CustomizedDataSet = {
-  readonly dataRange: string;
   readonly trend?: TrendConfiguration;
 } & DatasetDesign;
+
+export interface ChartRangeDataSource {
+  readonly dataSets: { dataSetId: UID; dataRange: string }[];
+}
 
 export type AxisType = "category" | "linear" | "time";
 
 export type ChartDatasetOrientation = "rows" | "columns";
 
 export interface DataSet {
+  readonly dataSetId: UID;
   readonly labelCell?: Range; // range of the label
   readonly dataRange: Range; // range of the data
   readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
@@ -202,8 +214,9 @@ export interface ExcelChartDefinition {
 }
 
 export interface ChartCreationContext {
-  readonly range?: CustomizedDataSet[];
-  readonly hierarchicalRanges?: CustomizedDataSet[];
+  readonly dataSetStyles?: DataSetStyle;
+  readonly hierarchicalDataSource?: ChartRangeDataSource;
+  readonly dataSource?: ChartRangeDataSource;
   readonly title?: TitleDesign;
   readonly background?: Color;
   readonly auxiliaryRange?: string;
@@ -251,12 +264,8 @@ export interface ChartRuntimeGenerationArgs {
   topPadding?: number;
 }
 
-/** Generic definition of chart to create a runtime: omit the chart type and the dataRange of the dataSets*/
-export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
-  Omit<T, "dataSets" | "type">
-> & {
-  dataSets: Omit<T["dataSets"][number], "dataRange">[];
-};
+/** Generic definition of chart to create a runtime: omit the chart type*/
+export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<Omit<T, "type">>;
 
 export interface ChartColorScale {
   minColor: Color;

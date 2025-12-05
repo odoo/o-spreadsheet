@@ -68,7 +68,11 @@ describe("TreeMap chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
-      expect(getTreeMapChartDefinition(chartId)?.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+      expect(getTreeMapChartDefinition(chartId)).toMatchObject(
+        toChartDataSource({
+          dataSets: [{ dataRange: "B1:B3" }],
+        })
+      );
 
       await simulateClick('input[name="dataSetsHaveTitle"]');
       expect(getTreeMapChartDefinition(chartId)?.dataSetsHaveTitle).toEqual(false);
