@@ -18,10 +18,12 @@ import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
 import {
   ChartDatasetOrientation,
+  ChartRangeDataSource,
   ChartWithDataSetDefinition,
   CommandResult,
-  CustomizedDataSet,
+  DataSetStyle,
   DispatchResult,
+  UID,
   Zone,
 } from "../../../../../types";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -54,14 +56,14 @@ export class GenericChartConfigPanel<
     labelsDispatchResult: undefined,
   });
 
-  protected dataSets: CustomizedDataSet[] = [];
+  protected dataSets: ChartRangeDataSource["dataSets"] = [];
   private labelRange: string | undefined;
   private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
   protected chartTerms = ChartTerms;
 
   setup() {
-    this.dataSets = this.props.definition.dataSets;
+    this.dataSets = this.props.definition.dataSource.dataSets;
     this.labelRange = this.props.definition.labelRange;
     this.datasetOrientation = this.computeDatasetOrientation();
   }
@@ -185,12 +187,13 @@ export class GenericChartConfigPanel<
   }
 
   setDatasetOrientation(datasetOrientation: ChartDatasetOrientation) {
-    const oldDataSets = this.props.definition.dataSets;
+    const oldDataSets = this.props.definition.dataSource.dataSets;
     const dataRanges = oldDataSets.map((d) => d.dataRange);
     const dataSets = this.transposeDataSet(
       [this.props.definition.labelRange, ...dataRanges],
       datasetOrientation
     );
+    // TODO: kill design
     if (dataSets.length === 0) {
       return;
     }
@@ -198,7 +201,7 @@ export class GenericChartConfigPanel<
 
     this.props.updateChart(this.props.chartId, {
       labelRange,
-      dataSets,
+      dataSource: { dataSets },
     });
     this.dataSets = dataSets;
     this.labelRange = labelRange;
@@ -211,62 +214,76 @@ export class GenericChartConfigPanel<
    */
   onDataSeriesRangesChanged(ranges: string[]) {
     this.dataSets = ranges.map((dataRange, i) => ({
-      ...this.dataSets?.[i],
+      dataSetId: this.dataSets?.[i]?.dataSetId ?? this.env.model.uuidGenerator.smallUuid(),
       dataRange,
     }));
     this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataSets: this.dataSets,
+      dataSource: { dataSets: this.dataSets },
     });
   }
 
   onDataSeriesReordered(indexes: number[]) {
     const colorGenerator = getChartColorsGenerator(
-      { dataSets: this.dataSets },
+      {
+        dataSetStyles: this.props.definition.dataSetStyles,
+        dataSource: { dataSets: this.dataSets },
+      },
       this.dataSets.length
     );
     this.datasetOrientation = undefined;
-    const colors = this.dataSets.map((ds) => colorGenerator.next());
-    this.dataSets = indexes.map((i) => ({
-      backgroundColor: colors[i],
-      ...this.dataSets[i],
-    }));
+    const dataSetStyles = this.props.definition.dataSetStyles;
+    for (const ds of this.dataSets) {
+      const color = colorGenerator.next();
+      dataSetStyles[ds.dataSetId] = { backgroundColor: color, ...dataSetStyles[ds.dataSetId] };
+    }
+    this.dataSets = indexes.map((i) => this.dataSets[i]);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSets: this.dataSets,
+      dataSource: { dataSets: this.dataSets },
+      dataSetStyles,
     });
   }
 
   onDataSeriesRemoved(index: number) {
     const colorGenerator = getChartColorsGenerator(
-      { dataSets: this.dataSets },
+      {
+        dataSetStyles: this.props.definition.dataSetStyles,
+        dataSource: { dataSets: this.dataSets },
+      },
       this.dataSets.length
     );
-    const colors = this.dataSets.map((ds) => colorGenerator.next());
-    this.dataSets = this.dataSets
-      .map((ds, i) => ({
-        backgroundColor: colors[i],
-        ...ds,
-      }))
-      .filter((_, i) => i !== index);
+    const dataSetStyles = this.props.definition.dataSetStyles;
+    for (const ds of this.dataSets) {
+      const color = colorGenerator.next();
+      dataSetStyles[ds.dataSetId] = { backgroundColor: color, ...dataSetStyles[ds.dataSetId] };
+    }
+    const removedDataSetId = this.dataSets[index].dataSetId;
+    delete dataSetStyles[removedDataSetId];
+    this.dataSets = this.dataSets.filter((_, i) => i !== index);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSets: this.dataSets,
+      dataSource: { dataSets: this.dataSets },
+      dataSetStyles,
     });
   }
 
   onDataSeriesConfirmed() {
-    this.dataSets = this.splitRanges;
+    const { dataSets, dataSetStyles } = this.splitRanges();
+    this.dataSets = dataSets;
     this.datasetOrientation = this.computeDatasetOrientation();
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSets: this.dataSets,
+      dataSource: { dataSets: this.dataSets },
+      dataSetStyles,
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
       this.dataSets = (
         this.env.model.getters.getChartDefinition(this.props.chartId) as ChartWithDataSetDefinition
-      ).dataSets;
+      ).dataSource.dataSets;
     }
   }
 
-  get splitRanges(): CustomizedDataSet[] {
-    const postProcessedRanges: CustomizedDataSet[] = [];
+  splitRanges() {
+    const postProcessedRanges: ChartRangeDataSource["dataSets"] = [];
+    const postProcessedStyles: DataSetStyle = {};
+    const dataSetStyles = this.props.definition.dataSetStyles;
     for (const dataSet of this.dataSets) {
       const range = dataSet.dataRange;
       if (!this.env.model.getters.isRangeValid(range)) {
@@ -281,9 +298,14 @@ export class GenericChartConfigPanel<
         if (this.datasetOrientation !== "rows") {
           if (zone.right !== undefined) {
             for (let j = zone.left; j <= zone.right; ++j) {
-              const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
+              const datasetOptions =
+                j === zone.left
+                  ? dataSetStyles[dataSet.dataSetId]
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...datasetOptions,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: j,
                   right: j,
@@ -294,9 +316,14 @@ export class GenericChartConfigPanel<
             }
           } else if (zone.bottom !== undefined) {
             for (let j = zone.top; j <= zone.bottom; ++j) {
-              const datasetOptions = j === zone.top ? dataSet : { yAxisId: dataSet.yAxisId };
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
+              const datasetOptions =
+                j === zone.top
+                  ? dataSetStyles[dataSet.dataSetId]
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...datasetOptions,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: zone.left,
                   right: zone.right,
@@ -309,9 +336,14 @@ export class GenericChartConfigPanel<
         } else {
           if (zone.bottom !== undefined) {
             for (let j = zone.top; j <= zone.bottom; ++j) {
-              const datasetOptions = j === zone.top ? dataSet : { yAxisId: dataSet.yAxisId };
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
+              const datasetOptions =
+                j === zone.top
+                  ? dataSetStyles[dataSet.dataSetId]
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...datasetOptions,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: zone.left,
                   right: zone.right,
@@ -322,9 +354,14 @@ export class GenericChartConfigPanel<
             }
           } else if (zone.right !== undefined) {
             for (let j = zone.left; j <= zone.right; ++j) {
-              const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
+              const datasetOptions =
+                j === zone.left
+                  ? dataSetStyles[dataSet.dataSetId]
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...datasetOptions,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: j,
                   right: j,
@@ -337,9 +374,13 @@ export class GenericChartConfigPanel<
         }
       } else {
         postProcessedRanges.push(dataSet);
+        postProcessedStyles[dataSet.dataSetId] = dataSetStyles[dataSet.dataSetId];
       }
     }
-    return postProcessedRanges;
+    return {
+      dataSets: postProcessedRanges,
+      dataSetStyles: postProcessedStyles,
+    };
   }
 
   getDataSeriesRanges() {
@@ -380,11 +421,16 @@ export class GenericChartConfigPanel<
     const getters = this.env.model.getters;
     const sheetId = getters.getActiveSheetId();
     const labelRange = createValidRange(getters, sheetId, this.labelRange);
+    // const dataSets = createDataSets(
+    //   getters,
+    //   this.dataSets,
+    //   sheetId,
+    //   this.props.definition.dataSetsHaveTitle
+    // );
     const dataSets = createDataSets(
       getters,
-      this.dataSets,
-      sheetId,
-      this.props.definition.dataSetsHaveTitle
+      sheetId, // TODO check: this was using this.dataSets before
+      this.props.definition
     );
     if (dataSets.length) {
       return this.datasetOrientation === "rows"
@@ -403,13 +449,17 @@ export class GenericChartConfigPanel<
   private transposeDataSet(
     dataRanges: (string | undefined)[],
     datasetOrientation: ChartDatasetOrientation | undefined
-  ): { dataRange: string }[] {
+  ): { dataRange: string; dataSetId: UID }[] {
     const getters = this.env.model.getters;
+    const uuidGenerator = this.env.model.uuidGenerator;
+    const smallUuid = uuidGenerator.smallUuid.bind(uuidGenerator); // TODO refactor uuidGenerator to avoid binding
     if (datasetOrientation === undefined) {
-      return dataRanges.filter(isDefined).map((dataRange) => ({ dataRange }));
+      return dataRanges
+        .filter(isDefined)
+        .map((dataRange) => ({ dataRange, dataSetId: smallUuid() }));
     }
     const zonesBySheetName = {};
-    const transposedDatasets: { dataRange: string }[] = [];
+    const transposedDatasets: ChartRangeDataSource["dataSets"] = [];
     const figureId = getters.getFigureIdFromChartId(this.props.chartId);
     const figureSheetId = getters.getFigureSheetId(figureId);
     let name = getters.getActiveSheet().name;
@@ -421,7 +471,9 @@ export class GenericChartConfigPanel<
         continue;
       }
       if (!isXcRepresentation(dataRange)) {
-        return dataRanges.filter(isDefined).map((dataRange) => ({ dataRange }));
+        return dataRanges
+          .filter(isDefined)
+          .map((dataRange) => ({ dataRange, dataSetId: smallUuid() }));
       }
       let { sheetName, xc } = splitReference(dataRange);
       sheetName = sheetName ?? name;
@@ -441,7 +493,7 @@ export class GenericChartConfigPanel<
               left: col,
               right: col,
             })}`;
-            transposedDatasets.push({ dataRange });
+            transposedDatasets.push({ dataRange, dataSetId: smallUuid() });
           }
         }
       } else {
@@ -452,7 +504,7 @@ export class GenericChartConfigPanel<
               top: row,
               bottom: row,
             })}`;
-            transposedDatasets.push({ dataRange });
+            transposedDatasets.push({ dataRange, dataSetId: smallUuid() });
           }
         }
       }

@@ -1,11 +1,12 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
+import { AxesDesign, ChartRangeDataSource, DataSetStyle, TitleDesign } from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface FunnelChartDefinition {
   readonly type: "funnel";
-  readonly dataSets: CustomizedDataSet[];
+  readonly dataSetStyles: DataSetStyle;
+  readonly dataSource: ChartRangeDataSource;
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;
