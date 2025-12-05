@@ -3,7 +3,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { CreateFigureCommand, Model, UID } from "../../../../src";
 import { ZoomableChartStore } from "../../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";
+import { openChartDesignSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../../test_helpers/dom_helper";
@@ -28,9 +28,11 @@ function createTestChart(
     model,
     {
       ...TEST_CHART_DATA.basicChart,
-      labelRange: "C2:C4",
-      dataSets: [{ dataRange: "B2:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "C2:C4",
+        dataSets: [{ dataRange: "B2:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       ...partialDefinition,
     },
     newChartId,

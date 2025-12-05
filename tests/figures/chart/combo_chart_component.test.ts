@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
+import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
@@ -53,8 +53,10 @@ describe("combo charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],
-        labelRange: "A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],
+          labelRange: "A2:A4",
+        }),
         type: "combo",
       },
       chartId
