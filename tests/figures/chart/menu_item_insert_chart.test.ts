@@ -7,6 +7,7 @@ import {
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
 import { toXC, zoneToXc } from "../../../src/helpers";
+import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addColumns,
   addRows,
@@ -110,8 +111,10 @@ describe("Insert chart menu item", () => {
       chartId: expect.any(String),
       sheetId: expect.any(String),
       definition: {
-        dataSets: [{ dataRange: "A1", yAxisId: "y" }],
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+          dataSetsHaveTitle: false,
+        }),
         stacked: false,
         legendPosition: "none",
         title: {},
@@ -414,10 +417,12 @@ describe("Insert chart menu item", () => {
     setSelection(model, ["A1:B100"], { unbounded: true });
     insertChart();
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
-    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      dataSets: [{ dataRange: "B:B" }],
-      labelRange: "A:A",
-    });
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "B:B" }],
+        labelRange: "A:A",
+      })
+    );
   });
 });
 
@@ -493,8 +498,10 @@ describe("Smart chart type detection", () => {
     const definition = model.getters.getChartDefinition(chartId);
     expect(definition).toMatchObject({
       ...expected,
-      dataSets: [{ dataRange: "A1:A6" }],
-      labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A6" }],
+        labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+      }),
     });
   });
 
@@ -521,8 +528,10 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       ...expected,
-      dataSets: expectedDataset,
-      labelRange: expectedLabelRange,
+      ...toChartDataSource({
+        dataSets: expectedDataset,
+        labelRange: expectedLabelRange,
+      }),
     });
   });
 
@@ -546,8 +555,10 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       ...expected,
-      dataSets: expectedDatasets,
-      labelRange: expectedLabelRange,
+      ...toChartDataSource({
+        dataSets: expectedDatasets,
+        labelRange: expectedLabelRange,
+      }),
     });
   });
 
@@ -575,8 +586,10 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       ...expected,
-      dataSets: expectedDatasets,
-      labelRange: "A1:A6",
+      ...toChartDataSource({
+        dataSets: expectedDatasets,
+        labelRange: "A1:A6",
+      }),
     });
   });
 
@@ -586,8 +599,10 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "bar",
-      dataSets: [{ dataRange: "A1:A6" }, { dataRange: "B1:B6" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A6" }, { dataRange: "B1:B6" }],
+        dataSetsHaveTitle: false,
+      }),
     });
   });
 
@@ -598,8 +613,10 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scatter",
-      dataSets: [{ dataRange: "C1:C6" }],
-      labelRange: "A1:A6",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "C1:C6" }],
+        labelRange: "A1:A6",
+      }),
     });
   });
 
