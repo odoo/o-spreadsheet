@@ -7,11 +7,11 @@
             class="o-input data-series-selector"
             t-model="state.label"
             t-on-change="(ev) => this.updateEditedSeries(ev)">
-            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
+            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie.dataSetId">
               <option
-                t-att-value="serie"
-                t-att-selected="state.index === serie_index"
-                t-esc="serie"
+                t-att-value="serie.dataSetId"
+                t-att-selected="state.dataSetId === serie.dataSetId"
+                t-esc="serie.label"
               />
             </t>
           </select>
@@ -33,7 +33,7 @@
             />
           </Section>
         </Section>
-        <t t-slot="data-series-extension" index="state.index"/>
+        <t t-slot="data-series-extension" dataSetId="state.dataSetId"/>
       </t>
     </SidePanelCollapsible>
   </t>

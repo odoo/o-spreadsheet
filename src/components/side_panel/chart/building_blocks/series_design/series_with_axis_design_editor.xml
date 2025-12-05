@@ -2,8 +2,8 @@
   <t t-name="o-spreadsheet-SeriesWithAxisDesignEditor">
     <SeriesDesignEditor t-props="props">
       <t t-set-slot="data-series-extension" t-slot-scope="scope">
-        <t t-set="index" t-value="scope.index"/>
-        <t t-slot="general-extension" index="index"/>
+        <t t-set="dataSetId" t-value="scope.dataSetId"/>
+        <t t-slot="general-extension" dataSetId="dataSetId"/>
         <Section class="'pt-0 pb-0'">
           <Section
             class="'pt-0 px-0 o-vertical-axis-selection'"
@@ -11,9 +11,9 @@
             title.translate="Vertical axis">
             <RadioSelection
               choices="axisChoices"
-              selectedValue="getDataSerieAxis(index)"
+              selectedValue="getDataSerieAxis(dataSetId)"
               name="'axis'"
-              onChange="(value) => this.updateDataSeriesAxis(index, value)"
+              onChange="(value) => this.updateDataSeriesAxis(dataSetId, value)"
             />
           </Section>
           <Section
@@ -21,13 +21,13 @@
             t-if="!props.definition.horizontal"
             title.translate="Trend line">
             <t t-set="showTrendLineLabel">Show trend line</t>
-            <t t-set="trend" t-value="getTrendLineConfiguration(index)"/>
+            <t t-set="trend" t-value="getTrendLineConfiguration(dataSetId)"/>
             <t t-set="trendType" t-value="getTrendType(trend)"/>
             <Checkbox
               name="'showTrendLine'"
               label="showTrendLineLabel"
               value="trend !== undefined and trend.display"
-              onChange="(display) => this.toggleDataTrend(index, display)"
+              onChange="(display) => this.toggleDataTrend(dataSetId, display)"
             />
             <div t-if="trend !== undefined and trend.display">
               <div class="d-flex py-2">
@@ -35,7 +35,7 @@
                   <span class="o-section-subtitle">Type</span>
                   <select
                     class="o-input trend-type-selector"
-                    t-on-change="(ev) => this.onChangeTrendType(index, ev)">
+                    t-on-change="(ev) => this.onChangeTrendType(dataSetId, ev)">
                     <option value="linear" t-att-selected="trendType === 'linear'">Linear</option>
                     <option value="exponential" t-att-selected="trendType === 'exponential'">
                       Exponential
@@ -59,7 +59,7 @@
                     value="trend.window || this.defaultWindowSize"
                     class="'w-100 trend-window-input'"
                     min="2"
-                    onChange="(value) => this.onChangeMovingAverageWindow(index, value)"
+                    onChange="(value) => this.onChangeMovingAverageWindow(dataSetId, value)"
                   />
                 </div>
                 <div class="w-50 ms-3" t-if="trendType === 'polynomial'">
@@ -67,8 +67,8 @@
                   <select
                     t-att-value="trend.order"
                     class="o-input trend-order-input"
-                    t-on-change="(ev) => this.onChangePolynomialDegree(index, ev)">
-                    <t t-foreach="getPolynomialDegrees(index)" t-as="degree" t-key="degree">
+                    t-on-change="(ev) => this.onChangePolynomialDegree(dataSetId, ev)">
+                    <t t-foreach="getPolynomialDegrees(dataSetId)" t-as="degree" t-key="degree">
                       <option t-att-value="degree">
                         <t t-esc="degree"/>
                       </option>
@@ -79,8 +79,8 @@
               <div class="d-flex align-items-center">
                 <span class="o-section-subtitle my-0 pe-2">Trend line color</span>
                 <RoundColorPicker
-                  currentColor="getTrendLineColor(index)"
-                  onColorPicked="(ev) => this.updateTrendLineColor(index, ev)"
+                  currentColor="getTrendLineColor(dataSetId)"
+                  onColorPicked="(ev) => this.updateTrendLineColor(dataSetId, ev)"
                 />
               </div>
             </div>
