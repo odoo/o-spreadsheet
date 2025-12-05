@@ -5,6 +5,7 @@ import { createChart } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,
+  toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 
@@ -19,10 +20,12 @@ describe("pie chart", () => {
       type: "pie",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       isDoughnut: false,
       pieHolePercentage: 0,
@@ -34,15 +37,17 @@ describe("pie chart", () => {
   test("Pie chart legend", () => {
     // prettier-ignore
     const model = createModelFromGrid({
-      A1: "P1",  B1: "1",  C1: "3",
-      A2: "P2",  B2: "2",  C2: "4",
+      A1: "P1", B1: "1", C1: "3",
+      A2: "P2", B2: "2", C2: "4",
     });
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
-        labelRange: "Sheet1!A1:A2",
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
+          labelRange: "Sheet1!A1:A2",
+          dataSetsHaveTitle: false,
+        }),
         type: "pie",
         background: "#000000",
       },
@@ -71,16 +76,18 @@ describe("pie chart", () => {
   test("Empty legend items are filtered out", () => {
     // prettier-ignore
     const model = createModelFromGrid({
-      A1: "",    B1: "1",
-      A2: "P2",  B2: "2",
+      A1: "", B1: "1",
+      A2: "P2", B2: "2",
     });
 
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B2" }],
+          labelRange: "A1:A2",
+          dataSetsHaveTitle: false,
+        }),
         type: "pie",
       },
       "1"

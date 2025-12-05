@@ -17,6 +17,7 @@ import {
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
@@ -45,8 +46,10 @@ describe("Calendar chart side panel", () => {
       createCalendarChart(
         model,
         {
-          dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B3" }],
+            labelRange: "A1:A3",
+          }),
           horizontalGroupBy: "day_of_week",
           verticalGroupBy: "month_number",
         },
@@ -64,7 +67,9 @@ describe("Calendar chart side panel", () => {
       createCalendarChart(
         model,
         {
-          dataSets: [{ dataRange: "B1:B3" }],
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B3" }],
+          }),
         },
         chartId
       );
@@ -85,8 +90,10 @@ describe("Calendar chart side panel", () => {
       createCalendarChart(
         model,
         {
-          dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B3" }],
+            labelRange: "A1:A3",
+          }),
           horizontalGroupBy: "hour_number",
         },
         chartId
@@ -105,8 +112,10 @@ describe("Calendar chart side panel", () => {
       createCalendarChart(
         model,
         {
-          dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B3" }],
+            labelRange: "A1:A3",
+          }),
           verticalGroupBy: "day_of_week",
         },
         chartId
