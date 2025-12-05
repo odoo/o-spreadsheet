@@ -13,4 +13,5 @@ export type BarChartRuntime = {
   chartJsConfig: ChartConfiguration<"bar" | "line">;
   masterChartConfig?: ChartConfiguration<"bar">;
   background: Color;
+  customisableSeries: { dataSetId: string; label: string }[];
 };

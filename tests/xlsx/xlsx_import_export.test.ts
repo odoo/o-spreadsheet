@@ -349,7 +349,10 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "pie demo chart" },
       ...toChartDataSource({
-        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        dataSets: [
+          { dataRange: "Sheet1!B26:B35", dataSetId: "1" },
+          { dataRange: "Sheet1!C26:C35", dataSetId: "0" },
+        ],
         labelRange: "Sheet1!A27:A35",
         dataSetsHaveTitle: false,
       }),
@@ -363,7 +366,10 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "doughnut demo chart" },
       ...toChartDataSource({
-        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        dataSets: [
+          { dataRange: "Sheet1!B26:B35", dataSetId: "1" },
+          { dataRange: "Sheet1!C26:C35", dataSetId: "0" },
+        ],
         labelRange: "Sheet1!A27:A35",
         dataSetsHaveTitle: false,
       }),

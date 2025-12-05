@@ -728,7 +728,11 @@ describe("Collaborative Sheet manipulation", () => {
           {
             ...chartDef,
             ...toChartDataSource({
-              dataSets: [{ dataRange: "A1:A3" }, { dataRange: "C1:C3" }, { dataRange: "F:G" }],
+              dataSets: [
+                { dataRange: "A1:A3", dataSetId: "0" },
+                { dataRange: "C1:C3", dataSetId: "1" },
+                { dataRange: "F:G", dataSetId: "2" },
+              ],
               dataSetsHaveTitle: false,
             }),
           },
@@ -740,7 +744,10 @@ describe("Collaborative Sheet manipulation", () => {
         {
           ...chartDef,
           ...toChartDataSource({
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "E:E" }],
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "E:E", dataSetId: "2" },
+            ],
             dataSetsHaveTitle: false,
           }),
           labelRange: undefined,
@@ -750,7 +757,11 @@ describe("Collaborative Sheet manipulation", () => {
         deleteColumns(alice, ["C", "F"]);
         updateChart(bob, chartId, {
           ...toChartDataSource({
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "C1:C3" }, { dataRange: "F1:G3" }],
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "C1:C3", dataSetId: "1" },
+              { dataRange: "F1:G3", dataSetId: "2" },
+            ],
           }),
           labelRange: undefined,
         });
@@ -760,7 +771,10 @@ describe("Collaborative Sheet manipulation", () => {
         {
           ...chartDef,
           ...toChartDataSource({
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "E1:E3" }],
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "E1:E3", dataSetId: "2" },
+            ],
           }),
           labelRange: undefined,
         }
@@ -848,7 +862,11 @@ describe("Collaborative Sheet manipulation", () => {
           {
             ...chartDef,
             ...toChartDataSource({
-              dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A5" }, { dataRange: "A11:A12" }],
+              dataSets: [
+                { dataRange: "A1:A3", dataSetId: "0" },
+                { dataRange: "A4:A5", dataSetId: "1" },
+                { dataRange: "A11:A12", dataSetId: "2" },
+              ],
               labelRange: "F10",
               dataSetsHaveTitle: false,
             }),
@@ -861,7 +879,10 @@ describe("Collaborative Sheet manipulation", () => {
         {
           ...chartDef,
           ...toChartDataSource({
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A9" }],
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "A9", dataSetId: "2" },
+            ],
             labelRange: "F8",
             dataSetsHaveTitle: false,
           }),
@@ -871,7 +892,11 @@ describe("Collaborative Sheet manipulation", () => {
         deleteRows(alice, [3, 4, 10]);
         updateChart(bob, chartId, {
           ...toChartDataSource({
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A5" }, { dataRange: "A11:A12" }],
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "A4:A5", dataSetId: "1" },
+              { dataRange: "A11:A12", dataSetId: "2" },
+            ],
             labelRange: "10:10",
           }),
         });
@@ -881,7 +906,10 @@ describe("Collaborative Sheet manipulation", () => {
         {
           ...chartDef,
           ...toChartDataSource({
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A9" }],
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "A9", dataSetId: "2" },
+            ],
             labelRange: "8:8",
           }),
         }
