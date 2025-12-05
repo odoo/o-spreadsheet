@@ -15,4 +15,5 @@ export interface LineChartDefinition extends CommonChartDefinition {
 export type LineChartRuntime = {
   chartJsConfig: ChartConfiguration<"line">;
   masterChartConfig?: ChartConfiguration<"line">;
+  customisableSeries: { dataSetId: string; label: string }[];
 };

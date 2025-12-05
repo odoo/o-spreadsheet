@@ -2,8 +2,8 @@ import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
+  ChartRangeDataSource,
   ChartWithDataSetDefinition,
-  CustomizedDataSet,
   DataSet,
   DatasetValues,
   ExcelChartDataset,
@@ -54,50 +54,35 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  */
 export function updateChartRangesWithDataSets(
   getters: CoreGetters,
+  sheetId: UID,
   applyChange: ApplyRangeChange,
-  chartDataSets: DataSet[],
+  dataSource: ChartRangeDataSource,
   chartLabelRange?: Range
 ) {
-  let isStale = false;
-  const dataSetsWithUndefined: (DataSet | undefined)[] = [];
-  for (const index in chartDataSets) {
-    let ds: DataSet | undefined = chartDataSets[index]!;
-    if (ds.labelCell) {
-      const labelCell = adaptChartRange(ds.labelCell, applyChange);
-      if (ds.labelCell !== labelCell) {
-        isStale = true;
-        ds = {
-          ...ds,
-          labelCell: labelCell,
-        };
+  const dataSetsWithUndefined = dataSource.dataSets
+    .map((ds) => {
+      const dataRange = adaptChartRangeString(getters, sheetId, ds.dataRange, applyChange);
+      if (dataRange === undefined) {
+        return undefined;
       }
-    }
-    const dataRange = adaptChartRange(ds.dataRange, applyChange);
-    if (
-      dataRange === undefined ||
-      getters.getRangeString(dataRange, dataRange.sheetId) === CellErrorType.InvalidReference
-    ) {
-      isStale = true;
-      ds = undefined;
-    } else if (dataRange !== ds.dataRange) {
-      isStale = true;
-      ds = {
+      return {
         ...ds,
         dataRange,
       };
-    }
-    dataSetsWithUndefined[index] = ds;
-  }
+    })
+    .filter(isDefined);
   let labelRange = chartLabelRange;
   const range = adaptChartRange(labelRange, applyChange);
   if (range !== labelRange) {
-    isStale = true;
     labelRange = range;
   }
-  const dataSets = dataSetsWithUndefined.filter(isDefined);
+  const dataSets = dataSetsWithUndefined;
   return {
-    isStale,
-    dataSets,
+    isStale: true,
+    dataSource: {
+      ...dataSource,
+      dataSets,
+    },
     labelRange,
   };
 }
@@ -106,19 +91,23 @@ export function updateChartRangesWithDataSets(
  * Duplicate the dataSets. All ranges on sheetIdFrom are adapted to target
  * sheetIdTo.
  */
-export function duplicateDataSetsInDuplicatedSheet(
+export function duplicateDataSourceInDuplicatedSheet(
+  getters: CoreGetters,
   sheetIdFrom: UID,
   sheetIdTo: UID,
-  dataSets: DataSet[]
-): DataSet[] {
-  return dataSets.map((ds) => {
-    return {
-      dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
-      labelCell: ds.labelCell
-        ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.labelCell)
-        : undefined,
-    };
-  });
+  dataSource: ChartRangeDataSource
+): ChartRangeDataSource {
+  return {
+    ...dataSource,
+    dataSets: dataSource.dataSets.map((ds) => {
+      const range = getters.getRangeFromSheetXC(sheetIdFrom, ds.dataRange);
+      const newRange = duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range);
+      return {
+        ...ds,
+        dataRange: getters.getRangeString(newRange, sheetIdTo),
+      };
+    }),
+  };
 }
 
 /**
@@ -131,6 +120,27 @@ export function duplicateLabelRangeInDuplicatedSheet(
   range?: Range
 ): Range | undefined {
   return range ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range) : undefined;
+}
+
+/**
+ * Adapt a single range of a chart
+ */
+function adaptChartRangeString(
+  getters: CoreGetters,
+  defaultSheetId: UID,
+  rangeStr: string,
+  applyChange: ApplyRangeChange
+): string | undefined {
+  const range = getters.getRangeFromSheetXC(defaultSheetId, rangeStr);
+  const adaptedRange = adaptChartRange(range, applyChange);
+  if (!adaptedRange) {
+    return undefined;
+  }
+  const newRangeStr = getters.getRangeString(adaptedRange, defaultSheetId);
+  if (newRangeStr === CellErrorType.InvalidReference) {
+    return undefined;
+  }
+  return newRangeStr;
 }
 
 /**
@@ -157,24 +167,24 @@ export function adaptChartRange(
  */
 export function createDataSets(
   getters: CoreGetters,
-  customizedDataSets: CustomizedDataSet[],
   sheetId: UID,
-  dataSetsHaveTitle: boolean
+  definition: ChartWithDataSetDefinition
 ): DataSet[] {
   const dataSets: DataSet[] = [];
-  for (const dataSet of customizedDataSets) {
+  for (const dataSet of definition.dataSource.dataSets) {
     const dataRange = getters.getRangeFromSheetXC(sheetId, dataSet.dataRange);
     const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName, invalidXc } = dataRange;
     if (invalidSheetName || invalidXc) {
       continue;
     }
+    const customizedDataSet = definition.dataSetStyles[dataSet.dataSetId] ?? {};
     // It's a rectangle. We treat all columns (arbitrary) as different data series.
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       if (zone.right === undefined) {
         // Should never happens because of the allowDispatch of charts, but just making sure
         continue;
       }
-
+      let dataSetId = dataSet.dataSetId;
       for (let column = zone.left; column <= zone.right; column++) {
         const columnZone = {
           ...zone,
@@ -186,7 +196,7 @@ export function createDataSets(
             getters,
             dataSetSheetId,
             columnZone,
-            dataSetsHaveTitle
+            definition.dataSetsHaveTitle
               ? {
                   top: columnZone.top,
                   bottom: columnZone.top,
@@ -195,11 +205,13 @@ export function createDataSets(
                 }
               : undefined
           ),
-          backgroundColor: dataSet.backgroundColor,
-          rightYAxis: dataSet.yAxisId === "y1",
-          customLabel: dataSet.label,
-          trend: dataSet.trend,
+          dataSetId,
+          backgroundColor: customizedDataSet.backgroundColor,
+          rightYAxis: customizedDataSet.yAxisId === "y1",
+          customLabel: customizedDataSet.label,
+          trend: customizedDataSet.trend,
         });
+        dataSetId = `${dataSetId}_${column}`;
       }
     } else {
       /* 1 cell, 1 row or 1 column */
@@ -208,7 +220,7 @@ export function createDataSets(
           getters,
           dataSetSheetId,
           zone,
-          dataSetsHaveTitle
+          definition.dataSetsHaveTitle
             ? {
                 top: zone.top,
                 bottom: zone.top,
@@ -217,10 +229,11 @@ export function createDataSets(
               }
             : undefined
         ),
-        backgroundColor: dataSet.backgroundColor,
-        rightYAxis: dataSet.yAxisId === "y1",
-        customLabel: dataSet.label,
-        trend: dataSet.trend,
+        dataSetId: dataSet.dataSetId,
+        backgroundColor: customizedDataSet.backgroundColor,
+        rightYAxis: customizedDataSet.yAxisId === "y1",
+        customLabel: customizedDataSet.label,
+        trend: customizedDataSet.trend,
       });
     }
   }
@@ -232,7 +245,7 @@ function createDataSet(
   sheetId: UID,
   fullZone: Zone | UnboundedZone,
   titleZone: Zone | UnboundedZone | undefined
-): DataSet {
+): Pick<DataSet, "dataRange" | "labelCell"> {
   if (fullZone.left !== fullZone.right && fullZone.top !== fullZone.bottom) {
     throw new Error(`Zone should be a single column or row: ${zoneToXc(fullZone)}`);
   }
@@ -340,8 +353,8 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
     }
   }
 
-  const dataSets: CustomizedDataSet[] = [];
-  for (const dataSet of definition.dataSets) {
+  const dataSets: ChartRangeDataSource["dataSets"] = [];
+  for (const dataSet of definition.dataSource.dataSets) {
     const newDataSet = { ...dataSet };
     const { changeType, range: adaptedRange } = adaptStringRange(
       chartSheetId,
@@ -354,10 +367,13 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
       dataSets.push(newDataSet);
     }
   }
-
+  // TODO clean design
   return {
     ...definition,
-    dataSets,
+    dataSource: {
+      ...definition.dataSource,
+      dataSets,
+    },
     labelRange,
   };
 }
@@ -381,13 +397,14 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
 }
 
 export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.dataSets) {
+  if (definition.dataSetStyles) {
     const invalidRanges =
-      definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
+      definition.dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !==
+      undefined;
     if (invalidRanges) {
       return CommandResult.InvalidDataSet;
     }
-    const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
+    const zones = definition.dataSource.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
     if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
       return CommandResult.InvalidDataSet;
     }
@@ -410,7 +427,7 @@ export function shouldRemoveFirstLabel(
   numberOfDataPoints: number | undefined,
   dataSetsHaveTitle: boolean
 ) {
-  return dataSetsHaveTitle && (!numberOfDataPoints || numberOfLabels >= numberOfDataPoints);
+  return dataSetsHaveTitle && !!numberOfDataPoints && numberOfLabels >= numberOfDataPoints;
 }
 
 export function getChartPositionAtCenterOfViewport(
@@ -436,8 +453,8 @@ export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDef
   if ("horizontal" in definition && definition.horizontal) {
     return { useLeftAxis: true, useRightAxis: false };
   }
-  for (const design of definition.dataSets || []) {
-    if (design.yAxisId === "y1") {
+  for (const design of Object.values(definition.dataSetStyles ?? {})) {
+    if (design?.yAxisId === "y1") {
       useRightAxis = true;
     } else {
       useLeftAxis = true;
