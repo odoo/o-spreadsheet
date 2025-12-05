@@ -196,7 +196,7 @@ export class GaugeChart extends AbstractChart {
       background: context.background,
       title: context.title || { text: "" },
       type: "gauge",
-      dataRange: context.range?.[0]?.dataRange,
+      dataRange: context.dataSource?.dataSets?.[0]?.dataRange,
       sectionRule: {
         colors: {
           lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -275,7 +275,9 @@ export class GaugeChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      range: definition.dataRange ? [{ dataRange: definition.dataRange }] : undefined,
+      dataSource: {
+        dataSets: definition.dataRange ? [{ dataRange: definition.dataRange, dataSetId: "1" }] : [],
+      },
     };
   }
 

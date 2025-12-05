@@ -5,7 +5,7 @@ import {
   checkDataset,
   checkLabelRange,
   createDataSets,
-  duplicateDataSetsInDuplicatedSheet,
+  duplicateDataSourceInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -19,7 +19,7 @@ import {
 import {
   ChartCreationContext,
   ChartData,
-  CustomizedDataSet,
+  ChartRangeDataSource,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -42,8 +42,9 @@ export class SunburstChart extends AbstractChart {
 
   static allowedDefinitionKeys: readonly (keyof SunburstChartDefinition)[] = [
     ...AbstractChart.commonKeys,
+    "dataSource",
     "legendPosition",
-    "dataSets",
+    "dataSetStyles",
     "dataSetsHaveTitle",
     "labelRange",
     "showValues",
@@ -55,12 +56,7 @@ export class SunburstChart extends AbstractChart {
 
   constructor(private definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(
-      getters,
-      definition.dataSets,
-      sheetId,
-      definition.dataSetsHaveTitle
-    );
+    this.dataSets = createDataSets(getters, sheetId, definition);
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
   }
 
@@ -80,20 +76,32 @@ export class SunburstChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): SunburstChartDefinition {
-    const dataSets: CustomizedDataSet[] = [];
-    if (context.hierarchicalRanges?.length) {
-      dataSets.push(...context.hierarchicalRanges);
-    } else if (context.auxiliaryRange) {
-      dataSets.push({ ...context.range?.[0], dataRange: context.auxiliaryRange });
+    let labelRange = context.dataSource?.dataSets[0]?.dataRange;
+    if (!labelRange) {
+      labelRange = context.auxiliaryRange;
     }
+    let dataSource: ChartRangeDataSource = {
+      ...context.dataSource,
+      dataSets: [],
+    };
+    if (context.hierarchicalDataSource?.dataSets.length) {
+      dataSource = context.hierarchicalDataSource;
+    } else if (context.auxiliaryRange) {
+      dataSource = {
+        ...context.dataSource,
+        dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }],
+      };
+    }
+
     return {
       background: context.background,
-      dataSets,
+      dataSetStyles: context.dataSetStyles ?? {},
+      dataSource,
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "sunburst",
-      labelRange: context.range?.[0]?.dataRange,
+      labelRange,
       showValues: context.showValues,
       showLabels: context.showLabels,
       valuesDesign: context.valuesDesign,
@@ -104,31 +112,38 @@ export class SunburstChart extends AbstractChart {
   }
 
   getDefinition(): SunburstChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      {
+        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+          dataSetId,
+          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+        })),
+      },
+      this.labelRange
+    );
   }
 
   getContextCreation(): ChartCreationContext {
     const definition = this.getDefinition();
-    const leafRange = definition.dataSets.at(-1)?.dataRange;
+    const leafRange = definition.dataSource.dataSets.at(-1)?.dataRange;
     return {
       ...definition,
-      range: definition.labelRange ? [{ dataRange: definition.labelRange }] : [],
+      dataSource: definition.labelRange
+        ? { dataSets: [{ dataRange: definition.labelRange, dataSetId: "0" }] }
+        : { dataSets: [] },
       auxiliaryRange: leafRange,
-      hierarchicalRanges: definition.dataSets,
+      hierarchicalDataSource: definition.dataSource,
     };
   }
 
   private getDefinitionWithSpecificDataSets(
-    dataSets: DataSet[],
+    dataSource: ChartRangeDataSource,
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): SunburstChartDefinition {
     return {
       ...this.definition,
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      dataSets: dataSets.map((ds: DataSet) => ({
-        dataRange: this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId),
-      })),
+      dataSource,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
@@ -136,22 +151,32 @@ export class SunburstChart extends AbstractChart {
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): SunburstChart {
-    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const dataSource = duplicateDataSourceInDuplicatedSheet(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.definition.dataSource
+    );
     const labelRange = duplicateLabelRangeInDuplicatedSheet(
       this.sheetId,
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
     return new SunburstChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): SunburstChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
+    const dataSource = {
+      dataSets: this.definition.dataSource.dataSets.map((dataSet) => {
+        const range = this.getters.getRangeFromSheetXC(this.sheetId, dataSet.dataRange);
+        return {
+          ...dataSet,
+          dataRange: this.getters.getRangeString(range, sheetId),
+        };
+      }),
+    };
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
     return new SunburstChart(definition, sheetId, this.getters);
   }
 
@@ -160,16 +185,17 @@ export class SunburstChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): SunburstChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
-      this.dataSets,
+      this.definition.dataSource,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
     return new SunburstChart(definition, this.sheetId, this.getters);
   }
 }

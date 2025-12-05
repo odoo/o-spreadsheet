@@ -5,7 +5,7 @@ import {
   checkDataset,
   checkLabelRange,
   createDataSets,
-  duplicateDataSetsInDuplicatedSheet,
+  duplicateDataSourceInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -15,7 +15,7 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
-  CustomizedDataSet,
+  ChartRangeDataSource,
   ExcelChartDefinition,
   LegendPosition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
@@ -62,7 +62,8 @@ export class CalendarChart extends AbstractChart {
 
   static allowedDefinitionKeys: readonly (keyof CalendarChartDefinition)[] = [
     ...AbstractChart.commonKeys,
-    "dataSets",
+    "dataSource",
+    "dataSetStyles",
     "labelRange",
     "dataSetsHaveTitle",
     "showValues",
@@ -76,12 +77,7 @@ export class CalendarChart extends AbstractChart {
 
   constructor(private definition: CalendarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(
-      getters,
-      definition.dataSets,
-      sheetId,
-      definition.dataSetsHaveTitle
-    );
+    this.dataSets = createDataSets(getters, sheetId, definition);
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
   }
 
@@ -112,7 +108,8 @@ export class CalendarChart extends AbstractChart {
     }
     return {
       background: context.background,
-      dataSets: context.range ?? [],
+      dataSource: context.dataSource ?? { dataSets: [] },
+      dataSetStyles: context.dataSetStyles ?? {},
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       title: context.title || { text: "" },
       type: "calendar",
@@ -129,47 +126,63 @@ export class CalendarChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      range: [definition.dataSets[0]],
+      dataSource: {
+        dataSets: [definition.dataSource.dataSets[0]],
+      },
       auxiliaryRange: definition.labelRange,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): CalendarChart {
-    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const dataSource = duplicateDataSourceInDuplicatedSheet(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.definition.dataSource
+    );
     const labelRange = duplicateLabelRangeInDuplicatedSheet(
       this.sheetId,
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
     return new CalendarChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): CalendarChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
+    const dataSource = {
+      dataSets: this.definition.dataSource.dataSets.map((dataSet) => {
+        const range = this.getters.getRangeFromSheetXC(this.sheetId, dataSet.dataRange);
+        return {
+          ...dataSet,
+          dataRange: this.getters.getRangeString(range, sheetId),
+        };
+      }),
+    };
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
     return new CalendarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): CalendarChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      {
+        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+          dataSetId,
+          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+        })),
+      },
+      this.labelRange
+    );
   }
 
   private getDefinitionWithSpecificDataSets(
-    dataSets: DataSet[],
+    dataSource: ChartRangeDataSource,
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): CalendarChartDefinition {
-    const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
-      dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
-    }));
     return {
       ...this.definition,
-      dataSets: ranges,
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
+      dataSource,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
@@ -181,16 +194,17 @@ export class CalendarChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): CalendarChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
-      this.dataSets,
+      this.definition.dataSource,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
     return new CalendarChart(definition, this.sheetId, this.getters);
   }
 }

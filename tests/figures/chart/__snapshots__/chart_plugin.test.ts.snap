@@ -130,6 +130,12 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
     },
     "type": "bar",
   },
+  "customisableSeries": [
+    {
+      "dataSetId": "0",
+      "label": "P4",
+    },
+  ],
   "masterChartConfig": {
     "data": {
       "datasets": [
@@ -386,6 +392,16 @@ exports[`datasource tests create chart with column datasets 1`] = `
     },
     "type": "line",
   },
+  "customisableSeries": [
+    {
+      "dataSetId": "0",
+      "label": "first column dataset",
+    },
+    {
+      "dataSetId": "1",
+      "label": "second column dataset",
+    },
+  ],
   "masterChartConfig": {
     "data": {
       "datasets": [

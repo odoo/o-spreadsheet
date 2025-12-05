@@ -161,7 +161,10 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+        dataSets: [
+          { dataRange: "B1:B4", dataSetId: expect.any(String) },
+          { dataRange: "C1:C4", dataSetId: expect.any(String) },
+        ],
         labelRange: "Sheet1!A2:A4",
       }),
       title: { text: "test" },
@@ -276,11 +279,9 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect((model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSets).toMatchObject([
-      { dataRange: "8:8" },
-      { dataRange: "A:A" },
-      { dataRange: "B:B" },
-    ]);
+    expect(
+      (model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSource.dataSets
+    ).toMatchObject([{ dataRange: "8:8" }, { dataRange: "A:A" }, { dataRange: "B:B" }]);
   });
 
   test("create chart with row datasets without series title", () => {
@@ -560,9 +561,12 @@ describe("datasource tests", function () {
     );
     addColumns(model, "before", "A", 2);
     const chart = model.getters.getChartDefinition("1") as LineChartDefinition;
-    expect(chart.dataSets[0].dataRange).toStrictEqual("D1:D4");
-    expect(chart.dataSets[1].dataRange).toStrictEqual("E1:E4");
-    expect(chart.labelRange).toStrictEqual("Sheet1!C2:C4");
+    expect(chart).toMatchObject({
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "D1:D4" }, { dataRange: "E1:E4" }],
+        labelRange: "Sheet1!C2:C4",
+      }),
+    });
   });
 
   test("pie chart tooltip title display the correct dataset", () => {
@@ -1084,7 +1088,10 @@ describe("datasource tests", function () {
       {
         type: "bar",
         ...toChartDataSource({
-          dataSets: [{ dataRange: "Coucou!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
+          dataSets: [
+            { dataRange: "Coucou!B1:B4", dataSetId: "0" },
+            { dataRange: "Sheet1!B1:B4", dataSetId: "1" },
+          ],
           labelRange: "Sheet1!A2:A4",
         }),
       },
@@ -1093,7 +1100,7 @@ describe("datasource tests", function () {
     const config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B4" }],
+        dataSets: [{ dataRange: "B1:B4", dataSetId: "1" }],
         labelRange: "Sheet1!A2:A4",
       }),
       title: { text: "test" },
@@ -1410,7 +1417,10 @@ describe("datasource tests", function () {
       model,
       {
         ...toChartDataSource({
-          dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+          dataSets: [
+            { dataRange: "B1:B4", dataSetId: "0" },
+            { dataRange: "C1:C4", dataSetId: "1" },
+          ],
           labelRange: "A2:A4",
         }),
         type: "line",
@@ -1419,9 +1429,12 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A", "B"]);
     const def = model.getters.getChartDefinition("1") as LineChartDefinition;
-    expect(def.dataSets).toHaveLength(1);
-    expect(def.dataSets[0].dataRange).toEqual("A1:A4");
-    expect(def.labelRange).toBeUndefined();
+    expect(def).toMatchObject({
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4", dataSetId: "1" }],
+        labelRange: undefined,
+      }),
+    });
   });
 });
 
@@ -2010,7 +2023,7 @@ describe("Chart without labels", () => {
       model,
       {
         ...defaultChart,
-        ...toChartDataSource({ dataSets: defaultChart.dataSets, labelRange: "B1:B2" }),
+        ...toChartDataSource({ dataSets: defaultChart.dataSource.dataSets, labelRange: "B1:B2" }),
       },
       "44"
     );
@@ -2042,7 +2055,7 @@ describe("Chart without labels", () => {
       {
         ...defaultChart,
         type: "bar",
-        ...toChartDataSource({ dataSets: defaultChart.dataSets, labelRange: "B1:B2" }),
+        ...toChartDataSource({ dataSets: defaultChart.dataSource.dataSets, labelRange: "B1:B2" }),
       },
       "44"
     );
@@ -3425,28 +3438,27 @@ describe("Chart evaluation", () => {
     });
 
     test("configuration is synchronized between the definition the runtime", () => {
+      const firstLabel = "first";
+      const secondLabel = "second";
+      const firstBgColor = "#123456";
+      const secondBgColor = "#222222";
       updateChart(model, "1", {
         ...toChartDataSource({
           dataSets: [
-            { dataRange: "B2:B5", label: "first", backgroundColor: "#123456" },
-            { dataRange: "C2:C5", label: "second", backgroundColor: "#222222" },
+            { dataRange: "B2:B5", label: firstLabel, backgroundColor: firstBgColor },
+            { dataRange: "C2:C5", label: secondLabel, backgroundColor: secondBgColor },
           ],
         }),
       });
-      const definition = model.getters.getChartDefinition("1") as LineChartDefinition;
       let runtime = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(runtime.chartJsConfig.data.datasets).toHaveLength(2);
       hideColumns(model, ["B"]);
       runtime = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(runtime.chartJsConfig.data.datasets).toHaveLength(2);
-      expect(runtime.chartJsConfig.data.datasets![0].label).toEqual(definition.dataSets![0].label);
-      expect(runtime.chartJsConfig.data.datasets![1].label).toEqual(definition.dataSets![1].label);
-      expect(runtime.chartJsConfig.data.datasets![0].backgroundColor).toEqual(
-        definition.dataSets![0].backgroundColor
-      );
-      expect(runtime.chartJsConfig.data.datasets![1].backgroundColor).toEqual(
-        definition.dataSets![1].backgroundColor
-      );
+      expect(runtime.chartJsConfig.data.datasets![0].label).toEqual(firstLabel);
+      expect(runtime.chartJsConfig.data.datasets![1].label).toEqual(secondLabel);
+      expect(runtime.chartJsConfig.data.datasets![0].backgroundColor).toEqual(firstBgColor);
+      expect(runtime.chartJsConfig.data.datasets![1].backgroundColor).toEqual(secondBgColor);
     });
   });
 

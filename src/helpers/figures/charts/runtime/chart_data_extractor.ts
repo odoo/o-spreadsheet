@@ -33,8 +33,8 @@ import {
   ChartData,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
-  CustomizedDataSet,
   DataSet,
+  DataSetStyle,
   DatasetValues,
   FunnelChartDefinition,
   LabelValues,
@@ -83,17 +83,17 @@ export function getBarChartData(
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const leftAxisFormat = getChartDatasetFormat(definition.dataSets, dataSetsValues, "left");
-  const rightAxisFormat = getChartDatasetFormat(definition.dataSets, dataSetsValues, "right");
+  const leftAxisFormat = getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left");
+  const rightAxisFormat = getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");
   const axisFormats = definition.horizontal
     ? { x: leftAxisFormat || rightAxisFormat }
     : { y: leftAxisFormat, y1: rightAxisFormat };
 
   const trendDataSetsValues: (Point[] | undefined)[] = [];
   for (const index in dataSetsValues) {
-    const { data } = dataSetsValues[index];
+    const { data, dataSetId } = dataSetsValues[index];
 
-    const trend = definition.dataSets?.[index].trend;
+    const trend = definition.dataSetStyles?.[dataSetId]?.trend;
     if (!trend?.display || definition.horizontal) {
       trendDataSetsValues.push(undefined);
       continue;
@@ -190,6 +190,7 @@ function computeValuesAndLabels(
     data: xValues.map((x) => grouping?.[x]?.[y]),
     label: getDateTimeLabel(y, verticalGroupBy),
     hidden: false,
+    dataSetId: "0",
   }));
 
   return {
@@ -208,7 +209,9 @@ export function getCalendarChartData(
   const locale = getters.getLocale();
 
   ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues));
-  const axisFormats = { y: getChartDatasetFormat(definition.dataSets, dataSetsValues, "left") };
+  const axisFormats = {
+    y: getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left"),
+  };
 
   ({ labels, dataSetsValues } = computeValuesAndLabels(
     labels,
@@ -283,20 +286,20 @@ export function getLineChartData(
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "asc");
   }
 
-  const leftAxisFormat = getChartDatasetFormat(definition.dataSets, dataSetsValues, "left");
-  const rightAxisFormat = getChartDatasetFormat(definition.dataSets, dataSetsValues, "right");
+  const leftAxisFormat = getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left");
+  const rightAxisFormat = getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");
   const labelsFormat = getChartLabelFormat(labelValues);
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat, x: labelsFormat };
 
   const trendDataSetsValues: (Point[] | undefined)[] = [];
   for (const index in dataSetsValues) {
-    const trend = definition.dataSets?.[index].trend;
+    const { data, dataSetId } = dataSetsValues[index];
+    const trend = definition.dataSetStyles?.[dataSetId]?.trend;
     if (!trend?.display) {
       trendDataSetsValues.push(undefined);
       continue;
     }
 
-    const { data } = dataSetsValues[index];
     trendDataSetsValues.push(
       getTrendDatasetForLineChart(trend, data, labels, axisType, getters.getLocale())
     );
@@ -330,7 +333,7 @@ export function getPieChartData(
 
   ({ dataSetsValues, labels } = keepOnlyPositiveValues(labels, dataSetsValues));
 
-  const dataSetFormat = getChartDatasetFormat(definition.dataSets, dataSetsValues, "left");
+  const dataSetFormat = getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left");
 
   return {
     dataSetsValues,
@@ -356,8 +359,8 @@ export function getRadarChartData(
   }
 
   const dataSetFormat =
-    getChartDatasetFormat(definition.dataSets, dataSetsValues, "left") ||
-    getChartDatasetFormat(definition.dataSets, dataSetsValues, "right");
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left") ||
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");
   const axisFormats = { r: dataSetFormat };
 
   return {
@@ -380,8 +383,8 @@ export function getGeoChartData(
   ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
 
   const format =
-    getChartDatasetFormat(definition.dataSets, dataSetsValues, "left") ||
-    getChartDatasetFormat(definition.dataSets, dataSetsValues, "right");
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left") ||
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");
 
   return {
     dataSetsValues,
@@ -410,10 +413,10 @@ export function getFunnelChartData(
   if (definition.cumulative) {
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "desc");
   }
-
+  definition.dataSetStyles;
   const format =
-    getChartDatasetFormat(definition.dataSets, dataSetsValues, "left") ||
-    getChartDatasetFormat(definition.dataSets, dataSetsValues, "right");
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left") ||
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");
 
   return {
     dataSetsValues,
@@ -916,20 +919,19 @@ export function getChartData(
   sheetId: UID,
   definition: ChartWithDataSetDefinition
 ): ChartData {
-  const dataSets = createDataSets(
-    getters,
-    definition.dataSets,
-    sheetId,
-    definition.dataSetsHaveTitle
-  );
+  const dataSets = createDataSets(getters, sheetId, definition);
   const labelRange = createValidRange(getters, sheetId, definition.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getChartDatasetValues(getters, dataSets);
   const data = { labelValues, dataSetsValues };
+  // FIXME nested ternary
+  const numberOfDataPoints = dataSetsValues.length
+    ? dataSetsValues[0]?.data.length + (dataSetsValues[0]?.label !== undefined ? 1 : 0)
+    : 0;
   if (
     shouldRemoveFirstLabel(
       labelValues.length,
-      dataSetsValues[0]?.data.length + (dataSetsValues[0]?.label !== undefined ? 1 : 0),
+      numberOfDataPoints,
       definition.dataSetsHaveTitle || false
     )
   ) {
@@ -943,12 +945,7 @@ export function getHierarchicalData(
   sheetId: UID,
   definition: ChartWithDataSetDefinition
 ): ChartData {
-  const dataSets = createDataSets(
-    getters,
-    definition.dataSets,
-    sheetId,
-    definition.dataSetsHaveTitle
-  );
+  const dataSets = createDataSets(getters, sheetId, definition);
   const labelRange = createValidRange(getters, sheetId, definition.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
@@ -1002,12 +999,12 @@ function getChartLabelValues(
  * found in the dataset ranges that isn't a date format.
  */
 function getChartDatasetFormat(
-  dataSetDefinitions: Pick<CustomizedDataSet, "yAxisId">[], // TODO simplify once CustomizedDataSet no longer contains ranges
+  DataSetStyle: DataSetStyle | undefined,
   dataSetValues: DatasetValues[],
   axis: "left" | "right"
 ): Format | undefined {
   const dataSets = dataSetValues.filter(
-    (ds, i) => (axis === "right") === (dataSetDefinitions[i].yAxisId === "y1")
+    (ds) => (axis === "right") === (DataSetStyle?.[ds.dataSetId]?.yAxisId === "y1")
   );
   for (const ds of dataSets) {
     const cell = ds.data.find(({ format }) => format !== undefined && !isDateTimeFormat(format));
@@ -1041,7 +1038,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     } else if (data.every((cell) => !isNumberCell(cell))) {
       hidden = true;
     }
-    datasetValues.push({ data, label, hidden });
+    datasetValues.push({ data, label, hidden, dataSetId: ds.dataSetId });
   }
   return datasetValues;
 }
@@ -1063,7 +1060,11 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   dataSets = dataSets.filter(
     (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
   );
-  const datasetValues: DatasetValues[] = dataSets.map(() => ({ data: [], label: "" }));
+  const datasetValues: DatasetValues[] = dataSets.map((ds) => ({
+    data: [],
+    label: "",
+    dataSetId: ds.dataSetId,
+  }));
   const dataSetsData = dataSets.map((ds) => getData(getters, ds));
   if (!dataSetsData.length) {
     return datasetValues;

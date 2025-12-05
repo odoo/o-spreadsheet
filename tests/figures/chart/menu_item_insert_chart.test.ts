@@ -5,7 +5,7 @@ import {
   DEFAULT_FIGURE_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
+import { ChartDefinition, ChartRangeDataSource, Model } from "../../../src";
 import { toXC, zoneToXc } from "../../../src/helpers";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
@@ -396,19 +396,26 @@ describe("Insert chart menu item", () => {
   test("Chart of single cell will extend the selection to find a 'table'", () => {
     setSelection(model, ["A2"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [
-      { dataRange: "B1:B5" },
-      { dataRange: "C1:C5" },
-      { dataRange: "D1:D5" },
-      { dataRange: "E1:E5" },
-      { dataRange: "F1:F5" },
-      { dataRange: "G1:G5" },
-      { dataRange: "H1:H5" },
-    ];
-    payload.definition.labelRange = "A1:A5";
-    payload.definition.dataSetsHaveTitle = true;
-    payload.definition.legendPosition = "top";
+    const payload = {
+      ...defaultPayload,
+      definition: {
+        ...defaultPayload.definition,
+        legendPosition: "top",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "B1:B5" },
+            { dataRange: "C1:C5" },
+            { dataRange: "D1:D5" },
+            { dataRange: "E1:E5" },
+            { dataRange: "F1:F5" },
+            { dataRange: "G1:G5" },
+            { dataRange: "H1:H5" },
+          ],
+          labelRange: "A1:A5",
+          dataSetsHaveTitle: true,
+        }),
+      },
+    };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:H5");
   });
@@ -546,9 +553,9 @@ describe("Smart chart type detection", () => {
     doAction(["insert", "insert_chart"], env);
 
     const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
-    const expectedDatasets: CustomizedDataSet[] = [];
+    const expectedDatasets: ChartRangeDataSource["dataSets"] = [];
     for (let i = 0; i < datasetLastCol; i++) {
-      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
+      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5), dataSetId: i.toString() });
     }
     const expectedLabelRange = toXC(datasetLastCol, 0) + ":" + toXC(datasetLastCol, 5);
 
@@ -578,9 +585,12 @@ describe("Smart chart type detection", () => {
     createDatasetFromDescription(datasetPattern);
     doAction(["insert", "insert_chart"], env);
 
-    const expectedDatasets: CustomizedDataSet[] = [];
+    const expectedDatasets: ChartRangeDataSource["dataSets"] = [];
     for (let i = 1; i < datasetPattern.length; i++) {
-      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
+      expectedDatasets.push({
+        dataRange: toXC(i, 0) + ":" + toXC(i, 5),
+        dataSetId: (i - 1).toString(),
+      });
     }
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
