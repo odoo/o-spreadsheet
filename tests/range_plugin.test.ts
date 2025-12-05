@@ -745,3 +745,17 @@ test.each([
   const adaptedRange = model.getters.createAdaptedRanges([range], 1, 1, sheetId);
   expect(model.getters.getRangeString(adaptedRange[0], sheetId)).toBe(expected);
 });
+
+test("Plugins cannot dispatch a command during adaptRanges", () => {
+  class PluginDispatchInAdaptRanges extends CorePlugin {
+    adaptRanges() {
+      this.dispatch("DELETE_SHEET", { sheetId: "s1" });
+    }
+  }
+  addTestPlugin(corePluginRegistry, PluginDispatchInAdaptRanges);
+
+  const model = new Model({});
+  expect(() => {
+    addColumns(model, "before", "A", 1);
+  }).toThrowError("Plugins cannot dispatch commands during adaptRanges phase");
+});
