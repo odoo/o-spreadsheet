@@ -330,6 +330,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
         <c:order val="${dsIndex}"/>
         ${extractTrendline(dataset.trend, color)}
         ${extractDataSetLabel(dataset.label)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${
           chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
@@ -360,6 +361,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(leftDataSetsNodes)}
+          ${insertDataLabels({ showValues: chart.showValues })}
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
         </c:barChart>
@@ -450,6 +452,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
       <c:order val="0"/>
       ${extractTrendline(dataSet.trend, firstColor)}
       ${extractDataSetLabel(dataSet.label)}
+      ${insertDataLabels({ showValues: chart.showValues })}
       ${shapeProperty({
         backgroundColor: firstColor,
         line: { color: firstColor },
@@ -483,6 +486,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         </c:marker>
         ${extractTrendline(dataSet.trend, color)}
         ${extractDataSetLabel(dataSet.label)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
         <!-- x-coordinate values -->
@@ -508,6 +512,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
       ${barDataSetNode}
+      ${insertDataLabels({ showValues: chart.showValues })}
       <c:axId val="${useRightAxisForBarSerie ? secondaryCatAxId : catAxId}" />
       <c:axId val="${useRightAxisForBarSerie ? secondaryValAxId : valAxId}" />
     </c:barChart>
@@ -518,6 +523,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
           <c:grouping val="standard"/>
           <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
+          ${insertDataLabels({ showValues: chart.showValues })}
           ${joinXmlNodes(leftDataSetsNodes)}
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
@@ -532,6 +538,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
           <c:grouping val="standard"/>
           <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
+          ${insertDataLabels({ showValues: chart.showValues })}
           ${joinXmlNodes(rightDataSetsNodes)}
           <c:axId val="${secondaryCatAxId}" />
           <c:axId val="${secondaryValAxId}" />
@@ -591,6 +598,7 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
     <c:order val="0"/>
     <c:invertIfNegative val="0" />
     ${extractDataSetLabel(leftDataSet.label)}
+    ${insertDataLabels({ showValues: chart.showValues })}
     ${shapeProperty({
       backgroundColor: firstColor,
       line: { color: firstColor },
@@ -608,6 +616,7 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
     <c:order val="1"/>
     <c:invertIfNegative val="0" />
     ${extractDataSetLabel(rightDataSet.label)}
+    ${insertDataLabels({ showValues: chart.showValues })}
     ${shapeProperty({
       backgroundColor: secondColor,
       line: { color: secondColor },
@@ -625,6 +634,7 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
       <c:grouping val="clustered"/>
       <c:varyColors val="0" />
       ${leftBarDataSetNode}
+      ${insertDataLabels({ showValues: chart.showValues })}
       <c:gapWidth val="50" />
       <c:axId val="${catAxId}" />
       <c:axId val="${valAxId}" />
@@ -634,6 +644,7 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
       <c:grouping val="clustered"/>
       <c:varyColors val="0" />
       ${rightBarDataSetNode}
+      ${insertDataLabels({ showValues: chart.showValues })}
       <c:gapWidth val="50" />
       <c:axId val="${secondaryCatAxId}" />
       <c:axId val="${secondaryValAxId}" />
@@ -730,6 +741,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         </c:marker>
         ${extractTrendline(dataset.trend, color)}
         ${extractDataSetLabel(dataset.label)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${
           chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
@@ -757,6 +769,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(leftDataSetsNodes)}
+          ${insertDataLabels({ showValues: chart.showValues })}
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
         </c:lineChart>
@@ -773,6 +786,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(rightDataSetsNodes)}
+          ${insertDataLabels({ showValues: chart.showValues })}
           <c:axId val="${catAxId + 1}" />
           <c:axId val="${valAxId + 1}" />
         </c:lineChart>
@@ -825,6 +839,7 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         </c:marker>
         ${extractTrendline(dataset.trend, color)}
         ${extractDataSetLabel(dataset.label)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         ${
           chart.labelRange
             ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
@@ -852,6 +867,7 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         <c:varyColors val="0"/>
         <c:scatterStyle val="lineMarker"/>
         ${joinXmlNodes(leftDataSetsNodes)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         <c:axId val="${catAxId}" />
         <c:axId val="${valAxId}" />
       </c:scatterChart>
@@ -868,6 +884,7 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         <c:varyColors val="0"/>
         <c:scatterStyle val="lineMarker"/>
         ${joinXmlNodes(rightDataSetsNodes)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         <c:axId val="${catAxId + 1}" />
         <c:axId val="${valAxId + 1}" />
       </c:scatterChart>
@@ -918,6 +935,7 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
           ${shapeProperty({ backgroundColor: color, line: { color } })}
         </c:marker>
         ${extractDataSetLabel(dataset.label)}
+        ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${
           chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
@@ -936,6 +954,7 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
         <c:radarStyle val="marker"/>
           <c:varyColors val="0"/>
           ${joinXmlNodes(dataSetsNodes)}
+          ${insertDataLabels({ showValues: chart.showValues })}
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
         </c:radarChart>
@@ -980,7 +999,7 @@ function addDoughnutChart(
         <c:order val="${dsIndex}"/>
         ${extractDataSetLabel(dataset.label)}
         ${joinXmlNodes(dataPoints)}
-        ${insertDataLabels({ showLeaderLines: true })}
+        ${insertDataLabels({ showLeaderLines: true, showValues: chart.showValues })}
         ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
         <c:val>
           ${numberRef(dataset.range)}
@@ -994,23 +1013,28 @@ function addDoughnutChart(
       <c:holeSize val="${
         chart.pieHolePercentage ?? (chart.isDoughnut ? DEFAULT_DOUGHNUT_CHART_HOLE_SIZE : 0)
       }" />
-      ${insertDataLabels()}
       ${joinXmlNodes(dataSetsNodes)}
+      ${insertDataLabels({ showValues: chart.showValues })}
     </c:doughnutChart>
   `;
 }
 
-function insertDataLabels({ showLeaderLines } = { showLeaderLines: false }): XMLString {
+function insertDataLabels(
+  { showLeaderLines, showValues }: { showLeaderLines?: Boolean; showValues?: Boolean } = {
+    showLeaderLines: false,
+    showValues: false,
+  }
+): XMLString {
   return escapeXml/*xml*/ `
-    <dLbls>
+    <c:dLbls>
       <c:showLegendKey val="0"/>
-      <c:showVal val="0"/>
+      <c:showVal val="${showValues ? "1" : "0"}"/>
       <c:showCatName val="0"/>
       <c:showSerName val="0"/>
       <c:showPercent val="0"/>
       <c:showBubbleSize val="0"/>
       <c:showLeaderLines val="${showLeaderLines ? "1" : "0"}"/>
-    </dLbls>
+    </c:dLbls>
   `;
 }
 
