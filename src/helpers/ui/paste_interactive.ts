@@ -1,15 +1,31 @@
-import { RemoveDuplicateTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import {
+  MergeErrorMessage,
+  RemoveDuplicateTerms,
+} from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   ClipboardPasteOptions,
   CommandResult,
+  CopyPasteCellsAboveCommand,
+  CopyPasteCellsOnLeftCommand,
+  CopyPasteCellsOnZoneCommand,
   DispatchResult,
   ParsedOSClipboardContent,
   ParsedOsClipboardContentWithImageData,
   Zone,
 } from "../../types";
+
+export const handleCopyPasteResult = (
+  env: SpreadsheetChildEnv,
+  command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
+) => {
+  const result = env.model.dispatch(command.type);
+  if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
+    env.raiseError(MergeErrorMessage);
+  }
+};
 
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),
