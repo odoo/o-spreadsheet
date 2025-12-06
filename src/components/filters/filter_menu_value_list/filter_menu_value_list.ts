@@ -76,12 +76,15 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
 
     const cellValues = cells.map((val) => val.cellValue);
     const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
-    const normalizedFilteredValues = new Set(filterValues.map(toLowerCase));
+    const normalize = (value: string) => {
+      return toLowerCase(value).trim();
+    };
+    const normalizedFilteredValues = new Set(filterValues.map(normalize));
 
     const set = new Set<string>();
     const values: (Value & { normalizedValue: string })[] = [];
     const addValue = (value: string) => {
-      const normalizedValue = toLowerCase(value);
+      const normalizedValue = normalize(value);
       if (!set.has(normalizedValue)) {
         values.push({
           string: value || "",
