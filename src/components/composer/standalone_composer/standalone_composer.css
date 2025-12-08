@@ -7,7 +7,8 @@
     }
 
     &.o-invalid {
-      border-bottom: 2px solid red;
+      border-bottom: 1px solid red !important;
+      background-color: var(--os-alert-danger-bg);
     }
 
     /* As the standalone composer is potentially very small (eg. in a side panel), we remove the scrollbar display */
