@@ -469,6 +469,12 @@ export function computeRotationPosition(
   } else {
     if (center) {
       x -= sh / 2;
+      y -= height / 2;
+      if (rotateTowardCellCenter) {
+        y += sh;
+      } else {
+        y -= sh;
+      }
     } else if (rotateTowardCellCenter) {
       x -= sh;
       y -= sw / 2;
