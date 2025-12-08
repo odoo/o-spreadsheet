@@ -1,6 +1,6 @@
-import { Model } from "../../src";
-import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
-import { UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model, UID } from "../../src";
+import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import {
   activateSheet,
   addDataValidation,
@@ -22,21 +22,17 @@ extendMockGetBoundingClientRect({
   "o-dv-type": () => dataValidationSelectBoundingRect,
 });
 
-export async function mountDataValidationPanel(model?: Model) {
-  return mountComponentWithPortalTarget(DataValidationPanel, {
-    model: model || new Model(),
-    props: { onCloseSidePanel: () => {} },
-  });
-}
-
 describe("data validation sidePanel component", () => {
   let model: Model;
   let sheetId: UID;
+  let env: SpreadsheetChildEnv;
   let fixture: HTMLElement;
 
   beforeEach(async () => {
-    ({ model, fixture } = await mountDataValidationPanel());
+    ({ model, env, fixture } = await mountComponentWithPortalTarget(SidePanels));
     sheetId = model.getters.getActiveSheetId();
+    env.openSidePanel("DataValidation", {});
+    await nextTick();
   });
 
   async function changeCriterionType(type: string) {
@@ -289,6 +285,15 @@ describe("data validation sidePanel component", () => {
     simulateClick(".o-dv-save");
 
     expect(model.getters.getDataValidationRules(sheetId)).toMatchObject([{ isBlocking: true }]);
+  });
+
+  test("Clicking the preview opens the data validation editor", async () => {
+    addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
+    await nextTick();
+
+    await click(fixture.querySelector(".o-dv-preview")!);
+    await nextTick();
+    expect(fixture.querySelector(".o-dv-form")).toBeTruthy();
   });
 
   test("Preserves rule order when editing and saving via data validation preview panel", async () => {
