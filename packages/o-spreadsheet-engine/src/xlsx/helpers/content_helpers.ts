@@ -139,6 +139,7 @@ export function extractStyle(
         ? V_ALIGNMENT_EXPORT_CONVERSION_MAP[style.verticalAlign]
         : undefined,
       wrapText: style.wrapping === "wrap" || content?.includes(NEWLINE) ? true : undefined,
+      textRotation: style.rotation ? rotationToXLSX(style.rotation) : undefined,
     },
   };
 
@@ -147,6 +148,28 @@ export function extractStyle(
   styles.font["bold"] = !!style?.bold || undefined;
   styles.font["italic"] = !!style?.italic || undefined;
   return styles;
+}
+
+function rotationToXLSX(rad: number): number {
+  let deg = Math.round((-rad / Math.PI) * 180) % 180;
+  if (deg > 90) {
+    deg -= 180;
+  } else if (deg < -90) {
+    deg += 180;
+  }
+  if (deg >= 0) {
+    return deg;
+  } else {
+    return 90 - deg;
+  }
+}
+
+export function rotationFromXLSX(deg: number): number {
+  if (deg <= 90) {
+    return -(deg / 180) * Math.PI;
+  } else {
+    return (-(90 - deg) / 180) * Math.PI;
+  }
 }
 
 export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle): number {
@@ -161,6 +184,7 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
       vertical: styles.alignment.vertical,
       horizontal: styles.alignment.horizontal,
       wrapText: styles.alignment.wrapText,
+      textRotation: styles.alignment.textRotation,
     },
   } as XLSXStyle;
 
