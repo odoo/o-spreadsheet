@@ -447,7 +447,7 @@ export function computeRotationPosition(
   let { x, y } = rect; // top-left when align=left and top-right when align=right, top-center when align=center
   const cos = Math.cos(-style.rotation);
   const sin = Math.sin(-style.rotation);
-  const width = rect.textWidth - MIN_CELL_TEXT_MARGIN;
+  const width = rect.textWidth - 2 * MIN_CELL_TEXT_MARGIN;
   const height = rect.textHeight;
 
   const center = style.align === "center";
@@ -479,6 +479,12 @@ export function computeRotationPosition(
   } else {
     if (center) {
       x -= sh / 2;
+      y -= height / 2;
+      if (rotateTowardCellCenter) {
+        y += sh;
+      } else {
+        y -= sh;
+      }
     } else if (rotateTowardCellCenter) {
       x -= sh;
       y -= sw / 2;
