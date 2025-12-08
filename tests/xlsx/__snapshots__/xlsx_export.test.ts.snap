@@ -26895,53 +26895,79 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                 </v>
             </c>
         </row>
-        <row r="12">
-            <c r="D12" t="s">
+        <row r="11">
+            <c r="F11" s="12" t="s">
                 <v>
                     12
                 </v>
             </c>
         </row>
-        <row r="20">
-            <c r="C20" s="12" t="s">
+        <row r="12">
+            <c r="D12" t="s">
                 <v>
                     13
                 </v>
             </c>
-            <c r="E20" s="13" t="s">
+            <c r="F12" s="13" t="s">
                 <v>
                     14
                 </v>
             </c>
-            <c r="G20" s="14" t="s">
+        </row>
+        <row r="13">
+            <c r="F13" s="14" t="s">
                 <v>
                     15
+                </v>
+            </c>
+        </row>
+        <row r="14">
+            <c r="F14" s="15" t="s">
+                <v>
+                    16
+                </v>
+            </c>
+        </row>
+        <row r="20">
+            <c r="C20" s="16" t="s">
+                <v>
+                    17
+                </v>
+            </c>
+            <c r="E20" s="17" t="s">
+                <v>
+                    18
+                </v>
+            </c>
+            <c r="G20" s="18" t="s">
+                <v>
+                    19
                 </v>
             </c>
         </row>
         <row r="21">
             <c r="A21" t="s">
                 <v>
-                    16
+                    20
                 </v>
             </c>
         </row>
         <row r="23">
-            <c r="C23" s="15">
+            <c r="C23" s="19">
                 <v>
                     0.43
                 </v>
             </c>
         </row>
         <row r="24">
-            <c r="C24" s="16">
+            <c r="C24" s="20">
                 <v>
                     10
                 </v>
             </c>
         </row>
         <row r="25">
-            <c r="C25" s="16">
+            <c r="C25" s="20">
                 <v>
                     10.123
                 </v>
@@ -26950,70 +26976,70 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <row r="27">
             <c r="A27" t="s">
                 <v>
-                    17
+                    21
                 </v>
             </c>
         </row>
         <row r="28">
             <c r="A28" t="s">
                 <v>
-                    18
+                    22
                 </v>
             </c>
         </row>
         <row r="29">
             <c r="A29" t="s">
                 <v>
-                    19
+                    23
                 </v>
             </c>
         </row>
         <row r="30">
             <c r="A30" t="s">
                 <v>
-                    20
+                    24
                 </v>
             </c>
         </row>
         <row r="31">
             <c r="A31" t="s">
                 <v>
-                    21
+                    25
                 </v>
             </c>
         </row>
         <row r="32">
             <c r="A32" t="s">
                 <v>
-                    22
+                    26
                 </v>
             </c>
         </row>
         <row r="33">
             <c r="A33" t="s">
                 <v>
-                    23
+                    27
                 </v>
             </c>
         </row>
         <row r="34">
             <c r="A34" t="s">
                 <v>
-                    24
+                    28
                 </v>
             </c>
         </row>
         <row r="35">
             <c r="A35" t="s">
                 <v>
-                    25
+                    29
                 </v>
             </c>
         </row>
         <row r="36">
             <c r="A36" t="s">
                 <v>
-                    26
+                    30
                 </v>
             </c>
         </row>
@@ -27040,7 +27066,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <row r="39">
             <c r="A39" t="s">
                 <v>
-                    27
+                    31
                 </v>
             </c>
         </row>
@@ -27057,7 +27083,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <row r="41">
             <c r="A41" t="s">
                 <v>
-                    28
+                    32
                 </v>
             </c>
         </row>
@@ -27287,7 +27313,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="17">
+    <cellXfs count="21">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
@@ -27308,6 +27334,18 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <alignment wrapText="1"/>
         </xf>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="6"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment textRotation="135"/>
+        </xf>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment textRotation="180"/>
+        </xf>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment textRotation="45"/>
+        </xf>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment textRotation="90"/>
+        </xf>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="1"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="2"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="3"/>
@@ -27321,7 +27359,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="29" uniqueCount="29">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="33" uniqueCount="33">
     <si>
         <t>
             Owl is awesome
@@ -27384,7 +27422,27 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     </si>
     <si>
         <t>
+            rotated text 45 down
+        </t>
+    </si>
+    <si>
+        <t>
             this is a sum of sums
+        </t>
+    </si>
+    <si>
+        <t>
+            rotated text 90 down
+        </t>
+    </si>
+    <si>
+        <t>
+            rotated text 45 up
+        </t>
+    </si>
+    <si>
+        <t>
+            rotated text 90 up
         </t>
     </si>
     <si>
