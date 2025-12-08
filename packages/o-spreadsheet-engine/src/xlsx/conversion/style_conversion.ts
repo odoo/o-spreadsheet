@@ -9,6 +9,7 @@ import {
   XLSXImportData,
   XLSXVerticalAlignment,
 } from "../../types/xlsx";
+import { rotationFromXLSX } from "../helpers/content_helpers";
 import { arrayToObject } from "../helpers/misc";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertColor } from "./color_conversion";
@@ -99,6 +100,9 @@ export function convertStyle(
       : undefined,
     align: styleStruct.alignment?.horizontal
       ? H_ALIGNMENT_CONVERSION_MAP[styleStruct.alignment.horizontal]
+      : undefined,
+    rotation: styleStruct.alignment?.textRotation
+      ? rotationFromXLSX(styleStruct.alignment.textRotation)
       : undefined,
     // In xlsx fills, bgColor is the color of the fill, and fgColor is the color of the pattern above the background, except in solid fills
     fillColor:
