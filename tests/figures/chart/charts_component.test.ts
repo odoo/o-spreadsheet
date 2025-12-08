@@ -264,7 +264,7 @@ describe("charts", () => {
         const labels = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe("combo");
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.dataSets[0].dataRange
+          TEST_CHART_DATA.basicChart.dataSource.dataSets[0].dataRange
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
@@ -279,7 +279,7 @@ describe("charts", () => {
         const labels = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe("column");
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.dataSets[0].dataRange
+          TEST_CHART_DATA.basicChart.dataSource.dataSets[0].dataRange
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
@@ -1246,15 +1246,28 @@ describe("charts", () => {
     const element = document.querySelectorAll(".o-data-series input")[1];
     await setInputValueAndTrigger(element, "C1:C4");
     await simulateClick(".o-data-series .o-selection-ok");
-    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      { dataRange: "B1:B4", yAxisId: "y" },
-      { dataRange: "C1:C4" },
-    ]);
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [
+          { dataRange: "B1:B4", yAxisId: "y", dataSetId: expect.any(String) },
+          { dataRange: "C1:C4", dataSetId: expect.any(String) },
+        ],
+      })
+    );
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
-    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      { dataRange: "B1:B4", yAxisId: "y", backgroundColor: "#4EA7F2" }, // The color is added to keep colors consistent
-    ]);
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [
+          {
+            dataRange: "B1:B4",
+            yAxisId: "y",
+            backgroundColor: "#4EA7F2",
+            dataSetId: expect.any(String),
+          }, // The color is added to keep colors consistent
+        ],
+      })
+    );
   });
 
   test("Can remove an empty data series range", async () => {
@@ -1934,11 +1947,11 @@ describe("charts", () => {
 
     await simulateClick(".o-split-by-rows");
     let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.dataSets).toEqual([
-      { dataRange: "B2:C2" },
-      { dataRange: "B3:C3" },
-      { dataRange: "B4:C4" },
-    ]);
+    expect(definition).toEqual(
+      toChartDataSource({
+        dataSets: [{ dataRange: "B2:C2" }, { dataRange: "B3:C3" }, { dataRange: "B4:C4" }],
+      })
+    );
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[3];
     await setInputValueAndTrigger(element, "D2:E4");
@@ -2163,7 +2176,7 @@ describe("charts", () => {
 
         await simulateClick(checkbox);
         let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
-        expect(definition.dataSets[0].trend).toEqual({
+        expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 1,
           display: true,
@@ -2173,7 +2186,7 @@ describe("charts", () => {
 
         await simulateClick(checkbox);
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
-        expect(definition.dataSets[0].trend).toEqual({
+        expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 1,
           display: false,
@@ -2219,10 +2232,10 @@ describe("charts", () => {
           setInputValueAndTrigger(".trend-type-selector", trendType);
           definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
           if (trendType === "linear") {
-            expect(definition.dataSets[0].trend?.type).toEqual("polynomial");
-            expect(definition.dataSets[0].trend?.order).toEqual(1);
+            expect(Object.values(definition.dataSetStyles)[0].trend?.type).toEqual("polynomial");
+            expect(Object.values(definition.dataSetStyles)[0].trend?.order).toEqual(1);
           } else {
-            expect(definition.dataSets[0].trend?.type).toEqual(trendType);
+            expect(Object.values(definition.dataSetStyles)[0].trend?.type).toEqual(trendType);
           }
         }
       }
@@ -2250,7 +2263,7 @@ describe("charts", () => {
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
-        expect(definition.dataSets[0].trend).toEqual({
+        expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 3,
           display: true,
@@ -2258,7 +2271,7 @@ describe("charts", () => {
 
         setInputValueAndTrigger(".trend-order-input", "2");
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
-        expect(definition.dataSets[0].trend?.order).toEqual(2);
+        expect(Object.values(definition.dataSetStyles)[0].trend?.order).toEqual(2);
       }
     );
 
@@ -2287,7 +2300,7 @@ describe("charts", () => {
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
-        expect(definition.dataSets[0].trend).toEqual({
+        expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "trailingMovingAverage",
           window: 2,
           display: true,
@@ -2296,7 +2309,7 @@ describe("charts", () => {
         setInputValueAndTrigger(".trend-window-input", "3");
         await nextTick();
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
-        expect(definition.dataSets[0].trend?.window).toEqual(3);
+        expect(Object.values(definition.dataSetStyles)[0].trend?.window).toEqual(3);
       }
     );
 

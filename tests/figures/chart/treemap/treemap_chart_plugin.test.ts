@@ -73,7 +73,10 @@ describe("TreeMap chart", () => {
     // of the usual chart structure.
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+        dataSetsHaveTitle: true,
+      }),
       auxiliaryRange: "Sheet1!A1:A4",
     };
     const definition = TreeMapChart.getDefinitionFromContextCreation(context);
@@ -113,9 +116,11 @@ describe("TreeMap chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       background: "#123456",
       title: { text: "hello there" },
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        dataSetsHaveTitle: true,
+      }),
       auxiliaryRange: "Sheet1!A1:A4",
-      dataSetsHaveTitle: true,
       aggregated: true,
       showValues: false,
       headerDesign: { bold: false },
