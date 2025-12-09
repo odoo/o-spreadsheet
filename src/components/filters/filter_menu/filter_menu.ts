@@ -1,7 +1,9 @@
-import { onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
-import { deepEquals } from "../../../helpers/misc";
+import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
+import { toTrimmedLowerCase } from "../../../helpers/text_helper";
+import { positions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
@@ -23,6 +25,16 @@ interface Props {
   onClosed?: () => void;
 }
 
+interface State {
+  values: Value[];
+}
+
+interface Value {
+  checked: boolean;
+  string: string;
+  scrolledTo?: "top" | "bottom" | undefined;
+}
+
 type CriterionCategory = "text" | "number" | "date";
 
 export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
@@ -32,7 +44,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onClosed: { type: Function, optional: true },
   };
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
-
+  private state!: State;
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
 
@@ -41,7 +53,11 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
         this.updatedCriterionValue = undefined;
         this.criterionCategory = this.getCriterionCategory(nextProps.filterPosition);
+        this.state.values = this.getFilterHiddenValues(nextProps.filterPosition);
       }
+    });
+    this.state = proxy({
+      values: this.getFilterHiddenValues(this.props.filterPosition),
     });
     this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
   }
@@ -150,6 +166,62 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
     interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
+  }
+
+  private getFilterHiddenValues(position: Position): Value[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
+    if (!filter?.filteredRange) {
+      return [];
+    }
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    let cellPositions = positions(filter.filteredRange.zone);
+    if (filterValue?.filterType !== "criterion") {
+      cellPositions = cellPositions.filter(
+        (currentPosition) => !this.env.model.getters.isRowHidden(sheetId, currentPosition.row)
+      );
+    }
+    const cellValues = cellPositions.map(
+      (currentPosition) =>
+        this.env.model.getters.getEvaluatedCell({ sheetId, ...currentPosition }).formattedValue
+    );
+
+    const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
+    const normalizedFilteredValues = new Set(filterValues.map(toTrimmedLowerCase));
+
+    const normalizedValues = new Set<string>();
+    const allValues: (Value & { normalizedValue: string })[] = [];
+    const addValue = (value: string) => {
+      const normalizedValue = toTrimmedLowerCase(value);
+      if (!normalizedValues.has(normalizedValue)) {
+        allValues.push({
+          string: value || "",
+          checked:
+            filterValue?.filterType !== "criterion"
+              ? !normalizedFilteredValues.has(normalizedValue)
+              : false,
+          normalizedValue,
+        });
+        normalizedValues.add(normalizedValue);
+      }
+    };
+    cellValues.forEach(addValue);
+    filterValues.forEach(addValue);
+
+    return allValues.sort((val1, val2) =>
+      val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
+  }
+
+  getFilterCriterionValue(position: Position): CriterionFilter {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filterValue = this.env.model.getters.getFilterCriterionValue({ sheetId, ...position });
+    return filterValue?.filterType === "criterion"
+      ? deepCopy(filterValue)
+      : { filterType: "criterion", type: "none", values: [] };
   }
 }
 

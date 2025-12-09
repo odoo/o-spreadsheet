@@ -1,15 +1,12 @@
 import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
-import { toTrimmedLowerCase } from "../../../helpers/text_helper";
-import { positions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
-import { Position } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 
 interface Props {
-  filterPosition: Position;
+  values: Value[];
   onUpdateHiddenValues: (values: string[]) => void;
 }
 
@@ -20,7 +17,6 @@ interface Value {
 }
 
 interface State {
-  values: Value[];
   displayedValues: Value[];
   textFilter: string;
   selectedValue: string | undefined;
@@ -31,13 +27,12 @@ interface State {
 export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueList";
   static props = {
-    filterPosition: Object,
+    values: Object,
     onUpdateHiddenValues: Function,
   };
   static components = { FilterMenuValueItem };
 
   private state: State = proxy({
-    values: [],
     displayedValues: [],
     textFilter: "",
     selectedValue: undefined,
@@ -49,63 +44,11 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.values = this.getFilterHiddenValues(nextProps.filterPosition);
-        this.computeDisplayedValues();
+      if (!deepEquals(nextProps.values, this.props.values)) {
+        this.computeDisplayedValues(nextProps);
       }
     });
-
-    this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
-    this.computeDisplayedValues();
-  }
-
-  private getFilterHiddenValues(position: Position): Value[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
-    if (!filter) {
-      return [];
-    }
-    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
-
-    let cells = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
-      (position) => ({
-        position,
-        cellValue: this.env.model.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue,
-      })
-    );
-    if (filterValue?.filterType !== "criterion") {
-      cells = cells.filter((val) => !this.env.model.getters.isRowHidden(sheetId, val.position.row));
-    }
-
-    const cellValues = cells.map((val) => val.cellValue);
-    const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
-    const normalizedFilteredValues = new Set(filterValues.map(toTrimmedLowerCase));
-
-    const set = new Set<string>();
-    const values: (Value & { normalizedValue: string })[] = [];
-    const addValue = (value: string) => {
-      const normalizedValue = toTrimmedLowerCase(value);
-      if (!set.has(normalizedValue)) {
-        values.push({
-          string: value || "",
-          checked:
-            filterValue?.filterType !== "criterion"
-              ? !normalizedFilteredValues.has(normalizedValue)
-              : false,
-          normalizedValue,
-        });
-        set.add(normalizedValue);
-      }
-    };
-    cellValues.forEach(addValue);
-    filterValues.forEach(addValue);
-
-    return values.sort((val1, val2) =>
-      val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
-        numeric: true,
-        sensitivity: "base",
-      })
-    );
+    this.computeDisplayedValues(this.props);
   }
 
   checkValue(value: Value) {
@@ -119,15 +62,15 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     this.state.selectedValue = value.string;
   }
 
-  private getSearchedValues(): Value[] {
+  private getSearchedValues(props: Props): Value[] {
     return !this.state.textFilter
-      ? this.state.values
-      : fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+      ? props.values
+      : fuzzyLookup(this.state.textFilter, props.values, (val) => val.string);
   }
 
   setAllChecked(checked: boolean) {
-    const searchedValues = new Set(this.getSearchedValues());
-    for (const value of this.state.values) {
+    const searchedValues = new Set(this.getSearchedValues(this.props));
+    for (const value of this.props.values) {
       if (searchedValues.has(value)) {
         value.checked = checked;
       }
@@ -144,7 +87,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateHiddenValues() {
-    const hiddenValues = this.state.values.filter((val) => !val.checked).map((val) => val.string);
+    const hiddenValues = this.props.values.filter((val) => !val.checked).map((val) => val.string);
     this.props.onUpdateHiddenValues(hiddenValues);
   }
 
@@ -152,18 +95,18 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     const target = ev.target as HTMLInputElement;
     this.state.textFilter = target.value;
     this.state.selectedValue = undefined;
-    this.computeDisplayedValues();
+    this.computeDisplayedValues(this.props);
   }
 
-  computeDisplayedValues() {
-    const searchedValues = this.getSearchedValues();
+  computeDisplayedValues(props: Props) {
+    const searchedValues = this.getSearchedValues(props);
     this.state.displayedValues = searchedValues.slice(0, this.state.numberOfDisplayedValues);
     this.state.hasMoreValues = searchedValues.length > this.state.numberOfDisplayedValues;
   }
 
   loadMoreValues() {
     this.state.numberOfDisplayedValues += 100;
-    this.computeDisplayedValues();
+    this.computeDisplayedValues(this.props);
   }
 
   onKeyDown(ev: KeyboardEvent) {
@@ -215,12 +158,12 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   }
 
   clearScrolledToValue() {
-    this.state.values.forEach((val) => (val.scrolledTo = undefined));
+    this.props.values.forEach((val) => (val.scrolledTo = undefined));
   }
 
   private scrollListToSelectedValue(arrow: "ArrowUp" | "ArrowDown") {
     this.clearScrolledToValue();
-    const selectedValue = this.state.values.find((val) => val.string === this.state.selectedValue);
+    const selectedValue = this.props.values.find((val) => val.string === this.state.selectedValue);
     if (selectedValue) {
       selectedValue.scrolledTo = arrow === "ArrowUp" ? "top" : "bottom";
     }

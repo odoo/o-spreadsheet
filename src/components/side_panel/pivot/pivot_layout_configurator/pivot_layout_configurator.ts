@@ -24,6 +24,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
@@ -35,6 +36,7 @@ import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 interface Props {
   definition: PivotRuntimeDefinition;
   onDimensionsUpdated: (definition: Partial<PivotCoreDefinition>) => void;
+  onFiltersUpdated: (definition: Partial<PivotCoreDefinition>) => void;
   unusedGroupableFields: PivotField[];
   measureFields: PivotField[];
   unusedGranularities: Record<string, Set<string>>;
@@ -54,10 +56,12 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotMeasureEditor,
     PivotSortSection,
     PivotCustomGroupsCollapsible,
+    SidePanelCollapsible,
   };
   static props = {
     definition: Object,
     onDimensionsUpdated: Function,
+    onFiltersUpdated: Function,
     unusedGroupableFields: Array,
     measureFields: Array,
     unusedGranularities: Object,

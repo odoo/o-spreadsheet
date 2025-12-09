@@ -123,6 +123,15 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       .sort((a, b) => a.string.localeCompare(b.string));
   }
 
+  get unusedFilterFields() {
+    const filterFields = Object.values(this.fields).filter((field) => field !== undefined);
+    const { filters } = this.definition;
+    const currentlyUsed = (filters ?? []).map((field) => field.fieldName);
+    return filterFields
+      .filter((field) => !currentlyUsed.includes(field.name))
+      .sort((a, b) => a.string.localeCompare(b.string));
+  }
+
   get datetimeGranularities() {
     return pivotRegistry.get(this.pivot.type).datetimeGranularities;
   }
@@ -222,6 +231,21 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         format: measure.format,
         display: measure.display,
       })),
+      filters: (definition.filters ?? []).map((filter) =>
+        filter.filterType === "values"
+          ? {
+              fieldName: filter.fieldName,
+              filterType: filter.filterType,
+              hiddenValues: filter.hiddenValues,
+            }
+          : {
+              fieldName: filter.fieldName,
+              filterType: filter.filterType,
+              type: filter.type,
+              values: filter.values,
+              dateValue: filter.dateValue,
+            }
+      ),
       sortedColumn: this.shouldKeepSortedColumn(definition) ? definition.sortedColumn : undefined,
     };
     if (cleanedDefinition.collapsedDomains) {

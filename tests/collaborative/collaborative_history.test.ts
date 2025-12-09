@@ -961,6 +961,7 @@ describe("Collaborative local history", () => {
           rows: [],
           columns: [],
           measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+          filters: [],
         },
       },
     };
