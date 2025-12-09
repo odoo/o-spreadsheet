@@ -191,11 +191,11 @@ describe("allow dispatch", () => {
     setSelection(model, ["D10:E11"]);
     expect(
       model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
-    ).toBeCancelledBecause(CommandResult.EmptyTarget);
+    ).toBeCancelledBecause(CommandResult.EmptySelectedRange);
     setSelection(model, ["C9:E11"]);
     expect(
       model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: true })
-    ).toBeCancelledBecause(CommandResult.EmptyTarget);
+    ).toBeCancelledBecause(CommandResult.EmptySelectedRange);
   });
 
   test("throw error if no columns selected", () => {
