@@ -5,19 +5,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import { chartJsExtensionRegistry } from "../../../../../../packages/o-spreadsheet-engine/src/helpers/figures/charts/chart_js_extension";
 import { clip } from "../../../../../helpers";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
 import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
-import { zoomWindowPlugin } from "./zoomable_chartjs_plugins";
-
-chartJsExtensionRegistry.add("zoomWindowPlugin", {
-  register: (Chart) => Chart.register(zoomWindowPlugin),
-  unregister: (Chart) => Chart.unregister(zoomWindowPlugin),
-});
 
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";

@@ -21,6 +21,7 @@ import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
 import { sunburstLabelsPlugin } from "./chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
+import { zoomWindowPlugin } from "./zoomable_chart/zoomable_chartjs_plugins";
 
 interface Props {
   chartId: UID;
@@ -63,6 +64,10 @@ chartJsExtensionRegistry.add("chartColorScalePlugin", {
 chartJsExtensionRegistry.add("calendarController", {
   register: (Chart) => Chart.register(getCalendarChartController()),
   unregister: (Chart) => Chart.unregister(getCalendarChartController()),
+});
+chartJsExtensionRegistry.add("zoomWindowPlugin", {
+  register: (Chart) => Chart.register(zoomWindowPlugin),
+  unregister: (Chart) => Chart.unregister(zoomWindowPlugin),
 });
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
