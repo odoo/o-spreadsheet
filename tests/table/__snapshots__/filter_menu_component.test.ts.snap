@@ -21,6 +21,9 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
       class="o-separator border-bottom"
     />
   </div>
+  <div
+    class="o-separator border-bottom"
+  />
   
   <div
     class="o-filter-menu-content"
