@@ -1,6 +1,7 @@
 import { collapseHierarchicalDisplayName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import {
   PivotDimension as PivotDimensionType,
+  PivotFilter,
   PivotMeasure,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -9,10 +10,13 @@ import { TextInput } from "../../../../text_input/text_input";
 import { CogWheelMenu } from "../../../components/cog_wheel_menu/cog_wheel_menu";
 
 interface Props {
-  dimension: PivotDimensionType | PivotMeasure;
-  onRemoved: (dimension: PivotDimensionType | PivotMeasure) => void;
-  onNameUpdated?: (dimension: PivotDimensionType | PivotMeasure, name?: string) => void;
-  type: "row" | "col" | "measure";
+  dimension: PivotDimensionType | PivotMeasure | PivotFilter;
+  onRemoved: (dimension: PivotDimensionType | PivotMeasure | PivotFilter) => void;
+  onNameUpdated?: (
+    dimension: PivotDimensionType | PivotMeasure | PivotFilter,
+    name?: string
+  ) => void;
+  type: "row" | "col" | "measure" | "filter";
 }
 
 export class PivotDimension extends Component<Props, SpreadsheetChildEnv> {
