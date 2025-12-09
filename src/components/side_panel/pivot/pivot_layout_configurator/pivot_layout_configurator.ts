@@ -11,9 +11,11 @@ import {
   Granularity,
   PivotCoreDefinition,
   PivotCoreDimension,
+  PivotCoreFilter,
   PivotCoreMeasure,
   PivotDimension as PivotDimensionType,
   PivotField,
+  PivotFilter as PivotFilterType,
   PivotMeasure,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -22,7 +24,10 @@ import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { SortDirection, UID } from "../../../../types";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { FilterMenuCriterion } from "../../../filters/filter_menu_criterion/filter_menu_criterion";
+import { FilterMenuValueList } from "../../../filters/filter_menu_value_list/filter_menu_value_list";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
@@ -34,8 +39,10 @@ import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 interface Props {
   definition: PivotRuntimeDefinition;
   onDimensionsUpdated: (definition: Partial<PivotCoreDefinition>) => void;
+  onFiltersUpdated: (definition: Partial<PivotCoreDefinition>) => void;
   unusedGroupableFields: PivotField[];
   measureFields: PivotField[];
+  unusedFilterFields: PivotField[];
   unusedGranularities: Record<string, Set<string>>;
   dateGranularities: string[];
   datetimeGranularities: string[];
@@ -53,12 +60,17 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotMeasureEditor,
     PivotSortSection,
     PivotCustomGroupsCollapsible,
+    SidePanelCollapsible,
+    FilterMenuValueList,
+    FilterMenuCriterion,
   };
   static props = {
     definition: Object,
     onDimensionsUpdated: Function,
+    onFiltersUpdated: Function,
     unusedGroupableFields: Array,
     measureFields: Array,
+    unusedFilterFields: Array,
     unusedGranularities: Object,
     dateGranularities: Array,
     datetimeGranularities: Array,
@@ -210,6 +222,13 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  removeFilter(filter: PivotFilterType) {
+    const { filters } = this.props.definition;
+    this.props.onFiltersUpdated({
+      filters: filters.filter((f) => f.fieldName !== filter.fieldName),
+    });
+  }
+
   addColumnDimension(fieldName: string) {
     const { columns }: { columns: PivotCoreDimension[] } = this.props.definition;
     this.props.onDimensionsUpdated({
@@ -231,6 +250,13 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       measures: measures.concat([
         { id: this.getMeasureId(fieldName, aggregator), fieldName, aggregator },
       ]),
+    });
+  }
+
+  addFilter(fieldName: string) {
+    const { filters }: { filters: PivotCoreFilter[] } = this.props.definition;
+    this.props.onFiltersUpdated({
+      filters: filters.concat([{ fieldName: fieldName }]),
     });
   }
 

@@ -33,6 +33,7 @@ export interface PivotRegistryItem {
   dateGranularities: string[];
   datetimeGranularities: string[];
   isMeasureCandidate: (field: PivotField) => boolean;
+  isFilterCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
   canHaveCustomGroup: (field: PivotField) => boolean;
   isPivotUnused: (getters: Getters, pivotId: UID) => boolean;
@@ -57,6 +58,7 @@ pivotRegistry.add("SPREADSHEET", {
   dateGranularities: [...dateGranularities],
   datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
+  isFilterCandidate: () => true,
   isGroupable: () => true,
   canHaveCustomGroup: (field: PivotField) => field.type === "char" && !field.isCustomField,
   isPivotUnused: () => true,

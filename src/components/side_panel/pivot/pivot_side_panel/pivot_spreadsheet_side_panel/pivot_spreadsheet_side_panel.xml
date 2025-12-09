@@ -27,11 +27,13 @@
             t-if="!pivot.isInvalidRange"
             unusedGroupableFields="store.unusedGroupableFields"
             measureFields="store.measureFields"
+            unusedFilterFields="store.unusedFilterFields"
             unusedGranularities="store.unusedGranularities"
             dateGranularities="store.dateGranularities"
             datetimeGranularities="store.datetimeGranularities"
             definition="definition"
             onDimensionsUpdated.bind="onDimensionsUpdated"
+            onFiltersUpdated.bind="onFiltersUpdated"
             getScrollableContainerEl.bind="getScrollableContainerEl"
             pivotId="props.pivotId"
           />

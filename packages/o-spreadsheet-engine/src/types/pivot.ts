@@ -51,10 +51,15 @@ export interface PivotCoreMeasure {
   display?: PivotMeasureDisplay;
 }
 
+export interface PivotCoreFilter {
+  fieldName: string;
+}
+
 export interface CommonPivotCoreDefinition {
   columns: PivotCoreDimension[];
   rows: PivotCoreDimension[];
   measures: PivotCoreMeasure[];
+  filters: PivotCoreFilter[];
   name: string;
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;
@@ -123,6 +128,12 @@ export interface PivotMeasure extends PivotCoreMeasure {
 
 export interface PivotDimension extends PivotCoreDimension {
   nameWithGranularity: string;
+  displayName: string;
+  type: string;
+  isValid: boolean;
+}
+
+export interface PivotFilter extends PivotCoreFilter {
   displayName: string;
   type: string;
   isValid: boolean;
