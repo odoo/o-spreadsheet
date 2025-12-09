@@ -2,6 +2,7 @@ import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
+import { CriterionFilter, ValuesFilter } from "./table";
 
 export type Aggregator =
   | "array_agg"
@@ -51,10 +52,26 @@ export interface PivotCoreMeasure {
   display?: PivotMeasureDisplay;
 }
 
+export type PivotCoreFilter = PivotValuesFilter | PivotCriterionFilter;
+
+export type PivotFilter = PivotCoreFilter & {
+  displayName: string;
+  isValid: boolean;
+};
+
+export interface PivotValuesFilter extends ValuesFilter {
+  fieldName: string;
+}
+
+export interface PivotCriterionFilter extends CriterionFilter {
+  fieldName: string;
+}
+
 export interface CommonPivotCoreDefinition {
   columns: PivotCoreDimension[];
   rows: PivotCoreDimension[];
   measures: PivotCoreMeasure[];
+  filters?: PivotCoreFilter[];
   name: string;
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;

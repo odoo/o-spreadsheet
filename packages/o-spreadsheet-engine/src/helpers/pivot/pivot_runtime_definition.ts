@@ -4,10 +4,12 @@ import {
   CommonPivotCoreDefinition,
   PivotCollapsedDomains,
   PivotCoreDimension,
+  PivotCoreFilter,
   PivotCoreMeasure,
   PivotCustomGroupedField,
   PivotDimension,
   PivotFields,
+  PivotFilter,
   PivotMeasure,
   PivotSortedColumn,
 } from "../../types/pivot";
@@ -22,6 +24,7 @@ export class PivotRuntimeDefinition {
   readonly measures: PivotMeasure[];
   readonly columns: PivotDimension[];
   readonly rows: PivotDimension[];
+  readonly filters?: PivotFilter[];
   readonly sortedColumn?: PivotSortedColumn;
   readonly collapsedDomains?: PivotCollapsedDomains;
   readonly customFields?: Record<string, PivotCustomGroupedField>;
@@ -32,6 +35,9 @@ export class PivotRuntimeDefinition {
     );
     this.rows = definition.rows.map((dimension) => this.createPivotDimension(fields, dimension));
     this.measures = definition.measures.map((measure) => this.createMeasure(fields, measure));
+    this.filters = (definition.filters ?? []).map((filter) =>
+      this.createPivotFilter(fields, filter)
+    );
     this.sortedColumn = definition.sortedColumn;
     this.collapsedDomains = definition.collapsedDomains;
     this.customFields = definition.customFields;
@@ -152,6 +158,15 @@ export class PivotRuntimeDefinition {
       isCustomField: !!field?.isCustomField,
       customGroups: field?.customGroups,
       parentField: field?.parentField,
+    };
+  }
+
+  private createPivotFilter(fields: PivotFields, filter: PivotCoreFilter): PivotFilter {
+    const field = fields[filter.fieldName];
+    return {
+      ...filter,
+      displayName: field?.name ?? filter.fieldName,
+      isValid: !!field,
     };
   }
 }
