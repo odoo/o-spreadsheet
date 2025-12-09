@@ -1,5 +1,5 @@
 import { onWillUpdateProps, proxy } from "@odoo/owl";
-import { deepCopy, deepEquals } from "../../../helpers/misc";
+import { deepEquals } from "../../../helpers/misc";
 import { Component, ComponentConstructor } from "../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
@@ -7,13 +7,13 @@ import {
 } from "../../../registries/criterion_component_registry";
 import { _t } from "../../../translation";
 import { GenericCriterionType } from "../../../types/generic_criterion";
-import { Position, ValueAndLabel } from "../../../types/misc";
+import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { CriterionFilter } from "../../../types/table";
 import { Select } from "../../select/select";
 
 interface Props {
-  filterPosition: Position;
+  criterion: CriterionFilter;
   criterionOperators: GenericCriterionType[];
   onCriterionChanged: (criterion: CriterionFilter) => void;
 }
@@ -25,7 +25,7 @@ interface State {
 export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuCriterion";
   static props = {
-    filterPosition: Object,
+    criterion: Object,
     onCriterionChanged: Function,
     criterionOperators: Array,
   };
@@ -35,22 +35,14 @@ export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.criterion = this.getFilterCriterionValue(nextProps.filterPosition);
+      if (!deepEquals(nextProps.criterion, this.props.criterion)) {
+        this.state.criterion = nextProps.criterion;
       }
     });
 
     this.state = proxy({
-      criterion: this.getFilterCriterionValue(this.props.filterPosition),
+      criterion: this.props.criterion,
     });
-  }
-
-  private getFilterCriterionValue(position: Position): CriterionFilter {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const filterValue = this.env.model.getters.getFilterCriterionValue({ sheetId, ...position });
-    return filterValue?.filterType === "criterion"
-      ? deepCopy(filterValue)
-      : { filterType: "criterion", type: "none", values: [] };
   }
 
   get criterionOptions(): ValueAndLabel[] {
