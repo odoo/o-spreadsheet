@@ -179,7 +179,7 @@ export class DataCleanupPlugin extends UIPlugin {
     }
     const evaluatedCells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
     if (evaluatedCells.every((evaluatedCel) => evaluatedCel.type === "empty")) {
-      return CommandResult.EmptyTarget;
+      return CommandResult.EmptySelectedRange;
     }
     return CommandResult.Success;
   }
