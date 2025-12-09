@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotFilterEditor">
+    <t t-set="filter" t-value="props.filter"/>
+    <div class="pt-1">
+      <PivotDimension dimension="filter" onRemoved.bind="removeFilter">
+        <Popover t-if="popover.isOpen" t-props="popoverProps">
+          <PivotFilterMenu
+            pivotId="props.pivotId"
+            definition="props.definition"
+            filter="props.filter"
+            values="state.values"
+            onClosed.bind="closeMenuFilter"
+            onConfirmed.bind="updateFilterData"
+          />
+        </Popover>
+        <div class="d-flex">
+          <i class="o-pivot-filter-caption">
+            <t t-esc="filterCaption()"/>
+          </i>
+          <div
+            class="o-button-icon o-pivot-filter-icon pe-1 ps-2"
+            t-ref="buttonFilter"
+            t-on-click="openMenuFilter">
+            <t t-if="isActive()" t-call="o-spreadsheet-Icon.FILTER_ICON_ACTIVE"/>
+            <t t-else="" t-call="o-spreadsheet-Icon.FILTER_ICON"/>
+          </div>
+        </div>
+      </PivotDimension>
+    </div>
+  </t>
+</templates>

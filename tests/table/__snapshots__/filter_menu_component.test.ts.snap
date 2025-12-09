@@ -16,13 +16,13 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
        Sort descending (Z ⟶ A) 
     </div>
   </div>
+  <div
+    class="o-separator border-bottom"
+  />
   
   <div
     class="o-filter-menu-content"
   >
-    <div
-      class="o-separator border-bottom"
-    />
     <div>
       <div
         class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center"
