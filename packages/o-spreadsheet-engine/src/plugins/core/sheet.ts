@@ -26,6 +26,7 @@ import {
   CreateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  isTargetDependent,
   RenameSheetCommand,
   UpdateCellPositionCommand,
 } from "../../types/commands";
@@ -1057,6 +1058,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       )
     ) {
       return CommandResult.InvalidSheetId;
+    }
+    if (isTargetDependent(cmd) && cmd.target.length === 0) {
+      return CommandResult.EmptyTarget;
     }
     return this.checkZonesExistInSheet(cmd.sheetId, this.getCommandZones(cmd));
   }

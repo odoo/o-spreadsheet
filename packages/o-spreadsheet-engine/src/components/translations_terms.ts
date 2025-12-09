@@ -26,6 +26,7 @@ export const CfTerms = {
     [CommandResult.ValueUpperInvalidFormula]: _t("Invalid upper inflection point formula"),
     [CommandResult.ValueLowerInvalidFormula]: _t("Invalid lower inflection point formula"),
     [CommandResult.EmptyRange]: _t("A range needs to be defined"),
+    [CommandResult.EmptyTarget]: _t("Target must contain at least one zone"),
     [CommandResult.ValueCellIsInvalidFormula]: _t(
       "At least one of the provided values is an invalid formula"
     ),
@@ -111,7 +112,7 @@ export const RemoveDuplicateTerms = {
   Errors: {
     Unexpected: _t("Cannot remove duplicates for an unknown reason"),
     [CommandResult.MoreThanOneRangeSelected]: _t("Please select only one range of cells"),
-    [CommandResult.EmptyTarget]: _t("Please select a range of cells containing values."),
+    [CommandResult.EmptySelectedRange]: _t("Please select a range of cells containing values."),
     [CommandResult.NoColumnsProvided]: _t("Please select at latest one column to analyze."),
     //TODO: Remove it when accept to copy and paste merge cells
     [CommandResult.WillRemoveExistingMerge]: _t(

@@ -209,7 +209,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       model.dispatch("SELECT_FIGURE", { figureId });
       copy(model);
       const result = model.dispatch("PASTE", { target: [] });
-      expect(result).toBeCancelledBecause(CommandResult.EmptyTarget);
+      expect(result).toBeCancelledBecause(CommandResult.EmptySelectedRange);
     });
 
     test("Cannot paste with clipboard options when pasting a figure", () => {
