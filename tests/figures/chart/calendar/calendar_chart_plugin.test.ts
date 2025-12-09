@@ -2,6 +2,7 @@ import {
   CalendarChartGranularity,
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
+import { ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
 import { CalendarChart } from "../../../../src/helpers/figures/charts/calendar_chart";
 import { createCalendarChart, createSheet, setCellContent, setFormat } from "../../../test_helpers";
@@ -231,4 +232,17 @@ describe("calendar chart", () => {
       expect(runtime.chartJsConfig.data.labels).toEqual(grouping.labels);
     }
   );
+
+  test("Axis borders are not shown in calendar charts", () => {
+    const model = new Model();
+    createCalendarChart(
+      model,
+      { type: "calendar", dataSets: [{ dataRange: "B1:B365" }] },
+      "chartId"
+    );
+    const runtime = model.getters.getChartRuntime("chartId") as CalendarChartRuntime;
+    const scales = runtime.chartJsConfig.options?.scales as ScaleChartOptions<"bar">["scales"];
+    expect(scales?.x?.border?.display).toBe(false);
+    expect(scales?.y?.border?.display).toBe(false);
+  });
 });

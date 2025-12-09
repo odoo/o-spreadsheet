@@ -165,7 +165,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
  * columns left to right, and is as follows:
  * - any type + percentage columns: pie chart
  * - number + number columns: scatter chart
- * - date + number columns: line chart
+ * - date + number columns: calendar chart
  * - text + number columns: treemap if repetition in labels
  * - any other combination: bar chart
  */
@@ -198,14 +198,16 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     };
   }
 
-  // TODO: Handle date + number with calendar chart when implemented (and change the docstring)
   if (columns[0].type === "date" && columns[1].type === "number") {
     return {
-      ...DEFAULT_LINE_CHART_CONFIG,
-      type: "line",
+      type: "calendar",
       dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
       labelRange: getUnboundRange(getters, columns[0].zone),
       dataSetsHaveTitle: isDatasetTitled(getters, columns[0]),
+      title: {},
+      legendPosition: "none",
+      horizontalGroupBy: "day_of_week",
+      verticalGroupBy: "month_number",
     };
   }
 
