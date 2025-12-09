@@ -1,6 +1,9 @@
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { SpreadsheetPivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
+import {
+  PivotCoreFilter,
+  SpreadsheetPivotCoreDefinition,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef, useState } from "@odoo/owl";
 import { Store, useLocalStore } from "../../../../../store_engine";
@@ -9,6 +12,8 @@ import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { PivotDeferUpdate } from "../../pivot_defer_update/pivot_defer_update";
+import { PivotFilterEditor } from "../../pivot_filter/pivot_filter";
+import { AddDimensionButton } from "../../pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_layout_configurator";
 import { PivotTitleSection } from "../../pivot_title_section/pivot_title_section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
@@ -31,6 +36,8 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     Checkbox,
     PivotDeferUpdate,
     PivotTitleSection,
+    AddDimensionButton,
+    PivotFilterEditor,
   };
   store!: Store<PivotSidePanelStore>;
 
@@ -107,5 +114,16 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   onDimensionsUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
     this.store.update(definition);
+  }
+
+  onFiltersUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
+    this.store.update(definition);
+  }
+
+  addFilter(fieldName: string) {
+    const { filters }: { filters: PivotCoreFilter[] } = this.definition;
+    this.onFiltersUpdated({
+      filters: filters.concat([{ fieldName: fieldName, hiddenValues: [], numberOfValues: 0 }]),
+    });
   }
 }

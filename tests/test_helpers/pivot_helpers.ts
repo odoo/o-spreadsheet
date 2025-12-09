@@ -22,6 +22,7 @@ function defaultPivotDefinition(sheetId: UID): SpreadsheetPivotCoreDefinition {
     },
     rows: [],
     columns: [],
+    filters: [],
     measures: [],
   };
 }

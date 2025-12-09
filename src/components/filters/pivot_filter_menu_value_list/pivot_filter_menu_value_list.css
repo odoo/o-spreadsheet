@@ -1,0 +1,25 @@
+.o-spreadsheet .o-filter-menu {
+  .o-search-icon {
+    right: 5px;
+    top: 3px;
+    opacity: 0.4;
+
+    svg {
+      height: 16px;
+      width: 16px;
+      vertical-align: middle;
+    }
+  }
+
+  .o-filter-menu-actions {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+  }
+
+  .o-filter-menu-list {
+    flex: auto;
+    overflow-y: auto;
+    height: 130px;
+  }
+}

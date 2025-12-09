@@ -1,21 +1,6 @@
 <templates>
-  <t t-name="o-spreadsheet-FilterMenu">
+  <t t-name="o-spreadsheet-PivotFilterMenu">
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
-      <t t-if="isSortable">
-        <div>
-          <div
-            class="o-filter-menu-item o-sort-item py-2 mb-1"
-            t-on-click="() => this.sortFilterZone('asc')">
-            Sort ascending (A ⟶ Z)
-          </div>
-          <div
-            class="o-filter-menu-item o-sort-item py-2"
-            t-on-click="() => this.sortFilterZone('desc')">
-            Sort descending (Z ⟶ A)
-          </div>
-        </div>
-        <div class="o-separator border-bottom"/>
-      </t>
       <div class="o-filter-menu-content">
         <SidePanelCollapsible
           isInitiallyCollapsed="filterValueType !== 'criterion'"
@@ -34,7 +19,9 @@
           isInitiallyCollapsed="filterValueType === 'criterion'"
           title.translate="Filter by values">
           <t t-set-slot="content">
-            <FilterMenuValueList
+            <PivotFilterMenuValueList
+              definition="props.definition"
+              filter="props.filter"
               filterPosition="props.filterPosition"
               onUpdateHiddenValues.bind="onUpdateHiddenValues"
             />

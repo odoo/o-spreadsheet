@@ -1,3 +1,4 @@
+import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
@@ -7,31 +8,37 @@ import {
   CellValueType,
   CriterionFilter,
   DataFilterValue,
+  PivotFilter,
   SortDirection,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types";
-import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
-import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
+import { PivotFilterMenuValueList } from "../pivot_filter_menu_value_list/pivot_filter_menu_value_list";
 
 interface Props {
+  definition: SpreadsheetPivotRuntimeDefinition;
+  filter: PivotFilter;
   filterPosition: CellPosition;
   onClosed?: () => void;
+  onConfirmed: (hiddenValues: string[]) => void;
 }
 
 type CriterionCategory = "text" | "number" | "date";
 
-export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-FilterMenu";
+export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-PivotFilterMenu";
   static props = {
+    definition: Object,
+    filter: Object,
     filterPosition: Object,
     onClosed: { type: Function, optional: true },
+    onConfirmed: Function,
   };
 
-  static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
+  static components = { PivotFilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
@@ -114,11 +121,11 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       this.props.onClosed?.();
       return;
     }
-    this.env.model.dispatch("UPDATE_FILTER", {
-      ...this.props.filterPosition,
-      value: this.updatedCriterionValue,
-    });
+    if (this.updatedCriterionValue.filterType === "values") {
+      this.props.onConfirmed(this.updatedCriterionValue.hiddenValues);
+    }
     this.props.onClosed?.();
+    return;
   }
 
   get criterionOperators() {
@@ -149,14 +156,3 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.props.onClosed?.();
   }
 }
-
-export const FilterMenuPopoverBuilder: PopoverBuilders = {
-  onOpen: (cellPosition, getters): CellPopoverComponent<typeof FilterMenu> => {
-    return {
-      isOpen: true,
-      props: { filterPosition: cellPosition },
-      Component: FilterMenu,
-      cellCorner: "bottom-left",
-    };
-  },
-};

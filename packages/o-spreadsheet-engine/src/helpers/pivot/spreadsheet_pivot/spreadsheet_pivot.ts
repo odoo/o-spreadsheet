@@ -184,6 +184,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         return false;
       }
     }
+    for (const filter of this.definition.filters) {
+      if (!filter.isValid) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -367,7 +372,19 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   private loadData() {
     const range = this._definition?.range;
-    return this.isValid() && range ? this.extractDataEntriesFromRange(range) : [];
+    let myDataEntries = this.isValid() && range ? this.extractDataEntriesFromRange(range) : [];
+    if (this._definition && this._definition.filters.length > 0) {
+      myDataEntries = myDataEntries.filter((dataEntry) => {
+        for (const filter of this._definition!.filters) {
+          const temp = dataEntry[filter.fieldName];
+          if (temp && filter.hiddenValues.includes(temp.formattedValue)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+    return myDataEntries;
   }
 
   private getTypeOfDimension(fieldWithGranularity: string): string {

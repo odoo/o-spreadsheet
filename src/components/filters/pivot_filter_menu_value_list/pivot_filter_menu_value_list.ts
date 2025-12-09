@@ -1,11 +1,14 @@
+import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
-import { CellPosition } from "../../../types";
+import { CellPosition, PivotFilter } from "../../../types";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 import { FilterMenuValueListBasic } from "../filter_menu_value_list_basic/filter_menu_value_list_basic";
 
 interface Props {
+  filter: PivotFilter;
+  definition: SpreadsheetPivotRuntimeDefinition;
   filterPosition: CellPosition;
   onUpdateHiddenValues: (values: string[]) => void;
 }
@@ -20,9 +23,11 @@ interface State {
   values: Value[];
 }
 
-export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-FilterMenuValueList";
+export class PivotFilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-PivotFilterMenuValueList";
   static props = {
+    filter: Object,
+    definition: Object,
     filterPosition: Object,
     onUpdateHiddenValues: Function,
   };
@@ -37,32 +42,29 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
+    this.props.filter.numberOfValues = this.state.values.length;
   }
 
   private getFilterHiddenValues(cellPosition: CellPosition): Value[] {
-    const filter = this.env.model.getters.getFilter(cellPosition);
-    if (!filter) {
-      return [];
-    }
-    const filterValue = this.env.model.getters.getFilterValue(cellPosition);
-    let cells = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
-      (position) => ({
-        position,
-        cellValue: this.env.model.getters.getEvaluatedCell({
-          sheetId: cellPosition.sheetId,
-          ...position,
-        }).formattedValue,
-      })
-    );
-    if (filterValue?.filterType !== "criterion") {
-      cells = cells.filter(
-        (val) => !this.env.model.getters.isRowHidden(cellPosition.sheetId, val.position.row)
-      );
-    }
+    const zonePivot = this.props.definition.range?.zone;
+    const zoneFilter = zonePivot
+      ? {
+          left: cellPosition.col,
+          right: cellPosition.col,
+          top: zonePivot.top + 1,
+          bottom: zonePivot.bottom,
+        }
+      : null;
+
+    const cells = (zoneFilter ? positions(zoneFilter) : []).map((position) => ({
+      position,
+      cellValue: this.env.model.getters.getEvaluatedCell({
+        sheetId: cellPosition.sheetId,
+        ...position,
+      }).formattedValue,
+    }));
 
     const cellValues = cells.map((val) => val.cellValue);
-    const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
-    const normalizedFilteredValues = new Set(filterValues.map(toLowerCase));
 
     const set = new Set<string>();
     const values: (Value & { normalizedValue: string })[] = [];
@@ -71,17 +73,13 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
       if (!set.has(normalizedValue)) {
         values.push({
           string: value || "",
-          checked:
-            filterValue?.filterType !== "criterion"
-              ? !normalizedFilteredValues.has(normalizedValue)
-              : false,
+          checked: !this.props.filter.hiddenValues.includes(value),
           normalizedValue,
         });
         set.add(normalizedValue);
       }
     };
     cellValues.forEach(addValue);
-    filterValues.forEach(addValue);
 
     return values.sort((val1, val2) =>
       val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
