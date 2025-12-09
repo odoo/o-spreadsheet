@@ -10,6 +10,7 @@ import {
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { GridOverlay } from "../../src/components/grid_overlay/grid_overlay";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
 import {
@@ -35,7 +36,13 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, target, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  mountComponent,
+  mountSpreadsheet,
+  nextTick,
+  target,
+  typeInComposerGrid,
+} from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -1337,4 +1344,33 @@ describe("Can select de-select headers", () => {
     await selectRow(2, { ctrlKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 3, 4]));
   });
+});
+
+test("GridOverlay: clicking an icon should NOT trigger props onCellClicked", async () => {
+  const onCellClicked = jest.fn();
+  const iconOnClick = jest.fn();
+  const { parent } = await mountComponent(GridOverlay, {
+    props: {
+      onCellClicked,
+      onGridMoved: () => {},
+      gridOverlayDimensions: "1000x800",
+      getGridSize: () => ({ width: 1000, height: 800 }),
+
+      // Required only to satisfy TS
+      onCellDoubleClicked: () => {},
+      onCellRightClicked: () => {},
+      onGridResized: () => {},
+    },
+  });
+
+  const comp: any = parent;
+  comp.getInteractiveIconAtEvent = () => ({
+    position: { col: 1, row: 1 },
+    onClick: iconOnClick,
+  });
+
+  // Fake click event
+  comp.onCellClicked({ ev: new MouseEvent("click") });
+  expect(iconOnClick).toHaveBeenCalled();
+  expect(onCellClicked).not.toHaveBeenCalled();
 });
