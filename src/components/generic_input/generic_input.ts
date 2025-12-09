@@ -28,6 +28,8 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   protected refName = "input";
   protected inputRef!: Ref<HTMLInputElement>;
 
+  private lastOnChangeValue: string = this.props.value.toString();
+
   setup() {
     this.inputRef = useRef(this.refName);
     useExternalListener(
@@ -47,6 +49,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
         this.inputRef.el.value = nextProps.value;
       }
+      this.lastOnChangeValue = nextProps.value.toString();
     });
     onMounted(() => {
       if (this.inputRef.el) this.inputRef.el.value = this.props.value.toString();
@@ -71,12 +74,13 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     }
   }
 
-  save(keepFocus = false) {
+  save() {
     const currentValue = (this.inputRef.el?.value || "").trim();
-    if (currentValue !== this.props.value.toString()) {
+    if (currentValue !== this.lastOnChangeValue) {
+      this.lastOnChangeValue = currentValue;
       this.props.onChange(currentValue);
     }
-    if (!keepFocus) {
+    if (document.activeElement === this.inputRef.el) {
       this.inputRef.el?.blur();
     }
   }
