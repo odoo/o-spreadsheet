@@ -83,21 +83,24 @@ export class SunburstChart extends AbstractChart {
     //   dataSets.push({ ...context.dataSets?.[0], dataRange: context.auxiliaryRange });
     // }
 
-    let dataSource: ChartRangeDataSource = { dataSets: [] };
-    if (context.hierarchicalDataSource) {
-      dataSource = context.hierarchicalDataSource;
-    } else if (context.auxiliaryRange) {
-      dataSource = { dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }] };
+    let labelRange = context.hierarchicalDataSource?.dataSets[0]?.dataRange;
+    if (!labelRange) {
+      labelRange = context.auxiliaryRange;
     }
+
     return {
       background: context.background,
       dataSetStyles: context.dataSetStyles ?? {},
-      dataSource,
+      dataSource: {
+        dataSets: context.auxiliaryRange
+          ? [{ dataRange: context.auxiliaryRange, dataSetId: "0" }]
+          : [],
+      },
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "sunburst",
-      labelRange: dataSource.dataSets?.[0]?.dataRange,
+      labelRange,
       showValues: context.showValues,
       showLabels: context.showLabels,
       valuesDesign: context.valuesDesign,

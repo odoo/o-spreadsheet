@@ -322,7 +322,9 @@ describe("Waterfall chart", () => {
   test("create waterfall chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      }),
     };
     const definition = WaterfallChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

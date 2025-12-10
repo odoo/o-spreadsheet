@@ -1573,7 +1573,11 @@ describe("charts", () => {
     "Can edit a chart with empty main range without traceback",
     async (chartType) => {
       createTestChart(chartType);
-      updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
+      updateChart(model, chartId, {
+        keyValue: undefined,
+        dataRange: undefined,
+        ...toChartDataSource({ dataSets: [] }),
+      });
       await mountSpreadsheet();
       await openChartConfigSidePanel(model, env, chartId);
 
@@ -1906,11 +1910,18 @@ describe("charts", () => {
 
     await simulateClick(".o-split-by-rows");
     let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.labelRange).toBe("B2:F2");
-    expect(definition.dataSets).toEqual([{ dataRange: "B3:F3" }]);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        labelRange: "B2:F2",
+        dataSets: [{ dataRange: "B3:F3", dataSetId: expect.any(String) }],
+      })
+    );
     await simulateClick(".o-split-by-columns");
     definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition).toEqual(initialDefinition);
+    // compare only dataSets dataRange to avoid dataSetId mismatch
+    expect(definition.dataSource.dataSets.map(({ dataRange }) => ({ dataRange }))).toEqual(
+      initialDefinition.dataSource.dataSets.map(({ dataRange }) => ({ dataRange }))
+    );
   });
 
   test("Transposed dataset with only one series empties the chart label and keep the series", async () => {
@@ -1926,12 +1937,20 @@ describe("charts", () => {
 
     await simulateClick(".o-split-by-rows");
     let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.labelRange).toBe("C2");
-    expect(definition.dataSets).toEqual([{ dataRange: "C3" }]);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        labelRange: "C2",
+        dataSets: [{ dataRange: "C3", dataSetId: expect.any(String) }],
+      })
+    );
     await simulateClick(".o-split-by-columns");
     definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.labelRange).toBeUndefined();
-    expect(definition.dataSets).toEqual([{ dataRange: "C2:C3" }]);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        labelRange: undefined,
+        dataSets: [{ dataRange: "C2:C3", dataSetId: expect.any(String) }],
+      })
+    );
   });
 
   test("Can add multiple series in transposed dataset and keep the current orientation", async () => {

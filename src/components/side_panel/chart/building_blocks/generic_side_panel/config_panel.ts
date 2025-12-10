@@ -445,7 +445,8 @@ export class GenericChartConfigPanel<
     datasetOrientation: ChartDatasetOrientation | undefined
   ): { dataRange: string; dataSetId: UID }[] {
     const getters = this.env.model.getters;
-    const smallUuid = this.env.model.uuidGenerator.smallUuid;
+    const uuidGenerator = this.env.model.uuidGenerator;
+    const smallUuid = uuidGenerator.smallUuid.bind(uuidGenerator); // TODO refactor uuidGenerator to avoid binding
     if (datasetOrientation === undefined) {
       return dataRanges
         .filter(isDefined)
