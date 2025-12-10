@@ -105,6 +105,10 @@ export class Evaluator {
     return arrayFormulas.find((position) => !this.blockedArrayFormulas.has(position));
   }
 
+  isArrayFormulaSpillBlocked(position: CellPosition): boolean {
+    return this.blockedArrayFormulas.has(position);
+  }
+
   updateDependencies(position: CellPosition) {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
