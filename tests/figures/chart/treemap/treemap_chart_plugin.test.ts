@@ -478,9 +478,11 @@ describe("TreeMap chart", () => {
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
-        dataSets: [{ dataRange: "A1" }],
-        labelRange: "B1",
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1" }],
+          labelRange: "B1",
+          dataSetsHaveTitle: false,
+        }),
         coloringOptions: {
           type: "colorScale",
           minColor: "#112233",

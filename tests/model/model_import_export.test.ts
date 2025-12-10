@@ -1260,10 +1260,12 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           },
           definition: {
             title: { text: "" },
-            dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+              dataSetsHaveTitle: false,
+            }),
             type: "bar",
             stacked: false,
-            dataSetsHaveTitle: false,
             legendPosition: "none",
           },
         },
@@ -1308,7 +1310,15 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
   };
   const model = new Model(data, {}, initialMessages);
   const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
-  expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
+  expect(definition1).toEqual(
+    toChartDataSource({
+      dataSets: [{ dataRange: "A1:A3" }],
+    })
+  );
   const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
-  expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+  expect(definition2).toEqual(
+    toChartDataSource({
+      dataSets: [{ dataRange: "B1:B3" }],
+    })
+  );
 });

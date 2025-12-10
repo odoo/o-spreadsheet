@@ -1,8 +1,5 @@
 import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  ComboChartDataSet,
-  ComboChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
+import { ComboChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
 import {
@@ -167,9 +164,9 @@ describe("combo chart", () => {
   test("Bar spacing is adapted to the number of bar datasets", () => {
     const model = createModelFromGrid({ A2: "2", B2: "3", C2: "4" });
 
-    let dataSets: ComboChartDataSet[] = [
-      { dataRange: "A1:A3", type: "bar" },
-      { dataRange: "B1:B3", type: "line" },
+    let dataSets = [
+      { dataRange: "A1:A3", type: "bar" as const },
+      { dataRange: "B1:B3", type: "line" as const },
     ];
     createChart(model, { type: "combo", ...toChartDataSource({ dataSets }) }, "chartId");
 
