@@ -1009,7 +1009,7 @@ describe("Menu Item actions", () => {
     });
     const env = makeTestEnv();
     const allFunctions = getNode(
-      ["insert", "insert_function", "categorie_function_all"],
+      ["insert", "insert_function", "category_function_all"],
       env
     ).children(env);
     expect(allFunctions.map((f) => f.name(env))).toContain("TEST.FUNC");
@@ -1037,7 +1037,7 @@ describe("Menu Item actions", () => {
     const functionCategories = getNode(["insert", "insert_function"], env).children(env);
     expect(functionCategories.map((f) => f.name(env))).not.toContain("hidden");
     const allFunctions = getNode(
-      ["insert", "insert_function", "categorie_function_all"],
+      ["insert", "insert_function", "category_function_all"],
       env
     ).children(env);
     expect(allFunctions.map((f) => f.name(env))).not.toContain("HIDDEN.FUNC");

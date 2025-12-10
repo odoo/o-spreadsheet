@@ -62,7 +62,6 @@ let spreadsheetWidth = 1000;
 
 beforeEach(() => {
   extendMockGetBoundingClientRect({
-    "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
     "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
     "o-spreadsheet": () => {
       return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };

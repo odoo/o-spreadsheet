@@ -25,23 +25,19 @@
         </div>
       </div>
       <!-- Toolbar and Cell Content -->
-      <div
-        class="d-flex o-topbar-responsive"
-        t-att-class="{'o-topbar-responsive': !env.model.getters.isReadonly()}"
-        t-ref="toolBarContainer">
-        <div
-          class="o-topbar-toolbar d-flex"
-          t-att-class="{'flex-shrink-0': env.model.getters.isReadonly()}">
+      <div class="d-flex" t-if="env.model.getters.isReadonly()">
+        <div class="o-readonly-toolbar d-flex align-items-center flex-shrink-0 text-muted px-3">
+          <span>
+            <i class="fa fa-eye"/>
+            Readonly Access
+          </span>
+        </div>
+        <TopBarComposer t-if="!env.isSmall"/>
+      </div>
+      <t t-else="">
+        <div class="o-topbar-toolbar d-flex" t-ref="toolBarContainer">
           <!-- Toolbar -->
-          <div
-            t-if="env.model.getters.isReadonly()"
-            class="o-readonly-toolbar d-flex align-items-center text-muted">
-            <span>
-              <i class="fa fa-eye"/>
-              Readonly Access
-            </span>
-          </div>
-          <div t-else="" class="o-toolbar-tools d-flex ms-4 flex-grow-1" t-ref="toolBar">
+          <div class="o-toolbar-tools d-flex ms-3 flex-grow-1" t-ref="toolBar">
             <div
               class="d-flex tool-container"
               t-foreach="toolsCategories"
@@ -69,7 +65,7 @@
           </div>
         </div>
         <TopBarComposer t-if="!env.isSmall"/>
-      </div>
+      </t>
       <div
         t-if="this.fingerprints.isEnabled"
         class="topbar-banner irregularity-map d-flex align-items-center justify-content-between border-top">
@@ -104,7 +100,7 @@
       popoverPositioning="'bottom-left'"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
-      <div class="d-flex px-2 py-1 flex-wrap align-items-center bg-white">
+      <div class="o-topbar-tools-popover d-flex px-2 py-1 flex-wrap align-items-center bg-white">
         <t
           t-foreach="state.invisibleToolsCategories"
           t-as="category"
