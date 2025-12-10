@@ -20,6 +20,8 @@ iconsOnCellRegistry.add("filter_icon", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       onClick: (position, env) => {
+        const { col, row } = position;
+        env.model.selection.selectCell(col, row);
         const cellPopovers = env.getStore(CellPopoverStore);
         const activePopover = cellPopovers.persistentCellPopover;
         if (
