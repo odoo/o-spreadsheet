@@ -18,23 +18,39 @@ export class MainChartPanelStore extends SpreadsheetStore {
     const savedCreationContext = this.creationContexts[chartId] || {};
 
     let newRanges = currentCreationContext?.dataSource?.dataSets;
-    // TODO FIXME: we probably shouldn't compare ids.
+    let dataSetStyles = savedCreationContext.dataSetStyles ?? currentCreationContext?.dataSetStyles;
+    const savedDataSets = savedCreationContext.dataSource?.dataSets;
+    const currentDataSets = currentCreationContext?.dataSource?.dataSets;
     if (
-      newRanges?.every((range, i) =>
-        deepEquals(range, savedCreationContext.dataSource?.dataSets?.[i])
-      )
+      savedDataSets &&
+      currentDataSets &&
+      currentDataSets.every((range, i) => deepEquals(range.dataRange, savedDataSets[i].dataRange))
     ) {
-      newRanges = Object.assign(
-        [],
-        savedCreationContext.dataSource?.dataSets,
-        currentCreationContext?.dataSource?.dataSets
-      );
+      // newRanges = Object.assign(
+      //   [],
+      //   savedCreationContext.dataSource?.dataSets,
+      //   currentCreationContext?.dataSource?.dataSets
+      // );
+      newRanges = [];
+      dataSetStyles = {};
+      for (let i = 0; i < savedDataSets.length; i++) {
+        const ds = currentDataSets[i] ?? savedDataSets[i];
+        const style =
+          currentCreationContext?.dataSetStyles?.[ds.dataSetId] ??
+          savedCreationContext.dataSetStyles?.[ds.dataSetId];
+        const newId = i.toString();
+        newRanges.push({ ...ds, dataSetId: newId });
+        if (style) {
+          dataSetStyles[newId] = style;
+        }
+      }
     }
 
     this.creationContexts[chartId] = {
       ...savedCreationContext,
       ...currentCreationContext,
       dataSource: { dataSets: newRanges ?? [] },
+      dataSetStyles,
       // dataSets: newRanges,
     };
     const figureId = this.getters.getFigureIdFromChartId(chartId);

@@ -239,7 +239,7 @@ export class GenericChartConfigPanel<
     this.dataSets = indexes.map((i) => this.dataSets[i]);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
       dataSource: { dataSets: this.dataSets },
-      dataSetStyles: dataSetStyles,
+      dataSetStyles,
     });
   }
 
@@ -251,15 +251,17 @@ export class GenericChartConfigPanel<
       },
       this.dataSets.length
     );
-    const colors = this.dataSets.map((ds) => colorGenerator.next());
-    this.dataSets = this.dataSets
-      .map((ds, i) => ({
-        backgroundColor: colors[i],
-        ...ds,
-      }))
-      .filter((_, i) => i !== index);
+    const dataSetStyles = this.props.definition.dataSetStyles;
+    for (const ds of this.dataSets) {
+      const color = colorGenerator.next();
+      dataSetStyles[ds.dataSetId] = { backgroundColor: color, ...dataSetStyles[ds.dataSetId] };
+    }
+    const removedDataSetId = this.dataSets[index].dataSetId;
+    delete dataSetStyles[removedDataSetId];
+    this.dataSets = this.dataSets.filter((_, i) => i !== index);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
       dataSource: { dataSets: this.dataSets },
+      dataSetStyles,
     });
   }
 
@@ -296,13 +298,14 @@ export class GenericChartConfigPanel<
         if (this.datasetOrientation !== "rows") {
           if (zone.right !== undefined) {
             for (let j = zone.left; j <= zone.right; ++j) {
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
               const datasetOptions =
                 j === zone.left
                   ? dataSetStyles[dataSet.dataSetId]
-                  : { yAxisId: dataSetStyles[dataSet.dataSetId].yAxisId };
-              postProcessedStyles[dataSet.dataSetId] = datasetOptions;
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...dataSet,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: j,
                   right: j,
@@ -313,13 +316,14 @@ export class GenericChartConfigPanel<
             }
           } else if (zone.bottom !== undefined) {
             for (let j = zone.top; j <= zone.bottom; ++j) {
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
               const datasetOptions =
                 j === zone.top
                   ? dataSetStyles[dataSet.dataSetId]
-                  : { yAxisId: dataSetStyles[dataSet.dataSetId].yAxisId };
-              postProcessedStyles[dataSet.dataSetId] = datasetOptions;
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...dataSet,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: zone.left,
                   right: zone.right,
@@ -332,13 +336,14 @@ export class GenericChartConfigPanel<
         } else {
           if (zone.bottom !== undefined) {
             for (let j = zone.top; j <= zone.bottom; ++j) {
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
               const datasetOptions =
                 j === zone.top
                   ? dataSetStyles[dataSet.dataSetId]
-                  : { yAxisId: dataSetStyles[dataSet.dataSetId].yAxisId };
-              postProcessedStyles[dataSet.dataSetId] = datasetOptions;
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...dataSet,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: zone.left,
                   right: zone.right,
@@ -349,13 +354,14 @@ export class GenericChartConfigPanel<
             }
           } else if (zone.right !== undefined) {
             for (let j = zone.left; j <= zone.right; ++j) {
+              const newDataSetId = dataSet.dataSetId + "_split" + j;
               const datasetOptions =
                 j === zone.left
                   ? dataSetStyles[dataSet.dataSetId]
-                  : { yAxisId: dataSetStyles[dataSet.dataSetId].yAxisId };
-              postProcessedStyles[dataSet.dataSetId] = datasetOptions;
+                  : { yAxisId: dataSetStyles[dataSet.dataSetId]?.yAxisId };
+              postProcessedStyles[newDataSetId] = datasetOptions;
               postProcessedRanges.push({
-                ...dataSet,
+                dataSetId: newDataSetId,
                 dataRange: `${sheetPrefix}${zoneToXc({
                   left: j,
                   right: j,
