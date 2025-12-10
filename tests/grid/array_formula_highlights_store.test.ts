@@ -49,4 +49,23 @@ describe("array function highlights", () => {
     selectCell(model, "A2");
     expect(getHighlightsFromStore(container)).toEqual([]);
   });
+
+  test("Array formula using a spill error is not highlighted as blocked", () => {
+    const { model, container } = makeStore(ArrayFormulaHighlight);
+    setCellContent(model, "A1", "=MUNIT(2)");
+    setCellContent(model, "A2", "5"); // block the spread of A1
+    setCellContent(model, "A4", "=A1:B2");
+
+    const highlight = {
+      sheetId: model.getters.getActiveSheetId(),
+      zone: toZone("A4:B5"),
+      color: "#17A2B8",
+      noFill: true,
+      thinLine: true,
+      dashed: false,
+    };
+
+    selectCell(model, "A4");
+    expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([highlight]);
+  });
 });
