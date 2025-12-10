@@ -448,7 +448,7 @@ export function getFunnelChartDatasets(
   }
 
   let { label: datasetLabel, data } = dataSetsValues;
-  datasetLabel = definition.dataSetStyles?.[0].label || datasetLabel;
+  datasetLabel = definition.dataSetStyles?.[0]?.label || datasetLabel;
 
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,

@@ -626,7 +626,7 @@ migrationStepRegistry
             const dataRange = ds.dataRange;
             delete ds.dataRange;
             custo[dataSetId] = { ...ds };
-            return { dataRange, id: dataSetId };
+            return { dataRange, dataSetId };
           }),
         };
         definition.dataSetStyles = custo;
