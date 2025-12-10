@@ -386,6 +386,16 @@ exports[`datasource tests create chart with column datasets 1`] = `
     },
     "type": "line",
   },
+  "customisableSeries": [
+    {
+      "dataSetId": "0",
+      "label": "first column dataset",
+    },
+    {
+      "dataSetId": "1",
+      "label": "second column dataset",
+    },
+  ],
   "masterChartConfig": {
     "data": {
       "datasets": [

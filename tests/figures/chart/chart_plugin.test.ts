@@ -1085,7 +1085,10 @@ describe("datasource tests", function () {
       {
         type: "bar",
         ...toChartDataSource({
-          dataSets: [{ dataRange: "Coucou!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
+          dataSets: [
+            { dataRange: "Coucou!B1:B4", dataSetId: "0" },
+            { dataRange: "Sheet1!B1:B4", dataSetId: "1" },
+          ],
           labelRange: "Sheet1!A2:A4",
         }),
       },
@@ -1094,7 +1097,7 @@ describe("datasource tests", function () {
     const config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B4" }],
+        dataSets: [{ dataRange: "B1:B4", dataSetId: "1" }],
         labelRange: "Sheet1!A2:A4",
       }),
       title: { text: "test" },

@@ -26,11 +26,6 @@ export class MainChartPanelStore extends SpreadsheetStore {
       currentDataSets &&
       currentDataSets.every((range, i) => deepEquals(range.dataRange, savedDataSets[i].dataRange))
     ) {
-      // newRanges = Object.assign(
-      //   [],
-      //   savedCreationContext.dataSource?.dataSets,
-      //   currentCreationContext?.dataSource?.dataSets
-      // );
       newRanges = [];
       dataSetStyles = {};
       for (let i = 0; i < savedDataSets.length; i++) {
