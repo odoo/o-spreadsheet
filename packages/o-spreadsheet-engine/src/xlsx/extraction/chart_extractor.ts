@@ -40,7 +40,10 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         const chartHoleSize = this.extractChildAttr(rootChartElement, "c:holeSize", "val", {
           default: "0",
         }).asNum();
-
+        const showValueNodes = this.querySelectorAll(rootChartElement, "c:chart c:showVal");
+        const showValues = [...showValueNodes].some(
+          (el) => el.attributes.getNamedItem("val")?.value === "1"
+        );
         return {
           title: { text: chartTitle },
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
@@ -68,6 +71,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           horizontal: chartDirection === "bar",
           isDoughnut: chartHoleSize > 0,
           pieHolePercentage: chartHoleSize,
+          showValues,
         };
       }
     )[0];
@@ -94,7 +98,10 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     const barChartGrouping = this.extractChildAttr(chartElement, "c:grouping", "val", {
       default: "clustered",
     }).asString();
-
+    const showValueNodes = this.querySelectorAll(chartElement, "c:chart c:showVal");
+    const showValues = [...showValueNodes].some(
+      (el) => el.attributes.getNamedItem("val")?.value === "1"
+    );
     return {
       title: { text: chartTitle },
       type: "combo",
@@ -125,6 +132,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         ],
       stacked: barChartGrouping === "stacked",
       fontColor: "000000",
+      showValues,
     };
   }
 
