@@ -63,30 +63,27 @@ describe("combo charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await click(fixture, ".o-series-type-selection input[value=bar]");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
-        dataSets: [
-          {
-            dataRange: "B1:B4",
-            type: "bar",
-          },
-          {
-            dataRange: "C1:C4",
-            type: "bar",
-          },
-        ],
+        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],
       })
     );
-
     await click(fixture, ".o-series-type-selection input[value=line]");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
-          {
-            dataRange: "B1:B4",
-            type: "line",
-          },
+          { dataRange: "B1:B4", type: "line" },
+          { dataRange: "C1:C4", type: "bar" },
+        ],
+      })
+    );
+
+    await click(fixture, ".o-series-type-selection input[value=bar]");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [
+          { dataRange: "B1:B4", type: "bar" },
+          { dataRange: "C1:C4", type: "bar" },
         ],
       })
     );

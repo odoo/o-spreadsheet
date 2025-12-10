@@ -23,9 +23,6 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
 
   updateDataSeriesType(dataSetId: UID, type: "bar" | "line") {
     const dataSetStyles = { ...this.props.definition.dataSetStyles };
-    if (!dataSetStyles?.[dataSetId]) {
-      return;
-    }
     dataSetStyles[dataSetId] = {
       ...dataSetStyles[dataSetId],
       type,
