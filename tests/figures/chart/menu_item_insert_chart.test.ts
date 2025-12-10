@@ -396,19 +396,26 @@ describe("Insert chart menu item", () => {
   test("Chart of single cell will extend the selection to find a 'table'", () => {
     setSelection(model, ["A2"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [
-      { dataRange: "B1:B5" },
-      { dataRange: "C1:C5" },
-      { dataRange: "D1:D5" },
-      { dataRange: "E1:E5" },
-      { dataRange: "F1:F5" },
-      { dataRange: "G1:G5" },
-      { dataRange: "H1:H5" },
-    ];
-    payload.definition.labelRange = "A1:A5";
-    payload.definition.dataSetsHaveTitle = true;
-    payload.definition.legendPosition = "top";
+    const payload = {
+      ...defaultPayload,
+      definition: {
+        ...defaultPayload.definition,
+        legendPosition: "top",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "B1:B5" },
+            { dataRange: "C1:C5" },
+            { dataRange: "D1:D5" },
+            { dataRange: "E1:E5" },
+            { dataRange: "F1:F5" },
+            { dataRange: "G1:G5" },
+            { dataRange: "H1:H5" },
+          ],
+          labelRange: "A1:A5",
+          dataSetsHaveTitle: true,
+        }),
+      },
+    };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:H5");
   });

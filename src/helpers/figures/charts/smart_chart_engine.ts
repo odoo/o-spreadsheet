@@ -125,7 +125,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "pie",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { dataSets: [{ dataRange, dataSetId: "1" }] },
+        dataSource: { dataSets: [{ dataRange, dataSetId: "0" }] },
         dataSetStyles: {},
         legendPosition: "none",
         dataSetsHaveTitle,
@@ -141,7 +141,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "pie",
         title: hasUniqueTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { dataSets: [{ dataRange, dataSetId: "1" }] },
+        dataSource: { dataSets: [{ dataRange, dataSetId: "0" }] },
         dataSetStyles: {},
         labelRange: dataRange,
         dataSetsHaveTitle: hasUniqueTitle,
@@ -154,7 +154,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
         ...DEFAULT_LINE_CHART_CONFIG,
         type: "line",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { dataSets: [{ dataRange, dataSetId: "1" }] },
+        dataSource: { dataSets: [{ dataRange, dataSetId: "0" }] },
         dataSetStyles: {},
         dataSetsHaveTitle,
       };
@@ -162,7 +162,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-    dataSource: { dataSets: [{ dataRange, dataSetId: "1" }] },
+    dataSource: { dataSets: [{ dataRange, dataSetId: "0" }] },
     dataSetStyles: {},
     dataSetsHaveTitle,
   };
@@ -187,7 +187,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       type: "pie",
       title: {},
       dataSource: {
-        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "1" }],
+        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
       },
       dataSetStyles: {},
       labelRange: getUnboundRange(getters, columns[0].zone),
@@ -202,7 +202,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       type: "scatter",
       title: {},
       dataSource: {
-        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "1" }],
+        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
       },
       dataSetStyles: {},
       labelRange: getUnboundRange(getters, columns[0].zone),
@@ -218,7 +218,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
       dataSource: {
-        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "1" }],
+        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
       },
       dataSetStyles: {},
       labelRange: getUnboundRange(getters, columns[0].zone),
@@ -238,7 +238,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
         type: "treemap",
         title: {},
         dataSource: {
-          dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone), dataSetId: "1" }],
+          dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone), dataSetId: "0" }],
         },
         dataSetStyles: {},
         labelRange: getUnboundRange(getters, numberColumn.zone),
@@ -251,7 +251,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     dataSource: {
-      dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "1" }],
+      dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
     },
     dataSetStyles: {},
     labelRange: getUnboundRange(getters, columns[0].zone),
