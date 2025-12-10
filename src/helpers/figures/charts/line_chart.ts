@@ -188,11 +188,16 @@ export class LineChart extends AbstractChart {
   }
 
   copyInSheetId(sheetId: UID): LineChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.definition.dataSource,
-      this.labelRange,
-      sheetId
-    );
+    const dataSource = {
+      dataSets: this.definition.dataSource.dataSets.map((dataSet) => {
+        const range = this.getters.getRangeFromSheetXC(this.sheetId, dataSet.dataRange);
+        return {
+          ...dataSet,
+          dataRange: this.getters.getRangeString(range, sheetId),
+        };
+      }),
+    };
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
     return new LineChart(definition, sheetId, this.getters);
   }
 }

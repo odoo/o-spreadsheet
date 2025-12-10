@@ -203,11 +203,16 @@ export class ComboChart extends AbstractChart {
   }
 
   copyInSheetId(sheetId: UID): ComboChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.definition.dataSource,
-      this.labelRange,
-      sheetId
-    );
+    const dataSource = {
+      dataSets: this.definition.dataSource.dataSets.map((dataSet) => {
+        const range = this.getters.getRangeFromSheetXC(this.sheetId, dataSet.dataRange);
+        return {
+          ...dataSet,
+          dataRange: this.getters.getRangeString(range, sheetId),
+        };
+      }),
+    };
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
     return new ComboChart(definition, sheetId, this.getters);
   }
 }

@@ -849,7 +849,9 @@ test("migrate version 19.1.1: remove extra keys from chart definition", () => {
     title: "demo chart",
     labelRange: "A1:A4",
     humanize: true,
-    dataSets: [],
+    dataSource: {
+      dataSets: [],
+    },
     dataSetsHaveTitle: false,
   };
   const data = {

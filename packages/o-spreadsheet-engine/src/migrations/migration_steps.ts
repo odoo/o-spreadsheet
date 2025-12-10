@@ -619,17 +619,20 @@ migrationStepRegistry
           return definition;
         }
         definition = { ...definition };
-        const custo = {}; // TODO rename and type properly
+        const styles = {};
         definition.dataSource = {
           dataSets: definition.dataSets.map((ds, i) => {
             const dataSetId = i.toString();
             const dataRange = ds.dataRange;
             delete ds.dataRange;
-            custo[dataSetId] = { ...ds };
+            if (Object.keys(ds).length) {
+              styles[dataSetId] = { ...ds };
+            }
             return { dataRange, dataSetId };
           }),
         };
-        definition.dataSetStyles = custo;
+        delete definition.dataSets;
+        definition.dataSetStyles = styles;
         return definition;
       }
       for (const sheet of data.sheets || []) {
