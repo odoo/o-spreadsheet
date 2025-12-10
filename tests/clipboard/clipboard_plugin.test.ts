@@ -34,6 +34,7 @@ import {
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
+  copyPasteCellsOnZone,
   createDynamicTable,
   createImage,
   createSheet,
@@ -2410,6 +2411,33 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "C2")).toBe("c1");
     expect(getCellContent(model, "D2")).toBe("d1");
+  });
+
+  test("do not fill down if filling down would unmerge cells", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "a1");
+    merge(model, "A2:A3");
+    setSelection(model, ["A1:A3"]);
+    const result = copyPasteAboveCells(model);
+    expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+  });
+
+  test("do not fill right if filling right would unmerge cells", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "a1");
+    merge(model, "B1:C1");
+    setSelection(model, ["A1:C1"]);
+    const result = copyPasteCellsOnLeft(model);
+    expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+  });
+
+  test("do not fill if filling would unmerge cells", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "a1");
+    merge(model, "A2:A3");
+    setSelection(model, ["A1:A3"]);
+    const result = copyPasteCellsOnZone(model);
+    expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("fill right selection with single column -> for each cell, replicates the cell on its left", async () => {

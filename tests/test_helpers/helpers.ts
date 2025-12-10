@@ -202,9 +202,10 @@ export function makeTestEnv(
   const notificationStore = container.get(NotificationStore);
   notificationStore.updateNotificationCallbacks({
     notifyUser: mockEnv.notifyUser || (() => {}),
-    raiseError: mockEnv.raiseError || (() => {}),
+    raiseError: mockEnv.raiseError || (jest.fn() as unknown as (message: string) => void),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
   });
+  //ICI
 
   // For tests without the grid composer mounted, we register fake composer
   const composerFocusStore = container.get(ComposerFocusStore);
