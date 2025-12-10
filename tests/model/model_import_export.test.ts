@@ -310,10 +310,11 @@ describe("Migrations", () => {
     expect(cells.A1!).toBe("=sheetName_!A2");
 
     const figures = data.sheets[1].figures;
-    expect(figures[0].data?.dataSets).toEqual([
-      { dataRange: "A1:A2" },
-      { dataRange: "'My sheet'!A1:A2" },
-    ]);
+    expect(figures[0].data).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }],
+      })
+    );
     expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;

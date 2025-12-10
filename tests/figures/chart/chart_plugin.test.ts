@@ -161,7 +161,10 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+        dataSets: [
+          { dataRange: "B1:B4", dataSetId: expect.any(String) },
+          { dataRange: "C1:C4", dataSetId: expect.any(String) },
+        ],
         labelRange: "Sheet1!A2:A4",
       }),
       title: { text: "test" },
