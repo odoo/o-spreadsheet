@@ -156,6 +156,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCellsPositions",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
+    "isArrayFormulaSpillBlocked",
     "isEmpty",
   ] as const;
 
@@ -301,6 +302,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     return this.evaluator.getArrayFormulaSpreadingOn(position);
+  }
+
+  isArrayFormulaSpillBlocked(position: CellPosition): boolean {
+    return this.evaluator.isArrayFormulaSpillBlocked(position);
   }
 
   /**
