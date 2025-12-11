@@ -2,7 +2,7 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { convertImageToPng } from "../../components/helpers/convert_image_to_png";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers/css";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { UuidGenerator } from "../../helpers";
+import { isDefined, UuidGenerator } from "../../helpers";
 import {
   applyClipboardHandlersPaste,
   getClipboardDataPositions,
@@ -10,6 +10,7 @@ import {
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
+import { rectUnion } from "../../helpers/rectangle";
 import { isZoneValid } from "../../helpers/zones";
 import { getCurrentVersion } from "../../migrations/data";
 import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
@@ -314,7 +315,7 @@ export class ClipboardPlugin extends UIPlugin {
     handler: ClipboardHandler<any>;
   }[] {
     const handlersRegistry =
-      "figureId" in data
+      "figureIds" in data
         ? clipboardHandlersRegistries.figureHandlers
         : clipboardHandlersRegistries.cellHandlers;
     return handlersRegistry.getKeys().map((handlerName) => {
@@ -368,7 +369,7 @@ export class ClipboardPlugin extends UIPlugin {
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
       const data = handler.copy(clipboardData, this._isCutOperation, mode);
       copiedData[handlerName] = data;
-      const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
+      const minimalKeys = ["sheetId", "cells", "zones", "figureIds"];
       for (const key of minimalKeys) {
         if (data && key in data) {
           copiedData[key] = data[key];
@@ -403,6 +404,10 @@ export class ClipboardPlugin extends UIPlugin {
         zone.left,
         zone.top
       );
+    }
+    if (copiedData.figureIds) {
+      // Deselect current figure before adding new figure to selection
+      this.dispatch("SELECT_FIGURE", { figureId: null });
     }
     applyClipboardHandlersPaste(handlers, copiedData, target, options);
     if (!options?.selectTarget) {
@@ -487,7 +492,7 @@ export class ClipboardPlugin extends UIPlugin {
       version: getCurrentVersion(),
       clipboardId: this.clipboardId,
     };
-    if (this.copiedData && "figureId" in this.copiedData) {
+    if (this.copiedData && "figureIds" in this.copiedData) {
       return data;
     }
     return {
@@ -519,8 +524,8 @@ export class ClipboardPlugin extends UIPlugin {
     let innerHTML: string = "";
     const cells = this.copiedData?.cells;
     if (!cells) {
-      if (this.copiedData?.figureId) {
-        const figureId = this.copiedData.figureId;
+      if (this.copiedData?.figureIds && this.copiedData.figureIds.length) {
+        const figureId = this.copiedData.figureIds[0];
         const figureSheetId = this.getters.getFigureSheetId(figureId)!;
         const figure = this.getters.getFigure(figureSheetId, figureId)!;
         if (figure.tag === "image") {
@@ -582,7 +587,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private async getImageContent(): Promise<File | undefined> {
-    const figureId = this.copiedData?.figureId;
+    const figureId = this.copiedData?.figureIds && this.copiedData.figureIds[0];
     if (!figureId) {
       return;
     }
@@ -674,9 +679,14 @@ export class ClipboardPlugin extends UIPlugin {
 
   private getClipboardData(zones: Zone[]): ClipboardData {
     const sheetId = this.getters.getActiveSheetId();
-    const selectedFigureId = this.getters.getSelectedFigureId();
-    if (selectedFigureId) {
-      return { figureId: selectedFigureId, sheetId };
+    const selectedFiguresIds = this.getters.getSelectedFiguresIds();
+    const figuresUI = selectedFiguresIds
+      .map((id) => this.getters.getFigure(sheetId, id))
+      .filter(isDefined)
+      .map((f) => this.getters.getFigureUI(sheetId, f));
+    const topLeft = rectUnion(...figuresUI);
+    if (selectedFiguresIds.length) {
+      return { figureIds: selectedFiguresIds, sheetId, topLeft };
     }
     const data = getClipboardDataPositions(sheetId, zones);
     if (!this._isCutOperation) {

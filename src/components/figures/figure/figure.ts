@@ -64,7 +64,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private borderWidth!: number;
 
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
+    return this.env.model.getters.getSelectedFiguresIds().includes(this.props.figureUI.id);
   }
 
   get figureRegistry() {
@@ -117,8 +117,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
-      (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
-        if (selectedFigureId === thisFigureId) {
+      (selectedFiguresIds: UID[], thisFigureId: UID, el: HTMLElement | null) => {
+        if (selectedFiguresIds.includes(thisFigureId)) {
           /** Scrolling on a newly inserted figure that overflows outside the viewport
            * will break the whole layout.
            * NOTE: `preventScroll`does not work on mobile but then again,
@@ -131,7 +131,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         }
       },
       () => [
-        this.env.model.getters.getSelectedFigureId(),
+        this.env.model.getters.getSelectedFiguresIds(),
         this.props.figureUI.id,
         this.figureRef.el,
       ]
@@ -160,9 +160,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
-        this.env.model.dispatch("DELETE_FIGURE", {
+        this.env.model.dispatch("DELETE_FIGURES", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          figureId: this.props.figureUI.id,
+          figureIds: this.env.model.getters.getSelectedFiguresIds(),
         });
         ev.preventDefault();
         ev.stopPropagation();
@@ -171,14 +171,15 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        const { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
-        this.env.model.dispatch("UPDATE_FIGURE", {
-          sheetId: this.env.model.getters.getActiveSheetId(),
-          figureId: this.props.figureUI.id,
-          offset,
-          col,
-          row,
-        });
+        const sheetId = this.env.model.getters.getActiveSheetId();
+        const figureIds = this.env.model.getters.getSelectedFiguresIds();
+        const commands = this.env.model.getters
+          .getFigures(sheetId, figureIds)
+          .map((f) => this.env.model.getters.getFigureUI(sheetId, f))
+          .map((f) => {
+            return { sheetId, figureId: f.id, ...this.postionInBoundary(f, ev.key) };
+          });
+        this.env.model.dispatch("MOVE_FIGURES", { commands });
         ev.preventDefault();
         ev.stopPropagation();
         break;
