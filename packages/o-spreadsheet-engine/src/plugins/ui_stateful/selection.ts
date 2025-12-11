@@ -20,6 +20,7 @@ import {
   AddColumnsRowsCommand,
   Command,
   CommandResult,
+  DeleteFigureCommand,
   LocalCommand,
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
@@ -63,7 +64,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getSelectedZones",
     "getSelectedZone",
     "getSelectedCells",
-    "getSelectedFigureId",
+    "getSelectedFiguresIds",
     "getSelection",
     "getActivePosition",
     "getSheetPosition",
@@ -85,7 +86,7 @@ export class GridSelectionPlugin extends UIPlugin {
     },
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
   };
-  private selectedFigureId: UID | null = null;
+  private selectedFiguresIds: UID[] = [];
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
   private isUnbounded: boolean;
@@ -172,26 +173,14 @@ export class GridSelectionPlugin extends UIPlugin {
       col,
       row,
     });
-    this.selectedFigureId = null;
+    this.selectedFiguresIds = [];
   }
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        this.selectedFigureId = null;
-        break;
       case "DELETE_FIGURE":
-        if (this.selectedFigureId === cmd.figureId) {
-          this.selectedFigureId = null;
-        }
+        this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
         break;
-      case "DELETE_SHEET":
-        if (this.selectedFigureId && this.getters.getFigure(cmd.sheetId, this.selectedFigureId)) {
-          this.selectedFigureId = null;
-        }
-        break;
-    }
-    switch (cmd.type) {
       case "START":
         const firstSheetId = this.getters.getVisibleSheetIds()[0];
         this.activateSheet(firstSheetId, firstSheetId);
@@ -238,7 +227,17 @@ export class GridSelectionPlugin extends UIPlugin {
         }
         break;
       case "SELECT_FIGURE":
-        this.selectedFigureId = cmd.figureId;
+        if (cmd.selectMultiple) {
+          if (cmd.figureId) {
+            this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
+            this.selectedFiguresIds.unshift(cmd.figureId);
+          }
+        } else {
+          this.selectedFiguresIds = cmd.figureId ? [cmd.figureId] : [];
+        }
+        break;
+      case "UNSELECT_FIGURE":
+        this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
         break;
       case "ACTIVATE_NEXT_SHEET":
         this.activateNextSheet("right");
@@ -279,7 +278,15 @@ export class GridSelectionPlugin extends UIPlugin {
           this.gridSelection.anchor.zone
         );
         this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
-        this.selectedFigureId = null;
+        this.selectedFiguresIds =
+          cmd.type === "UNDO"
+            ? cmd.commands
+                .filter(
+                  (cmd): cmd is DeleteFigureCommand =>
+                    cmd.type === "DELETE_FIGURE" && cmd.sheetId === sheetId
+                )
+                .map((cmd) => cmd.figureId)
+            : [];
         break;
     }
   }
@@ -380,8 +387,8 @@ export class GridSelectionPlugin extends UIPlugin {
     return cells;
   }
 
-  getSelectedFigureId(): UID | null {
-    return this.selectedFigureId;
+  getSelectedFiguresIds(): UID[] {
+    return this.selectedFiguresIds;
   }
 
   getActivePosition(): CellPosition {
@@ -494,6 +501,7 @@ export class GridSelectionPlugin extends UIPlugin {
     this.sheetsData[sheetIdFrom] = {
       gridSelection: deepCopy(this.gridSelection),
     };
+    this.selectedFiguresIds = [];
     if (sheetIdTo in this.sheetsData) {
       Object.assign(this, this.sheetsData[sheetIdTo]);
       this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));

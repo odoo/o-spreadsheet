@@ -4,16 +4,22 @@ import { FigureUI, PixelPosition, SheetDOMScrollInfo } from "../../types";
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
-  initialFigure: FigureUI,
+  initialFigures: FigureUI[],
   { maxX, maxY }: { maxX: number; maxY: number },
   { scrollX: initialScrollX, scrollY: initialScrollY }: SheetDOMScrollInfo,
   { scrollX, scrollY }: SheetDOMScrollInfo
-): FigureUI {
-  const deltaX = mouseX - mouseInitialX + scrollX - initialScrollX;
-  const newX = clip(initialFigure.x + deltaX, 0, maxX - initialFigure.width);
-  const deltaY = mouseY - mouseInitialY + scrollY - initialScrollY;
-  const newY = clip(initialFigure.y + deltaY, 0, maxY - initialFigure.height);
-  return { ...initialFigure, x: newX, y: newY };
+): FigureUI[] {
+  let deltaX = mouseX - mouseInitialX + scrollX - initialScrollX;
+  let deltaY = mouseY - mouseInitialY + scrollY - initialScrollY;
+
+  for (const figure of initialFigures) {
+    deltaX = clip(deltaX, -figure.x, maxX - figure.x - figure.width);
+    deltaY = clip(deltaY, -figure.y, maxY - figure.y - figure.height);
+  }
+
+  return initialFigures.map((f) => {
+    return { ...f, x: f.x + deltaX, y: f.y + deltaY };
+  });
 }
 
 export function dragFigureForResize(
