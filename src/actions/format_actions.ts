@@ -4,6 +4,7 @@ import {
   DEFAULT_VERTICAL_ALIGN,
   DEFAULT_WRAPPING_MODE,
   FONT_SIZES,
+  ROTATION_EPSILON,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
@@ -214,39 +215,52 @@ export const formatRotation: ActionSpec = {
   icon: (env) => getRotationIcon(env),
 };
 
+function setRotation(env: SpreadsheetChildEnv, rotation: number) {
+  rotation = Math.trunc(rotation / ROTATION_EPSILON) * ROTATION_EPSILON;
+  setStyle(env, { rotation });
+}
+
+function currentRotationEqual(env: SpreadsheetChildEnv, rotation: number): boolean {
+  const current = env.model.getters.getCurrentStyle().rotation;
+  if (current === undefined) {
+    return rotation === 0;
+  }
+  return Math.abs(current - rotation) < ROTATION_EPSILON;
+}
+
 export const formatNoRotation: ActionSpec = {
   name: _t("No rotation"),
   execute: (env) => setStyle(env, { rotation: 0 }),
   icon: "o-spreadsheet-Icon.ROTATION-0",
-  isActive: (env) => env.model.getters.getCurrentStyle().rotation === 0,
+  isActive: (env) => currentRotationEqual(env, 0),
 };
 
 export const formatRotation45: ActionSpec = {
   name: _t("45° rotation"),
-  execute: (env) => setStyle(env, { rotation: Math.PI / 4 }),
+  execute: (env) => setRotation(env, Math.PI / 4),
   icon: "o-spreadsheet-Icon.ROTATION-45",
-  isActive: (env) => env.model.getters.getCurrentStyle().rotation === Math.PI / 4,
+  isActive: (env) => currentRotationEqual(env, Math.PI / 4),
 };
 
 export const formatRotation90: ActionSpec = {
   name: _t("90° rotation"),
-  execute: (env) => setStyle(env, { rotation: Math.PI / 2 }),
+  execute: (env) => setRotation(env, Math.PI / 2),
   icon: "o-spreadsheet-Icon.ROTATION-90",
-  isActive: (env) => env.model.getters.getCurrentStyle().rotation === Math.PI / 2,
+  isActive: (env) => currentRotationEqual(env, Math.PI / 2),
 };
 
 export const formatRotation270: ActionSpec = {
   name: _t("-90° rotation"),
-  execute: (env) => setStyle(env, { rotation: -Math.PI / 2 }),
+  execute: (env) => setRotation(env, -Math.PI / 2),
   icon: "o-spreadsheet-Icon.ROTATION-270",
-  isActive: (env) => env.model.getters.getCurrentStyle().rotation === -Math.PI / 2,
+  isActive: (env) => currentRotationEqual(env, -Math.PI / 2),
 };
 
 export const formatRotation315: ActionSpec = {
   name: _t("-45° rotation"),
-  execute: (env) => setStyle(env, { rotation: -Math.PI / 4 }),
+  execute: (env) => setRotation(env, -Math.PI / 4),
   icon: "o-spreadsheet-Icon.ROTATION-315",
-  isActive: (env) => env.model.getters.getCurrentStyle().rotation === -Math.PI / 4,
+  isActive: (env) => currentRotationEqual(env, -Math.PI / 4),
 };
 
 export const formatStrikethrough: ActionSpec = {
@@ -442,11 +456,6 @@ function getWrappingMode(env: SpreadsheetChildEnv): Wrapping {
   return DEFAULT_WRAPPING_MODE;
 }
 
-function getRotation(env: SpreadsheetChildEnv): number {
-  const style = env.model.getters.getCurrentStyle();
-  return style.rotation ?? 0;
-}
-
 function getHorizontalAlignmentIcon(env: SpreadsheetChildEnv) {
   const horizontalAlign = getHorizontalAlign(env);
 
@@ -487,18 +496,14 @@ function getWrapModeIcon(env: SpreadsheetChildEnv) {
 }
 
 function getRotationIcon(env: SpreadsheetChildEnv) {
-  const rotation = getRotation(env);
-
-  switch (rotation) {
-    case Math.PI / 2:
-      return "o-spreadsheet-Icon.ROTATION-90";
-    case -Math.PI / 2:
-      return "o-spreadsheet-Icon.ROTATION-270";
-    case Math.PI / 4:
-      return "o-spreadsheet-Icon.ROTATION-45";
-    case -Math.PI / 4:
-      return "o-spreadsheet-Icon.ROTATION-315";
-    default:
-      return "o-spreadsheet-Icon.ROTATION-0";
+  if (currentRotationEqual(env, Math.PI / 2)) {
+    return "o-spreadsheet-Icon.ROTATION-90";
+  } else if (currentRotationEqual(env, -Math.PI / 2)) {
+    return "o-spreadsheet-Icon.ROTATION-270";
+  } else if (currentRotationEqual(env, Math.PI / 4)) {
+    return "o-spreadsheet-Icon.ROTATION-45";
+  } else if (currentRotationEqual(env, -Math.PI / 4)) {
+    return "o-spreadsheet-Icon.ROTATION-315";
   }
+  return "o-spreadsheet-Icon.ROTATION-0";
 }

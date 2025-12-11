@@ -160,7 +160,7 @@ describe("computeRotationPosition", () => {
     test.each([Math.PI / 2, Math.PI / 3, Math.PI / 4])("Positive Rotation", (rotation) => {
       const sin = Math.sin(rotation);
       const newX = textBox.x + (sin * textHeight) / 2;
-      const newY = textBox.y;
+      const newY = textBox.y - textHeight / 2 + sin * textHeight;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
         x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
@@ -171,7 +171,7 @@ describe("computeRotationPosition", () => {
     test.each([-Math.PI / 2, -Math.PI / 3, -Math.PI / 4])("Negative Rotation", (rotation) => {
       const sin = Math.sin(rotation);
       const newX = textBox.x + (sin * textHeight) / 2;
-      const newY = textBox.y;
+      const newY = textBox.y - textHeight / 2 - sin * textHeight;
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
         x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
         y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
