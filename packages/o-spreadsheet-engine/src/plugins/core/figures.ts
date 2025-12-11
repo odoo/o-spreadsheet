@@ -325,11 +325,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // Getters
   // ---------------------------------------------------------------------------
 
-  getFigures(sheetId: UID): Figure[] {
+  getFigures(sheetId: UID, figureIds?: UID[]): Figure[] {
     const figures: Figure[] = [];
     for (const figureId of this.insertionOrders) {
       const figure = this.figures[sheetId]?.[figureId];
-      if (figure) {
+      if (figure && (!figureIds || figureIds.includes(figure.id))) {
         figures.push(figure);
       }
     }
