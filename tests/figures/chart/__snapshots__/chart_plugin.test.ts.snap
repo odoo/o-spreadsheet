@@ -105,6 +105,8 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "grid": {
             "display": false,
           },
+          "max": undefined,
+          "min": undefined,
           "stacked": true,
           "ticks": {
             "callback": [Function],
@@ -116,8 +118,11 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#cccccc",
             "display": true,
           },
+          "max": undefined,
+          "min": undefined,
           "position": "left",
           "stacked": true,
           "ticks": {
@@ -203,6 +208,8 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "grid": {
             "display": false,
           },
+          "max": undefined,
+          "min": undefined,
           "stacked": true,
           "ticks": {
             "callback": [Function],
@@ -218,8 +225,11 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#cccccc",
             "display": true,
           },
+          "max": undefined,
+          "min": undefined,
           "position": "left",
           "stacked": true,
           "ticks": {
@@ -359,8 +369,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "scales": {
         "x": {
           "grid": {
+            "color": "#cccccc",
             "display": false,
           },
+          "max": undefined,
+          "min": undefined,
           "stacked": undefined,
           "ticks": {
             "callback": [Function],
@@ -372,8 +385,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
         "y": {
           "beginAtZero": true,
           "grid": {
+            "color": "#cccccc",
             "display": true,
           },
+          "max": undefined,
+          "min": undefined,
           "position": "left",
           "stacked": false,
           "ticks": {
@@ -474,8 +490,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "scales": {
         "x": {
           "grid": {
+            "color": "#cccccc",
             "display": false,
           },
+          "max": undefined,
+          "min": undefined,
           "stacked": undefined,
           "ticks": {
             "callback": [Function],
@@ -491,8 +510,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "beginAtZero": true,
           "display": false,
           "grid": {
+            "color": "#cccccc",
             "display": true,
           },
+          "max": undefined,
+          "min": undefined,
           "position": "left",
           "stacked": false,
           "ticks": {
