@@ -1,4 +1,3 @@
-import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { positionToZone } from "../../helpers/zones";
@@ -107,10 +106,6 @@ export class CellComputedStylePlugin extends UIPlugin {
           ...removeFalsyAttributes(styles.get(position)),
           ...removeFalsyAttributes(this.getters.getCellConditionalFormatStyle(position)),
         };
-        const evaluatedCell = this.getters.getEvaluatedCell(position);
-        if (evaluatedCell.link && !computedStyle.textColor) {
-          computedStyle.textColor = LINK_COLOR;
-        }
         this.styles.set(position, computedStyle);
       }
     }
