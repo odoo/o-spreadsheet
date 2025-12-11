@@ -61,7 +61,7 @@ sidePanelRegistry.add("ChartPanel", {
   title: _t("Chart"),
   Body: ChartPanel,
   computeState: (getters: Getters, initialProps: { chartId: UID }) => {
-    const figureId = getters.getSelectedFigureId();
+    const figureId = getters.getSelectedFigureIds().length && getters.getSelectedFigureIds()[0];
     const chartId = figureId ? getters.getChartIdFromFigureId(figureId) : initialProps.chartId;
     if (!chartId || !getters.isChartDefined(chartId)) {
       return { isOpen: false };
@@ -177,7 +177,9 @@ sidePanelRegistry.add("CarouselPanel", {
   title: _t("Carousel"),
   Body: CarouselPanel,
   computeState: (getters: Getters, initialProps: { figureId: UID }) => {
-    const figureId = initialProps.figureId || getters.getSelectedFigureId();
+    const figureId =
+      initialProps.figureId ||
+      (getters.getSelectedFigureIds().length && getters.getSelectedFigureIds()[0]);
     if (!figureId || !getters.doesCarouselExist(figureId)) {
       return { isOpen: false };
     }

@@ -33,6 +33,7 @@ export interface ClipboardOptions {
   isCutOperation: boolean;
   pasteOption?: ClipboardPasteOptions;
   selectTarget?: boolean;
+  fromSheetid?: UID;
 }
 export type ClipboardPasteOptions = "onlyFormat" | "asValue";
 export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
@@ -48,7 +49,7 @@ export type ClipboardCellData = {
 
 export type ClipboardFigureData = {
   sheetId: UID;
-  figureId: UID;
+  figureIds: UID[];
 };
 
 export type ClipboardData = ClipboardCellData | ClipboardFigureData;
@@ -56,13 +57,13 @@ export type ClipboardData = ClipboardCellData | ClipboardFigureData;
 export type ClipboardPasteTarget = {
   sheetId: UID;
   zones: Zone[];
-  figureId?: UID;
+  figureIds?: Record<UID, UID>;
 };
 
 export type MinimalClipboardData = {
   sheetId?: UID;
   cells?: ClipboardCell[][];
   zones?: Zone[];
-  figureId?: UID;
+  figureIds?: UID[];
   [key: string]: unknown;
 };

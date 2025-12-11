@@ -1,5 +1,5 @@
-import { intersection, union } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { Rect, Zone } from "../types";
+import { Rect, Zone } from "..";
+import { intersection, union } from "./zones";
 
 /**
  * Compute the intersection of two rectangles. Returns nothing if the two rectangles don't overlap
