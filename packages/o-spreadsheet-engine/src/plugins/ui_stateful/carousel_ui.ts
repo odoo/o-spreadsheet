@@ -25,10 +25,12 @@ export class CarouselUIPlugin extends UIPlugin {
 
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
-      case "ADD_FIGURE_CHART_TO_CAROUSEL":
+      case "ADD_FIGURES_CHART_TO_CAROUSEL":
         if (
           !this.getters.doesCarouselExist(cmd.carouselFigureId) ||
-          this.getters.getFigure(cmd.sheetId, cmd.chartFigureId)?.tag !== "chart"
+          cmd.chartFigureIds.some(
+            (figureId) => this.getters.getFigure(cmd.sheetId, figureId)?.tag !== "chart"
+          )
         ) {
           return CommandResult.InvalidFigureId;
         }
@@ -68,8 +70,10 @@ export class CarouselUIPlugin extends UIPlugin {
       case "ADD_NEW_CHART_TO_CAROUSEL":
         this.addNewChartToCarousel(cmd.figureId, cmd.sheetId);
         break;
-      case "ADD_FIGURE_CHART_TO_CAROUSEL":
-        this.addFigureChartToCarousel(cmd.carouselFigureId, cmd.chartFigureId, cmd.sheetId);
+      case "ADD_FIGURES_CHART_TO_CAROUSEL":
+        cmd.chartFigureIds.forEach((figureId) => {
+          this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
+        });
         break;
       case "DUPLICATE_CAROUSEL_CHART":
         this.duplicateCarouselChart(cmd);

@@ -194,6 +194,28 @@ describe("figures", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
+  test("can select multiple figures", async () => {
+    createFigure(model, { id: "fig1" });
+    createFigure(model, { id: "fig2", col: 0, row: 5 });
+    createFigure(model, { id: "fig3", col: 5, row: 0 });
+    await nextTick();
+    await simulateClick(".o-figure[data-id=fig1]");
+    await nextTick();
+    expect(model.getters.getSelectedFigureIds()).toEqual(["fig1"]);
+    await simulateClick(".o-figure[data-id=fig2]", undefined, undefined, { shiftKey: true });
+    await nextTick();
+    expect(model.getters.getSelectedFigureIds()).toEqual(["fig2", "fig1"]);
+    await simulateClick(".o-figure[data-id=fig3]", undefined, undefined, { shiftKey: true });
+    await nextTick();
+    expect(model.getters.getSelectedFigureIds()).toEqual(["fig3", "fig2", "fig1"]);
+    await simulateClick(".o-figure[data-id=fig3]", undefined, undefined, { shiftKey: true });
+    await nextTick();
+    expect(model.getters.getSelectedFigureIds()).toEqual(["fig2", "fig1"]);
+    await simulateClick(".o-figure[data-id=fig2]");
+    await nextTick();
+    expect(model.getters.getSelectedFigureIds()).toEqual(["fig2"]);
+  });
+
   test("deleting a figure doesn't delete selection", async () => {
     createFigure(model);
     setCellContent(model, "A1", "content");
@@ -213,6 +235,17 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-figure")).toBeNull();
   });
 
+  test("Can delete multiple figure with `Backspace`", async () => {
+    createFigure(model, { id: "fig1" });
+    createFigure(model, { id: "fig2" });
+    await nextTick();
+    model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+    model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+    await nextTick();
+    await keyDown({ key: "Backspace" });
+    expect(fixture.querySelector(".o-figure")).toBeNull();
+  });
+
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
     createSheet(model, { sheetId: "42", position: 1 });
     createFigure(model, {}, "42");
@@ -222,6 +255,60 @@ describe("figures", () => {
     activateSheet(model, "42");
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
+  });
+
+  test("Can move a figure with shift + arrow key", async () => {
+    createFigure(model);
+    let figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 1, y: 1 },
+    });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await nextTick();
+    const selectedFigure = model.getters.getSelectedFigureIds();
+    expect(selectedFigure).toEqual(["someuuid"]);
+    //down
+    await keyDown({ key: "ArrowDown", shiftKey: true });
+    await keyDown({ key: "ArrowDown", shiftKey: true });
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 1, y: 3 },
+    });
+    //right
+    await keyDown({ key: "ArrowRight", shiftKey: true });
+    await keyDown({ key: "ArrowRight", shiftKey: true });
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 3, y: 3 },
+    });
+    //left
+    await keyDown({ key: "ArrowLeft", shiftKey: true });
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 2, y: 3 },
+    });
+    //up
+    await keyDown({ key: "ArrowUp", shiftKey: true });
+    figure = model.getters.getFigure(sheetId, "someuuid");
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 2, y: 2 },
+    });
   });
 
   test("Can move a figure with keyboard", async () => {
@@ -236,8 +323,8 @@ describe("figures", () => {
     await nextTick();
     await simulateClick(".o-figure");
     await nextTick();
-    const selectedFigure = model.getters.getSelectedFigureId();
-    expect(selectedFigure).toBe("someuuid");
+    const selectedFigure = model.getters.getSelectedFigureIds();
+    expect(selectedFigure).toEqual(["someuuid"]);
     //down
     await keyDown({ key: "ArrowDown" });
     await keyDown({ key: "ArrowDown" });
@@ -246,7 +333,7 @@ describe("figures", () => {
       id: "someuuid",
       col: 0,
       row: 0,
-      offset: { x: 1, y: 3 },
+      offset: { x: 1, y: 11 },
     });
     //right
     await keyDown({ key: "ArrowRight" });
@@ -256,7 +343,7 @@ describe("figures", () => {
       id: "someuuid",
       col: 0,
       row: 0,
-      offset: { x: 3, y: 3 },
+      offset: { x: 11, y: 11 },
     });
     //left
     await keyDown({ key: "ArrowLeft" });
@@ -265,7 +352,7 @@ describe("figures", () => {
       id: "someuuid",
       col: 0,
       row: 0,
-      offset: { x: 2, y: 3 },
+      offset: { x: 6, y: 11 },
     });
     //up
     await keyDown({ key: "ArrowUp" });
@@ -274,8 +361,92 @@ describe("figures", () => {
       id: "someuuid",
       col: 0,
       row: 0,
-      offset: { x: 2, y: 2 },
+      offset: { x: 6, y: 6 },
     });
+  });
+
+  test("Can move multiple figures with arrow keys", async () => {
+    createFigure(model, { id: "fig1", offset: { x: 1, y: 1 } });
+    createFigure(model, { id: "fig2", offset: { x: 2, y: 2 } });
+    await nextTick();
+    model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+    model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+    await nextTick();
+
+    function expectXY(figureId: UID, x: Pixel, y: Pixel) {
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject({
+        id: figureId,
+        col: 0,
+        row: 0,
+        offset: { x, y },
+      });
+    }
+
+    const selectedFigure = model.getters.getSelectedFigureIds();
+    expect(selectedFigure).toEqual(["fig2", "fig1"]);
+    expectXY("fig1", 1, 1);
+    expectXY("fig2", 2, 2);
+    //down
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
+    await nextTick();
+    expectXY("fig1", 1, 11);
+    expectXY("fig2", 2, 12);
+    //right
+    await keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowRight" });
+    expectXY("fig1", 11, 11);
+    expectXY("fig2", 12, 12);
+    //left
+    await keyDown({ key: "ArrowLeft" });
+    expectXY("fig1", 6, 11);
+    expectXY("fig2", 7, 12);
+    //up
+    await keyDown({ key: "ArrowUp" });
+    expectXY("fig1", 6, 6);
+    expectXY("fig2", 7, 7);
+  });
+
+  test("Can move multiple figures with shift + arrow keys", async () => {
+    createFigure(model, { id: "fig1", offset: { x: 1, y: 1 } });
+    createFigure(model, { id: "fig2", offset: { x: 2, y: 2 } });
+    await nextTick();
+    model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+    model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+    await nextTick();
+
+    function expectXY(figureId: UID, x: Pixel, y: Pixel) {
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject({
+        id: figureId,
+        col: 0,
+        row: 0,
+        offset: { x, y },
+      });
+    }
+
+    const selectedFigure = model.getters.getSelectedFigureIds();
+    expect(selectedFigure).toEqual(["fig2", "fig1"]);
+    expectXY("fig1", 1, 1);
+    expectXY("fig2", 2, 2);
+    //down
+    await keyDown({ key: "ArrowDown", shiftKey: true });
+    await keyDown({ key: "ArrowDown", shiftKey: true });
+    await nextTick();
+    expectXY("fig1", 1, 3);
+    expectXY("fig2", 2, 4);
+    //right
+    await keyDown({ key: "ArrowRight", shiftKey: true });
+    await keyDown({ key: "ArrowRight", shiftKey: true });
+    expectXY("fig1", 3, 3);
+    expectXY("fig2", 4, 4);
+    //left
+    await keyDown({ key: "ArrowLeft", shiftKey: true });
+    expectXY("fig1", 2, 3);
+    expectXY("fig2", 3, 4);
+    //up
+    await keyDown({ key: "ArrowUp", shiftKey: true });
+    expectXY("fig1", 2, 2);
+    expectXY("fig2", 3, 3);
   });
 
   test("figure is focused after a SELECT_FIGURE", async () => {
@@ -286,12 +457,23 @@ describe("figures", () => {
     expect(document.activeElement?.classList).toContain("o-figure");
   });
 
-  test("select a figure, it should have the  resize handles", async () => {
+  test("select a figure, it should have the resize handles", async () => {
     createFigure(model);
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-fig-anchor");
     expect(anchors).toHaveLength(8);
+  });
+
+  test("select multiple figure, they both should have the resize handles", async () => {
+    createFigure(model, { id: "fig1", offset: { x: 0, y: 0 }, width: 10, height: 10 });
+    createFigure(model, { id: "fig2", offset: { x: 20, y: 20 }, width: 10, height: 10 });
+    await nextTick();
+    model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+    model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+    await nextTick();
+    const anchors = fixture.querySelectorAll(".o-fig-anchor");
+    expect(anchors).toHaveLength(16);
   });
 
   test("selected figure snapshot", async () => {
@@ -624,6 +806,92 @@ describe("figures", () => {
       await nextTick();
       expect(model.getters.getFigure(sheetId, "someuuid")).toEqual(undefined);
     });
+
+    test("Can drag and drop multiple figures", async () => {
+      createFigure(model, {
+        id: "fig1",
+        col: 5,
+        row: 6,
+        offset: { x: 7, y: 8 },
+      });
+      createFigure(model, { id: "fig2", col: 0, row: 0, offset: { x: 0, y: 0 } });
+      await nextTick();
+      model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+      model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+      await nextTick();
+      await clickAndDrag(
+        ".o-figure",
+        { x: DEFAULT_CELL_WIDTH * 5 + 10, y: DEFAULT_CELL_HEIGHT * 3 + 5 },
+        undefined,
+        true
+      );
+      await nextTick();
+
+      expect(model.getters.getFigure(sheetId, "fig1")).toMatchObject({
+        col: 10,
+        row: 9,
+        offset: { x: 17, y: 13 },
+      });
+      expect(model.getters.getFigure(sheetId, "fig2")).toMatchObject({
+        col: 5,
+        row: 3,
+        offset: { x: 10, y: 5 },
+      });
+    });
+
+    test("Cannot drag and drop multiple figures past the leftMost boundary", async () => {
+      createFigure(model, {
+        id: "fig1",
+        col: 5,
+        row: 6,
+        offset: { x: 7, y: 8 },
+      });
+      createFigure(model, { id: "fig2", col: 1, row: 1, offset: { x: 1, y: 1 } });
+      await nextTick();
+      model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+      model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+      await nextTick();
+      await clickAndDrag(".o-figure", { x: -DEFAULT_CELL_WIDTH * 10, y: 0 }, undefined, true);
+      await nextTick();
+
+      expect(model.getters.getFigure(sheetId, "fig1")).toMatchObject({
+        col: 4,
+        row: 6,
+        offset: { x: 6, y: 8 },
+      });
+      expect(model.getters.getFigure(sheetId, "fig2")).toMatchObject({
+        col: 0,
+        row: 1,
+        offset: { x: 0, y: 1 },
+      });
+    });
+
+    test("Cannot drag and drop multiple figures past the topMost boundary", async () => {
+      createFigure(model, {
+        id: "fig1",
+        col: 5,
+        row: 6,
+        offset: { x: 7, y: 8 },
+      });
+      createFigure(model, { id: "fig2", col: 1, row: 1, offset: { x: 1, y: 1 } });
+      await nextTick();
+      model.dispatch("SELECT_FIGURE", { figureId: "fig1" });
+      model.dispatch("SELECT_FIGURE", { figureId: "fig2", selectMultiple: true });
+      await nextTick();
+      await clickAndDrag(".o-figure", { x: 0, y: -DEFAULT_CELL_HEIGHT * 10 }, undefined, true);
+      await nextTick();
+
+      expect(model.getters.getFigure(sheetId, "fig1")).toMatchObject({
+        col: 5,
+        row: 5,
+        offset: { x: 7, y: 7 },
+      });
+      expect(model.getters.getFigure(sheetId, "fig2")).toMatchObject({
+        col: 1,
+        row: 0,
+        offset: { x: 1, y: 0 },
+      });
+    });
   });
 
   test("Cannot select/move figure in readonly mode", async () => {
@@ -687,7 +955,7 @@ describe("figures", () => {
     await nextTick();
     triggerWheelEvent(".o-grid", { deltaY: 1500 });
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
-    expect(model.getters.getSelectedFigureId()).toEqual("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
   });
 
   describe.each(["image", "basicChart", "scorecard", "gauge"])(
@@ -775,12 +1043,12 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='copy']");
-        expect(model.getters.getSelectedFigureId()).toEqual(figureId);
+        expect(model.getters.getSelectedFigureIds()).toEqual([figureId]);
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
         const chartIds = getFigureIds(model, sheetId);
-        expect(model.getters.getSelectedFigureId()).not.toEqual(figureId);
-        expect(model.getters.getSelectedFigureId()).toEqual(chartIds[1]);
+        expect(model.getters.getSelectedFigureIds()).not.toEqual([figureId]);
+        expect(model.getters.getSelectedFigureIds()).toEqual([chartIds[1]]);
       });
 
       test(`figure ${type} have a menu button`, async () => {
@@ -862,11 +1130,11 @@ describe("figures", () => {
 
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {
         await simulateClick(".o-figure");
-        expect(model.getters.getSelectedFigureId()).toBe(figureId);
+        expect(model.getters.getSelectedFigureIds()).toEqual([figureId]);
         keyDown({ key: "Control" });
-        expect(model.getters.getSelectedFigureId()).toBe(figureId);
+        expect(model.getters.getSelectedFigureIds()).toEqual([figureId]);
         keyUp({ key: "Control" });
-        expect(model.getters.getSelectedFigureId()).toBe(figureId);
+        expect(model.getters.getSelectedFigureIds()).toEqual([figureId]);
       });
 
       test("Can download the image", async () => {
@@ -1039,6 +1307,130 @@ describe("figures", () => {
           expect(model.getters.getFigure(sheetId, "f1")?.offset).toMatchObject({
             x: 0,
             y: expectedResult % DEFAULT_CELL_HEIGHT,
+          });
+        }
+      );
+    });
+
+    describe("Move multiple figures", () => {
+      test.each([
+        [48, 50], // left border snaps with left border of other figure
+        [77, 75 - FIGURE_BORDER_WIDTH], // left border snaps with center of other figure
+        [102, 100 - FIGURE_BORDER_WIDTH], // left border snaps with right border of other figure
+        [38, 40 + FIGURE_BORDER_WIDTH], // center snaps with left border of other figure
+        [67, 65], // center snaps with center of other figure
+        [92, 90], // center snaps with right border of other figure
+        [31, 30 + FIGURE_BORDER_WIDTH], // right border snaps with left border of other figure
+        [57, 55], // right border snaps with center of other figure
+        [79, 80], // right border snaps with right border of other figure
+      ])(
+        "Snap x with horizontal mouseMove %s when moving multiple figures, snap is based on the union of all selected figures",
+        async (mouseMove: Pixel, expectedResult: Pixel) => {
+          createFigure(model, {
+            id: "f1_1",
+            col: 5,
+            row: 6,
+            offset: { x: 0, y: 0 },
+            width: 13,
+            height: 13,
+          });
+          createFigure(model, {
+            id: "f1_2",
+            col: 5,
+            row: 6,
+            offset: { x: 13, y: 13 },
+            width: 7,
+            height: 7,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 5,
+            row: 6,
+            offset: { x: 50, y: 50 },
+            width: 50,
+            height: 50,
+          });
+          await nextTick();
+          model.dispatch("SELECT_FIGURE", { figureId: "f1_1" });
+          model.dispatch("SELECT_FIGURE", { figureId: "f1_2", selectMultiple: true });
+          await nextTick();
+          await clickAndDrag(".o-figure[data-id=f1_1]", { x: mouseMove, y: 0 }, undefined, true);
+          expect(model.getters.getFigure(sheetId, "f1_1")).toMatchObject({
+            col: 5 + Math.floor(expectedResult / DEFAULT_CELL_WIDTH),
+            row: 6,
+          });
+          expect(model.getters.getFigure(sheetId, "f1_1")?.offset).toMatchObject({
+            x: expectedResult % DEFAULT_CELL_WIDTH,
+            y: 0,
+          });
+          expect(model.getters.getFigure(sheetId, "f1_2")).toMatchObject({
+            col: 5 + Math.floor((expectedResult + 13) / DEFAULT_CELL_WIDTH),
+            row: 6,
+          });
+          expect(model.getters.getFigure(sheetId, "f1_2")?.offset).toMatchObject({
+            x: (expectedResult + 13) % DEFAULT_CELL_WIDTH,
+            y: 13,
+          });
+        }
+      );
+
+      test.each([
+        [48, 50], // top border snaps with top border of other figure
+        [77, 75 - FIGURE_BORDER_WIDTH], // top border snaps with center of other figure
+        [102, 100 - FIGURE_BORDER_WIDTH], // top border snaps with bottom border of other figure
+        [38, 40 + FIGURE_BORDER_WIDTH], // center snaps with top border of other figure
+        [67, 65], // center snaps with center of other figure
+        [92, 90], // center snaps with bottom border of other figure
+        [31, 30 + FIGURE_BORDER_WIDTH], // bottom border snaps with top border of other figure
+        [57, 55], // bottom border snaps with center of other figure
+        [79, 80], // bottom border snaps with bottom border of other figure
+      ])(
+        "Snap y with vertical mouseMove %s when moving multiple figures, snap is based on the union of all selected figures",
+        async (mouseMove: Pixel, expectedResult: Pixel) => {
+          createFigure(model, {
+            id: "f1_1",
+            col: 5,
+            row: 6,
+            offset: { x: 0, y: 0 },
+            width: 13,
+            height: 13,
+          });
+          createFigure(model, {
+            id: "f1_2",
+            col: 5,
+            row: 6,
+            offset: { x: 13, y: 13 },
+            width: 7,
+            height: 7,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 5,
+            row: 6,
+            offset: { x: 50, y: 50 },
+            width: 50,
+            height: 50,
+          });
+          await nextTick();
+          model.dispatch("SELECT_FIGURE", { figureId: "f1_1" });
+          model.dispatch("SELECT_FIGURE", { figureId: "f1_2", selectMultiple: true });
+          await nextTick();
+          await clickAndDrag(".o-figure[data-id=f1_1]", { x: 0, y: mouseMove }, undefined, true);
+          expect(model.getters.getFigure(sheetId, "f1_1")).toMatchObject({
+            col: 5,
+            row: 6 + Math.floor(expectedResult / DEFAULT_CELL_HEIGHT),
+          });
+          expect(model.getters.getFigure(sheetId, "f1_1")?.offset).toMatchObject({
+            x: 0,
+            y: expectedResult % DEFAULT_CELL_HEIGHT,
+          });
+          expect(model.getters.getFigure(sheetId, "f1_2")).toMatchObject({
+            col: 5,
+            row: 6 + Math.floor((expectedResult + 13) / DEFAULT_CELL_HEIGHT),
+          });
+          expect(model.getters.getFigure(sheetId, "f1_2")?.offset).toMatchObject({
+            x: 13,
+            y: (expectedResult + 13) % DEFAULT_CELL_HEIGHT,
           });
         }
       );
@@ -1552,10 +1944,12 @@ describe("figures", () => {
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
+        triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 0, 0);
 
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 10 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeFalsy();
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
+        triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 0, 10);
 
         await clickAndDrag(
           ".o-figure[data-id=f1]",
@@ -1595,10 +1989,12 @@ describe("figures", () => {
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
+        triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 0, 0);
 
         await clickAndDrag(".o-figure[data-id=f1]", { x: 10, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeFalsy();
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
+        triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 10, 0);
 
         await clickAndDrag(
           ".o-figure[data-id=f1]",

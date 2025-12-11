@@ -36,6 +36,7 @@ import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { DynamicTranslate } from "./ui_feature/dynamic_translate";
+import { FigureUIPlugin } from "./ui_feature/figure";
 import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "./ui_feature/header_visibility_ui";
@@ -98,7 +99,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("checkbox_toggle", CheckboxTogglePlugin)
   .add("dynamic_translate", DynamicTranslate)
-  .add("geo_features", GeoFeaturePlugin);
+  .add("geo_features", GeoFeaturePlugin)
+  .add("figure_ui", FigureUIPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()

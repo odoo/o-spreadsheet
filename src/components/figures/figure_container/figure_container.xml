@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-FiguresContainer">
     <div class="position-absolute">
-      <t t-foreach="containers" t-as="container" t-key="container.type">
+      <t t-foreach="containers" t-as="container" t-key="container.id">
         <div
           class="o-figure-container position-absolute pe-none overflow-hidden"
           t-att-style="container.style"
@@ -9,6 +9,9 @@
           <div
             class="o-figure-viewport-inverse w-0 h-0 overflow-visible position-absolute"
             t-att-style="container.inverseViewportStyle">
+            <t t-if="container.id == 'dnd' and dnd.selectedRect">
+              <div t-att-style="selectedRectStyle" class="position-absolute o-selected-border"/>
+            </t>
             <t t-foreach="container.figures" t-as="figureUI" t-key="figureUI.id">
               <FigureComponent
                 figureUI="figureUI"

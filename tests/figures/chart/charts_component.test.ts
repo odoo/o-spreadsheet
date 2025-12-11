@@ -308,7 +308,7 @@ describe("charts", () => {
     await nextTick();
     expect(document.querySelector(".o-chart-container")).toBeTruthy();
     await doubleClick(fixture, ".o-chart-container");
-    expect(model.getters.getSelectedFigureId()).toBe("figureId");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["figureId"]);
     expect(document.querySelector(".o-chart")).toBeTruthy();
   });
 
@@ -1099,7 +1099,7 @@ describe("charts", () => {
 
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
     model.updateMode("readonly");
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
     await nextTick();
     await doubleClick(fixture, ".o-chart-container");
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
@@ -2267,7 +2267,7 @@ describe("charts", () => {
     await simulateClick(".o-figure");
     await keyDown({ key: "A", ctrlKey: true });
 
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
   });
 

@@ -13,6 +13,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
     return [];
   }
   const menuItemSpecs: ActionSpec[] = [
+    getMergeCarouselMenuItem(figureId, env),
     {
       id: "edit",
       name: _t("Edit"),
@@ -184,7 +185,9 @@ function getCopyMenuItem(
     name: _t("Copy"),
     shortcut: "Ctrl+C",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { figureId });
+      if (!env.model.getters.getSelectedFigureIds().includes(figureId)) {
+        env.model.dispatch("SELECT_FIGURE", { figureId });
+      }
       env.model.dispatch("COPY");
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
@@ -203,7 +206,9 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     name: _t("Cut"),
     shortcut: "Ctrl+X",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { figureId });
+      if (!env.model.getters.getSelectedFigureIds().includes(figureId)) {
+        env.model.dispatch("SELECT_FIGURE", { figureId });
+      }
       env.model.dispatch("CUT");
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
@@ -251,6 +256,7 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
       });
       env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
     },
+    isVisible: (env) => env.model.getters.getSelectedFigureIds().length <= 1,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
   };
@@ -276,6 +282,7 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
       }
       downloadFile(url, "chart");
     },
+    isVisible: (env) => env.model.getters.getSelectedFigureIds().length <= 1,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
   };
@@ -286,11 +293,45 @@ function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec 
     id: "delete",
     name: _t("Delete"),
     execute: () => {
-      env.model.dispatch("DELETE_FIGURE", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        figureId,
-      });
+      const selectedFiguresIds = env.model.getters.getSelectedFigureIds();
+      if (selectedFiguresIds.includes(figureId)) {
+        env.model.dispatch("DELETE_FIGURES", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          figureIds: selectedFiguresIds,
+        });
+      } else {
+        env.model.dispatch("DELETE_FIGURE", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          figureId,
+        });
+      }
     },
     icon: "o-spreadsheet-Icon.TRASH",
+  };
+}
+
+function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+  return {
+    id: "mergeCarousel",
+    name: _t("Create carousel"),
+    isVisible: (env) => {
+      const selectedFiguresIds = env.model.getters.getSelectedFigureIds();
+      if (selectedFiguresIds.length < 2 || !selectedFiguresIds.includes(figureId)) {
+        return false;
+      }
+      const sheetId = env.model.getters.getActiveSheetId();
+      const figures = selectedFiguresIds.map((id) => env.model.getters.getFigure(sheetId, id));
+      return !figures.some((f) => f === undefined || f.tag !== "chart");
+    },
+    execute: () => {
+      const sheetId = env.model.getters.getActiveSheetId();
+      const chartFigureIds = env.model.getters.getSelectedFigureIds();
+      env.model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+        sheetId,
+        baseFigureId: figureId,
+        chartFigureIds,
+      });
+    },
+    icon: "o-spreadsheet-Icon.CAROUSEL",
   };
 }
