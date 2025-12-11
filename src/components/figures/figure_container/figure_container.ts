@@ -23,6 +23,7 @@ interface Props {}
 
 interface Container {
   type: ContainerType;
+  id: UID;
   figures: FigureUI[];
   style: string;
   inverseViewportStyle: string;
@@ -36,6 +37,7 @@ interface Snap<T extends HFigureAxisType | VFigureAxisType> {
 
 interface DndState {
   draggedFigure?: FigureUI;
+  selectedFigure?: FigureUI[];
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
@@ -109,6 +111,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   dnd = useState<DndState>({
     draggedFigure: undefined,
+    selectedFigure: undefined,
     horizontalSnap: undefined,
     verticalSnap: undefined,
     cancelDnd: undefined,
@@ -130,10 +133,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const draggedFigureId = this.dnd.draggedFigure?.id;
       if (draggedFigureId && !this.env.model.getters.getFigure(sheetId, draggedFigureId)) {
-        if (this.dnd.cancelDnd) {
-          this.dnd.cancelDnd();
-        }
+        this.dnd.cancelDnd?.();
         this.dnd.draggedFigure = undefined;
+        this.dnd.selectedFigure = undefined;
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
         this.dnd.overlappingCarousel = undefined;
@@ -144,14 +146,11 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   private getVisibleFigures(): FigureUI[] {
     const visibleFigures = this.env.model.getters.getVisibleFigures();
-    if (
-      this.dnd.draggedFigure &&
-      !visibleFigures.some((figureUI) => figureUI.id === this.dnd.draggedFigure?.id)
-    ) {
-      if (this.dnd.draggedFigure) {
-        visibleFigures.push(this.dnd.draggedFigure);
+    this.dnd.selectedFigure?.forEach((f) => {
+      if (!visibleFigures.some((figureUI) => figureUI.id === f.id)) {
+        visibleFigures.push(f);
       }
-    }
+    });
     return visibleFigures;
   }
 
@@ -172,6 +171,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (containerFigures.length > 0) {
         containers.push({
           type: containerType,
+          id: containerType,
           figures: containerFigures,
           style: this.getContainerStyle(containerType),
           inverseViewportStyle: this.getInverseViewportPositionStyle(containerType),
@@ -179,12 +179,15 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
-    if (this.dnd.draggedFigure) {
-      containers.push({
-        type: "dnd",
-        figures: [this.getDndFigure()],
-        style: this.getContainerStyle("dnd"),
-        inverseViewportStyle: this.getInverseViewportPositionStyle("dnd"),
+    if (this.dnd.selectedFigure) {
+      this.dnd.selectedFigure.forEach((f) => {
+        containers.push({
+          type: "dnd",
+          id: f.id,
+          figures: [f],
+          style: this.getContainerStyle("dnd"),
+          inverseViewportStyle: this.getInverseViewportPositionStyle("dnd"),
+        });
       });
     }
 
@@ -242,7 +245,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   private getFigureContainer(figureUI: FigureUI): ContainerType {
     const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
-    if (figureUI.id === this.dnd.draggedFigure?.id) {
+    if (this.dnd.selectedFigure?.some((f) => f.id === figureUI.id)) {
       return "dnd";
     } else if (figureUI.x < viewportX && figureUI.y < viewportY) {
       return "topLeft";
@@ -274,9 +277,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu and no d&d in readonly mode
       return;
     }
-    const selectResult = this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
-    if (!selectResult.isSuccessful) {
-      return;
+    if (!this.env.model.getters.getSelectedFiguresIds().includes(figureUI.id)) {
+      const selectResult = this.env.model.dispatch("SELECT_FIGURE", {
+        figureId: figureUI.id,
+        selectMultiple: ev.shiftKey,
+      });
+      if (!selectResult.isSuccessful) {
+        return;
+      }
     }
 
     if (this.env.isMobile()) {
@@ -289,7 +297,13 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
 
-    const initialFigure = this.toBottomRightViewport(figureUI);
+    const initialFigures = this.env.model.getters
+      .getSelectedFiguresIds()
+      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+      .filter(isDefined)
+      .map((f) => this.env.model.getters.getFigureUI(sheetId, f))
+      .map(this.toBottomRightViewport.bind(this));
+    const draggedFigureId = figureUI.id;
 
     const maxDimensions = {
       maxX: this.env.model.getters.getColDimensions(
@@ -314,26 +328,40 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       }
       hasStartedDnd = true;
 
-      const draggedFigure = dragFigureForMove(
-        currentMousePosition,
-        initialMousePosition,
-        initialFigure,
-        maxDimensions,
-        initialScrollPosition,
-        getters.getActiveSheetScrollInfo()
+      const selectedFigures = initialFigures.map((figure) =>
+        dragFigureForMove(
+          currentMousePosition,
+          initialMousePosition,
+          figure,
+          maxDimensions,
+          initialScrollPosition,
+          getters.getActiveSheetScrollInfo()
+        )
       );
+      const draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
+      if (!draggedFigure) {
+        return;
+      }
 
-      const otherFigures = this.getOtherFigures(initialFigure.id);
+      const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       const overlappingCarousel = this.getCarouselOverlappingChart(draggedFigure, otherFigures);
       this.dnd.overlappingCarousel = overlappingCarousel;
 
       if (!overlappingCarousel) {
         const snapResult = snapForMove(getters, draggedFigure, otherFigures);
         this.dnd.draggedFigure = snapResult.snappedFigure;
+        // TODO put next line in snap result for frozenPane switch
+        selectedFigures.forEach((f) => {
+          if (f.id === draggedFigureId) return;
+          f.x -= snapResult.verticalSnapLine ? snapResult.verticalSnapLine.snapOffset : 0;
+          f.y -= snapResult.horizontalSnapLine ? snapResult.horizontalSnapLine.snapOffset : 0;
+        });
+        this.dnd.selectedFigure = selectedFigures;
         this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
         this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
       } else {
         this.dnd.draggedFigure = draggedFigure;
+        this.dnd.selectedFigure = selectedFigures;
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
       }
@@ -343,26 +371,27 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (!this.dnd.draggedFigure) {
         return;
       }
-      const { col, row, offset } = this.env.model.getters.getPositionAnchorOffset(
-        this.dnd.draggedFigure
-      );
       if (!this.dnd.overlappingCarousel) {
-        this.env.model.dispatch("UPDATE_FIGURE", {
-          sheetId,
-          figureId: figureUI.id,
-          offset,
-          col,
-          row,
+        this.dnd.selectedFigure?.forEach((f) => {
+          this.env.model.dispatch("UPDATE_FIGURE", {
+            sheetId,
+            figureId: f.id,
+            ...this.env.model.getters.getPositionAnchorOffset(f),
+          });
         });
       } else {
-        this.env.model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
-          sheetId,
-          carouselFigureId: this.dnd.overlappingCarousel.id,
-          chartFigureId: figureUI.id,
+        const carouselFigureId = this.dnd.overlappingCarousel.id;
+        this.dnd.selectedFigure?.forEach((f) => {
+          this.env.model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+            sheetId,
+            carouselFigureId,
+            chartFigureId: f.id,
+          });
         });
       }
 
       this.dnd.draggedFigure = undefined;
+      this.dnd.selectedFigure = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
       this.dnd.overlappingCarousel = undefined;
@@ -417,7 +446,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         maxDimensions
       );
 
-      const otherFigures = this.getOtherFigures(figureUI.id);
+      const otherFigures = this.getOtherFigures([figureUI.id]);
       const snapResult = snapForResize(
         this.env.model.getters,
         dirX,
@@ -426,6 +455,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         otherFigures
       );
       this.dnd.draggedFigure = snapResult.snappedFigure;
+      this.dnd.selectedFigure = undefined;
       this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
       this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
     };
@@ -449,6 +479,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         ...update,
       });
       this.dnd.draggedFigure = undefined;
+      this.dnd.selectedFigure = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
       this.dnd.overlappingCarousel = undefined;
@@ -457,14 +488,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
-  private getOtherFigures(figId: UID): FigureUI[] {
-    return this.getVisibleFigures().filter((f) => f.id !== figId);
-  }
-
-  private getDndFigure(): FigureUI {
-    const figure = this.dnd.draggedFigure;
-    if (!figure) throw new Error("Dnd figure not found");
-    return figure;
+  private getOtherFigures(figIds: UID[]): FigureUI[] {
+    return this.getVisibleFigures().filter((f) => !figIds.includes(f.id));
   }
 
   getFigureStyle(figureUI: FigureUI): string {

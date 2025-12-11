@@ -64,7 +64,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private borderWidth!: number;
 
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
+    return this.env.model.getters.getSelectedFiguresIds().includes(this.props.figureUI.id);
   }
 
   get figureRegistry() {
@@ -115,8 +115,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
-      (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
-        if (selectedFigureId === thisFigureId) {
+      (selectedFiguresIds: UID[], thisFigureId: UID, el: HTMLElement | null) => {
+        if (selectedFiguresIds.includes(thisFigureId)) {
           /** Scrolling on a newly inserted figure that overflows outside the viewport
            * will break the whole layout.
            * NOTE: `preventScroll`does not work on mobile but then again,
@@ -129,7 +129,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         }
       },
       () => [
-        this.env.model.getters.getSelectedFigureId(),
+        this.env.model.getters.getSelectedFiguresIds(),
         this.props.figureUI.id,
         this.figureRef.el,
       ]

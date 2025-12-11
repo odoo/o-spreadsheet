@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-FiguresContainer">
     <div class="position-absolute">
-      <t t-foreach="containers" t-as="container" t-key="container.type">
+      <t t-foreach="containers" t-as="container" t-key="container.id">
         <div
           class="o-figure-container position-absolute pe-none overflow-hidden"
           t-att-style="container.style"

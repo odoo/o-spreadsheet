@@ -985,6 +985,7 @@ export interface AutofillAutoCommand {
 export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
   figureId: UID | null;
+  selectMultiple?: boolean;
 }
 
 export interface ReplaceSearchCommand {

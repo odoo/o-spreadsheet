@@ -674,7 +674,8 @@ export class ClipboardPlugin extends UIPlugin {
 
   private getClipboardData(zones: Zone[]): ClipboardData {
     const sheetId = this.getters.getActiveSheetId();
-    const selectedFigureId = this.getters.getSelectedFigureId();
+    const selectedFiguresIds = this.getters.getSelectedFiguresIds();
+    const selectedFigureId = selectedFiguresIds.length && selectedFiguresIds[0];
     if (selectedFigureId) {
       return { figureId: selectedFigureId, sheetId };
     }
