@@ -123,21 +123,21 @@ export class InternalViewport {
    * the pane that is actually displayed on the client. We therefore adjust the offset of the pane
    * until it contains the cell completely.
    */
-  adjustPosition(position: Position) {
+  repositionViewport(position: Position) {
     const sheetId = this.sheetId;
     const mainCellPosition = this.getters.getMainCellPosition({ sheetId, ...position });
 
     const { col, row } = this.getters.getNextVisibleCellPosition(mainCellPosition);
     if (isInside(col, this.boundaries.top, this.boundaries)) {
-      this.adjustPositionX(col);
+      this.repositionViewportX(col);
     }
 
     if (isInside(this.boundaries.left, row, this.boundaries)) {
-      this.adjustPositionY(row);
+      this.repositionViewportY(row);
     }
   }
 
-  private adjustPositionX(targetCol: HeaderIndex) {
+  private repositionViewportX(targetCol: HeaderIndex) {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getColDimensions(sheetId, targetCol);
 
@@ -149,7 +149,7 @@ export class InternalViewport {
     this.adjustViewportZoneX();
   }
 
-  private adjustPositionY(targetRow: HeaderIndex) {
+  private repositionViewportY(targetRow: HeaderIndex) {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getRowDimensions(sheetId, targetRow);
     if (this.offsetY + this.viewportHeight + this.offsetCorrectionY < end) {
@@ -245,7 +245,7 @@ export class InternalViewport {
     );
   }
 
-  private searchHeaderIndex(
+  searchHeaderIndex(
     dimension: Dimension,
     position: Pixel,
     startIndex: HeaderIndex = 0

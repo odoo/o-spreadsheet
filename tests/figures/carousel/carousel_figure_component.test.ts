@@ -11,6 +11,7 @@ import {
   createChart,
   paste,
   selectCarouselItem,
+  selectFigure,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
@@ -256,6 +257,53 @@ describe("Carousel figure component", () => {
     expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
       chartId: radarChartId,
     });
+  });
+
+  test("Can select multiple figure and create a carousel", async () => {
+    createChart(model, { type: "bar" }, "baseChartId1", undefined, {
+      col: 1,
+      row: 1,
+      offset: { x: 1, y: 1 },
+      size: { width: 100, height: 100 },
+      figureId: "baseChartFigureId",
+    });
+    createChart(model, { type: "bar" }, "additionalChartId1", undefined, {
+      col: 5,
+      row: 0,
+      offset: { x: 2, y: 2 },
+      size: { width: 200, height: 200 },
+      figureId: "additionalChartFigureId1",
+    });
+    createChart(model, { type: "bar" }, "additionalChartId2", undefined, {
+      col: 0,
+      row: 5,
+      offset: { x: 3, y: 3 },
+      size: { width: 300, height: 300 },
+      figureId: "additionalChartFigureId2",
+    });
+
+    selectFigure(model, "baseChartFigureId", true);
+    selectFigure(model, "additionalChartFigureId1", true);
+    selectFigure(model, "additionalChartFigureId2", true);
+
+    const { fixture } = await mountSpreadsheet({ model });
+
+    triggerMouseEvent(".o-figure[data-id=baseChartFigureId]", "contextmenu");
+    await nextTick();
+
+    const createCarouselItem = fixture
+      .querySelectorAll(".o-menu-item")
+      .values()
+      .find((item) => item.textContent?.includes("Create carousel"))!;
+    await click(createCarouselItem);
+
+    expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+    const carouselFigure = model.getters.getFigures(sheetId)[0];
+    const carousel = model.getters.getCarousel(carouselFigure.id);
+    expect(carousel.items).toHaveLength(3);
+    expect(
+      new Set(carousel.items.map((item) => (item.type === "chart" ? item.chartId : undefined)))
+    ).toEqual(new Set(["baseChartId1", "additionalChartId1", "additionalChartId2"]));
   });
 
   test("Can open carousel context menu with both right click and the menu icon", async () => {

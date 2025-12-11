@@ -77,7 +77,7 @@ export class SheetViewPlugin extends UIPlugin {
   );
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
-  private shouldAdjustViewports: boolean = false;
+  private shouldRepositionViewports: boolean = false;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -157,7 +157,7 @@ export class SheetViewPlugin extends UIPlugin {
           this.sheetsWithDirtyViewports.add(sheetId);
           this.syncPaneDivision(sheetId);
         }
-        this.shouldAdjustViewports = true;
+        this.shouldRepositionViewports = !this.getters.getSelectedFigureIds().length;
         break;
       case "RESIZE_SHEETVIEW":
         this.viewports.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
@@ -244,15 +244,15 @@ export class SheetViewPlugin extends UIPlugin {
   finalize() {
     for (const sheetId of this.sheetsWithDirtyViewports) {
       this.viewports.resetViewports(sheetId);
-      if (this.shouldAdjustViewports) {
+      if (this.shouldRepositionViewports) {
         const position = this.getters.getSheetPosition(sheetId);
         this.viewports.getSubViewports(sheetId).forEach((viewport) => {
-          viewport.adjustPosition(position);
+          viewport.repositionViewport(position);
         });
       }
     }
     this.sheetsWithDirtyViewports = new Set();
-    this.shouldAdjustViewports = false;
+    this.shouldRepositionViewports = false;
     this.setViewports();
   }
 

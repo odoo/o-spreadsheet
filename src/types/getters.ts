@@ -17,6 +17,7 @@ import { CheckboxTogglePlugin } from "../plugins/ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
 import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
+import { FigureUIPlugin } from "../plugins/ui_feature/figure";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
@@ -82,7 +83,8 @@ export type RenderingGetters = {
   PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
-  PluginGetters<typeof ColorThemeUIPlugin>;
+  PluginGetters<typeof ColorThemeUIPlugin> &
+  PluginGetters<typeof FigureUIPlugin>;
 
 export type Getters = RenderingGetters &
   PluginGetters<typeof SheetViewPlugin> &
