@@ -1,5 +1,5 @@
 import { AllowedImageMimeTypes, Image } from "./image";
-import { ClipboardCell, HeaderIndex, UID, Zone } from "./misc";
+import { ClipboardCell, HeaderIndex, PixelPosition, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
@@ -48,7 +48,8 @@ export type ClipboardCellData = {
 
 export type ClipboardFigureData = {
   sheetId: UID;
-  figureId: UID;
+  figureIds: UID[];
+  topLeft: PixelPosition;
 };
 
 export type ClipboardData = ClipboardCellData | ClipboardFigureData;
@@ -63,6 +64,6 @@ export type MinimalClipboardData = {
   sheetId?: UID;
   cells?: ClipboardCell[][];
   zones?: Zone[];
-  figureId?: UID;
+  figureIds?: UID[];
   [key: string]: unknown;
 };

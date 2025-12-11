@@ -28,6 +28,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
     getCopyAsImageMenuItem(figureId, env),
     getDownloadChartMenuItem(figureId, env),
     getDeleteMenuItem(figureId, env),
+    getMergeCarouselMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
     env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
@@ -283,9 +284,43 @@ function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec 
     id: "delete",
     name: _t("Delete"),
     execute: () => {
-      env.model.dispatch("DELETE_FIGURE", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        figureId,
+      const selectedFiguresIds = env.model.getters.getSelectedFiguresIds();
+      if (selectedFiguresIds.includes(figureId)) {
+        env.model.dispatch("DELETE_FIGURES", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          figureIds: selectedFiguresIds,
+        });
+      } else {
+        env.model.dispatch("DELETE_FIGURE", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          figureId,
+        });
+      }
+    },
+    icon: "o-spreadsheet-Icon.TRASH",
+  };
+}
+
+function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+  return {
+    id: "mergeCarousel",
+    name: _t("Group into a carousel"),
+    isVisible: (env) => {
+      const selectedFiguresIds = env.model.getters.getSelectedFiguresIds();
+      if (selectedFiguresIds.length < 2 || !selectedFiguresIds.includes(figureId)) {
+        return false;
+      }
+      const sheetId = env.model.getters.getActiveSheetId();
+      const figures = selectedFiguresIds.map((id) => env.model.getters.getFigure(sheetId, id));
+      return !figures.some((f) => f === undefined || f.tag !== "chart");
+    },
+    execute: () => {
+      const sheetId = env.model.getters.getActiveSheetId();
+      const chartFigureIds = env.model.getters.getSelectedFiguresIds();
+      env.model.dispatch("MERGE_INTO_CAROUSEL", {
+        sheetId,
+        baseFigureId: figureId,
+        chartFigureIds,
       });
     },
     icon: "o-spreadsheet-Icon.TRASH",

@@ -7,37 +7,50 @@ import {
   ClipboardPasteTarget,
   CommandResult,
   Figure,
+  PixelPosition,
   UID,
   Zone,
 } from "../types";
 
 type ClipboardContent = {
+  figures: ClipboardCharts[];
+  figureIds: UID[];
+};
+
+type ClipboardCharts = {
   figureId: UID;
   copiedFigure: Figure;
   copiedChart: AbstractChart;
+  offset: PixelPosition;
 };
 
 export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
-    const figure = this.getters.getFigure(sheetId, data.figureId);
-    if (!figure) {
-      throw new Error(`No figure for the given id: ${data.figureId}`);
+    const figures: ClipboardCharts[] = [];
+    for (const figureId of data.figureIds) {
+      const figure = this.getters.getFigure(sheetId, figureId);
+      if (!figure) {
+        throw new Error(`No figure for the given id: ${figureId}`);
+      }
+      if (figure.tag !== "chart") {
+        continue;
+      }
+      const copiedFigure = { ...figure };
+      const { x, y } = this.getters.getFigureUI(sheetId, figure);
+      const chart = this.getters.getChartFromFigureId(figureId);
+      if (!chart) {
+        throw new Error(`No chart for the given id: ${figureId}`);
+      }
+      const copiedChart = chart.copyInSheetId(sheetId);
+      figures.push({
+        figureId,
+        copiedFigure,
+        copiedChart,
+        offset: { x: x - data.topLeft.x, y: y - data.topLeft.y },
+      });
     }
-    if (figure.tag !== "chart") {
-      return;
-    }
-    const copiedFigure = { ...figure };
-    const chart = this.getters.getChartFromFigureId(data.figureId);
-    if (!chart) {
-      throw new Error(`No chart for the given id: ${data.figureId}`);
-    }
-    const copiedChart = chart.copyInSheetId(sheetId);
-    return {
-      figureId: data.figureId,
-      copiedFigure,
-      copiedChart,
-    };
+    return { figures, figureIds: data.figureIds };
   }
 
   getPasteTarget(
@@ -46,47 +59,52 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    const newId = new UuidGenerator().smallUuid();
-    return { zones: [], figureId: newId, sheetId };
+    return { zones: [], figureId: "1", sheetId };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
     if (!target.figureId) {
       return;
     }
-    const { zones, figureId } = target;
+    const { zones } = target;
     const sheetId = target.sheetId;
-    const { width, height } = clippedContent.copiedFigure;
-    const copy = clippedContent.copiedChart.copyInSheetId(sheetId);
-    const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
-    let { left: col, top: row } = zones[0];
-    const offset = { x: 0, y: 0 };
-    if (col > maxPosition.col) {
-      col = maxPosition.col;
-      offset.x = maxPosition.offset.x;
-    }
-    if (row > maxPosition.row) {
-      row = maxPosition.row;
-      offset.y = maxPosition.offset.y;
-    }
-    this.dispatch("CREATE_CHART", {
-      figureId,
-      chartId: new UuidGenerator().smallUuid(),
-      sheetId,
-      definition: copy.getDefinition(),
-      col,
-      row,
-      offset,
-      size: { height, width },
-    });
+    for (const clippedFigure of clippedContent.figures) {
+      const figureId = new UuidGenerator().smallUuid();
+      const { width, height } = clippedFigure.copiedFigure;
+      const copy = clippedFigure.copiedChart.copyInSheetId(sheetId);
+      const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
+      let { left: col, top: row } = zones[0];
+      const offset = clippedFigure.offset;
+      if (col > maxPosition.col) {
+        col = maxPosition.col;
+        offset.x = maxPosition.offset.x;
+      }
+      if (row > maxPosition.row) {
+        row = maxPosition.row;
+        offset.y = maxPosition.offset.y;
+      }
+      this.dispatch("CREATE_CHART", {
+        figureId,
+        chartId: new UuidGenerator().smallUuid(),
+        sheetId,
+        definition: copy.getDefinition(),
+        col,
+        row,
+        offset,
+        size: { height, width },
+      });
 
-    if (options.isCutOperation) {
-      this.dispatch("DELETE_FIGURE", {
-        sheetId: clippedContent.copiedChart.sheetId,
-        figureId: clippedContent.copiedFigure.id,
+      if (options.isCutOperation) {
+        this.dispatch("DELETE_FIGURE", {
+          sheetId: clippedFigure.copiedChart.sheetId,
+          figureId: clippedFigure.copiedFigure.id,
+        });
+      }
+      this.dispatch("SELECT_FIGURE", {
+        figureId,
+        selectMultiple: clippedContent.figureIds.length > 1,
       });
     }
-    this.dispatch("SELECT_FIGURE", { figureId });
   }
 
   isPasteAllowed(sheetId: UID, target: Zone[], content: any, option?: ClipboardOptions) {
