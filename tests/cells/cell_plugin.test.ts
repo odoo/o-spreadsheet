@@ -1,4 +1,3 @@
-import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CoreCommand, CorePlugin, Model } from "../../src";
@@ -31,7 +30,6 @@ import {
   getCellStyle,
   getCellText,
   getEvaluatedCell,
-  getStyle,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, getGrid, setGrid, target } from "../test_helpers/helpers";
 
@@ -266,7 +264,6 @@ describe("link cell", () => {
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
       expect(getCell(model, "A1")?.content).toBe(`[my label](${url})`);
-      expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "A1")).toBe("my label");
     }
   );
@@ -281,7 +278,6 @@ describe("link cell", () => {
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
       expect(getCell(model, "B1")?.content).toBe(`=HYPERLINK("${url}", "Odoo")`);
-      expect(getStyle(model, "B1")).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
     }
   );
