@@ -7,36 +7,49 @@ import {
   ClipboardPasteTarget,
   CommandResult,
   Figure,
+  PixelPosition,
   UID,
   Zone,
 } from "../types";
 
 type ClipboardContent = {
+  figures: ClipboardImages[];
+  figureIds: UID[];
+};
+
+type ClipboardImages = {
   figureId: UID;
   copiedFigure: Figure;
   copiedImage: Image;
   sheetId: UID;
+  offset: PixelPosition;
 };
 
 export class ImageClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
-    const figure = this.getters.getFigure(sheetId, data.figureId);
-    if (!figure) {
-      throw new Error(`No figure for the given id: ${data.figureId}`);
+    const figures: ClipboardImages[] = [];
+    for (const figureId of data.figureIds) {
+      const figure = this.getters.getFigure(sheetId, figureId);
+      if (!figure) {
+        throw new Error(`No figure for the given id: ${figureId}`);
+      }
+      if (figure.tag !== "image") {
+        continue;
+      }
+      const copiedFigure = { ...figure };
+      const { x, y } = this.getters.getFigureUI(sheetId, figure);
+      const image = this.getters.getImage(figureId);
+      const copiedImage = deepCopy(image);
+      figures.push({
+        figureId,
+        copiedFigure,
+        copiedImage,
+        sheetId,
+        offset: { x: x - data.topLeft.x, y: y - data.topLeft.y },
+      });
     }
-    const copiedFigure = { ...figure };
-    if (figure.tag !== "image") {
-      return;
-    }
-    const image = this.getters.getImage(data.figureId);
-    const copiedImage = deepCopy(image);
-    return {
-      figureId: data.figureId,
-      copiedFigure,
-      copiedImage,
-      sheetId,
-    };
+    return { figures, figureIds: data.figureIds };
   }
 
   getPasteTarget(
@@ -45,46 +58,51 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    const newId = new UuidGenerator().smallUuid();
-    return { sheetId, zones: [], figureId: newId };
+    return { sheetId, zones: [], figureId: "1" };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
     if (!target.figureId) {
       return;
     }
-    const { zones, figureId } = target;
-    const sheetId = this.getters.getActiveSheetId();
-    const { width, height } = clippedContent.copiedFigure;
-    const copy = deepCopy(clippedContent.copiedImage);
-    const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
-    let { left: col, top: row } = zones[0];
-    const offset = { x: 0, y: 0 };
-    if (col > maxPosition.col) {
-      col = maxPosition.col;
-      offset.x = maxPosition.offset.x;
-    }
-    if (row > maxPosition.row) {
-      row = maxPosition.row;
-      offset.y = maxPosition.offset.y;
-    }
-    this.dispatch("CREATE_IMAGE", {
-      figureId,
-      sheetId,
-      col,
-      row,
-      offset,
-      size: { height, width },
-      definition: copy,
-    });
+    const { zones } = target;
+    for (const clippedFigure of clippedContent.figures) {
+      const figureId = new UuidGenerator().smallUuid();
+      const sheetId = this.getters.getActiveSheetId();
+      const { width, height } = clippedFigure.copiedFigure;
+      const copy = deepCopy(clippedFigure.copiedImage);
+      const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
+      let { left: col, top: row } = zones[0];
+      const offset = clippedFigure.offset;
+      if (col > maxPosition.col) {
+        col = maxPosition.col;
+        offset.x = maxPosition.offset.x;
+      }
+      if (row > maxPosition.row) {
+        row = maxPosition.row;
+        offset.y = maxPosition.offset.y;
+      }
+      this.dispatch("CREATE_IMAGE", {
+        figureId,
+        sheetId,
+        col,
+        row,
+        offset,
+        size: { height, width },
+        definition: copy,
+      });
 
-    if (options.isCutOperation) {
-      this.dispatch("DELETE_FIGURE", {
-        sheetId: clippedContent.sheetId,
-        figureId: clippedContent.copiedFigure.id,
+      if (options.isCutOperation) {
+        this.dispatch("DELETE_FIGURE", {
+          sheetId: clippedFigure.sheetId,
+          figureId: clippedFigure.copiedFigure.id,
+        });
+      }
+      this.dispatch("SELECT_FIGURE", {
+        figureId,
+        selectMultiple: clippedContent.figureIds.length > 1,
       });
     }
-    this.dispatch("SELECT_FIGURE", { figureId });
   }
 
   isPasteAllowed(

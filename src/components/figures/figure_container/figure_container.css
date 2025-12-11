@@ -15,6 +15,10 @@
     -webkit-user-select: none; /* safari */
     user-select: none;
   }
+  .o-selected-border {
+    border: 1.5px dashed var(--os-selection-border-color);
+    opacity: 1;
+  }
   .o-figure.o-add-to-carousel::before {
     content: "";
     position: absolute;

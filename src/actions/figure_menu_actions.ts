@@ -283,10 +283,18 @@ function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec 
     id: "delete",
     name: _t("Delete"),
     execute: () => {
-      env.model.dispatch("DELETE_FIGURE", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        figureId,
-      });
+      const selectedFiguresIds = env.model.getters.getSelectedFiguresIds();
+      if (selectedFiguresIds.includes(figureId)) {
+        env.model.dispatch("DELETE_FIGURES", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          figureIds: selectedFiguresIds,
+        });
+      } else {
+        env.model.dispatch("DELETE_FIGURE", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          figureId,
+        });
+      }
     },
     icon: "o-spreadsheet-Icon.TRASH",
   };

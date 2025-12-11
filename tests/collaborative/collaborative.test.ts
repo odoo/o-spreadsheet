@@ -612,8 +612,8 @@ describe("Multi users synchronisation", () => {
       },
     });
     alice.dispatch("SELECT_FIGURE", { figureId: "42" });
-    expect(alice.getters.getSelectedFigureId()).toBe("42");
-    expect(bob.getters.getSelectedFigureId()).toBeNull();
+    expect(alice.getters.getSelectedFiguresIds()).toEqual(["42"]);
+    expect(bob.getters.getSelectedFiguresIds()).toEqual([]);
   });
 
   test("Spreadsheet in readonly still receive commands", () => {

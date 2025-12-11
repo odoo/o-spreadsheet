@@ -540,9 +540,24 @@ export interface UpdateFigureCommand
   figureId: UID;
 }
 
+interface MoveFiguresSubCommand extends PositionDependentCommand {
+  figureId: UID;
+  offset: PixelPosition;
+}
+
+export interface MoveFiguresCommand {
+  type: "MOVE_FIGURES";
+  commands: MoveFiguresSubCommand[];
+}
+
 export interface DeleteFigureCommand extends SheetDependentCommand {
   type: "DELETE_FIGURE";
   figureId: UID;
+}
+
+export interface DeleteFiguresCommand extends SheetDependentCommand {
+  type: "DELETE_FIGURES";
+  figureIds: UID[];
 }
 
 interface BaseFigureCommand extends PositionDependentCommand {
@@ -595,10 +610,10 @@ export interface AddNewChartToCarouselCommand extends SheetDependentCommand {
   figureId: UID;
 }
 
-export interface AddFigureChartToCarouselCommand extends SheetDependentCommand {
-  type: "ADD_FIGURE_CHART_TO_CAROUSEL";
+export interface AddFiguresChartToCarouselCommand extends SheetDependentCommand {
+  type: "ADD_FIGURES_CHART_TO_CAROUSEL";
   carouselFigureId: UID;
-  chartFigureId: UID;
+  chartFigureIds: UID[];
 }
 
 export interface DuplicateCarouselChartCommand extends SheetDependentCommand {
@@ -985,6 +1000,7 @@ export interface AutofillAutoCommand {
 export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
   figureId: UID | null;
+  selectMultiple?: boolean;
 }
 
 export interface ReplaceSearchCommand {
@@ -1292,10 +1308,12 @@ export type LocalCommand =
   | PivotStopPresenceTracking
   | ToggleCheckboxCommand
   | AddNewChartToCarouselCommand
-  | AddFigureChartToCarouselCommand
+  | AddFiguresChartToCarouselCommand
   | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
-  | PopOutChartFromCarouselCommand;
+  | PopOutChartFromCarouselCommand
+  | MoveFiguresCommand
+  | DeleteFiguresCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
