@@ -48,7 +48,7 @@ export type ClipboardCellData = {
 
 export type ClipboardFigureData = {
   sheetId: UID;
-  figureId: UID;
+  figureIds: UID[];
 };
 
 export type ClipboardData = ClipboardCellData | ClipboardFigureData;
@@ -56,13 +56,13 @@ export type ClipboardData = ClipboardCellData | ClipboardFigureData;
 export type ClipboardPasteTarget = {
   sheetId: UID;
   zones: Zone[];
-  figureId?: UID;
+  figureIds?: Record<UID, UID>; // Record<OriginalId, CopyId>
 };
 
 export type MinimalClipboardData = {
   sheetId?: UID;
   cells?: ClipboardCell[][];
   zones?: Zone[];
-  figureId?: UID;
+  figureIds?: UID[];
   [key: string]: unknown;
 };

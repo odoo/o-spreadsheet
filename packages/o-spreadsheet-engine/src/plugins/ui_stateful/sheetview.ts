@@ -207,11 +207,13 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
-        this.cleanViewports();
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.sheetsWithDirtyViewports.add(sheetId);
+        if (!this.getters.getSelectedFigureIds().length) {
+          this.cleanViewports();
+          for (const sheetId of this.getters.getSheetIds()) {
+            this.sheetsWithDirtyViewports.add(sheetId);
+          }
+          this.shouldAdjustViewports = true;
         }
-        this.shouldAdjustViewports = true;
         break;
       case "RESIZE_SHEETVIEW":
         this.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
@@ -948,8 +950,20 @@ export class SheetViewPlugin extends UIPlugin {
     const { scrollX, scrollY } = this.getters.getActiveSheetScrollInfo();
     const x = position.x - scrollX;
     const y = position.y - scrollY;
-    const col = x >= 0 ? this.getColIndex(x) : this.getColIndexLeftOfMainViewport(x);
-    const row = y >= 0 ? this.getRowIndex(y) : this.getRowIndexTopOfMainViewport(y);
+    let col = x >= 0 ? this.getColIndex(x) : this.getColIndexLeftOfMainViewport(x);
+    if (col < 0) {
+      col = this.getMainInternalViewport(this.getters.getActiveSheetId()).searchHeaderIndex(
+        "COL",
+        x
+      );
+    }
+    let row = y >= 0 ? this.getRowIndex(y) : this.getRowIndexTopOfMainViewport(y);
+    if (row < 0) {
+      row = this.getMainInternalViewport(this.getters.getActiveSheetId()).searchHeaderIndex(
+        "ROW",
+        y
+      );
+    }
     const { x: colX, y: rowY } = this.getRect(positionToZone({ col, row }));
     return {
       col,
