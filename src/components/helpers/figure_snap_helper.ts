@@ -1,5 +1,6 @@
 import { FIGURE_BORDER_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { FigureUI, Getters, Pixel, PixelPosition, UID } from "../../types";
+import { rectUnion } from "@odoo/o-spreadsheet-engine/helpers/rectangle";
+import { FigureUI, Getters, Pixel, PixelPosition, Rect, UID } from "../../types";
 
 const SNAP_MARGIN: Pixel = 5;
 
@@ -18,8 +19,8 @@ export interface SnapLine<T extends HFigureAxisType | VFigureAxisType> {
   position: Pixel;
 }
 
-interface SnapReturn {
-  snappedFigure: FigureUI;
+interface SnapReturn<T> {
+  snappedFigures: T;
   verticalSnapLine?: SnapLine<VFigureAxisType>;
   horizontalSnapLine?: SnapLine<HFigureAxisType>;
 }
@@ -30,12 +31,14 @@ interface SnapReturn {
  */
 export function snapForMove(
   getters: Getters,
-  figureToSnap: FigureUI,
+  figuresToSnap: FigureUI[],
   otherFigures: FigureUI[]
-): SnapReturn {
+): SnapReturn<FigureUI[]> {
+  const aggregateRect = rectUnion(...figuresToSnap);
+
   const verticalSnapLine = getSnapLine(
     getters,
-    figureToSnap,
+    aggregateRect,
     ["hCenter", "right", "left"],
     otherFigures,
     ["hCenter", "right", "left"]
@@ -43,7 +46,7 @@ export function snapForMove(
 
   const horizontalSnapLine = getSnapLine(
     getters,
-    figureToSnap,
+    aggregateRect,
     ["vCenter", "bottom", "top"],
     otherFigures,
     ["vCenter", "bottom", "top"]
@@ -53,33 +56,35 @@ export function snapForMove(
   const { scrollY, scrollX } = getters.getActiveSheetScrollInfo();
 
   // If the snap cause the figure to change pane, we need to also apply the scroll as an offset
-  if (horizontalSnapLine) {
-    figureToSnap.y -= horizontalSnapLine.snapOffset;
+  for (const figureToSnap of figuresToSnap) {
+    if (horizontalSnapLine) {
+      figureToSnap.y -= horizontalSnapLine.snapOffset;
 
-    const isBaseFigFrozenY = figureToSnap.y < viewportY;
-    const isSnappedFrozenY = figureToSnap.y < viewportY;
+      const isBaseFigFrozenY = figureToSnap.y < viewportY;
+      const isSnappedFrozenY = figureToSnap.y < viewportY;
 
-    if (isBaseFigFrozenY && !isSnappedFrozenY) {
-      figureToSnap.y += scrollY;
-    } else if (!isBaseFigFrozenY && isSnappedFrozenY) {
-      figureToSnap.y -= scrollY;
+      if (isBaseFigFrozenY && !isSnappedFrozenY) {
+        figureToSnap.y += scrollY;
+      } else if (!isBaseFigFrozenY && isSnappedFrozenY) {
+        figureToSnap.y -= scrollY;
+      }
+    }
+
+    if (verticalSnapLine) {
+      figureToSnap.x -= verticalSnapLine.snapOffset;
+
+      const isBaseFigFrozenX = figureToSnap.x < viewportX;
+      const isSnappedFrozenX = figureToSnap.x < viewportX;
+
+      if (isBaseFigFrozenX && !isSnappedFrozenX) {
+        figureToSnap.x += scrollX;
+      } else if (!isBaseFigFrozenX && isSnappedFrozenX) {
+        figureToSnap.x -= scrollX;
+      }
     }
   }
 
-  if (verticalSnapLine) {
-    figureToSnap.x -= verticalSnapLine.snapOffset;
-
-    const isBaseFigFrozenX = figureToSnap.x < viewportX;
-    const isSnappedFrozenX = figureToSnap.x < viewportX;
-
-    if (isBaseFigFrozenX && !isSnappedFrozenX) {
-      figureToSnap.x += scrollX;
-    } else if (!isBaseFigFrozenX && isSnappedFrozenX) {
-      figureToSnap.x -= scrollX;
-    }
-  }
-
-  return { snappedFigure: figureToSnap, verticalSnapLine, horizontalSnapLine };
+  return { snappedFigures: figuresToSnap, verticalSnapLine, horizontalSnapLine };
 }
 
 /**
@@ -92,7 +97,7 @@ export function snapForResize(
   resizeDirY: -1 | 0 | 1,
   figureToSnap: FigureUI,
   otherFigures: FigureUI[]
-): SnapReturn {
+): SnapReturn<FigureUI[]> {
   // Vertical snap line
   const verticalSnapLine = getSnapLine(
     getters,
@@ -132,7 +137,7 @@ export function snapForResize(
   figureToSnap.height = Math.round(figureToSnap.height);
   figureToSnap.width = Math.round(figureToSnap.width);
 
-  return { snappedFigure: figureToSnap, verticalSnapLine, horizontalSnapLine };
+  return { snappedFigures: [figureToSnap], verticalSnapLine, horizontalSnapLine };
 }
 
 /**
@@ -193,7 +198,7 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
 
 function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
   getters: Getters,
-  figureToSnap: FigureUI,
+  figureToSnap: Rect,
   figAxesTypes: T,
   otherFigures: FigureUI[],
   otherAxesTypes: T
@@ -237,7 +242,7 @@ function canSnap(axisPosition1: Pixel, axisPosition2: Pixel) {
 
 function getAxis<T extends HFigureAxisType | VFigureAxisType>(
   getters: Getters,
-  figureUI: FigureUI,
+  figureUI: Rect,
   dnd: boolean,
   axisType: T
 ): FigureAxis<T> {
