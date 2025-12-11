@@ -38,6 +38,7 @@ import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { DynamicTranslate } from "./ui_feature/dynamic_translate";
+import { FigureUIPlugin } from "./ui_feature/figure";
 import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "./ui_feature/header_visibility_ui";
@@ -115,7 +116,8 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("carousel_ui", CarouselUIPlugin)
-  .add("lock_sheet", LockSheetPlugin);
+  .add("lock_sheet", LockSheetPlugin)
+  .add("figure_ui", FigureUIPlugin);
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()

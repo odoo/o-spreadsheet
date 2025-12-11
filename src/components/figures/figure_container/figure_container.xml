@@ -9,6 +9,9 @@
           <div
             class="o-figure-viewport-inverse w-0 h-0 overflow-visible position-absolute"
             t-att-style="container.inverseViewportStyle">
+            <t t-if="container.type == 'dnd' and dnd.selectedRect">
+              <div t-att-style="selectedRectStyle" class="position-absolute o-selected-border"/>
+            </t>
             <t t-foreach="container.figures" t-as="figureUI" t-key="figureUI.id">
               <FigureComponent
                 figureUI="figureUI"

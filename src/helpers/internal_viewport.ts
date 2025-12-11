@@ -245,7 +245,7 @@ export class InternalViewport {
     );
   }
 
-  private searchHeaderIndex(
+  searchHeaderIndex(
     dimension: Dimension,
     position: Pixel,
     startIndex: HeaderIndex = 0
