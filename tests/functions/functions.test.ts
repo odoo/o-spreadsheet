@@ -3,10 +3,11 @@ import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { isEvaluationError, toBoolean, toNumber } from "../../src/functions/helpers";
+import { toXC } from "../../src/helpers";
 import { Arg, CellErrorType, DEFAULT_LOCALE, EvaluationError } from "../../src/types";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry, evaluateCell } from "../test_helpers/helpers";
+import { addToRegistry, clearFunctions, evaluateCell } from "../test_helpers/helpers";
 
 describe("functions", () => {
   test("can add a function", () => {
@@ -152,6 +153,71 @@ describe("functions", () => {
     setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A2)");
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
+  });
+
+  describe("Functions output can be used as a reference", () => {
+    beforeEach(() => {
+      clearFunctions();
+      addToRegistry(functionRegistry, "GET.VALUE", {
+        args: [arg("cell (any)", "blabla")],
+        description: "Get the value of a cell",
+        compute: function (arg) {
+          return arg || { value: 0 };
+        },
+      });
+      addToRegistry(functionRegistry, "GET.POSITION", {
+        args: [arg("cell (any)", "blabla")],
+        description: "Get the position of a cell if argument is a reference",
+        compute: function (arg) {
+          const _arg = toScalar(arg);
+          const position = _arg?.position;
+          if (position === undefined) {
+            return { value: "nope" };
+          }
+          return { value: toXC(position.col, position.row) };
+        },
+      });
+    });
+
+    test("Cant use references with non-cell values", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "42");
+      setCellContent(model, "B1", "=GET.POSITION(42)");
+      expect(getEvaluatedCell(model, "B1").value).toBe("nope");
+      setCellContent(model, "B2", '=GET.POSITION("string")');
+      expect(getEvaluatedCell(model, "B2").value).toBe("nope");
+      setCellContent(model, "B3", "=GET.POSITION(TRUE)");
+      expect(getEvaluatedCell(model, "B3").value).toBe("nope");
+    });
+
+    test("Can return correct reference for direct cell references", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "10");
+      setCellContent(model, "A2", "=A1");
+      setCellContent(model, "A3", "=A2");
+      setCellContent(model, "B1", "=GET.POSITION(A1)");
+      setCellContent(model, "B2", "=GET.POSITION(A2)");
+      setCellContent(model, "B3", "=GET.POSITION(A3)");
+      expect(getEvaluatedCell(model, "B1").value).toBe("A1");
+      expect(getEvaluatedCell(model, "B2").value).toBe("A2");
+      expect(getEvaluatedCell(model, "B3").value).toBe("A3");
+    });
+
+    test("Can use function output as a reference", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "5");
+      setCellContent(model, "A2", "=A1");
+
+      setCellContent(model, "B1", "=GET.VALUE(A2)");
+      expect(getEvaluatedCell(model, "B1").value).toBe(5);
+      setCellContent(model, "B2", "=GET.POSITION(GET.VALUE(A2))");
+      expect(getEvaluatedCell(model, "B2").value).toBe("A2");
+
+      setCellContent(model, "C1", "=GET.VALUE(42)");
+      expect(getEvaluatedCell(model, "C1").value).toBe(42);
+      setCellContent(model, "C2", "=GET.POSITION(GET.VALUE(42))");
+      expect(getEvaluatedCell(model, "C2").value).toBe("nope");
+    });
   });
 
   test("Can use a custom evaluation context in a function", () => {

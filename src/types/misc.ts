@@ -168,11 +168,11 @@ export interface Border {
   right?: BorderDescr;
 }
 
-export type ReferenceDenormalizer = (range: Range, isMeta: boolean) => FunctionResultObject;
+export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
-export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FunctionResultObject>;
+export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
 
-export type GetSymbolValue = (symbolName: string, isRange: boolean, isMeta: boolean) => Arg;
+export type GetSymbolValue = (symbolName: string, isRange: boolean) => Arg;
 
 export type FormulaToExecute = (
   deps: Range[],
@@ -195,6 +195,16 @@ export type FunctionResultObject = {
   errorOriginPosition?: CellPosition;
   message?: string;
   origin?: CellPosition;
+  /**
+   * When a formula returns a reference to another cell (rather than just a value),
+   * this stores the referenced cell's position.
+   *
+   * Example: `LOOKUP(42, B1:B9, C1:C9)` might resolve to cell C5, setting
+   * `position` to C5. Formulas that specifically expect a cell reference as input
+   * can then receive C5 as a reference rather than just its value
+   * (e.g. `=CELL("format", LOOKUP(42, B1:B9, C1:C9))`).
+   */
+  position?: CellPosition;
 };
 
 export type FunctionResultNumber = { value: number; format?: string };

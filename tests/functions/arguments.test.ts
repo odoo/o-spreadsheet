@@ -137,18 +137,6 @@ describe("arguments validation", () => {
     return validateArguments(descr);
   }
 
-  test("'META' type can only be declared alone", () => {
-    expect(() => validateArgsDefinition(["metaArg (meta)"])).not.toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, optional)"])).not.toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, repeating)"])).not.toThrow();
-
-    expect(() => validateArgsDefinition(["metaArg (meta, any)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, range)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, number)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, string)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, boolean)"])).toThrow();
-  });
-
   test("All repeatable arguments must be declared consecutively", () => {
     expect(() => validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)"])).not.toThrow();
     expect(() =>

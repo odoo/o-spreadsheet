@@ -153,6 +153,10 @@ describe("IF formula", () => {
       [42, 42, 42],
     ]);
   });
+
+  test("IF output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", IF(false, B1, C1))' })).toBe("$C$1");
+  });
 });
 
 describe("IFERROR formula", () => {
@@ -481,6 +485,10 @@ describe("IFS formula", () => {
       [24, 24, 24],
     ]);
   });
+
+  test("IFS output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", IFS(false, B1, true, C1))' })).toBe("$C$1");
+  });
 });
 
 describe("NOT formula", () => {
@@ -622,6 +630,12 @@ describe("SWITCH formula", () => {
     expect(evaluateCell("A1", { A1: "=SWITCH(42, 42, 111, KABOUM, 666)" })).toBe(111);
     expect(evaluateCell("A1", { A1: "=SWITCH(42, 23, KABOUM, KABOUM, 666, 42, 11)" })).toBe(
       "#BAD_EXPR"
+    );
+  });
+
+  test("SWITCH output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", SWITCH(42, 41, B1, 42, C1, 43, D1))' })).toBe(
+      "$C$1"
     );
   });
 });

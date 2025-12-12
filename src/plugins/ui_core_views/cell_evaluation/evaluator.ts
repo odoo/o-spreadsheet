@@ -123,7 +123,7 @@ export class Evaluator {
   private computeDependencies(dependencies: Range[]) {
     for (const range of dependencies) {
       // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range, false);
+      this.compilationParams.ensureRange(range);
     }
   }
 
@@ -434,7 +434,8 @@ export class Evaluator {
     return createEvaluatedCell(
       validateNumberValue(formulaReturn[0][0]),
       this.getters.getLocale(),
-      cellData
+      cellData,
+      formulaPosition
     );
   }
 
@@ -552,7 +553,7 @@ export class Evaluator {
    * and error handling.
    */
   private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
-    const getSymbolValue = (symbolName: string, isRange: boolean, isMeta: boolean) => {
+    const getSymbolValue = (symbolName: string, isRange: boolean) => {
       if (this.symbolsBeingComputed.has(symbolName)) {
         return ERROR_CYCLE_CELL;
       }
@@ -567,10 +568,10 @@ export class Evaluator {
 
           const isMultiCellZone = getZoneArea(namedRange.range.zone) > 1;
           return isMultiCellZone || isRange
-            ? this.compilationParams.ensureRange(namedRange.range, isMeta)
-            : this.compilationParams.referenceDenormalizer(namedRange.range, isMeta);
+            ? this.compilationParams.ensureRange(namedRange.range)
+            : this.compilationParams.referenceDenormalizer(namedRange.range);
         }
-        const symbolValue = getContextualSymbolValue?.(symbolName, isRange, isMeta);
+        const symbolValue = getContextualSymbolValue?.(symbolName, isRange);
         if (symbolValue) {
           return symbolValue;
         }
