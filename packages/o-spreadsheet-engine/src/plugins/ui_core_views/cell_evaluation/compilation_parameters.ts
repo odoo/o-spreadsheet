@@ -52,6 +52,7 @@ class CompilationParametersBuilder {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
       locale: this.getters.getLocale(),
+      getRef: this.getRef.bind(this),
     });
   }
 
@@ -84,7 +85,7 @@ class CompilationParametersBuilder {
       const sheetName = this.getters.getSheetName(range.sheetId);
       return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
     }
-    return this.computeCell(position);
+    return { ...this.computeCell(position), position };
   }
 
   /**
@@ -111,7 +112,7 @@ class CompilationParametersBuilder {
       return [[]];
     }
     const { top, left, bottom, right } = zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}-${isMeta}`;
+    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
     if (cacheKey in this.rangeCache) {
       return this.rangeCache[cacheKey];
     }
@@ -127,15 +128,18 @@ class CompilationParametersBuilder {
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
-        const computedCell = this.computeCell({ sheetId, col, row });
         matrix[colIndex][rowIndex] = isMeta
           ? { value: getFullReference(sheetName, toXC(col, row)) }
-          : computedCell;
+          : this.getRef({ sheetId, col, row });
       }
     }
 
     this.rangeCache[cacheKey] = matrix;
     return matrix;
+  }
+
+  private getRef(position: CellPosition): FunctionResultObject {
+    return { ...this.computeCell(position), position };
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {
