@@ -108,4 +108,8 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   onDimensionsUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
     this.store.update(definition);
   }
+
+  onFiltersUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
+    this.store.update(definition);
+  }
 }
