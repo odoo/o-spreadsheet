@@ -112,11 +112,26 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.moreToolsContainerRef.el?.classList.remove("d-none");
     const moreToolsWidth = this.moreToolsButtonRef.el?.getBoundingClientRect().width || 0;
 
+    // Named range + divider
+    let startingElementsWidth: number = 0;
+    for (const child of this.toolbarRef.el!.children) {
+      if (child.classList.contains("tool-container")) {
+        break;
+      }
+      startingElementsWidth += child.getBoundingClientRect().width;
+    }
+    startingElementsWidth = 0;
+
     // The actual width in which we can place our tools so that they are visible.
     // Every tool container passed that width will be hidden.
     // We remove 16px to the width to account for a scrollbar that might appear.
     // Otherwise, we could end up in a loop of computation
-    const usableWidth = Math.round(this.spreadsheetRect.width) - moreToolsWidth - (toolsX - x) - 16;
+    const usableWidth =
+      Math.round(this.spreadsheetRect.width) -
+      moreToolsWidth -
+      (toolsX - x) -
+      16 -
+      startingElementsWidth;
 
     const toolElements = document.querySelectorAll(".tool-container");
 

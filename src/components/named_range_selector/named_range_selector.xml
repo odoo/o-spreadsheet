@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-NamedRangeSelector">
     <div
-      class="o-named-range-selector-container flex-shrink-0 border-top border-bottom d-flex align-items-center py-1 px-2 ps-3"
+      class="o-named-range-selector-container flex-shrink-0 d-flex align-items-center py-1 px-2 ps-3"
       t-on-click.stop="">
       <div
         class="o-named-range-selector d-flex rounded p-1"

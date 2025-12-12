@@ -2,9 +2,6 @@
   .o-named-range-selector-container {
     width: 100px;
 
-    margin-top: -1px;
-    margin-bottom: -1px;
-
     .o-named-range-selector {
       font-size: 13px;
       &.selected,
