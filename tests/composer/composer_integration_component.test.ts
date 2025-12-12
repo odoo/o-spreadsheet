@@ -4,6 +4,7 @@ import {
   FONT_SIZES,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  LINK_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { HeaderIndex, Model } from "../../src";
@@ -46,6 +47,7 @@ import {
   getCellContent,
   getCellText,
   getSelectionAnchorCellXc,
+  getStyle,
   getTable,
 } from "../test_helpers/getters_helpers";
 import {
@@ -848,6 +850,17 @@ describe("Grid composer", () => {
       expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
     });
   });
+
+  test.each([
+    "http://odoo.com",
+    "https://odoo.com",
+    '=HYPERLINK("stuff")',
+    '[my label]("https://odoo.com")',
+  ])("Hyperlink-like content are added with a style: %s", async (url) => {
+    await typeInComposerGrid(url, true);
+    await keyDown({ key: "Enter" });
+    expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
+  });
 });
 
 describe("TopBar composer", () => {
@@ -936,5 +949,17 @@ describe("TopBar composer", () => {
     await simulateClick(".o-spreadsheet-topbar .fa-question-circle");
     expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
     expect(document.activeElement).toBe(composerEl);
+  });
+
+  test.each([
+    "http://odoo.com",
+    "https://odoo.com",
+    '=HYPERLINK("stuff")',
+    '[my label]("https://odoo.com")',
+  ])("Hyperlink-like content are added with a style: %s", async (url) => {
+    ({ model, fixture } = await mountSpreadsheet());
+    await typeInComposerTopBar(url, true);
+    await keyDown({ key: "Enter" });
+    expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
   });
 });
