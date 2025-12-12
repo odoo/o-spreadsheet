@@ -1,5 +1,6 @@
 import { _t, deepCopy, findNextDefinedValue, isNumber, range } from "@odoo/o-spreadsheet-engine";
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { MAX_BUBBLE_RADIUS, MIN_BUBBLE_RADIUS } from "@odoo/o-spreadsheet-engine/constants";
 import {
   evaluatePolynomial,
   expM,
@@ -8,7 +9,11 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
-import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  isEvaluationError,
+  toNumber,
+  tryToNumber,
+} from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { DAYS, isDateTimeFormat, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
@@ -38,7 +43,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import { Point } from "chart.js";
+import { BubbleDataPoint, Point } from "chart.js";
 import {
   CellValue,
   DEFAULT_LOCALE,
@@ -49,6 +54,7 @@ import {
   Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
+import { BubbleChart, BubbleChartData } from "../bubble_chart";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -453,6 +459,113 @@ export function getHierarchalChartData(
     labels,
     locale: getters.getLocale(),
   };
+}
+
+export function getBubbleChartData(chart: BubbleChart, getters: Getters): BubbleChartData {
+  const locale = getters.getLocale();
+  const dataSetsValues = getChartDatasetValues(
+    getters,
+    chart.yRange ? [{ dataRange: chart.yRange }] : []
+  );
+  const labelsFormatted = chart.labelRange ? getters.getRangeFormattedValues(chart.labelRange) : [];
+  const labelsRaw = chart.labelRange ? getters.getRangeValues(chart.labelRange) : [];
+  const xValues = chart.xRange ? getters.getRangeValues(chart.xRange) : [];
+  const sizeValues = chart.sizeRange ? getters.getRangeValues(chart.sizeRange) : [];
+  const yDataset = dataSetsValues[0] ?? { data: [], label: undefined, hidden: false };
+
+  const maxLength = Math.max(
+    yDataset.data.length,
+    xValues.length,
+    sizeValues.length,
+    labelsFormatted.length
+  );
+
+  const bubblePoints: BubbleDataPoint[] = [];
+  const filteredLabels: string[] = [];
+  const filteredDatasetValues: DatasetValues[] = [
+    {
+      ...yDataset,
+      data: [],
+    },
+  ];
+  const filteredSizes: number[] = [];
+
+  const xNumbers: number[] = [];
+  const yNumbers: number[] = [];
+
+  for (let index = 0; index < maxLength; index++) {
+    const rawX = xValues[index];
+    const rawY = yDataset.data[index];
+    const rawSize = sizeValues[index];
+    const label = labelsFormatted[index] ?? labelsRaw[index];
+
+    const xNumber = tryToNumber(rawX as any, locale);
+    const yNumber = tryToNumber(rawY as any, locale);
+    if (
+      xNumber === undefined ||
+      yNumber === undefined ||
+      Number.isNaN(xNumber) ||
+      Number.isNaN(yNumber)
+    ) {
+      continue;
+    }
+    const sizeNumber = tryToNumber(rawSize as any, locale) ?? 0;
+    xNumbers.push(xNumber);
+    yNumbers.push(yNumber);
+    filteredLabels.push(label ? String(label) : "");
+    (filteredDatasetValues[0].data as (number | null)[]).push(yNumber);
+    filteredSizes.push(sizeNumber);
+  }
+
+  const radiuses = computeBubbleRadii(filteredSizes);
+  for (let index = 0; index < radiuses.length; index++) {
+    bubblePoints.push({
+      x: xNumbers[index],
+      y: yNumbers[index],
+      r: Math.floor(radiuses[index]),
+    });
+  }
+
+  const axisFormats = {
+    x: getRangeFormat(getters, chart.xRange),
+    y: getRangeFormat(getters, chart.yRange),
+  };
+
+  return {
+    dataSetsValues: filteredDatasetValues,
+    axisFormats,
+    labels: filteredLabels,
+    locale,
+    bubblePoints,
+  };
+}
+
+function computeBubbleRadii(sizeValues: number[]): number[] {
+  if (!sizeValues.length) {
+    return [];
+  }
+  const finiteSizes = sizeValues.filter((value) => Number.isFinite(value));
+  const min = finiteSizes.length ? Math.min(...finiteSizes) : 0;
+  const max = finiteSizes.length ? Math.max(...finiteSizes) : 0;
+  const range = max - min;
+  return sizeValues.map((value) => {
+    if (!Number.isFinite(value)) {
+      return MIN_BUBBLE_RADIUS;
+    }
+    if (!range) {
+      return (MIN_BUBBLE_RADIUS + MAX_BUBBLE_RADIUS) / 2;
+    }
+    const normalized = (value - min) / range;
+    return MIN_BUBBLE_RADIUS + normalized * (MAX_BUBBLE_RADIUS - MIN_BUBBLE_RADIUS);
+  });
+}
+
+function getRangeFormat(getters: Getters, range?: Range): Format | undefined {
+  if (!range) {
+    return undefined;
+  }
+  const formats = getters.getRangeFormats(range);
+  return formats.find((format) => format && !isDateTimeFormat(format));
 }
 
 export function getTrendDatasetForBarChart(config: TrendConfiguration, data: any[]) {
@@ -1027,7 +1140,7 @@ function getChartDatasetFormat(
   return undefined;
 }
 
-function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
     let label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
