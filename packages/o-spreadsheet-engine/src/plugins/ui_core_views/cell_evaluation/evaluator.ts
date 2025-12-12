@@ -433,7 +433,8 @@ export class Evaluator {
     return createEvaluatedCell(
       validateNumberValue(formulaReturn[0][0]),
       this.getters.getLocale(),
-      cellData
+      cellData,
+      formulaPosition
     );
   }
 

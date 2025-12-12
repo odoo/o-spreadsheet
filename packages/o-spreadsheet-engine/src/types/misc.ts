@@ -1,4 +1,4 @@
-import { CellValue, EvaluatedCell } from "./cells";
+import { CellValue, CellValueType, EvaluatedCell } from "./cells";
 
 // -----------------------------------------------------------------------------
 // MISC
@@ -210,9 +210,25 @@ export type Matrix<T = unknown> = T[][];
 export type FunctionResultObject = {
   value: CellValue;
   format?: Format;
-  errorOriginPosition?: CellPosition;
+  errorOriginPosition?: CellPosition /**bla */;
   message?: string;
   origin?: CellPosition;
+  /**
+   * In some cases, an evaluated cell may correspond to a direct reference to another
+   * cell, rather than simply holding a value and/or a format.
+   * For example, writing in A1: `=LOOKUP(42, B1:B9, C1:C9)` may return not just a
+   * value from C1:C9, but a reference to a cell in C1:C9.
+   * This is much more powerful than returning just the value.
+   * In such cases, we use the `position` property to store the referenced cell's
+   * position.
+   *
+   * Why do this: some formulas specifically expect cell references as input. By storing
+   * the position of the referenced cell, we can reuse, for example, the result of
+   * the previous lookup formula as input to another formula that specifically expects
+   * a reference.
+   */
+  position?: CellPosition;
+  type?: CellValueType;
 };
 
 export type FunctionResultNumber = { value: number; format?: string };
