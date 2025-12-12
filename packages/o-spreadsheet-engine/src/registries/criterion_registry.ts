@@ -20,6 +20,7 @@ import { detectLink } from "../helpers/links";
 import { localizeContent } from "../helpers/locale";
 import { isNumberBetween } from "../helpers/misc";
 import { rangeReference } from "../helpers/references";
+import { toTrimmedLowerCase } from "../helpers/text_helper";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import {
@@ -115,8 +116,8 @@ criterionEvaluatorRegistry.add("notContainsText", {
 criterionEvaluatorRegistry.add("isEqualText", {
   type: "isEqualText",
   isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
-    const strValue = String(value);
-    return strValue.toLowerCase() === String(criterion.values[0]).toLowerCase();
+    const strValue = toTrimmedLowerCase(String(value));
+    return strValue === String(criterion.values[0]);
   },
   getErrorString: (criterion: EvaluatedCriterion) => {
     return _t('The value must be exactly "%s"', String(criterion.values[0]));
@@ -663,8 +664,8 @@ criterionEvaluatorRegistry.add("customFormula", {
 criterionEvaluatorRegistry.add("beginsWithText", {
   type: "beginsWithText",
   isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
-    const strValue = String(value);
-    return strValue.toLowerCase().startsWith(String(criterion.values[0]).toLowerCase());
+    const strValue = toTrimmedLowerCase(String(value));
+    return strValue.startsWith(String(criterion.values[0]));
   },
   getErrorString: (criterion: EvaluatedCriterion) => {
     return _t('The value must be a text that begins with "%s"', String(criterion.values[0]));
@@ -679,8 +680,8 @@ criterionEvaluatorRegistry.add("beginsWithText", {
 criterionEvaluatorRegistry.add("endsWithText", {
   type: "endsWithText",
   isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
-    const strValue = String(value);
-    return strValue.toLowerCase().endsWith(String(criterion.values[0]).toLowerCase());
+    const strValue = toTrimmedLowerCase(String(value));
+    return strValue.endsWith(String(criterion.values[0]));
   },
   getErrorString: (criterion: EvaluatedCriterion) => {
     return _t('The value must be a text that ends with "%s"', String(criterion.values[0]));

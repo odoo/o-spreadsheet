@@ -34,14 +34,14 @@ describe("Simple filter test", () => {
   test("Can update  a filter", () => {
     createTableWithFilter(model, "A1:A5");
     updateFilter(model, "A1", ["2", "A"]);
-    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
+    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "a"]);
   });
 
   test("Can update  a filter in readonly mode", () => {
     createTableWithFilter(model, "A1:A5");
     model.updateMode("readonly");
     updateFilter(model, "A1", ["2", "A"]);
-    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
+    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "a"]);
   });
 
   test("Update filter is correctly rejected when target is not inside a table", () => {
@@ -95,11 +95,11 @@ describe("Simple filter test", () => {
       sheetIdTo: sheet2Id,
       sheetNameTo: "Copy of Sheet1",
     });
-    expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
+    expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["c"] }]);
     deleteColumns(model, ["A"], sheet2Id);
 
-    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
-    expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["C"] }]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "B1:B3", value: ["c"] }]);
+    expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["c"] }]);
   });
 });
 
@@ -161,6 +161,15 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
   });
 
+  test("Filters ignore whitespaces", () => {
+    setCellContent(model, "A2", "a");
+    setCellContent(model, "A3", " a");
+    setCellContent(model, "A4", "a ");
+    updateFilter(model, "A2", ["a"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+    expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
+    expect(model.getters.isRowHidden(sheetId, 3)).toEqual(true);
+  });
   test("Header is not filtered", () => {
     updateFilter(model, "A1", ["A1"]);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
@@ -195,17 +204,17 @@ describe("Filter Evaluation", () => {
 
   test("Updating a table zone keep the filtered values if the filter header did not move", () => {
     updateFilter(model, "A1", ["A2"]);
-    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["a2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
     updateTableZone(model, "A1:A5", "A1:A6");
-    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A6", value: ["A2"] }]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A6", value: ["a2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });
 
   test("Updating a table zone drops the filtered values if the filter header moved", () => {
     updateFilter(model, "A1", ["A3"]);
-    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A3"] }]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["a3"] }]);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
 
     updateTableZone(model, "A1:A5", "A2:A5");
@@ -215,7 +224,7 @@ describe("Filter Evaluation", () => {
 
   test("Updating a table zone updates the hidden rows", () => {
     updateFilter(model, "A1", ["A2"]);
-    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["a2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
     updateTableZone(model, "A1:A5", "E1:E3");
@@ -225,7 +234,7 @@ describe("Filter Evaluation", () => {
 
   test("Removing the filters from a table updates the hidden rows", () => {
     updateFilter(model, "A1", ["A2"]);
-    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["a2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
     updateTableConfig(model, "A1:A5", { hasFilters: false });
@@ -374,6 +383,27 @@ describe("Filter criterion test", () => {
       });
 
       expect(getFilteredRows()).toEqual(expectedFilteredRows);
+    }
+  );
+
+  test.each(["beginsWithText", "endsWithText", "isEqualText"] as const)(
+    "Can filter based on a text criterion %s ignoring lowercase/uppercase and whitespaces",
+    (type) => {
+      const grid = {
+        A2: "a",
+        A3: " a",
+        A4: "a ",
+        A5: "A",
+        A6: "b",
+      };
+      setGrid(model, grid);
+      createTableWithFilter(model, "A1:A6");
+      updateFilterCriterion(model, "A1", {
+        type,
+        values: ["a"],
+      });
+
+      expect(getFilteredRows()).toEqual([5]);
     }
   );
 
