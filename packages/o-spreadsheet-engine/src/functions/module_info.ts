@@ -1,11 +1,10 @@
-import { getFullReference, setXcToFixedReferenceType, splitReference } from "../helpers/references";
+import { toXC } from "../helpers/coordinates";
 import { _t } from "../translation";
-import { CellValueType } from "../types/cells";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { isEvaluationError, toString } from "./helpers";
+import { isEvaluationError, toMatrix, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
@@ -35,9 +34,9 @@ export const CELL = {
   description: _t("Gets information about a cell."),
   args: [
     arg("info_type (string)", _t("The type of information requested."), CELL_INFO_TYPES),
-    arg("reference (meta, range<meta>)", _t("The reference to the cell.")),
+    arg("reference (any, range<any>)", _t("The reference to the cell.")),
   ],
-  compute: function (info: Maybe<FunctionResultObject>, reference: Matrix<{ value: string }>) {
+  compute: function (info: Maybe<FunctionResultObject>, reference: Arg) {
     const _info = toString(info).toLowerCase();
     if (!CELL_INFO_TYPES.map((type) => type.value).includes(_info)) {
       return new EvaluationError(
@@ -45,35 +44,33 @@ export const CELL = {
       );
     }
 
-    const sheetId = this.__originSheetId;
-    const _reference = reference[0][0].value;
-    let { sheetName, xc } = splitReference(_reference);
-    // only put the sheet name if the referenced range is in another sheet than the cell the formula is on
-    sheetName = sheetName === this.getters.getSheetName(sheetId) ? undefined : sheetName;
-    const fixedRef = getFullReference(sheetName, setXcToFixedReferenceType(xc, "colrow"));
-    const range = this.getters.getRangeFromSheetXC(sheetId, fixedRef);
+    const firstReference = toMatrix(reference)[0][0];
+    const position = firstReference.position;
+    if (position === undefined) {
+      return new EvaluationError(_t("The reference is invalid."));
+    }
 
     switch (_info) {
       case "address":
-        return this.getters.getRangeString(range, sheetId);
+        const sheetName =
+          this.__originSheetId === position.sheetId
+            ? ""
+            : this.getters.getSheetName(position.sheetId) + "!";
+        return sheetName + toXC(position.col, position.row, { colFixed: true, rowFixed: true });
       case "col":
-        return range.zone.left + 1;
+        return position.col + 1;
       case "contents": {
-        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        return this.getters.getEvaluatedCell(position).value;
+        return firstReference.value;
       }
       case "format": {
-        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        return this.getters.getEvaluatedCell(position).format || "";
+        return firstReference.format || "";
       }
       case "row":
-        return range.zone.top + 1;
+        return position.row + 1;
       case "type": {
-        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        const type = this.getters.getEvaluatedCell(position).type;
-        if (type === CellValueType.empty) {
+        if (firstReference.type === "empty") {
           return "b"; // blank
-        } else if (type === CellValueType.text) {
+        } else if (firstReference.type === "text") {
           return "l"; // label
         } else {
           return "v"; // value
