@@ -16,7 +16,7 @@ describe("Sheet name auto complete", () => {
         fuzzySearchKey: "'MySheet",
       },
     ]);
-    composer.insertAutoCompleteValue(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0]);
     expect(composer.currentContent).toEqual("=MySheet!");
   });
 
@@ -32,7 +32,7 @@ describe("Sheet name auto complete", () => {
         fuzzySearchKey: "'My awesome sheet'",
       },
     ]);
-    composer.insertAutoCompleteValue(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0]);
     expect(composer.currentContent).toEqual("='My awesome sheet'!");
   });
 
@@ -55,7 +55,7 @@ describe("Sheet name auto complete", () => {
     await nextTick();
     const proposals = composer.autoCompleteProposals;
     expect(proposals![0].text).toEqual("Hello");
-    composer.insertAutoCompleteValue(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0]);
     expect(composer.currentContent).toEqual("=Hello!");
   });
 

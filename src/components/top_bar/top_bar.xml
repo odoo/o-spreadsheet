@@ -41,7 +41,12 @@
               Readonly Access
             </span>
           </div>
-          <div t-else="" class="o-toolbar-tools d-flex ms-4 flex-grow-1" t-ref="toolBar">
+          <div
+            t-else=""
+            class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
+            t-ref="toolBar">
+            <NamedRangeSelector/>
+            <div class="o-topbar-divider border-end"/>
             <div
               class="d-flex tool-container"
               t-foreach="toolsCategories"
