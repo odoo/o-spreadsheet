@@ -1,5 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Pixel, Rect } from "../..";
+import { DOMCoordinates, Pixel, Rect } from "../..";
+import { zoomCorrectedElementRect } from "./dom_helpers";
 
 export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
   clientX: Pixel;
@@ -13,21 +14,21 @@ export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
  * Return a POJO containing the original event as well as the client position and the client offset
  * where the event would target if the spreadsheet was not zoomed
  * @param ev unzoomed mouse event
- * @param originalTargetRect The original target bounding rect the resulting ZoomedMouseEvent offset must refer to
+ * @param originalTargetPosition The original target bounding rect the resulting ZoomedMouseEvent offset must refer to
  * @returns a ZoomedMouseEvent
  */
 export function withZoom<T extends MouseEvent>(
   env: SpreadsheetChildEnv,
   ev: T,
-  originalTargetRect?: DOMRect | null
+  originalTargetPosition?: DOMCoordinates | null
 ): ZoomedMouseEvent<T> {
   const zoomLevel = env.model.getters.getViewportZoomLevel();
-  if (originalTargetRect === undefined) {
-    originalTargetRect = getZoomTargetBoundingRect(ev);
+  if (originalTargetPosition === undefined) {
+    originalTargetPosition = getZoomTargetPosition(ev, zoomLevel);
   }
-  if (!originalTargetRect) return withNoZoom(ev);
-  const baseOffsetX = ev.clientX - originalTargetRect.left;
-  const baseOffsetY = ev.clientY - originalTargetRect.top;
+  if (!originalTargetPosition) return withNoZoom(ev);
+  const baseOffsetX = ev.clientX - originalTargetPosition.x;
+  const baseOffsetY = ev.clientY - originalTargetPosition.y;
   const offsetX = baseOffsetX / zoomLevel;
   const offsetY = baseOffsetY / zoomLevel;
   return {
@@ -64,12 +65,10 @@ export function getZoomedRect(zoom: number, rect: Rect): Rect {
 /**
  * Returns the bounding rect of the closest or self element who is targetable by a ZoomedMouseEvent
  */
-function getZoomTargetBoundingRect(ev: MouseEvent): DOMRect | null {
+function getZoomTargetPosition(ev: MouseEvent, zoom: number): DOMCoordinates | null {
   const target = ev.target;
   if (!target || !("classList" in target) || !(target instanceof Element)) {
     return null;
   }
-  const targetEl = target.classList.contains("o-zoomable") ? target : target.closest(".o-zoomable");
-  if (!targetEl) return null;
-  return targetEl.getBoundingClientRect();
+  return zoomCorrectedElementRect(target, zoom);
 }

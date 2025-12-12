@@ -1,5 +1,5 @@
 import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
-import { Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
+import { DOMCoordinates, Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
 
 const macRegex = /Mac/i;
 
@@ -14,12 +14,35 @@ export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event):
   return !!ev.target && parent!.contains(ev.target as Node);
 }
 
-export function gridOverlayPosition() {
+export function gridOverlayPosition(zoom = 1): DOMCoordinates {
   const spreadsheetElement = document.querySelector(".o-grid-overlay");
-  if (spreadsheetElement) {
-    return spreadsheetElement.getBoundingClientRect();
+  const result = spreadsheetElement && zoomCorrectedElementRect(spreadsheetElement, zoom);
+  if (!result) {
+    throw new Error("Can't find spreadsheet position");
   }
-  throw new Error("Can't find spreadsheet position");
+  return result;
+}
+
+export function zoomCorrectedElementRect(el: Element, zoomLevel: number): Rect {
+  const zoomedElement = el.closest(".o-zoomable");
+
+  let targetEl: Element;
+  let zoom: number = 1;
+  if (zoomedElement) {
+    targetEl = zoomedElement;
+    // Safari messes up the computation of getBoundingClientRect on elements subjected to a zoom
+    // See https://bugs.webkit.org/show_bug.cgi?id=77998
+    zoom = isBrowserSafari() ? zoomLevel : 1;
+  } else {
+    targetEl = el;
+  }
+  const rect = targetEl.getBoundingClientRect();
+  return {
+    x: rect.x * zoom,
+    y: rect.y * zoom,
+    width: rect.width * zoom,
+    height: rect.height * zoom,
+  };
 }
 
 export function getRefBoundingRect(ref: Ref<HTMLElement>): Rect {
@@ -216,6 +239,10 @@ export function downloadFile(dataUrl: string, fileName: string) {
  */
 export function isBrowserFirefox() {
   return /Firefox/i.test(navigator.userAgent);
+}
+
+export function isBrowserSafari() {
+  return /Safari/i.test(navigator.userAgent);
 }
 
 // Mobile detection

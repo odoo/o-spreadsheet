@@ -7,7 +7,7 @@ import {
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useSubEnv, xml } from "@odoo/owl";
-import { Model, Spreadsheet, setDefaultSheetViewSize } from "../../src";
+import { Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
@@ -65,6 +65,9 @@ beforeEach(() => {
     "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
     "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
     "o-spreadsheet": () => {
+      return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
+    },
+    "o-grid": () => {
       return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
     },
   });
@@ -493,6 +496,7 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
 
 test("components take the small screen into account", async () => {
   const model = new Model();
+  spreadsheetWidth = 500;
   const { fixture } = await mountSpreadsheet({ model }, { isSmall: true });
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   expect(fixture.querySelector(".o-spreadsheet-mobile")).not.toBeNull();

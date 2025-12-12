@@ -796,12 +796,12 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-top-left"
     />
     <div
-      class="o-column-groups"
+      class="o-column-groups o-zoomable"
     >
       
     </div>
     <div
-      class="o-row-groups"
+      class="o-row-groups o-zoomable"
     >
       
     </div>
@@ -910,8 +910,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <canvas
           height="985"
-          style="width:1033px;height:985px;zoom:1"
-          width="1033"
+          style="width:985px;height:985px;zoom:1"
+          width="985"
         />
         
         
@@ -1806,12 +1806,12 @@ exports[`components take the small screen into account 1`] = `
       class="o-top-left"
     />
     <div
-      class="o-column-groups"
+      class="o-column-groups o-zoomable"
     >
       
     </div>
     <div
-      class="o-row-groups"
+      class="o-row-groups o-zoomable"
     >
       
     </div>
@@ -1920,8 +1920,8 @@ exports[`components take the small screen into account 1`] = `
         
         <canvas
           height="985"
-          style="width:1033px;height:985px;zoom:1"
-          width="1033"
+          style="width:485px;height:985px;zoom:1"
+          width="485"
         />
         
         
