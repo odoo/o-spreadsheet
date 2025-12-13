@@ -14,6 +14,7 @@ import {
   deleteColumns,
   deleteRows,
   redo,
+  renameSheet,
   setCellContent,
   setFormat,
   setStyle,
@@ -3028,5 +3029,66 @@ describe("conditional formats types", () => {
       sheetId,
     });
     expect(getStyle(model, "B1")).toEqual({ fillColor: undefined });
+  });
+});
+
+describe("conditional format value adaptation", () => {
+  const targetSheetId = "sh2";
+
+  beforeEach(() => {
+    model.dispatch("CREATE_SHEET", { name: "MySheet2", sheetId: targetSheetId, position: 1 });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("=SUM(MySheet2!C3:E5)", { fillColor: "#FF0000" }, "1"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+  });
+
+  test("delete column", () => {
+    deleteColumns(model, ["B"], targetSheetId);
+    expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
+      {
+        id: "1",
+        ranges: ["A1"],
+        rule: {
+          operator: "isEqual",
+          style: { fillColor: "#FF0000" },
+          type: "CellIsRule",
+          values: ["=SUM(MySheet2!B3:D5)"],
+        },
+      },
+    ]);
+  });
+
+  test("delete row", () => {
+    deleteRows(model, [1], targetSheetId);
+    expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
+      {
+        id: "1",
+        ranges: ["A1"],
+        rule: {
+          operator: "isEqual",
+          style: { fillColor: "#FF0000" },
+          type: "CellIsRule",
+          values: ["=SUM(MySheet2!C2:E4)"],
+        },
+      },
+    ]);
+  });
+
+  test("rename sheet", () => {
+    renameSheet(model, targetSheetId, "NewSheetName");
+    expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
+      {
+        id: "1",
+        ranges: ["A1"],
+        rule: {
+          operator: "isEqual",
+          style: { fillColor: "#FF0000" },
+          type: "CellIsRule",
+          values: ["=SUM(NewSheetName!C3:E5)"],
+        },
+      },
+    ]);
   });
 });

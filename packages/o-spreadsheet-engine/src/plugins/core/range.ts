@@ -223,7 +223,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   getRangeString(
     range: Range,
     forSheetId: UID,
-    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
+    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false },
+    newSheetNames?: Record<UID, string>
   ): string {
     if (!range) {
       return CellErrorType.InvalidReference;
@@ -234,7 +235,15 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (!this.getters.tryGetSheet(range.sheetId)) {
       return CellErrorType.InvalidReference;
     }
-    return getRangeString(range, forSheetId, this.getters.getSheetName, options);
+    return getRangeString(range, forSheetId, this.sheetNameGetter(newSheetNames), options);
+  }
+
+  sheetNameGetter(newSheetNames?: Record<UID, string>) {
+    if (!newSheetNames) return this.getters.getSheetName;
+    return (sheetId: UID): string => {
+      if (newSheetNames[sheetId]) return newSheetNames[sheetId];
+      return this.getters.getSheetName(sheetId);
+    };
   }
 
   getRangeDataFromXc(sheetId: UID, xc: string): RangeData {
@@ -319,14 +328,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (!formula.startsWith("=")) {
       return formula;
     }
-
+    const newSheetNames: Record<UID, string> = {};
     const compiledFormula = compile(formula);
     const updatedDependencies = compiledFormula.dependencies.map((dep) => {
       const range = this.getters.getRangeFromSheetXC(sheetId, dep);
       const changedRange = applyChange(range);
+      if (changedRange.changeType === "RENAME" && "newName" in changedRange) {
+        newSheetNames[range.sheetId] = changedRange.newName;
+      }
       return changedRange.changeType === "NONE" ? range : changedRange.range;
     });
-    return this.getters.getFormulaString(sheetId, compiledFormula.tokens, updatedDependencies);
+
+    return this.getters.getFormulaString(
+      sheetId,
+      compiledFormula.tokens,
+      updatedDependencies,
+      false,
+      newSheetNames
+    );
   }
 
   /**

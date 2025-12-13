@@ -43,6 +43,7 @@ exports[`Label range Can add options to the label range component 1`] = `
         
         
       </div>
+      
     </div>
     <label
       class="o-checkbox d-flex align-items-center mt-2"
@@ -109,6 +110,7 @@ exports[`Label range Can render a label range component 1`] = `
         
         
       </div>
+      
     </div>
     
     

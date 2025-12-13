@@ -6,30 +6,36 @@ import { Locale } from "../types/locale";
 
 export const CfTerms = {
   Errors: {
-    [CommandResult.InvalidRange]: _t("The range is invalid"),
-    [CommandResult.FirstArgMissing]: _t("The argument is missing. Please provide a value"),
-    [CommandResult.SecondArgMissing]: _t("The second argument is missing. Please provide a value"),
-    [CommandResult.MinNaN]: _t("The minpoint must be a number"),
-    [CommandResult.MidNaN]: _t("The midpoint must be a number"),
-    [CommandResult.MaxNaN]: _t("The maxpoint must be a number"),
-    [CommandResult.ValueUpperInflectionNaN]: _t("The first value must be a number"),
-    [CommandResult.ValueLowerInflectionNaN]: _t("The second value must be a number"),
-    [CommandResult.MinBiggerThanMax]: _t("Minimum must be smaller then Maximum"),
-    [CommandResult.MinBiggerThanMid]: _t("Minimum must be smaller then Midpoint"),
-    [CommandResult.MidBiggerThanMax]: _t("Midpoint must be smaller then Maximum"),
-    [CommandResult.LowerBiggerThanUpper]: _t(
-      "Lower inflection point must be smaller than upper inflection point"
-    ),
-    [CommandResult.MinInvalidFormula]: _t("Invalid Minpoint formula"),
-    [CommandResult.MaxInvalidFormula]: _t("Invalid Maxpoint formula"),
-    [CommandResult.MidInvalidFormula]: _t("Invalid Midpoint formula"),
-    [CommandResult.ValueUpperInvalidFormula]: _t("Invalid upper inflection point formula"),
-    [CommandResult.ValueLowerInvalidFormula]: _t("Invalid lower inflection point formula"),
-    [CommandResult.EmptyRange]: _t("A range needs to be defined"),
-    [CommandResult.ValueCellIsInvalidFormula]: _t(
-      "At least one of the provided values is an invalid formula"
-    ),
-    Unexpected: _t("The rule is invalid for an unknown reason"),
+    [CommandResult.InvalidRange]: (range: string[]) =>
+      _t('Invalid ranges: "%s"', range.join('", "')),
+    [CommandResult.FirstArgMissing]: () => _t("The argument is missing. Please provide a value"),
+    [CommandResult.SecondArgMissing]: () =>
+      _t("The second argument is missing. Please provide a value"),
+    [CommandResult.MinNaN]: () => _t("The minpoint must be a number"),
+    [CommandResult.MidNaN]: () => _t("The midpoint must be a number"),
+    [CommandResult.MaxNaN]: () => _t("The maxpoint must be a number"),
+    [CommandResult.ValueUpperInflectionNaN]: () => _t("The first value must be a number"),
+    [CommandResult.ValueLowerInflectionNaN]: () => _t("The second value must be a number"),
+    [CommandResult.MinBiggerThanMax]: () => _t("Minimum must be smaller than maximum"),
+    [CommandResult.MinBiggerThanMid]: () => _t("Minimum must be smaller than midpoint"),
+    [CommandResult.MidBiggerThanMax]: () => _t("Midpoint must be smaller than maximum"),
+    [CommandResult.LowerBiggerThanUpper]: () =>
+      _t("Lower inflection point must be smaller than upper inflection point"),
+    [CommandResult.MinInvalidFormula]: () => _t("Invalid minpoint formula"),
+    [CommandResult.MaxInvalidFormula]: () => _t("Invalid maxpoint formula"),
+    [CommandResult.MidInvalidFormula]: () => _t("Invalid midpoint formula"),
+    [CommandResult.ValueUpperInvalidFormula]: () => _t("Invalid upper inflection point formula"),
+    [CommandResult.ValueLowerInvalidFormula]: () => _t("Invalid lower inflection point formula"),
+    [CommandResult.EmptyRange]: () => _t("A range needs to be defined"),
+    [CommandResult.ValueCellIsInvalidFormula]: (formula: string[]) =>
+      _t('Invalid formulas: "%s"', formula.join('", "')),
+    [CommandResult.TargetOutOfSheet]: (sheetName: string, ranges: string[]) =>
+      _t(
+        'Ranges "%s" should target the sheet on which the conditional format is defined (%s)',
+        ranges.join('", "'),
+        sheetName
+      ),
+    Unexpected: () => _t("The rule is invalid for an unknown reason"),
   },
   ColorScale: _t("Color scale"),
   IconSet: _t("Icon set"),
@@ -145,14 +151,21 @@ export const DVTerms = {
     validFormula: _t("The formula must be valid"),
   },
   Errors: {
-    [CommandResult.InvalidRange]: _t("The range is invalid."),
-    [CommandResult.InvalidDataValidationCriterionValue]: _t(
-      "One or more of the provided criteria values are invalid. Please review and correct them."
-    ),
-    [CommandResult.InvalidNumberOfCriterionValues]: _t(
-      "One or more of the provided criteria values are missing."
-    ),
-    Unexpected: _t("The rule is invalid for an unknown reason."),
+    [CommandResult.InvalidRange]: (range: string[]) =>
+      _t('Invalid ranges: "%s"', range.join('", "')),
+    [CommandResult.InvalidDataValidationCriterionValue]: () =>
+      _t(
+        "One or more of the provided criteria values are invalid. Please review and correct them."
+      ),
+    [CommandResult.InvalidNumberOfCriterionValues]: () =>
+      _t("One or more of the provided criteria values are missing."),
+    [CommandResult.TargetOutOfSheet]: (sheetName: string, ranges: string[]) =>
+      _t(
+        'Ranges "%s" should target the sheet on which the conditional format is defined (%s)',
+        ranges.join('", "'),
+        sheetName
+      ),
+    Unexpected: () => _t("The rule is invalid for an unknown reason."),
   },
 };
 

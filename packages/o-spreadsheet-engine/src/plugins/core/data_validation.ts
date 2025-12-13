@@ -83,7 +83,7 @@ export class DataValidationPlugin
             break;
           case "RESIZE":
           case "MOVE":
-          case "CHANGE":
+          case "RENAME":
             this.history.update("rules", sheetId, ruleIndex, "ranges", rangeIndex, change.range);
             break;
         }
@@ -365,9 +365,8 @@ export class DataValidationPlugin
 
   private checkValidRange(cmd: AddDataValidationCommand): CommandResult {
     const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
-    const stringRanges = ranges.map((range) => this.getters.getRangeString(range, cmd.sheetId));
-    if (stringRanges.some((xc) => !this.getters.isRangeValid(xc))) {
-      return CommandResult.InvalidRange;
+    if (ranges.some((range) => range.sheetId !== cmd.sheetId)) {
+      return CommandResult.TargetOutOfSheet;
     }
     return CommandResult.Success;
   }

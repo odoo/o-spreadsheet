@@ -7,7 +7,8 @@
         t-key="range.id"
         class="o-selection-input d-flex flex-row"
         t-att-style="dragAndDrop.itemsStyle[range.id]"
-        t-att-class="props.class">
+        t-att-class="props.class"
+        t-if="!isReadonly || range.xc">
         <span
           t-if="ranges.length > 1 and props.onSelectionReordered"
           title="Reorder range"
@@ -23,14 +24,15 @@
             t-on-input="(ev) => this.onInputChanged(range.id, ev)"
             t-on-focus="() => this.focus(range.id)"
             t-on-keydown="onKeydown"
+            t-att-disabled="isReadonly"
             t-att-value="range.xc"
             t-att-style="getColor(range)"
             class="o-input mb-2"
             t-att-class="{
               'o-disabled-ranges' : range.disabled and !range.isFocused,
-              'o-focused' : range.isFocused,
+              'o-focused' : range.isFocused and !isReadonly,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range' and !isReadonly
             }"
             t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />
@@ -49,12 +51,13 @@
         </div>
         <button
           class="border-0 bg-transparent fw-bold o-remove-selection o-button-icon pe-0"
-          t-if="ranges.length > 1"
+          t-if="ranges.length > 1 and !isReadonly"
           t-on-click="() => this.removeInput(range.id)">
           <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </button>
       </div>
-      <div class="d-flex flex-row w-100 o-selection-input">
+
+      <div t-if="!isReadonly" class="d-flex flex-row w-100 o-selection-input">
         <button class="o-button o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
           Add range
         </button>

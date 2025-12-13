@@ -371,7 +371,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     sheetId: UID,
     tokens: Token[],
     dependencies: Range[],
-    useBoundedReference: boolean = false
+    useBoundedReference: boolean = false,
+    newSheetNames?: Record<UID, string>
   ): string {
     if (!dependencies.length) {
       return concat(tokens.map((token) => token.value));
@@ -381,7 +382,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = dependencies[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId, { useBoundedReference });
+          return this.getters.getRangeString(
+            range,
+            sheetId,
+            { useBoundedReference },
+            newSheetNames
+          );
         }
         return token.value;
       })
