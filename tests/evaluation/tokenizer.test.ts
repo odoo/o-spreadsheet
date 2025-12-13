@@ -140,6 +140,14 @@ describe("tokenizer", () => {
     ]);
   });
 
+  test("spill range operator", () => {
+    expect(tokenize("=A1#")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "REFERENCE", value: "A1" },
+      { type: "OPERATOR", value: "#" },
+    ]);
+  });
+
   test("String", () => {
     expect(tokenize('"hello"')).toEqual([{ type: "STRING", value: '"hello"' }]);
     expect(tokenize("'hello'")).toEqual([{ type: "SYMBOL", value: "'hello'" }]);

@@ -497,6 +497,23 @@ describe("ranges and highlights", () => {
       await nextTick();
       expect(composerEl.textContent).toBe("=SUM($B$1:$B$2)");
     });
+
+    test("changing highlight to a spilled range adds the spill operator", async () => {
+      setCellContent(model, "C3", "=MUNIT(2)");
+      composerEl = await typeInComposer("=SUM(B2)");
+      model.dispatch("START_CHANGE_HIGHLIGHT", {
+        zone: toZone("B2"),
+      });
+      model.selection.selectZone(
+        { cell: toCartesian("C3"), zone: toZone("C3:D4") },
+        { unbounded: true }
+      );
+
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SUM(C3#)");
+      expect(composerStore.highlights).toHaveLength(1);
+      expect(composerStore.highlights[0].range.zone).toMatchObject(toZone("C3:D4"));
+    });
   });
 
   test("Can select full column as unbounded zone", async () => {

@@ -33,6 +33,7 @@ export const UNARY_OPERATOR_MAP = {
   "-": "UMINUS",
   "+": "UPLUS",
   "%": "UNARY.PERCENT",
+  "#": "SPILLED.RANGE",
 };
 
 interface LiteralValues {
@@ -208,7 +209,11 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
-          const operand = compileAST(ast.operand, false, false).assignResultToVariable();
+          const { isMeta, hasRange } =
+            ast.value === "#"
+              ? { isMeta: true, hasRange: true } // hasRange is true to avoid vectorization of SPILLED.RANGE
+              : { isMeta: false, hasRange: false };
+          const operand = compileAST(ast.operand, isMeta, hasRange).assignResultToVariable();
           code.append(operand);
           return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
