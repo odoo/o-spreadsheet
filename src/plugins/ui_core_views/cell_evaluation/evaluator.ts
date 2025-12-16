@@ -394,6 +394,10 @@ export class Evaluator {
 
     const nbColumns = formulaReturn.length;
     const nbRows = formulaReturn[0].length;
+    if (nbRows === 0) {
+      // empty matrix
+      return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), cellData);
+    }
 
     const resultZone = {
       top: formulaPosition.row,
