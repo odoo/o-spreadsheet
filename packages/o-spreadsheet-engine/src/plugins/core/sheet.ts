@@ -3,7 +3,6 @@ import { isColorValid } from "../../helpers/color";
 import { toCartesian } from "../../helpers/coordinates";
 import {
   deepCopy,
-  getUnquotedSheetName,
   groupConsecutive,
   includesAll,
   isDefined,
@@ -16,6 +15,7 @@ import {
   getDuplicateSheetName,
   getNextSheetName,
   isSheetNameEqual,
+  toStandardizedSheetName,
 } from "../../helpers/sheet";
 import { isZoneInside, isZoneValid } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
@@ -199,7 +199,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.rows || 100,
           cmd.position
         );
-        this.history.update("sheetIdsMapName", sheet.name, sheet.id);
+        this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
         break;
       case "MOVE_SHEET":
         this.moveSheet(cmd.sheetId, cmd.delta);
@@ -259,7 +259,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // that depends on a sheet not already imported will not be able to be
     // compiled
     for (const sheet of data.sheets) {
-      this.sheetIdsMapName[sheet.name] = sheet.id;
+      this.sheetIdsMapName[toStandardizedSheetName(sheet.name)] = sheet.id;
     }
 
     for (const sheetData of data.sheets) {
@@ -363,12 +363,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getSheetIdByName(name: string | undefined): UID | undefined {
     if (name) {
-      const unquotedName = getUnquotedSheetName(name);
-      for (const key in this.sheetIdsMapName) {
-        if (isSheetNameEqual(key, unquotedName)) {
-          return this.sheetIdsMapName[key];
-        }
-      }
+      return this.sheetIdsMapName[toStandardizedSheetName(name)];
     }
     return undefined;
   }
@@ -719,8 +714,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const oldName = sheet.name;
     this.history.update("sheets", sheet.id, "name", name.trim());
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
-    delete sheetIdsMapName[oldName];
-    sheetIdsMapName[name] = sheet.id;
+    delete sheetIdsMapName[toStandardizedSheetName(oldName)];
+    sheetIdsMapName[toStandardizedSheetName(name)] = sheet.id;
     this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
@@ -764,7 +759,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
 
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
-    sheetIdsMapName[newSheet.name] = newSheet.id;
+    sheetIdsMapName[toStandardizedSheetName(newSheet.name)] = newSheet.id;
     this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
@@ -785,7 +780,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
     this.history.update("orderedSheetIds", orderedSheetIds);
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
-    delete sheetIdsMapName[name];
+    delete sheetIdsMapName[toStandardizedSheetName(name)];
     this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
