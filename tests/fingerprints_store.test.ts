@@ -220,4 +220,9 @@ describe("formula fingerprints", () => {
     setCellContent(model, "A2", "=RAND()");
     expect(getFingerprint(fingerprints, "A1")).not.toEqual(getFingerprint(fingerprints, "A2"));
   });
+
+  test("formula with error reference do not crash", () => {
+    setCellContent(model, "A1", '=IFERROR(SUM(INDEX(#REF, MATCH(""&#REF, #REF, 0), 0)), "")');
+    expect(getFingerprint(fingerprints, "A1")).toBeTruthy();
+  });
 });
