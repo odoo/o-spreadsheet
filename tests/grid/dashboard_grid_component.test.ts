@@ -96,6 +96,20 @@ describe("Grid component in dashboard mode", () => {
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
   });
 
+  test("Clicking outside of the dashboard closes the filter popover", async () => {
+    createFilter(model, "A1:A2");
+    model.updateMode("dashboard");
+    await nextTick();
+    await simulateClick(".o-filter-icon");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+
+    await simulateClick(".o-filter-menu");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+
+    await simulateClick("body");
+    expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+  });
+
   test("When filter menu is open, clicking on a random grid correctly closes filter popover", async () => {
     createFilter(model, "A1:A2");
     model.updateMode("dashboard");

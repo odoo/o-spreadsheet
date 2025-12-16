@@ -1,4 +1,4 @@
-import { Component, useChildSubEnv, useRef, useState } from "@odoo/owl";
+import { Component, useChildSubEnv, useExternalListener, useRef, useState } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import {
@@ -15,6 +15,7 @@ import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { isChildEvent } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -51,13 +52,15 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Partial<Position>;
 
+  private gridRef = useRef("grid");
+
   setup() {
-    const gridRef = useRef("grid");
-    this.canvasPosition = useAbsoluteBoundingRect(gridRef);
+    this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useState({ col: undefined, row: undefined });
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
+    useExternalListener(window, "click", this.onExternalClick, { capture: true });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.col = undefined;
@@ -163,6 +166,16 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   private getGridRect(): Rect {
     return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
+  }
+
+  private onExternalClick(ev: MouseEvent) {
+    const el = this.gridRef.el;
+    if ((el && isChildEvent(el, ev)) || (ev.target as HTMLElement)?.closest(".o-popover")) {
+      return;
+    }
+    if (this.env.model.getters.hasOpenedPopover()) {
+      this.onClosePopover();
+    }
   }
 }
 

@@ -59,7 +59,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
-import { isCtrlKey } from "../helpers/dom_helpers";
+import { isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
@@ -149,6 +149,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
+    useExternalListener(window, "click", this.onExternalClick, { capture: true });
     useExternalListener(document.body, "paste", this.paste);
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
@@ -766,6 +767,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         break;
       }
     }
+  }
+
+  private onExternalClick(ev: MouseEvent) {
+    if (isChildEvent(this.gridEl, ev) || (ev.target as HTMLElement)?.closest(".o-popover")) {
+      return;
+    }
+    this.onClosePopover();
   }
 }
 

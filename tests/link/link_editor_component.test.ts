@@ -272,4 +272,16 @@ describe("link editor component", () => {
       expect(getCell(model, "A1")).toBeDefined();
     }
   );
+
+  test("Link editor is closed when clicking outside of it", async () => {
+    await openLinkEditor(model, "A1");
+
+    // Clicking inside the link editor does not close it
+    await simulateClick(".o-link-editor");
+    expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+
+    // Clicking outside the link editor closes it
+    await simulateClick("body");
+    expect(fixture.querySelector(".o-link-editor")).toBeNull();
+  });
 });
