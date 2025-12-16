@@ -125,7 +125,16 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
         break;
       case "ACTIVATE_SHEET":
         this.isSearchDirty = true;
+<<<<<<< ef7b40f5c3b328acde98aaa20294c1cde5f891c4
         this.shouldFinalizeUpdateSelection = true;
+||||||| 6a0e768aee2af3192b93e47a73b393f6053770b0
+=======
+        if (this.searchOptions.specificRange) {
+          this.searchOptions.specificRange = this.searchOptions.specificRange.clone({
+            sheetId: this.getters.getActiveSheetId(),
+          });
+        }
+>>>>>>> 058034c5c882290e33c41b69ae2ab08a52d21d62
         break;
       case "REPLACE_SEARCH":
         for (const match of cmd.matches) {

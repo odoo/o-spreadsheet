@@ -188,7 +188,20 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.store.updateSearchOptions({ specificRange });
   }
 
+  get specificRange(): string {
+    const range = this.store.searchOptions.specificRange;
+    return range ? this.env.model.getters.getRangeString(range, "forceSheetReference") : "";
+  }
+
   get pendingSearch() {
     return this.updateSearchContent.isDebouncePending();
+  }
+
+  get selectionInputKey() {
+    // Selections input are made to work with objects linked to a sheet id. They store the active sheet id at their creation,
+    // and have specific behaviour linked to it (eg. go back to the initial sheet after confirmation).
+    // We don't want all those behaviors here, so we force the recreation of the component when the active sheet changes.
+    // The only drawback is that the input loses focus when changing sheet.
+    return this.env.model.getters.getActiveSheetId();
   }
 }

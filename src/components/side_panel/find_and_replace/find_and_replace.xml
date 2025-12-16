@@ -43,7 +43,8 @@
         </select>
         <div t-if="searchOptions.searchScope === 'specificRange'">
           <SelectionInput
-            ranges="[this.state.dataRange]"
+            t-key="selectionInputKey"
+            ranges="[specificRange]"
             onSelectionChanged="(ranges) => this.onSearchRangeChanged(ranges)"
             onSelectionConfirmed.bind="updateDataRange"
             hasSingleRange="true"
