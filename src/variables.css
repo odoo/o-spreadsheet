@@ -64,6 +64,8 @@
 
   --os-chart-preview-orange-line: light-dark(#eb6d00, #ff9d4d);
   --os-chart-preview-orange-fill: light-dark(#ffe1c8, #734200);
+  --os-chart-preview-orange-light: light-dark(#ff9d4d, #eb6d00);
+  --os-chart-preview-orange-dark: light-dark(#a34c00, #c96a1e);
   --os-chart-preview-blue-line: light-dark(#0074d9, #4cb3ff);
   --os-chart-preview-blue-fill: light-dark(#c4e4ff, #003e73);
 
