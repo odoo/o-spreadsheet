@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { Model, Spreadsheet } from "../../src";
-import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,
   focusAndKeyDown,
@@ -219,29 +219,6 @@ describe("find and replace sidePanel component", () => {
       expect(getMatchesCount()).toMatchObject({ specificRange: 1 });
     });
 
-    test.skip("Specific range is following the active sheet", async () => {
-      //TODO : uh ? Is this test wrong ? The specific range doesn't follow the active sheet in master...
-      createSheet(model, { sheetId: "sh2" });
-      setCellContent(model, "A1", "1");
-
-      inputSearchValue("1");
-      changeSearchScope("specificRange");
-      await nextTick();
-      await nextTick(); // selection input need 2 nextTicks because ¯\_(ツ)_/¯
-      await setInputValueAndTrigger(selectors.searchRange, "A1:B2");
-      await click(fixture, selectors.confirmSearchRange);
-
-      expect(getMatchesCount()).toMatchObject({ specificRange: 1 });
-
-      activateSheet(model, "sh2");
-      await nextTick();
-      expect(getMatchesCount()).toMatchObject({ specificRange: 0 });
-
-      setCellContent(model, "A1", "1", "sh2");
-      await nextTick();
-      expect(getMatchesCount()).toMatchObject({ specificRange: 1 });
-    });
-
     test.each(["allSheets", "activeSheet"] as const)(
       "Specific range is persistent when changing scopes",
       async (scope) => {
@@ -257,7 +234,7 @@ describe("find and replace sidePanel component", () => {
         changeSearchScope("specificRange");
         await nextTick();
         expect((document.querySelector(selectors.searchRange) as HTMLInputElement).value).toBe(
-          "A1:B2"
+          "Sheet1!A1:B2"
         );
       }
     );
