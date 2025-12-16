@@ -346,6 +346,7 @@ describe("Filter menu component", () => {
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
     ).toEqual(["✓(Blanks)"]);
   });
+<<<<<<< 22244de19425c3cb119ca67ec8b1a22982e49733:tests/table/filter_menu_component.test.ts
 
   test("cannot sort dynamic table", async () => {
     setCellContent(model, "A10", "=MUNIT(2)");
@@ -356,4 +357,21 @@ describe("Filter menu component", () => {
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
     ).not.toContain("Sort ascending (A ⟶ Z)");
   });
+||||||| 798a886ef1f16a6053b918484954b4756d62e695:tests/data_filter/filter_menu_component.test.ts
+=======
+
+  test("Filter menu is closed when clicking outside of it", async () => {
+    createFilter(model, "A10:B15");
+    await nextTick();
+    await openFilterMenu();
+
+    // Clicking inside the filter menu does not close it
+    await simulateClick(".o-filter-menu");
+    expect(fixture.querySelector(".o-filter-menu")).not.toBeNull();
+
+    // Clicking outside the filter menu closes it
+    await simulateClick("body");
+    expect(fixture.querySelector(".o-filter-menu")).toBeNull();
+  });
+>>>>>>> a683cc84306242a972df2af928bc7539e3d7abf0:tests/data_filter/filter_menu_component.test.ts
 });

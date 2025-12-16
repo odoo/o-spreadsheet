@@ -64,7 +64,13 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
+<<<<<<< 22244de19425c3cb119ca67ec8b1a22982e49733
 import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
+||||||| 798a886ef1f16a6053b918484954b4756d62e695
+import { isCtrlKey } from "../helpers/dom_helpers";
+=======
+import { isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
+>>>>>>> a683cc84306242a972df2af928bc7539e3d7abf0
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
@@ -168,6 +174,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
+    useExternalListener(window, "click", this.onExternalClick, { capture: true });
     useExternalListener(document.body, "paste", this.paste);
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
@@ -774,6 +781,19 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     }
   }
+<<<<<<< 22244de19425c3cb119ca67ec8b1a22982e49733
+||||||| 798a886ef1f16a6053b918484954b4756d62e695
+}
+=======
+
+  private onExternalClick(ev: MouseEvent) {
+    if (isChildEvent(this.gridEl, ev) || (ev.target as HTMLElement)?.closest(".o-popover")) {
+      return;
+    }
+    this.onClosePopover();
+  }
+}
+>>>>>>> a683cc84306242a972df2af928bc7539e3d7abf0
 
   onComposerCellFocused(content?: string, selection?: ComposerSelection) {
     this.composerFocusStore.focusActiveComposer({ content, selection, focusMode: "cellFocus" });
