@@ -111,6 +111,14 @@ describe("ARRAY.CONSTRAIN function", () => {
       [42, 0],
     ]);
   });
+
+  test("constraint range outside of the sheet", () => {
+    const grid = {
+      A1: "=ARRAY.CONSTRAIN(A1000:B1000, 2, 2)",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getRangeValuesAsMatrix(model, "A1")).toEqual([[0]]); // ideally, it should be an array of the same size as the constraint, but for now, we just return 0
+  });
 });
 
 describe("CHOOSECOLS function", () => {
