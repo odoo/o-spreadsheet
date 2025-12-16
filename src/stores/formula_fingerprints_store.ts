@@ -192,7 +192,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
       const topOffset = isTopUnbounded || left?.rowFixed ? 0 : rowCellOffset;
 
       const isRightFixed = (!right && left?.colFixed) || right?.colFixed;
-      const isBottomFixed = (!right && left.rowFixed) || right?.rowFixed;
+      const isBottomFixed = (!right && left?.rowFixed) || right?.rowFixed;
       const isRightUnbounded = range.unboundedZone.right === undefined;
       const isBottomUnbounded = range.unboundedZone.bottom === undefined;
       const rightOffset = isRightUnbounded || isRightFixed ? 0 : colCellOffset;
