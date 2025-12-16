@@ -45,7 +45,7 @@ describe("evaluateCells", () => {
       C1: "1.2e4",
       C2: "1e5",
       C3: "-1e3",
-      C4: "1E309", // too big number
+      C4: "1E309", // number too large
       D1: "1.1.1", // not a number
     };
     expect(evaluateGrid(grid)).toEqual({
@@ -81,7 +81,7 @@ describe("evaluateCells", () => {
       C4: "=1.2E4",
       C5: "=1E5",
       C6: "=-1E3",
-      C7: "=1E309", // too big number
+      C7: "=1E309", // number too large
 
       D1: "=1.1.1", // not a number
     };
@@ -1274,7 +1274,7 @@ describe("evaluateCells", () => {
     });
   });
 
-  describe("too big number", () => {
+  describe("number too large", () => {
     test("in a formula", () => {
       const grid = {
         A1: "1E200",

@@ -7,8 +7,8 @@ import {
   BadExpressionError,
   CellErrorType,
   CircularDependencyError,
+  NumberTooLargeError,
   SplillBlockedError,
-  TooBigNumberError,
 } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
@@ -619,7 +619,7 @@ function nullValueToZeroValue(functionResult: FunctionResultObject): FunctionRes
 
 function validateNumberValue(data: FunctionResultObject): FunctionResultObject {
   return typeof data.value === "number" && Math.abs(data.value) > Number.MAX_VALUE
-    ? new TooBigNumberError()
+    ? new NumberTooLargeError()
     : nullValueToZeroValue(data);
 }
 
