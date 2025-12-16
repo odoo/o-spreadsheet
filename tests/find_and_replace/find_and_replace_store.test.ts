@@ -116,6 +116,24 @@ describe("basic search", () => {
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
   });
 
+  test("Specific range is following the active sheet", async () => {
+    createSheet(model, { sheetId: sheetId2 });
+    setCellContent(model, "A1", "test");
+
+    updateSearch(model, "test", {
+      searchScope: "specificRange",
+      specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B1"),
+    });
+    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+
+    activateSheet(model, sheetId2);
+    expect(store.searchMatches).toStrictEqual([]);
+    expect(store.searchOptions.specificRange?.sheetId).toBe(sheetId2);
+
+    setCellContent(model, "A1", "test", sheetId2);
+    expect(store.searchMatches).toStrictEqual([match(sheetId2, "A1")]);
+  });
+
   test("search with a regexp characters", () => {
     setCellContent(model, "A1", "hello (world).*");
     updateSearch(model, "hello (world).*");
