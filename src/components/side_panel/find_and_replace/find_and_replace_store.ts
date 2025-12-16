@@ -113,6 +113,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       case "UPDATE_CELL":
       case "ACTIVATE_SHEET":
         this.isSearchDirty = true;
+        if (this.searchOptions.specificRange) {
+          this.searchOptions.specificRange = this.searchOptions.specificRange.clone({
+            sheetId: this.getters.getActiveSheetId(),
+          });
+        }
         break;
       case "REPLACE_SEARCH":
         for (const match of cmd.matches) {
