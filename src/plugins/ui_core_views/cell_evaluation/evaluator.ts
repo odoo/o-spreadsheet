@@ -311,6 +311,13 @@ export class Evaluator {
 
     const nbColumns = formulaReturn.length;
     const nbRows = formulaReturn[0].length;
+    if (nbRows === 0) {
+      // empty matrix
+      return createEvaluatedCell(null, {
+        format: cellData.format,
+        locale: this.getters.getLocale(),
+      });
+    }
 
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
