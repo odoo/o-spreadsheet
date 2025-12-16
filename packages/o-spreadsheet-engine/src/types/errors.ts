@@ -7,7 +7,7 @@ export const CellErrorType = {
   CircularDependency: "#CYCLE",
   UnknownFunction: "#NAME?",
   DivisionByZero: "#DIV/0!",
-  TooBigNumber: "#NUM!",
+  InvalidNumber: "#NUM!",
   SpilledBlocked: "#SPILL!",
   GenericError: "#ERROR",
   NullError: "#NULL!",
@@ -67,8 +67,8 @@ export class DivisionByZeroError extends EvaluationError {
   }
 }
 
-export class TooBigNumberError extends EvaluationError {
-  constructor(message = _t("Too big number")) {
-    super(message, CellErrorType.TooBigNumber);
+export class NumberTooLargeError extends EvaluationError {
+  constructor(message = _t("Number too large")) {
+    super(message, CellErrorType.InvalidNumber);
   }
 }
