@@ -324,7 +324,12 @@ export const insertDropdown: ActionSpec = {
     if (!rule) {
       return;
     }
-    env.openSidePanel("DataValidationEditor", { ruleId });
+    env.openSidePanel("DataValidationEditor", {
+      ruleId,
+      onCancel: () => {
+        env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
+      },
+    });
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
