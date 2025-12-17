@@ -21,7 +21,7 @@ export class GeoChartConfigPanel extends GenericChartConfigPanel {
       {
         name: "dataSetsHaveTitle",
         label: this.dataSetsHaveTitleLabel,
-        value: this.props.definition.dataSetsHaveTitle,
+        value: this.props.definition.dataSource.dataSetsHaveTitle,
         onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       },
     ];
