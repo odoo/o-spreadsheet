@@ -48,7 +48,10 @@ import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 // import { chartFactory } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_factory";
 // import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
-import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  ChartRangeDataSource,
+  SunburstChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
@@ -65,6 +68,7 @@ import {
   CriterionFilter,
   TableConfig,
 } from "@odoo/o-spreadsheet-engine/types/table";
+import { toChartDataSource } from "./chart_helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -232,13 +236,16 @@ export function createChart(
   const definition = {
     ...data,
     title: data.title || { text: "test" },
-    dataSource: data.dataSource ?? { dataSets: [] },
+    ...toChartDataSource({
+      dataSets: [],
+      dataSetsHaveTitle:
+        "dataSource" in data && data.dataSource?.dataSetsHaveTitle !== undefined
+          ? data.dataSource?.dataSetsHaveTitle
+          : true,
+      labelRange: "dataSource" in data ? data.dataSource?.labelRange : undefined,
+      ...data.dataSource,
+    }),
     dataSetStyles: data.dataSetStyles ?? {},
-    dataSetsHaveTitle:
-      "dataSetsHaveTitle" in data && data.dataSetsHaveTitle !== undefined
-        ? data.dataSetsHaveTitle
-        : true,
-    labelRange: "labelRange" in data ? data.labelRange : undefined,
     verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
     background: data.background,
     legendPosition: ("legendPosition" in data && data.legendPosition) || "top",
@@ -292,10 +299,11 @@ export function createComboChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      dataSource: data.dataSource ?? {
+        dataSets: [],
+        dataSetsHaveTitle: true,
+      },
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "combo",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -326,10 +334,15 @@ export function createRadarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      ...toChartDataSource({
+        dataSets: data.dataSource?.dataSets ?? [],
+        dataSetsHaveTitle:
+          data.dataSource?.dataSetsHaveTitle !== undefined
+            ? data.dataSource?.dataSetsHaveTitle
+            : true,
+        labelRange: data.dataSource?.labelRange,
+      }),
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "radar",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -362,10 +375,15 @@ export function createCalendarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      ...toChartDataSource({
+        dataSets: data.dataSource?.dataSets ?? [],
+        dataSetsHaveTitle:
+          data.dataSource?.dataSetsHaveTitle !== undefined
+            ? data.dataSource?.dataSetsHaveTitle
+            : true,
+        labelRange: data.dataSource?.labelRange,
+      }),
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "calendar",
       background: data.background,
       horizontalGroupBy: data.horizontalGroupBy ?? "day_of_week",
@@ -502,10 +520,15 @@ export function createGeoChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      ...toChartDataSource({
+        dataSets: data.dataSource?.dataSets ?? [],
+        dataSetsHaveTitle:
+          data.dataSource?.dataSetsHaveTitle !== undefined
+            ? data.dataSource?.dataSetsHaveTitle
+            : true,
+        labelRange: data.dataSource?.labelRange,
+      }),
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "geo",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -546,6 +569,31 @@ export function updateChart(
     sheetId,
     definition: updatedDef,
   });
+}
+
+export function updateChartDataSource(
+  model: Model,
+  chartId: UID,
+  dataSource: Partial<ChartRangeDataSource>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const currentDefinition = model.getters.getChartDefinition(chartId);
+  if (!("dataSource" in currentDefinition)) {
+    throw new Error("Chart has no data source");
+  }
+  const ds = toChartDataSource({
+    ...currentDefinition.dataSource,
+    ...dataSource,
+  });
+  const updatedDef = {
+    ...currentDefinition,
+    ...ds,
+    dataSetStyles: {
+      ...currentDefinition.dataSetStyles,
+      ...ds.dataSetStyles,
+    },
+  };
+  return updateChart(model, chartId, updatedDef, sheetId);
 }
 
 /**

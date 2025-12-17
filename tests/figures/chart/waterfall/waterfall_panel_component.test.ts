@@ -62,7 +62,7 @@ describe("Waterfall chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getWaterfallDefinition(chartId)?.labelRange).toEqual("C1:C3");
+      expect(getWaterfallDefinition(chartId)?.dataSource.labelRange).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
@@ -76,7 +76,7 @@ describe("Waterfall chart side panel", () => {
       expect(getWaterfallDefinition(chartId)?.aggregated).toEqual(false);
 
       await simulateClick('input[name="dataSetsHaveTitle"]');
-      expect(getWaterfallDefinition(chartId)?.dataSetsHaveTitle).toEqual(false);
+      expect(getWaterfallDefinition(chartId)?.dataSource.dataSetsHaveTitle).toEqual(false);
     });
   });
 
