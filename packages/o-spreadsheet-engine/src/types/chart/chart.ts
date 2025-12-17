@@ -158,6 +158,8 @@ export type CustomizedDataSet = {
 
 export interface ChartRangeDataSource {
   readonly dataSets: { dataSetId: UID; dataRange: string }[];
+  readonly dataSetsHaveTitle: boolean;
+  readonly labelRange?: string;
 }
 
 export type AxisType = "category" | "linear" | "time";
@@ -216,14 +218,13 @@ export interface ExcelChartDefinition {
 export interface ChartCreationContext {
   readonly dataSetStyles?: DataSetStyle;
   readonly hierarchicalDataSource?: ChartRangeDataSource;
-  readonly dataSource?: ChartRangeDataSource;
+  readonly dataSource?: Partial<ChartRangeDataSource>;
   readonly title?: TitleDesign;
   readonly background?: Color;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
   readonly cumulative?: boolean;
-  readonly dataSetsHaveTitle?: boolean;
   readonly labelsAsText?: boolean;
   readonly showSubTotals?: boolean;
   readonly showConnectorLines?: boolean;
