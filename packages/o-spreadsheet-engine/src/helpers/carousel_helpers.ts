@@ -8,9 +8,8 @@ export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {
   type: "bar",
   title: {},
   stacked: false,
-  dataSetsHaveTitle: false,
   dataSetStyles: {},
-  dataSource: { dataSets: [] },
+  dataSource: { dataSets: [], dataSetsHaveTitle: false },
   legendPosition: "top",
   humanize: true,
 };
