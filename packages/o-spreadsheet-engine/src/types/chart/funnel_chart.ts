@@ -7,8 +7,6 @@ export interface FunnelChartDefinition {
   readonly type: "funnel";
   readonly dataSetStyles: DataSetStyle;
   readonly dataSource: ChartRangeDataSource;
-  readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
