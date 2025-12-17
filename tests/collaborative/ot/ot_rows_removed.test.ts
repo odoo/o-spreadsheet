@@ -602,7 +602,6 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
     type: "bar",
     ...toChartDataSource({
       dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A10" }],
-      dataSetsHaveTitle: false,
       labelRange: "Sheet1!A1:A10",
     }),
     legendPosition: "top",
