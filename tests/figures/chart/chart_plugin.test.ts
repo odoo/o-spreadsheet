@@ -38,6 +38,7 @@ import {
   unhideColumns,
   unhideRows,
   updateChart,
+  updateChartDataSource,
   updateFilter,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
@@ -702,9 +703,9 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    updateChart(model, "1", { labelRange: undefined });
+    updateChartDataSource(model, "1", { labelRange: undefined });
     expect(
-      (model.getters.getChartDefinition("1") as LineChartDefinition).labelRange
+      (model.getters.getChartDefinition("1") as LineChartDefinition).dataSource.labelRange
     ).toBeUndefined();
   });
 
@@ -1161,9 +1162,9 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(updateChart(model, "1", { labelRange: "This is invalid" })).toBeCancelledBecause(
-      CommandResult.InvalidLabelRange
-    );
+    expect(
+      updateChartDataSource(model, "1", { labelRange: "This is invalid" })
+    ).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
   test("duplicate a sheet with and without a chart", () => {
     const model = new Model({
@@ -3390,7 +3391,7 @@ describe("Chart evaluation", () => {
     setCellContent(model, "A2", "non");
     createChart(model, { type: "bar" }, chartId);
 
-    updateChart(model, chartId, { labelRange: "A1:A2" });
+    updateChartDataSource(model, chartId, { labelRange: "A1:A2" });
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual(["oui", "non"]);
     undo(model);
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual([]);
@@ -4137,7 +4138,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["type"]).toEqual("category");
 
     // Line chart with numerical labels
-    updateChart(model, "1", { labelRange: "C1:C5" });
+    updateChartDataSource(model, "1", { labelRange: "C1:C5" });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
@@ -4146,7 +4147,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["type"]).toEqual("category");
 
     // Line chart with categorical labels
-    updateChart(model, "1", { labelRange: "A1:A5" });
+    updateChartDataSource(model, "1", { labelRange: "A1:A5" });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
@@ -4155,7 +4156,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["type"]).toEqual("category");
 
     // Bar chart with date labels
-    updateChart(model, "1", { labelRange: "B1:B5" });
+    updateChartDataSource(model, "1", { labelRange: "B1:B5" });
     updateChart(model, "1", { type: "bar" });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
@@ -4165,7 +4166,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
     // Bar chart with numerical labels
-    updateChart(model, "1", { labelRange: "C1:C5" });
+    updateChartDataSource(model, "1", { labelRange: "C1:C5" });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
@@ -4173,7 +4174,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
     // Bar chart with categorical labels
-    updateChart(model, "1", { labelRange: "A1:A5" });
+    updateChartDataSource(model, "1", { labelRange: "A1:A5" });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");

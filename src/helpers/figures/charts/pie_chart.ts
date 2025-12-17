@@ -8,7 +8,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -48,8 +47,6 @@ export class PieChart extends AbstractChart {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "dataSetsHaveTitle",
-    "labelRange",
     "aggregated",
     "isDoughnut",
     "pieHolePercentage",
@@ -60,7 +57,7 @@ export class PieChart extends AbstractChart {
   constructor(private definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition);
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static transformDefinition(
@@ -81,13 +78,16 @@ export class PieChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
     return {
       background: context.background,
-      dataSource: context.dataSource ?? { dataSets: [] },
+      dataSource: {
+        dataSets: [],
+        dataSetsHaveTitle: false,
+        labelRange: context.auxiliaryRange,
+        ...context.dataSource,
+      },
       dataSetStyles: context.dataSetStyles ?? {},
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "pie",
-      labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
       isDoughnut: context.isDoughnut,
       pieHolePercentage: context.pieHolePercentage,
@@ -98,36 +98,28 @@ export class PieChart extends AbstractChart {
   }
 
   getDefinition(): PieChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(
-      {
-        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
-          dataSetId,
-          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
-        })),
-      },
-      this.labelRange
-    );
+    return this.getDefinitionWithSpecificDataSets({
+      ...this.definition.dataSource,
+      dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+        dataSetId,
+        dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+      })),
+      labelRange: this.labelRange && this.getters.getRangeString(this.labelRange, this.sheetId),
+    });
   }
 
   getContextCreation(): ChartCreationContext {
     const definition = this.getDefinition();
     return {
       ...definition,
-      auxiliaryRange: definition.labelRange,
+      auxiliaryRange: definition.dataSource.labelRange,
     };
   }
 
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource,
-    labelRange: Range | undefined,
-    targetSheetId?: UID
-  ): PieChartDefinition {
+  private getDefinitionWithSpecificDataSets(dataSource: ChartRangeDataSource): PieChartDefinition {
     return {
       ...this.definition,
       dataSource,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
     };
   }
 
@@ -138,12 +130,7 @@ export class PieChart extends AbstractChart {
       newSheetId,
       this.definition.dataSource
     );
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new PieChart(definition, newSheetId, this.getters);
   }
 
@@ -154,7 +141,7 @@ export class PieChart extends AbstractChart {
       sheetId,
       this.definition.dataSource
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new PieChart(definition, sheetId, this.getters);
   }
 
@@ -174,16 +161,15 @@ export class PieChart extends AbstractChart {
   }
 
   updateRanges(adapterFunctions: RangeAdapterFunctions): PieChart {
-    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, isStale } = updateChartRangesWithDataSets(
       this.sheetId,
       adapterFunctions,
-      this.definition.dataSource,
-      this.labelRange
+      this.definition.dataSource
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new PieChart(definition, this.sheetId, this.getters);
   }
 }
