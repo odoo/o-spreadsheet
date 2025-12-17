@@ -490,10 +490,10 @@ describe("Smart chart type detection", () => {
   });
 
   test.each([
-    [["percentage"], { type: "pie" }],
-    [["number"], { type: "bar" }],
-    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true }], // categorical pie chart, the data range is also the label range
-    [["date"], { type: "line" }],
+    [["percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: false }], // categorical pie chart, the data range is also the label range
+    [["date"], { type: "line", dataSetsHaveTitle: false }],
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
   ] as const)("ddSingle column %s creates %s chart", (datasetPattern, expected) => {
@@ -508,21 +508,21 @@ describe("Smart chart type detection", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A6" }],
         labelRange: "labelRange" in expected ? expected.labelRange : undefined,
-        dataSetsHaveTitle: "dataSetsHaveTitle" in expected ? expected.dataSetsHaveTitle : false,
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
   });
 
   test.each([
-    [["text", "percentage"], { type: "pie" }],
-    [["number", "percentage"], { type: "pie" }],
-    [["date", "percentage"], { type: "pie" }],
-    [["number", "number"], { type: "scatter" }],
-    [["date", "number"], { type: "line" }],
-    [["text", "number"], { type: "bar" }],
-    [["text_repeated", "number"], { type: "treemap" }],
-    [["text", "date"], { type: "bar" }],
-    [["number", "text"], { type: "bar" }],
+    [["text", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["number", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["date", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["number", "number"], { type: "scatter", dataSetsHaveTitle: false }],
+    [["date", "number"], { type: "line", dataSetsHaveTitle: false }],
+    [["text", "number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text_repeated", "number"], { type: "treemap", dataSetsHaveTitle: false }],
+    [["text", "date"], { type: "bar", dataSetsHaveTitle: false }],
+    [["number", "text"], { type: "bar", dataSetsHaveTitle: true }],
     [["text", "number_with_header"], { type: "bar", dataSetsHaveTitle: true }],
     [["number", "number_with_header"], { type: "scatter", dataSetsHaveTitle: true }],
   ])("Two columns %s creates %s chart", (datasetPattern, expected) => {
@@ -539,15 +539,16 @@ describe("Smart chart type detection", () => {
       ...toChartDataSource({
         dataSets: expectedDataset,
         labelRange: expectedLabelRange,
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
-    [["text", "text", "number"], { type: "treemap" }],
-    [["text", "text", "text", "number"], { type: "sunburst" }],
-    [["text", "text", "percentage"], { type: "treemap" }],
-    [["text", "text", "text", "percentage"], { type: "sunburst" }],
+  test.each([
+    [["text", "text", "number"], { type: "treemap", dataSetsHaveTitle: false }],
+    [["text", "text", "text", "number"], { type: "sunburst", dataSetsHaveTitle: false }],
+    [["text", "text", "percentage"], { type: "treemap", dataSetsHaveTitle: false }],
+    [["text", "text", "text", "percentage"], { type: "sunburst", dataSetsHaveTitle: false }],
     [["text", "text", "text", "number_with_header"], { type: "sunburst", dataSetsHaveTitle: true }],
   ])("Multiple text columns  %s create a %s hierarchical chart", (datasetPattern, expected) => {
     createDatasetFromDescription(datasetPattern);
@@ -562,24 +563,28 @@ describe("Smart chart type detection", () => {
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      ...expected,
+      type: expected.type,
       ...toChartDataSource({
         dataSets: expectedDatasets,
         labelRange: expectedLabelRange,
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
-    [["text", "percentage", "percentage"], { type: "pie" }],
-    [["number", "percentage", "percentage", "percentage"], { type: "pie" }],
-    [["date", "number", "number"], { type: "line" }],
+  test.each([
+    [["text", "percentage", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [
+      ["number", "percentage", "percentage", "percentage"],
+      { type: "pie", dataSetsHaveTitle: false },
+    ],
+    [["date", "number", "number"], { type: "line", dataSetsHaveTitle: false }],
     // Any other combination should give a bar chart with correct datasets
-    [["text", "number", "percentage"], { type: "bar" }],
-    [["text", "number", "date"], { type: "bar" }],
-    [["text", "number", "number"], { type: "bar" }],
-    [["number", "number", "number"], { type: "bar" }],
-    [["date", "date", "number", "text"], { type: "bar" }],
+    [["text", "number", "percentage"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text", "number", "date"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text", "number", "number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["number", "number", "number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["date", "date", "number", "text"], { type: "bar", dataSetsHaveTitle: false }],
     [["text", "number_with_header", "percentage"], { type: "bar", dataSetsHaveTitle: true }],
     [["text", "number", "date_with_header"], { type: "bar", dataSetsHaveTitle: true }],
   ])("Multiple columns  %s create a %s chart", (datasetPattern, expected) => {
@@ -596,10 +601,11 @@ describe("Smart chart type detection", () => {
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      ...expected,
+      type: expected.type,
       ...toChartDataSource({
         dataSets: expectedDatasets,
         labelRange: "A1:A6",
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
     });
   });
