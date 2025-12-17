@@ -65,6 +65,7 @@ import {
   CriterionFilter,
   TableConfig,
 } from "@odoo/o-spreadsheet-engine/types/table";
+import { toChartDataSource } from "./chart_helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -232,13 +233,16 @@ export function createChart(
   const definition = {
     ...data,
     title: data.title || { text: "test" },
-    dataSource: data.dataSource ?? { dataSets: [] },
+    ...toChartDataSource({
+      dataSets: [],
+      dataSetsHaveTitle:
+        "dataSource" in data && data.dataSource?.dataSetsHaveTitle !== undefined
+          ? data.dataSource?.dataSetsHaveTitle
+          : true,
+      labelRange: "dataSource" in data ? data.dataSource?.labelRange : undefined,
+      ...data.dataSource,
+    }),
     dataSetStyles: data.dataSetStyles ?? {},
-    dataSetsHaveTitle:
-      "dataSetsHaveTitle" in data && data.dataSetsHaveTitle !== undefined
-        ? data.dataSetsHaveTitle
-        : true,
-    labelRange: "labelRange" in data ? data.labelRange : undefined,
     verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
     background: data.background,
     legendPosition: ("legendPosition" in data && data.legendPosition) || "top",
@@ -292,10 +296,11 @@ export function createComboChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      dataSource: data.dataSource ?? {
+        dataSets: [],
+        dataSetsHaveTitle: true,
+      },
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "combo",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -326,10 +331,15 @@ export function createRadarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      ...toChartDataSource({
+        dataSets: data.dataSource?.dataSets ?? [],
+        dataSetsHaveTitle:
+          data.dataSource?.dataSetsHaveTitle !== undefined
+            ? data.dataSource?.dataSetsHaveTitle
+            : true,
+        labelRange: data.dataSource?.labelRange,
+      }),
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "radar",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -362,10 +372,15 @@ export function createCalendarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      ...toChartDataSource({
+        dataSets: data.dataSource?.dataSets ?? [],
+        dataSetsHaveTitle:
+          data.dataSource?.dataSetsHaveTitle !== undefined
+            ? data.dataSource?.dataSetsHaveTitle
+            : true,
+        labelRange: data.dataSource?.labelRange,
+      }),
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "calendar",
       background: data.background,
       horizontalGroupBy: data.horizontalGroupBy ?? "day_of_week",
@@ -502,10 +517,15 @@ export function createGeoChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSource: data.dataSource ?? { dataSets: [] },
+      ...toChartDataSource({
+        dataSets: data.dataSource?.dataSets ?? [],
+        dataSetsHaveTitle:
+          data.dataSource?.dataSetsHaveTitle !== undefined
+            ? data.dataSource?.dataSetsHaveTitle
+            : true,
+        labelRange: data.dataSource?.labelRange,
+      }),
       dataSetStyles: data.dataSetStyles ?? {},
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
       type: "geo",
       background: data.background,
       legendPosition: data.legendPosition || "top",

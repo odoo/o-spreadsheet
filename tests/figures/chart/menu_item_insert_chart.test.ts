@@ -489,30 +489,31 @@ describe("Smart chart type detection", () => {
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+  test.each([
     [["percentage"], { type: "pie" }],
     [["number"], { type: "bar" }],
     [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true }], // categorical pie chart, the data range is also the label range
     [["date"], { type: "line" }],
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
-  ])("Single column %s creates %s chart", (datasetPattern, expected) => {
-    createDatasetFromDescription(datasetPattern);
+  ] as const)("ddSingle column %s creates %s chart", (datasetPattern, expected) => {
+    createDatasetFromDescription([...datasetPattern]);
     doAction(["insert", "insert_chart"], env);
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 
     const definition = model.getters.getChartDefinition(chartId);
     expect(definition).toMatchObject({
-      ...expected,
+      type: expected.type,
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A6" }],
         labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+        dataSetsHaveTitle: "dataSetsHaveTitle" in expected ? expected.dataSetsHaveTitle : false,
       }),
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
+  test.each([
     [["text", "percentage"], { type: "pie" }],
     [["number", "percentage"], { type: "pie" }],
     [["date", "percentage"], { type: "pie" }],
@@ -534,7 +535,7 @@ describe("Smart chart type detection", () => {
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      ...expected,
+      type: expected.type,
       ...toChartDataSource({
         dataSets: expectedDataset,
         labelRange: expectedLabelRange,

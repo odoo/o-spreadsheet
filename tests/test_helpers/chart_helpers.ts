@@ -47,7 +47,7 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
 }
 
 interface CoucouInput {
-  dataSets: (CustomizedDataSet & {
+  dataSets?: (CustomizedDataSet & {
     dataRange: string;
     dataSetId?: UID;
     type?: "bar" | "line"; // for combo charts
@@ -61,14 +61,11 @@ interface CoucouInputWithTitle extends CoucouInput {
 
 interface CoucouOutput {
   dataSource: ChartRangeDataSource;
-  labelRange?: string;
   dataSetStyles: Record<string, CustomizedDataSet>;
 }
 
 interface CoucouOutputWithTitle {
   dataSource: ChartRangeDataSource;
-  labelRange?: string;
-  dataSetsHaveTitle: boolean;
   dataSetStyles: DataSetStyle | ComboChartDataSetStyle;
 }
 
@@ -77,7 +74,10 @@ export function toChartDataSource(args: CoucouInputWithTitle): CoucouOutputWithT
 export function toChartDataSource(
   args: CoucouInput | CoucouInputWithTitle
 ): CoucouOutput | CoucouOutputWithTitle {
-  const { dataSets, labelRange } = args;
+  let { dataSets, labelRange } = args;
+  if (!dataSets) {
+    dataSets = [];
+  }
   for (let i = 0; i < dataSets.length; i++) {
     if (!dataSets[i].dataSetId) {
       dataSets[i].dataSetId = i.toString();
@@ -100,11 +100,16 @@ export function toChartDataSource(
     dataSetStyles,
   };
   if ("dataSetsHaveTitle" in args && args.dataSetsHaveTitle !== undefined) {
-    // @ts-ignore
-    result.dataSetsHaveTitle = args.dataSetsHaveTitle;
+    result.dataSource = {
+      ...result.dataSource,
+      dataSetsHaveTitle: args.dataSetsHaveTitle,
+    };
   }
   if (labelRange !== undefined) {
-    result.labelRange = labelRange;
+    result.dataSource = {
+      ...result.dataSource,
+      labelRange,
+    };
   }
   return result;
 }
@@ -227,12 +232,12 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   }),
   hierarchicalDataSource: {
     dataSets: [],
+    dataSetsHaveTitle: true,
   },
   auxiliaryRange: "Sheet1!A1:A4",
   legendPosition: "bottom",
   cumulative: true,
   labelsAsText: true,
-  dataSetsHaveTitle: true,
   aggregated: true,
   stacked: true,
   firstValueAsSubtotal: true,

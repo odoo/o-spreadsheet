@@ -1245,7 +1245,9 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           chartId: "fig1",
           //@ts-ignore the old command would handle a partial definition
           definition: {
-            dataSource: { dataSets: [{ dataRange: "A1:A3", dataSetId: "0" }] },
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1:A3", dataSetId: "0" }],
+            }),
           },
         },
         {
@@ -1280,7 +1282,9 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           chartId: "fig2",
           //@ts-ignore the old command would handle a partial definition
           definition: {
-            dataSource: { dataSets: [{ dataRange: "B1:B3", dataSetId: "0" }] },
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "B1:B3", dataSetId: "0" }],
+            }),
           },
         },
       ],
