@@ -112,10 +112,10 @@ function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): strin
     }
     case "iso_week_number": {
       const weekNumber = String(value).padStart(2, "0");
-      return _t(`W%(weekNumber)s`, { weekNumber });
+      return _t("W%(weekNumber)s", { weekNumber });
     }
     case "quarter_number": {
-      return _t(`Q%(value)s`, { value });
+      return _t("Q%(value)s", { value });
     }
     default: {
       return value.toString();
