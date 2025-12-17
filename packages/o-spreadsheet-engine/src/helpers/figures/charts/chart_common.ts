@@ -54,14 +54,13 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  */
 export function updateChartRangesWithDataSets(
   sheetId: UID,
-  adapterFunctions: RangeAdapterFunctions,
-  dataSource: ChartRangeDataSource,
-  chartLabelRange?: Range
+  { adaptRangeString }: RangeAdapterFunctions,
+  dataSource: ChartRangeDataSource
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
     .map((ds) => {
-      const adaptedRangeStr = adapterFunctions.adaptRangeString(sheetId, ds.dataRange);
-      if (adaptedRangeStr === CellErrorType.InvalidReference) {
+      const {range: adaptedRangeStr, changeType} = adaptRangeString(sheetId, ds.dataRange);
+      if (changeType === "REMOVE") {
         return undefined;
       }
       return {
@@ -70,10 +69,14 @@ export function updateChartRangesWithDataSets(
       };
     })
     .filter(isDefined);
-  let labelRange = chartLabelRange;
-  const range = adaptChartRange(labelRange, adapterFunctions);
-  if (range !== labelRange) {
-    labelRange = range;
+  let labelRange = dataSource.labelRange;
+  if (labelRange) {
+    const { range: adaptedLabelRangeStr, changeType } = adaptRangeString(sheetId, labelRange);
+    if (changeType === "REMOVE") {
+      labelRange = undefined;
+    } else {
+      labelRange = adaptedLabelRangeStr;
+    }
   }
   const dataSets = dataSetsWithUndefined;
   return {
@@ -81,8 +84,8 @@ export function updateChartRangesWithDataSets(
     dataSource: {
       ...dataSource,
       dataSets,
+      labelRange: labelRange === CellErrorType.InvalidReference ? undefined : labelRange,
     },
-    labelRange,
   };
 }
 
@@ -127,8 +130,15 @@ export function copyChartDataSourceInSheetId(
   targetSheetId: UID,
   dataSource: ChartRangeDataSource
 ): ChartRangeDataSource {
+  const labelRange = dataSource.labelRange
+    ? getters.getRangeFromSheetXC(sourceSheetId, dataSource.labelRange)
+    : undefined;
   return {
     ...dataSource,
+    labelRange:
+      labelRange && !labelRange.invalidXc
+        ? getters.getRangeString(labelRange, targetSheetId)
+        : undefined,
     dataSets: dataSource.dataSets.map((ds) => {
       const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
       return {
@@ -192,7 +202,7 @@ export function createDataSets(
             getters,
             dataSetSheetId,
             columnZone,
-            definition.dataSetsHaveTitle
+            definition.dataSource.dataSetsHaveTitle
               ? {
                   top: columnZone.top,
                   bottom: columnZone.top,
@@ -216,7 +226,7 @@ export function createDataSets(
           getters,
           dataSetSheetId,
           zone,
-          definition.dataSetsHaveTitle
+          definition.dataSource.dataSetsHaveTitle
             ? {
                 top: zone.top,
                 bottom: zone.top,
@@ -338,10 +348,10 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
   applyChange: RangeAdapter
 ): T {
   let labelRange: string | undefined;
-  if (definition.labelRange) {
+  if (definition.dataSource.labelRange) {
     const { changeType, range: adaptedRange } = adaptStringRange(
       chartSheetId,
-      definition.labelRange,
+      definition.dataSource.labelRange,
       applyChange
     );
     if (changeType !== "REMOVE") {
@@ -369,8 +379,8 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
     dataSource: {
       ...definition.dataSource,
       dataSets,
+      labelRange,
     },
-    labelRange,
   };
 }
 
@@ -409,8 +419,8 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
 }
 
 export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
+  if (definition.dataSource.labelRange) {
+    const invalidLabels = !rangeReference.test(definition.dataSource.labelRange || "");
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }
