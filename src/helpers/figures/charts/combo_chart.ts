@@ -8,7 +8,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -55,8 +54,6 @@ export class ComboChart extends AbstractChart {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "dataSetsHaveTitle",
-    "labelRange",
     "aggregated",
     "axesDesign",
     "showValues",
@@ -67,7 +64,7 @@ export class ComboChart extends AbstractChart {
   constructor(private definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition);
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static transformDefinition(
@@ -89,33 +86,27 @@ export class ComboChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      auxiliaryRange: definition.labelRange,
+      auxiliaryRange: definition.dataSource.labelRange,
     };
   }
 
   getDefinition(): ComboChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(
-      {
-        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
-          dataSetId,
-          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
-        })),
-      },
-      this.labelRange
-    );
+    return this.getDefinitionWithSpecificDataSets({
+      ...this.definition.dataSource,
+      dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+        dataSetId,
+        dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+      })),
+      labelRange: this.labelRange && this.getters.getRangeString(this.labelRange, this.sheetId),
+    });
   }
 
   private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource,
-    labelRange: Range | undefined,
-    targetSheetId?: UID
+    dataSource: ChartRangeDataSource
   ): ComboChartDefinition {
     return {
       ...this.definition,
       dataSource,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
     };
   }
 
@@ -136,22 +127,21 @@ export class ComboChart extends AbstractChart {
   }
 
   updateRanges(adapterFunctions: RangeAdapterFunctions): ComboChart {
-    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, isStale } = updateChartRangesWithDataSets(
       this.sheetId,
       adapterFunctions,
-      this.definition.dataSource,
-      this.labelRange
+      this.definition.dataSource
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new ComboChart(definition, this.sheetId, this.getters);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
     const dataSetStyles: ComboChartDataSetStyle = {};
-    const firstDataSetId = context.dataSource?.dataSets[0]?.dataSetId;
+    const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
     for (const dataSet of context.dataSource?.dataSets || []) {
       dataSetStyles[dataSet.dataSetId] = {
         ...(context.dataSetStyles?.[dataSet.dataSetId] || {}),
@@ -160,13 +150,16 @@ export class ComboChart extends AbstractChart {
     }
     return {
       background: context.background,
-      dataSource: context.dataSource ?? { dataSets: [] },
+      dataSource: {
+        dataSets: [],
+        dataSetsHaveTitle: false,
+        labelRange: context.auxiliaryRange,
+        ...context.dataSource,
+      },
       dataSetStyles,
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
-      labelRange: context.auxiliaryRange || undefined,
       type: "combo",
       axesDesign: context.axesDesign,
       showValues: context.showValues,
@@ -183,12 +176,7 @@ export class ComboChart extends AbstractChart {
       newSheetId,
       this.definition.dataSource
     );
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new ComboChart(definition, newSheetId, this.getters);
   }
 
@@ -199,7 +187,7 @@ export class ComboChart extends AbstractChart {
       sheetId,
       this.definition.dataSource
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new ComboChart(definition, sheetId, this.getters);
   }
 }
