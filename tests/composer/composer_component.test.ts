@@ -1622,8 +1622,6 @@ describe("composer highlights color", () => {
     expect(highlights[1].range.sheetId).toBe("42");
     expect(highlights[1].range.zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
-
-  test.skip("grid composer is resized when top bar composer grows", async () => {});
 });
 
 describe("Composer string is correctly translated to DOM", () => {

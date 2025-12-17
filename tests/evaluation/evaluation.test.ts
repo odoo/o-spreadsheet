@@ -1364,20 +1364,6 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A2", s[0]).value).toBe(12);
   });
 
-  test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
-    const mockCompute = jest.fn();
-
-    addToRegistry(functionRegistry, "GETVALUE", {
-      description: "Get value",
-      compute: mockCompute,
-      args: [],
-    });
-    setCellContent(model, "A1", "=GETVALUE()");
-    expect(mockCompute).toHaveBeenCalledTimes(1);
-    resetAllMocks();
-    model.dispatch("EVALUATE_CELLS");
-    expect(mockCompute).toHaveBeenCalledTimes(0);
-  });
   test("cells are re-evaluated if one of their dependency changes", () => {
     const mockCompute = jest.fn().mockReturnValue("Hi");
 

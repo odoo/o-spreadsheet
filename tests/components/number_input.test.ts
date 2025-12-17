@@ -78,12 +78,13 @@ describe("NumberInput", () => {
     expect(onChange).toHaveBeenCalledWith("4");
   });
 
-  test.skip("selects input content upon mouseup", async () => {
-    // not supported in jsdom
-    await mountNumberInput({ value: 10000, onChange: () => {} });
-    triggerMouseEvent("input", "pointerup");
-    expect(fixture.querySelector("input")!.selectionStart).toEqual(0);
-    expect(fixture.querySelector("input")!.selectionEnd).toEqual(5);
+  test("selects input content upon mouseup", async () => {
+    await mountNumberInput({ value: 10000, onChange: () => {}, selectContentOnFocus: true });
+    const input = fixture.querySelector("input")! as HTMLInputElement;
+
+    jest.spyOn(input, "select"); // the selection not supported in jsdom, we'll just spy the select method
+    triggerMouseEvent(input, "pointerup");
+    expect(input.select).toHaveBeenCalled();
   });
 
   test("saves the value on input blur", async () => {
