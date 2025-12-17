@@ -324,6 +324,8 @@ describe("Waterfall chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A1:A4",
       }),
     };
     const definition = WaterfallChart.getDefinitionFromContextCreation(context);

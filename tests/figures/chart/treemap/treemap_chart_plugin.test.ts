@@ -120,6 +120,7 @@ describe("TreeMap chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
         dataSetsHaveTitle: true,
       }),
       auxiliaryRange: "Sheet1!A1:A4",

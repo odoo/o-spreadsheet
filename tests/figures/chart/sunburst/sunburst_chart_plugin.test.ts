@@ -81,12 +81,12 @@ describe("Sunburst chart chart", () => {
     // of the usual chart structure.
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      dataSource: {
+      ...toChartDataSource({
         dataSets: [
           { dataRange: "Sheet1!B1:B4", dataSetId: "0" },
           { dataRange: "Sheet1!C1:C4", dataSetId: "1" },
         ],
-      },
+      }),
       auxiliaryRange: "Sheet1!A1:A4",
     };
     const definition = SunburstChart.getDefinitionFromContextCreation(context);

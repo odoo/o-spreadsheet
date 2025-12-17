@@ -27,7 +27,6 @@ import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/run
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
   CHART_TYPES,
-  ChartDefinition,
   ChartType,
   ChartWithDataSetDefinition,
   CreateFigureCommand,
@@ -55,6 +54,7 @@ import {
   setStyle,
   undo,
   updateChart,
+  updateChartDataSource,
 } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import {
@@ -268,7 +268,7 @@ describe("charts", () => {
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.labelRange
+          TEST_CHART_DATA.basicChart.dataSource.labelRange
         );
         break;
       case "basicChart": {
@@ -283,7 +283,7 @@ describe("charts", () => {
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.labelRange
+          TEST_CHART_DATA.basicChart.dataSource.labelRange
         );
         break;
       }
@@ -323,13 +323,22 @@ describe("charts", () => {
       case "combo":
       case "basicChart":
         await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
+        const definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
           figureId: expect.any(String),
           chartId,
           sheetId,
           definition: {
-            ...model.getters.getChartDefinition(chartId),
-            dataSetsHaveTitle: false,
+            ...definition,
+            ...toChartDataSource({
+              ...definition.dataSource,
+              dataSetsHaveTitle: false,
+            }),
+            dataSetStyles: {
+              "0": {
+                yAxisId: "y",
+              },
+            },
           },
         });
         break;
@@ -929,21 +938,40 @@ describe("charts", () => {
     }
   );
 
-  test.each([
-    ["basicChart", "labelRange"],
-    ["combo", "labelRange"],
-    ["scorecard", "baseline"],
-  ] as const)("remove ranges in chart %s", async (chartType, attrName) => {
-    createTestChart(chartType);
+  test.each([["basicChart"], ["combo"]] as const)(
+    "remove ranges in chart %s",
+    async (chartType) => {
+      createTestChart(chartType);
+      await mountChartSidePanel();
+
+      expect(
+        (model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition)?.dataSource
+          .labelRange
+      ).not.toBeUndefined();
+
+      await simulateClick(".o-data-labels input");
+      await setInputValueAndTrigger(".o-data-labels input", "");
+      await simulateClick(".o-data-labels .o-selection-ok");
+      expect(
+        (model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition)?.dataSource
+          .labelRange
+      ).toBeUndefined();
+    }
+  );
+
+  test("remove ranges in scorecard chart", async () => {
+    createTestChart("scorecard");
     await mountChartSidePanel();
 
-    expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
+    expect(
+      (model.getters.getChartDefinition(chartId) as ScorecardChartDefinition)?.baseline
+    ).not.toBeUndefined();
 
     await simulateClick(".o-data-labels input");
     await setInputValueAndTrigger(".o-data-labels input", "");
     await simulateClick(".o-data-labels .o-selection-ok");
     expect(
-      (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
+      (model.getters.getChartDefinition(chartId) as ScorecardChartDefinition).baseline
     ).toBeUndefined();
   });
 
@@ -2226,7 +2254,8 @@ describe("charts", () => {
 
     test("dataSetsHaveTitle value is kept when changing to a chart without aggregate option then back again", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { dataSetsHaveTitle: true, type: "pie" });
+      updateChartDataSource(model, chartId, { dataSetsHaveTitle: true });
+      updateChart(model, chartId, { type: "pie" });
       await mountChartSidePanel();
       let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);

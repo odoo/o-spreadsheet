@@ -24,6 +24,7 @@ describe("combo chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A1:A4",
       }),
     };
     const definition = ComboChart.getDefinitionFromContextCreation(context);

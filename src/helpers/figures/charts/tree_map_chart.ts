@@ -7,7 +7,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -51,8 +50,6 @@ export class TreeMapChart extends AbstractChart {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "dataSetsHaveTitle",
-    "labelRange",
     "showHeaders",
     "headerDesign",
     "showLabels",
@@ -64,7 +61,7 @@ export class TreeMapChart extends AbstractChart {
   constructor(private definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition);
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static transformDefinition(
@@ -83,21 +80,26 @@ export class TreeMapChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
-    let dataSource: ChartRangeDataSource = { dataSets: [] };
+    let dataSource: ChartRangeDataSource = {
+      dataSets: [],
+      dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
+      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
+    };
     if (context.hierarchicalDataSource?.dataSets.length) {
       dataSource = context.hierarchicalDataSource;
     } else if (context.auxiliaryRange) {
-      dataSource = { dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }] };
+      dataSource = {
+        ...dataSource,
+        dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }],
+      };
     }
     return {
       background: context.background,
       dataSetStyles: context.dataSetStyles ?? {},
       dataSource,
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "treemap",
-      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
       showValues: context.showValues,
       showHeaders: context.showHeaders,
       headerDesign: context.headerDesign,
@@ -111,12 +113,16 @@ export class TreeMapChart extends AbstractChart {
   getContextCreation(): ChartCreationContext {
     const definition = this.getDefinition();
     const leafRange = definition.dataSource.dataSets.at(-1)?.dataRange;
+    const dataSetsHaveTitle = definition.dataSource.dataSetsHaveTitle;
     return {
       ...definition,
       treemapColoringOptions: definition.coloringOptions,
-      dataSource: definition.labelRange
-        ? { dataSets: [{ dataRange: definition.labelRange, dataSetId: "0" }] }
-        : { dataSets: [] },
+      dataSource: definition.dataSource.labelRange
+        ? {
+            dataSets: [{ dataRange: definition.dataSource.labelRange, dataSetId: "0" }],
+            dataSetsHaveTitle,
+          }
+        : { dataSets: [], dataSetsHaveTitle },
       auxiliaryRange: leafRange,
       hierarchicalDataSource: definition.dataSource,
     };
@@ -129,12 +135,7 @@ export class TreeMapChart extends AbstractChart {
       newSheetId,
       this.definition.dataSource
     );
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new TreeMapChart(definition, newSheetId, this.getters);
   }
 
@@ -145,32 +146,26 @@ export class TreeMapChart extends AbstractChart {
       sheetId,
       this.definition.dataSource
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new TreeMapChart(definition, sheetId, this.getters);
   }
   getDefinition(): TreeMapChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(
-      {
-        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
-          dataSetId,
-          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
-        })),
-      },
-      this.labelRange
-    );
+    return this.getDefinitionWithSpecificDataSets({
+      ...this.definition.dataSource,
+      dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+        dataSetId,
+        dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+      })),
+      labelRange: this.labelRange && this.getters.getRangeString(this.labelRange, this.sheetId),
+    });
   }
 
   private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource,
-    labelRange: Range | undefined,
-    targetSheetId?: UID
+    dataSource: ChartRangeDataSource
   ): TreeMapChartDefinition {
     return {
       ...this.definition,
       dataSource,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
     };
   }
 
@@ -179,16 +174,15 @@ export class TreeMapChart extends AbstractChart {
   }
 
   updateRanges(adapterFunctions: RangeAdapterFunctions): TreeMapChart {
-    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, isStale } = updateChartRangesWithDataSets(
       this.sheetId,
       adapterFunctions,
-      this.definition.dataSource,
-      this.labelRange
+      this.definition.dataSource
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new TreeMapChart(definition, this.sheetId, this.getters);
   }
 }

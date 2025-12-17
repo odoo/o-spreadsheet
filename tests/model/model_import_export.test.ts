@@ -315,7 +315,7 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }],
       })
     );
-    expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
+    expect(figures[0].data?.dataSource.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -847,12 +847,12 @@ test("migrate version 19.1.1: remove extra keys from chart definition", () => {
   const definition = {
     type: "line",
     title: "demo chart",
-    labelRange: "A1:A4",
     humanize: true,
     dataSource: {
+      labelRange: "A1:A4",
       dataSets: [],
+      dataSetsHaveTitle: false,
     },
-    dataSetsHaveTitle: false,
   };
   const data = {
     version: "18.5.1",
@@ -1245,7 +1245,9 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           chartId: "fig1",
           //@ts-ignore the old command would handle a partial definition
           definition: {
-            dataSource: { dataSets: [{ dataRange: "A1:A3", dataSetId: "0" }] },
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1:A3", dataSetId: "0" }],
+            }),
           },
         },
         {
@@ -1280,7 +1282,9 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           chartId: "fig2",
           //@ts-ignore the old command would handle a partial definition
           definition: {
-            dataSource: { dataSets: [{ dataRange: "B1:B3", dataSetId: "0" }] },
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "B1:B3", dataSetId: "0" }],
+            }),
           },
         },
       ],

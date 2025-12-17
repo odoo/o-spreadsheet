@@ -15,6 +15,7 @@ describe("line chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
         dataSetsHaveTitle: true,
       }),
     };

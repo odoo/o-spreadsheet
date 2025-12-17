@@ -693,6 +693,7 @@ describe("Collaborative Sheet manipulation", () => {
           ...toChartDataSource({
             dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "H1:H3" }],
             labelRange: "H3",
+            dataSetsHaveTitle: false,
           }),
         }
       );
@@ -713,6 +714,7 @@ describe("Collaborative Sheet manipulation", () => {
           ...toChartDataSource({
             dataSets: [{ dataRange: "A1:A3" }, { dataRange: "H1:H3" }],
             labelRange: "H3",
+            dataSetsHaveTitle: false,
           }),
         }
       );
@@ -731,6 +733,7 @@ describe("Collaborative Sheet manipulation", () => {
                 { dataRange: "C1:C3", dataSetId: "1" },
                 { dataRange: "F:G", dataSetId: "2" },
               ],
+              dataSetsHaveTitle: false,
             }),
           },
           chartId
@@ -745,8 +748,8 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "A1:A3", dataSetId: "0" },
               { dataRange: "E:E", dataSetId: "2" },
             ],
+            dataSetsHaveTitle: false,
           }),
-          labelRange: undefined,
         }
       );
       network.concurrent(() => {
@@ -771,7 +774,6 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "E1:E3", dataSetId: "2" },
             ],
           }),
-          labelRange: undefined,
         }
       );
     });
@@ -786,6 +788,7 @@ describe("Collaborative Sheet manipulation", () => {
             ...toChartDataSource({
               dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A10" }, { dataRange: "A11:A12" }],
               labelRange: "F10",
+              dataSetsHaveTitle: false,
             }),
           },
           chartId
@@ -798,6 +801,7 @@ describe("Collaborative Sheet manipulation", () => {
           ...toChartDataSource({
             dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A12" }, { dataRange: "A13:A14" }],
             labelRange: "F12",
+            dataSetsHaveTitle: false,
           }),
         }
       );
@@ -861,6 +865,7 @@ describe("Collaborative Sheet manipulation", () => {
                 { dataRange: "A11:A12", dataSetId: "2" },
               ],
               labelRange: "F10",
+              dataSetsHaveTitle: false,
             }),
           },
           chartId
@@ -876,6 +881,7 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "A9", dataSetId: "2" },
             ],
             labelRange: "F8",
+            dataSetsHaveTitle: false,
           }),
         }
       );
