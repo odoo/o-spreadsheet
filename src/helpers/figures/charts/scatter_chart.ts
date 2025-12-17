@@ -8,7 +8,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -55,8 +54,6 @@ export class ScatterChart extends AbstractChart {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "dataSetsHaveTitle",
-    "labelRange",
     "showValues",
     "labelsAsText",
     "aggregated",
@@ -67,7 +64,7 @@ export class ScatterChart extends AbstractChart {
   constructor(private definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition);
-    this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(this.getters, sheetId, definition.dataSource.labelRange);
   }
 
   static validateChartDefinition(
@@ -88,14 +85,17 @@ export class ScatterChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScatterChartDefinition {
     return {
       background: context.background,
-      dataSource: context.dataSource ?? { dataSets: [] },
+      dataSource: {
+        dataSets: [],
+        dataSetsHaveTitle: false,
+        labelRange: context.auxiliaryRange,
+        ...context.dataSource,
+      },
       dataSetStyles: context.dataSetStyles ?? {},
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       labelsAsText: context.labelsAsText ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "scatter",
-      labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
@@ -105,28 +105,22 @@ export class ScatterChart extends AbstractChart {
   }
 
   getDefinition(): ScatterChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(
-      {
-        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
-          dataSetId,
-          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
-        })),
-      },
-      this.labelRange
-    );
+    return this.getDefinitionWithSpecificDataSets({
+      ...this.definition.dataSource,
+      dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+        dataSetId,
+        dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+      })),
+      labelRange: this.labelRange && this.getters.getRangeString(this.labelRange, this.sheetId),
+    });
   }
 
   private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource,
-    labelRange: Range | undefined,
-    targetSheetId?: UID
+    dataSource: ChartRangeDataSource
   ): ScatterChartDefinition {
     return {
       ...this.definition,
       dataSource,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
     };
   }
 
@@ -134,21 +128,20 @@ export class ScatterChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      auxiliaryRange: definition.labelRange,
+      auxiliaryRange: definition.dataSource.labelRange,
     };
   }
 
   updateRanges(adapterFunctions: RangeAdapterFunctions): ScatterChart {
-    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, isStale } = updateChartRangesWithDataSets(
       this.sheetId,
       adapterFunctions,
-      this.definition.dataSource,
-      this.labelRange
+      this.definition.dataSource
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new ScatterChart(definition, this.sheetId, this.getters);
   }
 
@@ -165,7 +158,7 @@ export class ScatterChart extends AbstractChart {
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,
-      shouldRemoveFirstLabel(labelLength, datasetLength, definition.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(labelLength, datasetLength, definition.dataSource.dataSetsHaveTitle)
     );
     return {
       ...definition,
@@ -184,12 +177,7 @@ export class ScatterChart extends AbstractChart {
       newSheetId,
       this.definition.dataSource
     );
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new ScatterChart(definition, newSheetId, this.getters);
   }
 
@@ -200,7 +188,7 @@ export class ScatterChart extends AbstractChart {
       sheetId,
       this.definition.dataSource
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new ScatterChart(definition, sheetId, this.getters);
   }
 }

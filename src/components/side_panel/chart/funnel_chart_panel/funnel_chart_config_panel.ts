@@ -20,7 +20,7 @@ export class FunnelChartConfigPanel extends GenericChartConfigPanel {
       {
         name: "dataSetsHaveTitle",
         label: this.dataSetsHaveTitleLabel,
-        value: definition.dataSetsHaveTitle,
+        value: definition.dataSource.dataSetsHaveTitle,
         onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       },
     ];

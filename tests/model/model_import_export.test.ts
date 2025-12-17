@@ -314,7 +314,7 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }],
       })
     );
-    expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
+    expect(figures[0].data?.dataSource.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -848,9 +848,10 @@ test("migrate version 19.1.1: remove extra keys from chart definition", () => {
     title: "demo chart",
     humanize: true,
     dataSource: {
+      labelRange: "A1:A4",
       dataSets: [],
+      dataSetsHaveTitle: false,
     },
-    dataSetsHaveTitle: false,
   };
   const data = {
     version: "18.5.1",
