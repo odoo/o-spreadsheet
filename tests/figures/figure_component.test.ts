@@ -176,7 +176,7 @@ describe("figures", () => {
     ]);
   });
 
-  test.skip("deleting a figure focuses the grid hidden input", async () => {
+  test("deleting a figure focuses the grid hidden input", async () => {
     createFigure(model);
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;
