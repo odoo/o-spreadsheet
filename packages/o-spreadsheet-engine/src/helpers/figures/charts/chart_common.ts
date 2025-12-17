@@ -122,6 +122,24 @@ export function duplicateLabelRangeInDuplicatedSheet(
   return range ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range) : undefined;
 }
 
+export function copyChartDataSourceInSheetId(
+  getters: CoreGetters,
+  sourceSheetId: UID,
+  targetSheetId: UID,
+  dataSource: ChartRangeDataSource
+): ChartRangeDataSource {
+  return {
+    ...dataSource,
+    dataSets: dataSource.dataSets.map((ds) => {
+      const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
+      return {
+        ...ds,
+        dataRange: getters.getRangeString(range, targetSheetId),
+      };
+    }),
+  };
+}
+
 /**
  * Adapt a single range of a chart
  */
