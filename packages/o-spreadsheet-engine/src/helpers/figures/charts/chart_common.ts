@@ -56,8 +56,7 @@ export function updateChartRangesWithDataSets(
   getters: CoreGetters,
   sheetId: UID,
   applyChange: ApplyRangeChange,
-  dataSource: ChartRangeDataSource,
-  chartLabelRange?: Range
+  dataSource: ChartRangeDataSource
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
     .map((ds) => {
@@ -71,19 +70,17 @@ export function updateChartRangesWithDataSets(
       };
     })
     .filter(isDefined);
-  let labelRange = chartLabelRange;
-  const range = adaptChartRange(labelRange, applyChange);
-  if (range !== labelRange) {
-    labelRange = range;
-  }
+  const labelRange =
+    dataSource.labelRange &&
+    adaptChartRangeString(getters, sheetId, dataSource.labelRange, applyChange);
   const dataSets = dataSetsWithUndefined;
   return {
     isStale: true,
     dataSource: {
       ...dataSource,
       dataSets,
+      labelRange,
     },
-    labelRange,
   };
 }
 
@@ -216,7 +213,7 @@ export function createDataSets(
             getters,
             dataSetSheetId,
             columnZone,
-            definition.dataSetsHaveTitle
+            definition.dataSource.dataSetsHaveTitle
               ? {
                   top: columnZone.top,
                   bottom: columnZone.top,
@@ -240,7 +237,7 @@ export function createDataSets(
           getters,
           dataSetSheetId,
           zone,
-          definition.dataSetsHaveTitle
+          definition.dataSource.dataSetsHaveTitle
             ? {
                 top: zone.top,
                 bottom: zone.top,
@@ -360,8 +357,12 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
   applyChange: RangeAdapter
 ): T {
   let labelRange: string | undefined;
-  if (definition.labelRange) {
-    const adaptedRange = adaptStringRange(chartSheetId, definition.labelRange, applyChange);
+  if (definition.dataSource.labelRange) {
+    const adaptedRange = adaptStringRange(
+      chartSheetId,
+      definition.dataSource.labelRange,
+      applyChange
+    );
     if (adaptedRange !== CellErrorType.InvalidReference) {
       labelRange = adaptedRange;
     }
@@ -420,8 +421,8 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
 }
 
 export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
+  if (definition.dataSource.labelRange) {
+    const invalidLabels = !rangeReference.test(definition.dataSource.labelRange || "");
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }

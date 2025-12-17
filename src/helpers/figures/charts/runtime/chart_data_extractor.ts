@@ -920,7 +920,7 @@ export function getChartData(
   definition: ChartWithDataSetDefinition
 ): ChartData {
   const dataSets = createDataSets(getters, sheetId, definition);
-  const labelRange = createValidRange(getters, sheetId, definition.labelRange);
+  const labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getChartDatasetValues(getters, dataSets);
   const data = { labelValues, dataSetsValues };
@@ -932,7 +932,7 @@ export function getChartData(
     shouldRemoveFirstLabel(
       labelValues.length,
       numberOfDataPoints,
-      definition.dataSetsHaveTitle || false
+      definition.dataSource.dataSetsHaveTitle || false
     )
   ) {
     labelValues.shift();
@@ -946,7 +946,7 @@ export function getHierarchicalData(
   definition: ChartWithDataSetDefinition
 ): ChartData {
   const dataSets = createDataSets(getters, sheetId, definition);
-  const labelRange = createValidRange(getters, sheetId, definition.labelRange);
+  const labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
   const data = { labelValues, dataSetsValues };
@@ -954,7 +954,7 @@ export function getHierarchicalData(
     shouldRemoveFirstLabel(
       labelValues.length,
       dataSetsValues[0]?.data.length + (dataSetsValues[0]?.label !== undefined ? 1 : 0),
-      definition.dataSetsHaveTitle || false
+      definition.dataSource.dataSetsHaveTitle || false
     )
   ) {
     labelValues.shift();

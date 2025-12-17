@@ -276,6 +276,7 @@ export class GaugeChart extends AbstractChart {
     return {
       ...definition,
       dataSource: {
+        dataSetsHaveTitle: false,
         dataSets: definition.dataRange ? [{ dataRange: definition.dataRange, dataSetId: "1" }] : [],
       },
     };

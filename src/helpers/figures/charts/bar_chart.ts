@@ -8,7 +8,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -53,8 +52,6 @@ export class BarChart extends AbstractChart {
     "dataSource",
     "legendPosition",
     "dataSetStyles",
-    "dataSetsHaveTitle",
-    "labelRange",
     "horizontal",
     "axesDesign",
     "stacked",
@@ -66,7 +63,7 @@ export class BarChart extends AbstractChart {
   constructor(private definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition);
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static transformDefinition(
@@ -87,15 +84,17 @@ export class BarChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
     return {
       background: context.background,
-      dataSource: context.dataSource ?? { dataSets: [] },
+      dataSource: context.dataSource ?? {
+        dataSets: [],
+        dataSetsHaveTitle: false,
+        labelRange: context.auxiliaryRange,
+      },
       dataSetStyles: context.dataSetStyles ?? {},
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "bar",
-      labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       horizontal: context.horizontal,
@@ -108,7 +107,7 @@ export class BarChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      auxiliaryRange: definition.labelRange,
+      auxiliaryRange: definition.dataSource.labelRange,
     };
   }
 
@@ -119,12 +118,7 @@ export class BarChart extends AbstractChart {
       newSheetId,
       this.definition.dataSource
     );
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new BarChart(definition, newSheetId, this.getters);
   }
 
@@ -135,33 +129,25 @@ export class BarChart extends AbstractChart {
       sheetId,
       this.definition.dataSource
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new BarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): BarChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(
-      {
-        dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
-          dataSetId,
-          dataRange: this.getters.getRangeString(dataRange, this.sheetId),
-        })),
-      },
-      this.labelRange
-    );
+    return this.getDefinitionWithSpecificDataSets({
+      ...this.definition.dataSource,
+      dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
+        dataSetId,
+        dataRange: this.getters.getRangeString(dataRange, this.sheetId),
+      })),
+      labelRange: this.labelRange && this.getters.getRangeString(this.labelRange, this.sheetId),
+    });
   }
 
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource,
-    labelRange: Range | undefined,
-    targetSheetId?: UID
-  ): BarChartDefinition {
+  private getDefinitionWithSpecificDataSets(dataSource: ChartRangeDataSource): BarChartDefinition {
     return {
       ...this.definition,
       dataSource,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
       zoomable: this.definition.horizontal ? undefined : this.definition.zoomable,
     };
   }
@@ -183,17 +169,16 @@ export class BarChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): BarChart {
-    const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSource, isStale } = updateChartRangesWithDataSets(
       this.getters,
       this.sheetId,
       applyChange,
-      this.definition.dataSource,
-      this.labelRange
+      this.definition.dataSource
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
     return new BarChart(definition, this.sheetId, this.getters);
   }
 }

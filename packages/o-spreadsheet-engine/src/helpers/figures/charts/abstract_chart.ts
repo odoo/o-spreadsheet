@@ -34,11 +34,7 @@ export abstract class AbstractChart {
     "background",
     "humanize",
   ];
-  static dataSetKeys: readonly (keyof ChartWithDataSetDefinition)[] = [
-    "dataSetStyles",
-    "dataSetsHaveTitle",
-    "labelRange",
-  ];
+  static dataSetKeys: readonly (keyof ChartWithDataSetDefinition)[] = ["dataSetStyles"];
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
@@ -125,7 +121,7 @@ export abstract class AbstractChart {
     const _shouldRemoveFirstLabel = shouldRemoveFirstLabel(
       labelLength,
       datasetLength,
-      "dataSetsHaveTitle" in definition ? definition.dataSetsHaveTitle : false
+      "dataSource" in definition ? definition.dataSource.dataSetsHaveTitle : false
     );
     const excelLabelRange = toExcelLabelRange(this.getters, labelRange, _shouldRemoveFirstLabel);
     return {

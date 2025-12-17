@@ -264,6 +264,7 @@ export class ScorecardChart extends AbstractChart {
       ...definition,
       dataSource: {
         dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
+        dataSetsHaveTitle: false,
       },
       auxiliaryRange: definition.baseline,
     };

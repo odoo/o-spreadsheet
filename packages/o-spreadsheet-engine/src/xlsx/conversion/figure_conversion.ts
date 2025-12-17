@@ -108,9 +108,8 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    dataSource: { dataSets },
+    dataSource: { dataSets, dataSetsHaveTitle },
     dataSetStyles: dataSetsStyling,
-    dataSetsHaveTitle,
     auxiliaryRange: labelRange,
     title: chartData.title ?? { text: "" },
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",

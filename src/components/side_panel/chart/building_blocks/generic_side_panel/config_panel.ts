@@ -64,7 +64,7 @@ export class GenericChartConfigPanel<
 
   setup() {
     this.dataSets = this.props.definition.dataSource.dataSets;
-    this.labelRange = this.props.definition.labelRange;
+    this.labelRange = this.props.definition.dataSource.labelRange;
     this.datasetOrientation = this.computeDatasetOrientation();
   }
 
@@ -108,7 +108,7 @@ export class GenericChartConfigPanel<
       {
         name: "dataSetsHaveTitle",
         label: this.dataSetsHaveTitleLabel,
-        value: definition.dataSetsHaveTitle,
+        value: definition.dataSource.dataSetsHaveTitle,
         onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       },
     ];
@@ -116,7 +116,7 @@ export class GenericChartConfigPanel<
 
   onUpdateDataSetsHaveTitle(dataSetsHaveTitle: boolean) {
     this.props.updateChart(this.props.chartId, {
-      dataSetsHaveTitle,
+      dataSource: { ...this.props.definition.dataSource, dataSetsHaveTitle },
     });
   }
 
@@ -187,10 +187,11 @@ export class GenericChartConfigPanel<
   }
 
   setDatasetOrientation(datasetOrientation: ChartDatasetOrientation) {
-    const oldDataSets = this.props.definition.dataSource.dataSets;
+    const dataSource = this.props.definition.dataSource;
+    const oldDataSets = dataSource.dataSets;
     const dataRanges = oldDataSets.map((d) => d.dataRange);
     const dataSets = this.transposeDataSet(
-      [this.props.definition.labelRange, ...dataRanges],
+      [dataSource.labelRange, ...dataRanges],
       datasetOrientation
     );
     // TODO: kill design
@@ -200,8 +201,7 @@ export class GenericChartConfigPanel<
     const labelRange = dataSets.length > 1 ? dataSets.shift()!.dataRange : "";
 
     this.props.updateChart(this.props.chartId, {
-      labelRange,
-      dataSource: { dataSets },
+      dataSource: { ...dataSource, labelRange, dataSets },
     });
     this.dataSets = dataSets;
     this.labelRange = labelRange;
@@ -218,7 +218,7 @@ export class GenericChartConfigPanel<
       dataRange,
     }));
     this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataSource: { dataSets: this.dataSets },
+      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
     });
   }
 
@@ -226,7 +226,7 @@ export class GenericChartConfigPanel<
     const colorGenerator = getChartColorsGenerator(
       {
         dataSetStyles: this.props.definition.dataSetStyles,
-        dataSource: { dataSets: this.dataSets },
+        dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
       },
       this.dataSets.length
     );
@@ -238,7 +238,7 @@ export class GenericChartConfigPanel<
     }
     this.dataSets = indexes.map((i) => this.dataSets[i]);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { dataSets: this.dataSets },
+      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
       dataSetStyles,
     });
   }
@@ -247,7 +247,7 @@ export class GenericChartConfigPanel<
     const colorGenerator = getChartColorsGenerator(
       {
         dataSetStyles: this.props.definition.dataSetStyles,
-        dataSource: { dataSets: this.dataSets },
+        dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
       },
       this.dataSets.length
     );
@@ -260,7 +260,7 @@ export class GenericChartConfigPanel<
     delete dataSetStyles[removedDataSetId];
     this.dataSets = this.dataSets.filter((_, i) => i !== index);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { dataSets: this.dataSets },
+      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
       dataSetStyles,
     });
   }
@@ -270,7 +270,7 @@ export class GenericChartConfigPanel<
     this.dataSets = dataSets;
     this.datasetOrientation = this.computeDatasetOrientation();
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { dataSets: this.dataSets },
+      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
       dataSetStyles,
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
@@ -394,13 +394,13 @@ export class GenericChartConfigPanel<
   onLabelRangeChanged(ranges: string[]) {
     this.labelRange = ranges[0];
     this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      labelRange: this.labelRange,
+      dataSource: { ...this.props.definition.dataSource, labelRange: this.labelRange },
     });
   }
 
   onLabelRangeConfirmed() {
     this.state.labelsDispatchResult = this.props.updateChart(this.props.chartId, {
-      labelRange: this.labelRange,
+      dataSource: { ...this.props.definition.dataSource, labelRange: this.labelRange },
     });
   }
 
@@ -425,7 +425,7 @@ export class GenericChartConfigPanel<
     //   getters,
     //   this.dataSets,
     //   sheetId,
-    //   this.props.definition.dataSetsHaveTitle
+    //   this.props.definition.dataSource.dataSetsHaveTitle
     // );
     const dataSets = createDataSets(
       getters,
