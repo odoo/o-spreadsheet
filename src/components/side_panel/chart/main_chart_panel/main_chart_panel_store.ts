@@ -44,9 +44,13 @@ export class MainChartPanelStore extends SpreadsheetStore {
     this.creationContexts[chartId] = {
       ...savedCreationContext,
       ...currentCreationContext,
-      dataSource: { dataSets: newRanges ?? [] },
+      dataSource: {
+        dataSetsHaveTitle: false,
+        ...savedCreationContext.dataSource,
+        ...currentCreationContext?.dataSource,
+        dataSets: newRanges ?? [],
+      },
       dataSetStyles,
-      // dataSets: newRanges,
     };
     const figureId = this.getters.getFigureIdFromChartId(chartId);
     const sheetId = this.getters.getFigureSheetId(figureId);
