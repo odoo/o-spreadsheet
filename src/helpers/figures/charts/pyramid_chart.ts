@@ -6,6 +6,7 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -125,15 +126,12 @@ export class PyramidChart extends AbstractChart {
   }
 
   copyInSheetId(sheetId: UID): PyramidChart {
-    const dataSource = {
-      dataSets: this.definition.dataSource.dataSets.map((dataSet) => {
-        const range = this.getters.getRangeFromSheetXC(this.sheetId, dataSet.dataRange);
-        return {
-          ...dataSet,
-          dataRange: this.getters.getRangeString(range, sheetId),
-        };
-      }),
-    };
+    const dataSource = copyChartDataSourceInSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.definition.dataSource
+    );
     const definition = this.getDefinitionWithSpecificDataSets(dataSource, this.labelRange, sheetId);
     return new PyramidChart(definition, sheetId, this.getters);
   }
