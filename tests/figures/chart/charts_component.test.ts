@@ -55,6 +55,7 @@ import {
   setStyle,
   undo,
   updateChart,
+  updateChartDataSource,
 } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import {
@@ -268,7 +269,7 @@ describe("charts", () => {
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.labelRange
+          TEST_CHART_DATA.basicChart.dataSource.labelRange
         );
         break;
       case "basicChart": {
@@ -283,7 +284,7 @@ describe("charts", () => {
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.labelRange
+          TEST_CHART_DATA.basicChart.dataSource.labelRange
         );
         break;
       }
@@ -2230,7 +2231,8 @@ describe("charts", () => {
 
     test("dataSetsHaveTitle value is kept when changing to a chart without aggregate option then back again", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { dataSetsHaveTitle: true, type: "pie" });
+      updateChartDataSource(model, chartId, { dataSetsHaveTitle: true });
+      updateChart(model, chartId, { type: "pie" });
       await mountChartSidePanel();
       let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);

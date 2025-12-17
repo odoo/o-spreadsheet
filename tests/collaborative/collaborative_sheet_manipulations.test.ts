@@ -746,7 +746,6 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "E:E", dataSetId: "2" },
             ],
           }),
-          labelRange: undefined,
         }
       );
       network.concurrent(() => {
@@ -771,7 +770,6 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "E1:E3", dataSetId: "2" },
             ],
           }),
-          labelRange: undefined,
         }
       );
     });

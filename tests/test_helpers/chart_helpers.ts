@@ -47,7 +47,7 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
 }
 
 interface CoucouInput {
-  dataSets?: (CustomizedDataSet & {
+  dataSets: (CustomizedDataSet & {
     dataRange: string;
     dataSetId?: UID;
     type?: "bar" | "line"; // for combo charts
@@ -74,10 +74,7 @@ export function toChartDataSource(args: CoucouInputWithTitle): CoucouOutputWithT
 export function toChartDataSource(
   args: CoucouInput | CoucouInputWithTitle
 ): CoucouOutput | CoucouOutputWithTitle {
-  let { dataSets, labelRange } = args;
-  if (!dataSets) {
-    dataSets = [];
-  }
+  const { dataSets, labelRange } = args;
   for (let i = 0; i < dataSets.length; i++) {
     if (!dataSets[i].dataSetId) {
       dataSets[i].dataSetId = i.toString();
@@ -105,7 +102,7 @@ export function toChartDataSource(
       dataSetsHaveTitle: args.dataSetsHaveTitle,
     };
   }
-  if (labelRange !== undefined) {
+  if (!("labelRange" in args)) {
     result.dataSource = {
       ...result.dataSource,
       labelRange,
