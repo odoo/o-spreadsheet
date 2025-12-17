@@ -62,14 +62,11 @@ interface CoucouInputWithTitle extends CoucouInput {
 
 interface CoucouOutput {
   dataSource: ChartRangeDataSource;
-  labelRange?: string;
   dataSetStyles: Record<string, CustomizedDataSet>;
 }
 
 interface CoucouOutputWithTitle {
   dataSource: ChartRangeDataSource;
-  labelRange?: string;
-  dataSetsHaveTitle: boolean;
   dataSetStyles: DataSetStyle | ComboChartDataSetStyle;
 }
 
@@ -101,11 +98,16 @@ export function toChartDataSource(
     dataSetStyles,
   };
   if ("dataSetsHaveTitle" in args && args.dataSetsHaveTitle !== undefined) {
-    // @ts-ignore
-    result.dataSetsHaveTitle = args.dataSetsHaveTitle;
+    result.dataSource = {
+      ...result.dataSource,
+      dataSetsHaveTitle: args.dataSetsHaveTitle,
+    };
   }
-  if (labelRange !== undefined) {
-    result.labelRange = labelRange;
+  if ("labelRange" in args) {
+    result.dataSource = {
+      ...result.dataSource,
+      labelRange,
+    };
   }
   return result;
 }
@@ -228,12 +230,12 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   }),
   hierarchicalDataSource: {
     dataSets: [],
+    dataSetsHaveTitle: true,
   },
   auxiliaryRange: "Sheet1!A1:A4",
   legendPosition: "bottom",
   cumulative: true,
   labelsAsText: true,
-  dataSetsHaveTitle: true,
   aggregated: true,
   stacked: true,
   firstValueAsSubtotal: true,

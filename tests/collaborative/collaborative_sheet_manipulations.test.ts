@@ -772,7 +772,6 @@ describe("Collaborative Sheet manipulation", () => {
             ],
             dataSetsHaveTitle: false,
           }),
-          labelRange: undefined,
         }
       );
       network.concurrent(() => {
@@ -785,7 +784,6 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "F1:G3", dataSetId: "2" },
             ],
           }),
-          labelRange: undefined,
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -798,7 +796,6 @@ describe("Collaborative Sheet manipulation", () => {
               { dataRange: "E1:E3", dataSetId: "2" },
             ],
           }),
-          labelRange: undefined,
         }
       );
     });

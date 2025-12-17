@@ -64,7 +64,7 @@ describe("Sunburst chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getSunburstDefinition(chartId)?.labelRange).toEqual("C1:C3");
+      expect(getSunburstDefinition(chartId)?.dataSource.labelRange).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
@@ -75,7 +75,7 @@ describe("Sunburst chart side panel", () => {
       );
 
       await simulateClick('input[name="dataSetsHaveTitle"]');
-      expect(getSunburstDefinition(chartId)?.dataSetsHaveTitle).toEqual(false);
+      expect(getSunburstDefinition(chartId)?.dataSource.dataSetsHaveTitle).toEqual(false);
     });
   });
 
