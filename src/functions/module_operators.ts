@@ -350,7 +350,7 @@ export const SPILLED_RANGE = {
       spilledZone.right - spilledZone.left + 1,
       spilledZone.bottom - spilledZone.top + 1,
       (col: number, row: number): FunctionResultObject =>
-        this.getRef({
+        this.getFormulaResult({
           sheetId: spilledRange.sheetId,
           col: spilledZone.left + col,
           row: spilledZone.top + row,

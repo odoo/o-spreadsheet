@@ -50,7 +50,7 @@ class CompilationParametersBuilder {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
       locale: this.getters.getLocale(),
-      getRef: this.getRef.bind(this),
+      getFormulaResult: this.getFormulaResult.bind(this),
     });
   }
 
@@ -116,7 +116,7 @@ class CompilationParametersBuilder {
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
-        matrix[colIndex][rowIndex] = this.getRef({ sheetId, col, row });
+        matrix[colIndex][rowIndex] = this.getFormulaResult({ sheetId, col, row });
       }
     }
 
@@ -124,7 +124,7 @@ class CompilationParametersBuilder {
     return matrix;
   }
 
-  private getRef(position: CellPosition): FunctionResultObject {
+  private getFormulaResult(position: CellPosition): FunctionResultObject {
     return { ...this.computeCell(position), position };
   }
 

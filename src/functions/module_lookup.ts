@@ -351,7 +351,7 @@ export const INDIRECT: AddFunctionDescription = {
       const colValues: FunctionResultObject[] = [];
       for (let row = range.zone.top; row <= range.zone.bottom; row++) {
         const position = { sheetId: range.sheetId, col, row };
-        colValues.push(this.getRef(position));
+        colValues.push(this.getFormulaResult(position));
       }
       values.push(colValues);
     }
@@ -1102,7 +1102,7 @@ export const OFFSET = {
       offsetWidth,
       offsetHeight,
       (col: number, row: number): FunctionResultObject =>
-        this.getRef({
+        this.getFormulaResult({
           sheetId,
           col: startingCol + col,
           row: startingRow + row,

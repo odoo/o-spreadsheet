@@ -1411,7 +1411,7 @@ export const SUBTOTAL = {
         for (let col = firstPosition.col; col <= right; col++) {
           const cell = this.getters.getCorrespondingFormulaCell({ sheetId, col, row });
           if (!cell || !doesCellContainFunction(cell, "SUBTOTAL")) {
-            functionResults.push(this.getRef({ sheetId, col, row }));
+            functionResults.push(this.getFormulaResult({ sheetId, col, row }));
           }
         }
       }
