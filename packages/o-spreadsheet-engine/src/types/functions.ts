@@ -15,9 +15,7 @@ export type ArgType =
   | "RANGE<NUMBER>"
   | "RANGE<DATE>"
   | "RANGE<STRING>"
-  | "RANGE<ANY>"
-  | "META"
-  | "RANGE<META>";
+  | "RANGE<ANY>";
 
 export interface ArgDefinition {
   acceptMatrix?: boolean;

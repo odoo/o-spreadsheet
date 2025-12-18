@@ -174,14 +174,9 @@ export interface Border {
   right?: BorderDescr;
 }
 
-export type ReferenceDenormalizer = (
-  range: Range,
-  isMeta: boolean,
-  functionName: string,
-  paramNumber: number
-) => FunctionResultObject;
+export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
-export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FunctionResultObject>;
+export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
 
 export type GetSymbolValue = (symbolName: string) => Arg;
 
@@ -210,7 +205,7 @@ export type Matrix<T = unknown> = T[][];
 export type FunctionResultObject = {
   value: CellValue;
   format?: Format;
-  errorOriginPosition?: CellPosition /**bla */;
+  errorOriginPosition?: CellPosition;
   message?: string;
   origin?: CellPosition;
   /**

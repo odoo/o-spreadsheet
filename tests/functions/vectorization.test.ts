@@ -2,7 +2,6 @@ import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "@odoo/o-spreadsheet-engine";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { splitReference } from "../../src/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
@@ -181,11 +180,7 @@ describe("vectorization", () => {
     // mean binary operators args should always be simple args
     for (const op in OPERATOR_MAP) {
       const functionDefinition = functionRegistry.content[OPERATOR_MAP[op]];
-      expect(
-        functionDefinition.args.every((arg) =>
-          arg.type.every((t) => !t.startsWith("RANGE") && t !== "META")
-        )
-      );
+      expect(functionDefinition.args.every((arg) => arg.type.every((t) => !t.startsWith("RANGE"))));
     }
   });
 
@@ -193,29 +188,7 @@ describe("vectorization", () => {
     // mean unary operators args should always be simple arg
     for (const op in UNARY_OPERATOR_MAP) {
       const functionDefinition = functionRegistry.content[UNARY_OPERATOR_MAP[op]];
-      expect(functionDefinition.args[0].type.every((t) => !t.startsWith("RANGE") && t !== "META"));
+      expect(functionDefinition.args[0].type.every((t) => !t.startsWith("RANGE")));
     }
-  });
-
-  test("vectorization is possible with meta args", () => {
-    addToRegistry(functionRegistry, "META.FUNCTION.WITHOUT.RANGE.ARGS", {
-      description: "a function with simple args",
-      args: [
-        { name: "metaArg1", description: "", type: ["META"] },
-        { name: "metaArg2", description: "", type: ["META"] },
-      ],
-      compute: function (arg1, arg2) {
-        // @ts-ignore
-        return splitReference(arg1.value).xc + splitReference(arg2.value).xc;
-      },
-    });
-
-    const model = createModelFromGrid(grid);
-    setCellContent(model, "D1", "=META.FUNCTION.WITHOUT.RANGE.ARGS(A4, B4:C5)");
-    expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
-      ["A4B4", "A4C4"],
-      ["A4B5", "A4C5"],
-    ]);
-    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 });
