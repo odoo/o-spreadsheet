@@ -205,7 +205,7 @@ export type Matrix<T = unknown> = T[][];
 export type FunctionResultObject = {
   value: CellValue;
   format?: Format;
-  errorOriginPosition?: CellPosition /**bla */;
+  errorOriginPosition?: CellPosition;
   message?: string;
   origin?: CellPosition;
   /**
