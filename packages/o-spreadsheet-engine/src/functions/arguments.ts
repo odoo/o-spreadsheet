@@ -22,8 +22,6 @@ const ARG_TYPES: ArgType[] = [
   "RANGE<DATE>",
   "RANGE<NUMBER>",
   "RANGE<STRING>",
-  "META",
-  "RANGE<META>",
 ];
 
 export function arg(
@@ -289,8 +287,6 @@ export function _argTargeting(
 // Argument validation
 //------------------------------------------------------------------------------
 
-const META_TYPES: ArgType[] = ["META", "RANGE<META>"];
-
 export function validateArguments(descr: FunctionDescription) {
   if (descr.nbrArgRepeating && descr.nbrOptionalNonRepeatingArgs >= descr.nbrArgRepeating) {
     throw new Error(`Function ${descr.name} has more optional arguments than repeatable ones.`);
@@ -299,15 +295,6 @@ export function validateArguments(descr: FunctionDescription) {
   let foundRepeating = false;
   let consecutiveRepeating = false;
   for (const current of descr.args) {
-    if (
-      current.type.some((t) => META_TYPES.includes(t)) &&
-      current.type.some((t) => !META_TYPES.includes(t))
-    ) {
-      throw new Error(
-        `Function ${descr.name} has a mix of META and non-META types in the same argument: ${current.type}.`
-      );
-    }
-
     if (current.repeating) {
       if (!consecutiveRepeating && foundRepeating) {
         throw new Error(
