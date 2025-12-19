@@ -12,6 +12,7 @@ import { colors, toHex, toZone } from "../../src/helpers";
 import { Store } from "../../src/store_engine";
 import {
   activateSheet,
+  addDataValidation,
   copy,
   createSheet,
   createTable,
@@ -29,6 +30,7 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import {
   click,
   clickCell,
+  clickGridIcon,
   getComposerColors,
   getElComputedStyle,
   gridMouseEvent,
@@ -626,6 +628,16 @@ describe("Grid composer", () => {
     activateSheet(model, baseSheetId);
     await nextTick();
     expect(composerStore.editionMode).not.toBe("inactive");
+  });
+
+  test("grid icon click behaves like a grid selection in composer selecting mode", async () => {
+    const composerStore = env.getStore(CellComposerStore);
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    selectCell(model, "A2");
+    await typeInComposerGrid("=");
+    expect(composerStore.editionMode).toBe("selecting");
+    await clickGridIcon(model, "A1");
+    expect(composerStore.currentContent).toBe("=A1");
   });
 
   test("the composer should keep the focus after changing sheet", async () => {

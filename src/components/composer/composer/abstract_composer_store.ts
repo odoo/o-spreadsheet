@@ -115,7 +115,12 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   abstract stopEdition(direction?: Direction): void;
 
   private handleEvent(event: SelectionEvent) {
-    this.hideHelp();
+    const hasSelectionChanged =
+      event.mode === "commitSelection" && !isEqual(event.anchor.zone, event.previousAnchor.zone);
+    if (hasSelectionChanged) {
+      this.hideHelp();
+    }
+
     const sheetId = this.getters.getActiveSheetId();
     let unboundedZone: UnboundedZone;
     if (event.options.unbounded) {

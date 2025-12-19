@@ -1,3 +1,4 @@
+import { EditionMode } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
@@ -149,6 +150,7 @@ interface Props {
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
   getGridSize: () => { width: number; height: number };
+  composerEditionMode: EditionMode;
 }
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
@@ -162,6 +164,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     gridOverlayDimensions: String,
     slots: { type: Object, optional: true },
     getGridSize: Function,
+    composerEditionMode: { type: String, optional: true },
   };
   static components = {
     FiguresContainer,
@@ -325,6 +328,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
 
       return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
     });
-    return icon?.onClick ? icon : undefined;
+    return icon?.onClick && this.props.composerEditionMode !== "selecting" ? icon : undefined;
   }
 }

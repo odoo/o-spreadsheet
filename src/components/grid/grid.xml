@@ -16,6 +16,7 @@
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"
         getGridSize="props.getGridSize"
+        composerEditionMode="composerFocusStore.activeComposer.editionMode"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
       <GridComposer

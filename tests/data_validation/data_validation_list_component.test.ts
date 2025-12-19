@@ -23,8 +23,10 @@ import {
   click,
   clickGridIcon,
   getElComputedStyle,
+  getGridIconEventPosition,
   keyDown,
   setInputValueAndTrigger,
+  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
@@ -492,6 +494,22 @@ describe("Selection arrow icon in grid", () => {
     expect(suggestions[0].textContent).toBe("ok");
     expect(suggestions[1].textContent).toBe("hello");
     expect(suggestions[2].textContent).toBe("okay");
+  });
+
+  test("Clicking grid icon keeps suggestions open on pointer up", async () => {
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    const composerStore = env.getStore(CellComposerStore);
+    const { x, y } = getGridIconEventPosition(model, "A1");
+
+    triggerMouseEvent(".o-grid-overlay", "pointerdown", x, y);
+    await nextTick();
+    triggerMouseEvent(".o-grid-overlay", "pointerup", x, y);
+    await nextTick();
+
+    expect(composerStore.editionMode).toBe("editing");
+    expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
+    const suggestions = fixture.querySelectorAll(".o-autocomplete-dropdown .o-autocomplete-value");
+    expect(suggestions.length).toBe(3);
   });
 
   test("Icon is not displayed when display style is plainText", () => {
