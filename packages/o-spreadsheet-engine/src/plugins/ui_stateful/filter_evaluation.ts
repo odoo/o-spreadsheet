@@ -2,7 +2,7 @@ import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matric
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { toXC } from "../../helpers/coordinates";
 import { deepCopy, getUniqueText, range } from "../../helpers/misc";
-import { toLowerCase } from "../../helpers/text_helper";
+import { toTrimmedLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
@@ -139,6 +139,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
     const id = this.getters.getFilterId({ sheetId, col, row });
     if (!id) return;
     if (!this.filterValues[sheetId]) this.filterValues[sheetId] = {};
+    if (value.filterType === "values") {
+      value.hiddenValues = value.hiddenValues.map(toTrimmedLowerCase);
+    }
     this.filterValues[sheetId][id] = value;
   }
 
@@ -163,7 +166,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         continue;
       }
       if (filterValue.filterType === "values") {
-        const filteredValues = filterValue.hiddenValues?.map(toLowerCase);
+        const filteredValues = filterValue.hiddenValues;
         if (!filteredValues) continue;
         const filteredValuesSet = new Set(filteredValues);
         for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
@@ -178,7 +181,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
         const evaluatedCriterionValues = filterValue.values.map((value) => {
           if (!value.startsWith("=")) {
-            return parseLiteral(value, DEFAULT_LOCALE);
+            return parseLiteral(toTrimmedLowerCase(value), DEFAULT_LOCALE);
           }
           return this.getters.evaluateFormula(sheetId, value) ?? "";
         });
@@ -193,7 +196,10 @@ export class FilterEvaluationPlugin extends UIPlugin {
         };
         for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
           const position = { sheetId, col: filter.col, row };
-          const value = this.getters.getEvaluatedCell(position).value ?? "";
+          let value = this.getters.getEvaluatedCell(position).value ?? "";
+          if (typeof value === "string") {
+            value = toTrimmedLowerCase(value);
+          }
           if (!evaluator.isValueValid(value, evaluatedCriterion, this.getters, sheetId)) {
             hiddenRows.add(row);
           }
@@ -205,7 +211,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   private getCellValueAsString(sheetId: UID, col: number, row: number): string {
     const value = this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
-    return value.toLowerCase();
+    return toTrimmedLowerCase(value);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -234,7 +240,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
           if (filteredValues.length) {
             const xlsxDisplayedValues = valuesInFilterZone
               .filter((val) => val)
-              .filter((val) => !filteredValues.includes(val));
+              .filter((val) => !filteredValues.includes(toTrimmedLowerCase(val)));
             filters.push({
               colId: i,
               displayedValues: [...new Set(xlsxDisplayedValues)],
