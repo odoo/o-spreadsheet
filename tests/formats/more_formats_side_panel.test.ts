@@ -126,7 +126,7 @@ describe("more formats side panel component", () => {
     expect(getExampleValues()).toEqual(["1234.56", "(1234.56)", "-", "Text olà"]);
   });
 
-  test("Changing the cell format updates the side panel", async () => {
+  test("Side panel stays in sync when the cell format changes, including reset to Automatic", async () => {
     setFormat(model, "A1", "0.00%");
     // mount whole spreadsheet because onWillUpdateProps doesn't trigger on render if mounting only MoreFormatsPanel
     const { env } = await mountSpreadsheet({ model });
@@ -137,5 +137,24 @@ describe("more formats side panel component", () => {
     setFormat(model, "A1", "#.##");
     await nextTick();
     expect(".o-custom-format-section input").toHaveValue("#.##");
+
+    setFormat(model, "A1", "");
+    await nextTick();
+    expect(".format-preview.active").toHaveText("Automatic");
+    expect(".o-custom-format-section input").toHaveValue("");
+  });
+
+  test("Focusing a cell without format resets the side panel to Automatic", async () => {
+    setFormat(model, "A1", "0.00%");
+
+    const { env } = await mountSpreadsheet({ model });
+    env.openSidePanel("MoreFormats");
+    await nextTick();
+    expect(".o-custom-format-section input").toHaveValue("0.00%");
+
+    selectCell(model, "B1");
+    await nextTick();
+    expect(".format-preview.active").toHaveText("Automatic");
+    expect(".o-custom-format-section input").toHaveValue("");
   });
 });
