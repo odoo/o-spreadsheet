@@ -23,7 +23,17 @@ import {
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
-import { CellPosition, HeaderIndex, UID } from "../../types/misc";
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  CellPosition,
+  HeaderIndex,
+  RangeCompiledFormula,
+  Style,
+  UID,
+  UpdateCellData,
+  Zone,
+} from "../../types/misc";
 
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
@@ -33,16 +43,9 @@ import {
   isTextFormat,
 } from "../../helpers/format/format";
 import { Format } from "../../types/format";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  RangeCompiledFormula,
-  Style,
-  UpdateCellData,
-  Zone,
-} from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { Squisher } from "./squisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -294,7 +297,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   export(data: WorkbookData) {
     const formats: { [formatId: number]: string } = {};
-
+    const squisher = new Squisher(this.getters.getSheetName);
     for (const _sheet of data.sheets) {
       const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: string } = {};
@@ -310,7 +313,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId].push(position);
         }
         if (cell.content) {
-          cells[xc] = cell.content;
+          if (cell.isFormula) {
+            // @ts-ignore
+            cells[xc] = squisher.squish(cell, _sheet.id);
+          } else {
+            cells[xc] = cell.content;
+          }
         }
       }
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
