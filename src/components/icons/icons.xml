@@ -587,7 +587,7 @@
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_DOWN">
-    <div class="o-icon fa-small">
+    <div class="o-icon fa-small o-caret-down">
       <i class="fa fa-caret-down"/>
     </div>
   </t>
