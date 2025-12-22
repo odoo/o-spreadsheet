@@ -1,11 +1,11 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { compile, functionCache, Model } from "../../src";
 
+import { InternalCompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { createValidRange } from "../../src/helpers";
-import { CompiledFormula } from "../../src/types";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
-function compiledBaseFunction(formula: string): CompiledFormula {
+function compiledBaseFunction(formula: string): InternalCompiledFormula {
   for (const f in functionCache) {
     delete functionCache[f];
   }
