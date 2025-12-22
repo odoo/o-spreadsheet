@@ -263,6 +263,64 @@ describe("isConsecutive", () => {
   });
 });
 
+describe("countDeepDifferences", () => {
+  const { countDeepDifferences } = require("../../packages/o-spreadsheet-engine/src/helpers/misc");
+
+  test.each([
+    // Primitives
+    [1, 1, 0],
+    [1, 2, 1],
+    [1, "1", 1],
+    ["a", "a", 0],
+    ["a", "b", 1],
+    [true, true, 0],
+    [true, false, 1],
+    [null, null, 0],
+    [undefined, undefined, 0],
+    [null, undefined, 1],
+    // Objects
+    [{}, {}, 0],
+    [{ a: 1 }, { a: 1 }, 0],
+    [{ a: 1 }, { a: 2 }, 1],
+    [{ a: 1 }, {}, 1],
+    [{}, { a: 1 }, 1],
+    [{ a: 1, b: 2 }, { a: 1, b: 3 }, 1],
+    [{ a: 1, b: 2 }, { a: 1 }, 1],
+    [{ a: 1 }, { a: 1, b: 2 }, 1],
+    [{ a: { b: 1 } }, { a: { b: 2 } }, 1],
+    [{ a: { b: 1 } }, { a: { b: 1 } }, 0],
+    [{ a: { b: 1 } }, { a: { c: 1 } }, 2],
+    // Arrays
+    [[1, 2, 3], [1, 2, 3], 0],
+    [[1, 2, 3], [1, 2, 4], 1],
+    [[1, 2], [1, 2, 3], 1],
+    [[1, 2, 3], [1, 2], 1],
+    [[1, [2, 3]], [1, [2, 4]], 1],
+    [[1, [2, 3]], [1, [2, 3]], 0],
+    // Mixed types
+    [{ a: [1, 2] }, { a: [1, 3] }, 1],
+    [{ a: [1, 2] }, { a: [1, 2, 3] }, 1],
+    // Edge cases
+    [{ a: undefined }, {}, 0],
+    [{}, { a: undefined }, 0],
+    [{ a: undefined }, { a: null }, 1],
+    [{ a: null }, {}, 1],
+    [[], {}, 1],
+    [{}, [], 1],
+  ])("%p vs %p => %i differences", (a, b, expected) => {
+    expect(countDeepDifferences(a, b)).toBe(expected);
+    expect(countDeepDifferences(b, a)).toBe(expected);
+  });
+
+  test("nested complex object differences", () => {
+    const obj1 = { a: 1, b: { c: 2, d: [3, 4] }, e: 5 };
+    const obj2 = { a: 1, b: { c: 3, d: [3, 5] }, f: 6 };
+    // Differences: b.c (1), b.d[1] (1), e vs f (2)
+    expect(countDeepDifferences(obj1, obj2)).toBe(4);
+    expect(countDeepDifferences(obj2, obj1)).toBe(4);
+  });
+});
+
 describe("Memoize", () => {
   function smile(str: string) {
     return str + ":)";

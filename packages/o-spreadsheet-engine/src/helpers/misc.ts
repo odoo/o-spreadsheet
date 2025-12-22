@@ -717,3 +717,52 @@ export function chartStyleToCellStyle(style: ChartStyle): Style {
     align: style.align,
   };
 }
+
+/**
+ * Recursively counts the number of differing properties/values between two objects, arrays, or primitives.
+ * Returns the total number of differences found.
+ */
+export function countDeepDifferences(o1: any, o2: any): number {
+  if (o1 === o2) return 0;
+  if ((o1 && !o2) || (o2 && !o1)) return 1;
+  if (typeof o1 !== typeof o2) return 1;
+  if (typeof o1 !== "object" || o1 === null || o2 === null) return 1;
+
+  let diffCount = 0;
+
+  // Handle arrays
+  if (Array.isArray(o1) || Array.isArray(o2)) {
+    if (!Array.isArray(o1) || !Array.isArray(o2)) {
+      return 1;
+    }
+    if (o1.length !== o2.length) {
+      diffCount += Math.abs(o1.length - o2.length);
+    }
+    const minLen = Math.min(o1.length, o2.length);
+    for (let i = 0; i < minLen; i++) {
+      diffCount += countDeepDifferences(o1[i], o2[i]);
+    }
+    return diffCount;
+  }
+
+  // Handle objects
+  const keys1 = Object.keys(o1);
+  const keys2 = Object.keys(o2);
+  const allKeys = new Set([...keys1, ...keys2]);
+  for (const key of allKeys) {
+    const has1 = Object.prototype.hasOwnProperty.call(o1, key);
+    const has2 = Object.prototype.hasOwnProperty.call(o2, key);
+    if (!has1 && has2 && o2[key] !== undefined) {
+      diffCount++;
+    } else if (has1 && !has2 && o1[key] !== undefined) {
+      diffCount++;
+    } else if (has1 && has2) {
+      if (typeof o1[key] !== typeof o2[key]) {
+        diffCount++;
+      } else {
+        diffCount += countDeepDifferences(o1[key], o2[key]);
+      }
+    }
+  }
+  return diffCount;
+}
