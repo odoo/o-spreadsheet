@@ -632,7 +632,7 @@ export function largeMin(array: number[]) {
 }
 
 export class TokenizingChars {
-  private text: string;
+  private readonly text: string;
   private currentIndex: number = 0;
   current: string;
 
@@ -748,10 +748,5 @@ export function chartStyleToCellStyle(style: ChartStyle): Style {
 }
 
 export function doesCellContainFunction(cell: Cell, formula: string): boolean {
-  return (
-    cell.isFormula &&
-    cell.compiledFormula.tokens.some(
-      (t) => t.type === "SYMBOL" && t.value.toUpperCase() === formula
-    )
-  );
+  return cell.isFormula && cell.compiledFormula.usesSymbol(formula);
 }

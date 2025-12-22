@@ -1,4 +1,4 @@
-import { compile } from "../../../formulas/compiler";
+import { BananaCompiledFormula, compile } from "../../../formulas/compiler";
 
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 
@@ -35,7 +35,6 @@ import {
   GetSymbolValue,
   isMatrix,
   Matrix,
-  RangeCompiledFormula,
   UID,
   Zone,
 } from "../../../types/misc";
@@ -195,7 +194,7 @@ export class Evaluator {
         for (const cellId in cells) {
           const cell = cells[cellId];
           if (cell.isFormula) {
-            const directDependencies = cell.compiledFormula.dependencies;
+            const directDependencies = cell.compiledFormula.rangeDependencies;
             for (const range of directDependencies) {
               if (range.invalidSheetName || range.invalidXc) {
                 continue;
@@ -231,21 +230,15 @@ export class Evaluator {
     sheetId: UID,
     formulaString: string
   ): FunctionResultObject | Matrix<FunctionResultObject> {
-    const compiledFormula = compile(formulaString);
-
-    const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
+    const compiledFormula = compile(formulaString, sheetId);
+    compiledFormula.convertXCDependenciesToRange(this.getters.getRangeFromSheetXC);
     this.updateCompilationParameters();
-    return this.evaluateCompiledFormula(sheetId, {
-      ...compiledFormula,
-      dependencies: ranges,
-    });
+    return this.evaluateCompiledFormula(sheetId, compiledFormula);
   }
 
   evaluateCompiledFormula(
     sheetId: UID,
-    compiledFormula: RangeCompiledFormula,
+    compiledFormula: BananaCompiledFormula,
     getContextualSymbolValue?: GetSymbolValue
   ) {
     try {
@@ -587,7 +580,7 @@ export class Evaluator {
     if (!cell?.isFormula) {
       return [];
     }
-    return cell.compiledFormula.dependencies;
+    return cell.compiledFormula.rangeDependencies;
   }
 
   private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
@@ -632,7 +625,7 @@ function validateNumberValue(data: FunctionResultObject): FunctionResultObject {
 }
 
 export function updateEvalContextAndExecute(
-  compiledFormula: RangeCompiledFormula,
+  compiledFormula: BananaCompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
   getSymbolValue: GetSymbolValue,
@@ -641,7 +634,7 @@ export function updateEvalContextAndExecute(
   compilationParams.evalContext.__originCellPosition = originCellPosition;
   compilationParams.evalContext.__originSheetId = sheetId;
   return compiledFormula.execute(
-    compiledFormula.dependencies,
+    compiledFormula.rangeDependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,

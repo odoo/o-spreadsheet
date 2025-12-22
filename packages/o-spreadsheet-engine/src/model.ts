@@ -624,11 +624,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * As the name of this method strongly implies, it is useful when we need to
    * export data out of the model.
    */
-  exportData(): WorkbookData {
+  exportData(shouldSquish: boolean = false): WorkbookData {
     let data = createEmptyWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof CorePlugin) {
-        handler.export(data);
+        handler.export(data, shouldSquish);
       }
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;

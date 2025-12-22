@@ -15,7 +15,6 @@ import {
   PIVOT_STATIC_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { getFunctionsFromTokens } from "@odoo/o-spreadsheet-engine/formulas/helpers";
 import {
   isEvaluationError,
   toBoolean,
@@ -388,7 +387,6 @@ export const helpers = {
   reduceZoneOnDeletion,
   unquote,
   getMaxObjectId,
-  getFunctionsFromTokens,
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
   parseDimension,

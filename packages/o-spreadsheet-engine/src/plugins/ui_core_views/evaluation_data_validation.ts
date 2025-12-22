@@ -200,7 +200,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   }
 
   private isValidFormula(value: string): boolean {
-    return !compile(value).isBadExpression;
+    return !compile(value, "no_sheet").isBadExpression;
   }
 
   private getValidationResultForCell(cellPosition: CellPosition): ValidationResult {
@@ -291,12 +291,13 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
         return parseLiteral(value, DEFAULT_LOCALE);
       }
 
-      const formula = compile(value);
+      const formula = compile(value, sheetId);
+      formula.convertXCDependenciesToRange(this.getters.getRangeFromSheetXC, sheetId);
       const translatedFormula = this.getters.getTranslatedCellFormula(
         sheetId,
         offset.col,
         offset.row,
-        formula.tokens
+        formula
       );
 
       return this.getters.evaluateFormula(sheetId, translatedFormula);

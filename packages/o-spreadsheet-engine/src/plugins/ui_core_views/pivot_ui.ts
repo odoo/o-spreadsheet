@@ -1,5 +1,5 @@
+import { BananaCompiledFormula } from "../../formulas/compiler";
 import { astToFormula } from "../../formulas/formula_formatter";
-import { Token } from "../../formulas/tokenizer";
 import { toScalar } from "../../functions/helper_matrices";
 import { deepCopy } from "../../helpers";
 import { deepEquals, getUniqueText } from "../../helpers/misc";
@@ -129,10 +129,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   getPivotIdFromPosition(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(
-        position.sheetId,
-        cell.compiledFormula.tokens
-      );
+      const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula);
       if (pivotFunction) {
         const pivotId = pivotFunction.args[0]?.toString();
         return pivotId && this.getters.getPivotId(pivotId);
@@ -144,17 +141,14 @@ export class PivotUIPlugin extends CoreViewPlugin {
   isSpillPivotFormula(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(
-        position.sheetId,
-        cell.compiledFormula.tokens
-      );
+      const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula);
       return pivotFunction?.functionName === "PIVOT";
     }
     return false;
   }
 
-  getFirstPivotFunction(sheetId: UID, tokens: Token[]) {
-    const pivotFunction = getFirstPivotFunction(tokens);
+  getFirstPivotFunction(sheetId: UID, compiledFormula: BananaCompiledFormula) {
+    const pivotFunction = getFirstPivotFunction(compiledFormula, this.getters);
     if (!pivotFunction) {
       return undefined;
     }
@@ -190,14 +184,15 @@ export class PivotUIPlugin extends CoreViewPlugin {
    */
   getPivotCellFromPosition(position: CellPosition): PivotTableCell {
     const cell = this.getters.getCorrespondingFormulaCell(position);
-    if (!cell || !cell.isFormula || getNumberOfPivotFunctions(cell.compiledFormula.tokens) === 0) {
+    if (
+      !cell ||
+      !cell.isFormula ||
+      getNumberOfPivotFunctions(cell.compiledFormula, this.getters) === 0
+    ) {
       return EMPTY_PIVOT_CELL;
     }
     const mainPosition = this.getters.getCellPosition(cell.id);
-    const result = this.getters.getFirstPivotFunction(
-      position.sheetId,
-      cell.compiledFormula.tokens
-    );
+    const result = this.getters.getFirstPivotFunction(position.sheetId, cell.compiledFormula);
     if (!result) {
       return EMPTY_PIVOT_CELL;
     }
@@ -373,7 +368,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
     if (!cell || !cell.isFormula || !this.isMainFunctionPivotSpreadFunction(cell)) {
       return undefined;
     }
-    const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula.tokens);
+    const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula);
     if (!pivotFunction || pivotFunction.functionName !== "PIVOT") {
       return undefined;
     }
@@ -398,10 +393,6 @@ export class PivotUIPlugin extends CoreViewPlugin {
   }
 
   private isMainFunctionPivotSpreadFunction(cell: FormulaCell): boolean {
-    const tokens = cell.compiledFormula.tokens;
-    const firstNonSpaceToken = tokens.find((token, i) => i > 0 && token.type !== "SPACE");
-    return (
-      firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === "PIVOT"
-    );
+    return cell.compiledFormula.isFirstNonWhitespaceToken("PIVOT");
   }
 }

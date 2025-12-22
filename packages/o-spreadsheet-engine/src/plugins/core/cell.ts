@@ -1,4 +1,8 @@
-import { compile, compileTokens } from "../../formulas/compiler";
+import {
+  BananaCompiledFormula,
+  compile,
+  SerializedBananaCompiledFormula,
+} from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
@@ -7,9 +11,9 @@ import {
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc";
+import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
-import { toCartesian, toXC } from "../../helpers/coordinates";
+import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
 import { recomputeZones } from "../../helpers/recompute_zones";
@@ -23,7 +27,16 @@ import {
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
-import { CellPosition, HeaderIndex, UID } from "../../types/misc";
+import {
+  AdaptSheetName,
+  ApplyRangeChange,
+  CellPosition,
+  HeaderIndex,
+  Style,
+  UID,
+  UpdateCellData,
+  Zone,
+} from "../../types/misc";
 
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
@@ -32,18 +45,12 @@ import {
   isExcelCompatible,
   isTextFormat,
 } from "../../helpers/format/format";
+import { CoreGetters } from "../../types/core_getters";
 import { Format } from "../../types/format";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  CompiledFormula,
-  RangeCompiledFormula,
-  Style,
-  UpdateCellData,
-  Zone,
-} from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { SquishedCell, Squisher } from "./squisher";
+import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -73,7 +80,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {
-          for (const range of cell.compiledFormula.dependencies) {
+          for (const range of cell.compiledFormula.rangeDependencies) {
             if (range.sheetId === sheetId || range.invalidSheetName === sheetName.old) {
               const change = applyChange(range);
               if (change.changeType !== "NONE") {
@@ -82,8 +89,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
                   sheet,
                   cell.id,
                   "compiledFormula" as any,
-                  "dependencies",
-                  cell.compiledFormula.dependencies.indexOf(range),
+                  "rangeDependencies",
+                  cell.compiledFormula.rangeDependencies.indexOf(range),
                   change.range
                 );
               }
@@ -255,15 +262,34 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    console.debug("starting loading sheets");
+    const start = performance.now();
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
-      const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
+      const cellsData = new PositionMap<{
+        compiledFormula?: BananaCompiledFormula;
+        content?: string;
+        style?: number;
+        format?: number;
+      }>();
       // cells content
-      for (const xc in sheet.cells) {
-        if (sheet.cells[xc]) {
-          const { col, row } = toCartesian(xc);
-          const position = { sheetId: sheet.id, col, row };
-          cellsData.set(position, { content: sheet.cells[xc] });
+      const unsquisher = new Unsquisher();
+      for (const unsquishedItem of unsquisher.unsquishSheet(
+        sheet.cells,
+        sheet.id,
+        this.getters.getRangeFromSheetXC
+      )) {
+        if (unsquishedItem.content || unsquishedItem.compiled) {
+          const position = {
+            sheetId: sheet.id,
+            col: unsquishedItem.position.col,
+            row: unsquishedItem.position.row,
+          };
+          if (unsquishedItem.compiled) {
+            cellsData.set(position, { compiledFormula: unsquishedItem.compiled });
+          } else {
+            cellsData.set(position, { content: unsquishedItem.content });
+          }
         }
       }
       // cell format
@@ -277,11 +303,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       for (const position of cellsData.keysForSheet(sheetId)) {
         const cellData = cellsData.get(position);
-        if (cellData?.content || cellData?.format) {
+        if (cellData?.content || cellData?.format || cellData?.compiledFormula) {
           const cell = this.importCell(
             sheet.id,
             cellData?.content,
-            cellData?.format ? data.formats[cellData?.format] : undefined
+            cellData?.format ? data.formats[cellData?.format] : undefined,
+            cellData?.compiledFormula
           );
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
@@ -291,42 +318,55 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
+    console.debug("done importing sheets in ", performance.now() - start);
   }
 
-  export(data: WorkbookData) {
+  export(data: WorkbookData, shouldSquish: boolean) {
     const formats: { [formatId: number]: string } = {};
-
     for (const _sheet of data.sheets) {
+      const squisher = new Squisher(this.getters.getSheetName);
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: string } = {};
+      const cells: { [key: string]: string | SquishedCell } = {};
       const positions = Object.keys(this.cells[_sheet.id] || {})
         .map((cellId) => this.getters.getCellPosition(cellId))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
-        const xc = toXC(position.col, position.row);
         if (cell.format) {
           const formatId = getItemId<Format>(cell.format, formats);
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
-        if (cell.content) {
-          cells[xc] = cell.content;
+        const xc = toXC(position.col, position.row);
+        if (cell.isFormula && shouldSquish) {
+          cells[xc] = squisher.squish(cell, _sheet.id);
+        } else {
+          if (cell.content) {
+            cells[xc] = cell.content;
+          }
         }
       }
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
-      _sheet.cells = cells;
+      _sheet.cells = squisher.squishSheet(cells);
     }
     data.formats = formats;
   }
 
-  importCell(sheetId: UID, content?: string, format?: Format): Cell {
+  importCell(
+    sheetId: UID,
+    content?: string,
+    format?: Format,
+    compiledFormula?: BananaCompiledFormula | undefined
+  ): Cell {
     const cellId = this.getNextUid();
+    if (compiledFormula) {
+      return this.createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, sheetId);
+    }
     return this.createCell(cellId, content || "", format, sheetId);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    this.export(data, false);
     const incompatibleIds: number[] = [];
     for (const formatId in data.formats || []) {
       if (!isExcelCompatible(data.formats[formatId])) {
@@ -369,44 +409,61 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   getFormulaString(
     sheetId: UID,
-    tokens: Token[],
+    compiledFormula: BananaCompiledFormula,
     dependencies: Range[],
     useBoundedReference: boolean = false
   ): string {
-    if (!dependencies.length) {
-      return concat(tokens.map((token) => token.value));
-    }
-    let rangeIndex = 0;
-    return concat(
-      tokens.map((token) => {
-        if (token.type === "REFERENCE") {
-          const range = dependencies[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId, { useBoundedReference });
-        }
-        return token.value;
-      })
+    const newFormula = BananaCompiledFormula.CopyWithDependencies(
+      compiledFormula,
+      sheetId,
+      dependencies
     );
+    const tempFormula = new FormulaCellWithDependencies(
+      "temp",
+      newFormula,
+      undefined,
+      this.getters
+    );
+    return useBoundedReference ? tempFormula.contentWithFixedReferences : tempFormula.content;
   }
 
   /*
    * Constructs a formula string based on an initial formula and a translation vector
    */
-  getTranslatedCellFormula(sheetId: UID, offsetX: number, offsetY: number, tokens: Token[]) {
+  getTranslatedCellFormula(
+    sheetId: UID,
+    offsetX: number,
+    offsetY: number,
+    compiledFormula: BananaCompiledFormula | SerializedBananaCompiledFormula
+  ) {
+    if (!(compiledFormula instanceof BananaCompiledFormula)) {
+      compiledFormula = BananaCompiledFormula.CompileForSerializedFormula(sheetId, compiledFormula);
+    }
     const adaptedDependencies = this.getters.createAdaptedRanges(
-      compileTokens(tokens).dependencies.map((d) => this.getters.getRangeFromSheetXC(sheetId, d)),
+      (compiledFormula as BananaCompiledFormula).rangeDependencies,
       offsetX,
       offsetY,
       sheetId
     );
-    return this.getFormulaString(sheetId, tokens, adaptedDependencies);
+
+    return this.getFormulaString(
+      sheetId,
+      compiledFormula as BananaCompiledFormula,
+      adaptedDependencies
+    );
   }
 
-  getFormulaMovedInSheet(originSheetId: UID, targetSheetId: UID, tokens: Token[]) {
-    const dependencies = compileTokens(tokens).dependencies.map((d) =>
-      this.getters.getRangeFromSheetXC(originSheetId, d)
+  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: BananaCompiledFormula) {
+    const adaptedDependencies = this.getters.removeRangesSheetPrefix(
+      targetSheetId,
+      compiledFormula.rangeDependencies
     );
-    const adaptedDependencies = this.getters.removeRangesSheetPrefix(targetSheetId, dependencies);
-    return this.getFormulaString(targetSheetId, tokens, adaptedDependencies);
+    return BananaCompiledFormula.CopyWithDependencies(
+      compiledFormula,
+      targetSheetId,
+      adaptedDependencies
+    ).toFormulaString(this.getters);
+    //this.getFormulaString(targetSheetId, compiledFormula, adaptedDependencies);
   }
 
   /**
@@ -576,8 +633,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
-    const compiledFormula = compile(content);
-    if (compiledFormula.dependencies.length) {
+    const compiledFormula = compile(content, sheetId);
+    if (
+      compiledFormula.dependencies.length ||
+      compiledFormula.literalValues.numbers.length ||
+      compiledFormula.literalValues.strings.length
+    ) {
       return this.createFormulaCellWithDependencies(id, compiledFormula, format, sheetId);
     }
     return {
@@ -585,10 +646,29 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       content,
       format,
       isFormula: true,
-      compiledFormula: {
-        ...compiledFormula,
-        dependencies: [],
-      },
+      compiledFormula,
+    };
+  }
+
+  private createFormulaCellFromCompiledFormula(
+    id: UID,
+    compiledFormula: BananaCompiledFormula,
+    format: Format | undefined,
+    sheetId: UID
+  ): FormulaCell {
+    if (
+      compiledFormula.hasDependencies ||
+      compiledFormula.literalValues.numbers.length ||
+      compiledFormula.literalValues.strings.length
+    ) {
+      return this.createFormulaCellWithDependencies(id, compiledFormula, format, sheetId);
+    }
+    return {
+      id,
+      content: compiledFormula.toFormulaString(this.getters),
+      format,
+      isFormula: true,
+      compiledFormula,
     };
   }
 
@@ -598,22 +678,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private createFormulaCellWithDependencies(
     id: UID,
-    compiledFormula: CompiledFormula,
+    compiledFormula: BananaCompiledFormula,
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
-    const dependencies: Range[] = [];
-    for (const xc of compiledFormula.dependencies) {
-      dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
-    }
-    return new FormulaCellWithDependencies(
-      id,
-      compiledFormula,
-      format,
-      dependencies,
-      sheetId,
-      this.getters.getRangeString
-    );
+    compiledFormula.convertXCDependenciesToRange(this.getters.getRangeFromSheetXC, sheetId);
+
+    return new FormulaCellWithDependencies(id, compiledFormula, format, this.getters);
   }
 
   private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {
@@ -657,66 +728,27 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
 export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
-  readonly compiledFormula: RangeCompiledFormula;
+  readonly compiledFormula: BananaCompiledFormula;
+
   constructor(
     readonly id: UID,
-    compiledFormula: CompiledFormula,
+    compiledFormula: BananaCompiledFormula,
     readonly format: Format | undefined,
-    dependencies: Range[],
-    private readonly sheetId: UID,
-    private readonly getRangeString: (
-      range: Range,
-      sheetId: UID,
-      option?: { useBoundedReference: boolean }
-    ) => string
+    private readonly getters: CoreGetters
   ) {
-    let rangeIndex = 0;
-    const tokens = compiledFormula.tokens.map((token) => {
-      if (token.type === "REFERENCE") {
-        const index = rangeIndex++;
-        return new RangeReferenceToken(dependencies, index, this.sheetId, this.getRangeString);
-      }
-      return token;
-    });
-    this.compiledFormula = {
-      ...compiledFormula,
-      dependencies,
-      tokens,
-    };
+    this.compiledFormula = compiledFormula;
+    this.getters = getters;
+  }
+
+  get tokens(): readonly Token[] {
+    return this.compiledFormula.getStringifiedTokens(this.getters);
   }
 
   get content() {
-    return concat(this.compiledFormula.tokens.map((token) => token.value));
+    return this.compiledFormula.toFormulaString(this.getters);
   }
 
   get contentWithFixedReferences() {
-    let rangeIndex = 0;
-    return concat(
-      this.compiledFormula.tokens.map((token) => {
-        if (token.type === "REFERENCE") {
-          const index = rangeIndex++;
-          return this.getRangeString(this.compiledFormula.dependencies[index], this.sheetId, {
-            useBoundedReference: true,
-          });
-        }
-        return token.value;
-      })
-    );
-  }
-}
-
-class RangeReferenceToken implements Token {
-  type = "REFERENCE" as const;
-
-  constructor(
-    private ranges: Range[],
-    private rangeIndex: number,
-    private sheetId,
-    private getRangeString: (range: Range, sheetId: UID) => string
-  ) {}
-
-  get value() {
-    const range = this.ranges[this.rangeIndex];
-    return this.getRangeString(range, this.sheetId);
+    return this.compiledFormula.toFormulaString(this.getters, { useBoundedReference: true });
   }
 }

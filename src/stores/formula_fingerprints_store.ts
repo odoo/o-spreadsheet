@@ -166,7 +166,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
   }
 
   private computeFormulaFingerprint(position: CellPosition, cell: FormulaCell): Fingerprint {
-    const dependencies = cell.compiledFormula.dependencies;
+    const dependencies = cell.compiledFormula.rangeDependencies;
     const colCellOffset = position.col;
     const rowCellOffset = position.row;
     const positionSheetIndex = this.getters.getSheetIds().indexOf(position.sheetId);

@@ -1589,7 +1589,7 @@ describe("composer highlights color", () => {
   });
 
   test("highlight range", async () => {
-    setCellContent(model, "A1", "=sum(a1:a10)");
+    setCellContent(model, "A1", "=sum(A1:A10)");
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(1);
     expect(composerStore.highlights[0].color).toBe(colors[0]);

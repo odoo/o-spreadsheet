@@ -1,12 +1,14 @@
 import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
-import { parseNumber, unquote } from "../helpers";
+import { concat, parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
+import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { CompiledFormula, FormulaToExecute } from "../types/misc";
+import { CompiledFormula, FormulaToExecute, LiteralValues, UID } from "../types/misc";
+import { Range, RangeStringOptions } from "../types/range";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
-import { AST, ASTFuncall, parseTokens } from "./parser";
+import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 import { Token } from "./tokenizer";
 
@@ -36,29 +38,257 @@ export const UNARY_OPERATOR_MAP = {
   "#": "SPILLED.RANGE",
 };
 
-interface LiteralValues {
-  numbers: { value: number }[];
-  strings: { value: string }[];
-}
-
-type InternalCompiledFormula = CompiledFormula & {
-  literalValues: LiteralValues;
-  symbols: string[];
-};
-
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
+export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
+  private readonly _tokens: Token[];
+  literalValues: LiteralValues;
+  symbols: string[];
+  private _dependencies?: string[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
+  execute: FormulaToExecute;
+  private _rangeDependencies?: Range[];
+  hasDependencies: boolean;
+  sheetId: UID;
+
+  constructor(
+    sheetId: UID,
+    tokens: Token[],
+    literalValues: LiteralValues,
+    symbols: string[],
+    dependencies: string[] | Range[],
+    isBadExpression: boolean,
+    normalizedFormula: string,
+    execute: FormulaToExecute
+  ) {
+    this.sheetId = sheetId;
+    this._tokens = tokens;
+    this.literalValues = literalValues;
+    this.symbols = symbols;
+    this.hasDependencies = dependencies?.length > 0;
+    if (dependencies.every((x) => typeof x === "string")) {
+      this._dependencies = dependencies;
+      this._rangeDependencies = undefined;
+    } else {
+      if (isBadExpression) {
+        throw new Error(
+          "A bad expression cannot have range dependencies. It should only have string dependencies."
+        );
+      }
+      this._dependencies = undefined;
+      this._rangeDependencies = dependencies;
+    }
+    this.isBadExpression = isBadExpression;
+    this.normalizedFormula = normalizedFormula;
+    this.execute = execute;
+  }
+
+  getStringifiedTokens(
+    getters: CoreGetters,
+    referenceOption?: RangeStringOptions
+  ): readonly Token[] {
+    let referenceIndex = 0;
+    let numberIndex = 0;
+    let stringIndex = 0;
+    if (this.isBadExpression) {
+      return Object.freeze(this._tokens);
+    }
+    return this._tokens.map((token: Token) => {
+      switch (token.type) {
+        case "REFERENCE":
+          token.value = getters.getRangeString(
+            this.rangeDependencies[referenceIndex++],
+            this.sheetId,
+            referenceOption
+          );
+          break;
+        case "NUMBER":
+          token.value = this.literalValues.numbers[numberIndex++].value.toString();
+          break;
+        case "STRING":
+          token.value = `"${
+            this.literalValues.strings[stringIndex++].value /*.replace(
+              /"/g,
+              '""'
+            )*/
+          }"`;
+          break;
+      }
+      return token;
+    });
+  }
+
+  get dependencies(): string[] {
+    if (this.hasDependencies) {
+      if (!this._dependencies?.length) {
+        throw new Error(
+          "Dependencies have had its range adapted but not yet converted back to string"
+        );
+      }
+    }
+    return this._dependencies || [];
+  }
+
+  get rangeDependencies(): Range[] {
+    if (this.hasDependencies) {
+      if (!this._rangeDependencies) {
+        throw new Error("Range dependencies have not been ensured yet.");
+      }
+    }
+    return this._rangeDependencies || [];
+  }
+
+  convertXCDependenciesToRange(
+    getRangeFromSheetXC: (defaultSheetId: UID, sheetXC: string) => Range,
+    sheetId?: UID
+  ) {
+    if (
+      this._dependencies?.length &&
+      this._dependencies.some((x: string | Range) => typeof x === "string")
+    ) {
+      this._rangeDependencies = this._dependencies.map((xc: string | Range) =>
+        typeof xc === "string" ? getRangeFromSheetXC(sheetId || this.sheetId, xc) : xc
+      );
+      this._dependencies = undefined;
+    }
+  }
+
+  toFormulaString(getters: CoreGetters, referenceOption?: RangeStringOptions): string {
+    if (this.isBadExpression) {
+      return this.normalizedFormula;
+    }
+
+    return concat(this.getStringifiedTokens(getters, referenceOption).map((t) => t.value));
+  }
+
+  usesSymbol(symbol: string) {
+    return this._tokens.some((t) => t.type === "SYMBOL" && t.value === symbol);
+  }
+
+  areAllFunctionsExportableToExcel(): boolean {
+    try {
+      const nonExportableFunctions = iterateAstNodes(parseTokens(this._tokens)).filter(
+        (ast) => ast.type === "FUNCALL" && !functions[ast.value.toUpperCase()]?.isExported
+      );
+      return nonExportableFunctions.length === 0;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  getFunctionsFromTokens(functionNames: string[], getters: CoreGetters) {
+    // Parsing is an expensive operation, so we first check if the
+    // formula contains one of the function names
+    if (!functionNames.some((functionName) => this.usesSymbol(functionName))) {
+      return [];
+    }
+    let ast: AST | undefined;
+    try {
+      ast = parseTokens(this.getStringifiedTokens(getters));
+    } catch {
+      return [];
+    }
+    return iterateAstNodes(ast)
+      .filter((node) => node.type === "FUNCALL" && functionNames.includes(node.value.toUpperCase()))
+      .map((node: ASTFuncall) => ({
+        functionName: node.value.toUpperCase(),
+        args: node.args,
+      }));
+  }
+
+  isFirstNonWhitespaceToken(tokenValue: string): boolean {
+    const firstNonSpaceToken = this._tokens.find((token, i) => i > 0 && token.type !== "SPACE");
+    return (
+      firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === "PIVOT"
+    );
+  }
+
+  static CopyWithDependencies(
+    base: BananaCompiledFormula,
+    sheetId: UID,
+    dependencies: string[] | Range[]
+  ): BananaCompiledFormula {
+    return new BananaCompiledFormula(
+      sheetId,
+      base._tokens,
+      base.literalValues,
+      base.symbols,
+      dependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      base.execute
+    );
+  }
+
+  static CopyWithDependenciesAndLiteral(
+    base: BananaCompiledFormula,
+    sheetId: UID,
+    dependencies: Range[],
+    literalNumbers: { value: number }[],
+    literalStrings: { value: string }[]
+  ): BananaCompiledFormula {
+    return new BananaCompiledFormula(
+      sheetId,
+      base._tokens,
+      { numbers: literalNumbers, strings: literalStrings },
+      base.symbols,
+      dependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      base.execute
+    );
+  }
+
+  static CompileForSerializedFormula(
+    sheetId: UID,
+    base: SerializedBananaCompiledFormula
+  ): BananaCompiledFormula {
+    const compiledFormula = compileTokens(base._tokens);
+    return new BananaCompiledFormula(
+      sheetId,
+      compiledFormula.tokens,
+      base.literalValues,
+      compiledFormula.symbols,
+      base._rangeDependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      compiledFormula.execute
+    );
+  }
+}
+
+export type SerializedBananaCompiledFormula = {
+  sheetId: UID;
+  _tokens: Token[];
+  literalValues: LiteralValues;
+  symbols: string[];
+  _rangeDependencies: Range[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
+};
+
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string): CompiledFormula {
+export function compile(formula: string, sheetId: UID): BananaCompiledFormula {
   const tokens = rangeTokenize(formula);
-  return compileTokens(tokens);
+  const compiledFormula = compileTokens(tokens);
+  return new BananaCompiledFormula(
+    sheetId,
+    compiledFormula.tokens,
+    compiledFormula.literalValues,
+    compiledFormula.symbols,
+    compiledFormula.dependencies,
+    compiledFormula.isBadExpression,
+    compiledFormula.normalizedFormula,
+    compiledFormula.execute
+  );
 }
 
 export function compileTokens(tokens: Token[]): CompiledFormula {
@@ -67,6 +297,8 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
   } catch (error) {
     return {
       tokens,
+      literalValues: { numbers: [], strings: [] },
+      symbols: [],
       dependencies: [],
       execute: function () {
         return error;
@@ -235,7 +467,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       }
     }
   }
-  const compiledFormula: InternalCompiledFormula = {
+  const compiledFormula: CompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
     literalValues,
