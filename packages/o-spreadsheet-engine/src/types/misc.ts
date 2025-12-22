@@ -3,6 +3,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
+import { InternalCompiledFormula } from "../formulas/compiler";
 import { Token } from "../formulas/tokenizer";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
@@ -199,7 +200,9 @@ export interface CompiledFormula {
   normalizedFormula: string;
 }
 
-export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencies"> {
+export interface RangeCompiledFormula
+  extends Omit<CompiledFormula, "dependencies">,
+    Omit<InternalCompiledFormula, "dependencies"> {
   dependencies: Range[];
 }
 

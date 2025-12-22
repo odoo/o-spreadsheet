@@ -40,10 +40,10 @@ interface LiteralValues {
   strings: { value: string }[];
 }
 
-type InternalCompiledFormula = CompiledFormula & {
+export interface InternalCompiledFormula extends CompiledFormula {
   literalValues: LiteralValues;
   symbols: string[];
-};
+}
 
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
@@ -55,17 +55,19 @@ export const functionCache: { [key: string]: FormulaToExecute } = {};
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string): CompiledFormula {
+export function compile(formula: string): InternalCompiledFormula {
   const tokens = rangeTokenize(formula);
   return compileTokens(tokens);
 }
 
-export function compileTokens(tokens: Token[]): CompiledFormula {
+export function compileTokens(tokens: Token[]): InternalCompiledFormula {
   try {
     return compileTokensOrThrow(tokens);
   } catch (error) {
     return {
       tokens,
+      literalValues: { numbers: [], strings: [] },
+      symbols: [],
       dependencies: [],
       execute: function () {
         return error;
@@ -76,7 +78,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
   }
 }
 
-function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
+function compileTokensOrThrow(tokens: Token[]): InternalCompiledFormula {
   const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
