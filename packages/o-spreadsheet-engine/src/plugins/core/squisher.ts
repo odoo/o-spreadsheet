@@ -23,6 +23,9 @@ export class Squisher {
     },
   ];
   private alreadyAppliedNumberOffsets: number[] = [];
+  private previousStrings: string[] = [];
+  private previousNumberPattern: string | null = null;
+  private previousReferencePattern: string | null = null;
 
   constructor(getSheetName: (sheetId: UID) => string) {
     this.previousCell = undefined;
@@ -47,6 +50,7 @@ export class Squisher {
         cols: 0,
       }));
       this.alreadyAppliedNumberOffsets = cell.compiledFormula.literalValues.numbers.map((_) => 0);
+      this.previousStrings = cell.compiledFormula.literalValues.strings.map((x) => x.value);
       return cell.content;
     } else {
       numbers = this.squishNumbers(cell.compiledFormula.literalValues.numbers);
@@ -55,9 +59,25 @@ export class Squisher {
     }
     const res = {};
     if (content.length) res["C"] = content;
-    if (numbers.length && numbers.some((x) => x !== "=")) res["N"] = numbers;
+    if (numbers.length && numbers.some((x) => x !== "=")) {
+      const numberPattern = numbers.join(",");
+      if (this.previousNumberPattern === numberPattern) {
+        res["N"] = "!";
+      } else {
+        this.previousNumberPattern = numberPattern;
+        res["N"] = numberPattern;
+      }
+    }
     if (strings.length && strings.some((x) => x !== "=")) res["S"] = strings;
-    if (references.length && references.some((x) => x !== "=")) res["R"] = references;
+    if (references.length && references.some((x) => x !== "=")) {
+      const referencePattern = references.join(",");
+      if (this.previousReferencePattern === referencePattern) {
+        res["R"] = "!";
+      } else {
+        this.previousReferencePattern = referencePattern;
+        res["R"] = referencePattern;
+      }
+    }
     return res as SquishedCell;
   }
 
@@ -151,12 +171,13 @@ export class Squisher {
     const result: string[] = [];
     for (let i = 0; i < strings.length; i++) {
       const str = strings[i].value;
-      const previousStr = this.previousCell!.compiledFormula.literalValues.strings[i].value;
+      const previousStr = this.previousStrings[i];
       if (str === previousStr) {
         result.push("=");
       } else {
         // different strings, cannot squish
         result.push(str);
+        this.previousStrings[i] = str;
       }
     }
     return result;
