@@ -3,7 +3,6 @@ import { CellValue, EvaluatedCell } from "./cells";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-import { InternalCompiledFormula } from "../formulas/compiler";
 import { Token } from "../formulas/tokenizer";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
@@ -192,7 +191,15 @@ export type FormulaToExecute = (
   ctx: object
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
 
-export interface RangeCompiledFormula extends Omit<InternalCompiledFormula, "dependencies"> {
+export interface CompiledFormula {
+  execute: FormulaToExecute;
+  tokens: Token[];
+  dependencies: string[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
+}
+
+export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencies"> {
   dependencies: Range[];
 }
 

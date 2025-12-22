@@ -1,6 +1,5 @@
-import { InternalCompiledFormula } from "../formulas/compiler";
 import { Format, FormattedValue } from "./format";
-import { FunctionResultObject, Link, UID } from "./misc";
+import { FunctionResultObject, Link, RangeCompiledFormula, UID } from "./misc";
 
 interface CellAttributes {
   readonly id: UID;
@@ -18,7 +17,7 @@ export interface LiteralCell extends CellAttributes {
 
 export interface FormulaCell extends CellAttributes {
   readonly isFormula: true;
-  readonly compiledFormula: InternalCompiledFormula;
+  readonly compiledFormula: RangeCompiledFormula;
 }
 
 export type Cell = LiteralCell | FormulaCell;

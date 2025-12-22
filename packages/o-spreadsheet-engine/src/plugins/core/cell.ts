@@ -1,4 +1,4 @@
-import { compile, compileTokens, InternalCompiledFormula } from "../../formulas/compiler";
+import { compile, compileTokens } from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
@@ -36,6 +36,7 @@ import { Format } from "../../types/format";
 import {
   AdaptSheetName,
   ApplyRangeChange,
+  CompiledFormula,
   RangeCompiledFormula,
   Style,
   UpdateCellData,
@@ -71,7 +72,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (cell.isFormula && cell.compiledFormula.dependencies.length) {
+        if (cell.isFormula) {
           for (const range of cell.compiledFormula.dependencies) {
             if (range.sheetId === sheetId || range.invalidSheetName === sheetName.old) {
               const change = applyChange(range);
@@ -574,7 +575,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     sheetId: UID
-  ): FormulaCell | FormulaCellWithDependencies {
+  ): FormulaCell {
     const compiledFormula = compile(content);
     if (compiledFormula.dependencies.length) {
       return this.createFormulaCellWithDependencies(id, compiledFormula, format, sheetId);
@@ -597,10 +598,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private createFormulaCellWithDependencies(
     id: UID,
-    compiledFormula: InternalCompiledFormula,
+    compiledFormula: CompiledFormula,
     format: Format | undefined,
     sheetId: UID
-  ): FormulaCell | FormulaCellWithDependencies {
+  ): FormulaCell {
     const dependencies: Range[] = [];
     for (const xc of compiledFormula.dependencies) {
       dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
@@ -655,7 +656,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
   readonly compiledFormula: RangeCompiledFormula;
   constructor(
     readonly id: UID,
-    compiledFormula: InternalCompiledFormula,
+    compiledFormula: CompiledFormula,
     readonly format: Format | undefined,
     dependencies: Range[],
     private readonly sheetId: UID,

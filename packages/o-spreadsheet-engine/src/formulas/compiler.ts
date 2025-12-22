@@ -2,10 +2,9 @@ import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
 import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
-import { Cell } from "../types/cells";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { FormulaToExecute } from "../types/misc";
+import { CompiledFormula, FormulaToExecute } from "../types/misc";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -41,12 +40,7 @@ interface LiteralValues {
   strings: { value: string }[];
 }
 
-export type InternalCompiledFormula = Cell & {
-  execute: FormulaToExecute;
-  tokens: Token[];
-  dependencies: string[];
-  isBadExpression: boolean;
-  normalizedFormula: string;
+type InternalCompiledFormula = CompiledFormula & {
   literalValues: LiteralValues;
   symbols: string[];
 };
@@ -61,18 +55,16 @@ export const functionCache: { [key: string]: FormulaToExecute } = {};
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string): InternalCompiledFormula {
+export function compile(formula: string): CompiledFormula {
   const tokens = rangeTokenize(formula);
   return compileTokens(tokens);
 }
 
-export function compileTokens(tokens: Token[]): InternalCompiledFormula {
+export function compileTokens(tokens: Token[]): CompiledFormula {
   try {
     return compileTokensOrThrow(tokens);
   } catch (error) {
     return {
-      literalValues: { strings: [], numbers: [] },
-      symbols: [],
       tokens,
       dependencies: [],
       execute: function () {
@@ -84,7 +76,7 @@ export function compileTokens(tokens: Token[]): InternalCompiledFormula {
   }
 }
 
-function compileTokensOrThrow(tokens: Token[]): InternalCompiledFormula {
+function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
