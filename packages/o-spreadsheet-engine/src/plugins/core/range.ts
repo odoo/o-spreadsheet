@@ -1,5 +1,6 @@
 import { compile } from "../../formulas/compiler";
 import { rangeReference, splitReference } from "../../helpers";
+import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
 import {
   createInvalidRange,
   createRange,
@@ -18,10 +19,11 @@ import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types
 import { CoreGetters } from "../../types/core_getters";
 import { CellErrorType } from "../../types/errors";
 import {
-  AdaptSheetName,
   ApplyRangeChange,
   ApplyRangeChangeResult,
   Dimension,
+  RangeAdapter,
+  RangeAdapterFunctions,
   RangeProvider,
   UID,
   UnboundedZone,
@@ -29,7 +31,7 @@ import {
 } from "../../types/misc";
 import { Range, RangeData, RangeStringOptions } from "../../types/range";
 
-export class RangeAdapter implements CommandHandler<CoreCommand> {
+export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
@@ -38,7 +40,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   static getters = [
-    "adaptFormulaStringDependencies",
     "copyFormulaStringForSheet",
     "extendRange",
     "getRangeString",
@@ -71,12 +72,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
     }
     const rangeAdapter = getRangeAdapter(cmd);
-    if (rangeAdapter?.applyChange) {
-      this.executeOnAllRanges(
-        rangeAdapter.applyChange,
-        rangeAdapter.sheetId,
-        rangeAdapter.sheetName
-      );
+    if (rangeAdapter) {
+      this.executeOnAllRanges(rangeAdapter);
     }
   }
 
@@ -98,15 +95,17 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private executeOnAllRanges(
-    adaptRange: ApplyRangeChange,
-    sheetId: UID,
-    sheetName: AdaptSheetName
-  ) {
+  private executeOnAllRanges(rangeAdapter: RangeAdapter) {
     this.isAdaptingRanges = true;
-    const func = this.verifyRangeRemoved(adaptRange);
+    const adapterFunctions: RangeAdapterFunctions = {
+      applyChange: this.verifyRangeRemoved(rangeAdapter.applyChange),
+      adaptRangeString: (defaultSheetId: UID, sheetXC: string) =>
+        adaptStringRange(defaultSheetId, sheetXC, rangeAdapter),
+      adaptFormulaString: (defaultSheetId: UID, formula: string) =>
+        adaptFormulaStringRanges(defaultSheetId, formula, rangeAdapter),
+    };
     for (const provider of this.providers) {
-      provider(func, sheetId, sheetName);
+      provider(adapterFunctions, rangeAdapter.sheetId, rangeAdapter.sheetName);
     }
     this.isAdaptingRanges = false;
   }
@@ -309,24 +308,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => range.unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
-  }
-
-  adaptFormulaStringDependencies(
-    sheetId: UID,
-    formula: string,
-    applyChange: ApplyRangeChange
-  ): string {
-    if (!formula.startsWith("=")) {
-      return formula;
-    }
-
-    const compiledFormula = compile(formula);
-    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
-      const range = this.getters.getRangeFromSheetXC(sheetId, dep);
-      const changedRange = applyChange(range);
-      return changedRange.changeType === "NONE" ? range : changedRange.range;
-    });
-    return this.getters.getFormulaString(sheetId, compiledFormula.tokens, updatedDependencies);
   }
 
   /**

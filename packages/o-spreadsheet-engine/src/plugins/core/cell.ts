@@ -23,7 +23,7 @@ import {
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
-import { CellPosition, HeaderIndex, UID } from "../../types/misc";
+import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
@@ -35,7 +35,6 @@ import {
 import { Format } from "../../types/format";
 import {
   AdaptSheetName,
-  ApplyRangeChange,
   CompiledFormula,
   RangeCompiledFormula,
   Style,
@@ -69,7 +68,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID, sheetName: AdaptSheetName) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {
