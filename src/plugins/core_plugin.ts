@@ -2,7 +2,6 @@ import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   AdaptSheetName,
-  ApplyRangeChange,
   CoreCommand,
   CoreCommandDispatcher,
   RangeProvider,
@@ -10,13 +9,14 @@ import {
   WorkbookData,
 } from "../types";
 import { CoreGetters } from "../types/getters";
+import { RangeAdapterFunctions } from "../types/misc";
 import { BasePlugin } from "./base_plugin";
-import { RangeAdapter } from "./core/range";
+import { RangeAdapterPlugin } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
   readonly stateObserver: StateObserver;
-  readonly range: RangeAdapter;
+  readonly range: RangeAdapterPlugin;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly custom: ModelConfig["custom"];
@@ -68,7 +68,11 @@ export class CorePlugin<State = any>
    * @param sheetId an sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName): void {}
+  adaptRanges(
+    rangeAdapterFunctions: RangeAdapterFunctions,
+    sheetId: UID,
+    sheetName: AdaptSheetName
+  ): void {}
 
   /**
    * Implement this method to clean unused external resources, such as images
