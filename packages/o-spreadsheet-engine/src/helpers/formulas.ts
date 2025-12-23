@@ -35,29 +35,29 @@ export function adaptFormulaStringRanges(
 export function adaptStringRange(
   defaultSheetId: UID,
   sheetXC: string,
-  applyChange: RangeAdapter
+  rangeAdapter: RangeAdapter
 ): string {
   const sheetName = splitReference(sheetXC).sheetName;
   if (
     sheetName
-      ? !isSheetNameEqual(sheetName, applyChange.sheetName.old)
-      : defaultSheetId !== applyChange.sheetId
+      ? !isSheetNameEqual(sheetName, rangeAdapter.sheetName.old)
+      : defaultSheetId !== rangeAdapter.sheetId
   ) {
     return sheetXC;
   }
-  const sheetId = sheetName ? applyChange.sheetId : defaultSheetId;
+  const sheetId = sheetName ? rangeAdapter.sheetId : defaultSheetId;
 
   const range = getRange(sheetXC, sheetId);
   if (range.invalidXc) {
     return sheetXC;
   }
 
-  const change = applyChange.applyChange(range);
+  const change = rangeAdapter.applyChange(range);
   if (change.changeType === "NONE" || change.changeType === "REMOVE") {
     return sheetXC;
   }
 
-  return getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
+  return getRangeString(change.range, defaultSheetId, getSheetNameGetter(rangeAdapter));
 }
 
 function getSheetNameGetter(applyChange: RangeAdapter) {
