@@ -9,7 +9,7 @@ import {
 } from "../../helpers/data_normalization";
 import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
-import { toCartesian, toXC } from "../../helpers/coordinates";
+import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
 import { recomputeZones } from "../../helpers/recompute_zones";
@@ -46,6 +46,7 @@ import { Format } from "../../types/format";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { Squisher } from "./squisher";
+import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -259,13 +260,26 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
-      const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
+      const cellsData = new PositionMap<{
+        compiledFormula?: InternalCompiledFormula;
+        content?: string;
+        style?: number;
+        format?: number;
+      }>();
       // cells content
-      for (const xc in sheet.cells) {
-        if (sheet.cells[xc]) {
-          const { col, row } = toCartesian(xc);
-          const position = { sheetId: sheet.id, col, row };
-          cellsData.set(position, { content: sheet.cells[xc] });
+      const unsquisher = new Unsquisher();
+      for (const unsquishedItem of unsquisher.unsquishSheet(sheet.cells)) {
+        if (unsquishedItem.content || unsquishedItem.compiled) {
+          const position = {
+            sheetId: sheet.id,
+            col: unsquishedItem.position.col,
+            row: unsquishedItem.position.row,
+          };
+          if (unsquishedItem.compiled) {
+            cellsData.set(position, { compiledFormula: unsquishedItem.compiled });
+          } else {
+            cellsData.set(position, { content: unsquishedItem.content });
+          }
         }
       }
       // cell format
@@ -279,11 +293,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       for (const position of cellsData.keysForSheet(sheetId)) {
         const cellData = cellsData.get(position);
-        if (cellData?.content || cellData?.format) {
+        if (cellData?.content || cellData?.format || cellData?.compiledFormula) {
           const cell = this.importCell(
             sheet.id,
             cellData?.content,
-            cellData?.format ? data.formats[cellData?.format] : undefined
+            cellData?.format ? data.formats[cellData?.format] : undefined,
+            cellData?.compiledFormula
           );
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
@@ -327,8 +342,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     data.formats = formats;
   }
 
-  importCell(sheetId: UID, content?: string, format?: Format): Cell {
+  importCell(
+    sheetId: UID,
+    content?: string,
+    format?: Format,
+    compiledFormula?: InternalCompiledFormula | undefined
+  ): Cell {
     const cellId = this.getNextUid();
+    if (compiledFormula) {
+      return this.createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, sheetId);
+    }
     return this.createCell(cellId, content || "", format, sheetId);
   }
 
@@ -590,6 +613,27 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return {
       id,
       content,
+      format,
+      isFormula: true,
+      compiledFormula: {
+        ...compiledFormula,
+        dependencies: [],
+      },
+    };
+  }
+
+  private createFormulaCellFromCompiledFormula(
+    id: UID,
+    compiledFormula: InternalCompiledFormula,
+    format: Format | undefined,
+    sheetId: UID
+  ): FormulaCell {
+    if (compiledFormula.dependencies.length) {
+      return this.createFormulaCellWithDependencies(id, compiledFormula, format, sheetId);
+    }
+    return {
+      id,
+      content: concat(compiledFormula.tokens.map((token) => token.value)),
       format,
       isFormula: true,
       compiledFormula: {
