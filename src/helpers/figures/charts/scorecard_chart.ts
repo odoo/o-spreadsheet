@@ -7,7 +7,6 @@ import {
 import { toNumber } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import {
-  ApplyRangeChange,
   CellValueType,
   Color,
   CommandResult,
@@ -17,6 +16,7 @@ import {
   Locale,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
@@ -288,7 +288,7 @@ export class ScorecardChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ScorecardChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): ScorecardChart {
     const baseline = adaptChartRange(this.baseline, applyChange);
     const keyValue = adaptChartRange(this.keyValue, applyChange);
     if (this.baseline === baseline && this.keyValue === keyValue) {

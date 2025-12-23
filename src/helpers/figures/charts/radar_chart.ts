@@ -1,7 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
@@ -9,6 +8,7 @@ import {
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import {
@@ -206,7 +206,7 @@ export class RadarChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): RadarChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): RadarChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

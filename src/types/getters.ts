@@ -1,3 +1,4 @@
+import { RangeAdapterPlugin } from "../plugins/core";
 import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
@@ -10,7 +11,6 @@ import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { PivotCorePlugin } from "../plugins/core/pivot";
-import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { TableStylePlugin } from "../plugins/core/table_style";
@@ -98,7 +98,7 @@ type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getter
 type PluginGetters<Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }> =
   Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
 
-type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;
+type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
 
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
