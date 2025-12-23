@@ -1,13 +1,13 @@
 import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
@@ -208,7 +208,7 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): BarChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): BarChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

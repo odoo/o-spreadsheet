@@ -10,7 +10,6 @@ import {
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
 import {
   AddDataValidationCommand,
-  ApplyRangeChange,
   CellPosition,
   Command,
   CommandResult,
@@ -22,6 +21,7 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
+import { RangeAdapterFunctions } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface DataValidationState {
@@ -41,22 +41,18 @@ export class DataValidationPlugin
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
-    this.adaptDVRanges(sheetId, applyChange);
-    this.adaptDVFormulas(applyChange);
+  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
+    this.adaptDVRanges(sheetId, rangeAdapters);
+    this.adaptDVFormulas(rangeAdapters);
   }
 
-  private adaptDVFormulas(applyChange: ApplyRangeChange) {
+  private adaptDVFormulas({ adaptFormulaString }: RangeAdapterFunctions) {
     for (const sheetId in this.rules) {
       const rules = this.rules[sheetId];
       for (let ruleIndex = rules.length - 1; ruleIndex >= 0; ruleIndex--) {
         const rule = this.rules[sheetId][ruleIndex];
         for (let valueIndex = 0; valueIndex < rule.criterion.values.length; valueIndex++) {
-          const value = this.getters.adaptFormulaStringDependencies(
-            sheetId,
-            rule.criterion.values[valueIndex],
-            applyChange
-          );
+          const value = adaptFormulaString(sheetId, rule.criterion.values[valueIndex]);
           this.history.update(
             "rules",
             sheetId,
@@ -71,7 +67,7 @@ export class DataValidationPlugin
     }
   }
 
-  private adaptDVRanges(sheetId: UID, applyChange: ApplyRangeChange) {
+  private adaptDVRanges(sheetId: UID, { applyChange }: RangeAdapterFunctions) {
     const rules = this.rules[sheetId];
     for (let ruleIndex = rules.length - 1; ruleIndex >= 0; ruleIndex--) {
       const rule = this.rules[sheetId][ruleIndex];

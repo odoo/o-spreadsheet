@@ -4,6 +4,7 @@ import {
   createSheet,
   deleteSheet,
   redo,
+  renameSheet,
   setCellContent,
   setFormat,
   undo,
@@ -1145,7 +1146,40 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A5").value).toEqual(42);
   });
 
-  test("references becomes invalid when sheet is deleted", () => {
+  test("references are adapted with rename sheet", () => {
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+      A3: "42",
+      A4: '=PIVOT.VALUE(1, "calculated")',
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    const sheetName = model.getters.getSheetName(sheetId);
+    addPivot(model, "A1:A2", {
+      measures: [
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: `=${sheetName}!A3`, sheetId },
+        },
+      ],
+    });
+    expect(getEvaluatedCell(model, "A4").value).toEqual(42);
+    renameSheet(model, sheetId, "MyNameIs");
+    expect(model.getters.getPivotCoreDefinition("1").measures).toEqual([
+      {
+        id: "calculated",
+        fieldName: "calculated",
+        aggregator: "sum",
+        computedBy: { formula: "=MyNameIs!A3", sheetId },
+      },
+    ]);
+    expect(getEvaluatedCell(model, "A4").value).toEqual(42);
+  });
+
+  test("reference is preserved when sheet is deleted", () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -1174,7 +1208,7 @@ describe("Pivot calculated measure", () => {
         id: "calculated",
         fieldName: "calculated",
         aggregator: "sum",
-        computedBy: { formula: "=#REF", sheetId },
+        computedBy: { formula: "=Sheet2!A3", sheetId },
       },
     ]);
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual("#REF");

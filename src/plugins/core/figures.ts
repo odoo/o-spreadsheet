@@ -1,19 +1,18 @@
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import { clip } from "../../helpers/index";
-import { AnchorOffset } from "../../types/figure";
 import {
-  ApplyRangeChange,
   CommandResult,
   CoreCommand,
   CreateFigureCommand,
   DeleteFigureCommand,
   ExcelWorkbookData,
-  Figure,
   PixelPosition,
   UID,
   UpdateFigureCommand,
   WorkbookData,
-} from "../../types/index";
+} from "../../types";
+import { AnchorOffset, Figure } from "../../types/figure";
+import { RangeAdapterFunctions } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
@@ -31,7 +30,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     for (const figure of this.getFigures(sheetId)) {
       const change = applyChange(
         this.getters.getRangeFromZone(sheetId, {
