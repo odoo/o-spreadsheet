@@ -2,12 +2,14 @@ import { _t, CellPosition, deepEquals, UID } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { toLowerCase } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { Cell } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   PivotCoreFilter,
   PivotValuesFilter,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
+import { DataFilterValue } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
 import { Popover } from "../../../popover";
@@ -49,7 +51,8 @@ export class PivotFilterEditor extends Component<Props> {
 
   filterCaption() {
     if (this.props.filter.filterType === "criterion") {
-      return "";
+      const evaluator = criterionEvaluatorRegistry.get(this.props.filter.type);
+      return `${evaluator.name} "${this.props.filter.values}"`;
     }
     const numberOfHiddenValues = this.props.filter.hiddenValues.length;
     const totalValues = this.state.values.length;
@@ -84,9 +87,6 @@ export class PivotFilterEditor extends Component<Props> {
   }
 
   private getFilterHiddenValues(cellPosition: CellPosition, props: Props): Value[] {
-    if (props.filter.filterType === "criterion") {
-      return [];
-    }
     const zonePivot = props.definition.range?.zone;
     const zoneFilter = zonePivot
       ? {
@@ -112,11 +112,19 @@ export class PivotFilterEditor extends Component<Props> {
     const addValue = (value: string) => {
       const normalizedValue = toLowerCase(value);
       if (!set.has(normalizedValue)) {
-        values.push({
-          string: value || "",
-          checked: !(props.filter as PivotValuesFilter).hiddenValues.includes(value),
-          normalizedValue,
-        });
+        if (props.filter.filterType === "criterion") {
+          values.push({
+            string: value || "",
+            checked: true,
+            normalizedValue,
+          });
+        } else {
+          values.push({
+            string: value || "",
+            checked: !(props.filter as PivotValuesFilter).hiddenValues.includes(value),
+            normalizedValue,
+          });
+        }
         set.add(normalizedValue);
       }
     };
@@ -176,14 +184,14 @@ export class PivotFilterEditor extends Component<Props> {
     this.popover.isOpen = false;
   }
 
-  updateFilterData(hiddenValues: string[]) {
+  updateFilterData(updatedCriterionValue: DataFilterValue) {
     const { filters } = this.props.definition;
     const filter = this.props.filter;
     const updatedFilters = filters.map((f) => {
       if (f.fieldName === filter.fieldName) {
         return {
           ...f,
-          hiddenValues,
+          ...updatedCriterionValue,
         };
       }
       return f;

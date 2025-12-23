@@ -174,6 +174,8 @@ export class PivotRuntimeDefinition {
       displayName: field?.name ?? filter.fieldName,
       isValid: !!field,
       filterType: "criterion",
+      type: filter.type,
+      values: filter.values,
     };
   }
 }

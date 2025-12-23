@@ -8,23 +8,23 @@ import {
   CellValueType,
   CriterionFilter,
   DataFilterValue,
-  PivotFilter,
+  PivotCoreFilter,
   SortDirection,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
-import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueListBasic } from "../filter_menu_value_list_basic/filter_menu_value_list_basic";
+import { PivotFilterMenuCriterion } from "../pivot_filter_menu_criterion/pivot_filter_menu_criterion";
 
 interface Props {
   definition: SpreadsheetPivotRuntimeDefinition;
-  filter: PivotFilter;
+  filter: PivotCoreFilter;
   filterPosition: CellPosition;
   values: Value[];
   onClosed?: () => void;
-  onConfirmed: (hiddenValues: string[]) => void;
+  onConfirmed: (updatedCriterionValue: DataFilterValue) => void;
 }
 
 interface Value {
@@ -46,7 +46,7 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onConfirmed: Function,
   };
 
-  static components = { FilterMenuValueListBasic, SidePanelCollapsible, FilterMenuCriterion };
+  static components = { FilterMenuValueListBasic, SidePanelCollapsible, PivotFilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
@@ -77,8 +77,7 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get filterValueType() {
-    const filterValue = this.env.model.getters.getFilterValue(this.props.filterPosition);
-    return filterValue?.filterType;
+    return this.props.filter.filterType;
   }
 
   private getCriterionCategory(cellPosition: CellPosition): CriterionCategory {
@@ -129,9 +128,7 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
       this.props.onClosed?.();
       return;
     }
-    if (this.updatedCriterionValue.filterType === "values") {
-      this.props.onConfirmed(this.updatedCriterionValue.hiddenValues);
-    }
+    this.props.onConfirmed(this.updatedCriterionValue);
     this.props.onClosed?.();
     return;
   }

@@ -1,7 +1,9 @@
 import { CellValue } from "./cells";
 import { Format } from "./format";
+import { DateCriterionValue } from "./generic_criterion";
 import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
+import { FilterCriterionType } from "./table";
 
 export type Aggregator =
   | "array_agg"
@@ -66,9 +68,9 @@ export interface PivotValuesFilter extends PivotFilter {
 
 export interface PivotCriterionFilter extends PivotFilter {
   filterType: "criterion";
-  // type: FilterCriterionType | "none";
-  // values: string[];
-  // dateValue?: DateCriterionValue;
+  type: FilterCriterionType | "none";
+  values: string[];
+  dateValue?: DateCriterionValue;
 }
 
 export interface CommonPivotCoreDefinition {

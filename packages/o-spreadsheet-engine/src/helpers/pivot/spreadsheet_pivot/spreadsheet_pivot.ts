@@ -1,9 +1,12 @@
 import { handleError } from "../../../functions/create_compute_function";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { toString } from "../../../functions/helpers";
+import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
+import { DEFAULT_LOCALE } from "../../../types/locale";
 import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import {
@@ -18,6 +21,7 @@ import {
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { Range } from "../../../types/range";
+import { parseLiteral } from "../../cells/cell_evaluation";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepEquals, isDefined } from "../../misc";
@@ -372,13 +376,41 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   private loadData() {
     const range = this._definition?.range;
-    let myDataEntries = this.isValid() && range ? this.extractDataEntriesFromRange(range) : [];
+    if (!range) {
+      return [];
+    }
+    const sheetId = range.sheetId;
+    let myDataEntries = this.isValid() ? this.extractDataEntriesFromRange(range) : [];
     if (this._definition && this._definition.filters.length > 0) {
       myDataEntries = myDataEntries.filter((dataEntry) => {
         for (const filter of this._definition!.filters) {
+          const temp = dataEntry[filter.fieldName];
           if (filter.filterType === "values") {
-            const temp = dataEntry[filter.fieldName];
             if (temp && filter.hiddenValues.includes(temp.formattedValue)) {
+              return false;
+            }
+          } else {
+            if (filter.type === "none") continue;
+            const evaluator = criterionEvaluatorRegistry.get(filter.type);
+
+            const evaluatedCriterionValues = filter.values.map((value) => {
+              if (!value.startsWith("=")) {
+                return parseLiteral(value, DEFAULT_LOCALE);
+              }
+              return this.getters.evaluateFormula(sheetId, value) ?? "";
+            });
+            if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
+              continue;
+            }
+            const evaluatedCriterion = {
+              type: filter.type,
+              values: evaluatedCriterionValues.map(toScalar),
+              dateValue: filter.dateValue,
+            };
+            if (
+              temp &&
+              !evaluator.isValueValid(temp.value, evaluatedCriterion, this.getters, sheetId)
+            ) {
               return false;
             }
           }
