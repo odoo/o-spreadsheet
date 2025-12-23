@@ -306,12 +306,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
-        const xc = toXC(position.col, position.row);
         if (cell.format) {
           const formatId = getItemId<Format>(cell.format, formats);
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
+        const xc = toXC(position.col, position.row);
         if (cell.content) {
           if (cell.isFormula) {
             // @ts-ignore
@@ -322,7 +322,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
-      _sheet.cells = cells;
+      _sheet.cells = squisher.squishSheet(cells);
     }
     data.formats = formats;
   }
@@ -661,6 +661,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
   readonly compiledFormula: RangeCompiledFormula;
+
   constructor(
     readonly id: UID,
     compiledFormula: InternalCompiledFormula,
