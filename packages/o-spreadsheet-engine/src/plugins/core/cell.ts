@@ -268,7 +268,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }>();
       // cells content
       const unsquisher = new Unsquisher();
-      for (const unsquishedItem of unsquisher.unsquishSheet(sheet.cells)) {
+      for (const unsquishedItem of unsquisher.unsquishSheet(
+        sheet.cells,
+        sheet.id,
+        this.getters.getSheetSize
+      )) {
         if (unsquishedItem.content || unsquishedItem.compiled) {
           const position = {
             sheetId: sheet.id,
@@ -655,7 +659,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ): FormulaCell {
     const dependencies: Range[] = [];
     for (const xc of compiledFormula.dependencies) {
-      dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      if (typeof xc === "string") dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      else dependencies.push(xc);
     }
     return new FormulaCellWithDependencies(
       id,
