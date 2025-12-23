@@ -82,6 +82,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   finalize() {}
 
+  onEvaluationComplete() {}
+
   /**
    * Return a modified adapting function that verifies that after adapting a range, the range is still valid.
    * Any range that gets adapted by the function adaptRange in parameter does so

@@ -22,6 +22,7 @@ import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
+import { EvaluationPlugin } from "./plugins/ui_core_views/cell_evaluation";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
@@ -52,6 +53,8 @@ import { getXLSX } from "./xlsx/xlsx_writer";
 
 const enum Status {
   Ready,
+  ReadyForEvaluation,
+  Evaluating,
   Running,
   RunningCore,
   Finalizing,
@@ -87,6 +90,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapter;
+  private evaluator: EvaluationPlugin;
 
   private session: Session;
 
@@ -209,6 +213,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     Object.assign(this.getters, this.coreGetters);
 
     this.session.loadInitialMessages(stateUpdateMessages);
+
+    this.evaluator = this.setupCoreViewPlugin(EvaluationPlugin) as EvaluationPlugin;
+    this.handlers.push(this.evaluator);
+    this.uiHandlers.push(this.evaluator);
+    this.coreHandlers.push(this.evaluator);
 
     for (const Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupCoreViewPlugin(Plugin);
@@ -470,13 +479,29 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return this.uiHandlers.map((handler) => handler.allowDispatch(command));
   }
 
+  private processEvaluation() {
+    this.status = Status.Evaluating;
+    this.evaluator.doTheEvaluationPlease(() => {
+      for (const h of this.handlers) {
+        h.onEvaluationComplete();
+      }
+      this.trigger("command-finalized"); //TODOPRO Should be done before evaluation ?
+      this.status = Status.Ready;
+      this.trigger("update");
+    });
+  }
+
   private finalize() {
     this.status = Status.Finalizing;
     for (const h of this.handlers) {
       h.finalize();
     }
-    this.status = Status.Ready;
-    this.trigger("command-finalized");
+    this.status = Status.ReadyForEvaluation;
+    this.processEvaluation();
+    // this.trigger("update");
+    // setTimeout(() => {
+    //   this.processEvaluation();
+    // });
   }
 
   /**

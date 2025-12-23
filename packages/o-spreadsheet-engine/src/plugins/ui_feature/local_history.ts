@@ -65,6 +65,8 @@ export class HistoryPlugin extends UIPlugin {
 
   finalize() {}
 
+  onEvaluationComplete() {}
+
   private requestHistoryChange(type: "UNDO" | "REDO") {
     const id = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();
     if (!id) {

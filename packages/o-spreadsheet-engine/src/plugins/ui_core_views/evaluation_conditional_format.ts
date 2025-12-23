@@ -57,6 +57,17 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   }
 
   finalize() {
+    //TODOPRO Deduplicate with onEvaluationComplete
+    if (this.isStale) {
+      for (const sheetId of this.getters.getSheetIds()) {
+        this.computedStyles[sheetId] = lazy(() => ({}));
+        this.computedIcons[sheetId] = lazy(() => ({}));
+        this.computedDataBars[sheetId] = lazy(() => ({}));
+      }
+    }
+  }
+
+  onEvaluationComplete() {
     if (this.isStale) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));

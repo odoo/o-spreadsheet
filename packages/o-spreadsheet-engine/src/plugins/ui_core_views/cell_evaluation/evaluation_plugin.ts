@@ -2,6 +2,7 @@ import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
+import { LongRunner } from "../../../helpers/long_runner";
 import { cellPositions, positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
@@ -160,6 +161,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "getLongRunner", //TODOPRO Pas beau
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -210,7 +212,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     }
   }
 
-  finalize() {
+  doTheEvaluationPlease(onEvaluationComplete: () => void) {
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
@@ -219,11 +221,18 @@ export class EvaluationPlugin extends CoreViewPlugin {
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
     this.positionsToUpdate = [];
+    onEvaluationComplete();
   }
+
+  finalize() {}
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  getLongRunner(): LongRunner {
+    return this.evaluator.asyncLongRunner;
+  }
 
   evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
     const result = this.evaluateFormulaResult(sheetId, formulaString);

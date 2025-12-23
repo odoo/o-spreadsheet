@@ -1092,8 +1092,8 @@ test("Clicking on a topbar button triggers two renders", async () => {
 
   await click(fixture, ".o-spreadsheet-topbar [title='Bold (Ctrl+B)']");
 
-  // two renders from the model (one from the command handling and one from the collaborative session)
-  expect(modelRender).toHaveBeenCalledTimes(2);
+  // three renders from the model (two from the command handling and one from the collaborative session)
+  expect(modelRender).toHaveBeenCalledTimes(3);
   expect(storeRender).toHaveBeenCalledTimes(0);
 });
 

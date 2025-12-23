@@ -276,7 +276,7 @@ export class SheetViewPlugin extends UIPlugin {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     for (const sheetId of this.sheetsWithDirtyViewports) {
       this.resetViewports(sheetId);
       if (this.shouldAdjustViewports) {
