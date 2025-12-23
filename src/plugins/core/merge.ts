@@ -18,7 +18,6 @@ import {
 } from "../../helpers/index";
 import {
   AddMergeCommand,
-  ApplyRangeChange,
   CellPosition,
   CommandResult,
   CoreCommand,
@@ -32,6 +31,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { RangeAdapterFunctions } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 // type SheetMergeCellMap = Record<string, number | undefined>;
@@ -122,8 +122,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
-    this.applyRangeChangeOnSheet(sheetId, applyChange);
+  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
+    this.applyRangeChangeOnSheet(sheetId, rangeAdapters);
   }
 
   // ---------------------------------------------------------------------------
@@ -474,7 +474,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   /**
    * Apply a range change on merges of a particular sheet.
    */
-  private applyRangeChangeOnSheet(sheetId: UID, applyChange: ApplyRangeChange) {
+  private applyRangeChangeOnSheet(sheetId: UID, { applyChange }: RangeAdapterFunctions) {
     const merges = Object.entries(this.merges[sheetId] || {});
     for (const [mergeId, range] of merges) {
       if (range) {

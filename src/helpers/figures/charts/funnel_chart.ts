@@ -1,13 +1,13 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import {
@@ -192,7 +192,7 @@ export class FunnelChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): FunnelChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): FunnelChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
