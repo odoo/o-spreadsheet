@@ -1,4 +1,4 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -26,15 +26,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -183,7 +175,7 @@ export class PieChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): PieChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): PieChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

@@ -4,10 +4,10 @@ import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_he
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { CommandResult, CoreCommand } from "../../types/commands";
-import { CellPosition, UID } from "../../types/misc";
+import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
-import { ApplyRangeChange, Position, RangeCompiledFormula } from "../../types/misc";
+import { Position, RangeCompiledFormula } from "../../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";
 import { WorkbookData } from "../../types/workbook_data";
@@ -141,7 +141,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const pivotId in this.pivots) {
       const definition = deepCopy(this.pivots[pivotId]?.definition);
       if (!definition) {
@@ -166,14 +166,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
             newDependencies.push(change.range);
           }
         }
-        const newFormulaString = this.getters.getFormulaString(
-          sheetId,
-          compiledFormula.tokens,
-          newDependencies
-        );
-        if (newFormulaString !== formulaString) {
-          this.replaceMeasureFormula(sheetId, formulaString, newFormulaString);
-        }
+        this.history.update("compiledMeasureFormulas", sheetId, formulaString, undefined);
+        const newFormulaString = adaptFormulaString(sheetId, formulaString);
+        this.history.update("compiledMeasureFormulas", sheetId, newFormulaString, {
+          ...compiledFormula,
+          dependencies: newDependencies,
+        });
+        this.replaceMeasureFormulaInDefinitions(sheetId, formulaString, newFormulaString);
       }
     }
   }
@@ -325,14 +324,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     };
   }
 
-  private replaceMeasureFormula(sheetId: UID, formulaString: string, newFormulaString: string) {
-    this.history.update("compiledMeasureFormulas", sheetId, formulaString, undefined);
-    this.history.update(
-      "compiledMeasureFormulas",
-      sheetId,
-      newFormulaString,
-      this.compileMeasureFormula(sheetId, newFormulaString)
-    );
+  private replaceMeasureFormulaInDefinitions(
+    sheetId: UID,
+    formulaString: string,
+    newFormulaString: string
+  ) {
     for (const pivotId in this.pivots) {
       const pivot = this.pivots[pivotId];
       if (!pivot) {
