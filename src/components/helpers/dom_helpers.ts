@@ -238,14 +238,18 @@ export function downloadFile(dataUrl: string, fileName: string) {
 }
 
 /**
- * Detects if the current browser is Firefox
+ * Detects the current browser brand and subsequent rendering engine
  */
 export function isBrowserFirefox() {
   return /Firefox/i.test(navigator.userAgent);
 }
 
+function isBrowserChrome() {
+  return /Chrome/i.test(navigator.userAgent);
+}
+
 export function isBrowserSafari() {
-  return /Safari/i.test(navigator.userAgent);
+  return !isBrowserChrome() && /Safari/i.test(navigator.userAgent);
 }
 
 // Mobile detection
