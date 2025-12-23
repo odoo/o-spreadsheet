@@ -19,7 +19,14 @@ import {
   TargetDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
-import { ApplyRangeChange, CellPosition, HeaderIndex, Merge, UID, Zone } from "../../types/misc";
+import {
+  CellPosition,
+  HeaderIndex,
+  Merge,
+  RangeAdapterFunctions,
+  UID,
+  Zone,
+} from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -111,8 +118,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
-    this.applyRangeChangeOnSheet(sheetId, applyChange);
+  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
+    this.applyRangeChangeOnSheet(sheetId, rangeAdapters);
   }
 
   // ---------------------------------------------------------------------------
@@ -454,7 +461,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   /**
    * Apply a range change on merges of a particular sheet.
    */
-  private applyRangeChangeOnSheet(sheetId: UID, applyChange: ApplyRangeChange) {
+  private applyRangeChangeOnSheet(sheetId: UID, { applyChange }: RangeAdapterFunctions) {
     const merges = Object.entries(this.merges[sheetId] || {});
     for (const [mergeId, range] of merges) {
       if (range) {
