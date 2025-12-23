@@ -1,13 +1,13 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import {
@@ -209,7 +209,7 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): PyramidChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): PyramidChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

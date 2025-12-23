@@ -11,7 +11,6 @@ import {
 } from "../../helpers/index";
 import { adjacent, overlap, splitIfAdjacent, zoneToXc } from "../../helpers/zones";
 import {
-  ApplyRangeChange,
   Border,
   BorderData,
   BorderDescr,
@@ -21,6 +20,7 @@ import {
   CoreCommand,
   ExcelWorkbookData,
   HeaderIndex,
+  RangeAdapterFunctions,
   SetBorderCommand,
   SetZoneBordersCommand,
   UID,
@@ -126,7 +126,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     const newBorders: ZoneBorder[] = [];
     for (const border of this.borders[sheetId] ?? []) {
       const change = applyChange(this.getters.getRangeFromZone(sheetId, border.zone));

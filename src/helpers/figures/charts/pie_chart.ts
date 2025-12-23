@@ -1,13 +1,13 @@
 import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import { ChartCreationContext, DataSet, ExcelChartDefinition } from "../../../types/chart/chart";
@@ -177,7 +177,7 @@ export class PieChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): PieChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): PieChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

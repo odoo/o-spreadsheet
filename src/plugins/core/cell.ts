@@ -4,6 +4,8 @@ import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   deepEquals,
+  detectDateFormat,
+  detectNumberFormat,
   isExcelCompatible,
   isNumber,
   isTextFormat,
@@ -16,21 +18,16 @@ import {
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import {
-  concat,
-  detectDateFormat,
-  detectNumberFormat,
-  isInside,
-  range,
-  replaceNewLines,
-  toCartesian,
-  toXC,
-} from "../../helpers/index";
+import { concat, range, replaceNewLines } from "../../helpers/misc";
+
+import { toCartesian, toXC } from "../../helpers/coordinates";
+import { CorePlugin } from "../core_plugin";
+
+import { isInside } from "../../helpers/zones";
+import { Cell, FormulaCell, LiteralCell } from "../../types/cells";
 import {
   AdaptSheetName,
   AddColumnsRowsCommand,
-  ApplyRangeChange,
-  Cell,
   CellPosition,
   ClearCellCommand,
   CommandResult,
@@ -39,11 +36,10 @@ import {
   DEFAULT_LOCALE,
   ExcelWorkbookData,
   Format,
-  FormulaCell,
   HeaderIndex,
-  LiteralCell,
   PositionDependentCommand,
   Range,
+  RangeAdapterFunctions,
   RangeCompiledFormula,
   RangePart,
   Style,
@@ -53,7 +49,6 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
-import { CorePlugin } from "../core_plugin";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -80,7 +75,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID, sheetName: AdaptSheetName) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {

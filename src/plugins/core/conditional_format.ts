@@ -3,7 +3,6 @@ import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../hel
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddConditionalFormatCommand,
-  ApplyRangeChange,
   CancelledReason,
   CellIsRule,
   ColorScaleMidPointThreshold,
@@ -24,6 +23,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types";
+import { RangeAdapterFunctions } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ export class ConditionalFormatPlugin
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
 
-  adaptCFFormulas(applyChange: ApplyRangeChange) {
+  adaptCFFormulas({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const sheetId in this.cfRules) {
       for (const rule of this.cfRules[sheetId]) {
         if (rule.rule.type === "DataBarRule" && rule.rule.rangeValues) {
@@ -99,7 +99,7 @@ export class ConditionalFormatPlugin
               //@ts-expect-error
               "values",
               i,
-              this.getters.adaptFormulaStringDependencies(sheetId, rule.rule.values[i], applyChange)
+              adaptFormulaString(sheetId, rule.rule.values[i])
             );
           }
         } else if (rule.rule.type === "IconSetRule") {
@@ -113,11 +113,7 @@ export class ConditionalFormatPlugin
                 //@ts-expect-error
                 inflectionPoint,
                 "value",
-                this.getters.adaptFormulaStringDependencies(
-                  sheetId,
-                  rule.rule[inflectionPoint].value,
-                  applyChange
-                )
+                adaptFormulaString(sheetId, rule.rule[inflectionPoint].value)
               );
             }
           }
@@ -133,7 +129,7 @@ export class ConditionalFormatPlugin
                 //@ts-expect-error
                 value,
                 "value",
-                this.getters.adaptFormulaStringDependencies(sheetId, ruleValue.value, applyChange)
+                adaptFormulaString(sheetId, ruleValue.value)
               );
             }
           }
@@ -142,7 +138,7 @@ export class ConditionalFormatPlugin
     }
   }
 
-  adaptCFRanges(sheetId: UID, applyChange: ApplyRangeChange) {
+  adaptCFRanges(sheetId: UID, { applyChange }: RangeAdapterFunctions) {
     for (const rule of this.cfRules[sheetId]) {
       for (const range of rule.ranges) {
         const change = applyChange(range);
@@ -180,12 +176,12 @@ export class ConditionalFormatPlugin
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.cfRules);
     for (const sheetId of sheetIds) {
-      this.adaptCFRanges(sheetId, applyChange);
+      this.adaptCFRanges(sheetId, rangeAdapters);
     }
-    this.adaptCFFormulas(applyChange);
+    this.adaptCFFormulas(rangeAdapters);
   }
 
   // ---------------------------------------------------------------------------
