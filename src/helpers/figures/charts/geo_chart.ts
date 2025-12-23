@@ -1,13 +1,13 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import { LegendPosition } from "../../../types/chart";
@@ -177,7 +177,7 @@ export class GeoChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): GeoChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): GeoChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

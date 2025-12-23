@@ -1,13 +1,13 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import {
@@ -170,7 +170,7 @@ export class ScatterChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ScatterChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): ScatterChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

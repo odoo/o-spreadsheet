@@ -4,7 +4,6 @@ import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_he
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
-  ApplyRangeChange,
   CellPosition,
   CellValue,
   CommandResult,
@@ -15,6 +14,8 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
+import { RangeAdapterFunctions } from "../../types/misc";
+
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
@@ -149,7 +150,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const pivotId in this.pivots) {
       const definition = deepCopy(this.pivots[pivotId]?.definition);
       if (!definition) {
@@ -169,18 +170,29 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           continue;
         }
         const sheetId = measure.computedBy.sheetId;
-        const compiledFormula = this.compiledMeasureFormulas[pivotId][measureId].formula;
-        const newDependencies: Range[] = [];
-        for (const range of compiledFormula.dependencies) {
-          const change = applyChange(range);
-          newDependencies.push(change.range);
-        }
-        const newFormulaString = this.getters.getFormulaString(
-          sheetId,
-          compiledFormula.tokens,
-          newDependencies
+        const { formula: compiledFormula, dependencies: indirectDependencies } =
+          this.compiledMeasureFormulas[pivotId][measureId];
+
+        // adapt direct dependencies
+        this.history.update(
+          "compiledMeasureFormulas",
+          pivotId,
+          measureId,
+          "formula",
+          "dependencies",
+          compiledFormula.dependencies.map((range) => applyChange(range).range)
+        );
+
+        // adapt all dependencies (including indirect)
+        this.history.update(
+          "compiledMeasureFormulas",
+          pivotId,
+          measure.id,
+          "dependencies",
+          indirectDependencies.map((range) => applyChange(range).range)
         );
         const oldFormulaString = measure.computedBy.formula;
+        const newFormulaString = adaptFormulaString(sheetId, oldFormulaString);
         if (newFormulaString !== oldFormulaString) {
           this.replaceMeasureFormula(pivotId, measure, newFormulaString);
         }
@@ -394,7 +406,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       formula: newFormulaString,
       sheetId: measure.computedBy!.sheetId,
     });
-    this.compileCalculatedMeasures(pivotId, pivot.definition.measures);
   }
 
   private checkSortedColumnInMeasures(definition: PivotCoreDefinition) {

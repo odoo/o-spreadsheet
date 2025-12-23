@@ -7,8 +7,6 @@ import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_mat
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
   CellValueType,
   Color,
   CommandResult,
@@ -17,6 +15,7 @@ import {
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
   Validation,
 } from "../../../types";
@@ -30,7 +29,7 @@ import {
 } from "../../../types/chart/gauge_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
-import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
+import { adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
@@ -263,19 +262,10 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  updateRanges(
-    applyChange: ApplyRangeChange,
-    sheetId: UID,
-    adaptSheetName: AdaptSheetName
-  ): GaugeChart {
+  updateRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions): GaugeChart {
     const dataRange = adaptChartRange(this.dataRange, applyChange);
 
-    const adaptFormula = (formula: string) =>
-      adaptFormulaStringRanges(this.sheetId, formula, {
-        applyChange,
-        sheetId,
-        sheetName: adaptSheetName,
-      });
+    const adaptFormula = (formula: string) => adaptFormulaString(this.sheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
     const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
     return new GaugeChart(definition, this.sheetId, this.getters);

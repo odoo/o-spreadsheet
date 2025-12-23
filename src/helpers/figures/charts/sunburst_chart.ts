@@ -1,13 +1,13 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import { SunburstChartDefinition, SunburstChartRuntime } from "../../../types/chart";
@@ -180,7 +180,7 @@ export class SunburstChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): SunburstChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): SunburstChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

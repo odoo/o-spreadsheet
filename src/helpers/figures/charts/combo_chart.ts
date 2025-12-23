@@ -1,7 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  ApplyRangeChange,
   ChartCreationContext,
   Color,
   CommandResult,
@@ -11,6 +10,7 @@ import {
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
 import { AxesDesign, CustomizedDataSet, LegendPosition } from "../../../types/chart";
@@ -166,7 +166,7 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ComboChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): ComboChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

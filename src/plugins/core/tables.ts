@@ -25,18 +25,16 @@ import {
   DynamicTable,
   ExcelWorkbookData,
   Filter,
-  Range,
   StaticTable,
   Table,
   TableConfig,
   TableData,
-  TableId,
-  UID,
   UpdateCellCommand,
   UpdateTableCommand,
   WorkbookData,
-  Zone,
 } from "../../types/index";
+import { RangeAdapterFunctions, TableId, UID, Zone } from "../../types/misc";
+import { Range } from "../../types/range";
 
 import { CorePlugin } from "../core_plugin";
 
@@ -51,7 +49,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     for (const table of this.getCoreTables(sheetId)) {
       this.applyRangeChangeOnTable(sheetId, table, applyChange);
     }
