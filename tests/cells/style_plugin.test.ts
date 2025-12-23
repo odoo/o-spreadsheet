@@ -16,7 +16,7 @@ import {
   setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellStyle } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getCellStyle, getStyle } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("styles", () => {
@@ -188,5 +188,27 @@ describe("styles", () => {
         chipIcon.margin +
         chipIcon.size
     );
+  });
+
+  test("Style is not updated if not explicitely provided in commands", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setStyle(model, "A1", { fillColor: "#fefefe" });
+
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: target("A1"),
+      style: undefined,
+    });
+    expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#fefefe" });
+
+    setStyle(model, "A1", { fillColor: "#fefefe" });
+    model.dispatch("UPDATE_CELL", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      style: undefined,
+    });
+    expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#fefefe" });
   });
 });

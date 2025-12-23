@@ -68,8 +68,8 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         }
         break;
       case "SET_FORMATTING":
-        if ("style" in cmd) {
-          if (cmd.style) {
+        if (cmd.style !== undefined) {
+          if (cmd.style !== null) {
             this.setStyles(cmd.sheetId, cmd.target, cmd.style);
           } else {
             this.clearStyle(cmd.sheetId, cmd.target);
@@ -80,8 +80,8 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         this.clearStyle(cmd.sheetId, cmd.target);
         break;
       case "UPDATE_CELL":
-        if ("style" in cmd) {
-          if (cmd.style) {
+        if (cmd.style !== undefined) {
+          if (cmd.style !== null) {
             this.setStyles(cmd.sheetId, [positionToZone(cmd)], cmd.style);
           } else {
             this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
