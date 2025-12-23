@@ -21,11 +21,12 @@ import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";
+  const deletedSheetName = "DeletedSheetName";
   const sheetId = "stillPresent";
   const deleteSheet: DeleteSheetCommand = {
     type: "DELETE_SHEET",
     sheetId: deletedSheetId,
-    sheetName: "Sheet Name",
+    sheetName: deletedSheetName,
   };
 
   const addColumns: Omit<AddColumnsRowsCommand, "sheetId"> = {
@@ -171,17 +172,26 @@ describe("OT with DELETE_SHEET", () => {
   });
 
   describe("Delete sheed with string formula dependant command", () => {
-    const deletedSheetName = "DeletedSheetName";
-
-    const cmds = getFormulaStringCommands(
+    const cmdsOnOthersheet = getFormulaStringCommands(
       sheetId,
       "=" + deletedSheetName + "!A1",
       "=" + deletedSheetName + "!A1"
     );
 
-    test.each(cmds)("%s", (cmd, expected) => {
+    test.each(cmdsOnOthersheet)("%s on other sheet", (cmd, expected) => {
       const result = transform(cmd, deleteSheet);
       expect(result).toEqual(expected);
+    });
+
+    const cmdsOnDeletedSheet = getFormulaStringCommands(
+      deletedSheetId,
+      "=" + deletedSheetName + "!A1",
+      "=" + deletedSheetName + "!A1"
+    ).filter(([cmd]) => cmd.type !== "ADD_PIVOT"); // pivot are not removed when a measure references a deleted sheet
+
+    test.each(cmdsOnDeletedSheet)("%s on deleted sheet", (cmd, expected) => {
+      const result = transform(cmd, deleteSheet);
+      expect(result).toEqual(undefined);
     });
   });
 });

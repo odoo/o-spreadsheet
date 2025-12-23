@@ -4,7 +4,6 @@ import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_he
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
-  ApplyRangeChange,
   CellPosition,
   CommandResult,
   CoreCommand,
@@ -14,6 +13,8 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
+import { RangeAdapterFunctions } from "../../types/misc";
+
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
@@ -145,7 +146,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const pivotId in this.pivots) {
       const definition = deepCopy(this.pivots[pivotId]?.definition);
       if (!definition) {
@@ -166,14 +167,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           const change = applyChange(range);
           newDependencies.push(change.range);
         }
-        const newFormulaString = this.getters.getFormulaString(
-          sheetId,
-          compiledFormula.tokens,
-          newDependencies
-        );
-        if (newFormulaString !== formulaString) {
-          this.replaceMeasureFormula(sheetId, formulaString, newFormulaString);
-        }
+        this.history.update("compiledMeasureFormulas", sheetId, formulaString, undefined);
+        const newFormulaString = adaptFormulaString(sheetId, formulaString);
+        this.history.update("compiledMeasureFormulas", sheetId, newFormulaString, {
+          ...compiledFormula,
+          dependencies: newDependencies,
+        });
+        this.replaceMeasureFormulaInDefinitions(sheetId, formulaString, newFormulaString);
       }
     }
   }
@@ -328,14 +328,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     };
   }
 
-  private replaceMeasureFormula(sheetId: UID, formulaString: string, newFormulaString: string) {
-    this.history.update("compiledMeasureFormulas", sheetId, formulaString, undefined);
-    this.history.update(
-      "compiledMeasureFormulas",
-      sheetId,
-      newFormulaString,
-      this.compileMeasureFormula(sheetId, newFormulaString)
-    );
+  private replaceMeasureFormulaInDefinitions(
+    sheetId: UID,
+    formulaString: string,
+    newFormulaString: string
+  ) {
     for (const pivotId in this.pivots) {
       const pivot = this.pivots[pivotId];
       if (!pivot) {
