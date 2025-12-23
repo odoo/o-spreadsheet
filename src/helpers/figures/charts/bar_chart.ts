@@ -1,4 +1,4 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -30,7 +30,7 @@ import {
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
-import { ApplyRangeChange, Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
@@ -205,7 +205,7 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): BarChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): BarChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

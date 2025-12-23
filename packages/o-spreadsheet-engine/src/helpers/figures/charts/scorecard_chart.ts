@@ -19,7 +19,7 @@ import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import { ApplyRangeChange, Color, RangeAdapter, UID } from "../../../types/misc";
+import { Color, RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
@@ -288,7 +288,7 @@ export class ScorecardChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ScorecardChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): ScorecardChart {
     const baseline = adaptChartRange(this.baseline, applyChange);
     const keyValue = adaptChartRange(this.keyValue, applyChange);
     if (this.baseline === baseline && this.keyValue === keyValue) {

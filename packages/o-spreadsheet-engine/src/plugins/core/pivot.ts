@@ -4,10 +4,10 @@ import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_he
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { CommandResult, CoreCommand } from "../../types/commands";
-import { CellPosition, UID } from "../../types/misc";
+import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
-import { ApplyRangeChange, Position, RangeCompiledFormula } from "../../types/misc";
+import { Position, RangeCompiledFormula } from "../../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";
 import { WorkbookData } from "../../types/workbook_data";
@@ -147,7 +147,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const pivotId in this.pivots) {
       const definition = deepCopy(this.pivots[pivotId]?.definition);
       if (!definition) {
