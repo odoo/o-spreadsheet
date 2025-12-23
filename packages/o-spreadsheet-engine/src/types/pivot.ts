@@ -53,7 +53,6 @@ export interface PivotCoreMeasure {
 
 export interface PivotCoreFilter {
   fieldName: string;
-  numberOfValues: number;
   hiddenValues: CellValue[];
 }
 

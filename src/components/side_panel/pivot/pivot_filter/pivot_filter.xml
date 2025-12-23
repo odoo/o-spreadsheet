@@ -15,6 +15,7 @@
             definition="props.definition"
             filter="props.filter"
             filterPosition="filterPosition(filter)"
+            values="state.values"
             onClosed.bind="closeMenuFilter"
             onConfirmed.bind="updateFilterData"
           />

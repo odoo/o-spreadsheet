@@ -166,7 +166,6 @@ export class PivotRuntimeDefinition {
       fieldName: filter.fieldName,
       type: field?.type ?? "integer",
       isValid: !!field,
-      numberOfValues: filter.numberOfValues,
       hiddenValues: filter.hiddenValues,
     };
   }

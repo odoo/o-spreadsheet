@@ -16,14 +16,21 @@ import {
 } from "../../../types";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
-import { PivotFilterMenuValueList } from "../pivot_filter_menu_value_list/pivot_filter_menu_value_list";
+import { FilterMenuValueListBasic } from "../filter_menu_value_list_basic/filter_menu_value_list_basic";
 
 interface Props {
   definition: SpreadsheetPivotRuntimeDefinition;
   filter: PivotFilter;
   filterPosition: CellPosition;
+  values: Value[];
   onClosed?: () => void;
   onConfirmed: (hiddenValues: string[]) => void;
+}
+
+interface Value {
+  checked: boolean;
+  string: string;
+  scrolledTo?: "top" | "bottom" | undefined;
 }
 
 type CriterionCategory = "text" | "number" | "date";
@@ -34,11 +41,12 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
     definition: Object,
     filter: Object,
     filterPosition: Object,
+    values: Object,
     onClosed: { type: Function, optional: true },
     onConfirmed: Function,
   };
 
-  static components = { PivotFilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
+  static components = { FilterMenuValueListBasic, SidePanelCollapsible, FilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;

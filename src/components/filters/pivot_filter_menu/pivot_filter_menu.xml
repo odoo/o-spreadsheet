@@ -19,10 +19,8 @@
           isInitiallyCollapsed="filterValueType === 'criterion'"
           title.translate="Filter by values">
           <t t-set-slot="content">
-            <PivotFilterMenuValueList
-              definition="props.definition"
-              filter="props.filter"
-              filterPosition="props.filterPosition"
+            <FilterMenuValueListBasic
+              values="props.values"
               onUpdateHiddenValues.bind="onUpdateHiddenValues"
             />
           </t>

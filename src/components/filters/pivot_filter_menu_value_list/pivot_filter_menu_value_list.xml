@@ -1,8 +1,0 @@
-<templates>
-  <t t-name="o-spreadsheet-PivotFilterMenuValueList">
-    <FilterMenuValueListBasic
-      values="state.values"
-      onUpdateHiddenValues.bind="props.onUpdateHiddenValues"
-    />
-  </t>
-</templates>

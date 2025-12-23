@@ -123,7 +123,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   addFilter(fieldName: string) {
     const { filters }: { filters: PivotCoreFilter[] } = this.definition;
     this.onFiltersUpdated({
-      filters: filters.concat([{ fieldName: fieldName, hiddenValues: [], numberOfValues: 0 }]),
+      filters: filters.concat([{ fieldName: fieldName, hiddenValues: [] }]),
     });
   }
 }
