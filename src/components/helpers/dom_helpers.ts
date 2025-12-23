@@ -3,6 +3,18 @@ import { DOMCoordinates, Rect } from "@odoo/o-spreadsheet-engine/types/rendering
 
 const macRegex = /Mac/i;
 
+let zoomCssDoesNotAffectBoundingRect = false;
+
+function defineZoomCssImpactOnBoundingRect() {
+  const div = document.createElement("div");
+  div.setAttribute("style", `width:10px;height:1px;zoom:2;position:absolute;z-index:-10000`);
+  document.body.appendChild(div);
+  zoomCssDoesNotAffectBoundingRect = div.getBoundingClientRect().width !== 20;
+  document.body.removeChild(div);
+}
+
+defineZoomCssImpactOnBoundingRect();
+
 const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
 
 /**
@@ -31,11 +43,11 @@ export function zoomCorrectedElementRect(el: Element, zoomLevel: number): Rect {
   if (zoomedElement) {
     targetEl = zoomedElement;
     // FIXME
-    // Safari messes up the computation of getBoundingClientRect on elements subjected to a zoom
+    // Some navigators, like Safari, mess up the computation of getBoundingClientRect on elements subjected to a zoom CSS property.
     // See https://bugs.webkit.org/show_bug.cgi?id=77998
     // The issue is supposedly fixed in webkit https://github.com/WebKit/WebKit/pull/52333
     // we should monitor this and remove the workaround when Safari is fixed
-    zoom = isBrowserSafari() ? zoomLevel : 1;
+    zoom = zoomCssDoesNotAffectBoundingRect ? zoomLevel : 1;
   } else {
     targetEl = el;
   }
@@ -238,14 +250,10 @@ export function downloadFile(dataUrl: string, fileName: string) {
 }
 
 /**
- * Detects if the current browser is Firefox
+ * Detects the current browser brand and subsequent rendering engine
  */
 export function isBrowserFirefox() {
   return /Firefox/i.test(navigator.userAgent);
-}
-
-export function isBrowserSafari() {
-  return /Safari/i.test(navigator.userAgent);
 }
 
 // Mobile detection
