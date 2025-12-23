@@ -1,4 +1,4 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -28,15 +28,7 @@ import {
   WaterfallChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -213,7 +205,7 @@ export class WaterfallChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): WaterfallChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): WaterfallChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

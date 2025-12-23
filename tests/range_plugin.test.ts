@@ -1,7 +1,7 @@
 import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CorePlugin, coreTypes, Model } from "../src";
 import { duplicateRangeInDuplicatedSheet } from "../src/helpers";
-import { ApplyRangeChange, CellErrorType, Command, Range } from "../src/types";
+import { CellErrorType, Command, Range, RangeAdapterFunctions } from "../src/types";
 import {
   addColumns,
   addRows,
@@ -38,7 +38,7 @@ class PluginTestRange extends CorePlugin {
 
   ranges: Range[] = [];
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions) {
     for (let i = 0; i < this.ranges.length; i++) {
       const range = this.ranges[i];
       const change = applyChange(range);
