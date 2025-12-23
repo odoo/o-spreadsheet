@@ -51,9 +51,24 @@ export interface PivotCoreMeasure {
   display?: PivotMeasureDisplay;
 }
 
-export interface PivotCoreFilter {
+export type PivotCoreFilter = PivotValuesFilter | PivotCriterionFilter;
+
+export interface PivotFilter {
   fieldName: string;
+  displayName: string;
+  isValid: boolean;
+}
+
+export interface PivotValuesFilter extends PivotFilter {
+  filterType: "values";
   hiddenValues: CellValue[];
+}
+
+export interface PivotCriterionFilter extends PivotFilter {
+  filterType: "criterion";
+  // type: FilterCriterionType | "none";
+  // values: string[];
+  // dateValue?: DateCriterionValue;
 }
 
 export interface CommonPivotCoreDefinition {
@@ -129,12 +144,6 @@ export interface PivotMeasure extends PivotCoreMeasure {
 
 export interface PivotDimension extends PivotCoreDimension {
   nameWithGranularity: string;
-  displayName: string;
-  type: string;
-  isValid: boolean;
-}
-
-export interface PivotFilter extends PivotCoreFilter {
   displayName: string;
   type: string;
   isValid: boolean;

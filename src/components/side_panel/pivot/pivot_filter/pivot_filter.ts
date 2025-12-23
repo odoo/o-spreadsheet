@@ -4,7 +4,8 @@ import { toLowerCase } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { Cell } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
-  PivotFilter,
+  PivotCoreFilter,
+  PivotValuesFilter,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
@@ -14,7 +15,7 @@ import { PivotDimension } from "../pivot_layout_configurator/pivot_dimension/piv
 
 interface Props {
   definition: SpreadsheetPivotRuntimeDefinition;
-  filter: PivotFilter;
+  filter: PivotCoreFilter;
   onFiltersUpdated: (definition: Partial<SpreadsheetPivotCoreDefinition>) => void;
 }
 
@@ -47,6 +48,9 @@ export class PivotFilterEditor extends Component<Props> {
   private popover = useState({ isOpen: false });
 
   filterCaption() {
+    if (this.props.filter.filterType === "criterion") {
+      return "";
+    }
     const numberOfHiddenValues = this.props.filter.hiddenValues.length;
     const totalValues = this.state.values.length;
     const numberOfShownValues = totalValues - numberOfHiddenValues;
@@ -80,6 +84,9 @@ export class PivotFilterEditor extends Component<Props> {
   }
 
   private getFilterHiddenValues(cellPosition: CellPosition, props: Props): Value[] {
+    if (props.filter.filterType === "criterion") {
+      return [];
+    }
     const zonePivot = props.definition.range?.zone;
     const zoneFilter = zonePivot
       ? {
@@ -107,7 +114,7 @@ export class PivotFilterEditor extends Component<Props> {
       if (!set.has(normalizedValue)) {
         values.push({
           string: value || "",
-          checked: !props.filter.hiddenValues.includes(value),
+          checked: !(props.filter as PivotValuesFilter).hiddenValues.includes(value),
           normalizedValue,
         });
         set.add(normalizedValue);
@@ -135,7 +142,7 @@ export class PivotFilterEditor extends Component<Props> {
     return this.env.model.getters.getCell(position);
   }
 
-  filterPosition(filter: PivotFilter): CellPosition {
+  filterPosition(filter: PivotCoreFilter): CellPosition {
     if (!this.props.definition.range) {
       throw new Error("No range defined for the pivot");
     }
@@ -154,7 +161,7 @@ export class PivotFilterEditor extends Component<Props> {
     throw new Error("No position found for the filter " + filter.displayName);
   }
 
-  removeFilter(filter: PivotFilter) {
+  removeFilter(filter: PivotCoreFilter) {
     const { filters } = this.props.definition;
     this.props.onFiltersUpdated({
       filters: filters.filter((f) => f.fieldName !== filter.fieldName),

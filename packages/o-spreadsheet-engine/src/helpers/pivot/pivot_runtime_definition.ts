@@ -9,7 +9,6 @@ import {
   PivotCustomGroupedField,
   PivotDimension,
   PivotFields,
-  PivotFilter,
   PivotMeasure,
   PivotSortedColumn,
 } from "../../types/pivot";
@@ -24,7 +23,7 @@ export class PivotRuntimeDefinition {
   readonly measures: PivotMeasure[];
   readonly columns: PivotDimension[];
   readonly rows: PivotDimension[];
-  readonly filters: PivotFilter[];
+  readonly filters: PivotCoreFilter[];
   readonly sortedColumn?: PivotSortedColumn;
   readonly collapsedDomains?: PivotCollapsedDomains;
   readonly customFields?: Record<string, PivotCustomGroupedField>;
@@ -159,14 +158,22 @@ export class PivotRuntimeDefinition {
     };
   }
 
-  private createPivotFilter(fields: PivotFields, filter: PivotCoreFilter): PivotFilter {
+  private createPivotFilter(fields: PivotFields, filter: PivotCoreFilter): PivotCoreFilter {
     const field = fields[filter.fieldName];
+    if (filter.filterType === "values") {
+      return {
+        fieldName: filter.fieldName,
+        displayName: field?.name ?? filter.fieldName,
+        isValid: !!field,
+        filterType: "values",
+        hiddenValues: filter.hiddenValues,
+      };
+    }
     return {
-      displayName: field?.name ?? filter.fieldName,
       fieldName: filter.fieldName,
-      type: field?.type ?? "integer",
+      displayName: field?.name ?? filter.fieldName,
       isValid: !!field,
-      hiddenValues: filter.hiddenValues,
+      filterType: "criterion",
     };
   }
 }

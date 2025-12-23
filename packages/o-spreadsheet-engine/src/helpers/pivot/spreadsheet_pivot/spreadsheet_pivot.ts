@@ -376,9 +376,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (this._definition && this._definition.filters.length > 0) {
       myDataEntries = myDataEntries.filter((dataEntry) => {
         for (const filter of this._definition!.filters) {
-          const temp = dataEntry[filter.fieldName];
-          if (temp && filter.hiddenValues.includes(temp.formattedValue)) {
-            return false;
+          if (filter.filterType === "values") {
+            const temp = dataEntry[filter.fieldName];
+            if (temp && filter.hiddenValues.includes(temp.formattedValue)) {
+              return false;
+            }
           }
         }
         return true;
