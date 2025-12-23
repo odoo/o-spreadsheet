@@ -481,12 +481,16 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private processEvaluation() {
     this.status = Status.Evaluating;
+    const old = this.getters.isReadonly;
+    this.getters.isReadonly = () => { debugger; return true };
+    this.trigger("update"); 
     this.evaluator.doTheEvaluationPlease(() => {
       for (const h of this.handlers) {
         h.onEvaluationComplete();
       }
       this.trigger("command-finalized"); //TODOPRO Should be done before evaluation ?
       this.status = Status.Ready;
+      this.getters.isReadonly = old;
       this.trigger("update");
     });
   }

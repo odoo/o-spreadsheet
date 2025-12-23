@@ -1261,16 +1261,3 @@ export const FORMULATEXT = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
-
-export const A_SUPER_LONG_FORMULA = {
-  description: _t("Returns a formula as a string."),
-  args: [],
-  compute: function () {
-    const y: number[] = [0];
-    for (let i = 0; i < 1e7; i++) {
-      y.push(y[i]);
-    }
-    return y.length;
-  },
-  isExported: true,
-} satisfies AddFunctionDescription;

@@ -172,6 +172,8 @@ export class EvaluationPlugin extends CoreViewPlugin {
   constructor(config: CoreViewPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
+    //@ts-ignore TODOPRO Au secours
+    config.evaluator = this.evaluator;
   }
 
   // ---------------------------------------------------------------------------
