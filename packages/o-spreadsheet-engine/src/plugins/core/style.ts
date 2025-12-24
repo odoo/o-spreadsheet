@@ -82,7 +82,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       case "UPDATE_CELL":
         if (cmd.style !== undefined) {
           if (cmd.style !== null) {
-            this.setStyles(cmd.sheetId, [positionToZone(cmd)], cmd.style);
+            this.setStyles(cmd.sheetId, [positionToZone(cmd)], cmd.style, { force: true });
           } else {
             this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
           }
@@ -189,7 +189,10 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   private removeDefaultStyleValues(style: Style | undefined): Style | undefined {
     const cleanedStyle = { ...style };
     for (const property in style) {
-      if (cleanedStyle[property] === DEFAULT_STYLE_NO_ALIGN[property]) {
+      if (
+        cleanedStyle[property] === undefined ||
+        cleanedStyle[property] === DEFAULT_STYLE_NO_ALIGN[property]
+      ) {
         delete cleanedStyle[property];
       }
     }

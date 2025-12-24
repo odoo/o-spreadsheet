@@ -200,7 +200,7 @@ describe("styles", () => {
       target: target("A1"),
       style: undefined,
     });
-    expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#fefefe" });
+    expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
 
     setStyle(model, "A1", { fillColor: "#fefefe" });
     model.dispatch("UPDATE_CELL", {
@@ -209,6 +209,20 @@ describe("styles", () => {
       row: 0,
       style: undefined,
     });
-    expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#fefefe" });
+    expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
+  });
+
+  test("Style is overwritten through an UPDATE_CELL command", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setStyle(model, "A1", { fillColor: "#fefefe", bold: true });
+
+    model.dispatch("UPDATE_CELL", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      style: { fillColor: "#123456" },
+    });
+    expect(getStyle(model, "A1")).toEqual({ fillColor: "#123456" });
   });
 });
