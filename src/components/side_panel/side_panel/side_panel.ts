@@ -1,6 +1,6 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
+import { Component, onMounted, useRef } from "@odoo/owl";
 import { SidePanelContent } from "../../../registries/side_panel_registry";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { SidePanelComponentProps } from "./side_panel_store";
@@ -31,6 +31,14 @@ export class SidePanel extends Component<SidePanelProps, SpreadsheetChildEnv> {
     isCollapsed: { type: Boolean, optional: true },
   };
   spreadsheetRect = useSpreadsheetRect();
+  bodyRef = useRef("body");
+  setup() {
+    onMounted(() => {
+      if (!this.bodyRef.el?.contains(document.activeElement)) {
+        this.bodyRef.el?.focus();
+      }
+    });
+  }
 
   getTitle() {
     const panel = this.props.panelContent;
@@ -41,5 +49,12 @@ export class SidePanel extends Component<SidePanelProps, SpreadsheetChildEnv> {
 
   get pinInfoMessage() {
     return _t("Pin this panel to allow to open another side panel beside it.");
+  }
+
+  onPanelKeydown(ev: KeyboardEvent) {
+    if (ev.key === "Escape") {
+      ev.stopPropagation();
+      this.props.onCloseSidePanel();
+    }
   }
 }

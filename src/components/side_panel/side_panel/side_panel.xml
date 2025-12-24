@@ -15,19 +15,21 @@
           <i class="fa fa-angle-double-right"/>
         </div>
         <div class="o-sidePanelTitle o-fw-bold ms-2" t-esc="getTitle()"/>
-        <div
+        <button
           t-if="props.onTogglePinPanel"
           class="o-pin-panel o-sidePanelAction ms-auto rounded"
           t-att-class="{'active': props.isPinned}"
           t-on-click="props.onTogglePinPanel"
           t-att-title="pinInfoMessage">
           <i class="fa fa-thumb-tack"/>
-        </div>
-        <div class="o-sidePanelClose o-sidePanelAction rounded" t-on-click="props.onCloseSidePanel">
+        </button>
+        <button
+          class="o-sidePanelClose o-sidePanelAction rounded"
+          t-on-click="props.onCloseSidePanel">
           ✕
-        </div>
+        </button>
       </div>
-      <div class="o-sidePanelBody-container d-flex flex-grow-1 ">
+      <div class="o-sidePanelBody-container d-flex flex-grow-1">
         <div class="o-sidePanel-handle-container">
           <div
             class="o-sidePanel-handle"
@@ -36,7 +38,7 @@
             <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
           </div>
         </div>
-        <div class="o-sidePanelBody">
+        <div class="o-sidePanelBody" tabindex="-1" t-ref="body" t-on-keydown.self="onPanelKeydown">
           <t
             t-component="props.panelContent.Body"
             t-props="props.panelProps"

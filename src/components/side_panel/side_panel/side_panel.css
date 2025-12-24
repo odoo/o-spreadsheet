@@ -23,17 +23,24 @@
     .o-sidePanelAction {
       padding: 5px 10px;
       cursor: pointer;
+      border: none;
+      background-color: transparent;
       &.active {
         background-color: var(--os-button-active-bg);
       }
-      &:hover {
+      &:hover,
+      &:focus {
         background-color: var(--os-button-hover-bg);
+      }
+      &:focus-visible {
+        outline: none;
       }
     }
     .o-sidePanelBody-container {
       min-height: 0;
     }
     .o-sidePanelBody {
+      outline: none;
       overflow: auto;
       width: 100%;
       height: 100%;
