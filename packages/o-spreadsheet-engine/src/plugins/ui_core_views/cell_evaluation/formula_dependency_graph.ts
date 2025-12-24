@@ -6,6 +6,16 @@ import { DependenciesRTree } from "./dependencies_r_tree";
 import { RTreeBoundingBox, RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 
+interface RTreeItemFormula extends BoundedRange {
+  type: "FORMULA";
+}
+
+interface RTreeMisc {
+  type: "MISC";
+}
+
+type RTreeItemData = RTreeItemFormula | RTreeMisc;
+
 /**
  * Implementation of a dependency Graph.
  * The graph is used to evaluate the cells in the correct
@@ -14,10 +24,10 @@ import { RangeSet } from "./range_set";
  * It uses an R-Tree data structure to efficiently find dependent cells.
  */
 export class FormulaDependencyGraph {
-  private readonly dependencies: PositionMap<RTreeItem<BoundedRange>[]> = new PositionMap();
+  private readonly dependencies: PositionMap<RTreeItem<RTreeItemData>[]> = new PositionMap();
   private readonly rTree: DependenciesRTree;
 
-  constructor(data: RTreeItem<BoundedRange>[] = []) {
+  constructor(data: RTreeItem<RTreeItemData>[] = []) {
     this.rTree = new DependenciesRTree(data);
   }
 

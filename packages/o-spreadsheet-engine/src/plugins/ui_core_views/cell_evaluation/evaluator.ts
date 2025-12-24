@@ -189,7 +189,7 @@ export class Evaluator {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
-      const rTreeItems: RTreeItem<BoundedRange>[] = [];
+      const rTreeItems: RTreeItem<RTreeItemData>[] = [];
       for (const sheetId of this.getters.getSheetIds()) {
         const cells = this.getters.getCells(sheetId);
         for (const cellId in cells) {
@@ -202,6 +202,7 @@ export class Evaluator {
               }
               rTreeItems.push({
                 data: {
+                  type: "FORMULA",
                   sheetId,
                   zone: positionToZone(this.getters.getCellPosition(cellId)),
                 },
