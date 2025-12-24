@@ -307,6 +307,20 @@ describe("Multi users synchronisation", () => {
     });
   });
 
+  test("clear a cell style through UPDATE_CELL", () => {
+    setStyle(alice, "A1", { fillColor: "#fefefe", underline: true });
+    alice.dispatch("UPDATE_CELL", {
+      sheetId: alice.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      style: { underline: undefined },
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellStyle(user, "A1"),
+      undefined
+    );
+  });
+
   test("Merge a cell and update a cell concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     setCellContent(bob, "C1", "hello");
