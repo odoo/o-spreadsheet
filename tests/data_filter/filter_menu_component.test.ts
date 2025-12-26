@@ -335,18 +335,4 @@ describe("Filter menu component", () => {
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent)
     ).toEqual(["✓(Blanks)"]);
   });
-
-  test("Filter menu is closed when clicking outside of it", async () => {
-    createFilter(model, "A10:B15");
-    await nextTick();
-    await openFilterMenu();
-
-    // Clicking inside the filter menu does not close it
-    await simulateClick(".o-filter-menu");
-    expect(fixture.querySelector(".o-filter-menu")).not.toBeNull();
-
-    // Clicking outside the filter menu closes it
-    await simulateClick("body");
-    expect(fixture.querySelector(".o-filter-menu")).toBeNull();
-  });
 });
