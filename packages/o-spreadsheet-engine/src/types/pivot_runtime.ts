@@ -26,6 +26,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   getPivotHeaderValueAndFormat(domain: PivotDomain): FunctionResultObject;
   getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject;
   getPivotMeasureValue(measure: string, domain: PivotDomain): FunctionResultObject;
+  getPivotRowGroupName(groupByIndex: number): FunctionResultObject;
 
   getMeasure: (id: string) => PivotMeasure;
 

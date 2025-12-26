@@ -55,6 +55,16 @@
               />
             </div>
           </div>
+          <div class="row mb-2 align-items-center">
+            <div class="col-6">Use tabular form:</div>
+            <div class="col-6 d-flex align-items-center">
+              <Checkbox
+                name="'tabularForm'"
+                value="pivotStyle.tabularForm ?? defaultStyle.tabularForm"
+                onChange="(val) => this.updatePivotStyleProperty('tabularForm', val)"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </Section>
