@@ -42,19 +42,18 @@ export class PivotFilterMenuCriterion extends Component<Props, SpreadsheetChildE
   setup() {
     onWillUpdateProps((nextProps: Props) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.criterion = this.getFilterCriterionValue(nextProps.filterPosition);
+        this.state.criterion = this.getFilterCriterionValue();
       }
     });
 
     this.state = useState({
-      criterion: this.getFilterCriterionValue(this.props.filterPosition),
+      criterion: this.getFilterCriterionValue(),
     });
   }
 
-  private getFilterCriterionValue(cellPosition: CellPosition): CriterionFilter {
-    const filterValue = this.env.model.getters.getFilterCriterionValue(cellPosition);
-    return filterValue?.filterType === "criterion"
-      ? deepCopy(filterValue)
+  private getFilterCriterionValue(): CriterionFilter {
+    return this.props.filter.filterType === "criterion"
+      ? deepCopy(this.props.filter)
       : { filterType: "criterion", type: "none", values: [] };
   }
 
