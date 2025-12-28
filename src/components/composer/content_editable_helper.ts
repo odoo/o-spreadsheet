@@ -103,7 +103,11 @@ export class ContentEditableHelper {
     if (current.value) {
       return { node: current.value, offset: usedCharacters };
     }
-    return { node: previous, offset: usedCharacters };
+    if (previous.tagName !== "BR") {
+      return { node: previous, offset: usedCharacters };
+    } else {
+      return { node: this.el, offset: this.el.childNodes.length };
+    }
   }
 
   /**
@@ -118,90 +122,66 @@ export class ContentEditableHelper {
    *
    * [1] https://developer.mozilla.org/en-US/docs/Glossary/Input_method_editor
    */
-  setText(contents: HtmlContent[][]) {
+  setText(contentInLines: HtmlContent[][]) {
+    const contents: HtmlContent[] = [];
+    for (let i = 0; i < contentInLines.length; i++) {
+      const line = contentInLines[i];
+      contents.push(...line, { value: NEWLINE });
+    }
+    // contents.pop(); // remove last NEWLINE added
+
     if (contents.length === 0) {
       this.removeAll();
       return;
     }
 
     const childElements = Array.from(this.el.childNodes);
+    const childrenLength = childElements.length;
     const contentLength = contents.length;
 
     for (let i = 0; i < contentLength; i++) {
-      const line = contents[i];
-      const childElement = childElements[i];
+      const content = contents[i];
+      const child = childElements[i];
 
-      let newChild = false;
-      let p: HTMLParagraphElement;
-      if (childElement && childElement.nodeName === "P") {
-        p = childElement as HTMLParagraphElement;
-      } else {
-        newChild = true;
-        p = document.createElement("p");
+      const childIsSpan = child && "tagName" in child && child.tagName === "SPAN";
+      if (childIsSpan && compareContentToSpanElement(content, child as HTMLSpanElement)) {
+        continue;
+      }
+      if (
+        (child && "tagName" in child && child.tagName === "SPAN" && content.value === NEWLINE) ||
+        (content.value === "" && content.classes?.length === 0)
+      ) {
+        continue;
       }
 
-      const lineLength = line.length;
-      const existingChildren = Array.from(p.childNodes);
-
-      for (let j = 0; j < lineLength; j++) {
-        const content = line[j];
-        const child = existingChildren[j];
-        // child nodes can be multiple types of nodes: Span, Text, Div, etc...
-        // We can only modify a node in place if it has the same type as the content
-        // that we would insert, which are spans.
-        // Otherwise, it means that the node has been input by the user, through the keyboard or a copy/paste
-        const childIsSpan = child && "tagName" in child && child.tagName === "SPAN";
-        if (childIsSpan && compareContentToSpanElement(content, child as HTMLSpanElement)) {
-          continue;
-        }
-        // this is an empty line in the content
-        if (!content.value && !content.classes?.length) {
-          if (child) p.removeChild(child);
-          continue;
-        }
-        const span = document.createElement("span");
-        span.innerText = content.value;
-        span.style.color = content.color || "";
+      let newElement: HTMLElement;
+      if (content.value === NEWLINE || (content.value === "" && content.classes?.length === 0)) {
+        newElement = document.createElement("span");
+        newElement.innerText = content.value;
+      } else {
+        newElement = document.createElement("span");
+        newElement.innerText = content.value;
+        newElement.style.color = content.color || "";
         if (content.opacity !== undefined && content.opacity !== 1) {
-          span.style.opacity = content.opacity.toString();
+          newElement.style.opacity = content.opacity.toString();
         }
-        span.addEventListener("mousemove", () => {
-          content.onHover?.(getBoundingRectAsPOJO(span));
+        newElement.addEventListener("mousemove", () => {
+          content.onHover?.(getBoundingRectAsPOJO(newElement));
         });
-        span.addEventListener("mouseleave", () => {
+        newElement.addEventListener("mouseleave", () => {
           content.onStopHover?.();
         });
-        span.classList.add(...(content.classes || []));
-
-        if (child) {
-          p.replaceChild(span, child);
-        } else {
-          p.appendChild(span);
-        }
+        newElement.classList.add(...(content.classes || []));
       }
-
-      if (existingChildren.length > lineLength) {
-        for (let i = lineLength; i < existingChildren.length; i++) {
-          p.removeChild(existingChildren[i]);
-        }
-      }
-
-      // Empty line
-      if (!p.hasChildNodes()) {
-        p.appendChild(document.createElement("span"));
-      }
-
-      // replace p if necessary
-      if (newChild) {
-        if (childElement) {
-          this.el.replaceChild(p, childElement);
-        } else {
-          this.el.appendChild(p);
-        }
+      if (child) {
+        this.el.replaceChild(newElement, child);
+      } else {
+        this.el.appendChild(newElement);
       }
     }
-    if (childElements.length > contentLength) {
-      for (let i = contentLength; i < childElements.length; i++) {
+
+    if (childrenLength > contentLength) {
+      for (let i = contentLength; i < childrenLength; i++) {
         this.el.removeChild(childElements[i]);
       }
     }
@@ -263,6 +243,7 @@ export class ContentEditableHelper {
       }
     }
     return text;
+    return text.substring(0, text.length - 1);
   }
 }
 
