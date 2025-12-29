@@ -74,10 +74,12 @@ export class PivotFilterEditor extends Component<Props> {
     });
     onWillUpdateProps((nextProps: Props) => {
       if (!deepEquals(nextProps.filter, this.props.filter)) {
-        this.state.values = this.getFilterHiddenValues(
-          this.filterPosition(nextProps.filter),
-          nextProps
-        );
+        const nextPosition = this.filterPosition(nextProps.filter);
+        if (nextPosition) {
+          this.state.values = this.getFilterHiddenValues(nextPosition, nextProps);
+        } else {
+          this.props.filter.isValid = false;
+        }
       }
     });
     this.state.values = this.getFilterHiddenValues(
@@ -86,7 +88,10 @@ export class PivotFilterEditor extends Component<Props> {
     );
   }
 
-  private getFilterHiddenValues(cellPosition: CellPosition, props: Props): Value[] {
+  private getFilterHiddenValues(cellPosition: CellPosition | undefined, props: Props): Value[] {
+    if (!cellPosition) {
+      return [];
+    }
     const zonePivot = props.definition.range?.zone;
     const zoneFilter = zonePivot
       ? {
@@ -150,7 +155,7 @@ export class PivotFilterEditor extends Component<Props> {
     return this.env.model.getters.getCell(position);
   }
 
-  filterPosition(filter: PivotFilter): CellPosition {
+  filterPosition(filter: PivotFilter): CellPosition | undefined {
     if (!this.props.definition.range) {
       throw new Error("No range defined for the pivot");
     }
@@ -166,7 +171,7 @@ export class PivotFilterEditor extends Component<Props> {
         }
       }
     }
-    throw new Error("No position found for the filter " + filter.displayName);
+    return;
   }
 
   removeFilter(filter: PivotFilter) {
