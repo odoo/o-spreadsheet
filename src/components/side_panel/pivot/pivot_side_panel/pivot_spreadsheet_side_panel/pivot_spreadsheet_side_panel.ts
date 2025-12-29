@@ -1,7 +1,7 @@
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import {
-  PivotCoreFilter,
+  PivotFilter,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -121,7 +121,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   }
 
   addFilter(fieldName: string) {
-    const { filters }: { filters: PivotCoreFilter[] } = this.definition;
+    const { filters }: { filters: PivotFilter[] } = this.definition;
     this.onFiltersUpdated({
       filters: filters.concat([
         {

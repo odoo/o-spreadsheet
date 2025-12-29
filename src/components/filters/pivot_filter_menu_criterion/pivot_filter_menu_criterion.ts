@@ -8,16 +8,11 @@ import {
   criterionComponentRegistry,
   getCriterionMenuItems,
 } from "../../../registries/criterion_component_registry";
-import {
-  CellPosition,
-  CriterionFilter,
-  GenericCriterionType,
-  PivotCoreFilter,
-} from "../../../types";
+import { CellPosition, CriterionFilter, GenericCriterionType, PivotFilter } from "../../../types";
 import { SelectMenu } from "../../side_panel/select_menu/select_menu";
 
 interface Props {
-  filter: PivotCoreFilter;
+  filter: PivotFilter;
   filterPosition: CellPosition;
   criterionOperators: GenericCriterionType[];
   onCriterionChanged: (criterion: CriterionFilter) => void;

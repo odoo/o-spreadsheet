@@ -3883,7 +3883,6 @@ export const demoData = {
           },
         },
       ],
-      filters: [],
       name: "My pivot",
       dataSet: {
         sheetId: "pivot",

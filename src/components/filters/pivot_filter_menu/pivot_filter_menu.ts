@@ -8,7 +8,7 @@ import {
   CellValueType,
   CriterionFilter,
   DataFilterValue,
-  PivotCoreFilter,
+  PivotFilter,
   SortDirection,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
@@ -20,7 +20,7 @@ import { PivotFilterMenuCriterion } from "../pivot_filter_menu_criterion/pivot_f
 
 interface Props {
   definition: SpreadsheetPivotRuntimeDefinition;
-  filter: PivotCoreFilter;
+  filter: PivotFilter;
   filterPosition: CellPosition;
   values: Value[];
   onClosed?: () => void;

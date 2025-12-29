@@ -55,19 +55,20 @@ export interface PivotCoreMeasure {
 
 export type PivotCoreFilter = PivotValuesFilter | PivotCriterionFilter;
 
-export interface PivotFilter {
-  fieldName: string;
+export type PivotFilter = PivotCoreFilter & {
   displayName: string;
   isValid: boolean;
-}
+};
 
-export interface PivotValuesFilter extends PivotFilter {
+export interface PivotValuesFilter {
   filterType: "values";
+  fieldName: string;
   hiddenValues: CellValue[];
 }
 
-export interface PivotCriterionFilter extends PivotFilter {
+export interface PivotCriterionFilter {
   filterType: "criterion";
+  fieldName: string;
   type: FilterCriterionType | "none";
   values: string[];
   dateValue?: DateCriterionValue;
