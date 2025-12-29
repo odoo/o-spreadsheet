@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
-import { fuzzyLookup } from "../../../helpers";
+import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { deepEquals, fuzzyLookup } from "../../../helpers";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 
 interface Props {
@@ -15,7 +15,6 @@ interface Value {
 }
 
 interface State {
-  values: Value[];
   displayedValues: Value[];
   textFilter: string;
   selectedValue: string | undefined;
@@ -32,7 +31,6 @@ export class FilterMenuValueListBasic extends Component<Props, SpreadsheetChildE
   static components = { FilterMenuValueItem };
 
   private state: State = useState({
-    values: [],
     displayedValues: [],
     textFilter: "",
     selectedValue: undefined,
@@ -43,20 +41,24 @@ export class FilterMenuValueListBasic extends Component<Props, SpreadsheetChildE
   private searchBar = useRef("filterMenuSearchBar");
 
   setup() {
-    this.state.values = this.props.values;
-    this.computeDisplayedValues();
+    onWillUpdateProps((nextProps: Props) => {
+      if (!deepEquals(nextProps.values, this.props.values)) {
+        this.computeDisplayedValues(nextProps);
+      }
+    });
+    this.computeDisplayedValues(this.props);
   }
 
-  computeDisplayedValues() {
+  computeDisplayedValues(props: Props) {
     const values = !this.state.textFilter
-      ? this.state.values
-      : fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+      ? props.values
+      : fuzzyLookup(this.state.textFilter, props.values, (val) => val.string);
     this.state.displayedValues = values.slice(0, this.state.numberOfDisplayedValues);
     this.state.hasMoreValues = values.length > this.state.numberOfDisplayedValues;
   }
 
   updateHiddenValues() {
-    const hiddenValues = this.state.values.filter((val) => !val.checked).map((val) => val.string);
+    const hiddenValues = this.props.values.filter((val) => !val.checked).map((val) => val.string);
     this.props.onUpdateHiddenValues(hiddenValues);
   }
 
@@ -74,7 +76,7 @@ export class FilterMenuValueListBasic extends Component<Props, SpreadsheetChildE
 
   clearAll() {
     this.state.displayedValues.forEach((value) => (value.checked = false));
-    const hiddenValues = this.state.values.map((val) => val.string);
+    const hiddenValues = this.props.values.map((val) => val.string);
     this.props.onUpdateHiddenValues(hiddenValues);
   }
 
@@ -86,12 +88,12 @@ export class FilterMenuValueListBasic extends Component<Props, SpreadsheetChildE
     const target = ev.target as HTMLInputElement;
     this.state.textFilter = target.value;
     this.state.selectedValue = undefined;
-    this.computeDisplayedValues();
+    this.computeDisplayedValues(this.props);
   }
 
   loadMoreValues() {
     this.state.numberOfDisplayedValues += 100;
-    this.computeDisplayedValues();
+    this.computeDisplayedValues(this.props);
   }
 
   onKeyDown(ev: KeyboardEvent) {
@@ -141,12 +143,12 @@ export class FilterMenuValueListBasic extends Component<Props, SpreadsheetChildE
   }
 
   clearScrolledToValue() {
-    this.state.values.forEach((val) => (val.scrolledTo = undefined));
+    this.props.values.forEach((val) => (val.scrolledTo = undefined));
   }
 
   private scrollListToSelectedValue(arrow: "ArrowUp" | "ArrowDown") {
     this.clearScrolledToValue();
-    const selectedValue = this.state.values.find((val) => val.string === this.state.selectedValue);
+    const selectedValue = this.props.values.find((val) => val.string === this.state.selectedValue);
     if (selectedValue) {
       selectedValue.scrolledTo = arrow === "ArrowUp" ? "top" : "bottom";
     }

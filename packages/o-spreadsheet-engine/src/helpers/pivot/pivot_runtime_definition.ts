@@ -36,6 +36,7 @@ export class PivotRuntimeDefinition {
     this.rows = definition.rows.map((dimension) => this.createPivotDimension(fields, dimension));
     this.measures = definition.measures.map((measure) => this.createMeasure(fields, measure));
     this.filters = definition.filters.map((filter) => this.createPivotFilter(fields, filter));
+    this.sortedColumn = definition.sortedColumn;
     this.collapsedDomains = definition.collapsedDomains;
     this.customFields = definition.customFields;
   }
