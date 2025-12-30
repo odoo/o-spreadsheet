@@ -288,8 +288,9 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  updateRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions): GaugeChart {
-    const dataRange = adaptChartRange(this.dataRange, applyChange);
+  updateRanges(adapterFunctions: RangeAdapterFunctions): GaugeChart {
+    const { adaptFormulaString } = adapterFunctions;
+    const dataRange = adaptChartRange(this.dataRange, adapterFunctions);
 
     const adaptFormula = (formula: string) => adaptFormulaString(this.sheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
