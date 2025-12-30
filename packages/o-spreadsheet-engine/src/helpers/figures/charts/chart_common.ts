@@ -17,9 +17,9 @@ import { LocaleFormat } from "../../../types/format";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import {
-  ApplyRangeChange,
   Color,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
   UnboundedZone,
   Zone,
@@ -53,26 +53,25 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  * Adapt ranges of a chart which support DataSet (dataSets and LabelRange).
  */
 export function updateChartRangesWithDataSets(
-  getters: CoreGetters,
   sheetId: UID,
-  applyChange: ApplyRangeChange,
+  adapterFunctions: RangeAdapterFunctions,
   dataSource: ChartRangeDataSource,
   chartLabelRange?: Range
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
     .map((ds) => {
-      const dataRange = adaptChartRangeString(getters, sheetId, ds.dataRange, applyChange);
-      if (dataRange === undefined) {
+      const adaptedRangeStr = adapterFunctions.adaptRangeString(sheetId, ds.dataRange);
+      if (adaptedRangeStr === CellErrorType.InvalidReference) {
         return undefined;
       }
       return {
         ...ds,
-        dataRange,
+        dataRange: adaptedRangeStr,
       };
     })
     .filter(isDefined);
   let labelRange = chartLabelRange;
-  const range = adaptChartRange(labelRange, applyChange);
+  const range = adaptChartRange(labelRange, adapterFunctions);
   if (range !== labelRange) {
     labelRange = range;
   }
@@ -143,30 +142,9 @@ export function copyChartDataSourceInSheetId(
 /**
  * Adapt a single range of a chart
  */
-function adaptChartRangeString(
-  getters: CoreGetters,
-  defaultSheetId: UID,
-  rangeStr: string,
-  applyChange: ApplyRangeChange
-): string | undefined {
-  const range = getters.getRangeFromSheetXC(defaultSheetId, rangeStr);
-  const adaptedRange = adaptChartRange(range, applyChange);
-  if (!adaptedRange) {
-    return undefined;
-  }
-  const newRangeStr = getters.getRangeString(adaptedRange, defaultSheetId);
-  if (newRangeStr === CellErrorType.InvalidReference) {
-    return undefined;
-  }
-  return newRangeStr;
-}
-
-/**
- * Adapt a single range of a chart
- */
 export function adaptChartRange(
   range: Range | undefined,
-  applyChange: ApplyRangeChange
+  { applyChange }: RangeAdapterFunctions
 ): Range | undefined {
   if (!range) {
     return undefined;

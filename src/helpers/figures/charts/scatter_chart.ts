@@ -138,11 +138,10 @@ export class ScatterChart extends AbstractChart {
     };
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): ScatterChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): ScatterChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
