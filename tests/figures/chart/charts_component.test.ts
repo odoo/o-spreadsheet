@@ -887,25 +887,21 @@ describe("charts", () => {
   );
 
   test.each([
-    ["basicChart", [".o-data-labels"], ["labelRange"]],
-    ["combo", [".o-data-labels"], ["labelRange"]],
-    ["scorecard", [".o-data-labels"], ["baseline"]],
-  ] as const)("remove ranges in chart %s", async (chartType, rangesDomClasses, nameInChartDef) => {
+    ["basicChart", "labelRange"],
+    ["combo", "labelRange"],
+    ["scorecard", "baseline"],
+  ] as const)("remove ranges in chart %s", async (chartType, attrName) => {
     createTestChart(chartType);
     await mountChartSidePanel();
 
-    for (let i = 0; i < rangesDomClasses.length; i++) {
-      const domClass = rangesDomClasses[i];
-      const attrName = nameInChartDef[i];
-      expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
+    expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
 
-      await simulateClick(domClass + " input");
-      await setInputValueAndTrigger(domClass + " input", "");
-      await simulateClick(domClass + " .o-selection-ok");
-      expect(
-        (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
-      ).toBeUndefined();
-    }
+    await simulateClick(".o-data-labels input");
+    await setInputValueAndTrigger(".o-data-labels input", "");
+    await simulateClick(".o-data-labels .o-selection-ok");
+    expect(
+      (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
+    ).toBeUndefined();
   });
 
   describe("reordering dataseries", () => {
