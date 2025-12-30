@@ -298,9 +298,9 @@ export class ScorecardChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): ScorecardChart {
-    const baseline = adaptChartRange(this.baseline, applyChange);
-    const keyValue = adaptChartRange(this.keyValue, applyChange);
+  updateRanges(adapterFunctions: RangeAdapterFunctions): ScorecardChart {
+    const baseline = adaptChartRange(this.baseline, adapterFunctions);
+    const keyValue = adaptChartRange(this.keyValue, adapterFunctions);
     if (this.baseline === baseline && this.keyValue === keyValue) {
       return this;
     }

@@ -159,11 +159,10 @@ export class FunnelChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): FunnelChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): FunnelChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );

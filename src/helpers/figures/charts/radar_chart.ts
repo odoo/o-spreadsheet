@@ -27,13 +27,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import {
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -180,11 +174,10 @@ export class RadarChart extends AbstractChart {
     };
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): RadarChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): RadarChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );

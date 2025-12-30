@@ -26,14 +26,7 @@ import {
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
-import {
-  CommandResult,
-  DataSet,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { CommandResult, DataSet, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getCalendarChartData,
   getCalendarChartDatasetAndLabels,
@@ -190,11 +183,10 @@ export class CalendarChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): CalendarChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): CalendarChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
