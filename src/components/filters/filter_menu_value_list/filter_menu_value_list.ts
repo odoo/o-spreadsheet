@@ -1,12 +1,12 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
-import { CellPosition } from "../../../types";
+import { Position } from "../../../types";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 import { FilterMenuValueListBasic } from "../filter_menu_value_list_basic/filter_menu_value_list_basic";
 
 interface Props {
-  filterPosition: CellPosition;
+  filterPosition: Position;
   onUpdateHiddenValues: (values: string[]) => void;
 }
 
@@ -38,26 +38,21 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     });
     this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
   }
-
-  private getFilterHiddenValues(cellPosition: CellPosition): Value[] {
-    const filter = this.env.model.getters.getFilter(cellPosition);
+  private getFilterHiddenValues(position: Position): Value[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
     if (!filter) {
       return [];
     }
-    const filterValue = this.env.model.getters.getFilterValue(cellPosition);
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
     let cells = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
       (position) => ({
         position,
-        cellValue: this.env.model.getters.getEvaluatedCell({
-          sheetId: cellPosition.sheetId,
-          ...position,
-        }).formattedValue,
+        cellValue: this.env.model.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue,
       })
     );
     if (filterValue?.filterType !== "criterion") {
-      cells = cells.filter(
-        (val) => !this.env.model.getters.isRowHidden(cellPosition.sheetId, val.position.row)
-      );
+      cells = cells.filter((val) => !this.env.model.getters.isRowHidden(sheetId, val.position.row));
     }
 
     const cellValues = cells.map((val) => val.cellValue);

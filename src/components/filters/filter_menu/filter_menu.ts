@@ -3,10 +3,10 @@ import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import {
-  CellPosition,
   CellValueType,
   CriterionFilter,
   DataFilterValue,
+  Position,
   SortDirection,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
@@ -18,7 +18,7 @@ import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criter
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
 
 interface Props {
-  filterPosition: CellPosition;
+  filterPosition: Position;
   onClosed?: () => void;
 }
 
@@ -30,7 +30,6 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     filterPosition: Object,
     onClosed: { type: Function, optional: true },
   };
-
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "text";
@@ -58,16 +57,21 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get table() {
-    return this.env.model.getters.getTable(this.props.filterPosition);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const position = this.props.filterPosition;
+    return this.env.model.getters.getTable({ sheetId, ...position });
   }
 
   get filterValueType() {
-    const filterValue = this.env.model.getters.getFilterValue(this.props.filterPosition);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const position = this.props.filterPosition;
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
     return filterValue?.filterType;
   }
 
-  private getCriterionCategory(cellPosition: CellPosition): CriterionCategory {
-    const filter = this.env.model.getters.getFilter(cellPosition);
+  private getCriterionCategory(position: Position): CriterionCategory {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
     if (!filter || !filter.filteredRange) {
       return "text";
     }
@@ -80,11 +84,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       if (row > 100) {
         break;
       }
-      const cell = this.env.model.getters.getEvaluatedCell({
-        sheetId: cellPosition.sheetId,
-        row,
-        col: cellPosition.col,
-      });
+      const cell = this.env.model.getters.getEvaluatedCell({ sheetId, row, col: position.col });
       if (cell.type === CellValueType.text || cell.type === CellValueType.boolean) {
         cellTypesCount.text++;
       } else if (cell.type === CellValueType.number) {
@@ -114,8 +114,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       this.props.onClosed?.();
       return;
     }
+    const position = this.props.filterPosition;
     this.env.model.dispatch("UPDATE_FILTER", {
-      ...this.props.filterPosition,
+      ...position,
+      sheetId: this.env.model.getters.getActiveSheetId(),
       value: this.updatedCriterionValue,
     });
     this.props.onClosed?.();
@@ -151,10 +153,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
 }
 
 export const FilterMenuPopoverBuilder: PopoverBuilders = {
-  onOpen: (cellPosition, getters): CellPopoverComponent<typeof FilterMenu> => {
+  onOpen: (position, getters): CellPopoverComponent<typeof FilterMenu> => {
     return {
       isOpen: true,
-      props: { filterPosition: cellPosition },
+      props: { filterPosition: position },
       Component: FilterMenu,
       cellCorner: "bottom-left",
     };
