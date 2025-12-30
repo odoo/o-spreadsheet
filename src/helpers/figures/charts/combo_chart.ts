@@ -135,11 +135,10 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): ComboChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): ComboChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
