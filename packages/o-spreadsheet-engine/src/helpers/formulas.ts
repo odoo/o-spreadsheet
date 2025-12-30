@@ -1,4 +1,5 @@
 import { rangeTokenize } from "../formulas/range_tokenizer";
+import { CellErrorType } from "../types/errors";
 import { RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { concat } from "./misc";
@@ -53,8 +54,10 @@ export function adaptStringRange(
   }
 
   const change = rangeAdapter.applyChange(range);
-  if (change.changeType === "NONE" || change.changeType === "REMOVE") {
+  if (change.changeType === "NONE") {
     return sheetXC;
+  } else if (change.changeType === "REMOVE") {
+    return CellErrorType.InvalidReference;
   }
 
   return getRangeString(change.range, defaultSheetId, getSheetNameGetter(rangeAdapter));
