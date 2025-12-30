@@ -182,11 +182,10 @@ export class SunburstChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): SunburstChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): SunburstChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
