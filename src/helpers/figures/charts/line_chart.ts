@@ -141,11 +141,10 @@ export class LineChart extends AbstractChart {
     };
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): LineChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): LineChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
