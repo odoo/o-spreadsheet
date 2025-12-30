@@ -73,7 +73,7 @@ export class PivotFilterEditor extends Component<Props> {
       }
     });
     onWillUpdateProps((nextProps: Props) => {
-      if (!deepEquals(nextProps.filter, this.props.filter)) {
+      if (!deepEquals(nextProps.definition, this.props.definition)) {
         const nextPosition = this.filterPosition(nextProps.filter);
         if (nextPosition) {
           this.state.values = this.getFilterHiddenValues(nextPosition, nextProps);

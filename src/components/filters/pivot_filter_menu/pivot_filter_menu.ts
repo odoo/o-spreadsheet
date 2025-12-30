@@ -81,13 +81,12 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getCriterionCategory(cellPosition: CellPosition): CriterionCategory {
-    const filter = this.env.model.getters.getFilter(this.props.filterPosition);
-    if (!filter || !filter.filteredRange) {
+    const filteredZone = this.props.definition.range?.zone;
+    if (!filteredZone) {
       return "text";
     }
 
     const cellTypesCount: Record<CriterionCategory, number> = { text: 0, number: 0, date: 0 };
-    const filteredZone = filter.filteredRange.zone;
 
     for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
       // 100 rows should be enough to determine the type, let's not loop on 10,000 rows for nothing

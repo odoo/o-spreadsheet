@@ -177,6 +177,7 @@ export class PivotRuntimeDefinition {
       filterType: "criterion",
       type: filter.type,
       values: filter.values,
+      dateValue: filter.dateValue,
     };
   }
 }

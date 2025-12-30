@@ -119,7 +119,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         }
         return !currentlyUsed.includes(field.name);
       })
-      .sort((a, b) => a.string.localeCompare(b.string)); //met les champs dans l'ordre alphabétique
+      .sort((a, b) => a.string.localeCompare(b.string));
   }
 
   get unusedFilterFields() {

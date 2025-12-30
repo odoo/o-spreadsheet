@@ -67,7 +67,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getCriterionCategory(cellPosition: CellPosition): CriterionCategory {
-    const filter = this.env.model.getters.getFilter(this.props.filterPosition);
+    const filter = this.env.model.getters.getFilter(cellPosition);
     if (!filter || !filter.filteredRange) {
       return "text";
     }
