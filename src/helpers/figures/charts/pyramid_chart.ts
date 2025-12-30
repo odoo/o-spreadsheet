@@ -192,11 +192,10 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): PyramidChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): PyramidChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
