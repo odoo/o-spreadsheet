@@ -183,11 +183,10 @@ export class CalendarChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): CalendarChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): CalendarChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );

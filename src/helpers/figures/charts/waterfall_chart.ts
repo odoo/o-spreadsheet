@@ -172,11 +172,10 @@ export class WaterfallChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): WaterfallChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): WaterfallChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
