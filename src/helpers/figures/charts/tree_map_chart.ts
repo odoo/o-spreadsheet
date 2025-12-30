@@ -178,11 +178,10 @@ export class TreeMapChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): TreeMapChart {
+  updateRanges(adapterFunctions: RangeAdapterFunctions): TreeMapChart {
     const { dataSource, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
       this.sheetId,
-      applyChange,
+      adapterFunctions,
       this.definition.dataSource,
       this.labelRange
     );
