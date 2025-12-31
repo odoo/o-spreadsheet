@@ -617,7 +617,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").message).toEqual("Circular reference");
   });
 
-  test("cannot depend on a measure that depends on it", () => {
+  test("Measures cannot mutually depend on each other", () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -646,6 +646,38 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").message).toEqual("Circular reference");
     expect(getEvaluatedCell(model, "A4").value).toEqual("#CYCLE");
     expect(getEvaluatedCell(model, "A4").message).toEqual("Circular reference");
+  });
+
+  test("Measure can depend on cells that depend on the pivot", () => {
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+      B1: "Price",
+      B2: "123",
+      A4: '=PIVOT.VALUE(1, "standard")', // depends on the pivot
+      A6: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:A2", {
+      measures: [
+        {
+          id: "standard",
+          fieldName: "standard",
+          aggregator: "sum",
+          computedBy: { formula: "=2", sheetId },
+        },
+        {
+          id: "basedOnCell",
+          fieldName: "basedOnCell",
+          aggregator: "sum",
+          computedBy: { formula: "=A4", sheetId }, // depends on a cell depending on the pivot
+        },
+      ],
+    });
+    expect(getEvaluatedCell(model, "A4").value).toEqual(2);
+    expect(getEvaluatedCell(model, "B8").value).toEqual(2);
+    expect(getEvaluatedCell(model, "C8").value).toEqual(2);
   });
 
   test("can depend on a cell containing another header", () => {

@@ -289,6 +289,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     const rangeList: Range[] = [];
     const definition = this.getPivotCoreDefinition(pivotId);
     const formula = this.getMeasureCompiledFormula(pivotId, measure);
+    exploredMeasures.add(measure.id);
     for (const token of formula.tokens) {
       if (token.type !== "SYMBOL") {
         continue;
@@ -303,8 +304,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         !existingMeasure ||
         exploredMeasures.has(existingMeasure.id) ||
         !existingMeasure.computedBy
-      )
+      ) {
         continue;
+      }
 
       // TODORAR this will fail with cyclic dependencies
       rangeList.push(
@@ -312,7 +314,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       );
     }
     rangeList.push(...formula.dependencies.filter((range) => !range.invalidXc));
-    exploredMeasures.add(measure.id);
     return rangeList;
   }
 
