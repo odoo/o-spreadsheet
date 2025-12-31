@@ -32,6 +32,7 @@ import {
 } from "../../src/helpers";
 import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import { EXCEL_TEST_FILES_PATH, getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   getCFBeginningAt,
   getColPosition,
@@ -803,7 +804,7 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
     const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
-    expect(chartData.dataSets).toMatchObject(chartDatasets);
+    expect(chartData).toMatchObject(toChartDataSource({ dataSets: chartDatasets }));
   });
 
   test.each([
@@ -846,8 +847,8 @@ describe("Import xlsx data", () => {
       "combo",
       "#fff",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4", type: "bar" },
-        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E", type: "line" },
+        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4", type: "bar" as const },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E", type: "line" as const },
       ],
     ],
     [
@@ -868,10 +869,13 @@ describe("Import xlsx data", () => {
       expect(chartData.title.text).toEqual(chartTitle);
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
-
-      expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
-      expect(chartData.dataSets).toMatchObject(chartDatasets);
-      expect(chartData.dataSetsHaveTitle).toBeFalsy();
+      expect(chartData).toMatchObject(
+        toChartDataSource({
+          dataSets: chartDatasets,
+          labelRange: "Sheet1!A27:A35",
+          dataSetsHaveTitle: false,
+        })
+      );
     }
   );
 
@@ -939,10 +943,13 @@ describe("Import xlsx data", () => {
       expect(chartData.title.text).toEqual(chartTitle);
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
-
-      expect(chartData.labelRange).toEqual("Sheet1!A26:A35");
-      expect(chartData.dataSets).toMatchObject(chartDatasets);
-      expect(chartData.dataSetsHaveTitle).toBeTruthy();
+      expect(chartData).toMatchObject(
+        toChartDataSource({
+          dataSets: chartDatasets,
+          labelRange: "Sheet1!A26:A35",
+          dataSetsHaveTitle: true,
+        })
+      );
     }
   );
 
@@ -953,9 +960,13 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
-    expect(chartData.labelRange).toEqual("Sheet1!B27:B35");
-    expect(chartData.dataSetsHaveTitle).toBeFalsy();
+    expect(chartData).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!C27:C35" }],
+        labelRange: "Sheet1!B27:B35",
+        dataSetsHaveTitle: false,
+      })
+    );
   });
 
   test("Can import scatter plot with textual labels", () => {
@@ -967,9 +978,13 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart with textual labels");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
-    expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
-    expect(chartData.dataSetsHaveTitle).toBeFalsy();
+    expect(chartData).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!C27:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        dataSetsHaveTitle: false,
+      })
+    );
   });
 
   test.each([
