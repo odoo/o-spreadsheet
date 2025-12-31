@@ -7,7 +7,7 @@ import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
 import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { CellIsRule, ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
+import { CellIsRule, ConditionalFormatRule, Dimension } from "../../src/types";
 
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
@@ -1276,21 +1276,18 @@ describe("Test XLSX export", () => {
       ["combo", [{ dataRange: "Sheet1!B1:B4" }]],
       ["pie", [{ dataRange: "Sheet1!B1:B4" }]],
       ["radar", [{ dataRange: "Sheet1!B1:B4" }]],
-    ])(
-      "simple %s chart with dataset %s",
-      async (chartType: string, dataSets: CustomizedDataSet[]) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            ...toChartDataSource({ dataSets, labelRange: "Sheet1!A2:A4" }),
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
+    ])("simple %s chart with dataset %s", async (chartType: string, dataSets) => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          ...toChartDataSource({ dataSets, labelRange: "Sheet1!A2:A4" }),
+          type: chartType as "line" | "bar" | "pie" | "combo",
+        },
+        "1"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
 
     test.each(["line", "scatter", "bar", "combo", "radar"])(
       "simple %s chart with customized dataset",
@@ -1585,9 +1582,9 @@ describe("Test XLSX export", () => {
           ...toChartDataSource({
             dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
             labelRange: "Sheet1!A2:A4",
+            dataSetsHaveTitle: false,
           }),
           type: "bar",
-          dataSetsHaveTitle: false,
         },
         "1"
       );

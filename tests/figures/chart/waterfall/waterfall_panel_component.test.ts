@@ -66,7 +66,11 @@ describe("Waterfall chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
-      expect(getWaterfallDefinition(chartId)?.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+      expect(getWaterfallDefinition(chartId)).toMatchObject(
+        toChartDataSource({
+          dataSets: [{ dataRange: "B1:B3" }],
+        })
+      );
 
       await simulateClick('input[name="aggregated"]');
       expect(getWaterfallDefinition(chartId)?.aggregated).toEqual(false);
