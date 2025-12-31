@@ -19,6 +19,11 @@ describe("population pyramid chart", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A1:A4",
+      }),
     };
     const definition = PyramidChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -51,7 +56,8 @@ describe("population pyramid chart", () => {
       setCellContent(model, "B1", "10");
       setCellContent(model, "B2", "3");
       const dataSets = [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }];
-      createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
+      const dataSource = toChartDataSource({ dataSets, dataSetsHaveTitle: false });
+      createChart(model, { type: "pyramid", ...dataSource }, "id");
       const runtime = model.getters.getChartRuntime("id") as any;
       const data = runtime.chartJsConfig.data;
       expect(data.datasets).toHaveLength(2);
@@ -66,7 +72,8 @@ describe("population pyramid chart", () => {
       setCellContent(model, "B1", "-10");
       setCellContent(model, "B2", "3");
       const dataSets = [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }];
-      createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
+      const dataSource = toChartDataSource({ dataSets, dataSetsHaveTitle: false });
+      createChart(model, { type: "pyramid", ...dataSource }, "id");
       const runtime = model.getters.getChartRuntime("id") as any;
       const data = runtime.chartJsConfig.data;
       expect(data.datasets).toHaveLength(2);

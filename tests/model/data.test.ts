@@ -193,6 +193,7 @@ describe("load data", () => {
             figures: [
               {
                 id: "1",
+                tag: "chart",
                 data: {
                   type: "line",
                   title: "Line",
