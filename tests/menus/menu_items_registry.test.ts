@@ -51,6 +51,7 @@ import {
 
 import { Currency, Model } from "../../src";
 
+import { createActions } from "../../src/actions/action";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
@@ -117,6 +118,7 @@ describe("Top Bar Menu Item Registry", () => {
         id: name,
         name: name,
         execute: () => {},
+        sequence: 1,
       }));
     });
     const env = makeTestEnv();
@@ -2024,4 +2026,33 @@ describe("Menu Item actions", () => {
       expect(unfreezeAllAction.isVisible(env)).toBe(true);
     });
   });
+});
+
+test("Menu children are sorted by sequence", async () => {
+  const env = makeTestEnv();
+  const menuItems = createActions([
+    {
+      id: "menu_1",
+      name: "Menu 1",
+      sequence: 20,
+      children: [
+        {
+          id: "secondItem",
+          name: "bigger sequence Item",
+          sequence: 30,
+          execute: () => {},
+        },
+        {
+          id: "firstItem",
+          name: "lower sequence Item",
+          sequence: 10,
+          execute: () => {},
+        },
+      ],
+    },
+  ]);
+
+  const children = menuItems[0].children(env);
+  expect(children[0].id).toBe("firstItem");
+  expect(children[1].id).toBe("secondItem");
 });
