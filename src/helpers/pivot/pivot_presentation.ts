@@ -1,12 +1,14 @@
 import { handleError } from "../../functions";
-import { transposeMatrix } from "../../functions/helpers";
+import { toNumber, transposeMatrix } from "../../functions/helpers";
 import { ModelConfig } from "../../model";
 import { _t } from "../../translation";
 import {
   CellValue,
+  DEFAULT_LOCALE,
   DimensionTree,
   FunctionResultObject,
   Getters,
+  PivotDimension,
   PivotDomain,
   PivotMeasure,
   PivotMeasureDisplay,
@@ -422,7 +424,14 @@ export default function (PivotClass: PivotUIConstructor) {
       const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
       const colDomainKey = domainToString(colDomain);
       const rowDomainKey = domainToString(rowDomain);
-      const runningTotal = runningTotals[colDomainKey]?.[rowDomainKey];
+      let runningTotal = runningTotals[colDomainKey]?.[rowDomainKey];
+      if (runningTotal === undefined) {
+        runningTotal = this.getPreviousRunningTotalValue(
+          fieldNameWithGranularity,
+          domain,
+          runningTotals
+        );
+      }
 
       return {
         value: runningTotal ?? "",
@@ -679,6 +688,98 @@ export default function (PivotClass: PivotUIConstructor) {
         }
       }
       return mainDimension === "row" ? cellsRunningTotals : transpose2dPOJO(cellsRunningTotals);
+    }
+
+    private getPreviousRunningTotalValue(
+      fieldNameWithGranularity: string,
+      domain: PivotDomain,
+      runningTotals: DomainGroups<number | undefined>
+    ): number | undefined {
+      const dimension = this.definition.getDimension(fieldNameWithGranularity);
+      if (dimension.type !== "date" && dimension.type !== "datetime") {
+        return undefined;
+      }
+
+      const mainDimension = getFieldDimensionType(this, fieldNameWithGranularity);
+      const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
+      const mainDomain = mainDimension === "row" ? rowDomain : colDomain;
+      const secondaryDomain = mainDimension === "row" ? colDomain : rowDomain;
+      const targetValue = mainDomain.find((node) => node.field === fieldNameWithGranularity)?.value;
+      if (targetValue === undefined) {
+        return undefined;
+      }
+      const secondaryDomainKey = domainToString(secondaryDomain);
+      const runningTotalKey = getRunningTotalDomainKey(mainDomain, fieldNameWithGranularity);
+
+      let previousMainDomainKey: string | undefined;
+      let previousValue: CellValue | undefined;
+      const table = this.getCollapsedTableStructure();
+      const tree = mainDimension === "row" ? table.getRowTree() : table.getColTree();
+
+      const visitTree = (nodes: DimensionTree, parentDomain: PivotDomain = []) => {
+        for (const node of nodes) {
+          const nodeDomain: PivotDomain = [
+            ...parentDomain,
+            { field: node.field, value: node.value, type: node.type },
+          ];
+          if (node.children.length) {
+            visitTree(node.children, nodeDomain);
+          }
+          const nodeValue = nodeDomain.find(
+            (domainNode) => domainNode.field === fieldNameWithGranularity
+          )?.value;
+          const nodeRunningTotalKey = getRunningTotalDomainKey(
+            nodeDomain,
+            fieldNameWithGranularity
+          );
+          if (
+            nodeValue === undefined ||
+            nodeRunningTotalKey !== runningTotalKey ||
+            this.compareRunningTotalValues(nodeValue, targetValue, dimension) >= 0
+          ) {
+            continue;
+          }
+          if (
+            previousValue === undefined ||
+            this.compareRunningTotalValues(previousValue, nodeValue, dimension) < 0
+          ) {
+            previousValue = nodeValue;
+            previousMainDomainKey = domainToString(nodeDomain);
+          }
+        }
+      };
+
+      visitTree(tree);
+
+      if (!previousMainDomainKey) {
+        return undefined;
+      }
+
+      return mainDimension === "row"
+        ? runningTotals[secondaryDomainKey]?.[previousMainDomainKey]
+        : runningTotals[previousMainDomainKey]?.[secondaryDomainKey];
+    }
+
+    private compareRunningTotalValues(
+      a: CellValue,
+      b: CellValue,
+      dimension: PivotDimension
+    ): number {
+      const order = dimension.order ?? "asc";
+      const aIsNull = a === null;
+      const bIsNull = b === null;
+      if (aIsNull && bIsNull) {
+        return 0;
+      }
+      if (aIsNull) {
+        return order === "asc" ? 1 : -1;
+      }
+      if (bIsNull) {
+        return order === "asc" ? -1 : 1;
+      }
+
+      const diff = toNumber(a, DEFAULT_LOCALE) - toNumber(b, DEFAULT_LOCALE);
+      return order === "asc" ? diff : -diff;
     }
 
     private getGrandTotal(measureId: string): number {
