@@ -310,10 +310,11 @@ describe("Migrations", () => {
     expect(cells.A1!).toBe("=sheetName_!A2");
 
     const figures = data.sheets[1].figures;
-    expect(figures[0].data?.dataSets).toEqual([
-      { dataRange: "A1:A2" },
-      { dataRange: "'My sheet'!A1:A2" },
-    ]);
+    expect(figures[0].data).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }],
+      })
+    );
     expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
@@ -846,7 +847,6 @@ test("migrate version 19.1.1: remove extra keys from chart definition", () => {
   const definition = {
     type: "line",
     title: "demo chart",
-    labelRange: "A1:A4",
     humanize: true,
     dataSets: [],
     dataSetsHaveTitle: false,
@@ -1241,7 +1241,11 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           figureId: "fig1",
           chartId: "fig1",
           //@ts-ignore the old command would handle a partial definition
-          definition: { dataSets: [{ dataRange: "A1:A3" }] },
+          definition: {
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1:A3" }],
+            }),
+          },
         },
         {
           type: "CREATE_CHART",
@@ -1260,10 +1264,12 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           },
           definition: {
             title: { text: "" },
-            dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+              dataSetsHaveTitle: false,
+            }),
             type: "bar",
             stacked: false,
-            dataSetsHaveTitle: false,
             legendPosition: "none",
           },
         },
@@ -1272,7 +1278,11 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           figureId: "fig2",
           chartId: "fig2",
           //@ts-ignore the old command would handle a partial definition
-          definition: { dataSets: [{ dataRange: "B1:B3" }] },
+          definition: {
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "B1:B3" }],
+            }),
+          },
         },
       ],
       serverRevisionId: "initial_revision",
@@ -1308,7 +1318,15 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
   };
   const model = new Model(data, {}, initialMessages);
   const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
-  expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
+  expect(definition1).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "A1:A3" }],
+    })
+  );
   const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
-  expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+  expect(definition2).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "B1:B3" }],
+    })
+  );
 });
