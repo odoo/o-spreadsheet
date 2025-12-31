@@ -48,7 +48,7 @@ import { Currency, Model } from "../../src";
 import { FONT_SIZES } from "@odoo/o-spreadsheet-engine/constants";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { ActionSpec, createAction } from "../../src/actions/action";
+import { ActionSpec, createAction, createActions } from "../../src/actions/action";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
@@ -118,6 +118,7 @@ describe("Top Bar MenuPopover Item Registry", () => {
         id: name,
         name: name,
         execute: () => {},
+        sequence: 1,
       }));
     });
     const env = makeTestEnv();
@@ -2055,4 +2056,33 @@ describe("Menu Item actions", () => {
     action.execute?.(env);
     expect(executeMock).not.toHaveBeenCalled();
   });
+});
+
+test("Menu children are sorted by sequence", async () => {
+  const env = makeTestEnv();
+  const menuItems = createActions([
+    {
+      id: "menu_1",
+      name: "Menu 1",
+      sequence: 20,
+      children: [
+        {
+          id: "secondItem",
+          name: "bigger sequence Item",
+          sequence: 30,
+          execute: () => {},
+        },
+        {
+          id: "firstItem",
+          name: "lower sequence Item",
+          sequence: 10,
+          execute: () => {},
+        },
+      ],
+    },
+  ]);
+
+  const children = menuItems[0].children(env);
+  expect(children[0].id).toBe("firstItem");
+  expect(children[1].id).toBe("secondItem");
 });
