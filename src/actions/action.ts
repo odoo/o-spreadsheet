@@ -121,7 +121,8 @@ export function createAction(item: ActionSpec): Action {
           return children
             .map((child) => (typeof child === "function" ? child(env) : child))
             .flat()
-            .map(createAction);
+            .map(createAction)
+            .sort((a, b) => a.sequence - b.sequence);
         }
       : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
