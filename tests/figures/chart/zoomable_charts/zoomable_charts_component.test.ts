@@ -431,7 +431,11 @@ describe("zoom", () => {
     let style = container?.getAttribute("style");
     expect(style).toEqual("");
 
-    updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
+    updateChart(
+      model,
+      chartId,
+      toChartDataSource({ dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" })
+    );
     await nextTick();
     container = fixture.querySelector(".o-master-chart-container");
     style = container?.getAttribute("style");

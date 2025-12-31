@@ -63,18 +63,29 @@ describe("combo charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await click(fixture, ".o-series-type-selection input[value=bar]");
-    //@ts-ignore
-    expect(model.getters.getChartDefinition(chartId).dataSets[0]).toEqual({
-      dataRange: "B1:B4",
-      type: "bar",
-    });
-
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],
+      })
+    );
     await click(fixture, ".o-series-type-selection input[value=line]");
-    //@ts-ignore
-    expect(model.getters.getChartDefinition(chartId).dataSets[0]).toEqual({
-      dataRange: "B1:B4",
-      type: "line",
-    });
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [
+          { dataRange: "B1:B4", type: "line" },
+          { dataRange: "C1:C4", type: "bar" },
+        ],
+      })
+    );
+
+    await click(fixture, ".o-series-type-selection input[value=bar]");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [
+          { dataRange: "B1:B4", type: "bar" },
+          { dataRange: "C1:C4", type: "bar" },
+        ],
+      })
+    );
   });
 });

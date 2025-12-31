@@ -167,6 +167,11 @@ describe("calendar chart", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
     };
     const definition = CalendarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -246,7 +251,7 @@ describe("calendar chart", () => {
     const model = new Model();
     createCalendarChart(
       model,
-      { type: "calendar", dataSets: [{ dataRange: "B1:B365" }] },
+      { type: "calendar", ...toChartDataSource({ dataSets: [{ dataRange: "B1:B365" }] }) },
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as CalendarChartRuntime;
