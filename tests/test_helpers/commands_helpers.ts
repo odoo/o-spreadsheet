@@ -234,8 +234,18 @@ export function createChart(
 
   // definition with all possible fields filled
   const definition = {
+    verticalAxisPosition: "left" as const,
+    legendPosition: "top" as const,
+    horizontalGroupBy: "day_of_week" as const,
+    verticalGroupBy: "month_number" as const,
+    stacked: false,
+    labelsAsText: false,
+    aggregated: false,
+    cumulative: false,
+    showSubTotals: false,
+    showConnectorLines: false,
+    title: { text: "test" },
     ...data,
-    title: data.title || { text: "test" },
     ...toChartDataSource({
       dataSets: [],
       dataSetsHaveTitle:
@@ -246,17 +256,6 @@ export function createChart(
       ...data.dataSource,
     }),
     dataSetStyles: data.dataSetStyles ?? {},
-    verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
-    background: data.background,
-    legendPosition: ("legendPosition" in data && data.legendPosition) || "top",
-    stacked: ("stacked" in data && data.stacked) || false,
-    labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
-    aggregated: ("aggregated" in data && data.aggregated) || false,
-    cumulative: ("cumulative" in data && data.cumulative) || false,
-    showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
-    showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
-    horizontalGroupBy: ("horizontalGroupBy" in data && data.horizontalGroupBy) || "day_of_week",
-    verticalGroupBy: ("verticalGroupBy" in data && data.verticalGroupBy) || "month_number",
   };
 
   const keys = new Set(chartRegistry.get(data.type).allowedDefinitionKeys);
