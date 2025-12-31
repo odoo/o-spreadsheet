@@ -8,7 +8,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useTouchScroll } from "../helpers/touch_scroll_hook";
+import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
@@ -54,7 +54,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     });
     this.cellPopovers = useStore(CellPopoverStore);
 
-    useTouchScroll(
+    useTouchHandlers(
       this.gridRef,
       this.moveCanvas.bind(this),
       () => {
@@ -65,6 +65,12 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
         const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
         const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
         return scrollY < maxOffsetY;
+      },
+      () => this.env.model.getters.getViewportZoomLevel(),
+      (zoom: number) => {
+        if (zoom >= 0.5 && zoom <= 2) {
+          this.env.model.dispatch("SET_ZOOM", { zoom });
+        }
       }
     );
   }
@@ -133,5 +139,10 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       ...getRefBoundingRect(this.gridRef),
       ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
     };
+  }
+
+  get dashboardStyle() {
+    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    return cssPropertiesToCss({ zoom: `${zoomLevel}` });
   }
 }

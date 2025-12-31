@@ -30,7 +30,7 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1 / zoom}`);
+    canvas.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1 / zoom};`);
     if (width === 0 || height === 0) {
       return;
     }

@@ -133,11 +133,14 @@ export async function pointerUp(target: DOMTarget) {
  */
 export async function hoverCell(model: Model, xc: string, delay: number) {
   const zone = toZone(xc);
-  let { x, y } = model.getters.getVisibleRect(zone);
+  const zoom = model.getters.getViewportZoomLevel();
+  let { x, y, width, height } = model.getters.getVisibleRectWithZoom(zone);
   if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH;
-    y -= HEADER_HEIGHT;
+    x -= HEADER_WIDTH * zoom;
+    y -= HEADER_HEIGHT * zoom;
   }
+  x += width / 2;
+  y += height / 2;
   triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   jest.advanceTimersByTime(delay);
   await nextTick();
@@ -297,6 +300,31 @@ export function triggerKeyboardEvent(
 ) {
   const ev = new KeyboardEvent(type, { bubbles: true, cancelable: true, ...eventArgs });
   dispatchEvent(selector, ev);
+  return ev;
+}
+
+export function triggerPointerEvent(
+  selector: DOMTarget,
+  type: string,
+  offsetX?: number,
+  offsetY?: number,
+  extra: PointerEventInit = { bubbles: true }
+) {
+  if (type === "pointermove") {
+    extra = { button: -1, ...extra };
+  }
+  const ev = new PointerEvent(type, {
+    // this is only correct if we assume the target is positioned
+    // at the very top left corner of the screen
+    clientX: offsetX,
+    clientY: offsetY,
+    bubbles: true,
+    ...extra,
+  });
+  (ev as any).offsetX = offsetX;
+  (ev as any).offsetY = offsetY;
+  const target = getTarget(selector);
+  target.dispatchEvent(ev);
   return ev;
 }
 
