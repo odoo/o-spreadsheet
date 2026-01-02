@@ -1,4 +1,5 @@
 import {
+  DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRAY_200,
   GRID_ICON_EDGE_LENGTH,
@@ -23,8 +24,11 @@ import {
   click,
   clickGridIcon,
   getElComputedStyle,
+  getGridIconEventPosition,
+  gridMouseEvent,
   keyDown,
   setInputValueAndTrigger,
+  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
@@ -492,6 +496,46 @@ describe("Selection arrow icon in grid", () => {
     expect(suggestions[0].textContent).toBe("ok");
     expect(suggestions[1].textContent).toBe("hello");
     expect(suggestions[2].textContent).toBe("okay");
+  });
+
+  test("Clicking another cell hides autocomplete", async () => {
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    const composerStore = env.getStore(CellComposerStore);
+    const hideHelpSpy = jest.spyOn(composerStore, "hideHelp");
+    await clickGridIcon(model, "A1");
+    expect(composerStore.editionMode).toBe("editing");
+    expect(hideHelpSpy).not.toHaveBeenCalled();
+
+    gridMouseEvent(model, "pointerdown", "B2");
+    gridMouseEvent(model, "pointerup", "B2");
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("Click-and-drag on grid icon does not hide autocomplete", async () => {
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    const composerStore = env.getStore(CellComposerStore);
+    const { x, y } = getGridIconEventPosition(model, "A1");
+
+    triggerMouseEvent(".o-grid-overlay", "pointerdown", x, y);
+    await nextTick();
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "pointermove",
+      x + DEFAULT_CELL_WIDTH,
+      y + DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "pointerup",
+      x + DEFAULT_CELL_WIDTH,
+      y + DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+
+    expect(composerStore.editionMode).toBe("editing");
+    expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
   });
 
   test("Icon is not displayed when display style is plainText", () => {
