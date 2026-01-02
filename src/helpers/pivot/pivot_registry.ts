@@ -3,6 +3,7 @@ import { Registry } from "../../registries/registry";
 import { ApplyRangeChange, CoreGetters, Getters, Range } from "../../types";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
+import { isZoneValid } from "../zones";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { SpreadsheetPivotRuntimeDefinition } from "./spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "./spreadsheet_pivot/spreadsheet_pivot";
@@ -63,7 +64,11 @@ pivotRegistry.add("SPREADSHEET", {
     if (definition.type !== "SPREADSHEET" || !definition.dataSet) {
       return definition;
     }
+
     const { sheetId, zone } = definition.dataSet;
+    if (!getters.tryGetSheet(sheetId) || !zone || !isZoneValid(zone)) {
+      return { ...definition, dataSet: undefined };
+    }
     const range = getters.getRangeFromZone(sheetId, zone);
     const adaptedRange = adaptPivotRange(range, applyChange);
 

@@ -749,7 +749,7 @@ test.each([
 test("Plugins cannot dispatch a command during adaptRanges", () => {
   class PluginDispatchInAdaptRanges extends CorePlugin {
     adaptRanges() {
-      this.dispatch("DELETE_SHEET", { sheetId: "s1", sheetName: "coucou" });
+      this.dispatch("DELETE_SHEET", { sheetId: "Sheet1", sheetName: "Sheet1" });
     }
   }
   addTestPlugin(corePluginRegistry, PluginDispatchInAdaptRanges);

@@ -1,5 +1,6 @@
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
+import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
@@ -8,7 +9,8 @@ import { isSheetNameEqual } from "./sheet";
 export function adaptFormulaStringRanges(
   defaultSheetId: string,
   formula: string,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  { preserveInvalid }: { preserveInvalid?: boolean } = { preserveInvalid: true }
 ): string {
   if (!formula.startsWith("=")) {
     return formula;
@@ -19,7 +21,7 @@ export function adaptFormulaStringRanges(
       continue;
     }
     const sheetXC = tokens[tokenIdx].value;
-    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange);
+    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange, { preserveInvalid });
 
     if (sheetXC !== newSheetXC) {
       tokens[tokenIdx] = {
@@ -34,7 +36,8 @@ export function adaptFormulaStringRanges(
 export function adaptStringRange(
   defaultSheetId: UID,
   sheetXC: string,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  { preserveInvalid }: { preserveInvalid?: boolean } = { preserveInvalid: true }
 ): string {
   const sheetName = splitReference(sheetXC).sheetName;
   if (
@@ -52,8 +55,11 @@ export function adaptStringRange(
   }
 
   const change = applyChange.applyChange(range);
-  if (change.changeType === "NONE" || change.changeType === "REMOVE") {
+  if (change.changeType === "NONE") {
     return sheetXC;
+  }
+  if (change.changeType === "REMOVE") {
+    return preserveInvalid ? sheetXC : CellErrorType.InvalidReference;
   }
 
   return getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
