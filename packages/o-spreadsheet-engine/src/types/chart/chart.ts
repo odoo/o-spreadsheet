@@ -74,12 +74,9 @@ export type ChartWithColorScaleDefinition = Extract<
 
 export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;
 
-export type ChartWithAxisDefinition = Extract<
-  ChartWithDataSetDefinition,
-  { axesDesign?: AxesDesign }
->;
+export type ChartWithAxisDefinition = Extract<ChartDefinition, { axesDesign?: AxesDesign }>;
 
-export type ZoomableChartDefinition = Extract<ChartWithAxisDefinition, { zoomable?: boolean }>;
+export type ZoomableChartDefinition = Extract<ChartDefinition, { zoomable?: boolean }>;
 
 export type ChartJSRuntime =
   | LineChartRuntime
