@@ -148,7 +148,7 @@ export class ScatterChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
+      .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
       .filter((ds) => ds.range !== "");
 
     const datasetLength = this.dataSets[0]
