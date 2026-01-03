@@ -107,11 +107,14 @@ export abstract class AbstractChart {
    */
   abstract getContextCreation(): ChartCreationContext;
 
-  protected getCommonDataSetAttributesForExcel(labelRange: Range | undefined, dataSets: DataSet[]) {
+  protected getCommonDataSetAttributesForExcel(
+    definition: ChartWithDataSetDefinition,
+    labelRange: Range | undefined,
+    dataSets: DataSet[]
+  ) {
     const excelDataSets: ExcelChartDataset[] = dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
+      .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const definition = this.getDefinition();
     const datasetLength = dataSets[0] ? getZoneArea(dataSets[0].dataRange.zone) : undefined;
     const labelLength = labelRange ? getZoneArea(labelRange.zone) : 0;
     const _shouldRemoveFirstLabel = shouldRemoveFirstLabel(
