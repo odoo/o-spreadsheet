@@ -183,7 +183,6 @@ export function createDataSets(
     if (invalidSheetName || invalidXc) {
       continue;
     }
-    const customizedDataSet = definition.dataSetStyles[dataSet.dataSetId] ?? {};
     // It's a rectangle. We treat all columns (arbitrary) as different data series.
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       if (zone.right === undefined) {
@@ -212,10 +211,6 @@ export function createDataSets(
               : undefined
           ),
           dataSetId,
-          backgroundColor: customizedDataSet.backgroundColor,
-          rightYAxis: customizedDataSet.yAxisId === "y1",
-          customLabel: customizedDataSet.label,
-          trend: customizedDataSet.trend,
         });
         dataSetId = `${dataSetId}_${column}`;
       }
@@ -236,10 +231,6 @@ export function createDataSets(
             : undefined
         ),
         dataSetId: dataSet.dataSetId,
-        backgroundColor: customizedDataSet.backgroundColor,
-        rightYAxis: customizedDataSet.yAxisId === "y1",
-        customLabel: customizedDataSet.label,
-        trend: customizedDataSet.trend,
       });
     }
   }
@@ -273,7 +264,11 @@ function createDataSet(
 /**
  * Transform a dataSet to a ExcelDataSet
  */
-export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDataset {
+export function toExcelDataset(
+  getters: CoreGetters,
+  definition: ChartWithDataSetDefinition,
+  ds: DataSet
+): ExcelChartDataset {
   const labelZone = ds.labelCell?.zone;
   let dataZone = ds.dataRange.zone;
   if (labelZone) {
@@ -284,12 +279,13 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
       dataZone = { ...dataZone, top: dataZone.top + 1 };
     }
   }
+  const dataSetStyle = definition.dataSetStyles[ds.dataSetId] ?? {};
 
   const dataRange = createRange({ ...ds.dataRange, zone: dataZone }, getters.getSheetSize);
   let label = {};
-  if (ds.customLabel) {
+  if (dataSetStyle.label) {
     label = {
-      text: ds.customLabel,
+      text: dataSetStyle.label,
     };
   } else if (ds.labelCell) {
     label = {
@@ -300,22 +296,24 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   }
 
   let trend: ExcelChartTrendConfiguration | undefined;
-  if (ds.trend?.type) {
+  if (dataSetStyle.trend?.type) {
     trend = {
       type:
-        ds.trend.type === "polynomial" && ds.trend.order === 1
+        dataSetStyle.trend.type === "polynomial" && dataSetStyle.trend.order === 1
           ? "linear"
-          : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[ds.trend.type],
-      color: ds.trend.color,
-      order: ds.trend.order ? Math.min(ds.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE) : undefined,
-      window: ds.trend.window || DEFAULT_WINDOW_SIZE,
+          : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[dataSetStyle.trend.type],
+      color: dataSetStyle.trend.color,
+      order: dataSetStyle.trend.order
+        ? Math.min(dataSetStyle.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE)
+        : undefined,
+      window: dataSetStyle.trend.window || DEFAULT_WINDOW_SIZE,
     };
   }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
-    backgroundColor: ds.backgroundColor,
-    rightYAxis: ds.rightYAxis,
+    backgroundColor: dataSetStyle.backgroundColor,
+    rightYAxis: dataSetStyle.yAxisId === "y1",
     trend,
   };
 }
