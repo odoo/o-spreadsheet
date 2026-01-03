@@ -165,12 +165,8 @@ export type ChartDatasetOrientation = "rows" | "columns";
 
 export interface DataSet {
   readonly dataSetId: UID;
-  readonly labelCell?: Range; // range of the label
-  readonly dataRange: Range; // range of the data
-  readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
-  readonly backgroundColor?: Color;
-  readonly customLabel?: string;
-  readonly trend?: TrendConfiguration;
+  readonly labelCell?: Range;
+  readonly dataRange: Range;
 }
 export interface ExcelChartDataset {
   readonly label?: { text?: string } | { reference?: string };
