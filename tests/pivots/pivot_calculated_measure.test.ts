@@ -1082,7 +1082,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A5").value).toEqual(42);
   });
 
-  test("references becomes invalid when sheet is deleted", () => {
+  test("reference is preserved when sheet is deleted", () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -1111,7 +1111,7 @@ describe("Pivot calculated measure", () => {
         id: "calculated",
         fieldName: "calculated",
         aggregator: "sum",
-        computedBy: { formula: "=#REF", sheetId },
+        computedBy: { formula: "=Sheet2!A3", sheetId },
       },
     ]);
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual("#REF");
