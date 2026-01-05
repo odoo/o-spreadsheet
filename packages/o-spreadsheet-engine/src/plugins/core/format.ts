@@ -1,12 +1,7 @@
 import { deepCopy } from "../../helpers";
-import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
-import {
-  detectDateFormat,
-  detectNumberFormat,
-  isExcelCompatible,
-} from "../../helpers/format/format";
+import { getDateOrNumberFormat, isExcelCompatible } from "../../helpers/format/format";
 import { getDateTimeFormat } from "../../helpers/locale";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { intersection, isInside, positionToZone, toZone, zoneToXc } from "../../helpers/zones";
@@ -76,12 +71,7 @@ export class CoreFormatPlugin extends CorePlugin<FormatPluginState> implements F
           !cmd.content.startsWith("=") &&
           !this.getCellFormat(cmd)
         ) {
-          const locale = this.getters.getLocale();
-          const parsedValue = parseLiteral(cmd.content, locale);
-          const format =
-            typeof parsedValue === "number"
-              ? detectDateFormat(cmd.content, locale) || detectNumberFormat(cmd.content)
-              : undefined;
+          const format = getDateOrNumberFormat(cmd.content, this.getters.getLocale());
           if (format) {
             this.setFormats(cmd.sheetId, [positionToZone(cmd)], format);
           }
