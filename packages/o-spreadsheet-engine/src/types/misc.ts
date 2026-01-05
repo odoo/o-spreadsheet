@@ -296,8 +296,9 @@ export const enum DIRECTION {
 }
 
 export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
-export type ApplyRangeChangeResult = { changeType: ChangeType; range: Range };
-export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
+export type ApplyRangeChangeResult<T> = { changeType: ChangeType; range: T };
+export type ApplyFormulaRangeChangeResult = { changeType: ChangeType; formula: string };
+export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult<Range>;
 
 export type AdaptSheetName = { old: string; current: string };
 
@@ -309,7 +310,7 @@ export type RangeAdapter = {
 
 export type RangeAdapterFunctions = {
   applyChange: ApplyRangeChange;
-  adaptRangeString: (defaultSheetId: UID, sheetXC: string) => string;
+  adaptRangeString: (defaultSheetId: UID, sheetXC: string) => ApplyRangeChangeResult<string>;
   adaptFormulaString: (defaultSheetId: UID, formula: string) => string;
 };
 
