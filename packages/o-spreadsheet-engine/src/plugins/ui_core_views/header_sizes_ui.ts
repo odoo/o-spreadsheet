@@ -112,11 +112,12 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         break;
       case "SET_FORMATTING":
         if (
-          "style" in cmd &&
-          (!cmd.style ||
-            "fontSize" in cmd.style ||
-            "wrapping" in cmd.style ||
-            "rotation" in cmd.style)
+          "format" in cmd ||
+          ("style" in cmd &&
+            (!cmd.style ||
+              "fontSize" in cmd.style ||
+              "wrapping" in cmd.style ||
+              "rotation" in cmd.style))
         ) {
           for (const zone of cmd.target) {
             // TODO FLDA use rangeSet
@@ -220,8 +221,9 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
 
     const cell = this.getters.getCell(position);
     const style = this.getters.getCellStyle(position);
+    const format = this.getters.getCellFormat(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, style, this.getters.getLocale(), colSize);
+    return getDefaultCellHeight(this.ctx, cell, style, format, this.getters.getLocale(), colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {

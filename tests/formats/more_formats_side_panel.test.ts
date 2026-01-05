@@ -3,7 +3,7 @@ import { Model } from "../../src";
 import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/more_formats";
 import { click, setInputValueAndTrigger } from "../test_helpers";
 import { selectCell, setFormat } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCellFormat } from "../test_helpers/getters_helpers";
 import { mountComponent, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
@@ -58,22 +58,22 @@ describe("more formats side panel component", () => {
 
   test("Changing category applies the category default format", async () => {
     await mountFormatPanel();
-    expect(getCell(model, "A1")?.format).toBeUndefined();
+    expect(getCellFormat(model, "A1")).toBeUndefined();
 
     await click(fixture, ".o-badge-selection [data-id='date']");
-    expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
+    expect(getCellFormat(model, "A1")).toBe("m/d/yyyy");
   });
 
   test("Going back to the previous category goes back to the previous used format", async () => {
     await mountFormatPanel();
-    expect(getCell(model, "A1")?.format).toBeUndefined();
+    expect(getCellFormat(model, "A1")).toBeUndefined();
     await setInputValueAndTrigger(".o-custom-format-section input", "#,##0");
 
     await click(fixture, ".o-badge-selection [data-id='date']");
-    expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
+    expect(getCellFormat(model, "A1")).toBe("m/d/yyyy");
 
     await click(fixture, ".o-badge-selection [data-id='number']");
-    expect(getCell(model, "A1")?.format).toBe("#,##0");
+    expect(getCellFormat(model, "A1")).toBe("#,##0");
   });
 
   test("Can change the format from the list of proposals", async () => {
@@ -81,7 +81,7 @@ describe("more formats side panel component", () => {
     expect(".o-custom-format-section input").toHaveValue("");
 
     await click(fixture, ".format-preview[data-name='0.00%']");
-    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCellFormat(model, "A1")).toBe("0.00%");
     expect(".o-custom-format-section input").toHaveValue("0.00%");
     expect(getExampleValues()).toEqual(["123456.00%", "-123456.00%", "0.00%"]);
   });
@@ -92,7 +92,7 @@ describe("more formats side panel component", () => {
     expect(".o-custom-format-section input").toHaveValue("0.00%");
 
     await click(fixture, ".format-preview:nth-child(1)"); // first is automatic
-    expect(getCell(model, "A1")?.format).toBe(undefined);
+    expect(getCellFormat(model, "A1")).toBe(undefined);
     expect(".o-custom-format-section input").toHaveValue("");
   });
 
@@ -100,7 +100,7 @@ describe("more formats side panel component", () => {
     await mountFormatPanel();
 
     await setInputValueAndTrigger(".o-custom-format-section input", "#,##0");
-    expect(getCell(model, "A1")?.format).toBe("#,##0");
+    expect(getCellFormat(model, "A1")).toBe("#,##0");
     expect(".format-preview.active").toHaveText("-1,235");
     expect(getExampleValues()).toEqual(["1,235", "-1,235", "0"]);
   });
@@ -109,7 +109,7 @@ describe("more formats side panel component", () => {
     await mountFormatPanel();
 
     await setInputValueAndTrigger(".o-custom-format-section input", "invalid format");
-    expect(getCell(model, "A1")?.format).toBeUndefined();
+    expect(getCellFormat(model, "A1")).toBeUndefined();
     expect(".o-custom-format-section input").toHaveClass("o-invalid");
   });
 

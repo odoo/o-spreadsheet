@@ -414,7 +414,7 @@ function isAutomaticFormatSelected(env: SpreadsheetChildEnv): boolean {
   if (pivotCell.type === "VALUE") {
     return !env.model.getters.getEvaluatedCell(activePosition).format;
   }
-  return !env.model.getters.getCell(activePosition)?.format;
+  return !env.model.getters.getCellFormat(activePosition);
 }
 
 function isFormatSelected(env: SpreadsheetChildEnv, format: string): boolean {
@@ -423,7 +423,7 @@ function isFormatSelected(env: SpreadsheetChildEnv, format: string): boolean {
   if (pivotCell.type === "VALUE") {
     return env.model.getters.getEvaluatedCell(activePosition).format === format;
   }
-  return env.model.getters.getCell(activePosition)?.format === format;
+  return env.model.getters.getCellFormat(activePosition) === format;
 }
 
 function isFontSizeSelected(env: SpreadsheetChildEnv, fontSize: number): boolean {

@@ -7,7 +7,6 @@ interface CellAttributes {
    * Raw cell content
    */
   readonly content: string;
-  readonly format?: Format;
 }
 
 export interface LiteralCell extends CellAttributes {

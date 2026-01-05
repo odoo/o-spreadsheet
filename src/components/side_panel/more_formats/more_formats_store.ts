@@ -98,7 +98,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
     if (pivotCell.type === "VALUE") {
       return this.getters.getEvaluatedCell(activePosition).format;
     }
-    return this.getters.getCell(activePosition)?.format;
+    return this.getters.getCellFormat(activePosition);
   }
 
   private detectFormatCategory(format: Format | undefined): CustomFormatCategory {

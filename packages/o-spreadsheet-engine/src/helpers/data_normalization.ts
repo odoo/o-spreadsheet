@@ -1,6 +1,5 @@
-import { Position, UID } from "../types/misc";
-import { recomputeZones } from "./recompute_zones";
-import { positionToZone, toZone, zoneToXc } from "./zones";
+import { UID } from "../types/misc";
+import { toZone } from "./zones";
 
 type ReverseLookup = Map<string, number>;
 type ItemsDic<T> = { [id: number]: T };
@@ -31,17 +30,6 @@ export function getItemId<T>(item: T, itemsDic: ItemsDic<T>) {
   globalIdCounter.set(itemsDic, newId);
   itemsDic[newId] = item;
   return newId;
-}
-
-export function groupItemIdsByZones(positionsByItemId: { [id: number]: Position[] }) {
-  const result: Record<string, number> = {};
-  for (const itemId in positionsByItemId) {
-    const zones = recomputeZones(positionsByItemId[itemId].map(positionToZone));
-    for (const zone of zones) {
-      result[zoneToXc(zone)] = Number(itemId);
-    }
-  }
-  return result;
 }
 
 export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<string, number>) {

@@ -359,14 +359,16 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       return CommandResult.NoChanges;
     }
     for (const zone of recomputeZones(target)) {
+      const styles = hasStyle && this.getCellStyleInZone(sheetId, zone);
+      const formats = hasFormat && this.getters.getCellFormatInZone(sheetId, zone);
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const position = { sheetId, col, row };
-          const cell = this.getters.getCell(position);
-          const style = this.getCellStyle(position);
+          const oldStyle = styles && styles.get(position);
+          const oldFormat = formats && formats.get(position);
           if (
-            (hasStyle && !deepEquals(style, cmd.style)) ||
-            (hasFormat && cell?.format !== cmd.format)
+            (hasStyle && !deepEquals(oldStyle, cmd.style)) ||
+            (hasFormat && oldFormat !== cmd.format)
           ) {
             return CommandResult.Success;
           }

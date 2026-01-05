@@ -863,7 +863,6 @@ describe("Viewport of Simple sheet", () => {
     model = new Model();
     createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "=B1");
-    setCellContent(model, "A2", "=B1");
     setCellContent(model, "A3", "=B1");
     setCellContent(model, "A4", "=B1");
     setCellContent(model, "A5", "=5");
