@@ -92,7 +92,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
    */
   private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
     return (range: Range) => {
-      const result: ApplyRangeChangeResult = adaptRange(range);
+      const result: ApplyRangeChangeResult<Range> = adaptRange(range);
       if (result.changeType !== "NONE" && !isZoneValid(result.range.zone)) {
         return { range: result.range, changeType: "REMOVE" };
       }
