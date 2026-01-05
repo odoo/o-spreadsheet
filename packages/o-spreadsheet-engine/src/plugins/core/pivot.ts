@@ -160,11 +160,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         const newDependencies: Range[] = [];
         for (const range of compiledFormula.dependencies) {
           const change = applyChange(range);
-          if (change.changeType === "NONE") {
-            newDependencies.push(range);
-          } else {
-            newDependencies.push(change.range);
-          }
+          newDependencies.push(change.range);
         }
         const newFormulaString = this.getters.getFormulaString(
           sheetId,

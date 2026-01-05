@@ -95,8 +95,6 @@ function adaptPivotRange(
   }
   const change = applyChange(range);
   switch (change.changeType) {
-    case "NONE":
-      return range;
     case "REMOVE":
       return undefined;
     default:
