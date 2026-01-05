@@ -26889,7 +26889,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="10">
-            <c r="F10" t="s">
+            <c r="F10" s="12" t="s">
                 <v>
                     11
                 </v>
@@ -26903,17 +26903,17 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="20">
-            <c r="C20" s="12" t="s">
+            <c r="C20" s="13" t="s">
                 <v>
                     13
                 </v>
             </c>
-            <c r="E20" s="13" t="s">
+            <c r="E20" s="14" t="s">
                 <v>
                     14
                 </v>
             </c>
-            <c r="G20" s="14" t="s">
+            <c r="G20" s="15" t="s">
                 <v>
                     15
                 </v>
@@ -26927,21 +26927,21 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="23">
-            <c r="C23" s="15">
+            <c r="C23" s="16">
                 <v>
                     0.43
                 </v>
             </c>
         </row>
         <row r="24">
-            <c r="C24" s="16">
+            <c r="C24" s="17">
                 <v>
                     10
                 </v>
             </c>
         </row>
         <row r="25">
-            <c r="C25" s="16">
+            <c r="C25" s="17">
                 <v>
                     10.123
                 </v>
@@ -27287,7 +27287,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="17">
+    <cellXfs count="18">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
@@ -27306,6 +27306,9 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <alignment wrapText="1"/>
         </xf>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="6"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment shrinkToFit="1"/>
+        </xf>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="1"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="2"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="3"/>
