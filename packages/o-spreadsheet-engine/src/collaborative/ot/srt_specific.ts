@@ -66,7 +66,7 @@ function addConditionalFormatCommandAdaptRange(
     cmd.cf.rule = {
       ...rule,
       rangeValues: rule.rangeValues
-        ? adaptStringRange(cmd.sheetId, rule.rangeValues, applyChange)
+        ? adaptStringRange(cmd.sheetId, rule.rangeValues, applyChange).range
         : undefined,
     };
   }

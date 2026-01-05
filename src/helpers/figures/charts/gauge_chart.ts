@@ -170,8 +170,12 @@ export class GaugeChart extends AbstractChart {
   ): GaugeChartDefinition {
     let dataRange: string | undefined;
     if (definition.dataRange) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.dataRange, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.dataRange,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         dataRange = adaptedRange;
       }
     }
