@@ -156,6 +156,7 @@ export function extractStyle(
         : undefined,
       wrapText: style.wrapping === "wrap" || content?.includes(NEWLINE) ? true : undefined,
       textRotation: style.rotation ? rotationToXLSX(style.rotation) : undefined,
+      shrinkToFit: style.wrapping === "clip" ? true : undefined,
     },
   };
 
@@ -201,6 +202,7 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
       horizontal: styles.alignment.horizontal,
       wrapText: styles.alignment.wrapText,
       textRotation: styles.alignment.textRotation,
+      shrinkToFit: styles.alignment.shrinkToFit,
     },
   } as XLSXStyle;
 
