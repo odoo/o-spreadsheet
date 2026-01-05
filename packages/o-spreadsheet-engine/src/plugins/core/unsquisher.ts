@@ -3,6 +3,7 @@ import { toCartesian } from "../../helpers/coordinates";
 import { expandRange } from "../../helpers/expand_range";
 import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
+import { NO_CHANGE, SEPARATOR } from "./squisher";
 
 export class Unsquisher {
   private previousCell: InternalCompiledFormula | undefined;
@@ -19,7 +20,7 @@ export class Unsquisher {
    * @param squished - The squished sheet object.
    * Yields [cellRef, value] for each cell in the expanded squished object.
    * @param sheetId
-   * @param getSheetSize
+   * @param getRangeFromSheetXC
    */
   *unsquishSheet(
     squished: { [key: string]: any },
@@ -58,12 +59,12 @@ export class Unsquisher {
   unsquish(
     squishedElement: any,
     sheetId: UID,
-    getRangeFromSheetXC
+    getRangeFromSheetXC: (sheetId: UID, reference: string) => any
   ): string | InternalCompiledFormula {
     /*
      * 2 cases:
      * 1) squishedElement is a string -> simple formula, return as is
-     * 2) squishedElement is an object with C property -> complex formula, need to unsquish references, numbers, strings
+     * 2) squishedElement is an object -> complex formula, need to unsquish references, numbers, strings
      * */
     if (typeof squishedElement === "string") {
       if (squishedElement.startsWith("=")) {
@@ -84,9 +85,9 @@ export class Unsquisher {
       const current = this.previousCell;
       if (squishedElement.N !== undefined && squishedElement.N.length > 0) {
         // numbers
-        current.literalValues.numbers = squishedElement.N.split("|").map(
+        current.literalValues.numbers = squishedElement.N.split(SEPARATOR).map(
           (numStr: string, index: number) => {
-            if (numStr === "=") {
+            if (numStr === NO_CHANGE) {
               return { value: this.alreadyAppliedNumberOffset[index] };
             } else {
               const currentOffset = parseFloat(numStr.slice(1));
@@ -102,7 +103,7 @@ export class Unsquisher {
       if (squishedElement.S !== undefined && squishedElement.S.length > 0) {
         // strings
         current.literalValues.strings = squishedElement.S.map((str: string, index: number) => {
-          if (str === "=") {
+          if (str === NO_CHANGE) {
             return { value: this.previousString[index] };
           } else {
             this.previousString[index] = str;
@@ -112,41 +113,43 @@ export class Unsquisher {
       }
       if (squishedElement.R !== undefined && this.previousCell) {
         // references
-        current.dependencies = squishedElement.R.split("|").map((refStr: string, index: number) => {
-          if (refStr === "=") {
-            return { ...this.alreadyAppliedReferenceOffset[index] };
-          } else if (refStr.startsWith("+")) {
-            //offset in either row R or col C (not both)
-            const offset = parseInt(refStr.slice(2), 10);
+        current.dependencies = squishedElement.R.split(SEPARATOR).map(
+          (refStr: string, index: number) => {
+            if (refStr === NO_CHANGE) {
+              return { ...this.alreadyAppliedReferenceOffset[index] };
+            } else if (refStr.startsWith("+")) {
+              //offset in either row R or col C (not both)
+              const offset = parseInt(refStr.slice(2), 10);
 
-            if (refStr[1] === "R") {
-              const adjustedOffset = this.alreadyAppliedReferenceOffset[index].zone.top + offset;
-              const updatedRange = Object.assign({}, this.alreadyAppliedReferenceOffset[index], {
-                ...this.alreadyAppliedReferenceOffset[index].zone,
-                top: adjustedOffset,
-                bottom: adjustedOffset,
-              });
-              this.alreadyAppliedReferenceOffset[index] = updatedRange;
-              return updatedRange;
-            } else if (refStr[1] === "C") {
-              const adjustedOffset = this.alreadyAppliedReferenceOffset[index].zone.left + offset;
-              const updatedRange = Object.assign({}, this.alreadyAppliedReferenceOffset[index], {
-                ...this.alreadyAppliedReferenceOffset[index].zone,
-                left: adjustedOffset,
-                right: adjustedOffset,
-              });
-              this.alreadyAppliedReferenceOffset[index] = updatedRange;
-              return updatedRange;
+              if (refStr[1] === "R") {
+                const adjustedOffset = this.alreadyAppliedReferenceOffset[index].zone.top + offset;
+                const updatedRange = Object.assign({}, this.alreadyAppliedReferenceOffset[index], {
+                  ...this.alreadyAppliedReferenceOffset[index].zone,
+                  top: adjustedOffset,
+                  bottom: adjustedOffset,
+                });
+                this.alreadyAppliedReferenceOffset[index] = updatedRange;
+                return updatedRange;
+              } else if (refStr[1] === "C") {
+                const adjustedOffset = this.alreadyAppliedReferenceOffset[index].zone.left + offset;
+                const updatedRange = Object.assign({}, this.alreadyAppliedReferenceOffset[index], {
+                  ...this.alreadyAppliedReferenceOffset[index].zone,
+                  left: adjustedOffset,
+                  right: adjustedOffset,
+                });
+                this.alreadyAppliedReferenceOffset[index] = updatedRange;
+                return updatedRange;
+              } else {
+                throw new Error(`Invalid reference offset format: ${refStr}`);
+              }
             } else {
-              throw new Error(`Invalid reference offset format: ${refStr}`);
+              // the full reference
+              const fullRange = getRangeFromSheetXC(sheetId, refStr);
+              this.alreadyAppliedReferenceOffset[index] = fullRange;
+              return fullRange;
             }
-          } else {
-            // the full reference
-            const fullRange = getRangeFromSheetXC(sheetId, refStr);
-            this.alreadyAppliedReferenceOffset[index] = fullRange;
-            return fullRange;
           }
-        });
+        );
       }
       return current;
     }

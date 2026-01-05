@@ -14,6 +14,9 @@ interface SquishedFormula {
 
 export type SquishedCell = string | Partial<SquishedFormula>;
 
+export const SEPARATOR = "|";
+export const NO_CHANGE = "=";
+
 export class Squisher {
   previousCell: FormulaCell | undefined;
   private readonly getSheetName: (sheetId: UID) => string;
@@ -38,18 +41,18 @@ export class Squisher {
     references: string[]
   ): Partial<SquishedFormula> {
     const res: Partial<SquishedFormula> = {};
-    if (numbers.length && numbers.some((x) => x !== "=")) {
-      const numberPattern = numbers.join("|");
+    if (numbers.length && numbers.some((x) => x !== NO_CHANGE)) {
+      const numberPattern = numbers.join(SEPARATOR);
       if (this.previousNumberPattern !== numberPattern) {
         this.previousNumberPattern = numberPattern;
         res["N"] = numberPattern;
       }
     }
-    if (strings.length && strings.some((x) => x !== "=")) {
+    if (strings.length && strings.some((x) => x !== NO_CHANGE)) {
       res["S"] = strings;
     }
-    if (references.length && references.some((x) => x !== "=")) {
-      const referencePattern = references.join("|");
+    if (references.length && references.some((x) => x !== NO_CHANGE)) {
+      const referencePattern = references.join(SEPARATOR);
       if (this.previousReferencePattern !== referencePattern) {
         this.previousReferencePattern = referencePattern;
         res["R"] = referencePattern;
@@ -170,7 +173,7 @@ export class Squisher {
     const countDiff = countDeepDifferences(reference, previousReference);
     if (countDiff === 0) {
       // identical
-      return "=";
+      return NO_CHANGE;
     }
 
     const currentZone = reference.zone;
@@ -205,7 +208,7 @@ export class Squisher {
    * - the full number if the number is less than 100 or the change is big (more than 2 digits) as number
    * */
   private squishNumbers(numbers: { value: number }[]) {
-    const result: string[] = numbers.map((x) => "=");
+    const result: string[] = numbers.map((x) => NO_CHANGE);
     for (let i = 0; i < numbers.length; i++) {
       const diff =
         numbers[i].value -
@@ -221,7 +224,7 @@ export class Squisher {
   }
 
   private squishStrings(strings: { value: string }[]) {
-    const result: string[] = strings.map((x) => "=");
+    const result: string[] = strings.map((x) => NO_CHANGE);
     for (let i = 0; i < strings.length; i++) {
       const str = strings[i].value;
       const previousStr = this.previousStrings[i];
