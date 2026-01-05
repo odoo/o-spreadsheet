@@ -178,17 +178,22 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
   }
 
   private styleIsDefault(style: Style) {
-    return deepEquals(this.removeDefaultStyleValues(style), {});
+    for (const key in style) {
+      if (DEFAULT_STYLE_NO_ALIGN[key] !== style[key]) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  private removeDefaultStyleValues(style: Style | undefined): Style {
+  private removeDefaultStyleValues(style: Style | undefined): Style | undefined {
     const cleanedStyle = { ...style };
-    for (const property in DEFAULT_STYLE_NO_ALIGN) {
+    for (const property in style) {
       if (cleanedStyle[property] === DEFAULT_STYLE_NO_ALIGN[property]) {
         delete cleanedStyle[property];
       }
     }
-    return cleanedStyle;
+    return Object.keys(cleanedStyle).length > 0 ? cleanedStyle : undefined;
   }
 
   private onMerge(sheetId: UID, zone: Zone) {
@@ -239,20 +244,16 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
       editingZone = recomputeZones(editingZone, [inter]);
     }
 
+    style = this.removeDefaultStyleValues(style);
     if (style) {
-      const newStyle = this.removeDefaultStyleValues(style);
       styles.push(
         ...editingZone.map((zone) => {
-          return { zone, style: newStyle };
+          return { zone, style };
         })
       );
     }
 
-    this.history.update(
-      "styles",
-      sheetId,
-      styles.filter((zoneStyle) => !this.styleIsDefault(zoneStyle.style))
-    );
+    this.history.update("styles", sheetId, styles);
   }
 
   private clearStyle(sheetId: UID, zones: Zone[]) {
