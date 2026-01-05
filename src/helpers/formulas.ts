@@ -1,5 +1,7 @@
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
+import { CellErrorType } from "../types/errors";
+import { ApplyRangeChangeResult } from "../types/misc";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
@@ -19,7 +21,7 @@ export function adaptFormulaStringRanges(
       continue;
     }
     const sheetXC = tokens[tokenIdx].value;
-    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange);
+    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange).range;
 
     if (sheetXC !== newSheetXC) {
       tokens[tokenIdx] = {
@@ -35,28 +37,34 @@ export function adaptStringRange(
   defaultSheetId: UID,
   sheetXC: string,
   rangeAdapter: RangeAdapter
-): string {
+): ApplyRangeChangeResult<string> {
   const sheetName = splitReference(sheetXC).sheetName;
   if (
     sheetName
       ? !isSheetNameEqual(sheetName, rangeAdapter.sheetName.old)
       : defaultSheetId !== rangeAdapter.sheetId
   ) {
-    return sheetXC;
+    return { changeType: "NONE", range: sheetXC };
   }
   const sheetId = sheetName ? rangeAdapter.sheetId : defaultSheetId;
 
   const range = getRange(sheetXC, sheetId);
   if (range.invalidXc) {
-    return sheetXC;
+    return { changeType: "NONE", range: sheetXC };
   }
 
   const change = rangeAdapter.applyChange(range);
   if (change.changeType === "NONE" || change.changeType === "REMOVE") {
-    return sheetXC;
+    return { changeType: change.changeType, range: sheetXC };
   }
-
-  return getRangeString(change.range, defaultSheetId, getSheetNameGetter(rangeAdapter));
+  const rangeStr = getRangeString(change.range, defaultSheetId, getSheetNameGetter(rangeAdapter));
+  if (rangeStr === CellErrorType.InvalidReference) {
+    return { changeType: "REMOVE", range: rangeStr };
+  }
+  return {
+    changeType: change.changeType,
+    range: rangeStr,
+  };
 }
 
 function getSheetNameGetter(applyChange: RangeAdapter) {
