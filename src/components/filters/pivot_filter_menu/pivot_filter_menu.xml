@@ -3,12 +3,11 @@
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
       <div class="o-filter-menu-content">
         <SidePanelCollapsible
-          isInitiallyCollapsed="filterValueType !== 'criterion'"
+          isInitiallyCollapsed="props.filter.filterType !== 'criterion'"
           title.translate="Filter by criterion">
           <t t-set-slot="content">
             <PivotFilterMenuCriterion
               filter="props.filter"
-              filterPosition="props.filterPosition"
               onCriterionChanged.bind="onCriterionChanged"
               criterionOperators="criterionOperators"
             />
@@ -17,10 +16,10 @@
         </SidePanelCollapsible>
 
         <SidePanelCollapsible
-          isInitiallyCollapsed="filterValueType === 'criterion'"
+          isInitiallyCollapsed="props.filter.filterType === 'criterion'"
           title.translate="Filter by values">
           <t t-set-slot="content">
-            <FilterMenuValueListBasic
+            <FilterMenuValueList
               values="props.values"
               onUpdateHiddenValues.bind="onUpdateHiddenValues"
             />

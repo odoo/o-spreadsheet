@@ -2,20 +2,18 @@ import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/he
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
-import { interactiveSort } from "../../../helpers/sort_interactive";
 import {
   CellPosition,
   CellValueType,
   CriterionFilter,
   DataFilterValue,
   PivotFilter,
-  SortDirection,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
-import { FilterMenuValueListBasic } from "../filter_menu_value_list_basic/filter_menu_value_list_basic";
+import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
 import { PivotFilterMenuCriterion } from "../pivot_filter_menu_criterion/pivot_filter_menu_criterion";
 
 interface Props {
@@ -46,7 +44,7 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onConfirmed: Function,
   };
 
-  static components = { FilterMenuValueListBasic, SidePanelCollapsible, PivotFilterMenuCriterion };
+  static components = { FilterMenuValueList, SidePanelCollapsible, PivotFilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
@@ -59,25 +57,6 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
-  }
-
-  get isSortable() {
-    if (!this.table) {
-      return false;
-    }
-    const coreTable = this.env.model.getters.getCoreTableMatchingTopLeft(
-      this.table.range.sheetId,
-      this.table.range.zone
-    );
-    return !this.env.model.getters.isReadonly() && coreTable?.type !== "dynamic";
-  }
-
-  get table() {
-    return this.env.model.getters.getTable(this.props.filterPosition);
-  }
-
-  get filterValueType() {
-    return this.props.filter.filterType;
   }
 
   private getCriterionCategory(cellPosition: CellPosition): CriterionCategory {
@@ -142,21 +121,6 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   cancel() {
-    this.props.onClosed?.();
-  }
-
-  sortFilterZone(sortDirection: SortDirection) {
-    const filterPosition = this.props.filterPosition;
-    const table = this.table;
-    const tableZone = table?.range.zone;
-    if (!filterPosition || !tableZone || tableZone.top === tableZone.bottom) {
-      return;
-    }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const contentZone = { ...tableZone, top: tableZone.top + 1 };
-    const sortAnchor = { col: filterPosition.col, row: contentZone.top };
-    const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
-    interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
   }
 }

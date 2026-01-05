@@ -45,6 +45,7 @@ export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getFilterCriterionValue(position: Position): CriterionFilter {
+    //dans le parent
     const sheetId = this.env.model.getters.getActiveSheetId();
     const filterValue = this.env.model.getters.getFilterCriterionValue({ sheetId, ...position });
     return filterValue?.filterType === "criterion"
@@ -52,6 +53,7 @@ export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
       : { filterType: "criterion", type: "none", values: [] };
   }
 
+  //tout ce qui est en dessous est similaire
   get criterionMenuItems(): Action[] {
     const noCriterionMenuItem = createAction({
       name: _t("None"),

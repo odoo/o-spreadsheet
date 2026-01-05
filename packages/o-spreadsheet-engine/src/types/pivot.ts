@@ -1,9 +1,8 @@
 import { CellValue } from "./cells";
 import { Format } from "./format";
-import { DateCriterionValue } from "./generic_criterion";
 import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
-import { FilterCriterionType } from "./table";
+import { CriterionFilter, ValuesFilter } from "./table";
 
 export type Aggregator =
   | "array_agg"
@@ -60,18 +59,12 @@ export type PivotFilter = PivotCoreFilter & {
   isValid: boolean;
 };
 
-export interface PivotValuesFilter {
-  filterType: "values";
+export interface PivotValuesFilter extends ValuesFilter {
   fieldName: string;
-  hiddenValues: CellValue[];
 }
 
-export interface PivotCriterionFilter {
-  filterType: "criterion";
+export interface PivotCriterionFilter extends CriterionFilter {
   fieldName: string;
-  type: FilterCriterionType | "none";
-  values: string[];
-  dateValue?: DateCriterionValue;
 }
 
 export interface CommonPivotCoreDefinition {

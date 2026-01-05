@@ -1,19 +1,18 @@
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
-import { deepCopy, deepEquals } from "../../../helpers";
+import { deepCopy } from "../../../helpers";
 import {
   criterionComponentRegistry,
   getCriterionMenuItems,
 } from "../../../registries/criterion_component_registry";
-import { CellPosition, CriterionFilter, GenericCriterionType, PivotFilter } from "../../../types";
+import { CriterionFilter, GenericCriterionType, PivotFilter } from "../../../types";
 import { SelectMenu } from "../../side_panel/select_menu/select_menu";
 
 interface Props {
   filter: PivotFilter;
-  filterPosition: CellPosition;
   criterionOperators: GenericCriterionType[];
   onCriterionChanged: (criterion: CriterionFilter) => void;
 }
@@ -26,7 +25,6 @@ export class PivotFilterMenuCriterion extends Component<Props, SpreadsheetChildE
   static template = "o-spreadsheet-PivotFilterMenuCriterion";
   static props = {
     filter: Object,
-    filterPosition: Object,
     onCriterionChanged: Function,
     criterionOperators: Array,
   };
@@ -35,23 +33,20 @@ export class PivotFilterMenuCriterion extends Component<Props, SpreadsheetChildE
   private state!: State;
 
   setup() {
-    onWillUpdateProps((nextProps: Props) => {
-      if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.criterion = this.getFilterCriterionValue();
-      }
-    });
-
     this.state = useState({
       criterion: this.getFilterCriterionValue(),
     });
   }
 
   private getFilterCriterionValue(): CriterionFilter {
-    return this.props.filter.filterType === "criterion"
-      ? deepCopy(this.props.filter)
+    //dans le parent
+    const filterValue = this.props.filter;
+    return filterValue.filterType === "criterion"
+      ? deepCopy(filterValue)
       : { filterType: "criterion", type: "none", values: [] };
   }
 
+  //tout ce qui est en dessous est similaire
   get criterionMenuItems(): Action[] {
     const noCriterionMenuItem = createAction({
       name: _t("None"),
