@@ -89,11 +89,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         }
         break;
       case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnn(cmd);
-        } else {
-          this.handleAddRows(cmd);
-        }
+        this.handleAddColRow(cmd);
         break;
       case "CLEAR_CELL":
         this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
@@ -103,6 +99,9 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         break;
       case "DELETE_SHEET":
         this.history.update("styles", cmd.sheetId, undefined);
+        break;
+      case "DUPLICATE_SHEET":
+        this.history.update("styles", cmd.sheetIdTo, this.styles[cmd.sheetId]);
         break;
     }
   }
@@ -125,54 +124,17 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     this.history.update("styles", sheetId, newStyles);
   }
 
-  private handleAddColumnn(cmd: AddColumnsRowsCommand) {
-    const styles = this.styles[cmd.sheetId] ?? [];
-    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
-      const style = styles[styleIdx];
-      if (style.zone.left - cmd.quantity === cmd.base && cmd.position === "before") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "left",
-          style.zone.left - cmd.quantity
-        );
-      } else if (style.zone.right === cmd.base && cmd.position === "after") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "right",
-          style.zone.right + cmd.quantity
-        );
-      }
-    }
-  }
-
-  private handleAddRows(cmd: AddColumnsRowsCommand) {
-    const styles = this.styles[cmd.sheetId] ?? [];
-    for (let styleIdx = 0; styleIdx < styles.length; styleIdx++) {
-      const style = styles[styleIdx];
-      if (style.zone.top - cmd.quantity === cmd.base && cmd.position === "before") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "top",
-          style.zone.top - cmd.quantity
-        );
-      } else if (style.zone.bottom === cmd.base && cmd.position === "after") {
-        this.history.update(
-          "styles",
-          cmd.sheetId,
-          styleIdx,
-          "zone",
-          "bottom",
-          style.zone.bottom + cmd.quantity
-        );
+  private handleAddColRow(cmd: AddColumnsRowsCommand) {
+    const start = cmd.dimension === "COL" ? "left" : "top";
+    const end = cmd.dimension === "COL" ? "right" : "bottom";
+    const sheetId = cmd.sheetId;
+    const sheetValues = this.styles[sheetId] ?? [];
+    for (let i = 0; i < sheetValues.length; i++) {
+      const value = sheetValues[i];
+      if (value.zone[start] - cmd.quantity === cmd.base && cmd.position === "before") {
+        this.history.update("styles", sheetId, i, "zone", start, value.zone[start] - cmd.quantity);
+      } else if (value.zone[end] === cmd.base && cmd.position === "after") {
+        this.history.update("styles", sheetId, i, "zone", end, value.zone[end] + cmd.quantity);
       }
     }
   }
@@ -326,11 +288,11 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
           this.setStyle(sheet.id, toZone(zoneXc), data.styles[styleId]);
         }
       }
-      for (const sheetData of data.sheets) {
-        if (sheetData.merges) {
-          for (const merge of sheetData.merges) {
-            this.onMerge(sheetData.id, toZone(merge));
-          }
+    }
+    for (const sheetData of data.sheets) {
+      if (sheetData.merges) {
+        for (const merge of sheetData.merges) {
+          this.onMerge(sheetData.id, toZone(merge));
         }
       }
     }
