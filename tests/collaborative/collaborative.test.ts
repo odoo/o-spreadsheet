@@ -3,7 +3,13 @@ import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { featurePluginRegistry } from "../../src/plugins";
-import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
+import {
+  Command,
+  CommandResult,
+  CoreCommand,
+  DEFAULT_LOCALE,
+  DataValidationCriterion,
+} from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
@@ -1083,7 +1089,7 @@ describe("Multi users synchronisation", () => {
     const ctx = document.createElement("canvas").getContext("2d")!;
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
-      getDefaultCellHeight(ctx, getCell(alice, "A1"), colSize)
+      getDefaultCellHeight(ctx, getCell(alice, "A1"), DEFAULT_LOCALE, colSize)
     );
   });
 
