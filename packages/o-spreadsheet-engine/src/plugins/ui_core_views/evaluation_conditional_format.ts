@@ -9,8 +9,8 @@ import { criterionEvaluatorRegistry } from "../../registries/criterion_registry"
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
 import {
   CoreViewCommand,
+  doesInvalidateEvalution,
   invalidateCFEvaluationCommands,
-  invalidateEvaluationCommands,
 } from "../../types/commands";
 import {
   CellIsRule,
@@ -47,11 +47,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   // ---------------------------------------------------------------------------
 
   handle(cmd: CoreViewCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (doesInvalidateEvalution(cmd) || invalidateCFEvaluationCommands.has(cmd.type)) {
       this.isStale = true;
     }
   }
