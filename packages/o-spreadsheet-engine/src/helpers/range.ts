@@ -351,7 +351,7 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
   const groups = groupConsecutive(elements);
   return (range: Range) => {
     if (range.sheetId !== cmd.sheetId) {
-      return { changeType: "NONE" };
+      return { changeType: "NONE", range };
     }
     let newRange = range;
     let changeType: ChangeType = "NONE";
@@ -375,10 +375,7 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
         newRange = createAdaptedRange(newRange, dimension, changeType, -(max - min + 1));
       }
     }
-    if (changeType !== "NONE") {
-      return { changeType, range: newRange };
-    }
-    return { changeType: "NONE" };
+    return { changeType, range: newRange };
   };
 }
 
@@ -389,7 +386,7 @@ function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeCha
 
   return (range: Range) => {
     if (range.sheetId !== cmd.sheetId) {
-      return { changeType: "NONE" };
+      return { changeType: "NONE", range };
     }
     if (cmd.position === "after") {
       if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
@@ -418,14 +415,14 @@ function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeCha
         };
       }
     }
-    return { changeType: "NONE" };
+    return { changeType: "NONE", range };
   };
 }
 
 function getApplyRangeChangeDeleteSheet(cmd: DeleteSheetCommand): ApplyRangeChange {
   return (range: Range) => {
     if (range.sheetId !== cmd.sheetId && range.invalidSheetName !== cmd.sheetName) {
-      return { changeType: "NONE" };
+      return { changeType: "NONE", range };
     }
     const invalidSheetName = cmd.sheetName;
     range = {
@@ -453,7 +450,7 @@ function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChan
       const newRange = { ...range, sheetId, invalidSheetName };
       return { changeType: "CHANGE", range: newRange };
     }
-    return { changeType: "NONE" };
+    return { changeType: "NONE", range };
   };
 }
 
@@ -461,7 +458,7 @@ function getApplyRangeChangeMoveRange(cmd: MoveRangeCommand): ApplyRangeChange {
   const originZone = cmd.target[0];
   return (range: Range) => {
     if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
-      return { changeType: "NONE" };
+      return { changeType: "NONE", range };
     }
     const targetSheetId = cmd.targetSheetId;
     const offsetX = cmd.col - originZone.left;
