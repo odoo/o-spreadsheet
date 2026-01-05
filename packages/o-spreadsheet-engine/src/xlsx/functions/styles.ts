@@ -157,6 +157,9 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
     if (style.alignment && style.alignment.textRotation) {
       alignAttrs.push(["textRotation", style.alignment.textRotation]);
     }
+    if (style.alignment && style.alignment.shrinkToFit) {
+      alignAttrs.push(["shrinkToFit", "1"]);
+    }
 
     if (alignAttrs.length > 0) {
       attributes.push(["applyAlignment", "1"]); // for Libre Office
