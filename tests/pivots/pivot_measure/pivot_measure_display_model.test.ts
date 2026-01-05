@@ -1389,6 +1389,37 @@ describe("Measure display", () => {
         A25: "Total",      B25: "230200",  C25: "230200",  D25: "90000",  E25: "320200",  F25: "320200",  G25: "",
       });
     });
+
+    test("PIVOT.VALUE running total returns the exact value for an existing date bucket", () => {
+      const model = createModelWithTestPivotDataset();
+      updatePivotMeasureDisplay(model, pivotId, measureId, {
+        type: "running_total",
+        fieldNameWithGranularity: "Created on:month_number",
+      });
+      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 4)`);
+      expect(getEvaluatedCell(model, "A40").value).toBe(320200);
+    });
+
+    test("PIVOT.VALUE running total falls back to the previous value for a missing date bucket", () => {
+      const model = createModelWithTestPivotDataset();
+      updatePivotMeasureDisplay(model, pivotId, measureId, {
+        type: "running_total",
+        fieldNameWithGranularity: "Created on:month_number",
+      });
+      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`);
+      expect(getEvaluatedCell(model, "A40").value).toBe(320200);
+    });
+
+    test("PIVOT.VALUE running total returns empty before the first date bucket", () => {
+      const model = createModelWithTestPivotDataset();
+      updatePivotMeasureDisplay(model, pivotId, measureId, {
+        type: "running_total",
+        fieldNameWithGranularity: "Created on:month_number",
+      });
+
+      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`);
+      expect(getEvaluatedCell(model, "A40").value).toBe("");
+    });
   });
 
   describe("%_running_total", () => {
