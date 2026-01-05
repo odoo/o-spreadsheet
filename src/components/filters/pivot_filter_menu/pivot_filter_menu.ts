@@ -1,7 +1,7 @@
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepEquals, isDateTimeFormat } from "../../../helpers";
+import { deepCopy, deepEquals, isDateTimeFormat } from "../../../helpers";
 import {
   CellPosition,
   CellValueType,
@@ -13,8 +13,8 @@ import {
   filterTextCriterionOperators,
 } from "../../../types";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
+import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
-import { PivotFilterMenuCriterion } from "../pivot_filter_menu_criterion/pivot_filter_menu_criterion";
 
 interface Props {
   definition: SpreadsheetPivotRuntimeDefinition;
@@ -44,7 +44,7 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onConfirmed: Function,
   };
 
-  static components = { FilterMenuValueList, SidePanelCollapsible, PivotFilterMenuCriterion };
+  static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
@@ -122,5 +122,12 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
 
   cancel() {
     this.props.onClosed?.();
+  }
+
+  getFilterCriterionValue(): CriterionFilter {
+    const filterValue = this.props.filter;
+    return filterValue.filterType === "criterion"
+      ? deepCopy(filterValue)
+      : { filterType: "criterion", type: "none", values: [] };
   }
 }

@@ -6,8 +6,8 @@
           isInitiallyCollapsed="props.filter.filterType !== 'criterion'"
           title.translate="Filter by criterion">
           <t t-set-slot="content">
-            <PivotFilterMenuCriterion
-              filter="props.filter"
+            <FilterMenuCriterion
+              criterion="getFilterCriterionValue()"
               onCriterionChanged.bind="onCriterionChanged"
               criterionOperators="criterionOperators"
             />

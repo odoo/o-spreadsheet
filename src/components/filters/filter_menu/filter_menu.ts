@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { deepEquals, isDateTimeFormat, positions, toLowerCase } from "../../../helpers";
+import { deepCopy, deepEquals, isDateTimeFormat, positions, toLowerCase } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import {
   CellValueType,
@@ -209,6 +209,14 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
         sensitivity: "base",
       })
     );
+  }
+
+  getFilterCriterionValue(position: Position): CriterionFilter {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filterValue = this.env.model.getters.getFilterCriterionValue({ sheetId, ...position });
+    return filterValue?.filterType === "criterion"
+      ? deepCopy(filterValue)
+      : { filterType: "criterion", type: "none", values: [] };
   }
 }
 

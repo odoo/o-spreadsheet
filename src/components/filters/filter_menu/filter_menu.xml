@@ -22,7 +22,7 @@
           title.translate="Filter by criterion">
           <t t-set-slot="content">
             <FilterMenuCriterion
-              filterPosition="props.filterPosition"
+              criterion="getFilterCriterionValue(props.filterPosition)"
               onCriterionChanged.bind="onCriterionChanged"
               criterionOperators="criterionOperators"
             />
