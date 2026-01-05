@@ -985,12 +985,18 @@ describe("composer", () => {
   });
 
   test("Pressing F2 will toggle edition mode on ranges", async () => {
-    await startComposition("=A1+A2");
+    await startComposition("=G4+F9");
     expect(composerStore.editionMode).toBe("editing");
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("selecting");
+    await keyDown({ key: "ArrowDown" });
+    expect(composerStore.currentContent).toEqual("=G4+F10");
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
+    await keyDown({ key: "F2" });
+    expect(composerStore.editionMode).toBe("selecting");
+    await keyDown({ key: "ArrowRight" });
+    expect(composerStore.currentContent).toEqual("=G4+G10");
   });
 });
 
