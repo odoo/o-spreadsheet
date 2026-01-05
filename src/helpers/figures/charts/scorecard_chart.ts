@@ -26,7 +26,6 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
-import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
@@ -211,14 +210,22 @@ export class ScorecardChart extends AbstractChart {
     let baseline: string | undefined;
     let keyValue: string | undefined;
     if (definition.baseline) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.baseline, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.baseline,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         baseline = adaptedRange;
       }
     }
     if (definition.keyValue) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.keyValue, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.keyValue,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         keyValue = adaptedRange;
       }
     }
