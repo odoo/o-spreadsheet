@@ -16,7 +16,6 @@ import {
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
-import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
@@ -213,14 +212,22 @@ export class ScorecardChart extends AbstractChart {
     let baseline: string | undefined;
     let keyValue: string | undefined;
     if (definition.baseline) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.baseline, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.baseline,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         baseline = adaptedRange;
       }
     }
     if (definition.keyValue) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.keyValue, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.keyValue,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         keyValue = adaptedRange;
       }
     }
