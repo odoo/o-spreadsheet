@@ -8,10 +8,10 @@ import {
 } from "../../src/types/collaborative/transport_service";
 
 export class MockTransportService implements TransportService<CollaborationMessage> {
-  private listeners: { id: UID; callback: NewMessageCallback }[] = [];
+  protected listeners: { id: UID; callback: NewMessageCallback }[] = [];
   private pendingMessages: CollaborationMessage[] = [];
   private isConcurrent: boolean = false;
-  private serverRevisionId: string = DEFAULT_REVISION_ID;
+  protected serverRevisionId: string = DEFAULT_REVISION_ID;
   snapshot?: WorkbookData;
 
   onNewMessage(id: UID, callback: NewMessageCallback) {
