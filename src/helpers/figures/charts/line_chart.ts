@@ -7,7 +7,6 @@ import {
   checkLabelRange,
   copyChartDataSourceInSheetId,
   createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
   getDefinedAxis,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -76,6 +75,7 @@ export class LineChart extends AbstractChart {
     return {
       background: context.background,
       dataSource: {
+        type: "range",
         dataSets: [],
         dataSetsHaveTitle: false,
         labelRange: context.auxiliaryRange,
@@ -152,17 +152,6 @@ export class LineChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
-
-  duplicateInDuplicatedSheet(newSheetId: UID): LineChart {
-    const dataSource = duplicateDataSourceInDuplicatedSheet(
-      this.getters,
-      this.sheetId,
-      newSheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new LineChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): LineChart {

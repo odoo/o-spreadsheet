@@ -6,7 +6,6 @@ import {
   checkLabelRange,
   copyChartDataSourceInSheetId,
   createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -72,6 +71,7 @@ export class TreeMapChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
     let dataSource: ChartRangeDataSource = {
+      type: "range",
       dataSets: [],
       dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
       labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
@@ -110,24 +110,14 @@ export class TreeMapChart extends AbstractChart {
       treemapColoringOptions: definition.coloringOptions,
       dataSource: definition.dataSource.labelRange
         ? {
+            type: "range",
             dataSets: [{ dataRange: definition.dataSource.labelRange, dataSetId: "0" }],
             dataSetsHaveTitle,
           }
-        : { dataSets: [], dataSetsHaveTitle },
+        : { type: "range", dataSets: [], dataSetsHaveTitle },
       auxiliaryRange: leafRange,
       hierarchicalDataSource: definition.dataSource,
     };
-  }
-
-  duplicateInDuplicatedSheet(newSheetId: UID): TreeMapChart {
-    const dataSource = duplicateDataSourceInDuplicatedSheet(
-      this.getters,
-      this.sheetId,
-      newSheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new TreeMapChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): TreeMapChart {
