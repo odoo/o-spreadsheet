@@ -154,10 +154,20 @@ export type CustomizedDataSet = {
 } & DatasetDesign;
 
 export interface ChartRangeDataSource {
+  readonly type: "range";
   readonly dataSets: { dataSetId: UID; dataRange: string }[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
 }
+
+export interface ChartPivotDataSource {
+  readonly type: "pivot";
+  readonly pivotId: UID;
+}
+
+export type ChartDataSource = ChartRangeDataSource | ChartPivotDataSource;
+
+export type ChartDataSourceType = ChartDataSource["type"];
 
 export type AxisType = "category" | "linear" | "time";
 
