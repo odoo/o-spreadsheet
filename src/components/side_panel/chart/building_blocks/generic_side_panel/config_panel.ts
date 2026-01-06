@@ -430,7 +430,7 @@ export class GenericChartConfigPanel<
     const dataSets = createDataSets(
       getters,
       sheetId, // TODO check: this was using this.dataSets before
-      this.props.definition
+      this.props.definition.dataSource
     );
     if (dataSets.length) {
       return this.datasetOrientation === "rows"
