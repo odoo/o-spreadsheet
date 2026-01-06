@@ -10,9 +10,9 @@ import {
   SetFormattingCommand,
 } from "../../types/commands";
 import {
-  ApplyRangeChange,
   CellPosition,
   Color,
+  RangeAdapterFunctions,
   Style,
   UID,
   UnboundedZone,
@@ -107,7 +107,7 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     const newStyles: ZoneStyle[] = [];
     for (const style of this.styles[sheetId] ?? []) {
       const change = applyChange(this.getters.getRangeFromZone(sheetId, style.zone));

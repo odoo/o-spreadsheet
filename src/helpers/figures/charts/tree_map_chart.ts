@@ -1,4 +1,4 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -26,15 +26,7 @@ import {
   TreeMapColoringOptions,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -193,7 +185,7 @@ export class TreeMapChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): TreeMapChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): TreeMapChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

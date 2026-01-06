@@ -1,4 +1,4 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -26,15 +26,7 @@ import {
   GeoChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { ChartConfiguration } from "chart.js";
-import {
-  ApplyRangeChange,
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getChartTitle,
   getGeoChartData,
@@ -176,7 +168,7 @@ export class GeoChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): GeoChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): GeoChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,

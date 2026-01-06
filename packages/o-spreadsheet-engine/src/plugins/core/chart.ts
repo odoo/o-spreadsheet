@@ -11,13 +11,7 @@ import {
   DeleteChartCommand,
   UpdateChartCommand,
 } from "../../types/commands";
-import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  HeaderIndex,
-  PixelPosition,
-  UID,
-} from "../../types/misc";
+import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { DOMDimension } from "../../types/rendering";
 import { FigureData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -48,12 +42,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private validateChartDefinition = (cmd: CreateChartCommand | UpdateChartCommand) =>
     validateChartDefinition(this, cmd.definition);
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, adaptSheetName: AdaptSheetName) {
+  adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
       if (!chart) {
         continue;
       }
-      const newChart = chart.chart.updateRanges(applyChange, sheetId, adaptSheetName);
+      const newChart = chart.chart.updateRanges(rangeAdapters);
       this.history.update(
         "charts",
         chartId,

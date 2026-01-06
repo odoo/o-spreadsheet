@@ -8,7 +8,7 @@ import {
   UpdateFigureCommand,
 } from "../../types/commands";
 import { AnchorOffset, Figure } from "../../types/figure";
-import { ApplyRangeChange, HeaderIndex, PixelPosition, UID } from "../../types/misc";
+import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
@@ -27,7 +27,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     for (const figure of this.getFigures(sheetId)) {
       const change = applyChange(
         this.getters.getRangeFromZone(sheetId, {

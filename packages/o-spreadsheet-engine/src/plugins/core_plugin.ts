@@ -1,16 +1,16 @@
 import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
-import { AdaptSheetName, ApplyRangeChange, RangeProvider, UID } from "../types/misc";
+import { AdaptSheetName, RangeAdapterFunctions, RangeProvider, UID } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
-import { RangeAdapter } from "./core/range";
+import { RangeAdapterPlugin } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
   readonly stateObserver: StateObserver;
-  readonly range: RangeAdapter;
+  readonly range: RangeAdapterPlugin;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly custom: ModelConfig["custom"];
@@ -62,5 +62,9 @@ export class CorePlugin<State = any>
    * @param sheetId an sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID, sheetName: AdaptSheetName): void {}
+  adaptRanges(
+    rangeAdapterFunctions: RangeAdapterFunctions,
+    sheetId: UID,
+    sheetName: AdaptSheetName
+  ): void {}
 }

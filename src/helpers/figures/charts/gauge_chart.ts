@@ -1,6 +1,7 @@
 import {
   BasePlugin,
   CoreGetters,
+  RangeAdapterFunctions,
   rangeReference,
   Validation,
   Validator,
@@ -20,10 +21,7 @@ import {
   adaptChartRange,
   duplicateLabelRangeInDuplicatedSheet,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import {
-  adaptFormulaStringRanges,
-  adaptStringRange,
-} from "@odoo/o-spreadsheet-engine/helpers/formulas";
+import { adaptStringRange } from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -35,8 +33,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
   CellValueType,
   Color,
   CommandResult,
@@ -174,8 +170,12 @@ export class GaugeChart extends AbstractChart {
   ): GaugeChartDefinition {
     let dataRange: string | undefined;
     if (definition.dataRange) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.dataRange, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.dataRange,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         dataRange = adaptedRange;
       }
     }
@@ -274,19 +274,10 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  updateRanges(
-    applyChange: ApplyRangeChange,
-    sheetId: UID,
-    adaptSheetName: AdaptSheetName
-  ): GaugeChart {
+  updateRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions): GaugeChart {
     const dataRange = adaptChartRange(this.dataRange, applyChange);
 
-    const adaptFormula = (formula: string) =>
-      adaptFormulaStringRanges(this.sheetId, formula, {
-        applyChange,
-        sheetId,
-        sheetName: adaptSheetName,
-      });
+    const adaptFormula = (formula: string) => adaptFormulaString(this.sheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
     const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
     return new GaugeChart(definition, this.sheetId, this.getters);

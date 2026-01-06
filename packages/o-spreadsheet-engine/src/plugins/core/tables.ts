@@ -18,7 +18,14 @@ import {
   UpdateCellCommand,
   UpdateTableCommand,
 } from "../../types/commands";
-import { ApplyRangeChange, CellPosition, TableId, UID, Zone } from "../../types/misc";
+import {
+  ApplyRangeChange,
+  CellPosition,
+  RangeAdapterFunctions,
+  TableId,
+  UID,
+  Zone,
+} from "../../types/misc";
 import { Range } from "../../types/range";
 import {
   CoreTable,
@@ -43,7 +50,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId: UID) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     for (const table of this.getCoreTables(sheetId)) {
       this.applyRangeChangeOnTable(sheetId, table, applyChange);
     }

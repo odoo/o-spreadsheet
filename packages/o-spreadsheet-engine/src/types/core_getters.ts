@@ -11,7 +11,7 @@ import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { PivotCorePlugin } from "../plugins/core/pivot";
-import { RangeAdapter } from "../plugins/core/range";
+import { RangeAdapterPlugin } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { StylePlugin } from "../plugins/core/style";
@@ -67,7 +67,7 @@ type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getter
 export type PluginGetters<
   Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }
 > = Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
-type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;
+type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &

@@ -1,4 +1,4 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -28,7 +28,6 @@ import {
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import {
-  ApplyRangeChange,
   ChartCreationContext,
   Color,
   CommandResult,
@@ -169,7 +168,7 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ComboChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): ComboChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
