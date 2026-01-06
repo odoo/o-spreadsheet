@@ -49,9 +49,12 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
     const value = !!getters.getEvaluatedCell(position).value;
+    const emptyHoveredCheckBoxSvg = getters.isReadonly()
+      ? CHECKBOX_UNCHECKED
+      : CHECKBOX_UNCHECKED_HOVERED;
     return {
       svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
-      hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
+      hoverSvg: value ? CHECKBOX_CHECKED : emptyHoveredCheckBoxSvg,
       priority: 2,
       horizontalAlign: "center",
       size: GRID_ICON_EDGE_LENGTH,
@@ -75,7 +78,7 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
 
 iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
   const chipStyle = getters.getDataValidationChipStyle(position);
-  if (chipStyle) {
+  if (chipStyle && !getters.isReadonly()) {
     const cellStyle = getters.getCellComputedStyle(position);
     return {
       svg: getChipSvg(chipStyle),
