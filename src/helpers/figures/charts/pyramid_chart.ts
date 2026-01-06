@@ -60,7 +60,7 @@ export class PyramidChart extends AbstractChart {
 
   constructor(private definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition);
+    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
@@ -160,7 +160,7 @@ export class PyramidChart extends AbstractChart {
       this.labelRange,
       this.dataSets
     );
-    const data = getChartData(getters, this.sheetId, definition);
+    const data = getChartData(getters, this.sheetId, definition.dataSource);
     const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
