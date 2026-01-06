@@ -13,7 +13,7 @@ type ColumnType = "number" | "text" | "date" | "percentage" | "empty";
 const DEFAULT_BAR_CHART_CONFIG: BarChartDefinition = {
   type: "bar",
   title: {},
-  dataSource: { dataSets: [], dataSetsHaveTitle: false },
+  dataSource: { type: "range", dataSets: [], dataSetsHaveTitle: false },
   dataSetStyles: {},
   legendPosition: "none",
   stacked: false,
@@ -23,7 +23,7 @@ const DEFAULT_BAR_CHART_CONFIG: BarChartDefinition = {
 const DEFAULT_LINE_CHART_CONFIG: LineChartDefinition = {
   type: "line",
   title: {},
-  dataSource: { dataSets: [], dataSetsHaveTitle: false },
+  dataSource: { type: "range", dataSets: [], dataSetsHaveTitle: false },
   dataSetStyles: {},
   legendPosition: "none",
   stacked: false,
@@ -123,7 +123,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "pie",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
+        dataSource: { type: "range", dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
         dataSetStyles: {},
         legendPosition: "none",
       };
@@ -139,6 +139,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
         type: "pie",
         title: hasUniqueTitle ? { text: String(titleCell.value) } : {},
         dataSource: {
+          type: "range",
           dataSets: [{ dataRange, dataSetId: "0" }],
           labelRange: dataRange,
           dataSetsHaveTitle: hasUniqueTitle,
@@ -153,14 +154,14 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
         ...DEFAULT_LINE_CHART_CONFIG,
         type: "line",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
+        dataSource: { type: "range", dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
         dataSetStyles: {},
       };
   }
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-    dataSource: { dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
+    dataSource: { type: "range", dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
     dataSetStyles: {},
   };
 }
@@ -184,6 +185,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       type: "pie",
       title: {},
       dataSource: {
+        type: "range",
         dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
         labelRange: getUnboundRange(getters, columns[0].zone),
         dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
@@ -199,6 +201,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       type: "scatter",
       title: {},
       dataSource: {
+        type: "range",
         dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
         labelRange: getUnboundRange(getters, columns[0].zone),
         dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
@@ -214,6 +217,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
       dataSource: {
+        type: "range",
         dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
         labelRange: getUnboundRange(getters, columns[0].zone),
         dataSetsHaveTitle: isDatasetTitled(getters, columns[0]),
@@ -234,6 +238,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
         type: "treemap",
         title: {},
         dataSource: {
+          type: "range",
           dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone), dataSetId: "0" }],
           labelRange: getUnboundRange(getters, numberColumn.zone),
           dataSetsHaveTitle,
@@ -247,6 +252,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     dataSource: {
+      type: "range",
       dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
       labelRange: getUnboundRange(getters, columns[0].zone),
       dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
@@ -287,6 +293,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       type: columnsExceptLast.length >= 3 ? "sunburst" : "treemap",
       title: {},
       dataSource: {
+        type: "range",
         dataSets,
         dataSetsHaveTitle,
         labelRange: getUnboundRange(getters, lastColumn.zone),
@@ -308,6 +315,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       type: "pie",
       title: {},
       dataSource: {
+        type: "range",
         dataSets: rangesOfColumnsExceptFirst,
         labelRange: getUnboundRange(getters, firstColumn.zone),
         dataSetsHaveTitle,
@@ -323,6 +331,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
       dataSource: {
+        type: "range",
         dataSets: rangesOfColumnsExceptFirst,
         labelRange: getUnboundRange(getters, firstColumn.zone),
         dataSetsHaveTitle,
@@ -335,6 +344,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     dataSource: {
+      type: "range",
       dataSets: rangesOfColumnsExceptFirst,
       labelRange: getUnboundRange(getters, firstColumn.zone),
       dataSetsHaveTitle,
@@ -372,7 +382,10 @@ export function getSmartChartDefinition(zones: Zone[], getters: Getters): ChartD
       dataRange: getUnboundRange(getters, zone),
       dataSetId: i.toString(),
     }));
-    return { ...DEFAULT_BAR_CHART_CONFIG, dataSource: { dataSets, dataSetsHaveTitle: false } };
+    return {
+      ...DEFAULT_BAR_CHART_CONFIG,
+      dataSource: { type: "range", dataSets, dataSetsHaveTitle: false },
+    };
   }
 
   const nonEmptyColumns = columns.filter((col) => col.type !== "empty");

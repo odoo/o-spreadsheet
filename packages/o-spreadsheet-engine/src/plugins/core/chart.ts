@@ -2,7 +2,13 @@ import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from 
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import { deepEquals } from "../../helpers/misc";
-import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart";
+import { chartDataSourceRegistry } from "../../registries/chart_data_source_registry";
+import {
+  ChartCreationContext,
+  ChartDefinition,
+  ChartRangeDataSource,
+  ChartType,
+} from "../../types/chart";
 import {
   Command,
   CommandResult,
@@ -121,6 +127,18 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
           const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
           const newChart = chart.duplicateInDuplicatedSheet(cmd.sheetIdTo);
+          let definition = newChart.getDefinition();
+          if ("dataSource" in definition) {
+            const dataSource = chartDataSourceRegistry
+              .get(definition.dataSource.type)
+              ?.duplicateInDuplicatedSheet(
+                this.getters,
+                cmd.sheetId,
+                cmd.sheetIdTo,
+                definition.dataSource
+              ) as ChartRangeDataSource;
+            definition = { ...definition, dataSource };
+          }
           if (newChart) {
             this.dispatch("CREATE_CHART", {
               figureId: duplicatedFigureId,
@@ -129,7 +147,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
               row: fig.row,
               offset: fig.offset,
               size: { width: fig.width, height: fig.height },
-              definition: newChart.getDefinition(),
+              definition,
               sheetId: cmd.sheetIdTo,
             });
           }

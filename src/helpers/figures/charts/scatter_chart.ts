@@ -7,7 +7,6 @@ import {
   checkLabelRange,
   copyChartDataSourceInSheetId,
   createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -76,6 +75,7 @@ export class ScatterChart extends AbstractChart {
     return {
       background: context.background,
       dataSource: {
+        type: "range",
         dataSets: [],
         dataSetsHaveTitle: false,
         labelRange: context.auxiliaryRange,
@@ -157,17 +157,6 @@ export class ScatterChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
-
-  duplicateInDuplicatedSheet(newSheetId: UID): ScatterChart {
-    const dataSource = duplicateDataSourceInDuplicatedSheet(
-      this.getters,
-      this.sheetId,
-      newSheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new ScatterChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ScatterChart {
