@@ -5,7 +5,6 @@ import {
   checkLabelRange,
   copyChartDataSourceInSheetId,
   createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -69,6 +68,7 @@ export class SunburstChart extends AbstractChart {
       labelRange = context.auxiliaryRange;
     }
     let dataSource: ChartRangeDataSource = {
+      type: "range",
       dataSetsHaveTitle: false,
       ...context.dataSource,
       dataSets: [],
@@ -118,10 +118,11 @@ export class SunburstChart extends AbstractChart {
       ...definition,
       dataSource: definition.dataSource.labelRange
         ? {
+            type: "range",
             dataSets: [{ dataRange: definition.dataSource.labelRange, dataSetId: "0" }],
             dataSetsHaveTitle,
           }
-        : { dataSets: [], dataSetsHaveTitle },
+        : { type: "range", dataSets: [], dataSetsHaveTitle },
       auxiliaryRange: leafRange,
       hierarchicalDataSource: definition.dataSource,
     };
@@ -134,17 +135,6 @@ export class SunburstChart extends AbstractChart {
       ...this.definition,
       dataSource,
     };
-  }
-
-  duplicateInDuplicatedSheet(newSheetId: UID): SunburstChart {
-    const dataSource = duplicateDataSourceInDuplicatedSheet(
-      this.getters,
-      this.sheetId,
-      newSheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new SunburstChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): SunburstChart {
