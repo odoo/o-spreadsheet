@@ -57,7 +57,8 @@ chartRegistry.add("bar", {
   match: (type) => type === "bar",
   createChart: (definition, sheetId, getters) =>
     new BarChart(definition as BarChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createBarChartRuntime,
   validateChartDefinition: BarChart.validateChartDefinition,
   transformDefinition: BarChart.transformDefinition,
@@ -69,7 +70,8 @@ chartRegistry.add("combo", {
   match: (type) => type === "combo",
   createChart: (definition, sheetId, getters) =>
     new ComboChart(definition as ComboChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createComboChartRuntime,
   validateChartDefinition: ComboChart.validateChartDefinition,
   transformDefinition: ComboChart.transformDefinition,
@@ -81,7 +83,8 @@ chartRegistry.add("line", {
   match: (type) => type === "line",
   createChart: (definition, sheetId, getters) =>
     new LineChart(definition as LineChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createLineChartRuntime,
   validateChartDefinition: LineChart.validateChartDefinition,
   transformDefinition: LineChart.transformDefinition,
@@ -93,7 +96,8 @@ chartRegistry.add("pie", {
   match: (type) => type === "pie",
   createChart: (definition, sheetId, getters) =>
     new PieChart(definition as PieChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createPieChartRuntime,
   validateChartDefinition: PieChart.validateChartDefinition,
   transformDefinition: PieChart.transformDefinition,
@@ -129,7 +133,8 @@ chartRegistry.add("scatter", {
   match: (type) => type === "scatter",
   createChart: (definition, sheetId, getters) =>
     new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createScatterChartRuntime,
   validateChartDefinition: ScatterChart.validateChartDefinition,
   transformDefinition: ScatterChart.transformDefinition,
@@ -141,7 +146,8 @@ chartRegistry.add("waterfall", {
   match: (type) => type === "waterfall",
   createChart: (definition, sheetId, getters) =>
     new WaterfallChart(definition as WaterfallChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createWaterfallChartRuntime,
   validateChartDefinition: WaterfallChart.validateChartDefinition,
   transformDefinition: WaterfallChart.transformDefinition,
@@ -153,7 +159,8 @@ chartRegistry.add("pyramid", {
   match: (type) => type === "pyramid",
   createChart: (definition, sheetId, getters) =>
     new PyramidChart(definition as PyramidChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createPyramidChartRuntime,
   validateChartDefinition: PyramidChart.validateChartDefinition,
   transformDefinition: PyramidChart.transformDefinition,
@@ -166,7 +173,8 @@ chartRegistry.add("radar", {
   match: (type) => type === "radar",
   createChart: (definition, sheetId, getters) =>
     new RadarChart(definition as RadarChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createRadarChartRuntime,
   validateChartDefinition: RadarChart.validateChartDefinition,
   transformDefinition: RadarChart.transformDefinition,
@@ -178,7 +186,8 @@ chartRegistry.add("geo", {
   match: (type) => type === "geo",
   createChart: (definition, sheetId, getters) =>
     new GeoChart(definition as GeoChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createGeoChartRuntime,
   validateChartDefinition: GeoChart.validateChartDefinition,
   transformDefinition: GeoChart.transformDefinition,
@@ -191,7 +200,8 @@ chartRegistry.add("funnel", {
   match: (type) => type === "funnel",
   createChart: (definition, sheetId, getters) =>
     new FunnelChart(definition as FunnelChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createFunnelChartRuntime,
   validateChartDefinition: FunnelChart.validateChartDefinition,
   transformDefinition: FunnelChart.transformDefinition,
@@ -228,7 +238,8 @@ chartRegistry.add("calendar", {
   match: (type) => type === "calendar",
   createChart: (definition, sheetId, getters) =>
     new CalendarChart(definition as CalendarChartDefinition, sheetId, getters),
-  extractData: (definition, sheetId, getters) => getChartData(getters, sheetId, definition),
+  extractData: (definition, sheetId, getters) =>
+    getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createCalendarChartRuntime,
   validateChartDefinition: CalendarChart.validateChartDefinition,
   transformDefinition: CalendarChart.transformDefinition,

@@ -60,7 +60,7 @@ export class TreeMapChart extends AbstractChart {
 
   constructor(private definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition);
+    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
