@@ -270,11 +270,17 @@ export class Session extends EventBus<CollaborativeEvent> {
     const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
     const client = this.getCurrentClient();
     this.clients[this.clientId] = { ...client, position };
-    this.transportService.sendMessage({
-      type,
-      version: MESSAGE_VERSION,
-      client: { ...client, position },
-    });
+    this.transportService
+      .sendMessage({
+        type,
+        version: MESSAGE_VERSION,
+        client: { ...client, position },
+      })
+      .then(() => {
+        if (this.pendingMessages.length > 0 && !this.waitingAck) {
+          this.sendPendingMessage();
+        }
+      });
   }
 
   /**
@@ -430,10 +436,17 @@ export class Session extends EventBus<CollaborativeEvent> {
       ${JSON.stringify(message)}`);
     }
     this.waitingAck = true;
-    this.transportService.sendMessage({
-      ...message,
-      serverRevisionId: this.serverRevisionId,
-    });
+    this.transportService
+      .sendMessage({
+        ...message,
+        serverRevisionId: this.serverRevisionId,
+      })
+      .catch((e: Error) => {
+        if (!(e instanceof ClientDisconnectedError)) {
+          throw e.cause || e;
+        }
+        this.waitingAck = false;
+      });
   }
 
   private acknowledge(message: CollaborationMessage) {
