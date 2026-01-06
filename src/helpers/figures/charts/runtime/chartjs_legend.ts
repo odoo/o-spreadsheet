@@ -14,13 +14,14 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   GenericDefinition,
+  LegendPosition,
   LineChartDefinition,
   SunburstChartDefinition,
   SunburstChartJSDataset,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
@@ -28,13 +29,14 @@ import { DeepPartial } from "chart.js/dist/types/utils";
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
-function getLegendDisplayOptions(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
-  args: ChartRuntimeGenerationArgs
-): ChartLegend {
+function getLegendDisplayOptions({
+  legendPosition,
+}: {
+  legendPosition?: LegendPosition;
+}): ChartLegend {
   return {
-    display: definition.legendPosition !== "none",
-    position: definition.legendPosition !== "none" ? definition.legendPosition : undefined,
+    display: legendPosition !== "none",
+    position: legendPosition !== "none" ? legendPosition : undefined,
   };
 }
 
@@ -44,7 +46,7 @@ export function getBarChartLegend(
 ): ChartLegend {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle: "rect",
       lineWidth: 3,
@@ -61,7 +63,7 @@ export function getLineChartLegend(
   const lineWidth = filled ? 2 : 3;
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle,
       lineWidth,
@@ -78,7 +80,7 @@ export function getPieChartLegend(
   const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
   const fontColor = chartFontColor(definition.background);
   return {
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     labels: {
       usePointStyle: true,
       generateLabels: (c) =>
@@ -107,7 +109,7 @@ export function getScatterChartLegend(
 ): ChartLegend {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle: "circle",
       // the stroke is the border around the circle, so increasing its size with the chart's color reduce the size of the circle
@@ -117,13 +119,36 @@ export function getScatterChartLegend(
   };
 }
 
+export function getBubbleChartLegend(
+  definition: BubbleChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartLegend {
+  if (definition.bubbleColor.color !== "multiple") {
+    return { display: false };
+  }
+  return {
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getLegendDisplayOptions(definition),
+    ...getBubbleChartLegendLabels(
+      chartFontColor(definition.background),
+      {
+        pointStyle: "circle",
+        // the stroke is the border around the circle, so increasing its size with the chart's color reduce the size of the circle
+        strokeStyle: definition.background || "#ffffff",
+        lineWidth: 8,
+      },
+      args.labels
+    ),
+  };
+}
+
 export function getComboChartLegend(
   definition: GenericDefinition<ComboChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       lineWidth: 3,
     }),
@@ -140,7 +165,7 @@ export function getWaterfallChartLegend(
   const subTotalColor = definition.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
 
   return {
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     labels: {
       usePointStyle: true,
       generateLabels: () => {
@@ -190,7 +215,7 @@ export function getRadarChartLegend(
   const lineWidth = fill ? 2 : 3;
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
       pointStyle,
       lineWidth,
@@ -205,7 +230,7 @@ export function getSunburstChartLegend(
   const fontColor = chartFontColor(definition.background);
 
   return {
-    ...getLegendDisplayOptions(definition, args),
+    ...getLegendDisplayOptions(definition),
     labels: {
       usePointStyle: true,
       generateLabels: (chart) => {
@@ -316,6 +341,51 @@ function getCustomLegendLabels(
           ? !data.datasets[legendItem.datasetIndex!].hidden
           : true;
       },
+    },
+  };
+}
+
+function getBubbleChartLegendLabels(
+  fontColor: Color,
+  legendLabelConfig: Partial<LegendItem>,
+  labels: string[]
+): {
+  labels: {
+    color: Color;
+    usePointStyle: boolean;
+    generateLabels: (chart: Chart) => LegendItem[];
+    filter?: LegendOptions<any>["labels"]["filter"];
+  };
+} {
+  return {
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      generateLabels: (chart: Chart) => {
+        if (!chart.data.datasets[0]) {
+          return [];
+        }
+        const backgroundColor = chart.data.datasets[0].backgroundColor;
+        const colors =
+          typeof backgroundColor === "string"
+            ? chart.data.datasets[0].data.map(() => backgroundColor)
+            : backgroundColor;
+        return chart.data.datasets[0].data
+          .map((point, index) => {
+            return {
+              text: labels[index],
+              fontColor,
+              strokeStyle: colors?.[index],
+              fillStyle: colors?.[index],
+              hidden: false,
+              pointStyle: "rect",
+              datasetIndex: index,
+              ...legendLabelConfig,
+            } as LegendItem;
+          })
+          .filter((label) => label.text);
+      },
+      filter: (legendItem, data) => true,
     },
   };
 }

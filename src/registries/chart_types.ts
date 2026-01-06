@@ -13,6 +13,7 @@ import {
   SunburstChartDefinition,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BubbleChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
@@ -32,6 +33,7 @@ import {
   ScorecardChart,
   WaterfallChart,
 } from "../helpers/figures/charts";
+import { BubbleChart, createBubbleChartRuntime } from "../helpers/figures/charts/bubble_chart";
 import {
   CalendarChart,
   createCalendarChartRuntime,
@@ -121,6 +123,17 @@ chartRegistry.add("scatter", {
   transformDefinition: ScatterChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   sequence: 60,
+});
+chartRegistry.add("bubble", {
+  match: (type) => type === "bubble",
+  createChart: (definition, sheetId, getters) =>
+    new BubbleChart(definition as BubbleChartDefinition, sheetId, getters),
+  getChartRuntime: (chart, getters) => createBubbleChartRuntime(chart as BubbleChart, getters),
+  validateChartDefinition: BubbleChart.validateChartDefinition,
+  transformDefinition: BubbleChart.transformDefinition,
+  getChartDefinitionFromContextCreation: BubbleChart.getDefinitionFromContextCreation,
+  sequence: 65,
+  dataSeriesLimit: 1,
 });
 chartRegistry.add("waterfall", {
   match: (type) => type === "waterfall",
@@ -256,6 +269,13 @@ chartSubtypeRegistry
     chartSubtype: "scatter",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.SCATTER_CHART",
+  })
+  .add("bubble", {
+    displayName: _t("Bubble"),
+    chartType: "bubble",
+    chartSubtype: "bubble",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.BUBBLE_CHART",
   })
   .add("column", {
     matcher: (definition) =>
