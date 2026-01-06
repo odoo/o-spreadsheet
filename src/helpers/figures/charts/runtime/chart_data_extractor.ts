@@ -31,6 +31,7 @@ import {
   AxisType,
   BarChartDefinition,
   ChartData,
+  ChartRangeDataSource,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
   DataSet,
@@ -657,7 +658,7 @@ export function canChartParseLabels(
   sheetId: UID,
   definition: ChartWithDataSetDefinition
 ): boolean {
-  const data = getChartData(getters, sheetId, definition);
+  const data = getChartData(getters, sheetId, definition.dataSource);
   return canBeDateChart(data) || canBeLinearChart(data);
 }
 
@@ -917,10 +918,10 @@ export function getChartLabelFormat(labelValues: LabelValues): Format | undefine
 export function getChartData(
   getters: Getters,
   sheetId: UID,
-  definition: ChartWithDataSetDefinition
+  dataSource: ChartRangeDataSource
 ): ChartData {
-  const dataSets = createDataSets(getters, sheetId, definition);
-  const labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
+  const dataSets = createDataSets(getters, sheetId, dataSource);
+  const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getChartDatasetValues(getters, dataSets);
   const data = { labelValues, dataSetsValues };
@@ -932,7 +933,7 @@ export function getChartData(
     shouldRemoveFirstLabel(
       labelValues.length,
       numberOfDataPoints,
-      definition.dataSource.dataSetsHaveTitle || false
+      dataSource.dataSetsHaveTitle || false
     )
   ) {
     labelValues.shift();
@@ -945,7 +946,7 @@ export function getHierarchicalData(
   sheetId: UID,
   definition: ChartWithDataSetDefinition
 ): ChartData {
-  const dataSets = createDataSets(getters, sheetId, definition);
+  const dataSets = createDataSets(getters, sheetId, definition.dataSource);
   const labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
