@@ -5,7 +5,7 @@ import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCellFormat } from "../test_helpers/getters_helpers";
 import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
 
 jest.useFakeTimers();
@@ -335,7 +335,7 @@ describe("custom currency sidePanel component", () => {
     expect(getExampleValues()).toEqual(["1,235€", "-1,235€", "0€"]);
     await click(fixture, selectors.accountingFormatCheckbox);
     expect(getExampleValues()).toEqual([" 1,235 €", "(1,235)€", "  -  €"]);
-    expect(getCell(model, "A1")?.format).toBe(" #,##0 * [$€];(#,##0)* [$€];  -  * [$€]");
+    expect(getCellFormat(model, "A1")).toBe(" #,##0 * [$€];(#,##0)* [$€];  -  * [$€]");
   });
 });
 

@@ -198,6 +198,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
           this.evaluator.updateDependencies(position);
         }
         break;
+      case "SET_FORMATTING":
+        if (!("format" in cmd) || this.shouldRebuildDependenciesGraph) {
+          return;
+        }
+        for (const zone of cmd.target) {
+          this.positionsToUpdate.push(...cellPositions(cmd.sheetId, zone));
+        }
+        break;
       case "EVALUATE_CELLS":
         if (cmd.cellIds) {
           for (let i = 0; i < cmd.cellIds.length; i++) {

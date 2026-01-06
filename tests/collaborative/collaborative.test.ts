@@ -45,6 +45,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getEvaluatedCell,
   getMerges,
@@ -657,7 +658,7 @@ describe("Multi users synchronisation", () => {
       undefined
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2")?.format,
+      (user) => getCellFormat(user, "A2"),
       undefined
     );
   });

@@ -6,6 +6,7 @@ import { EvaluationError } from "../../types/errors";
 import { Format, FormattedValue, LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { FunctionResultObject, Maybe } from "../../types/misc";
+import { parseLiteral } from "../cells/cell_evaluation";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {
   escapeRegExp,
@@ -167,6 +168,13 @@ function getFormatToApply(
   }
 
   return { format: formatToApply, isNegativeFormat };
+}
+
+export function getDateOrNumberFormat(value: string, locale: Locale): Format | undefined {
+  const parsedValue = parseLiteral(value, locale);
+  return typeof parsedValue === "number"
+    ? detectDateFormat(value, locale) || detectNumberFormat(value)
+    : undefined;
 }
 
 function applyTextInternalFormat(
