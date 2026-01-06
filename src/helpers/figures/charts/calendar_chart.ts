@@ -6,7 +6,6 @@ import {
   checkLabelRange,
   copyChartDataSourceInSheetId,
   createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -90,6 +89,7 @@ export class CalendarChart extends AbstractChart {
     return {
       background: context.background,
       dataSource: {
+        type: "range",
         dataSets: [],
         dataSetsHaveTitle: false,
         labelRange: context.auxiliaryRange,
@@ -116,17 +116,6 @@ export class CalendarChart extends AbstractChart {
       },
       auxiliaryRange: definition.dataSource.labelRange,
     };
-  }
-
-  duplicateInDuplicatedSheet(newSheetId: UID): CalendarChart {
-    const dataSource = duplicateDataSourceInDuplicatedSheet(
-      this.getters,
-      this.sheetId,
-      newSheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new CalendarChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): CalendarChart {
