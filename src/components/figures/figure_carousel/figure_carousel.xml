@@ -20,6 +20,7 @@
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
               t-att-class="{ 'selected': isItemSelected(item) }"
+              t-att-data-type="item.type"
               t-esc="getItemTitle(item)"
               t-on-click.stop="() => this.onCarouselTabClick(item)"
             />
