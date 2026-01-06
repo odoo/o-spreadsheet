@@ -88,6 +88,7 @@ export function toChartDataSource(
   }
   const result: CoucouOutput | CoucouOutputWithTitle = {
     dataSource: {
+      type: "range",
       // @ts-ignore
       dataSets: dataSets.map(({ dataRange, dataSetId }) => ({
         dataRange,
@@ -228,6 +229,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
     dataSetsHaveTitle: true,
   }),
   hierarchicalDataSource: {
+    type: "range",
     dataSets: [],
     dataSetsHaveTitle: true,
   },
