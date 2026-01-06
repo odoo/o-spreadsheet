@@ -94,7 +94,9 @@ export abstract class AbstractChart {
    * Duplicate the chart when a sheet is duplicated.
    * The ranges that are in the same sheet as the chart are adapted to the new sheetId.
    */
-  abstract duplicateInDuplicatedSheet(newSheetId: UID): AbstractChart;
+  duplicateInDuplicatedSheet(newSheetId: UID): AbstractChart {
+    return this;
+  }
 
   /**
    * Get a copy a the chart in the given sheetId.
