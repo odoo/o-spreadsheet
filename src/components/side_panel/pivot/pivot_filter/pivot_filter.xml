@@ -12,9 +12,9 @@
         </t>
         <Popover t-if="popover.isOpen" t-props="popoverProps">
           <PivotFilterMenu
+            pivotId="props.pivotId"
             definition="props.definition"
             filter="props.filter"
-            filterPosition="filterPosition(filter)"
             values="state.values"
             onClosed.bind="closeMenuFilter"
             onConfirmed.bind="updateFilterData"

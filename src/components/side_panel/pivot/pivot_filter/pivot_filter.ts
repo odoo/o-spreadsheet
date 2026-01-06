@@ -9,6 +9,7 @@ import {
   PivotValuesFilter,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { DataFilterValue } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
@@ -16,6 +17,7 @@ import { Popover } from "../../../popover";
 import { PivotDimension } from "../pivot_layout_configurator/pivot_dimension/pivot_dimension";
 
 interface Props {
+  pivotId: UID;
   definition: SpreadsheetPivotRuntimeDefinition;
   filter: PivotFilter;
   onFiltersUpdated: (definition: Partial<SpreadsheetPivotCoreDefinition>) => void;
@@ -31,7 +33,7 @@ interface State {
   values: Value[];
 }
 
-export class PivotFilterEditor extends Component<Props> {
+export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotFilterEditor";
   static components = {
     PivotDimension,
@@ -39,6 +41,7 @@ export class PivotFilterEditor extends Component<Props> {
     PivotFilterMenu,
   };
   static props = {
+    pivotId: String,
     definition: Object,
     filter: Object,
     onFiltersUpdated: Function,
@@ -89,6 +92,10 @@ export class PivotFilterEditor extends Component<Props> {
   }
 
   private getFilterHiddenValues(cellPosition: CellPosition | undefined, props: Props): Value[] {
+    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    if (pivot.type !== "SPREADSHEET") {
+      throw new Error("Filters are only available on spreadsheet pivot table");
+    }
     if (!cellPosition) {
       return [];
     }

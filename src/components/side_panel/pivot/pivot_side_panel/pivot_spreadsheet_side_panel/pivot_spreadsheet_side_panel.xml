@@ -48,6 +48,7 @@
               </div>
               <t t-foreach="definition.filters" t-as="filter" t-key="filter_index">
                 <PivotFilterEditor
+                  pivotId="props.pivotId"
                   definition="definition"
                   filter="filter"
                   onFiltersUpdated.bind="onFiltersUpdated"

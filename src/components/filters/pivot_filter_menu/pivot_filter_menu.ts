@@ -1,13 +1,12 @@
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepCopy, deepEquals, isDateTimeFormat } from "../../../helpers";
+import { deepCopy, deepEquals } from "../../../helpers";
 import {
-  CellPosition,
-  CellValueType,
   CriterionFilter,
   DataFilterValue,
   PivotFilter,
+  UID,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
@@ -17,9 +16,9 @@ import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criter
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
 
 interface Props {
+  pivotId: UID;
   definition: SpreadsheetPivotRuntimeDefinition;
   filter: PivotFilter;
-  filterPosition: CellPosition;
   values: Value[];
   onClosed?: () => void;
   onConfirmed: (updatedCriterionValue: DataFilterValue) => void;
@@ -31,14 +30,14 @@ interface Value {
   scrolledTo?: "top" | "bottom" | undefined;
 }
 
-type CriterionCategory = "text" | "number" | "date";
+type CriterionCategory = "char" | "boolean" | "integer" | "datetime";
 
 export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotFilterMenu";
   static props = {
+    pivotId: String,
     definition: Object,
     filter: Object,
-    filterPosition: Object,
     values: Object,
     onClosed: { type: Function, optional: true },
     onConfirmed: Function,
@@ -46,51 +45,24 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
 
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
-  private criterionCategory: CriterionCategory = "text";
+  private criterionCategory: CriterionCategory = "char";
   private updatedCriterionValue: DataFilterValue | undefined;
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
-      if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
+      if (!deepEquals(nextProps.definition, this.props.definition)) {
         this.updatedCriterionValue = undefined;
-        this.criterionCategory = this.getCriterionCategory(nextProps.filterPosition);
+        this.criterionCategory = this.getCriterionCategory();
       }
     });
-    this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
+    this.criterionCategory = this.getCriterionCategory();
   }
 
-  private getCriterionCategory(cellPosition: CellPosition): CriterionCategory {
-    const filteredZone = this.props.definition.range?.zone;
-    if (!filteredZone) {
-      return "text";
-    }
-
-    const cellTypesCount: Record<CriterionCategory, number> = { text: 0, number: 0, date: 0 };
-
-    for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
-      // 100 rows should be enough to determine the type, let's not loop on 10,000 rows for nothing
-      if (row > 100) {
-        break;
-      }
-      const cell = this.env.model.getters.getEvaluatedCell({
-        sheetId: cellPosition.sheetId,
-        row,
-        col: cellPosition.col,
-      });
-      if (cell.type === CellValueType.text || cell.type === CellValueType.boolean) {
-        cellTypesCount.text++;
-      } else if (cell.type === CellValueType.number) {
-        if (cell.format && isDateTimeFormat(cell.format)) {
-          cellTypesCount.date++;
-        } else {
-          cellTypesCount.number++;
-        }
-      }
-    }
-
-    const max = Math.max(cellTypesCount.text, cellTypesCount.number, cellTypesCount.date);
-    const type = Object.keys(cellTypesCount).find((key) => cellTypesCount[key] === max);
-    return (type || "text") as CriterionCategory;
+  private getCriterionCategory(): CriterionCategory {
+    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const fields = pivot.getFields();
+    const criterionCategory = fields[this.props.filter.fieldName]?.type;
+    return (criterionCategory || "char") as CriterionCategory;
   }
 
   onUpdateHiddenValues(values: string[]) {
@@ -112,9 +84,9 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get criterionOperators() {
-    if (this.criterionCategory === "date") {
+    if (this.criterionCategory === "datetime") {
       return filterDateCriterionOperators;
-    } else if (this.criterionCategory === "number") {
+    } else if (this.criterionCategory === "integer") {
       return filterNumberCriterionOperators;
     }
     return filterTextCriterionOperators;
