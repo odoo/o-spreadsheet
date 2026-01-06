@@ -334,7 +334,7 @@ export function toExcelLabelRange(
  * Transform a chart definition which supports dataSets (dataSets and LabelRange)
  * with an executed command
  */
-export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithDataSetDefinition>(
+export function transformChartDefinitionWithDataSource<T extends ChartWithDataSetDefinition>(
   chartSheetId: UID,
   definition: T,
   applyChange: RangeAdapter
