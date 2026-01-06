@@ -9,7 +9,6 @@ import {
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
   getDefinedAxis,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -27,7 +26,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -71,14 +70,6 @@ export class LineChart extends AbstractChart {
     definition: LineChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: LineChartDefinition,
-    applyChange: RangeAdapter
-  ): LineChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {
