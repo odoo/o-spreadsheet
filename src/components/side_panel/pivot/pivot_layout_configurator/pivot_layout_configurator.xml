@@ -22,6 +22,12 @@
                 class="text-warning fa fa-exclamation-triangle"
                 t-att-title="errorMessage"
               />
+              <i
+                t-att-class="col.isHidden ? 'fa fa-eye-slash': 'fa fa-eye'"
+                t-att-title="hideIconTitle(col)"
+                class="o-button-icon pe-1 ps-2"
+                t-on-click="() => this.toggleDimensionVisibility(col)"
+              />
             </t>
 
             <PivotDimensionGranularity
@@ -62,6 +68,12 @@
                 t-if="errorMessage"
                 class="text-warning fa fa-exclamation-triangle"
                 t-att-title="errorMessage"
+              />
+              <i
+                t-att-class="row.isHidden ? 'fa fa-eye-slash': 'fa fa-eye'"
+                t-att-title="hideIconTitle(row)"
+                class="o-button-icon pe-1 ps-2"
+                t-on-click="() => this.toggleDimensionVisibility(row)"
               />
             </t>
 

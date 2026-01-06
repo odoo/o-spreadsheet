@@ -34,6 +34,7 @@ export interface PivotCoreDimension {
   isCustomField?: boolean;
   parentField?: string;
   customGroups?: PivotCustomGroup[];
+  isHidden?: boolean;
 }
 
 export interface PivotCoreMeasure {

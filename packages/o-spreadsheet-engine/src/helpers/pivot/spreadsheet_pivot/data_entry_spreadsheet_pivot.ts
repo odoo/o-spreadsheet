@@ -24,12 +24,14 @@ export function dataEntriesToSpreadsheetPivotTable(
   definition: SpreadsheetPivotRuntimeDefinition,
   mode: "collapsed" | "expanded"
 ) {
+  const nonHiddenRows = definition.rows.filter((row) => !row.isHidden);
+  const nonHiddenColumns = definition.columns.filter((col) => !col.isHidden);
   const measureIds = definition.measures.filter((measure) => !measure.isHidden).map((m) => m.id);
-  const columnsTree = dataEntriesToColumnsTree(dataEntries, definition.columns, 0);
+  const columnsTree = dataEntriesToColumnsTree(dataEntries, nonHiddenColumns, 0);
   computeWidthOfColumnsNodes(columnsTree, measureIds.length);
   const cols = columnsTreeToColumns(columnsTree, definition);
 
-  const rows = dataEntriesToRows(dataEntries, 0, definition.rows, [], []);
+  const rows = dataEntriesToRows(dataEntries, 0, nonHiddenRows, [], []);
   // Add the total row
   rows.push({
     fields: [],

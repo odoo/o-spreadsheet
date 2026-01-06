@@ -346,4 +346,24 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         )
       : undefined;
   }
+
+  hideIconTitle(dimension: PivotDimensionType) {
+    return dimension.isHidden ? _t("Show dimension") : _t("Hide dimension");
+  }
+
+  toggleDimensionVisibility(dimension: PivotDimensionType) {
+    const { rows, columns } = this.props.definition;
+    this.props.onDimensionsUpdated({
+      rows: rows.map((row) =>
+        row.nameWithGranularity === dimension.nameWithGranularity
+          ? { ...row, isHidden: !row.isHidden }
+          : row
+      ),
+      columns: columns.map((col) =>
+        col.nameWithGranularity === dimension.nameWithGranularity
+          ? { ...col, isHidden: !col.isHidden }
+          : col
+      ),
+    });
+  }
 }

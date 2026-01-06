@@ -152,6 +152,7 @@ export class PivotRuntimeDefinition {
       isCustomField: !!field?.isCustomField,
       customGroups: field?.customGroups,
       parentField: field?.parentField,
+      isHidden: dimension.isHidden,
     };
   }
 }

@@ -150,7 +150,9 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
     const isDashboard = getters.isDashboard();
 
     const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
-    const hasIcon = !isDashboard && pivotCell.domain.length !== fields.length;
+    const nonHiddenRows = definition.rows.filter((field) => !field.isHidden);
+    const nonHiddenFields = fields.filter((field) => !field.isHidden);
+    const hasIcon = !isDashboard && pivotCell.domain.length !== nonHiddenFields.length;
 
     const domains = definition.collapsedDomains?.[pivotCell.dimension] ?? [];
     const isCollapsed = domains.some((domain) => deepEquals(domain, pivotCell.domain));
@@ -161,7 +163,7 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
       priority: 4,
       horizontalAlign: "left",
       size:
-        hasIcon || (!isDashboard && pivotCell.dimension === "ROW" && definition.rows.length > 1)
+        hasIcon || (!isDashboard && pivotCell.dimension === "ROW" && nonHiddenRows.length > 1)
           ? PIVOT_COLLAPSE_ICON_SIZE
           : 0,
       margin: hasIcon ? GRID_ICON_MARGIN * 2 + indent : indent,

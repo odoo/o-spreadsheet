@@ -205,11 +205,13 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         fieldName: col.fieldName,
         order: col.order,
         granularity: col.granularity,
+        isHidden: col.isHidden,
       })),
       rows: definition.rows.map((row) => ({
         fieldName: row.fieldName,
         order: row.order,
         granularity: row.granularity,
+        isHidden: row.isHidden,
       })),
       measures: definition.measures.map((measure: PivotCoreMeasure) => ({
         id: measure.id,
