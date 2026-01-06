@@ -62,7 +62,7 @@ export class LineChart extends AbstractChart {
 
   constructor(private definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition);
+    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(this.getters, sheetId, definition.dataSource.labelRange);
   }
 
