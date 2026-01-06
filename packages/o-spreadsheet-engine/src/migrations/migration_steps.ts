@@ -599,6 +599,7 @@ migrationStepRegistry
         definition = { ...definition };
         const styles = {};
         definition.dataSource = {
+          type: "range",
           dataSetsHaveTitle: definition.dataSetsHaveTitle,
           labelRange: definition.labelRange,
           dataSets: definition.dataSets.map((ds, i) => {
