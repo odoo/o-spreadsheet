@@ -299,6 +299,7 @@ export function createComboChart(
     definition: {
       title: data.title || { text: "test" },
       dataSource: data.dataSource ?? {
+        type: "range",
         dataSets: [],
         dataSetsHaveTitle: true,
       },
