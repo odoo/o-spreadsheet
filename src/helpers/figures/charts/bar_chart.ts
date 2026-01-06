@@ -9,7 +9,6 @@ import {
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
   getDefinedAxis,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -27,7 +26,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
-import { RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
@@ -64,14 +63,6 @@ export class BarChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: BarChartDefinition,
-    applyChange: RangeAdapter
-  ): BarChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(
