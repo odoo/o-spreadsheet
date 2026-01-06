@@ -104,7 +104,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        if ("content" in cmd || "formula" in cmd) {
+        if ("content" in cmd) {
           this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
         }
         break;
