@@ -10,7 +10,6 @@ import {
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
   getDefinedAxis,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -28,7 +27,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, UID } from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
@@ -62,14 +61,6 @@ export class PyramidChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: PyramidChartDefinition,
-    applyChange: RangeAdapter
-  ): PyramidChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(
