@@ -174,10 +174,10 @@ export function adaptChartRange(
 export function createDataSets(
   getters: CoreGetters,
   sheetId: UID,
-  definition: ChartWithDataSetDefinition
+  dataSource: ChartRangeDataSource
 ): DataSet[] {
   const dataSets: DataSet[] = [];
-  for (const dataSet of definition.dataSource.dataSets) {
+  for (const dataSet of dataSource.dataSets) {
     const dataRange = getters.getRangeFromSheetXC(sheetId, dataSet.dataRange);
     const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName, invalidXc } = dataRange;
     if (invalidSheetName || invalidXc) {
@@ -201,7 +201,7 @@ export function createDataSets(
             getters,
             dataSetSheetId,
             columnZone,
-            definition.dataSource.dataSetsHaveTitle
+            dataSource.dataSetsHaveTitle
               ? {
                   top: columnZone.top,
                   bottom: columnZone.top,
@@ -221,7 +221,7 @@ export function createDataSets(
           getters,
           dataSetSheetId,
           zone,
-          definition.dataSource.dataSetsHaveTitle
+          dataSource.dataSetsHaveTitle
             ? {
                 top: zone.top,
                 bottom: zone.top,
