@@ -7,7 +7,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -21,7 +20,7 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
-import { CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -54,14 +53,6 @@ export class FunnelChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: FunnelChartDefinition,
-    applyChange: RangeAdapter
-  ): FunnelChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(

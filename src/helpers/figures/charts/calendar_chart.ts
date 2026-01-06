@@ -7,7 +7,6 @@ import {
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -25,7 +24,7 @@ import {
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
-import { CommandResult, DataSet, Getters, Range, RangeAdapter, UID } from "../../../types";
+import { CommandResult, DataSet, Getters, Range, UID } from "../../../types";
 import {
   getCalendarChartData,
   getCalendarChartDatasetAndLabels,
@@ -69,14 +68,6 @@ export class CalendarChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: CalendarChartDefinition,
-    applyChange: RangeAdapter
-  ): CalendarChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(
