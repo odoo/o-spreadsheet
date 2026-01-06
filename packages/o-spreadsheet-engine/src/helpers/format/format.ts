@@ -732,7 +732,8 @@ export function humanizeNumber({ value, format }: FunctionResultObject, locale: 
   let numberFormat: Format | undefined = format;
   if (Math.abs(numberValue) < 1000) {
     const hasDecimal = numberValue % 1 !== 0;
-    numberFormat = !format && hasDecimal ? "0.####" : format;
+    numberFormat =
+      !format && hasDecimal ? (Math.abs(numberValue) < 0.01 ? "0.00e" : "0.##") : format;
   } else {
     numberFormat = formatLargeNumber({ value, format }, undefined, locale);
   }
@@ -756,30 +757,32 @@ export function formatLargeNumber(
     const postFix = unit?.value;
     switch (postFix) {
       case "k":
-        return createLargeNumberFormat(format, 1, "k", locale);
+        return createLargeNumberFormat(format, 1, "k");
       case "m":
-        return createLargeNumberFormat(format, 2, "m", locale);
+        return createLargeNumberFormat(format, 2, "m");
       case "b":
-        return createLargeNumberFormat(format, 3, "b", locale);
+        return createLargeNumberFormat(format, 3, "b");
       default:
         throw new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
     }
   }
   if (value < 1e5) {
-    return createLargeNumberFormat(format, 0, "", locale);
+    return createLargeNumberFormat(format, 0, "");
   } else if (value < 1e8) {
-    return createLargeNumberFormat(format, 1, "k", locale);
+    return createLargeNumberFormat(format, 1, "k");
   } else if (value < 1e11) {
-    return createLargeNumberFormat(format, 2, "m", locale);
+    return createLargeNumberFormat(format, 2, "m");
+  } else if (value < 1e14) {
+    return createLargeNumberFormat(format, 3, "b");
+  } else {
+    return "0.00e";
   }
-  return createLargeNumberFormat(format, 3, "b", locale);
 }
 
 function createLargeNumberFormat(
   format: Format | undefined,
   magnitude: number,
-  postFix: string,
-  locale: Locale
+  postFix: string
 ): Format {
   const multiPartFormat = parseFormat(format || "#,##0");
   const roundedInternalFormat = {
