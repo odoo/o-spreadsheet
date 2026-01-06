@@ -40,7 +40,7 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     )!;
     const data = getBarChartData(
       this.props.definition,
-      getChartData(this.env.model.getters, sheetId, this.props.definition),
+      getChartData(this.env.model.getters, sheetId, this.props.definition.dataSource),
       this.env.model.getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));
