@@ -88,7 +88,9 @@ export abstract class AbstractChart {
    * This function should be used to update all the ranges of the chart after
    * a grid change (add/remove col/row, rename sheet, ...)
    */
-  abstract updateRanges(rangeAdapters: RangeAdapterFunctions): AbstractChart;
+  updateRanges(rangeAdapters: RangeAdapterFunctions): AbstractChart {
+    return this;
+  }
 
   /**
    * Duplicate the chart when a sheet is duplicated.
