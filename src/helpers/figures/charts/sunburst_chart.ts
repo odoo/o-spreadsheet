@@ -99,7 +99,7 @@ export class SunburstChart extends AbstractChart {
   }
 
   getDefinition(): SunburstChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
+    return this.definition;
   }
 
   getContextCreation(): ChartCreationContext {
@@ -117,15 +117,6 @@ export class SunburstChart extends AbstractChart {
         : { type: "range", dataSets: [], dataSetsHaveTitle },
       auxiliaryRange: leafRange,
       hierarchicalDataSource: definition.dataSource,
-    };
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource
-  ): SunburstChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
     };
   }
 

@@ -12,7 +12,6 @@ import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-e
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -92,16 +91,7 @@ export class FunnelChart extends AbstractChart {
   }
 
   getDefinition(): FunnelChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource
-  ): FunnelChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
