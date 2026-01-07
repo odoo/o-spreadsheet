@@ -18,7 +18,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(1000000000000)" })).toBe("1,000b");
     expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(10000000000000)" })).toBe("10,000b");
     expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(100000000000000)" })).toBe(
-      "100,000b"
+      "1.00e+14"
     );
   });
 
@@ -38,7 +38,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
       "-10,000b"
     );
     expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(-100000000000000)" })).toBe(
-      "-100,000b"
+      "-1.00e+14"
     );
   });
 

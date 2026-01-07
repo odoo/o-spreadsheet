@@ -3998,12 +3998,12 @@ describe("Can make numbers human-readable", () => {
         "1"
       );
       let axis = getChartConfiguration(model, "1").options.scales.y;
-      const valuesBefore = [1e3, 1e6, 0.1, 0.123456789].map(axis.ticks.callback);
-      expect(valuesBefore).toEqual(["1,000", "1,000,000", "0.1", "0.123456789"]);
+      const valuesBefore = [1e3, 1e6, 0.1, 0.123456789, 1e-5].map(axis.ticks.callback);
+      expect(valuesBefore).toEqual(["1,000", "1,000,000", "0.1", "0.123456789", "0.00001"]);
       updateChart(model, "1", { humanize: true });
       axis = getChartConfiguration(model, "1").options.scales.y;
-      const valuesAfter = [1e3, 1e6, 0.1, 0.123456789].map(axis.ticks.callback);
-      expect(valuesAfter).toEqual(["1,000", "1,000k", "0.1", "0.1235"]);
+      const valuesAfter = [1e3, 1e6, 0.1, 0.123456789, 1e-5].map(axis.ticks.callback);
+      expect(valuesAfter).toEqual(["1,000", "1,000k", "0.1", "0.12", "1.00e-05"]);
     }
   );
 
