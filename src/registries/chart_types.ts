@@ -64,6 +64,10 @@ chartRegistry.add("bar", {
   validateChartDefinition: BarChart.validateChartDefinition,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
+  postProcess: (getters, sheetId, definition) => ({
+    ...definition,
+    zoomable: definition.horizontal ? undefined : definition.zoomable,
+  }),
   allowedDefinitionKeys: BarChart.allowedDefinitionKeys,
   sequence: 10,
 });
@@ -166,6 +170,11 @@ chartRegistry.add("pyramid", {
   validateChartDefinition: PyramidChart.validateChartDefinition,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
+  postProcess: (getters, sheetId, definition) => ({
+    ...definition,
+    horizontal: true,
+    stacked: true,
+  }),
   allowedDefinitionKeys: PyramidChart.allowedDefinitionKeys,
   sequence: 80,
   dataSeriesLimit: 2,
