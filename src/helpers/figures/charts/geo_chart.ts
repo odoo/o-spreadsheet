@@ -1,11 +1,10 @@
-import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
   createDataSets,
-  updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
@@ -105,19 +104,6 @@ export class GeoChart extends AbstractChart {
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
-  }
-
-  updateRanges(adapterFunctions: RangeAdapterFunctions): GeoChart {
-    const { dataSource, isStale } = updateChartRangesWithDataSets(
-      this.sheetId,
-      adapterFunctions,
-      this.definition.dataSource
-    );
-    if (!isStale) {
-      return this;
-    }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new GeoChart(definition, this.sheetId, this.getters);
   }
 }
 
