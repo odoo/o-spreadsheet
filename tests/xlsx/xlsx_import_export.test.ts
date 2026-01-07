@@ -15,6 +15,7 @@ import {
   addCfRule,
   createChart,
   createImage,
+  createNamedRange,
   createSheet,
   hideColumns,
   hideRows,
@@ -542,5 +543,16 @@ describe("Export data to xlsx then import it", () => {
     const importedModel = await exportToXlsxThenImport(model);
     const newFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(newFigure.height).toBe(figure.height);
+  });
+
+  test("Named range", async () => {
+    createNamedRange(model, "My_Named_Range", "A1:B10");
+    setCellContent(model, "A1", "=My_Named_Range");
+    const importedModel = await exportToXlsxThenImport(model);
+    expect(importedModel.getters.getNamedRange("My_Named_Range")).toMatchObject({
+      name: "My_Named_Range",
+      range: { zone: toZone("A1:B10"), sheetId },
+    });
+    expect(getCellRawContent(importedModel, "A1")).toEqual("=My_Named_Range");
   });
 });

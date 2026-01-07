@@ -1,4 +1,4 @@
-import { XLSXColorScheme, XLSXTheme } from "../../types/xlsx";
+import { XLSXColorScheme, XLSXDefinedName, XLSXTheme } from "../../types/xlsx";
 import { AUTO_COLOR } from "../constants";
 import { XlsxBaseExtractor } from "./base_extractor";
 
@@ -43,6 +43,19 @@ export class XlsxMiscExtractor extends XlsxBaseExtractor {
         return this.mapOnElements({ parent: ssElement, query: "t" }, (textElement): string => {
           return this.extractTextContent(textElement) || "";
         }).join("");
+      }
+    );
+  }
+
+  getNamedRanges(): XLSXDefinedName[] {
+    return this.mapOnElements(
+      { parent: this.rootFile.file.xml, query: "definedNames definedName" },
+      (definedNameElement): XLSXDefinedName => {
+        const name = this.extractAttr(definedNameElement, "name", { required: true }).asString()!;
+        // Note: Following the openXML spec, the value of named ranges should be in a `refersTo` attribute, but in practice
+        // the spreadsheet applications seems to put it as the text content of the definedName element.
+        const value = this.extractTextContent(definedNameElement) || "";
+        return { name, value };
       }
     );
   }
