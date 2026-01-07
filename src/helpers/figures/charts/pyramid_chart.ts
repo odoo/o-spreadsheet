@@ -108,8 +108,6 @@ export class PyramidChart extends AbstractChart {
     return {
       ...this.definition,
       dataSource,
-      horizontal: true,
-      stacked: true,
     };
   }
 
