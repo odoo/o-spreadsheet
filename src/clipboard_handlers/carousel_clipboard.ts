@@ -1,6 +1,6 @@
 import { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
 import { deepCopy, UuidGenerator } from "../helpers";
-import { AbstractChart } from "../helpers/figures/charts";
+import { AbstractChart, copyChartInOtherSheet } from "../helpers/figures/charts";
 import {
   Carousel,
   ClipboardFigureData,
@@ -39,7 +39,7 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
         if (!chart) {
           throw new Error(`No chart for the given id: ${item.chartId}`);
         }
-        copiedCharts[item.chartId] = chart.copyInSheetId(sheetId);
+        copiedCharts[item.chartId] = chart;
       }
     }
     return {
@@ -92,7 +92,7 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       }
       const chart = clippedContent.copiedCharts[item.chartId];
       const newId = uuidGenerator.smallUuid();
-      const definition = chart.copyInSheetId(sheetId).getDefinition();
+      const definition = copyChartInOtherSheet(this.getters, chart, sheetId);
       this.dispatch("CREATE_CHART", { figureId, chartId: newId, sheetId, definition });
       item.chartId = newId;
     }

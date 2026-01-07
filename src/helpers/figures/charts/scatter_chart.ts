@@ -5,7 +5,6 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   getDefinedAxis,
   shouldRemoveFirstLabel,
@@ -159,17 +158,6 @@ export class ScatterChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
-
-  copyInSheetId(sheetId: UID): ScatterChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new ScatterChart(definition, sheetId, this.getters);
   }
 }
 

@@ -5,7 +5,6 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   getDefinedAxis,
   updateChartRangesWithDataSets,
@@ -152,17 +151,6 @@ export class LineChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
-
-  copyInSheetId(sheetId: UID): LineChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new LineChart(definition, sheetId, this.getters);
   }
 }
 
