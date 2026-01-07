@@ -28,6 +28,7 @@ export function chartFactory(getters: CoreGetters) {
           ?.postProcess(getters, sheetId, definition.dataSource),
       };
     }
+    definition = builder.postProcess?.(getters, sheetId, definition) ?? definition;
     return builder.createChart(definition, sheetId, getters);
   }
 
