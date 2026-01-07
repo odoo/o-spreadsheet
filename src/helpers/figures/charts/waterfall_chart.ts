@@ -4,7 +4,6 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import {
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -103,17 +102,6 @@ export class WaterfallChart extends AbstractChart {
       dataSetStyles: definition.dataSetStyles,
       auxiliaryRange: definition.dataSource.labelRange,
     };
-  }
-
-  copyInSheetId(sheetId: UID): WaterfallChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new WaterfallChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): WaterfallChartDefinition {
