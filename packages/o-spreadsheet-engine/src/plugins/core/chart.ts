@@ -53,7 +53,19 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (!chart) {
         continue;
       }
-      const newChart = chart.chart.updateRanges(rangeAdapters);
+      let newChart = chart.chart.updateRanges(rangeAdapters);
+      let definition = newChart.getDefinition();
+      if ("dataSource" in definition) {
+        const dataSource = chartDataSourceRegistry
+          .get(definition.dataSource.type)
+          ?.adaptRanges(
+            rangeAdapters,
+            newChart.sheetId,
+            definition.dataSource
+          ) as ChartRangeDataSource;
+        definition = { ...definition, dataSource };
+        newChart = this.createChart(chart.figureId, definition, newChart.sheetId);
+      }
       this.history.update(
         "charts",
         chartId,
