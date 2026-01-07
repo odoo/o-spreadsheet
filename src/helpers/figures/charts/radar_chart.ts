@@ -1,10 +1,8 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  checkDataset,
-  checkLabelRange,
   createDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -21,7 +19,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { CommandResult, Getters, Range, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -54,13 +52,6 @@ export class RadarChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: RadarChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): RadarChartDefinition {
