@@ -1,6 +1,6 @@
 import { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
 import { UuidGenerator } from "../helpers";
-import { AbstractChart } from "../helpers/figures/charts";
+import { AbstractChart, copyChartInOtherSheet } from "../helpers/figures/charts";
 import {
   ClipboardFigureData,
   ClipboardOptions,
@@ -32,7 +32,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     if (!chart) {
       throw new Error(`No chart for the given id: ${data.figureId}`);
     }
-    const copiedChart = chart.copyInSheetId(sheetId);
+    const copiedChart = chart;
     return {
       figureId: data.figureId,
       copiedFigure,
@@ -57,7 +57,8 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const { zones, figureId } = target;
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
-    const copy = clippedContent.copiedChart.copyInSheetId(sheetId);
+    const copy = clippedContent.copiedChart;
+    const copiedDefinition = copyChartInOtherSheet(this.getters, copy, sheetId);
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
     const offset = { x: 0, y: 0 };
@@ -73,13 +74,12 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       figureId,
       chartId: new UuidGenerator().smallUuid(),
       sheetId,
-      definition: copy.getDefinition(),
+      definition: copiedDefinition,
       col,
       row,
       offset,
       size: { height, width },
     });
-
     if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
         sheetId: clippedContent.copiedChart.sheetId,

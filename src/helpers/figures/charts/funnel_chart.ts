@@ -3,7 +3,6 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import {
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -90,17 +89,6 @@ export class FunnelChart extends AbstractChart {
       ...definition,
       auxiliaryRange: definition.dataSource.labelRange,
     };
-  }
-
-  copyInSheetId(sheetId: UID): FunnelChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new FunnelChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): FunnelChartDefinition {
