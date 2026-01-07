@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-NamedRangeSelector">
+    <div
+      class="o-named-range-selector d-flex align-items-center rounded p-1 my-1"
+      t-ref="namedRangeSelectorRef"
+      t-att-class="{
+          'selected': topBarToolStore.isActive,
+        }">
+      <TextInput
+        t-key="selectionKey"
+        value="inputValue"
+        onChange.bind="changeInputValue"
+        onInput.bind="onInput"
+        selectContentOnFocus="true"
+        onFocused.bind="onInputFocused"
+        onBlur.bind="onInputBlur"
+      />
+      <div class="o-hoverable-button" t-on-click.stop="openDropdown">
+        <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+      </div>
+    </div>
+
+    <MenuPopover
+      t-if="topBarToolStore.isActive"
+      anchorRect="menuState.anchorRect"
+      menuItems="menuState.menuItems"
+      onClose="() => {}"
+      popoverPositioning="'bottom-left'"
+    />
+  </t>
+</templates>
