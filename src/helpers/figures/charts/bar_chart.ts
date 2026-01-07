@@ -17,7 +17,6 @@ import {
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -102,14 +101,7 @@ export class BarChart extends AbstractChart {
   }
 
   getDefinition(): BarChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(dataSource: ChartRangeDataSource): BarChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
