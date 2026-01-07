@@ -1,4 +1,6 @@
 import {
+  checkDataset,
+  checkLabelRange,
   copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
@@ -37,7 +39,8 @@ interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<ChartD
 export const chartDataSourceRegistry: ChartDataSourceRegistry = new Registry();
 
 chartDataSourceRegistry.add("range", {
-  validate: (validator, dataSource) => CommandResult.Success,
+  validate: (validator, dataSource) =>
+    validator.checkValidations(dataSource, checkDataset, checkLabelRange),
   adaptRanges: updateChartRangesWithDataSets,
   duplicateInDuplicatedSheet: duplicateDataSourceInDuplicatedSheet,
   copyInSheetId: copyChartDataSourceInSheetId,
