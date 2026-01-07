@@ -30,12 +30,12 @@
         t-att-class="{'o-topbar-responsive': !env.model.getters.isReadonly()}"
         t-ref="toolBarContainer">
         <div
-          class="o-topbar-toolbar d-flex"
+          class="o-topbar-toolbar d-flex flex-grow-1"
           t-att-class="{'flex-shrink-0': env.model.getters.isReadonly()}">
           <!-- Toolbar -->
           <div
             t-if="env.model.getters.isReadonly()"
-            class="o-readonly-toolbar d-flex align-items-center text-muted">
+            class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-muted">
             <span>
               <i class="fa fa-eye"/>
               Readonly Access
