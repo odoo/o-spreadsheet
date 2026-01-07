@@ -61,7 +61,7 @@ exports[`TopBar component simple rendering 1`] = `
     class="d-flex o-topbar-responsive"
   >
     <div
-      class="o-topbar-toolbar d-flex"
+      class="o-topbar-toolbar d-flex flex-grow-1"
     >
       <!-- Toolbar -->
       

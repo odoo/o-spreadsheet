@@ -69,7 +69,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         class="d-flex o-topbar-responsive"
       >
         <div
-          class="o-topbar-toolbar d-flex"
+          class="o-topbar-toolbar d-flex flex-grow-1"
         >
           <!-- Toolbar -->
           
@@ -1122,7 +1122,7 @@ exports[`components take the small screen into account 1`] = `
         class="d-flex o-topbar-responsive"
       >
         <div
-          class="o-topbar-toolbar d-flex"
+          class="o-topbar-toolbar d-flex flex-grow-1"
         >
           <!-- Toolbar -->
           
