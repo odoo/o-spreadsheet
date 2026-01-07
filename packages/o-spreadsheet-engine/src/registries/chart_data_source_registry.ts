@@ -1,8 +1,10 @@
 import {
   copyChartDataSourceInSheetId,
+  createDataSets,
   duplicateDataSourceInDuplicatedSheet,
   updateChartRangesWithDataSets,
 } from "../helpers/figures/charts/chart_common";
+import { createValidRange } from "../helpers/range";
 import { ChartDataSource, ChartDataSourceType } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
@@ -21,6 +23,7 @@ interface ChartDataSourceBuilder<T> {
     dataSource: T
   ): T;
   copyInSheetId(getters: CoreGetters, sheetIdFrom: UID, sheetIdTo: UID, dataSource: T): T;
+  postProcess<T2 extends T>(getters: CoreGetters, sheetId: UID, dataSource: T2): T2;
   allowedKeys: readonly string[];
 }
 
@@ -38,5 +41,19 @@ chartDataSourceRegistry.add("range", {
   adaptRanges: updateChartRangesWithDataSets,
   duplicateInDuplicatedSheet: duplicateDataSourceInDuplicatedSheet,
   copyInSheetId: copyChartDataSourceInSheetId,
+  postProcess: (getters, sheetId, dataSource) => {
+    const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
+    const dataSets = createDataSets(getters, sheetId, dataSource);
+    return {
+      ...dataSource,
+      dataSets: dataSets.map((ds) => {
+        return {
+          dataSetId: ds.dataSetId,
+          dataRange: getters.getRangeString(ds.dataRange, sheetId),
+        };
+      }),
+      labelRange: labelRange && getters.getRangeString(labelRange, sheetId),
+    };
+  },
   allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],
 });
