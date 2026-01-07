@@ -11,7 +11,7 @@ import {
   UnboundedZone,
   Zone,
 } from "../../types/misc";
-import { WorkbookData } from "../../types/workbook_data";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 interface NamedRangeState {
@@ -182,6 +182,10 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
         rangeString: this.getters.getRangeString(namedRange.range, "forceSheetReference"),
       });
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 
   private checkValidNewNamedRangeName(name: string): CommandResult {

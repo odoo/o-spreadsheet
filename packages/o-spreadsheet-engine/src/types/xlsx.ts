@@ -36,6 +36,7 @@ import { Alias, PaneDivision, UID } from "./misc";
  *  - fonts (XLSXFont): §18.8.22 (font)
  *  - images (XLSXImageFile): §20.2.2.5 (pic)
  *  - merge (string): §18.3.1.55 (mergeCell)
+ *  - named ranges (XLSXDefinedName) : §18.14.5 (definedName)
  *  - number format (XLSXNumFormat) : §18.8.30 (numFmt)
  *  - outline properties (XLSXOutlineProperties): §18.3.1.31 (outlinePr)
  *  - pivot table (XLSXPivotTable): §18.10.1.73 (pivotTableDefinition)
@@ -104,6 +105,7 @@ export interface XLSXStructure {
   dxfs: XLSXDxf[];
   chartIds: UID[];
   imageIds: UID[];
+  namedRanges: XLSXDefinedName[];
 }
 
 export interface XLSXImportData extends Omit<XLSXStructure, "relsFiles"> {
@@ -711,4 +713,9 @@ export interface XLSXSheetProperties {
 export interface XLSXOutlineProperties {
   summaryBelow: boolean;
   summaryRight: boolean;
+}
+
+export interface XLSXDefinedName {
+  name: string;
+  value: string;
 }

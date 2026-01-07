@@ -1,4 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { setXcToFixedReferenceType } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { toXC } from "../../helpers/coordinates";
 import { iterateItemIdsPositions } from "../../helpers/data_normalization";
@@ -283,4 +284,21 @@ export function addSheetProperties(sheet: ExcelSheetData) {
         <tabColor ${formatAttributes([["rgb", toXlsxHexColor(sheet.color)]])} />
       </sheetPr>
     `;
+}
+
+export function createXMLNamedRanges(data: ExcelWorkbookData): XMLString {
+  const namedRangesNodes: XMLString[] = [];
+  for (const namedRange of data.namedRanges) {
+    const attributes: XMLAttributes = [["name", namedRange.rangeName]];
+    const fixedReference = setXcToFixedReferenceType(namedRange.rangeString, "colrow");
+    namedRangesNodes.push(escapeXml/*xml*/ `
+      <definedName ${formatAttributes(attributes)}>${fixedReference}</definedName>
+    `);
+  }
+
+  return escapeXml/*xml*/ `
+    <definedNames>
+      ${joinXmlNodes(namedRangesNodes)}
+    </definedNames>
+`;
 }

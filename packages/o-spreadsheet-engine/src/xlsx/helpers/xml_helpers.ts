@@ -111,6 +111,7 @@ export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure 
     borders,
     numFmts: [],
     dxfs: [],
+    namedRanges: [],
   };
 }
 

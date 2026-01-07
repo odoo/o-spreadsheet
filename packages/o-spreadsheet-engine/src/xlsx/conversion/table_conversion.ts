@@ -30,7 +30,7 @@ export function convertTables(convertedData: WorkbookData, xlsxData: XLSXImportD
     }
   }
 
-  convertTableFormulaReferences(convertedData.sheets, xlsxData.sheets);
+  convertTableFormulaReferences(convertedData, xlsxData.sheets);
 }
 
 function convertTableConfig(table: XLSXTable): TableConfig {
@@ -63,9 +63,12 @@ function convertPivotTableConfig(pivotTable: XLSXPivotTable): TableConfig {
 /**
  * In all the sheets, replace the table-only references in the formula cells with standard references.
  */
-function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets: XLSXWorksheet[]) {
+function convertTableFormulaReferences(convertedData: WorkbookData, xlsxSheets: XLSXWorksheet[]) {
   let deconstructedSheets: DeconstructedSheets | null = null;
 
+  convertTableFormulaReferencesInNamedRanges(convertedData, xlsxSheets);
+
+  const convertedSheets = convertedData.sheets;
   for (const tableSheet of convertedSheets) {
     const tables = xlsxSheets.find((s) => isSheetNameEqual(s.sheetName, tableSheet.name))!.tables;
     if (!tables || tables.length === 0) {
@@ -187,6 +190,31 @@ function deconstructSheets(convertedSheets: SheetData[]): DeconstructedSheets {
   return deconstructedSheets;
 }
 
+function convertTableFormulaReferencesInNamedRanges(
+  convertedData: WorkbookData,
+  xlsxSheets: XLSXWorksheet[]
+) {
+  for (const namedRange of convertedData.namedRanges || []) {
+    if (!namedRange.rangeString.endsWith("]")) {
+      continue;
+    }
+    for (const sheet of convertedData.sheets) {
+      const tables = xlsxSheets.find((s) => isSheetNameEqual(s.sheetName, sheet.name))?.tables;
+      for (const table of tables || []) {
+        if (!table.name || !namedRange.rangeString.startsWith(table.name + "[")) {
+          continue;
+        }
+        namedRange.rangeString = convertTableReference(
+          sheet.name + "!",
+          namedRange.rangeString.slice(table.name.length + 1, namedRange.rangeString.length - 1), // Keep only the part between brackets
+          table,
+          "invalidCellXc" // Named ranges are not linked to a cell, so we cannot use cell-specific table formulas (eg. `#This Row`)
+        );
+      }
+    }
+  }
+}
+
 /**
  * Convert table-specific references in formulas into standard references. A table reference is composed of columns names,
  * and of keywords determining the rows of the table to reference.
@@ -215,6 +243,9 @@ function convertTableReference(
   table: XLSXTable,
   cellXc: string
 ) {
+  if (expr === "") {
+    expr = "#Data"; // `Table1[]` is equivalent to `Table1[#Data]`
+  }
   // TODO: Ideally we'd want to make a real tokenizer, this simple approach won't work if for example the column name
   // contain # or , characters. But that's probably an edge case that we can ignore for now.
   const parts = expr.split(",").map((part) => part.trim());
