@@ -1,10 +1,6 @@
 import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  checkDataset,
-  checkLabelRange,
-  createDataSets,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { createDataSets } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
@@ -69,12 +65,7 @@ export class CalendarChart extends AbstractChart {
     validator: Validator,
     definition: CalendarChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(
-      definition,
-      checkDataset,
-      checkLabelRange,
-      checkDateGranularity
-    );
+    return validator.checkValidations(definition, checkDateGranularity);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): CalendarChartDefinition {
