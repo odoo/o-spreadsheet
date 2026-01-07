@@ -419,25 +419,22 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }
 
-export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.dataSetStyles) {
-    const invalidRanges =
-      definition.dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !==
-      undefined;
-    if (invalidRanges) {
-      return CommandResult.InvalidDataSet;
-    }
-    const zones = definition.dataSource.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
-    if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
-      return CommandResult.InvalidDataSet;
-    }
+export function checkDataset(dataSource: ChartRangeDataSource): CommandResult {
+  const invalidRanges =
+    dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
+  if (invalidRanges) {
+    return CommandResult.InvalidDataSet;
+  }
+  const zones = dataSource.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
+  if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
+    return CommandResult.InvalidDataSet;
   }
   return CommandResult.Success;
 }
 
-export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.dataSource.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.dataSource.labelRange || "");
+export function checkLabelRange(dataSource: ChartRangeDataSource): CommandResult {
+  if (dataSource.labelRange) {
+    const invalidLabels = !rangeReference.test(dataSource.labelRange || "");
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }
