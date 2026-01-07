@@ -74,6 +74,13 @@ export function validateChartDefinition(
   if (hasExtraKeys) {
     return CommandResult.InvalidChartDefinition;
   }
+  if ("dataSource" in definition) {
+    const dataSourceValidator = chartDataSourceRegistry.get(definition.dataSource.type);
+    return validator.batchValidations(
+      () => validators.validateChartDefinition(validator, definition),
+      () => dataSourceValidator.validate(validator, definition.dataSource)
+    )(undefined); // Typescript requies a parameter but we don't use it (definition is captured by closure)
+  }
   return validators.validateChartDefinition(validator, definition);
 }
 
