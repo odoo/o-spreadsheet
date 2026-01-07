@@ -48,16 +48,16 @@ export async function chartToImageUrl(
     if (!extensionsLoaded) {
       registerChartJSExtensions();
     }
-    if (!globalThis.Chart.registry.controllers.get(type)) {
-      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    if (!globalThis.Chart.registry.controllers.get(config.type)) {
+      console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
       if (!extensionsLoaded) {
         unregisterChartJsExtensions();
       }
       return imageUrl;
     }
-
-    const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
 
     const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
@@ -106,16 +106,16 @@ export async function chartToImageFile(
     if (!extensionsLoaded) {
       registerChartJSExtensions();
     }
-    if (!globalThis.Chart.registry.controllers.get(type)) {
-      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
+
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    if (!globalThis.Chart.registry.controllers.get(config.type)) {
+      console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
       if (!extensionsLoaded) {
         unregisterChartJsExtensions();
       }
       return chartBlob;
     }
-
-    const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
 
     const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
