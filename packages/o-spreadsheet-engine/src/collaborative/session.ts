@@ -198,7 +198,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     }
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
-    this.transportService.sendMessage({
+    this.sendToTransport({
       type: "CLIENT_LEFT",
       clientId: this.clientId,
       version: MESSAGE_VERSION,
@@ -213,7 +213,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       return;
     }
     const snapshotId = this.uuidGenerator.uuidv4();
-    await this.transportService.sendMessage({
+    await this.sendToTransport({
       type: "SNAPSHOT",
       nextRevisionId: snapshotId,
       serverRevisionId: this.serverRevisionId,
@@ -270,17 +270,15 @@ export class Session extends EventBus<CollaborativeEvent> {
     const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
     const client = this.getCurrentClient();
     this.clients[this.clientId] = { ...client, position };
-    this.transportService
-      .sendMessage({
-        type,
-        version: MESSAGE_VERSION,
-        client: { ...client, position },
-      })
-      .then(() => {
-        if (this.pendingMessages.length > 0 && !this.waitingAck) {
-          this.sendPendingMessage();
-        }
-      });
+    this.sendToTransport({
+      type,
+      version: MESSAGE_VERSION,
+      client: { ...client, position },
+    }).then(() => {
+      if (this.pendingMessages.length > 0 && !this.waitingAck) {
+        this.sendPendingMessage();
+      }
+    });
   }
 
   /**
@@ -385,7 +383,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       if (client) {
         const { position } = client;
         if (position) {
-          this.transportService.sendMessage({
+          this.sendToTransport({
             type: "CLIENT_MOVED",
             version: MESSAGE_VERSION,
             client: { ...client, position },
@@ -407,6 +405,11 @@ export class Session extends EventBus<CollaborativeEvent> {
       return;
     }
     this.sendPendingMessage();
+  }
+
+  private async sendToTransport(message: CollaborationMessage) {
+    // wrap in an async function to ensure it returns a promise
+    return this.transportService.sendMessage(message);
   }
 
   /**
@@ -436,17 +439,15 @@ export class Session extends EventBus<CollaborativeEvent> {
       ${JSON.stringify(message)}`);
     }
     this.waitingAck = true;
-    this.transportService
-      .sendMessage({
-        ...message,
-        serverRevisionId: this.serverRevisionId,
-      })
-      .catch((e: Error) => {
-        if (!(e instanceof ClientDisconnectedError)) {
-          throw e.cause || e;
-        }
-        this.waitingAck = false;
-      });
+    this.sendToTransport({
+      ...message,
+      serverRevisionId: this.serverRevisionId,
+    }).catch((e: Error) => {
+      if (!(e instanceof ClientDisconnectedError)) {
+        throw e.cause || e;
+      }
+      this.waitingAck = false;
+    });
   }
 
   private acknowledge(message: CollaborationMessage) {

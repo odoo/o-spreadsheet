@@ -14,7 +14,7 @@ export class ReadonlyTransportFilter implements TransportService<CollaborationMe
       message.type === "CLIENT_LEFT" ||
       message.type === "CLIENT_MOVED"
     ) {
-      this.transportService.sendMessage(message);
+      await this.transportService.sendMessage(message);
     }
     // ignore all other messages
   }
