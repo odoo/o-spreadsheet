@@ -1,4 +1,4 @@
-import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -6,7 +6,6 @@ import {
   checkDataset,
   checkLabelRange,
   createDataSets,
-  updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
@@ -130,19 +129,6 @@ export class RadarChart extends AbstractChart {
       dataSets,
       labelRange,
     };
-  }
-
-  updateRanges(adapterFunctions: RangeAdapterFunctions): RadarChart {
-    const { dataSource, isStale } = updateChartRangesWithDataSets(
-      this.sheetId,
-      adapterFunctions,
-      this.definition.dataSource
-    );
-    if (!isStale) {
-      return this;
-    }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new RadarChart(definition, this.sheetId, this.getters);
   }
 }
 
