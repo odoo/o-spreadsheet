@@ -91,7 +91,7 @@ describe("TreeMap chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
       }),
-      auxiliaryRange: "A1:A4",
+      auxiliaryRange: "Sheet1!A1:A4",
     });
   });
 
