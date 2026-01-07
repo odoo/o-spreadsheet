@@ -49,6 +49,7 @@ import {
   SunburstChart,
 } from "../helpers/figures/charts/sunburst_chart";
 import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
+import { CommandResult } from "../types";
 
 //------------------------------------------------------------------------------
 // Chart Registry
@@ -61,7 +62,7 @@ chartRegistry.add("bar", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createBarChartRuntime,
-  validateChartDefinition: BarChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -78,7 +79,7 @@ chartRegistry.add("combo", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createComboChartRuntime,
-  validateChartDefinition: ComboChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
@@ -91,7 +92,7 @@ chartRegistry.add("line", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createLineChartRuntime,
-  validateChartDefinition: LineChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
@@ -104,7 +105,7 @@ chartRegistry.add("pie", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createPieChartRuntime,
-  validateChartDefinition: PieChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
@@ -141,7 +142,7 @@ chartRegistry.add("scatter", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createScatterChartRuntime,
-  validateChartDefinition: ScatterChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScatterChart.allowedDefinitionKeys,
@@ -154,7 +155,7 @@ chartRegistry.add("waterfall", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createWaterfallChartRuntime,
-  validateChartDefinition: WaterfallChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: WaterfallChart.allowedDefinitionKeys,
@@ -167,7 +168,7 @@ chartRegistry.add("pyramid", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createPyramidChartRuntime,
-  validateChartDefinition: PyramidChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -186,7 +187,7 @@ chartRegistry.add("radar", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createRadarChartRuntime,
-  validateChartDefinition: RadarChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: RadarChart.allowedDefinitionKeys,
@@ -199,7 +200,7 @@ chartRegistry.add("geo", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createGeoChartRuntime,
-  validateChartDefinition: GeoChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GeoChart.allowedDefinitionKeys,
@@ -213,7 +214,7 @@ chartRegistry.add("funnel", {
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createFunnelChartRuntime,
-  validateChartDefinition: FunnelChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: FunnelChart.allowedDefinitionKeys,
@@ -226,7 +227,7 @@ chartRegistry.add("sunburst", {
     new SunburstChart(definition as SunburstChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
   getChartRuntime: createSunburstChartRuntime,
-  validateChartDefinition: SunburstChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: SunburstChart.allowedDefinitionKeys,
@@ -238,7 +239,7 @@ chartRegistry.add("treemap", {
     new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
   getChartRuntime: createTreeMapChartRuntime,
-  validateChartDefinition: TreeMapChart.validateChartDefinition,
+  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: TreeMapChart.allowedDefinitionKeys,
