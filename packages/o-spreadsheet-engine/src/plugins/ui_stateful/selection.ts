@@ -6,6 +6,7 @@ import { clip, deepCopy, range } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import {
   isEqual,
+  isInside,
   isZoneInside,
   positionToZone,
   splitZone,
@@ -156,9 +157,11 @@ export class GridSelectionPlugin extends UIPlugin {
             .concat(splittedZones);
         }
         zones = uniqueZones(zones);
+
         const lastZone = zones[zones.length - 1];
+        const isAnchorCellInLastZone = isInside(anchor.cell.col, anchor.cell.row, lastZone);
         anchor = {
-          cell: { col: lastZone.left, row: lastZone.top },
+          cell: isAnchorCellInLastZone ? anchor.cell : { col: lastZone.left, row: lastZone.top },
           zone: lastZone,
         };
         break;
