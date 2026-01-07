@@ -20,6 +20,7 @@ import {
   convertStyles,
   convertTables,
 } from "./conversion";
+import { convertNamedRanges } from "./conversion/named_ranges_conversion";
 import { XlsxMiscExtractor, XlsxSheetExtractor, XlsxStyleExtractor } from "./extraction";
 import { XlsxExternalBookExtractor } from "./extraction/external_book_extractor";
 import { getXLSXFilesOfType } from "./helpers/xlsx_helper";
@@ -81,6 +82,12 @@ export class XlsxReader {
         ).getSharedStrings()
       : [];
 
+    const namedRanges = new XlsxMiscExtractor(
+      xlsxFileStructure.workbook,
+      xlsxFileStructure,
+      this.warningManager
+    ).getNamedRanges();
+
     // Sort sheets by file name : the sheets will always be named sheet1.xml, sheet2.xml, ... in order
     const sheets = xlsxFileStructure.sheets
       .sort((a, b) => a.file.fileName.localeCompare(b.file.fileName, undefined, { numeric: true }))
@@ -117,6 +124,7 @@ export class XlsxReader {
       externalBooks,
       chartIds: [],
       imageIds: [],
+      namedRanges,
     };
   }
 
@@ -158,6 +166,7 @@ export class XlsxReader {
       styles: convertStyles(data, this.warningManager),
       formats: convertFormats(data, this.warningManager),
       borders: convertBorders(data, this.warningManager),
+      namedRanges: convertNamedRanges(data, this.warningManager),
       revisionId: DEFAULT_REVISION_ID,
     } as WorkbookData;
 

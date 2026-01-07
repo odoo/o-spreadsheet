@@ -1719,3 +1719,35 @@ export function selectCarouselItem(
     sheetId,
   });
 }
+
+export function createNamedRange(
+  model: Model,
+  name: string,
+  range: string,
+  sheetId = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("CREATE_NAMED_RANGE", {
+    rangeName: name,
+    ranges: toRangesData(sheetId, range),
+  });
+}
+
+export function updateNamedRange(
+  model: Model,
+  oldName: string,
+  newName: string,
+  range: string,
+  sheetId = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("UPDATE_NAMED_RANGE", {
+    oldRangeName: oldName,
+    newRangeName: newName,
+    ranges: toRangesData(sheetId, range),
+  });
+}
+
+export function deleteNamedRange(model: Model, name: string): DispatchResult {
+  return model.dispatch("DELETE_NAMED_RANGE", {
+    rangeName: name,
+  });
+}

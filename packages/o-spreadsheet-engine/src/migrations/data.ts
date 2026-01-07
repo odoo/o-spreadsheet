@@ -445,6 +445,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     pivots: {},
     pivotNextId: 1,
     customTableStyles: {},
+    namedRanges: [],
   };
 }
 

@@ -39,6 +39,7 @@ import {
   addRows,
   addSheetProperties,
   addSheetViews,
+  createXMLNamedRanges,
 } from "./functions/worksheet";
 import {
   addRelsToFile,
@@ -109,6 +110,7 @@ function createWorkbook(data: ExcelWorkbookData, construct: XLSXStructure): XLSX
       <sheets>
         ${joinXmlNodes(sheetNodes)}
       </sheets>
+      ${createXMLNamedRanges(data)}
     </workbook>
   `;
   return createXMLFile(parseXML(xml), "xl/workbook.xml", "workbook");

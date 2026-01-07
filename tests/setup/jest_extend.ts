@@ -288,7 +288,7 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
   },
   toHaveClass(target: DOMTarget, expectedClass: string) {
     const element = getTarget(target);
-    if (!(element instanceof HTMLElement)) {
+    if (!(element instanceof HTMLElement || element instanceof SVGSVGElement)) {
       const message = element ? "Target is not an HTML element" : "Target not found";
       return { pass: false, message: () => message };
     }

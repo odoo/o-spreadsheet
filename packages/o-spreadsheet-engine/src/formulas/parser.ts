@@ -188,11 +188,7 @@ function parseOperand(tokens: TokenList): AST {
     case "SYMBOL":
       const value = current.value;
       const nextToken = tokens.current;
-      if (
-        nextToken?.type === "LEFT_PAREN" &&
-        functionRegex.test(current.value) &&
-        value === unquote(value, "'")
-      ) {
+      if (isFuncallToken(current, nextToken)) {
         const { args, rightParen } = parseFunctionArgs(tokens);
         return {
           type: "FUNCALL",
@@ -458,4 +454,12 @@ export function mapAst<T extends AST["type"]>(
     default:
       return ast;
   }
+}
+
+export function isFuncallToken(currentToken: Token, nextToken: Token | undefined) {
+  return (
+    nextToken?.type === "LEFT_PAREN" &&
+    functionRegex.test(currentToken.value) &&
+    currentToken.value === unquote(currentToken.value, "'")
+  );
 }

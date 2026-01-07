@@ -8,6 +8,8 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -624,6 +626,8 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -1244,6 +1248,8 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -1865,6 +1871,8 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="She!et2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -4015,6 +4023,8 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -5073,6 +5083,8 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -5653,6 +5665,8 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -6287,6 +6301,8 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -7281,6 +7297,8 @@ exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -7604,6 +7622,8 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -8376,6 +8396,8 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -8976,6 +8998,8 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -9570,6 +9594,8 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -10166,6 +10192,8 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -10762,6 +10790,8 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -11396,6 +11426,8 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -11995,6 +12027,8 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -12588,6 +12622,8 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -13183,6 +13219,8 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -13778,6 +13816,8 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -14432,6 +14472,8 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -15042,6 +15084,8 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -15646,6 +15690,8 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -16252,6 +16298,8 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -16858,6 +16906,8 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -17515,6 +17565,8 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -18021,6 +18073,8 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -18601,6 +18655,8 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -19206,6 +19262,8 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -19809,6 +19867,8 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -20414,6 +20474,8 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -21019,6 +21081,8 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -21675,6 +21739,8 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -22286,6 +22352,8 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -22891,6 +22959,8 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -23498,6 +23568,8 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -24105,6 +24177,8 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -24763,6 +24837,8 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -25397,6 +25473,8 @@ exports[`Test XLSX export Export data filters Export data filters snapshot 1`] =
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -25687,6 +25765,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Conditional f
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -26100,6 +26180,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Conditional f
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -26252,6 +26334,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Conditional f
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -26395,6 +26479,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Data validati
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -26592,6 +26678,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Merges 1`] = 
     <sheets>
         <sheet state="visible" name="MergeSheet" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -26765,6 +26853,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="&lt;Sheet2&gt;" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -27524,6 +27614,8 @@ exports[`Test XLSX export Header grouping export Nested grouped headers 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -27691,6 +27783,8 @@ exports[`Test XLSX export Header grouping export Nested grouped headers 2`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -27872,6 +27966,8 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -28047,6 +28143,8 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 2`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -28214,6 +28312,8 @@ exports[`Test XLSX export Images image larger than the sheet 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -28458,6 +28558,8 @@ exports[`Test XLSX export Images image overflowing outside the sheet 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -28703,6 +28805,8 @@ exports[`Test XLSX export Images images in different sheets 1`] = `
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -29068,6 +29172,8 @@ exports[`Test XLSX export Images multiple images in the same sheet 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -29369,6 +29475,8 @@ exports[`Test XLSX export Images simple image 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -29614,6 +29722,8 @@ exports[`Test XLSX export Sheet with frozen panes 1`] = `
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -29829,6 +29939,8 @@ exports[`Test XLSX export Sheet with hide gridlines 1`] = `
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -30040,6 +30152,8 @@ exports[`Test XLSX export Workbook with colored sheet 1`] = `
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -30254,6 +30368,8 @@ exports[`Test XLSX export Workbook with hidden sheet 1`] = `
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="hidden" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -30464,6 +30580,8 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
     <sheets>
         <sheet state="visible" name="ExportableFormulas" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -32914,6 +33032,8 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -33614,6 +33734,8 @@ exports[`Test XLSX export formulas Multi-Sheet export functions with cross refer
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -33859,6 +33981,8 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
         <sheet state="visible" name="ExportableFormulas" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="Sheet2" sheetId="2" r:id="rId2"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -36362,6 +36486,8 @@ exports[`Test XLSX export formulas Non exportable formulas are exported even wit
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -36543,6 +36669,8 @@ exports[`Test XLSX export formulas Non exportable functions that is evaluated as
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -36697,6 +36825,8 @@ exports[`Test XLSX export link cells 1`] = `
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -36929,6 +37059,8 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -37471,6 +37603,8 @@ exports[`Test XLSX export references with headers should be converted to referen
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",
@@ -40941,6 +41075,8 @@ exports[`Test XLSX export references with headers should be converted to referen
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
     </sheets>
+    <definedNames>
+    </definedNames>
 </workbook>",
       "contentType": "workbook",
       "path": "xl/workbook.xml",

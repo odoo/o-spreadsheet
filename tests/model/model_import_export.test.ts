@@ -1043,6 +1043,7 @@ test("complete import, then export", () => {
       },
     },
     uniqueFigureIds: true,
+    namedRanges: [],
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);
@@ -1131,6 +1132,7 @@ test("import then export (figures)", () => {
     uniqueFigureIds: true,
     settings: { locale: DEFAULT_LOCALE },
     customTableStyles: {},
+    namedRanges: [],
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);

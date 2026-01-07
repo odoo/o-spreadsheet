@@ -119,7 +119,7 @@ export function isFullRowRange(range: Range): boolean {
 
 export function getRangeString(
   range: Range,
-  forSheetId: UID,
+  forSheetId: UID | undefined,
   getSheetName: (sheetId: UID) => string,
   options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
 ): string {
@@ -132,7 +132,8 @@ export function getRangeString(
   if (range.zone.left < 0 || range.zone.top < 0) {
     return CellErrorType.InvalidReference;
   }
-  const prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
+  const prefixSheet =
+    !forSheetId || range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
   let sheetName: string = "";
   if (prefixSheet) {
     if (range.invalidSheetName) {

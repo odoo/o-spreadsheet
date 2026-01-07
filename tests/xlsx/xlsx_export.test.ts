@@ -16,6 +16,7 @@ import {
   createChart,
   createGaugeChart,
   createImage,
+  createNamedRange,
   createScorecardChart,
   createSheet,
   createTableWithFilter,
@@ -2047,6 +2048,24 @@ describe("Test XLSX export", () => {
     expect(exportedExcelData.sheets[1].name).toBe(longFormula.slice(0, 31));
     expect(exportedExcelData.sheets[0].cells["A1"]).toBe(longFormula);
     expect(exportedExcelData.sheets[0].cells["A1"]).toBe(longFormula);
+  });
+
+  test("Can export named ranges", async () => {
+    const model = new Model();
+    createSheet(model, { name: "Sheet 2", sheetId: "sh2Id" });
+    createNamedRange(model, "MyNamedRange", "A1:B2");
+    createNamedRange(model, "MySecondNamedRange", "C:C", "sh2Id");
+
+    const exportedXlsx = await model.exportXLSX();
+    const workbook = exportedXlsx.files.find((f) => f["contentType"] === "workbook")!["content"];
+    const xml = parseXML(workbook);
+
+    const namedRanges = xml.querySelectorAll("definedNames definedName");
+    expect(namedRanges.length).toBe(2);
+    expect(namedRanges[0].getAttribute("name")).toBe("MyNamedRange");
+    expect(namedRanges[0].textContent).toBe("Sheet1!$A$1:$B$2");
+    expect(namedRanges[1].getAttribute("name")).toBe("MySecondNamedRange");
+    expect(namedRanges[1].textContent).toBe("'Sheet 2'!$C:$C");
   });
 });
 

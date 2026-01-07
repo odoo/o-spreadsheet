@@ -51,8 +51,8 @@ autoCompleteProviders.add("dataValidation", {
       };
     });
   },
-  selectProposal(tokenAtCursor, value) {
-    this.composer.setCurrentContent(value);
+  selectProposal(tokenAtCursor, proposal) {
+    this.composer.setCurrentContent(proposal.text);
     this.composer.stopEdition();
   },
 });

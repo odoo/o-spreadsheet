@@ -8,9 +8,11 @@
         t-att-id="props.id"
         t-att-placeholder="props.placeholder"
         t-on-change="save"
-        t-on-blur="save"
+        t-on-blur="onBlur"
         t-on-pointerdown="onMouseDown"
         t-on-pointerup="onMouseUp"
+        t-on-focus="onFocus"
+        t-on-input="onInput"
         t-on-keydown="onKeyDown"
       />
       <span
