@@ -134,7 +134,20 @@ function createComputeFunction(
       acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
 
-    return applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize);
+    return replaceErrorPlaceholderInResult(
+      applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize)
+    );
+  }
+
+  function replaceErrorPlaceholderInResult(
+    result: FunctionResultObject | Matrix<FunctionResultObject>
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
+    if (!isMatrix(result)) {
+      replaceFunctionNamePlaceholder(result, descr.name);
+    } else {
+      matrixForEach(result, (result) => replaceFunctionNamePlaceholder(result, descr.name));
+    }
+    return result;
   }
 
   function errorHandlingCompute(
@@ -172,16 +185,13 @@ function createComputeFunction(
 
     if (!isMatrix(result)) {
       if (typeof result === "object" && result !== null && "value" in result) {
-        replaceFunctionNamePlaceholder(result, descr.name);
         return result;
       }
+      descr.name;
       return { value: result };
     }
 
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FunctionResultObject>, (result) =>
-        replaceFunctionNamePlaceholder(result, descr.name)
-      );
       return result as Matrix<FunctionResultObject>;
     }
 
