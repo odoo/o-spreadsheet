@@ -1,4 +1,7 @@
-import { duplicateDataSourceInDuplicatedSheet } from "../helpers/figures/charts/chart_common";
+import {
+  copyChartDataSourceInSheetId,
+  duplicateDataSourceInDuplicatedSheet,
+} from "../helpers/figures/charts/chart_common";
 import { ChartDataSource, ChartDataSourceType } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
@@ -16,6 +19,7 @@ interface ChartDataSourceBuilder<T> {
     sheetIdTo: UID,
     dataSource: T
   ): T;
+  copyInSheetId(getters: CoreGetters, sheetIdFrom: UID, sheetIdTo: UID, dataSource: T): T;
   allowedKeys: readonly string[];
 }
 
@@ -32,5 +36,6 @@ chartDataSourceRegistry.add("range", {
   validate: (validator, dataSource) => CommandResult.Success,
   transformRanges: (chartSheetId, dataSource, applyRange) => dataSource,
   duplicateInDuplicatedSheet: duplicateDataSourceInDuplicatedSheet,
+  copyInSheetId: copyChartDataSourceInSheetId,
   allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],
 });

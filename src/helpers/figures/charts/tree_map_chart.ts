@@ -4,7 +4,6 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import {
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -120,16 +119,6 @@ export class TreeMapChart extends AbstractChart {
     };
   }
 
-  copyInSheetId(sheetId: UID): TreeMapChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new TreeMapChart(definition, sheetId, this.getters);
-  }
   getDefinition(): TreeMapChartDefinition {
     return this.getDefinitionWithSpecificDataSets({
       ...this.definition.dataSource,
