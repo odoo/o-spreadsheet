@@ -6,7 +6,6 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   getDefinedAxis,
   updateChartRangesWithDataSets,
@@ -98,17 +97,6 @@ export class PyramidChart extends AbstractChart {
       ...definition,
       auxiliaryRange: definition.dataSource.labelRange,
     };
-  }
-
-  copyInSheetId(sheetId: UID): PyramidChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new PyramidChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): PyramidChartDefinition {

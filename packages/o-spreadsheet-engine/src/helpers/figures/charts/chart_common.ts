@@ -34,6 +34,7 @@ import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
+import { AbstractChart } from "./abstract_chart";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -124,6 +125,22 @@ export function duplicateLabelRangeInDuplicatedSheet(
   return range ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range) : undefined;
 }
 
+export function copyChartInOtherSheet(getters: CoreGetters, chart: AbstractChart, sheetId: UID) {
+  const definition = chart.copyInSheetId(sheetId).getDefinition();
+  if ("dataSource" in definition) {
+    return {
+      ...definition,
+      dataSource: copyChartDataSourceInSheetId(
+        getters,
+        chart.sheetId,
+        sheetId,
+        definition.dataSource
+      ),
+    };
+  }
+  return definition;
+}
+
 export function copyChartDataSourceInSheetId(
   getters: CoreGetters,
   sourceSheetId: UID,
@@ -139,13 +156,18 @@ export function copyChartDataSourceInSheetId(
       labelRange && !labelRange.invalidXc
         ? getters.getRangeString(labelRange, targetSheetId)
         : undefined,
-    dataSets: dataSource.dataSets.map((ds) => {
-      const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
-      return {
-        ...ds,
-        dataRange: getters.getRangeString(range, targetSheetId),
-      };
-    }),
+    dataSets: dataSource.dataSets
+      .map((ds) => {
+        if (ds.dataRange === CellErrorType.InvalidReference) {
+          return undefined;
+        }
+        const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
+        return {
+          ...ds,
+          dataRange: getters.getRangeString(range, targetSheetId),
+        };
+      })
+      .filter(isDefined),
   };
 }
 

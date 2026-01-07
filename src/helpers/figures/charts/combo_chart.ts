@@ -5,7 +5,6 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   getDefinedAxis,
   updateChartRangesWithDataSets,
@@ -158,17 +157,6 @@ export class ComboChart extends AbstractChart {
       zoomable: context.zoomable,
       humanize: context.humanize,
     };
-  }
-
-  copyInSheetId(sheetId: UID): ComboChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new ComboChart(definition, sheetId, this.getters);
   }
 }
 
