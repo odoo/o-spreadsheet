@@ -497,6 +497,24 @@ describe("Autocomplete parenthesis", () => {
     expect(getCellText(model, "A1")).toBe("=sum(1,2)");
   });
 
+  test("={1,2 + enter adds closing bracket", async () => {
+    await typeInComposer("={1,2");
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "A1")).toBe("={1,2}");
+  });
+
+  test("=sum(1,2,{3,4 + enter adds closing bracket then parenthesis", async () => {
+    await typeInComposer("=sum(1,2,{3,4");
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "A1")).toBe("=sum(1,2,{3,4})");
+  });
+
+  test("={1,2,sum(3,4 + enter adds closing parenthesis then bracket", async () => {
+    await typeInComposer("={1,2,sum(3,4");
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "A1")).toBe("={1,2,sum(3,4)}");
+  });
+
   test("=sum( + enter + edit does not show the formula assistant", async () => {
     await typeInComposer("=sum(");
     expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
