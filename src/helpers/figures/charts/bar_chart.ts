@@ -1,10 +1,8 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  checkDataset,
-  checkLabelRange,
   createDataSets,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -20,7 +18,6 @@ import {
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { UID } from "@odoo/o-spreadsheet-engine/types/misc";
 import { Range } from "@odoo/o-spreadsheet-engine/types/range";
@@ -59,13 +56,6 @@ export class BarChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: BarChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
