@@ -196,12 +196,15 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
    */
   getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
-    if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
+    if (!rangeReference.test(sheetXC)) {
       return createInvalidRange(sheetXC);
     }
 
     const { sheetName } = splitReference(sheetXC);
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
+    if (!this.getters.tryGetSheet(sheetId)) {
+      return createInvalidRange(sheetXC);
+    }
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 
