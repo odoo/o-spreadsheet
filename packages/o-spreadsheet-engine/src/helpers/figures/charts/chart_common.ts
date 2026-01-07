@@ -54,8 +54,8 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  * Adapt ranges of a chart which support DataSet (dataSets and LabelRange).
  */
 export function updateChartRangesWithDataSets(
-  sheetId: UID,
   { adaptRangeString }: RangeAdapterFunctions,
+  sheetId: UID,
   dataSource: ChartRangeDataSource
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
@@ -81,12 +81,9 @@ export function updateChartRangesWithDataSets(
   }
   const dataSets = dataSetsWithUndefined;
   return {
-    isStale: true,
-    dataSource: {
-      ...dataSource,
-      dataSets,
-      labelRange: labelRange === CellErrorType.InvalidReference ? undefined : labelRange,
-    },
+    ...dataSource,
+    dataSets,
+    labelRange: labelRange === CellErrorType.InvalidReference ? undefined : labelRange,
   };
 }
 
