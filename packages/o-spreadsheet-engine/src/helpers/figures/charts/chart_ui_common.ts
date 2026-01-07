@@ -44,21 +44,16 @@ export async function chartToImageUrl(
       console.log("Chart.js library is not loaded");
       return imageUrl;
     }
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    if (!globalThis.Chart.registry.controllers.get(config.type)) {
+      console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
+      return imageUrl;
+    }
     const extensionsLoaded = areChartJSExtensionsLoaded();
     if (!extensionsLoaded) {
       registerChartJSExtensions();
     }
-    if (!globalThis.Chart.registry.controllers.get(type)) {
-      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
-      if (!extensionsLoaded) {
-        unregisterChartJsExtensions();
-      }
-      return imageUrl;
-    }
-
-    const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
-
     const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
       config as ChartConfiguration
@@ -102,21 +97,16 @@ export async function chartToImageFile(
       console.log("Chart.js library is not loaded");
       return chartBlob;
     }
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    if (!globalThis.Chart.registry.controllers.get(config.type)) {
+      console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
+      return chartBlob;
+    }
     const extensionsLoaded = areChartJSExtensionsLoaded();
     if (!extensionsLoaded) {
       registerChartJSExtensions();
     }
-    if (!globalThis.Chart.registry.controllers.get(type)) {
-      console.log(`Chart of type "${type}" is not registered in Chart.js library.`);
-      if (!extensionsLoaded) {
-        unregisterChartJsExtensions();
-      }
-      return chartBlob;
-    }
-
-    const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
-
     const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
       config as ChartConfiguration

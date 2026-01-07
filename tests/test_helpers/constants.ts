@@ -74,6 +74,11 @@ export const TEST_CHART_DATA = {
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
   },
+  waterfall: {
+    type: "waterfall" as const,
+    dataSets: [{ dataRange: "B1:B4" }],
+    labelRange: "A2:A4",
+  },
 };
 
 const PIVOT: PivotCoreDefinition = {
