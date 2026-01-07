@@ -598,6 +598,13 @@ describe("range plugin", () => {
     expect(getRange).not.toThrow();
     expect(getRange().invalidXc).toBe("A1:A2");
   });
+
+  test("getRangeFromSheetXC with invalid default sheet but correct sheet reference", () => {
+    const range = m.getters.getRangeFromSheetXC("NotASheet", "s1!A1");
+    expect(range.sheetId).toBe("s1");
+    expect(range.invalidXc).toBe(undefined);
+    expect(m.getters.getRangeString(range, "s1")).toBe("s1!A1");
+  });
 });
 
 describe("Helpers", () => {
