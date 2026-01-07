@@ -96,10 +96,10 @@ describe("Sunburst chart chart", () => {
     const chart = new SunburstChart(definition, "Sheet1", model.getters);
     expect(chart.getContextCreation()).toMatchObject({
       hierarchicalDataSource: {
-        dataSets: [{ dataRange: "A1:A4" }],
+        dataSets: [{ dataRange: "Sheet1!A1:A4" }],
       },
       dataSource: { dataSets: [{ dataRange: "Sheet1!B1:B4" }] },
-      auxiliaryRange: "A1:A4",
+      auxiliaryRange: "Sheet1!A1:A4",
     });
   });
 

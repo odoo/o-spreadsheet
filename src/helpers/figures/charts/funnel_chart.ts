@@ -92,14 +92,7 @@ export class FunnelChart extends AbstractChart {
   }
 
   getDefinition(): FunnelChartDefinition {
-    return this.getDefinitionWithSpecificDataSets({
-      ...this.definition.dataSource,
-      dataSets: this.dataSets.map(({ dataSetId, dataRange }) => ({
-        dataSetId,
-        dataRange: this.getters.getRangeString(dataRange, this.sheetId),
-      })),
-      labelRange: this.labelRange && this.getters.getRangeString(this.labelRange, this.sheetId),
-    });
+    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
   }
 
   private getDefinitionWithSpecificDataSets(
