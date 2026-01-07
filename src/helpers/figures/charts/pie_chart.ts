@@ -12,7 +12,6 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -85,7 +84,7 @@ export class PieChart extends AbstractChart {
   }
 
   getDefinition(): PieChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
+    return this.definition;
   }
 
   getContextCreation(): ChartCreationContext {
@@ -93,13 +92,6 @@ export class PieChart extends AbstractChart {
     return {
       ...definition,
       auxiliaryRange: definition.dataSource.labelRange,
-    };
-  }
-
-  private getDefinitionWithSpecificDataSets(dataSource: ChartRangeDataSource): PieChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
     };
   }
 
