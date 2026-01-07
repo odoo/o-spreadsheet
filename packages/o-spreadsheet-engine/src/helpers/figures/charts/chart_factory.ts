@@ -1,4 +1,5 @@
 import { ChartConfiguration } from "chart.js";
+import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
 import { chartRegistry } from "../../../registries/chart_registry";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
@@ -18,6 +19,14 @@ export function chartFactory(getters: CoreGetters) {
     const builder = builders.find((builder) => builder.match(definition.type));
     if (!builder) {
       throw new Error(`No builder for this chart: ${definition.type}`);
+    }
+    if ("dataSource" in definition) {
+      definition = {
+        ...definition,
+        dataSource: chartDataSourceRegistry
+          .get(definition.dataSource.type)
+          ?.postProcess(getters, sheetId, definition.dataSource),
+      };
     }
     return builder.createChart(definition, sheetId, getters);
   }
