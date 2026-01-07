@@ -4,7 +4,6 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import {
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -136,17 +135,6 @@ export class SunburstChart extends AbstractChart {
       ...this.definition,
       dataSource,
     };
-  }
-
-  copyInSheetId(sheetId: UID): SunburstChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new SunburstChart(definition, sheetId, this.getters);
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
