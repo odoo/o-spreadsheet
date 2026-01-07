@@ -481,6 +481,59 @@ describe("Grid component", () => {
     });
 
     test.each([
+      { label: "Tab", key: "Tab", shiftKey: false, anchor: "B1", expected: "A2" },
+      { label: "Shift+Tab", key: "Tab", shiftKey: true, anchor: "A1", expected: "B2" },
+      { label: "Enter", key: "Enter", shiftKey: false, anchor: "A2", expected: "B1" },
+      { label: "Shift+Enter", key: "Enter", shiftKey: true, anchor: "A1", expected: "B2" },
+    ])(
+      "pressing $label cycles within the selection",
+      async ({ key, shiftKey, anchor, expected }) => {
+        setSelection(model, ["A1:B2"], { anchor });
+        await keyDown({ key, shiftKey });
+        expect(getSelectionAnchorCellXc(model)).toBe(expected);
+        expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:B2");
+      }
+    );
+
+    test("pressing TAB skips hidden columns in the selection", async () => {
+      setSelection(model, ["A1:C1"]);
+      hideColumns(model, ["B"]);
+      await keyDown({ key: "Tab" });
+      expect(getSelectionAnchorCellXc(model)).toBe("C1");
+      expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:C1");
+    });
+
+    test("pressing ENTER skips hidden rows in the selection", async () => {
+      setSelection(model, ["A1:A3"]);
+      hideRows(model, [1]);
+      await keyDown({ key: "Enter" });
+      expect(getSelectionAnchorCellXc(model)).toBe("A3");
+      expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:A3");
+    });
+
+    test("pressing TAB skips merge interior cells in the selection", async () => {
+      merge(model, "B1:B3");
+      setSelection(model, ["A1:B3"], { anchor: "A1" });
+      await keyDown({ key: "Tab" });
+      expect(getSelectionAnchorCellXc(model)).toBe("B1");
+      keyDown({ key: "Tab" });
+      expect(getSelectionAnchorCellXc(model)).toBe("A2");
+      keyDown({ key: "Tab" });
+      expect(getSelectionAnchorCellXc(model)).toBe("A3");
+    });
+
+    test("pressing ENTER skips merge interior cells in the selection", async () => {
+      merge(model, "A2:C2");
+      setSelection(model, ["A1:C2"], { anchor: "A1" });
+      await keyDown({ key: "Enter" });
+      expect(getSelectionAnchorCellXc(model)).toBe("A2");
+      keyDown({ key: "Enter" });
+      expect(getSelectionAnchorCellXc(model)).toBe("B1");
+      keyDown({ key: "Enter" });
+      expect(getSelectionAnchorCellXc(model)).toBe("C1");
+    });
+
+    test.each([
       { key: "F4", ctrlKey: false },
       { key: "Y", ctrlKey: true },
     ])("can undo/redo with keyboard CTRL+Z/%s", async (redoKey) => {

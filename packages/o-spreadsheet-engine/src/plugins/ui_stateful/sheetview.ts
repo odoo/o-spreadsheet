@@ -2,7 +2,7 @@ import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../../constants";
 import { clip, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/edge_scrolling";
 import { InternalViewport } from "../../helpers/internal_viewport";
-import { findCellInNewZone, positionToZone } from "../../helpers/zones";
+import { findCellInNewZone, isEqual, positionToZone } from "../../helpers/zones";
 import {
   Command,
   CommandResult,
@@ -160,10 +160,13 @@ export class SheetViewPlugin extends UIPlugin {
   private handleEvent(event: SelectionEvent) {
     const sheetId = this.getters.getActiveSheetId();
     if (event.options.scrollIntoView) {
-      let { col, row } = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
-      if (event.mode === "updateAnchor") {
-        const oldZone = event.previousAnchor.zone;
-        const newZone = event.anchor.zone;
+      const oldZone = event.previousAnchor.zone;
+      const newZone = event.anchor.zone;
+      const isUpdateAnchorEvent = event.mode === "updateAnchor";
+      const sameZone = isEqual(oldZone, newZone);
+      let { col, row } =
+        isUpdateAnchorEvent && sameZone ? event.anchor.cell : findCellInNewZone(oldZone, newZone);
+      if (isUpdateAnchorEvent && !sameZone) {
         // altering a zone should not move the viewport in a dimension that wasn't changed
         const { top, bottom, left, right } = this.getMainInternalViewport(sheetId);
         if (oldZone.left === newZone.left && oldZone.right === newZone.right) {

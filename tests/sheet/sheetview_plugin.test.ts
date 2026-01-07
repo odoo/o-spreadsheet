@@ -138,6 +138,24 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  test("updateAnchor scrolls to the anchor cell when zone is unchanged", () => {
+    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 120 }] });
+    setSelection(model, ["A1:A100"]);
+    setViewportOffset(model, 0, 0);
+
+    const { top: initialTop, bottom: initialBottom } = model.getters.getActiveMainViewport();
+    const targetRow = initialBottom + 5;
+    model.selection.updateAnchorCell(0, targetRow);
+    expect(model.getters.getSelection().anchor.cell).toEqual({ col: 0, row: targetRow });
+
+    const expectedTop = initialTop + 5;
+    const expectedBottom = initialBottom + 5;
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      top: expectedTop,
+      bottom: expectedBottom,
+    });
+  });
+
   test("Can Undo/Redo action that alters viewport structure (add/delete rows or cols)", () => {
     model.getters.getActiveMainViewport();
     addRows(model, "before", 0, 70);

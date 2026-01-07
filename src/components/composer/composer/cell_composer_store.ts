@@ -32,6 +32,7 @@ import {
   RemoveColumnsRowsCommand,
   isMatrix,
 } from "../../../types";
+import { moveAnchorWithinSelection } from "../../helpers/selection_helpers";
 import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
 
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
@@ -49,7 +50,11 @@ export class CellComposerStore extends AbstractComposerStore {
     if (canStopEdition) {
       this._stopEdition();
       if (direction) {
-        this.model.selection.moveAnchorCell(direction, 1);
+        if (this.getters.isSingleCellOrMerge(this.sheetId, this.getters.getSelectedZone())) {
+          this.model.selection.moveAnchorCell(direction, 1);
+        } else {
+          moveAnchorWithinSelection(this.getters, this.model.selection, direction);
+        }
       }
       return;
     }
