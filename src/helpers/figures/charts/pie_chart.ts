@@ -5,7 +5,6 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -110,17 +109,6 @@ export class PieChart extends AbstractChart {
       ...this.definition,
       dataSource,
     };
-  }
-
-  copyInSheetId(sheetId: UID): PieChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new PieChart(definition, sheetId, this.getters);
   }
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {

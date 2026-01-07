@@ -5,7 +5,6 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -95,17 +94,6 @@ export class RadarChart extends AbstractChart {
       ...definition,
       auxiliaryRange: definition.dataSource.labelRange,
     };
-  }
-
-  copyInSheetId(sheetId: UID): RadarChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new RadarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): RadarChartDefinition {
