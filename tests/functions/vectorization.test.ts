@@ -4,6 +4,7 @@ import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { splitReference } from "../../src/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   addToRegistry,
   checkFunctionDoesntSpreadBeyondRange,
@@ -126,11 +127,17 @@ describe("vectorization", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:B1, A2:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:F1")).toEqual([["A1A2", "B1B2", "#N/A"]]);
+    expect(getEvaluatedCell(model, "F1").message).toBe(
+      "Array arguments to FUNCTION.WITHOUT.RANGE.ARGS are of different size."
+    );
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
 
     setCellContent(model, "D2", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:A2, B1:B3)");
     expect(getRangeValuesAsMatrix(model, "D2:D4")).toEqual([["A1B1"], ["A2B2"], ["#N/A"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D2:D4")).toBeTruthy();
+    expect(getEvaluatedCell(model, "D4").message).toBe(
+      "Array arguments to FUNCTION.WITHOUT.RANGE.ARGS are of different size."
+    );
   });
 
   test("vectorization of array formula will only return the first value of the array", () => {
