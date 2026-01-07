@@ -17,7 +17,6 @@ import { getZoneArea } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
@@ -94,16 +93,7 @@ export class ScatterChart extends AbstractChart {
   }
 
   getDefinition(): ScatterChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource
-  ): ScatterChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getContextCreation(): ChartCreationContext {
