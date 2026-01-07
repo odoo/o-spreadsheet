@@ -109,7 +109,6 @@ export class BarChart extends AbstractChart {
     return {
       ...this.definition,
       dataSource,
-      zoomable: this.definition.horizontal ? undefined : this.definition.zoomable,
     };
   }
 
