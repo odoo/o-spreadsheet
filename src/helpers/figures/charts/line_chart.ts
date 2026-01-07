@@ -13,7 +13,6 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -97,14 +96,7 @@ export class LineChart extends AbstractChart {
   }
 
   getDefinition(): LineChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(dataSource: ChartRangeDataSource): LineChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getContextCreation(): ChartCreationContext {
