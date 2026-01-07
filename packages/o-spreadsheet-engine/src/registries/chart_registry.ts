@@ -21,6 +21,7 @@ export interface ChartBuilder<T extends ChartDefinition, D> {
   validateChartDefinition(validator: Validator, definition: T): CommandResult | CommandResult[];
   transformDefinition(chartSheetId: UID, definition: T, applyRange: RangeAdapter): T;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): T;
+  postProcess?<T2 extends T>(getters: CoreGetters, sheetId: UID, definition: T2): T2;
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
