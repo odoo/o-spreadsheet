@@ -5,6 +5,7 @@ import { iterateItemIdsPositions } from "../../helpers/data_normalization";
 import { isTextFormat } from "../../helpers/format/format";
 import { withHttps } from "../../helpers/links";
 import { isMarkdownLink, isSheetUrl, parseMarkdownLink, parseSheetUrl } from "../../helpers/misc";
+import { setXcToFixedReferenceType } from "../../helpers/references";
 import { isInside, toZone } from "../../helpers/zones";
 import { CellErrorType } from "../../types/errors";
 import { HeaderIndex } from "../../types/misc";
@@ -285,4 +286,24 @@ export function addSheetProperties(sheet: ExcelSheetData) {
         <tabColor ${formatAttributes([["rgb", toXlsxHexColor(sheet.color)]])} />
       </sheetPr>
     `;
+}
+
+export function createXMLNamedRanges(data: ExcelWorkbookData): XMLString {
+  if (!data.namedRanges || !Object.keys(data.namedRanges).length) {
+    return escapeXml``;
+  }
+  const namedRangesNodes: XMLString[] = [];
+  for (const rangeName in data.namedRanges) {
+    const attributes: XMLAttributes = [["name", rangeName]];
+    const fixedReference = setXcToFixedReferenceType(data.namedRanges[rangeName], "colrow");
+    namedRangesNodes.push(escapeXml/*xml*/ `
+      <definedName ${formatAttributes(attributes)}>${fixedReference}</definedName>
+    `);
+  }
+
+  return escapeXml/*xml*/ `
+    <definedNames>
+      ${joinXmlNodes(namedRangesNodes)}
+    </definedNames>
+`;
 }
