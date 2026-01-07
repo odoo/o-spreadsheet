@@ -20,7 +20,6 @@ import { ChartConfiguration } from "chart.js";
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   CommandResult,
   DataSet,
   ExcelChartDefinition,
@@ -78,16 +77,7 @@ export class ComboChart extends AbstractChart {
   }
 
   getDefinition(): ComboChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource
-  ): ComboChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
