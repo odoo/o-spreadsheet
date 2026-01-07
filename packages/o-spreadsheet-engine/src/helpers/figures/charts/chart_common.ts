@@ -147,10 +147,10 @@ export function copyChartDataSourceInSheetId(
         : undefined,
     dataSets: dataSource.dataSets
       .map((ds) => {
-        if (ds.dataRange === CellErrorType.InvalidReference) {
+        const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
+        if (range.invalidXc) {
           return undefined;
         }
-        const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
         return {
           ...ds,
           dataRange: getters.getRangeString(range, targetSheetId),
