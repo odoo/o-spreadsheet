@@ -282,6 +282,26 @@ describe("Composer interactions", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
+  test("pressing TAB in edit mode cycles within the selection", async () => {
+    setSelection(model, ["A1:B2"], { anchor: "B1" });
+    await keyDown({ key: "F2" });
+    expect(composerStore.editionMode).toBe("editing");
+    await keyDown({ key: "Tab" });
+    expect(getSelectionAnchorCellXc(model)).toBe("A2");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("pressing ENTER in edit mode cycles within the selection", async () => {
+    setSelection(model, ["A1:B2"], { anchor: "A2" });
+    await keyDown({ key: "F2" });
+    expect(composerStore.editionMode).toBe("editing");
+    await keyDown({ key: "Enter" });
+    expect(getSelectionAnchorCellXc(model)).toBe("B1");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
   test("Starting the edition should not display the cell reference", async () => {
     setSelection(model, ["A1:A2"]);
     await startComposition();

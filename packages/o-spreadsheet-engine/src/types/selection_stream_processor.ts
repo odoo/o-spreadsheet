@@ -24,6 +24,8 @@ interface SelectionProcessor {
 
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
 
+  updateAnchorCell(col: number, row: number, options?: SelectionEventOptions): DispatchResult;
+
   setAnchorCorner(col: number, row: number): DispatchResult;
 
   addCellToSelection(col: number, row: number): DispatchResult;
