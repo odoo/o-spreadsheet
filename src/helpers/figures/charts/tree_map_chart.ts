@@ -119,16 +119,7 @@ export class TreeMapChart extends AbstractChart {
   }
 
   getDefinition(): TreeMapChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource
-  ): TreeMapChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {

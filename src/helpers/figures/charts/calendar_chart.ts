@@ -10,7 +10,6 @@ import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
-  ChartRangeDataSource,
   ExcelChartDefinition,
   LegendPosition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
@@ -116,16 +115,7 @@ export class CalendarChart extends AbstractChart {
   }
 
   getDefinition(): CalendarChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.definition.dataSource);
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSource: ChartRangeDataSource
-  ): CalendarChartDefinition {
-    return {
-      ...this.definition,
-      dataSource,
-    };
+    return this.definition;
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
