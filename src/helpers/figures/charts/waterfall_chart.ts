@@ -1,10 +1,6 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  checkDataset,
-  checkLabelRange,
-  createDataSets,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { createDataSets } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
@@ -18,7 +14,7 @@ import {
   WaterfallChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
-import { CommandResult, Getters, Range, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -57,13 +53,6 @@ export class WaterfallChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
     this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
-  }
-
-  static validateChartDefinition(
-    validator: Validator,
-    definition: WaterfallChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): WaterfallChartDefinition {
