@@ -3,7 +3,6 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import {
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -115,17 +114,6 @@ export class CalendarChart extends AbstractChart {
       },
       auxiliaryRange: definition.dataSource.labelRange,
     };
-  }
-
-  copyInSheetId(sheetId: UID): CalendarChart {
-    const dataSource = copyChartDataSourceInSheetId(
-      this.getters,
-      this.sheetId,
-      sheetId,
-      this.definition.dataSource
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSource);
-    return new CalendarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): CalendarChartDefinition {
