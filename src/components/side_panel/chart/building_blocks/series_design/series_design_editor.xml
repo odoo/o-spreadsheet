@@ -3,18 +3,12 @@
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Data Series">
       <t t-set-slot="content">
         <Section class="'pt-0 pb-0'">
-          <select
-            class="o-input data-series-selector"
-            t-model="state.label"
-            t-on-change="(ev) => this.updateEditedSeries(ev)">
-            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
-              <option
-                t-att-value="serie"
-                t-att-selected="state.index === serie_index"
-                t-esc="serie"
-              />
-            </t>
-          </select>
+          <Select
+            selectedValue="state.index.toString()"
+            values="selectOptions"
+            class="'data-series-selector'"
+            onChange.bind="this.updateEditedSeries"
+          />
           <Section class="'px-0'">
             <div class="d-flex align-items-center">
               <span class="o-section-title mb-0 pe-2">Series color</span>

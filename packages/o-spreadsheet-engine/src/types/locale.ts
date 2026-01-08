@@ -25,7 +25,7 @@ export const DEFAULT_LOCALES: Locale[] = [
     formulaArgSeparator: ",",
   },
   {
-    name: "French",
+    name: "French with a long name because I want to test some things in the UI because select smile",
     code: "fr_FR" as LocaleCode,
     thousandsSeparator: " ",
     decimalSeparator: ",",

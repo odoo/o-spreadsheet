@@ -4,8 +4,8 @@ import { SettingsPanel } from "../../src/components/side_panel/settings/settings
 import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale } from "../../src/types";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
-import { setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { changeSelectComponentValue, simulateClick } from "../test_helpers/dom_helper";
+import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 describe("settings sidePanel component", () => {
   let model: Model;
@@ -13,7 +13,7 @@ describe("settings sidePanel component", () => {
 
   async function mountSettingsSidePanel(modelArg?: Model, env?: Partial<SpreadsheetChildEnv>) {
     model = modelArg ?? new Model();
-    ({ fixture } = await mountComponent(SettingsPanel, {
+    ({ fixture } = await mountComponentWithPortalTarget(SettingsPanel, {
       model,
       props: { onCloseSidePanel: () => {} },
       env,
@@ -41,7 +41,7 @@ describe("settings sidePanel component", () => {
 
     test("Can change locale", async () => {
       await mountSettingsSidePanel();
-      setInputValueAndTrigger(".o-settings-panel select", "fr_FR");
+      await changeSelectComponentValue(".o-settings-panel select", "fr_FR");
       expect(model.getters.getLocale().code).toEqual("fr_FR");
     });
 
@@ -64,7 +64,7 @@ describe("settings sidePanel component", () => {
         dateTimePreview: "12/31/1899 02:24:00 PM",
       });
 
-      await setInputValueAndTrigger(".o-settings-panel select", "fr_FR");
+      await changeSelectComponentValue(".o-settings-panel select", "fr_FR");
       expect(getLocalePreview()).toEqual({
         numberPreview: "1 234 567,89",
         datePreview: "31/12/1899",
@@ -83,9 +83,8 @@ describe("settings sidePanel component", () => {
     test("Current locale in loaded model that is not in env.loadLocales() is displayed", async () => {
       model = new Model({ settings: { locale: CUSTOM_LOCALE } });
       await mountSettingsSidePanel(model);
-      const options = fixture.querySelectorAll<HTMLOptionElement>(
-        ".o-settings-panel select option"
-      );
+      await simulateClick(".o-settings-panel select");
+      const options = fixture.querySelectorAll<HTMLOptionElement>(".o-popover option");
       const optionValues = Array.from(options).map((option) => option.value);
 
       for (const defaultLocale of DEFAULT_LOCALES) {
