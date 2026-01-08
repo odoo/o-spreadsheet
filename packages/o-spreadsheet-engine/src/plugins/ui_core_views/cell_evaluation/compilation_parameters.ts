@@ -72,6 +72,10 @@ class CompilationParametersBuilder {
     if (rangeError) {
       return rangeError;
     }
+
+    if (this.evalContext.__originCellPosition) {
+      this.evalContext.currentFormulaDependencies?.push(range);
+    }
     // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return { ...this.computeCell(position), position };
@@ -100,6 +104,11 @@ class CompilationParametersBuilder {
     if (!_zone) {
       return [[]];
     }
+
+    if (this.evalContext.__originCellPosition) {
+      this.evalContext.currentFormulaDependencies?.push(range);
+    }
+
     const { top, left, bottom, right } = zone;
     const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
     if (cacheKey in this.rangeCache) {
@@ -116,7 +125,8 @@ class CompilationParametersBuilder {
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
-        matrix[colIndex][rowIndex] = this.getRef({ sheetId, col, row });
+        const position = { sheetId, col, row };
+        matrix[colIndex][rowIndex] = { ...this.computeCell(position), position };
       }
     }
 
@@ -125,6 +135,29 @@ class CompilationParametersBuilder {
   }
 
   private getRef(position: CellPosition): FunctionResultObject {
+    const range = this.getters.getRangeFromZone(position.sheetId, {
+      top: position.row,
+      left: position.col,
+      bottom: position.row,
+      right: position.col,
+    });
+
+    const rangeError = this.getRangeError(range);
+    if (rangeError) {
+      return rangeError;
+    }
+    if (this.evalContext.__originCellPosition) {
+      // Sometimes, formulas does not return simple values, but also position information.
+      // Mean that the formula result (or sub-formula result) is a reference to
+      // another cell. (ex: XLOOKUP function).
+      // However, in some cases, the position information is computed directly in
+      // the formula (upstream of getRef) and is not directly deduced from the dependencies
+      // of the formula. (ex: INDIRECT function).
+      // In this case, we need to make sure that the dependencies of the formula
+      // will be correctly updated to include the cell referenced by the position
+      // information. This is why we push the range here:
+      this.evalContext.currentFormulaDependencies?.push(range);
+    }
     return { ...this.computeCell(position), position };
   }
 
