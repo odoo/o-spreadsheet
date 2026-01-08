@@ -335,7 +335,9 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   onContextMenu(ev: MouseEvent) {
     ev.preventDefault();
     const index = this._getElementIndex(this._getEvOffset(withZoom(this.env, ev)));
-    if (index < 0) return;
+    if (index < 0) {
+      return;
+    }
     if (!this._getActiveElements().has(index)) {
       this._selectElement(index, false);
     }

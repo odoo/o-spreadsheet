@@ -60,7 +60,9 @@ export function consumeSpaces(chars: TokenizingChars) {
 }
 
 export function consumeLetters(chars: TokenizingChars): number {
-  if (chars.current === "$") chars.advanceBy(1);
+  if (chars.current === "$") {
+    chars.advanceBy(1);
+  }
   if (!chars.current || !isCharALetter(chars.current)) {
     return -1;
   }
@@ -72,7 +74,9 @@ export function consumeLetters(chars: TokenizingChars): number {
 }
 
 export function consumeDigits(chars: TokenizingChars): number {
-  if (chars.current === "$") chars.advanceBy(1);
+  if (chars.current === "$") {
+    chars.advanceBy(1);
+  }
   if (!chars.current || !isCharADigit(chars.current)) {
     return -1;
   }

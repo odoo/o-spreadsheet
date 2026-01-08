@@ -85,12 +85,13 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
         bottom: (border.zone.bottom && border.zone.bottom + row) || border.zone.top + row,
       };
       for (const [position, style] of this.getOptimalBorderCommands(border.style)) {
-        if (style)
+        if (style) {
           this.dispatch("SET_ZONE_BORDERS", {
             sheetId,
             target: [zone],
             border: { position, ...style },
           });
+        }
       }
     }
   }

@@ -36,7 +36,9 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
   }
 
   onPreviewMouseDown(cf: ConditionalFormat, event: MouseEvent) {
-    if (event.button !== 0) return;
+    if (event.button !== 0) {
+      return;
+    }
     const previewRects = Array.from(this.cfListRef.el!.children).map((previewEl) =>
       getBoundingRectAsPOJO(previewEl)
     );

@@ -81,7 +81,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   }
 
   private computePopoverPosition() {
-    if (!this.containerRect) throw new Error("Popover container is not defined");
+    if (!this.containerRect) {
+      throw new Error("Popover container is not defined");
+    }
     const el = this.popoverRef.el!;
     const contentEl = this.popoverContentRef.el!;
 
@@ -93,7 +95,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     el.style.display = newDisplay;
     this.currentDisplayValue = newDisplay;
 
-    if (!anchor) return;
+    if (!anchor) {
+      return;
+    }
 
     const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
     let elDims = {
@@ -238,9 +242,15 @@ abstract class PopoverPositionContext {
     const shouldRenderAtBottom = this.shouldRenderAtBottom(elDims.height);
     const shouldRenderAtRight = this.shouldRenderAtRight(elDims.width);
 
-    if (shouldRenderAtBottom && shouldRenderAtRight) return "bottom-right";
-    if (shouldRenderAtBottom && !shouldRenderAtRight) return "bottom-left";
-    if (!shouldRenderAtBottom && shouldRenderAtRight) return "top-right";
+    if (shouldRenderAtBottom && shouldRenderAtRight) {
+      return "bottom-right";
+    }
+    if (shouldRenderAtBottom && !shouldRenderAtRight) {
+      return "bottom-left";
+    }
+    if (!shouldRenderAtBottom && shouldRenderAtRight) {
+      return "top-right";
+    }
     return "top-left";
   }
 }

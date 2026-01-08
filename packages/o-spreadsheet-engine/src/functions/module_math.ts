@@ -1399,14 +1399,20 @@ export const SUBTOTAL = {
       const sheetName = splitReference(ref0.value).sheetName;
       const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : this.__originSheetId;
 
-      if (!sheetId) continue;
+      if (!sheetId) {
+        continue;
+      }
       const { top, left } = toZone(ref0.value);
       const right = left + ref.length - 1;
       const bottom = top + ref[0].length - 1;
 
       for (let row = top; row <= bottom; row++) {
-        if (this.getters.isRowFiltered(sheetId, row)) continue;
-        if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) continue;
+        if (this.getters.isRowFiltered(sheetId, row)) {
+          continue;
+        }
+        if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) {
+          continue;
+        }
 
         for (let col = left; col <= right; col++) {
           const cell = this.getters.getCorrespondingFormulaCell({ sheetId, col, row });

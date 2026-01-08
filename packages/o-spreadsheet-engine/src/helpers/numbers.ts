@@ -52,7 +52,9 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
  * Note that "" (empty string) does not count as a number string
  */
 export function isNumber(value: string | undefined, locale: Locale): boolean {
-  if (!value) return false;
+  if (!value) {
+    return false;
+  }
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
   return getNumberRegex(locale).test(value.trim());
 }

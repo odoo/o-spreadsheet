@@ -502,7 +502,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       }
       for (const customFieldName in this.definition.customFields || {}) {
         const customField = this.definition.customFields?.[customFieldName];
-        if (!customField) continue;
+        if (!customField) {
+          continue;
+        }
         const baseValue = entry[customField.parentField];
         const parentField = this.fields[customField.parentField];
         if (!baseValue || !parentField) {

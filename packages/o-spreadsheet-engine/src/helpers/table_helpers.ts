@@ -85,7 +85,9 @@ function getAllTableBorders(
 
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const styleBorder = style[tableElement]?.border;
-    if (!styleBorder) continue;
+    if (!styleBorder) {
+      continue;
+    }
 
     const zones = getTableElementZones(tableElement, tableConfig, nOfCols, nOfRows);
     for (const zone of zones) {
@@ -228,41 +230,57 @@ function getTableElementZones(
       zones.push({ top: 0, left: 0, bottom: lastRow, right: lastCol });
       break;
     case "firstColumn":
-      if (!tableConfig.firstColumn) break;
+      if (!tableConfig.firstColumn) {
+        break;
+      }
       zones.push({ top: 0, left: 0, bottom: lastRow, right: 0 });
       break;
     case "lastColumn":
-      if (!tableConfig.lastColumn) break;
+      if (!tableConfig.lastColumn) {
+        break;
+      }
       zones.push({ top: 0, left: lastCol, bottom: lastRow, right: lastCol });
       break;
     case "headerRow":
-      if (!tableConfig.numberOfHeaders) break;
+      if (!tableConfig.numberOfHeaders) {
+        break;
+      }
       zones.push({ top: 0, left: 0, bottom: headerRows - 1, right: lastCol });
       break;
     case "totalRow":
-      if (!tableConfig.totalRow) break;
+      if (!tableConfig.totalRow) {
+        break;
+      }
       zones.push({ top: lastRow, left: 0, bottom: lastRow, right: lastCol });
       break;
     case "firstRowStripe":
-      if (!tableConfig.bandedRows) break;
+      if (!tableConfig.bandedRows) {
+        break;
+      }
       for (let i = headerRows; i < numberOfRows - totalRows; i += 2) {
         zones.push({ top: i, left: 0, bottom: i, right: lastCol });
       }
       break;
     case "secondRowStripe":
-      if (!tableConfig.bandedRows) break;
+      if (!tableConfig.bandedRows) {
+        break;
+      }
       for (let i = headerRows + 1; i < numberOfRows - totalRows; i += 2) {
         zones.push({ top: i, left: 0, bottom: i, right: lastCol });
       }
       break;
     case "firstColumnStripe":
-      if (!tableConfig.bandedColumns) break;
+      if (!tableConfig.bandedColumns) {
+        break;
+      }
       for (let i = 0; i < numberOfCols; i += 2) {
         zones.push({ top: headerRows, left: i, bottom: lastRow - totalRows, right: i });
       }
       break;
     case "secondColumnStripe":
-      if (!tableConfig.bandedColumns) break;
+      if (!tableConfig.bandedColumns) {
+        break;
+      }
       for (let i = 1; i < numberOfCols; i += 2) {
         zones.push({ top: headerRows, left: i, bottom: lastRow - totalRows, right: i });
       }

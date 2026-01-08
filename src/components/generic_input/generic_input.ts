@@ -49,7 +49,9 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       }
     });
     onMounted(() => {
-      if (this.inputRef.el) this.inputRef.el.value = this.props.value.toString();
+      if (this.inputRef.el) {
+        this.inputRef.el.value = this.props.value.toString();
+      }
     });
   }
 

@@ -100,7 +100,9 @@ export class Session extends EventBus<CollaborativeEvent> {
    * It will be transmitted to all other connected clients.
    */
   save(rootCommand: Command, commands: CoreCommand[], changes: HistoryChange[]) {
-    if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) return;
+    if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) {
+      return;
+    }
     const revision = new Revision(
       this.uuidGenerator.uuidv4(),
       this.clientId,
@@ -286,7 +288,9 @@ export class Session extends EventBus<CollaborativeEvent> {
    * session.
    */
   private onMessageReceived(message: CollaborationMessage) {
-    if (this.isAlreadyProcessed(message)) return;
+    if (this.isAlreadyProcessed(message)) {
+      return;
+    }
     if (this.isWrongServerRevisionId(message)) {
       this.trigger("unexpected-revision-id");
       return;
@@ -417,7 +421,9 @@ export class Session extends EventBus<CollaborativeEvent> {
    */
   private sendPendingMessage() {
     let message = this.pendingMessages[0];
-    if (!message) return;
+    if (!message) {
+      return;
+    }
     if (message.type === "REMOTE_REVISION") {
       let revision = this.revisions.get(message.nextRevisionId);
       if (revision.commands.length === 0) {

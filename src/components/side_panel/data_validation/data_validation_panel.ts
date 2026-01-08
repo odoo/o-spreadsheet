@@ -22,7 +22,9 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   localizeDVRule(rule?: DataValidationRule): DataValidationRule | undefined {
-    if (!rule) return rule;
+    if (!rule) {
+      return rule;
+    }
     const locale = this.env.model.getters.getLocale();
     return localizeDataValidationRule(rule, locale);
   }

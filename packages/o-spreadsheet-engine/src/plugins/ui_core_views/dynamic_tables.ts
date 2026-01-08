@@ -66,14 +66,18 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
 
     // First we create the static tables, so we can use them to compute collision with dynamic tables
     for (const table of coreTables) {
-      if (table.type === "dynamic") continue;
+      if (table.type === "dynamic") {
+        continue;
+      }
       tables.push(table);
     }
     const staticTables = [...tables];
 
     // Then we create the dynamic tables
     for (const coreTable of coreTables) {
-      if (coreTable.type !== "dynamic") continue;
+      if (coreTable.type !== "dynamic") {
+        continue;
+      }
       const table = this.coreTableToTable(sheetId, coreTable);
       let tableZone = table.range.zone;
       // Reduce the zone to avoid collision with static tables. Per design, dynamic tables can't overlap with other

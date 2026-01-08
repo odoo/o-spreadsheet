@@ -113,12 +113,16 @@ export function convertWidthToExcel(width: number): number {
 }
 
 export function convertHeightFromExcel(height: number | undefined): number | undefined {
-  if (!height) return height;
+  if (!height) {
+    return height;
+  }
   return Math.round((height / HEIGHT_FACTOR) * 100) / 100;
 }
 
 export function convertWidthFromExcel(width: number | undefined): number | undefined {
-  if (!width) return width;
+  if (!width) {
+    return width;
+  }
   return Math.round((width / WIDTH_FACTOR) * 100) / 100;
 }
 

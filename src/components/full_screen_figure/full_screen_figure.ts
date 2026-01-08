@@ -42,7 +42,9 @@ export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get chartId() {
-    if (!this.figureUI) return undefined;
+    if (!this.figureUI) {
+      return undefined;
+    }
     return this.env.model.getters.getChartIdFromFigureId(this.figureUI?.id);
   }
 
@@ -59,7 +61,9 @@ export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get figureComponent(): (new (...args: any) => Component) | undefined {
-    if (!this.figureUI) return undefined;
+    if (!this.figureUI) {
+      return undefined;
+    }
     return figureRegistry.get(this.figureUI.tag).Component;
   }
 }

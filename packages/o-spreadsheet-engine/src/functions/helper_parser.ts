@@ -279,7 +279,9 @@ export function getTranslatedCategory(key: string): string {
 
 export function getTransformation(key: string): Unit | undefined {
   for (const [prefix, value] of Object.entries(UNIT_PREFIXES)) {
-    if (prefix && !key.startsWith(prefix)) continue;
+    if (prefix && !key.startsWith(prefix)) {
+      continue;
+    }
     const _key = key.slice(prefix.length);
     let conversion = UNITS[_key];
     if (!conversion && UNITS_ALIASES[_key]) {

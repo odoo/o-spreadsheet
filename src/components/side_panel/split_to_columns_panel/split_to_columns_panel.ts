@@ -67,7 +67,9 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   updateCustomSeparator(ev: InputEvent) {
-    if (!ev.target) return;
+    if (!ev.target) {
+      return;
+    }
     this.state.customSeparator = (ev.target as HTMLInputElement).value;
   }
 

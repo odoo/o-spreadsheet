@@ -953,7 +953,9 @@ export function getChartLabelFormat(
   range: Range | undefined,
   shouldRemoveFirstLabel: boolean
 ): Format | undefined {
-  if (!range) return undefined;
+  if (!range) {
+    return undefined;
+  }
 
   const { sheetId, zone } = range;
 
@@ -1022,7 +1024,9 @@ function getChartDatasetFormat(
   for (const ds of dataSets) {
     const formatsInDataset = getters.getRangeFormats(ds.dataRange);
     const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
-    if (format) return format;
+    if (format) {
+      return format;
+    }
   }
   return undefined;
 }

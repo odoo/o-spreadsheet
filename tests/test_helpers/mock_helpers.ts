@@ -48,14 +48,18 @@ function populateDOMRect(partialRect: Partial<DOMRect>): Partial<DOMRect> {
   rect.y = rect.y ?? rect.top;
   rect.left = rect.left ?? rect.x;
   rect.top = rect.top ?? rect.y;
-  if (rect.width !== undefined && rect.x !== undefined && !rect.right)
+  if (rect.width !== undefined && rect.x !== undefined && !rect.right) {
     rect.right = rect.x + rect.width;
-  if (rect.height !== undefined && rect.y !== undefined && !rect.bottom)
+  }
+  if (rect.height !== undefined && rect.y !== undefined && !rect.bottom) {
     rect.bottom = rect.y + rect.height;
-  if (rect.left !== undefined && rect.right !== undefined && !rect.width)
+  }
+  if (rect.left !== undefined && rect.right !== undefined && !rect.width) {
     rect.width = rect.right - rect.left;
-  if (rect.top !== undefined && rect.bottom !== undefined && !rect.height)
+  }
+  if (rect.top !== undefined && rect.bottom !== undefined && !rect.height) {
     rect.height = rect.bottom - rect.top;
+  }
 
   return rect;
 }

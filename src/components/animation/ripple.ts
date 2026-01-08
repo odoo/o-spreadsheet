@@ -79,7 +79,9 @@ class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
     let animation: Animation | undefined = undefined;
     onMounted(() => {
       const rippleEl = this.rippleRef.el;
-      if (!rippleEl || !rippleEl.animate) return;
+      if (!rippleEl || !rippleEl.animate) {
+        return;
+      }
       animation = rippleEl.animate(RIPPLE_KEY_FRAMES, {
         duration: this.props.duration,
         easing: "ease-out",
@@ -144,9 +146,13 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
   private currentId = 1;
 
   onClick(ev: MouseEvent) {
-    if (!this.props.enabled) return;
+    if (!this.props.enabled) {
+      return;
+    }
     const containerEl = this.childContainer.el;
-    if (!containerEl) return;
+    if (!containerEl) {
+      return;
+    }
 
     const rect = this.getRippleChildRectInfo();
     const { x, y, width, height } = rect;
@@ -179,7 +185,9 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
 
   private getRippleChildRectInfo(): RectWithMargins {
     const el = this.childContainer.el;
-    if (!el) throw new Error("No child container element found");
+    if (!el) {
+      throw new Error("No child container element found");
+    }
 
     if (el.childElementCount !== 1 || !el.firstElementChild) {
       const boundingRect = getBoundingRectAsPOJO(el);
@@ -199,13 +207,17 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
 
   private removeRipple(id: number) {
     const index = this.state.ripples.findIndex((r) => r.id === id);
-    if (index === -1) return;
+    if (index === -1) {
+      return;
+    }
     this.state.ripples.splice(index, 1);
   }
 
   getRippleEffectProps(id: number): RippleEffectProps {
     const rect = this.state.ripples.find((r) => r.id === id)?.rippleRect;
-    if (!rect) throw new Error("Cannot find a ripple with the id " + id);
+    if (!rect) {
+      throw new Error("Cannot find a ripple with the id " + id);
+    }
     return {
       color: this.props.color,
       opacity: this.props.opacity,

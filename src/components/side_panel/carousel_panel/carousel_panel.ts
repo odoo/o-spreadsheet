@@ -118,7 +118,9 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   popOutCarouselItem(item: CarouselItem) {
-    if (item.type !== "chart") return;
+    if (item.type !== "chart") {
+      return;
+    }
     this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
@@ -127,7 +129,9 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   duplicateCarouselChart(item: CarouselItem) {
-    if (item.type !== "chart") return;
+    if (item.type !== "chart") {
+      return;
+    }
     this.env.model.dispatch("DUPLICATE_CAROUSEL_CHART", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
@@ -137,7 +141,9 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDragHandleMouseDown(item: CarouselItem, event: MouseEvent) {
-    if (event.button !== 0) return;
+    if (event.button !== 0) {
+      return;
+    }
     const previewRects = Array.from(this.previewListRef.el!.children).map((previewEl) =>
       getBoundingRectAsPOJO(previewEl)
     );
