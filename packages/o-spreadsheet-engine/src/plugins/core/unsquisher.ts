@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/compiler";
-import { expandRange } from "../../helpers/expand_range";
+import { expandOne, expandRange } from "../../helpers/expand_range";
 import { CompiledFormula, Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR } from "./squisher";
@@ -31,6 +31,9 @@ export class Unsquisher {
     compiled?: CompiledFormula;
   }> {
     for (const key in squished) {
+      if (squished[key] === undefined || squished[key] === null) {
+        continue; // skip empty entries
+      }
       if (typeof squished[key] === "string" && squished[key].startsWith("=")) {
         // compile the found formula. Reset previousCell and offsets because it's a new formula
         const compiled = compile(squished[key]);
@@ -42,7 +45,13 @@ export class Unsquisher {
         );
       }
       const parts = key.split(":");
-      for (const cell of expandRange(parts[0], parts.length > 1 ? parts[1] : parts[0])) {
+      let generator: Generator<[number, number], any, any>;
+      if (parts.length === 1) {
+        generator = expandOne(key);
+      } else {
+        generator = expandRange(parts[0], parts[1]);
+      }
+      for (const cell of generator) {
         if (typeof squished[key] === "string" && squished[key].startsWith("=")) {
           // we can reuse the compiled formula for all cells in the range
           yield { position: { col: cell[0], row: cell[1] }, compiled: this.previousCell };

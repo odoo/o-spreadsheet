@@ -50,7 +50,6 @@ type TokenType =
 export interface Token {
   readonly type: TokenType;
   readonly value: string;
-  readonly index?: number;
 }
 
 export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
@@ -170,7 +169,7 @@ function tokenizeNumber(
   const match = chars.remaining().match(getFormulaNumberRegex(locale.decimalSeparator));
   if (match) {
     chars.advanceBy(match[0].length);
-    return { type: "NUMBER", value: match[0], index: chars.numberIndex++ };
+    return { type: "NUMBER", value: match[0] };
   }
   return null;
 }
@@ -188,7 +187,6 @@ function tokenizeString(chars: TokenizingChars, stringIndex: number = 0): Token 
     return {
       type: "STRING",
       value: letters,
-      index: chars.stringIndex++,
     };
   }
   return null;
@@ -251,7 +249,7 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
     const value = result;
     const isReference = rangeReference.test(value);
     if (isReference) {
-      return { type: "REFERENCE", value, index: chars.referenceIndex++ };
+      return { type: "REFERENCE", value };
     }
     return { type: "SYMBOL", value };
   }
@@ -300,7 +298,6 @@ function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
     return {
       type: "INVALID_REFERENCE",
       value: CellErrorType.InvalidReference,
-      index: chars.referenceIndex++,
     };
   }
   return null;
