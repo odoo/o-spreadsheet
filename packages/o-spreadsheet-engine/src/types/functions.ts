@@ -61,6 +61,7 @@ export type EvalContext = {
   getters: Getters;
   getRef: (position: CellPosition) => FunctionResultObject;
   [key: string]: any;
+  currentFormulaDependencies?: Range[];
   updateDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
