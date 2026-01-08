@@ -4,9 +4,14 @@ import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/m
 import { currenciesRegistry } from "../../src/registries/currencies_registry";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { click, editSelectComponent, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";
-import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
+import {
+  mountComponent,
+  mountComponentWithPortalTarget,
+  nextTick,
+  spyModelDispatch,
+} from "../test_helpers/helpers";
 
 jest.useFakeTimers();
 
@@ -69,7 +74,7 @@ describe("custom currency sidePanel component", () => {
   beforeEach(async () => {
     currenciesContent = Object.assign({}, currenciesRegistry.content);
 
-    ({ model, fixture } = await mountComponent(MoreFormatsPanel, {
+    ({ model, fixture } = await mountComponentWithPortalTarget(MoreFormatsPanel, {
       env: { loadCurrencies },
       model: new Model({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
@@ -91,36 +96,36 @@ describe("custom currency sidePanel component", () => {
       expect(selectors.inputCode).toHaveValue("");
       expect(selectors.inputSymbol).toHaveValue("");
 
-      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await editSelectComponent(selectors.availableCurrencies, "1");
 
       expect(selectors.inputCode).toHaveValue(code1);
       expect(selectors.inputSymbol).toHaveValue(symbol1);
     });
 
     test("select currency in available currencies selector --> changes currency proposals", async () => {
-      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await editSelectComponent(selectors.availableCurrencies, "1");
       expect(getProposalValues().every((v) => v?.includes(symbol1))).toBe(true);
 
-      await setInputValueAndTrigger(selectors.availableCurrencies, "2");
+      await editSelectComponent(selectors.availableCurrencies, "2");
       expect(getProposalValues().every((v) => v?.includes(symbol2))).toBe(true);
     });
 
     test("select currency in available currencies selector --> does not change proposal selected index", async () => {
-      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await editSelectComponent(selectors.availableCurrencies, "1");
       await selectProposalAtIndex(6);
       expect(selectors.selectedProposal).toHaveText(`${code1} ${symbol1}1,000`);
 
-      await setInputValueAndTrigger(selectors.availableCurrencies, "2");
+      await editSelectComponent(selectors.availableCurrencies, "2");
       expect(selectors.selectedProposal).toHaveText(`1,000 ${code2} ${symbol2}`); // first currency has symbol before, second has symbol after
     });
 
     test("select first currency (custom currency) in available currencies selector --> remove code input and symbol input", async () => {
-      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await editSelectComponent(selectors.availableCurrencies, "1");
 
       expect(selectors.inputCode).toHaveValue(code1);
       expect(selectors.inputSymbol).toHaveValue(symbol1);
 
-      await setInputValueAndTrigger(selectors.availableCurrencies, "0");
+      await editSelectComponent(selectors.availableCurrencies, "0");
 
       expect(selectors.inputCode).toHaveValue("");
       expect(selectors.inputSymbol).toHaveValue("");
@@ -129,11 +134,13 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "change code input or symbol input --> selected currency becomes custom currency",
       async (selector) => {
-        await setInputValueAndTrigger(selectors.availableCurrencies, "1");
-        expect(selectors.availableCurrencies).toHaveValue("1");
+        await editSelectComponent(selectors.availableCurrencies, "1");
+        expect(selectors.availableCurrencies).toHaveText(
+          `${currenciesData[0].name} (${currenciesData[0].code})`
+        );
 
         await setInputValueAndTrigger(selector, "test");
-        expect(selectors.availableCurrencies).toHaveValue("0");
+        expect(selectors.availableCurrencies).toHaveText("Custom");
       }
     );
 
@@ -150,7 +157,7 @@ describe("custom currency sidePanel component", () => {
     );
 
     test("currency proposals uses locale format", async () => {
-      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await editSelectComponent(selectors.availableCurrencies, "1");
       const proposals = [...document.querySelectorAll(selectors.formatProposalOptions)];
       expect(proposals.map((el) => el.textContent)).toEqual([
         "1,000µ",
@@ -179,7 +186,7 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "change code input or symbol input --> does not change proposal selected index",
       async (selector) => {
-        await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+        await editSelectComponent(selectors.availableCurrencies, "1");
         await selectProposalAtIndex(6);
         expect(selectors.selectedProposal).toHaveText(`${code1} ${symbol1}1,000`);
 
@@ -193,7 +200,7 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "have only one input filled --> display 4 proposals instead of 8",
       async (selector) => {
-        await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+        await editSelectComponent(selectors.availableCurrencies, "1");
         expect(selectors.formatProposalOptions).toHaveCount(8);
 
         await setInputValueAndTrigger(selector, "  ");
@@ -245,7 +252,7 @@ describe("custom currency sidePanel component", () => {
       ])(
         "odd currency proposals depend on decimal places property",
         async (concernedIndex, decimalPlacesRegexp) => {
-          await setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex);
+          await editSelectComponent(selectors.availableCurrencies, availableCurrencyIndex);
           await selectProposalAtIndex(concernedIndex);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
             sheetId: model.getters.getActiveSheetId(),
@@ -276,7 +283,7 @@ describe("custom currency sidePanel component", () => {
       ])(
         "currency proposals depend on position property",
         async (concernedIndex, positionExpressionRegexp) => {
-          await setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex);
+          await editSelectComponent(selectors.availableCurrencies, availableCurrencyIndex);
           await selectProposalAtIndex(concernedIndex);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
             sheetId: model.getters.getActiveSheetId(),
@@ -291,7 +298,7 @@ describe("custom currency sidePanel component", () => {
       test.each([[1], [3], [5], [7]])(
         "odd currency proposals have two decimal places when no available currency is selected",
         async (concernedIndex) => {
-          await setInputValueAndTrigger(selectors.availableCurrencies, "0");
+          await editSelectComponent(selectors.availableCurrencies, "0");
           await setInputValueAndTrigger(selectors.inputCode, "CODE");
           await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
           await selectProposalAtIndex(concernedIndex);
@@ -315,7 +322,7 @@ describe("custom currency sidePanel component", () => {
       ])(
         "currency first four proposals start by expression placed after digits when no available currency is selected",
         async (concernedIndex, positionExpressionRegexp) => {
-          await setInputValueAndTrigger(selectors.availableCurrencies, "0");
+          await editSelectComponent(selectors.availableCurrencies, "0");
           await setInputValueAndTrigger(selectors.inputCode, "CODE");
           await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
           await selectProposalAtIndex(concernedIndex);
@@ -349,22 +356,22 @@ describe("Provided Currencies", () => {
   });
 
   test("if currencies are provided in spreadsheet --> display this currencies", async () => {
-    const { fixture } = await mountComponent(MoreFormatsPanel, {
+    await mountComponent(MoreFormatsPanel, {
       env: { loadCurrencies },
       model: new Model({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     });
     await nextTick();
-    expect(fixture.querySelector(selectors.availableCurrencies)).toMatchSnapshot();
+    expect(selectors.availableCurrencies).toHaveCount(1);
   });
 
   test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
-    const { fixture } = await mountComponent(MoreFormatsPanel, {
+    await mountComponent(MoreFormatsPanel, {
       env: { loadCurrencies: undefined },
       model: new Model({}),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     });
     await nextTick();
-    expect(fixture.querySelector(selectors.availableCurrencies)).toBe(null);
+    expect(selectors.availableCurrencies).toHaveCount(0);
   });
 });

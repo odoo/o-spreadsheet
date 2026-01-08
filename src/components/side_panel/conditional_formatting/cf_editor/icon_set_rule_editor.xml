@@ -38,17 +38,12 @@
       </td>
       <td>When value is</td>
       <td>
-        <select
-          class="o-input"
-          name="valueType"
-          t-on-change="(ev) => store.setInflectionOperator(inflectionPoint, ev.target.value)">
-          <option value="gt" t-att-selected="inflectionPointValue.operator === 'gt'">
-            <span>&#62;</span>
-          </option>
-          <option value="ge" t-att-selected="inflectionPointValue.operator === 'ge'">
-            <span>&#8805;</span>
-          </option>
-        </select>
+        <Select
+          selectedValue="inflectionPointValue.operator"
+          name="'valueType'"
+          values="getIconSetOperatorSelectOptions()"
+          onChange.bind="(value) => store.setInflectionOperator(inflectionPoint, value)"
+        />
       </td>
       <td>
         <div class="ms-2 me-2">
@@ -64,23 +59,13 @@
         </div>
       </td>
       <td>
-        <select
-          class="o-input"
-          name="valueType"
-          t-on-change="(ev) => store.setInflectionType(inflectionPoint, ev.target.value)">
-          <option value="number" t-att-selected="inflectionPointValue.type === 'number'">
-            Number
-          </option>
-          <option value="percentage" t-att-selected="inflectionPointValue.type === 'percentage'">
-            Percentage
-          </option>
-          <option value="percentile" t-att-selected="inflectionPointValue.type === 'percentile'">
-            Percentile
-          </option>
-          <option value="formula" t-att-selected="inflectionPointValue.type === 'formula'">
-            Formula
-          </option>
-        </select>
+        <Select
+          selectedValue="inflectionPointValue.type"
+          popoverClass="'o-icon-set-type-select-dropdown'"
+          name="'valueType'"
+          values="getThresholdTypeSelectOptions('iconSet')"
+          onChange.bind="(value) => store.setInflectionType(inflectionPoint, value)"
+        />
       </td>
     </tr>
   </t>

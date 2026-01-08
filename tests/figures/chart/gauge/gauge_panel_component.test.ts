@@ -2,7 +2,12 @@ import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_t
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CommandResult, Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { createGaugeChart, setInputValueAndTrigger, simulateClick } from "../../../test_helpers";
+import {
+  createGaugeChart,
+  editSelectComponent,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../../../test_helpers";
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
@@ -44,7 +49,7 @@ test("Can change gauge inflection operator", async () => {
 
   const inputs = fixture.querySelectorAll(".o-input[name=operatorType]");
 
-  await setInputValueAndTrigger(inputs[0], "<");
+  await editSelectComponent(inputs[0], "<");
   expect(model.getters.getChartDefinition(chartId)).toMatchObject({
     sectionRule: {
       lowerInflectionPoint: { operator: "<" },
@@ -52,7 +57,7 @@ test("Can change gauge inflection operator", async () => {
     },
   });
 
-  setInputValueAndTrigger(inputs[1], "<");
+  await editSelectComponent(inputs[1], "<");
   expect(model.getters.getChartDefinition(chartId)).toMatchObject({
     sectionRule: {
       lowerInflectionPoint: { operator: "<" },

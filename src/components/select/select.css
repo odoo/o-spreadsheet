@@ -1,0 +1,20 @@
+.o-spreadsheet {
+  .o-select-dropdown {
+    min-width: 40px;
+
+    .o-select-option {
+      cursor: pointer;
+      user-select: none;
+      height: var(--os-desktop-menu-item-height);
+      padding: var(--os-menu-item-padding-vertical) var(--os-menu-item-padding-horizontal);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &.o-active {
+        background-color: var(--os-button-active-bg);
+        color: var(--os-button-active-text-color);
+      }
+    }
+  }
+}

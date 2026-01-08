@@ -1,5 +1,7 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
-import { Color, IsValueInListCriterion } from "../../../../types";
+import { Color, IsValueInListCriterion, ValueAndLabel } from "../../../../types";
+import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";
@@ -11,7 +13,7 @@ interface State {
 
 export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
   static template = "o-spreadsheet-ListCriterionForm";
-  static components = { CriterionInput, RoundColorPicker };
+  static components = { CriterionInput, RoundColorPicker, Select };
 
   state = useState<State>({
     numberOfValues: Math.max(this.props.criterion.values.length, 2),
@@ -52,8 +54,7 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
     this.updateCriterion({ values });
   }
 
-  onChangedDisplayStyle(ev: Event) {
-    const displayStyle = (ev.target as HTMLInputElement).value as "arrow" | "plainText";
+  onChangedDisplayStyle(displayStyle: "arrow" | "plainText" | "chip") {
     this.updateCriterion({ displayStyle });
   }
 
@@ -77,5 +78,13 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
       values.push(this.props.criterion.values[i] || "");
     }
     return values;
+  }
+
+  get displayTypeOptions(): ValueAndLabel[] {
+    return [
+      { value: "chip", label: _t("Chip") },
+      { value: "arrow", label: _t("Arrow") },
+      { value: "plainText", label: _t("Plain text") },
+    ];
   }
 }

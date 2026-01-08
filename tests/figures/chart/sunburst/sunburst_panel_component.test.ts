@@ -7,6 +7,7 @@ import {
   changeColorPickerWidgetColor,
   changeRoundColorPickerColor,
   createSunburstChart,
+  editSelectComponent,
   getColorPickerWidgetColor,
   getHTMLCheckboxValue,
   getHTMLInputValue,
@@ -82,7 +83,7 @@ describe("Sunburst chart side panel", () => {
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect(".o-chart-title input").toHaveValue("My Sunburst chart");
-      expect(".o-chart-legend-position").toHaveValue("bottom");
+      expect(".o-chart-legend-position").toHaveText("Bottom");
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#00FF00");
 
       expect('input[name="showLabels"]').toHaveValue(true);
@@ -97,7 +98,7 @@ describe("Sunburst chart side panel", () => {
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await setInputValueAndTrigger(".o-chart-title input", "My Sunburst Title");
-      await setInputValueAndTrigger(".o-chart-legend-position", "left");
+      await editSelectComponent(".o-chart-legend-position", "left");
       await changeRoundColorPickerColor(".o-chart-background-color", "#000000");
 
       const definition = getSunburstDefinition(chartId);

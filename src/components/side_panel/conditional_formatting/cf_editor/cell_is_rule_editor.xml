@@ -18,10 +18,11 @@
     <t t-set="state" t-value="store.state"/>
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
-      <SelectMenu
-        class="'o-cell-is-operator o-input mb-2'"
-        menuItems="store.cfCriterionMenuItems"
-        selectedValue="store.selectedCriterionName"
+      <Select
+        class="'o-cell-is-operator mb-2'"
+        values="store.cfCriterions"
+        selectedValue="state.rules.cellIs.operator"
+        onChange="(operator) => store.editOperator(operator)"
       />
 
       <t

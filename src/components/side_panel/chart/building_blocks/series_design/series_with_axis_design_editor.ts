@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_WINDOW_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
@@ -8,8 +9,10 @@ import {
   ChartWithDataSetDefinition,
   Color,
   TrendConfiguration,
+  ValueAndLabel,
 } from "../../../../../types";
 import { NumberInput } from "../../../../number_input/number_input";
+import { Select } from "../../../../select/select";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
@@ -30,6 +33,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     Section,
     RoundColorPicker,
     NumberInput,
+    Select,
   };
   static props = {
     ...ChartSidePanelPropsObject,
@@ -91,8 +95,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     return config.type === "polynomial" && config.order === 1 ? "linear" : config.type;
   }
 
-  onChangeTrendType(index, ev: InputEvent) {
-    const type = (ev.target as HTMLInputElement).value;
+  onChangeTrendType(index: number, type: string) {
     let config: TrendConfiguration;
     switch (type) {
       case "linear":
@@ -113,13 +116,25 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     this.updateTrendLineValue(index, config);
   }
 
-  getPolynomialDegrees(index: number): number[] {
-    return range(1, this.getMaxPolynomialDegree(index) + 1);
+  get trendOptions(): ValueAndLabel[] {
+    return [
+      { value: "linear", label: _t("Linear") },
+      { value: "polynomial", label: _t("Polynomial") },
+      { value: "exponential", label: _t("Exponential") },
+      { value: "logarithmic", label: _t("Logarithmic") },
+      { value: "trailingMovingAverage", label: _t("Trailing moving average") },
+    ];
   }
 
-  onChangePolynomialDegree(index: number, ev: InputEvent) {
-    const element = ev.target as HTMLInputElement;
-    this.updateTrendLineValue(index, { order: parseInt(element.value) });
+  getPolynomialDegrees(index: number): ValueAndLabel[] {
+    return range(1, this.getMaxPolynomialDegree(index) + 1).map((degree) => ({
+      value: degree.toString(),
+      label: degree.toString(),
+    }));
+  }
+
+  onChangePolynomialDegree(index: number, value: string) {
+    this.updateTrendLineValue(index, { order: parseInt(value) });
   }
 
   getMaxPolynomialDegree(index) {
