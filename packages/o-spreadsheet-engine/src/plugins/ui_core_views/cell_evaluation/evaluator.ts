@@ -122,7 +122,7 @@ export class Evaluator {
     this.formulaDependencies().addDependencies(position, dependencies);
     for (const range of dependencies) {
       // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range, false);
+      this.compilationParams.ensureRange(range);
     }
   }
 
@@ -427,7 +427,8 @@ export class Evaluator {
     return createEvaluatedCell(
       validateNumberValue(formulaReturn[0][0]),
       this.getters.getLocale(),
-      cellData
+      cellData,
+      formulaPosition
     );
   }
 

@@ -1,9 +1,6 @@
-import { splitReference } from "../helpers";
-import { toZone } from "../helpers/zones";
 import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
-import { EvaluatedCell } from "../types/cells";
-import { DivisionByZeroError, EvaluationError } from "../types/errors";
+import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import {
   Arg,
@@ -18,6 +15,7 @@ import { assertNotZero } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
+  expectReferenceError,
   generateMatrix,
   inferFormat,
   isDataNonEmpty,
@@ -26,6 +24,7 @@ import {
   strictToNumber,
   toBoolean,
   toInteger,
+  toMatrix,
   toNumber,
   toString,
   visitMatchingRanges,
@@ -1372,14 +1371,11 @@ export const SUBTOTAL = {
       ...subtotalFunctionOptionsExcludeHiddenRows,
     ]),
     arg(
-      "ref (meta, range<meta>, repeating)",
+      "ref (any, range<any>, repeating)",
       _t("Range or reference for which you want the subtotal.")
     ),
   ],
-  compute: function (
-    functionCode: Maybe<FunctionResultObject>,
-    ...refs: Matrix<{ value: string }>[]
-  ) {
+  compute: function (functionCode: Maybe<FunctionResultObject>, ...refs: Arg[]) {
     let code = toInteger(functionCode, this.locale);
     let acceptHiddenCells = true;
     if (code > 100) {
@@ -1392,32 +1388,32 @@ export const SUBTOTAL = {
       );
     }
 
-    const evaluatedCellToKeep: EvaluatedCell[] = [];
+    const functionResults: FunctionResultObject[] = [];
 
     for (const ref of refs) {
-      const ref0 = ref[0][0];
-      const sheetName = splitReference(ref0.value).sheetName;
-      const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : this.__originSheetId;
+      const _ref = toMatrix(ref);
+      const firstPosition = _ref[0][0]?.position;
+      if (firstPosition === undefined) {
+        return new InvalidReferenceError(expectReferenceError);
+      }
+      const right = firstPosition.col + _ref.length - 1;
+      const bottom = firstPosition.row + _ref[0].length - 1;
+      const sheetId = firstPosition.sheetId;
 
-      if (!sheetId) continue;
-      const { top, left } = toZone(ref0.value);
-      const right = left + ref.length - 1;
-      const bottom = top + ref[0].length - 1;
-
-      for (let row = top; row <= bottom; row++) {
+      for (let row = firstPosition.row; row <= bottom; row++) {
         if (this.getters.isRowFiltered(sheetId, row)) continue;
         if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) continue;
 
-        for (let col = left; col <= right; col++) {
+        for (let col = firstPosition.col; col <= right; col++) {
           const cell = this.getters.getCorrespondingFormulaCell({ sheetId, col, row });
           if (!cell || !isSubtotalCell(cell)) {
-            evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
+            functionResults.push(this.getRef({ sheetId, col, row }));
           }
         }
       }
     }
 
-    return this[subtotalFunctionAggregateByCode[code]].apply(this, [[evaluatedCellToKeep]]);
+    return this[subtotalFunctionAggregateByCode[code]].apply(this, [[functionResults]]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
