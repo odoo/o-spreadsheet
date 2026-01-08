@@ -4,19 +4,12 @@
       <div class="d-flex flex-row py-1 px-2 w-100 small">
         <t t-set="granularityProps" t-value="props.dimension.granularity || 'month'"/>
         <div class="pivot-dim-operator-label">Granularity</div>
-        <select
-          class="o-input flex-grow-1"
-          t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
-          <option
-            t-foreach="props.allGranularities"
-            t-as="granularity"
-            t-key="granularity"
-            t-if="props.availableGranularities.has(granularity) || granularity === granularityProps"
-            t-att-value="granularity"
-            t-esc="periods[granularity]"
-            t-att-selected="granularity === granularityProps or (granularity === 'month' and !granularityProps)"
-          />
-        </select>
+        <Select
+          class="'flex-grow-1'"
+          values="granularityOptions"
+          selectedValue="props.dimension.granularity || 'month'"
+          onChange="(value) => props.onUpdated(props.dimension, value)"
+        />
       </div>
     </div>
   </t>

@@ -8,7 +8,8 @@ import {
 import { createValidRange, isDateTime } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
 import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
-import { DEFAULT_LOCALE } from "../../../../types";
+import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
+import { Select } from "../../../select/select";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";
 
@@ -16,6 +17,7 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
   ChartSidePanelProps<CalendarChartDefinition>
 > {
   static template = "o-spreadsheet-CalendarChartConfigPanel";
+  static components = { ...GenericChartConfigPanel.components, Select };
 
   groupByChoices = CALENDAR_CHART_GRANULARITIES.map((value) => ({
     value,
@@ -33,7 +35,7 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     ];
   }
 
-  getGroupByOptions() {
+  getGroupByOptions(): ValueAndLabel[] {
     const sheetId = this.env.model.getters.getFigureSheetId(
       this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
     )!;

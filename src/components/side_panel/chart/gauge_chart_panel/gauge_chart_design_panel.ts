@@ -12,8 +12,9 @@ import {
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
-import { Color, CommandResult } from "../../../../types/index";
+import { Color, CommandResult, ValueAndLabel } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { Select } from "../../../select/select";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -40,6 +41,7 @@ export class GaugeChartDesignPanel extends Component<
     ChartErrorSection,
     StandaloneComposer,
     ChartHumanizeNumbers,
+    Select,
   };
   static props = ChartSidePanelPropsObject;
 
@@ -97,6 +99,28 @@ export class GaugeChartDesignPanel extends Component<
     const sectionRule = deepCopy(this.state.sectionRule);
     sectionRule.colors[target] = color;
     this.updateSectionRule(sectionRule);
+  }
+
+  updateSectionRuleOperator(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
+    operator: "<" | "<="
+  ) {
+    this.state.sectionRule = {
+      ...this.state.sectionRule,
+      [inflectionPoint]: { ...this.state.sectionRule[inflectionPoint], operator },
+    };
+    this.updateSectionRule(this.state.sectionRule);
+  }
+
+  updateSectionRulePointType(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
+    type: "number" | "percentage"
+  ) {
+    this.state.sectionRule = {
+      ...this.state.sectionRule,
+      [inflectionPoint]: { ...this.state.sectionRule[inflectionPoint], type },
+    };
+    this.updateSectionRule(this.state.sectionRule);
   }
 
   updateSectionRule(sectionRule: SectionRule) {
@@ -181,5 +205,19 @@ export class GaugeChartDesignPanel extends Component<
       throw new Error("Chart not found with id " + this.props.chartId);
     }
     return chart.sheetId;
+  }
+
+  get inflectionPointOperators(): ValueAndLabel[] {
+    return [
+      { value: "<", label: "<" },
+      { value: "<=", label: "<=" },
+    ];
+  }
+
+  get inflectionPointTypes(): ValueAndLabel[] {
+    return [
+      { value: "number", label: _t("Number") },
+      { value: "percentage", label: _t("Percentage") },
+    ];
   }
 }

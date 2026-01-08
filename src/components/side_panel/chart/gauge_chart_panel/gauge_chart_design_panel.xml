@@ -59,7 +59,7 @@
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
           <t t-set="sectionColor" t-value="sectionRule.colors.lowerColor"/>
           <t t-set="sectionType" t-value="'lowerColor'"/>
-          <t t-set="inflectionPoint" t-value="sectionRule.lowerInflectionPoint"/>
+          <t t-set="inflectionPoint" t-value="'lowerInflectionPoint'"/>
           <t t-set="isInvalid" t-value="isLowerInflectionPointInvalid"/>
           <t t-set="inflectionPointName" t-value="'lowerInflectionPoint'"/>
         </t>
@@ -67,7 +67,7 @@
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
           <t t-set="sectionColor" t-value="sectionRule.colors.middleColor"/>
           <t t-set="sectionType" t-value="'middleColor'"/>
-          <t t-set="inflectionPoint" t-value="sectionRule.upperInflectionPoint"/>
+          <t t-set="inflectionPoint" t-value="'upperInflectionPoint'"/>
           <t t-set="isInvalid" t-value="isUpperInflectionPointInvalid"/>
           <t t-set="inflectionPointName" t-value="'upperInflectionPoint'"/>
         </t>
@@ -100,28 +100,23 @@
       <td class="pe-2">
         <t t-set="below">below</t>
         <t t-set="belowOrEqualTo">below or equal to</t>
-        <select
-          class="o-input"
-          name="operatorType"
-          t-att-title="inflectionPoint.operator === '&lt;' ? below : belowOrEqualTo"
-          t-model="inflectionPoint.operator"
-          t-on-change="() => this.updateSectionRule(state.sectionRule)">
-          <option title="below" value="&lt;">&lt;</option>
-          <option title="below or equal to" value="&lt;=">&lt;=</option>
-        </select>
+        <Select
+          selectedValue="sectionRule[inflectionPoint].operator"
+          name="'operatorType'"
+          values="inflectionPointOperators"
+          onChange.bind="(value) => this.updateSectionRuleOperator(inflectionPoint, value)"
+        />
       </td>
       <td class="pe-2">
         <StandaloneComposer t-props="getGaugeInflectionComposerProps(sectionType)"/>
       </td>
       <td>
-        <select
-          class="o-input"
-          name="valueType"
-          t-model="inflectionPoint.type"
-          t-on-change="(ev) => this.updateSectionRule(state.sectionRule)">
-          <option value="number">Number</option>
-          <option value="percentage">Percentage</option>
-        </select>
+        <Select
+          selectedValue="sectionRule[inflectionPoint].type"
+          name="'valueType'"
+          values="inflectionPointTypes"
+          onChange.bind="(value) => this.updateSectionRulePointType(inflectionPoint, value)"
+        />
       </td>
     </tr>
   </t>

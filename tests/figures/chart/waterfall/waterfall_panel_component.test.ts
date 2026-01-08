@@ -6,6 +6,7 @@ import {
   changeRoundColorPickerColor,
   click,
   createWaterfallChart,
+  editSelectComponent,
   getHTMLCheckboxValue,
   getHTMLInputValue,
   getHTMLRadioValue,
@@ -90,7 +91,7 @@ describe("Waterfall chart side panel", () => {
 
       expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Waterfall chart");
       expect(getHTMLRadioValue(".o-vertical-axis-selection")).toEqual("right");
-      expect(getHTMLInputValue(".o-chart-legend-position")).toEqual("bottom");
+      expect(".o-chart-legend-position").toHaveText("Bottom");
       expect(getHTMLCheckboxValue('input[name="showSubTotals"]')).toBe(true);
       expect(getHTMLCheckboxValue('input[name="showConnectorLines"]')).toBe(true);
       expect(getHTMLCheckboxValue('input[name="firstValueAsSubtotal"]')).toBe(true);
@@ -108,7 +109,7 @@ describe("Waterfall chart side panel", () => {
 
       await setInputValueAndTrigger(".o-chart-title input", "My Waterfall chart");
       await click(fixture, ".o-vertical-axis-selection input[value=right]");
-      await setInputValueAndTrigger(".o-chart-legend-position", "bottom");
+      await editSelectComponent(".o-chart-legend-position", "bottom");
 
       const definition = getWaterfallDefinition(chartId);
 

@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { compile } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
@@ -5,8 +6,9 @@ import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot
 import { Component } from "@odoo/owl";
 import { unquote } from "../../../../../helpers";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
-import { Color, PivotMeasure } from "../../../../../types";
+import { Color, PivotMeasure, ValueAndLabel } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
+import { Select } from "../../../../select/select";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
 interface Props {
@@ -16,6 +18,7 @@ interface Props {
   onMeasureUpdated: (measure: PivotMeasure) => void;
   onRemoved: () => void;
   generateMeasureId: (fieldName: string, aggregator?: string) => string;
+  aggregators;
 }
 
 export class PivotMeasureEditor extends Component<Props> {
@@ -23,6 +26,7 @@ export class PivotMeasureEditor extends Component<Props> {
   static components = {
     PivotDimension,
     StandaloneComposer,
+    Select,
   };
   static props = {
     definition: Object,
@@ -105,5 +109,17 @@ export class PivotMeasureEditor extends Component<Props> {
 
   get isCalculatedMeasureInvalid(): boolean {
     return compile(this.props.measure.computedBy?.formula ?? "").isBadExpression;
+  }
+
+  get aggregatorOptions(): ValueAndLabel[] {
+    const aggregators = this.props.aggregators[this.props.measure.type];
+    const options = Object.keys(aggregators).map((key) => ({
+      value: key,
+      label: aggregators[key],
+    }));
+    if (this.props.measure.computedBy) {
+      return [...options, { value: "", label: _t("Compute from totals") }];
+    }
+    return options;
   }
 }

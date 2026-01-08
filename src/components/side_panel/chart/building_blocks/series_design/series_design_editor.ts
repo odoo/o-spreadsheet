@@ -2,7 +2,8 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
 import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
-import { ChartWithDataSetDefinition } from "../../../../../types";
+import { ChartWithDataSetDefinition, ValueAndLabel } from "../../../../../types";
+import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
@@ -18,6 +19,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     SidePanelCollapsible,
     Section,
     RoundColorPicker,
+    Select,
   };
   static props = {
     ...ChartSidePanelPropsObject,
@@ -33,11 +35,11 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     }
     return runtime.chartJsConfig.data.datasets
       .filter((d) => !isTrendLineAxis(d["xAxisID"] ?? ""))
-      .map((d) => d.label);
+      .map((d) => d.label || "");
   }
 
-  updateEditedSeries(ev: Event) {
-    this.state.index = (ev.target as HTMLSelectElement).selectedIndex;
+  updateEditedSeries(index: string) {
+    this.state.index = Number(index);
   }
 
   updateDataSeriesColor(color: string) {
@@ -79,5 +81,12 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   getDataSeriesLabel() {
     const dataSets = this.props.definition.dataSets;
     return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
+  }
+
+  get selectOptions(): ValueAndLabel[] {
+    return this.getDataSeries().map((label, index) => ({
+      value: index.toString(),
+      label,
+    }));
   }
 }

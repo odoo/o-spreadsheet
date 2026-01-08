@@ -21,15 +21,11 @@
           onSelectionConfirmed="() => this.updateBaselineRange()"
         />
         <div class="o-section-subtitle">Format</div>
-        <select
-          t-att-value="props.definition.baselineMode"
-          class="o-input"
-          t-on-change="(ev) => this.updateBaselineMode(ev)">
-          <option value="text">Absolute value</option>
-          <option value="difference">Value change from key value</option>
-          <option value="percentage">Percentage change from key value</option>
-          <option value="progress">Progress bar</option>
-        </select>
+        <Select
+          selectedValue="props.definition.baselineMode"
+          values="baselineModeOptions"
+          onChange.bind="this.updateBaselineMode"
+        />
       </Section>
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>

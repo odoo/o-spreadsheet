@@ -1,11 +1,13 @@
+import { _t, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { Top10Criterion } from "@odoo/o-spreadsheet-engine/types/data_validation";
 import { deepCopy } from "../../../../helpers";
+import { Select } from "../../../select/select";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";
 
 export class Top10CriterionForm extends CriterionForm<Top10Criterion> {
   static template = "o-spreadsheet-Top10CriterionForm";
-  static components = { CriterionInput };
+  static components = { CriterionInput, Select };
 
   onValueChanged(value: string) {
     const criterion = deepCopy(this.props.criterion);
@@ -13,15 +15,29 @@ export class Top10CriterionForm extends CriterionForm<Top10Criterion> {
     this.updateCriterion(criterion);
   }
 
-  updateIsBottom(ev: InputEvent) {
+  updateIsBottom(value: "top" | "bottom") {
     const criterion = deepCopy(this.props.criterion);
-    criterion.isBottom = (ev.target as HTMLInputElement).value === "bottom";
+    criterion.isBottom = value === "bottom";
     this.updateCriterion(criterion);
   }
 
-  updateIsPercent(ev: InputEvent) {
+  updateIsPercent(value: "values" | "percent") {
     const criterion = deepCopy(this.props.criterion);
-    criterion.isPercent = (ev.target as HTMLInputElement).value === "percent";
+    criterion.isPercent = value === "percent";
     this.updateCriterion(criterion);
+  }
+
+  get isBottomSelectOptions(): ValueAndLabel[] {
+    return [
+      { value: "top", label: _t("Top") },
+      { value: "bottom", label: _t("Bottom") },
+    ];
+  }
+
+  get isPercentSelectOptions(): ValueAndLabel[] {
+    return [
+      { value: "values", label: _t("Values") },
+      { value: "percent", label: _t("Percent") },
+    ];
   }
 }

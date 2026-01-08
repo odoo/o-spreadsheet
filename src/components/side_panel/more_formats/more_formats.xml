@@ -51,17 +51,12 @@
   <t t-name="o-spreadsheet-CustomCurrencySection">
     <t t-set="availableCurrencies" t-value="store.availableCurrencies"/>
     <Section t-if="availableCurrencies.length > 1" title.translate="Currency">
-      <select
-        class="o-input o-available-currencies"
-        t-on-change="(ev) => this.updateSelectCurrency(ev)">
-        <t t-foreach="availableCurrencies" t-as="currency" t-key="currency_index">
-          <option
-            t-att-value="currency_index"
-            t-esc="currencyDisplayName(currency)"
-            t-att-selected="currency_index === store.selectedCurrencyIndex"
-          />
-        </t>
-      </select>
+      <Select
+        class="'o-available-currencies'"
+        values="availableCurrenciesOptions"
+        selectedValue="store.selectedCurrencyIndex.toString()"
+        onChange.bind="updateSelectCurrency"
+      />
     </Section>
     <Section>
       <div class="o-subsection-left">

@@ -8,7 +8,12 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
+import {
+  click,
+  editSelectComponent,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../test_helpers/dom_helper";
 import {
   editStandaloneComposer,
   getDataValidationRules,
@@ -36,13 +41,12 @@ describe("data validation sidePanel component", () => {
   });
 
   async function changeCriterionType(type: string) {
-    await click(fixture, ".o-dv-type");
-    await click(fixture, `.o-menu-item[data-name="${type}"]`);
+    await editSelectComponent(".o-dv-type", type);
   }
 
   test("Menu to select data validation type is correctly positioned", async () => {
     await click(fixture, ".o-dv-add");
-    await click(fixture, ".o-dv-type");
+    await simulateClick(".o-dv-type");
     const popover = document.querySelector<HTMLElement>(".o-popover")!;
     const { x, y, height } = dataValidationSelectBoundingRect;
     expect(popover.style.left).toEqual(x + "px");
@@ -51,10 +55,10 @@ describe("data validation sidePanel component", () => {
 
   test("Clicking on the data validation type select element toggles the menu", async () => {
     await click(fixture, ".o-dv-add");
-    await click(fixture, ".o-dv-type");
-    expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    await click(fixture, ".o-dv-type");
-    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    await simulateClick(".o-dv-type");
+    expect(fixture.querySelector(".o-select-dropdown")).toBeTruthy();
+    await simulateClick(".o-dv-type");
+    expect(fixture.querySelector(".o-select-dropdown")).toBeFalsy();
   });
 
   test.each([
@@ -125,7 +129,7 @@ describe("data validation sidePanel component", () => {
     await changeCriterionType("dateIs");
 
     expect(fixture.querySelector(".o-dv-date-value")).toBeTruthy();
-    setInputValueAndTrigger(".o-dv-date-value", "tomorrow");
+    await editSelectComponent(".o-dv-date-value", "tomorrow");
 
     await simulateClick(".o-dv-save");
     expect(getDataValidationRules(model, sheetId)).toEqual([
@@ -281,7 +285,7 @@ describe("data validation sidePanel component", () => {
 
     const composer = ".o-dv-settings .o-composer";
     await editStandaloneComposer(composer, "Random text");
-    setInputValueAndTrigger(".o-dv-reject-input", "true");
+    await editSelectComponent(".o-dv-reject-input", "true");
     simulateClick(".o-dv-save");
 
     expect(model.getters.getDataValidationRules(sheetId)).toMatchObject([{ isBlocking: true }]);

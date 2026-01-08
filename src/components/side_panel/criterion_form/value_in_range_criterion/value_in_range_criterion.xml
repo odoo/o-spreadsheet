@@ -20,12 +20,11 @@
     </t>
 
     <div class="o-section-subtitle mt-4">Display style</div>
-    <select class="o-dv-display-style o-input" t-on-change="onChangedDisplayStyle">
-      <option t-att-selected="props.criterion.displayStyle === 'chip'" value="chip">Chip</option>
-      <option t-att-selected="props.criterion.displayStyle === 'arrow'" value="arrow">Arrow</option>
-      <option t-att-selected="props.criterion.displayStyle === 'plainText'" value="plainText">
-        Plain text
-      </option>
-    </select>
+    <Select
+      class="'o-dv-display-style'"
+      values="displayTypeOptions"
+      selectedValue="props.criterion.displayStyle"
+      onChange.bind="onChangedDisplayStyle"
+    />
   </t>
 </templates>

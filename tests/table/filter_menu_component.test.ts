@@ -16,6 +16,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickGridIcon,
+  editSelectComponent,
   focusAndKeyDown,
   keyDown,
   setInputValueAndTrigger,
@@ -442,8 +443,7 @@ describe("Filter menu component", () => {
     test("Can edit filter criterion", async () => {
       await openFilterMenu();
 
-      await simulateClick(".o-filter-criterion-type");
-      await simulateClick(".o-menu-item[data-name='containsText']");
+      await editSelectComponent(".o-filter-criterion-type", "containsText");
       expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input input"));
       await setInputValueAndTrigger(".o-dv-input input", "hello");
       await simulateClick(".o-filter-menu-confirm");
@@ -456,14 +456,17 @@ describe("Filter menu component", () => {
     });
 
     test("Criterion type depend on the values in the filtered ranges", async () => {
-      const getAvailableCriterionTypes = () =>
-        [...fixture.querySelectorAll(".o-menu-item")].map((el) => el["dataset"].name).sort();
+      const getAvailableCriterionTypes = async () => {
+        return [...fixture.querySelectorAll<HTMLOptionElement>(".o-select-option")]
+          .map((el) => el.dataset.id)
+          .sort();
+      };
 
       setGrid(model, { A2: "Hello", A3: "World" });
       await openFilterMenu();
       expect(".collapsor").toHaveText("Filter by criterion");
       await simulateClick(".o-filter-criterion-type");
-      expect(getAvailableCriterionTypes()).toEqual(
+      expect(await getAvailableCriterionTypes()).toEqual(
         ["none", ...filterTextCriterionOperators].sort()
       );
       await simulateClick(".o-filter-menu-confirm");
@@ -471,7 +474,7 @@ describe("Filter menu component", () => {
       setGrid(model, { A2: "1", A3: "2", A4: "string in the minority" });
       await openFilterMenu();
       await simulateClick(".o-filter-criterion-type");
-      expect(getAvailableCriterionTypes()).toEqual(
+      expect(await getAvailableCriterionTypes()).toEqual(
         ["none", ...filterNumberCriterionOperators].sort()
       );
       await simulateClick(".o-filter-menu-confirm");
@@ -479,7 +482,7 @@ describe("Filter menu component", () => {
       setFormat(model, "A1:A4", "m/d/yyyy");
       await openFilterMenu();
       await simulateClick(".o-filter-criterion-type");
-      expect(getAvailableCriterionTypes()).toEqual(
+      expect(await getAvailableCriterionTypes()).toEqual(
         ["none", ...filterDateCriterionOperators].sort()
       );
     });
@@ -488,8 +491,7 @@ describe("Filter menu component", () => {
       await openFilterMenu();
 
       // Edit criterion then the list of values
-      await simulateClick(".o-filter-criterion-type");
-      await simulateClick(".o-menu-item[data-name='isEmpty']");
+      await editSelectComponent(".o-filter-criterion-type", "isEmpty");
       await simulateClick(".o-filter-menu-value .o-checkbox");
       await simulateClick(".o-filter-menu-confirm");
 
@@ -501,8 +503,7 @@ describe("Filter menu component", () => {
       // Edit the list of values then the criterion
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value .o-checkbox");
-      await simulateClick(".o-filter-criterion-type");
-      await simulateClick(".o-menu-item[data-name='isEmpty']");
+      await editSelectComponent(".o-filter-criterion-type", "isEmpty");
       await simulateClick(".o-filter-menu-confirm");
 
       expect(model.getters.getFilterValue({ sheetId, col: 0, row: 0 })).toEqual({

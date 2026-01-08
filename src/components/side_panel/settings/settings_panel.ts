@@ -2,7 +2,8 @@ import { getDateTimeFormat, isValidLocale } from "@odoo/o-spreadsheet-engine/hel
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillStart } from "@odoo/owl";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
-import { Locale, LocaleCode } from "../../../types";
+import { Locale, LocaleCode, ValueAndLabel } from "../../../types";
+import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";
@@ -13,7 +14,7 @@ interface Props {
 
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
-  static components = { Section, ValidationMessages, BadgeSelection };
+  static components = { Section, ValidationMessages, BadgeSelection, Select };
   static props = { onCloseSidePanel: Function };
 
   loadedLocales: Locale[] = [];
@@ -85,5 +86,9 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return this.loadedLocales;
+  }
+
+  get selectOptions(): ValueAndLabel[] {
+    return this.supportedLocales.map((locale) => ({ label: locale.name, value: locale.code }));
   }
 }

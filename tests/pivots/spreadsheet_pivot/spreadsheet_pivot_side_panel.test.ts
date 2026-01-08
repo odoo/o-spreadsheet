@@ -22,6 +22,7 @@ import {
 import {
   click,
   clickAndDrag,
+  editSelectComponent,
   getComposerColors,
   keyDown,
   setInputValueAndTrigger,
@@ -194,7 +195,7 @@ describe("Spreadsheet pivot side panel", () => {
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     await click(fixture, ".add-calculated-measure");
-    await setInputValueAndTrigger(".pivot-measure select", "");
+    await editSelectComponent(".pivot-measure .o-select", "");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       {
         id: "Calculated measure 1",
@@ -522,12 +523,12 @@ describe("Spreadsheet pivot side panel", () => {
       { id: "duration:count", fieldName: "duration", aggregator: "count" },
     ]);
 
-    await setInputValueAndTrigger(".pivot-measure select", "sum");
+    await editSelectComponent(".pivot-measure .o-select", "sum");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "duration:sum", fieldName: "duration", aggregator: "sum" },
     ]);
 
-    await setInputValueAndTrigger(".pivot-measure select", "avg");
+    await editSelectComponent(".pivot-measure .o-select", "avg");
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "duration:avg", fieldName: "duration", aggregator: "avg" },
     ]);
@@ -585,9 +586,7 @@ describe("Spreadsheet pivot side panel", () => {
     });
     await nextTick();
 
-    expect(fixture.querySelector<HTMLSelectElement>(".pivot-dimension select")?.value).toEqual(
-      "month"
-    );
+    expect(".pivot-dimension .o-select").toHaveText("Month & Year");
 
     // Note:  this behaviour is somewhat buggy. The granularity was set to undefined (=month), but adding a new
     // dimension with the same name will set the granularity to year. We decided that the additional
@@ -624,7 +623,7 @@ describe("Spreadsheet pivot side panel", () => {
     });
     await click(fixture.querySelector(".add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
-    await setInputValueAndTrigger(fixture.querySelector(".pivot-dimension select"), "desc");
+    await editSelectComponent(".pivot-dimension .o-select", "desc");
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
@@ -845,7 +844,7 @@ describe("Spreadsheet pivot side panel", () => {
     });
     await click(fixture.querySelector(".add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
-    await setInputValueAndTrigger(fixture.querySelector(".pivot-dimension select"), "desc");
+    await editSelectComponent(".pivot-dimension .o-select", "desc");
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);

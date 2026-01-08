@@ -1,3 +1,4 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   canonicalizeContent,
@@ -6,11 +7,10 @@ import {
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
-import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
 import {
   criterionComponentRegistry,
-  getCriterionMenuItems,
+  getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
 import {
   AddDataValidationCommand,
@@ -20,11 +20,12 @@ import {
   DataValidationCriterionType,
   DataValidationRuleData,
   UID,
+  ValueAndLabel,
 } from "../../../../types";
+import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
-import { SelectMenu } from "../../select_menu/select_menu";
 
 interface Props {
   ruleId: UID;
@@ -40,7 +41,7 @@ interface State {
 
 export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
-  static components = { SelectionInput, SelectMenu, Section, ValidationMessages };
+  static components = { SelectionInput, Select, Section, ValidationMessages };
   static props = {
     ruleId: String,
     onCancel: { type: Function, optional: true },
@@ -84,8 +85,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     this.state.rule.criterion = criterion;
   }
 
-  changeRuleIsBlocking(ev: Event) {
-    const isBlocking = (ev.target as HTMLInputElement).value;
+  changeRuleIsBlocking(isBlocking: "true" | "false") {
     this.state.rule.isBlocking = isBlocking === "true";
   }
 
@@ -125,16 +125,8 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     };
   }
 
-  get dvCriterionMenuItems(): Action[] {
-    return getCriterionMenuItems(
-      (type) => this.onCriterionTypeChanged(type as DataValidationCriterionType),
-      availableDataValidationOperators
-    );
-  }
-
-  get selectedCriterionName(): string {
-    const selectedType = this.state.rule.criterion.type;
-    return criterionEvaluatorRegistry.get(selectedType).name;
+  get dvCriterionOptions(): ValueAndLabel[] {
+    return getCriterionValueAndLabels(availableDataValidationOperators);
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
@@ -155,5 +147,12 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
   get errorMessages(): string[] {
     return this.state.errors.map((error) => DVTerms.Errors[error] || DVTerms.Errors.Unexpected);
+  }
+
+  get isRuleBlockingSelectOptions(): ValueAndLabel[] {
+    return [
+      { value: "false", label: _t("Show a warning") },
+      { value: "true", label: _t("Reject the input") },
+    ];
   }
 }

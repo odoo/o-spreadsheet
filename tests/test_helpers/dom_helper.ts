@@ -579,3 +579,11 @@ export async function changeColorPickerWidgetColor(
   await click(widgetButton);
   await click(document.querySelector(`.o-color-picker-line-item[data-color="${color}"]`)!);
 }
+
+/**
+ * Change the value of a Select component (that opens a popover on click instead of using the native HTML select)
+ */
+export async function editSelectComponent(selector: DOMTarget, value: string) {
+  await simulateClick(selector);
+  await simulateClick(`.o-popover .o-select-option[data-id="${value}"]`);
+}

@@ -1,4 +1,5 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   Component,
@@ -10,8 +11,9 @@ import {
 } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
-import { DebouncedFunction } from "../../../types/index";
+import { DebouncedFunction, ValueAndLabel } from "../../../types/index";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
@@ -24,7 +26,7 @@ interface Props {
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
-  static components = { SelectionInput, Section, Checkbox, ValidationMessages };
+  static components = { SelectionInput, Section, Checkbox, ValidationMessages, Select };
   static props = {
     onCloseSidePanel: Function,
   };
@@ -134,8 +136,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.store.updateSearchOptions({ matchCase });
   }
 
-  changeSearchScope(ev) {
-    const searchScope = ev.target.value;
+  changeSearchScope(searchScope: SearchOptions["searchScope"]) {
     this.store.updateSearchOptions({ searchScope });
   }
 
@@ -169,5 +170,13 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     // We don't want all those behaviors here, so we force the recreation of the component when the active sheet changes.
     // The only drawback is that the input loses focus when changing sheet.
     return this.env.model.getters.getActiveSheetId();
+  }
+
+  get searchScopeOptions(): ValueAndLabel[] {
+    return [
+      { value: "allSheets", label: _t("All sheets") },
+      { value: "activeSheet", label: _t("Current sheet") },
+      { value: "specificRange", label: _t("Specific range") },
+    ];
   }
 }

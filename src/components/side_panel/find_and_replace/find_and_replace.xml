@@ -33,14 +33,13 @@
             </button>
           </div>
         </div>
-        <select
-          class="o-input o-type-range-selector mt-3 mb-3"
-          t-on-change="changeSearchScope"
-          t-att-value="searchOptions.searchScope">
-          <option value="allSheets">All sheets</option>
-          <option value="activeSheet">Current sheet</option>
-          <option value="specificRange">Specific range</option>
-        </select>
+        <Select
+          class="'o-type-range-selector mt-3 mb-3'"
+          values="searchScopeOptions"
+          selectedValue="searchOptions.searchScope"
+          onChange.bind="changeSearchScope"
+        />
+
         <div t-if="searchOptions.searchScope === 'specificRange'">
           <SelectionInput
             t-key="selectionInputKey"
