@@ -1,8 +1,18 @@
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones, toZone } from "../../helpers";
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+import { DEFAULT_STYLE } from "../../constants";
+import { Token, compile, tokenize } from "../../formulas";
+import { deepEquals } from "../../helpers";
+=======
+import { DEFAULT_NUMBER_STYLE, DEFAULT_STYLE } from "../../constants";
+import { Token, compile, tokenize } from "../../formulas";
+import { deepEquals, isNumber } from "../../helpers";
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
 import { parseLiteral } from "../../helpers/cells";
 import { getItemId, groupItemIdsByZones } from "../../helpers/data_normalization";
 import {
@@ -25,7 +35,12 @@ import {
   CommandResult,
   CompiledFormula,
   CoreCommand,
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
   ExcelCellData,
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+=======
+  DEFAULT_LOCALE,
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
   ExcelWorkbookData,
   Format,
   FormulaCell,
@@ -328,6 +343,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
         const style = this.removeDefaultStyleValues(cell.style);
         if (Object.keys(style).length) {
           const styleId = getItemId<Style>(style, styles);
@@ -344,6 +360,21 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             content: cell.content,
           };
         }
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+        const style = this.removeDefaultStyleValues(cell.style);
+        cells[xc] = {
+          style: Object.keys(style).length ? getItemId<Style>(style, styles) : undefined,
+          format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
+          content: cell.content || undefined,
+        };
+=======
+        const style = this.extractCustomStyle(cell);
+        cells[xc] = {
+          style: Object.keys(style).length ? getItemId<Style>(style, styles) : undefined,
+          format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
+          content: cell.content || undefined,
+        };
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
@@ -398,10 +429,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private removeDefaultStyleValues(style: Style | undefined): Style {
-    const cleanedStyle = { ...style };
-    for (const property in DEFAULT_STYLE) {
-      if (cleanedStyle[property] === DEFAULT_STYLE[property]) {
+  private extractCustomStyle(cell: Cell): Style {
+    const cleanedStyle = { ...cell.style };
+    const defaultStyle = isNumber(cell.content, DEFAULT_LOCALE)
+      ? DEFAULT_NUMBER_STYLE
+      : DEFAULT_STYLE;
+    for (const property in cleanedStyle) {
+      if (
+        (property !== "align" || !cell.isFormula) &&
+        cleanedStyle[property] === defaultStyle[property]
+      ) {
         delete cleanedStyle[property];
       }
     }

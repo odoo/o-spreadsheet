@@ -20962,13 +20962,27 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <c r="L9" s="17">
             </c>
         </row>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
         <row r="10">
             <c r="F10" t="s">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+        <row r="10" ht="17.25" customHeight="1" hidden="0">
+            <c r="F10" s="3" t="s">
+=======
+        <row r="10" ht="17.25" customHeight="1" hidden="0">
+            <c r="F10" s="19" t="s">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
                 <v>
                     11
                 </v>
             </c>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
             <c r="K10" s="18">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+            <c r="K10" s="19">
+=======
+            <c r="K10" s="20">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
             </c>
         </row>
         <row r="12">
@@ -20992,14 +21006,26 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                     13
                 </v>
             </c>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
             <c r="E20" s="19" t="s">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+            <c r="E20" s="20" t="s">
+=======
+            <c r="E20" s="21" t="s">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
                 <v>
                     14
                 </v>
             </c>
             <c r="F20" s="5">
             </c>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
             <c r="G20" s="20" t="s">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+            <c r="G20" s="21" t="s">
+=======
+            <c r="G20" s="22" t="s">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
                 <v>
                     15
                 </v>
@@ -21013,25 +21039,55 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                     16
                 </v>
             </c>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
             <c r="G21" s="19">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+            <c r="G21" s="20">
+=======
+            <c r="G21" s="21">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
             </c>
         </row>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
         <row r="23">
             <c r="C23" s="21">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+        <row r="23" ht="17.25" customHeight="1" hidden="0">
+            <c r="C23" s="22">
+=======
+        <row r="23" ht="17.25" customHeight="1" hidden="0">
+            <c r="C23" s="23">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
                 <v>
                     0.43
                 </v>
             </c>
         </row>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
         <row r="24">
             <c r="C24" s="22">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+        <row r="24" ht="17.25" customHeight="1" hidden="0">
+            <c r="C24" s="23">
+=======
+        <row r="24" ht="17.25" customHeight="1" hidden="0">
+            <c r="C24" s="24">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
                 <v>
                     10
                 </v>
             </c>
         </row>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
         <row r="25">
             <c r="C25" s="22">
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+        <row r="25" ht="17.25" customHeight="1" hidden="0">
+            <c r="C25" s="23">
+=======
+        <row r="25" ht="17.25" customHeight="1" hidden="0">
+            <c r="C25" s="24">
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
                 <v>
                     10.123
                 </v>
@@ -21461,8 +21517,20 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </diagonal>
         </border>
     </borders>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
     <cellXfs count="23">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+    <cellXfs count="24">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment vertical="bottom"/>
+        </xf>
+=======
+    <cellXfs count="25">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment vertical="bottom"/>
+        </xf>
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="3"/>
@@ -21482,6 +21550,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
             <alignment wrapText="1"/>
         </xf>
+<<<<<<< 4080aaea2c141f8a8e05144ef0b4a9bc2a5a7412
         <xf numFmtId="0" fillId="0" fontId="0" borderId="9"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="6"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="10"/>
@@ -21491,6 +21560,30 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="5"/>
         <xf numFmtId="10" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="4" fillId="0" fontId="0" borderId="0"/>
+||||||| ab9f15e01422b046d8ab53787ea8032a38f271b1
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="9"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="6"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="10"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="12"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="11"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="4"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="5"/>
+        <xf numFmtId="10" fillId="0" fontId="3" borderId="0"/>
+        <xf numFmtId="4" fillId="0" fontId="3" borderId="0"/>
+=======
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="9"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="6"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="10"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="12"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="0" applyAlignment="1">
+            <alignment shrinkToFit="1"/>
+        </xf>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="11"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="4"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="5"/>
+        <xf numFmtId="10" fillId="0" fontId="3" borderId="0"/>
+        <xf numFmtId="4" fillId="0" fontId="3" borderId="0"/>
+>>>>>>> e7127912f6ae75d51ef3fd926e99c7f24428a2ec
     </cellXfs>
     <dxfs count="0">
     </dxfs>
