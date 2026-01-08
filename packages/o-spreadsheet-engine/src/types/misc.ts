@@ -418,4 +418,5 @@ export type SortDirection = "asc" | "desc";
 export interface ValueAndLabel<T = string> {
   value: T;
   label: string;
+  separator?: boolean;
 }

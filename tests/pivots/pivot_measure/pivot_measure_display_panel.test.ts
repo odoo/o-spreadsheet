@@ -6,8 +6,12 @@ import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { setCellContent, setFormat } from "../../test_helpers";
-import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import { mountComponent, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { click, editSelectComponent } from "../../test_helpers/dom_helper";
+import {
+  mountComponentWithPortalTarget,
+  mountSpreadsheet,
+  nextTick,
+} from "../../test_helpers/helpers";
 import { addPivot, removePivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -25,7 +29,7 @@ function getPivotMeasures() {
 describe("Standalone side panel tests", () => {
   replaceSidePanelSpy = jest.fn();
   async function mountPanel(measure?: PivotCoreMeasure) {
-    ({ fixture } = await mountComponent(PivotMeasureDisplayPanel, {
+    ({ fixture } = await mountComponentWithPortalTarget(PivotMeasureDisplayPanel, {
       model,
       env: { replaceSidePanel: replaceSidePanelSpy },
       props: {
@@ -64,15 +68,15 @@ describe("Standalone side panel tests", () => {
       id: "m1",
       display: { type: "%_of", fieldNameWithGranularity: "FieldA", value: "Alice" },
     });
-    expect(".o-pivot-measure-display-type").toHaveValue("%_of");
+    expect(".o-pivot-measure-display-type").toHaveText("% of");
     expect(".o-pivot-measure-display-field input[value=FieldA]").toHaveValue(true);
     expect(".o-pivot-measure-display-value input[value=Alice]").toHaveValue(true);
   });
 
   test("Can change measure display type", async () => {
     await mountPanel();
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "index");
-    expect(".o-pivot-measure-display-type").toHaveValue("index");
+    await editSelectComponent(".o-pivot-measure-display-type", "index");
+    expect(".o-pivot-measure-display-type").toHaveText("Index");
     expect(getPivotMeasures()[0].display).toEqual({ type: "index" });
   });
 
@@ -86,7 +90,7 @@ describe("Standalone side panel tests", () => {
     await mountPanel();
     expect(".o-pivot-measure-display-field").toHaveCount(0);
 
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of_parent_total");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of_parent_total");
     expect(".o-pivot-measure-display-field").toHaveCount(1);
     expect(".o-pivot-measure-display-field input").toHaveCount(2);
     expect(".o-pivot-measure-display-field input[value=FieldA]").toHaveValue(true);
@@ -107,7 +111,7 @@ describe("Standalone side panel tests", () => {
 
   test("Base field have a placeholder when the pivot has no active fields", async () => {
     await mountPanel();
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of_parent_total");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of_parent_total");
     expect(".o-pivot-measure-display-field").toHaveText("No active dimension in the pivot");
   });
 
@@ -122,7 +126,7 @@ describe("Standalone side panel tests", () => {
     await mountPanel();
     expect(".o-pivot-measure-display-value").toHaveCount(0);
 
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of");
     expect(".o-pivot-measure-display-value").toHaveCount(1);
     expect(".o-pivot-measure-display-value input").toHaveCount(4);
     expect('.o-pivot-measure-display-value input[value="(previous)"]').toHaveValue(true);
@@ -147,7 +151,7 @@ describe("Standalone side panel tests", () => {
       dataSet: { sheetId, zone: toZone("A1:C3") },
     });
     await mountPanel();
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of");
 
     await click(fixture, '.o-pivot-measure-display-value input[value="Alice"]');
     expect(model.getters.getPivotCoreDefinition(pivotId).measures[0].display).toEqual({
@@ -179,7 +183,7 @@ describe("Standalone side panel tests", () => {
       dataSet: { sheetId, zone: toZone("A1:C2") },
     });
     await mountPanel();
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of");
 
     expect(fixture.querySelectorAll(".o-pivot-measure-display-value label")[2]).toHaveText(
       "5 Tabourets"
@@ -207,7 +211,7 @@ describe("Standalone side panel tests", () => {
     await mountPanel();
     expect(".o-pivot-measure-display-value").toHaveCount(0);
 
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of");
     expect(".o-pivot-measure-display-value").toHaveCount(1);
     expect(".o-pivot-measure-display-value input").toHaveCount(4);
     expect('.o-pivot-measure-display-value input[value="(previous)"]').toHaveValue(true);
@@ -238,7 +242,7 @@ describe("Standalone side panel tests", () => {
     await mountPanel();
     expect(getPivotMeasures()[0].display).toEqual(undefined);
 
-    await setInputValueAndTrigger(".o-pivot-measure-display-type", "%_of_grand_total");
+    await editSelectComponent(".o-pivot-measure-display-type", "%_of_grand_total");
     expect(getPivotMeasures()[0].display).toEqual({ type: "%_of_grand_total" });
 
     await click(fixture, ".o-pivot-measure-cancel");

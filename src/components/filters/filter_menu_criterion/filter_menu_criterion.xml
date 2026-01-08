@@ -1,9 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-FilterMenuCriterion">
-    <SelectMenu
-      class="'o-filter-criterion-type o-input m-1 mb-2'"
-      menuItems="criterionMenuItems"
-      selectedValue="selectedCriterionName"
+    <Select
+      class="'o-filter-criterion-type m-1 mb-2'"
+      values="criterionOptions"
+      selectedValue="state.criterion.type"
+      onChange.bind="onCriterionTypeChange"
     />
 
     <t

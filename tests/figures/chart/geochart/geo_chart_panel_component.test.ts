@@ -53,7 +53,7 @@ describe("Geo chart side panel", () => {
       expect(".o-data-series input").toHaveValue("A1:A3");
       expect(".o-data-labels input").toHaveValue("B1:B3");
       expect(getHTMLCheckboxValue('input[name="dataSetsHaveTitle"]')).toBe(true);
-      expect(".o-geo-region select").toHaveValue("usa");
+      expect(".o-geo-region .o-select").toHaveText("United States");
     });
 
     test("Only one data range is enabled", async () => {
@@ -74,15 +74,16 @@ describe("Geo chart side panel", () => {
       createGeoChart(model, {});
       await openChartConfigSidePanel(model, env, chartId);
 
-      expect(".o-geo-region select").toHaveValue("world");
+      expect(".o-geo-region .o-select").toHaveText("World");
+      await simulateClick(".o-geo-region .o-select");
       const choices = [
-        ...fixture.querySelectorAll<HTMLOptionElement>(".o-geo-region select option"),
-      ].map((el) => el.value);
-      expect(choices).toEqual(["world", "usa"]);
+        ...fixture.querySelectorAll<HTMLOptionElement>(".o-popover .o-select-option"),
+      ];
+      expect(choices.map((el) => el.dataset.id)).toEqual(["world", "usa"]);
 
-      await setInputValueAndTrigger(".o-geo-region select", "usa");
+      await simulateClick(`.o-popover .o-select-option[data-id="usa"]`);
       expect(getGeoChartDefinition(chartId)?.region).toEqual("usa");
-      expect(".o-geo-region select").toHaveValue("usa");
+      expect(".o-geo-region .o-select").toHaveText("United States");
     });
   });
 
@@ -98,7 +99,7 @@ describe("Geo chart side panel", () => {
 
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#000000");
       expect(".o-chart-title input").toHaveValue("Title");
-      expect(".o-chart-legend-position").toHaveValue("right");
+      expect(".o-chart-legend-position").toHaveText("Top right");
       expect("span[title=Bold]").toHaveClass("active");
       expect(".o-color-scale .color-scale-preview").toHaveAttribute(
         "data-test-colorscale",

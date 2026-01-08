@@ -1,28 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Provided Currencies if currencies are provided in spreadsheet --> display this currencies 1`] = `
-<select
-  class="o-input o-available-currencies"
->
-  <option
-    value="0"
-  >
-    Custom
-  </option>
-  <option
-    value="1"
-  >
-    3 decimal places / expression position after (ABC)
-  </option>
-  <option
-    value="2"
-  >
-    4 decimal places / expression position before (DEF)
-  </option>
-  
-</select>
-`;
-
 exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 1`] = `
 [
   "#,##0[$SYMBOL]",

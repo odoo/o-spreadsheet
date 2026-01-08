@@ -61,15 +61,12 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
         <div
           class="pt-2"
         >
-          <select
-            class="o-filter-criterion-type o-input m-1 mb-2"
+          <div
+            class="o-input o-select o-filter-criterion-type m-1 mb-2"
+            tabindex="0"
           >
-            <option
-              selected="true"
-            >
-              None
-            </option>
-          </select>
+            None
+          </div>
           
           
           <div

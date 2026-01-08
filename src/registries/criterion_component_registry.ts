@@ -1,14 +1,13 @@
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { ComponentConstructor } from "@odoo/owl";
-import { Action, ActionSpec, createActions } from "../actions/action";
 import { DateCriterionForm } from "../components/side_panel/criterion_form/date_criterion/date_criterion";
 import { DoubleInputCriterionForm } from "../components/side_panel/criterion_form/double_input_criterion/double_input_criterion";
 import { SingleInputCriterionForm } from "../components/side_panel/criterion_form/single_input_criterion/single_input_criterion";
 import { Top10CriterionForm } from "../components/side_panel/criterion_form/top_10_criterion/top_10_criterion";
 import { ListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
-import { GenericCriterionType } from "../types";
+import { GenericCriterionType, ValueAndLabel } from "../types";
 
 export type CriterionCategory = "text" | "date" | "number" | "misc" | "list" | "relative";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {
@@ -239,10 +238,9 @@ criterionComponentRegistry.add("top10", {
   sequence: 7,
 });
 
-export function getCriterionMenuItems(
-  callback: (type: GenericCriterionType) => void,
+export function getCriterionValueAndLabels(
   availableTypes: Set<GenericCriterionType>
-): Action[] {
+): ValueAndLabel[] {
   const items = criterionComponentRegistry
     .getAll()
     .filter((item) => availableTypes.has(item.type))
@@ -253,14 +251,12 @@ export function getCriterionMenuItems(
       return criterionCategoriesSequences[a.category] - criterionCategoriesSequences[b.category];
     });
 
-  const actionSpecs: ActionSpec[] = items.map((item, index) => {
+  return items.map((item, index) => {
     const evaluator = criterionEvaluatorRegistry.get(item.type);
     return {
-      name: evaluator.name,
-      id: item.type,
+      label: evaluator.name,
+      value: item.type,
       separator: item.category !== items[index + 1]?.category,
-      execute: () => callback(item.type),
     };
   });
-  return createActions(actionSpecs);
 }

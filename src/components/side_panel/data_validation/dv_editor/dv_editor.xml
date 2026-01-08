@@ -11,12 +11,12 @@
       <Section class="'pt-0'">
         <div class="o-subsection o-dv-settings">
           <div class="o-section-title">Criteria</div>
-          <SelectMenu
-            class="'o-dv-type o-input mb-2'"
-            menuItems="dvCriterionMenuItems"
-            selectedValue="selectedCriterionName"
+          <Select
+            class="'o-dv-type mb-2'"
+            values="dvCriterionOptions"
+            selectedValue="state.rule.criterion.type"
+            onChange.bind="onCriterionTypeChanged"
           />
-
           <t
             t-if="criterionComponent"
             t-component="criterionComponent"
@@ -29,10 +29,12 @@
       </Section>
 
       <Section class="'o-dv-invalid-option pt-0'" title.translate="If the data is invalid">
-        <select class="o-dv-reject-input o-input" t-on-change="changeRuleIsBlocking">
-          <option t-att-selected="!state.rule.isBlocking" value="false">Show a warning</option>
-          <option t-att-selected="state.rule.isBlocking" value="true">Reject the input</option>
-        </select>
+        <Select
+          class="'o-dv-reject-input pt-0'"
+          values="isRuleBlockingSelectOptions"
+          selectedValue="state.rule.isBlocking ? 'true' : 'false'"
+          onChange.bind="changeRuleIsBlocking"
+        />
       </Section>
 
       <Section>

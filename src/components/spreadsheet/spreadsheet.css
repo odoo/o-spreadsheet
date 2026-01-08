@@ -131,8 +131,10 @@
     }
   }
 
-  select.o-input {
+  select.o-input,
+  .o-select {
     cursor: pointer;
+    border-style: solid;
     border-width: 0 0 1px 0;
     padding: 1px 6px 1px 0px;
 
@@ -279,7 +281,8 @@
 }
 
 .o-spreadsheet.dark {
-  select.o-input {
+  select.o-input,
+  .o-select {
     background: transparent
       url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%277%27%20height%3D%274%27%20viewBox%3D%270%200%207%204%27%3E%3Cpolygon%20fill%3D%27%23e4e4e4%27%20points%3D%273.5%204%207%200%200%200%27/%3E%3C/svg%3E")
       no-repeat right center;

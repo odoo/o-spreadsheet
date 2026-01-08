@@ -23,6 +23,7 @@ import {
   changeRoundColorPickerColor,
   click,
   clickGridIcon,
+  editSelectComponent,
   getElComputedStyle,
   keyDown,
   setInputValueAndTrigger,
@@ -68,8 +69,7 @@ describe("Edit criterion in side panel", () => {
       expect(inputs[1].value).toBe("hello");
       expect(inputs[2].value).toBe("okay");
 
-      const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      expect(displayStyleInput?.value).toBe("arrow");
+      expect(".o-dv-display-style").toHaveText("Arrow");
     });
 
     test("Side panel is correctly pre-filled for composer criterion", async () => {
@@ -86,10 +86,8 @@ describe("Edit criterion in side panel", () => {
 
     test("first input is focused when criterion type is changed", async () => {
       expect(document.activeElement).not.toBe(fixture.querySelector(".o-dv-input input"));
-      await click(fixture, ".o-dv-type");
-      await click(fixture, `.o-menu-item[data-name="containsText"]`);
-      await click(fixture, ".o-dv-type");
-      await click(fixture, `.o-menu-item[data-name="isValueInList"]`);
+      await editSelectComponent(".o-dv-type", "containsText");
+      await editSelectComponent(".o-dv-type", "isValueInList");
       expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input input"));
     });
 
@@ -141,14 +139,17 @@ describe("Edit criterion in side panel", () => {
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["hello", "okay"]);
     });
 
-    test.each(["plainText", "chip", "arrow"])("Can change display style to %s", (displayStyle) => {
-      const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      setInputValueAndTrigger(displayStyleInput, displayStyle);
-      click(fixture, ".o-dv-save");
-      expect(
-        (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
-      ).toEqual(displayStyle);
-    });
+    test.each(["plainText", "chip", "arrow"])(
+      "Can change display style to %s",
+      async (displayStyle) => {
+        const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
+        await editSelectComponent(displayStyleInput, displayStyle);
+        click(fixture, ".o-dv-save");
+        expect(
+          (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
+        ).toEqual(displayStyle);
+      }
+    );
 
     test("can set a color", async () => {
       expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
@@ -196,9 +197,7 @@ describe("Edit criterion in side panel", () => {
         ".o-dv-settings .o-selection-input input"
       )!;
       expect(rangeInput.value).toBe("B1:B5");
-
-      const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      expect(displayStyleInput?.value).toBe("arrow");
+      expect(".o-dv-display-style").toHaveText("Arrow");
     });
 
     test("Can change the range", () => {
@@ -212,16 +211,14 @@ describe("Edit criterion in side panel", () => {
 
     test("range input is focused when criterion type is changed", async () => {
       expect(".o-dv-settings .o-selection-input input").not.toHaveClass("o-focused");
-      await click(fixture, ".o-dv-type");
-      await click(fixture, `.o-menu-item[data-name="containsText"]`);
-      await click(fixture, ".o-dv-type");
-      await click(fixture, `.o-menu-item[data-name="isValueInRange"]`);
+      await editSelectComponent(".o-dv-type", "containsText");
+      await editSelectComponent(".o-dv-type", "isValueInRange");
       expect(".o-dv-settings .o-selection-input input").toHaveClass("o-focused");
     });
 
-    test("Can change display style", () => {
+    test("Can change display style", async () => {
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      setInputValueAndTrigger(displayStyleInput, "plainText");
+      await editSelectComponent(displayStyleInput, "plainText");
       click(fixture, ".o-dv-save");
       expect(
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle

@@ -5,7 +5,8 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Component, onMounted, useEffect, useState } from "@odoo/owl";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { useStore } from "../../../store_engine";
-import { CommandResult } from "../../../types/index";
+import { CommandResult, ValueAndLabel } from "../../../types/index";
+import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
@@ -13,18 +14,13 @@ import { ComposerFocusStore } from "./../../composer/composer_focus_store";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
-interface Separator {
-  name: string;
-  value: SeparatorValue;
-}
-
-const SEPARATORS: Separator[] = [
-  { name: _t("Detect automatically"), value: "auto" },
-  { name: _t("Custom separator"), value: "custom" },
-  { name: _t("Space"), value: " " },
-  { name: _t("Comma"), value: "," },
-  { name: _t("Semicolon"), value: ";" },
-  { name: _t("Line Break"), value: NEWLINE },
+const SEPARATORS: ValueAndLabel[] = [
+  { label: _t("Detect automatically"), value: "auto" },
+  { label: _t("Custom separator"), value: "custom" },
+  { label: _t("Space"), value: " " },
+  { label: _t("Comma"), value: "," },
+  { label: _t("Semicolon"), value: ";" },
+  { label: _t("Line Break"), value: NEWLINE },
 ];
 
 interface Props {
@@ -39,7 +35,7 @@ interface State {
 
 export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
-  static components = { ValidationMessages, Section, Checkbox };
+  static components = { ValidationMessages, Section, Checkbox, Select };
   static props = { onCloseSidePanel: Function };
 
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
@@ -134,7 +130,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     return this.state.separatorValue;
   }
 
-  get separators(): Separator[] {
+  get separators(): ValueAndLabel[] {
     return SEPARATORS;
   }
 

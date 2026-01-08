@@ -1,0 +1,36 @@
+<templates>
+  <t t-name="o-spreadsheet-Select">
+    <div
+      tabIndex="0"
+      t-ref="selectRef"
+      class="o-input o-select"
+      t-att-class="props.class"
+      t-att-name="props.name"
+      t-on-pointerdown="onMouseDown"
+      t-on-keydown="onKeyDown"
+      t-esc="selectedLabel"
+    />
+
+    <Popover t-if="state.isPopoverOpen" t-props="popoverProps">
+      <div
+        class="o-select-dropdown bg-white overflow-hidden py-2"
+        t-att-class="props.popoverClass"
+        t-ref="dropdownRef">
+        <t t-foreach="props.values" t-as="value" t-key="value_index">
+          <div
+            class="o-select-option"
+            t-att-class="{
+              'o-active': value.value === activeValue
+            }"
+            t-att-data-id="value.value"
+            t-esc="value.label"
+            t-att-title="value.label"
+            t-on-click="() => this.onOptionClick(value.value)"
+            t-on-mouseenter="() => this.onOptionHover(value.value)"
+          />
+          <div t-if="value.separator and !value_last" class="o-separator border-bottom"/>
+        </t>
+      </div>
+    </Popover>
+  </t>
+</templates>

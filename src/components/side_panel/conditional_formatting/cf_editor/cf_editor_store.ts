@@ -2,14 +2,12 @@ import { ICON_SETS, ICONS } from "@odoo/o-spreadsheet-engine/components/icons/ic
 import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { ComponentConstructor, useState } from "@odoo/owl";
-import { Action } from "../../../../actions/action";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
 import {
   criterionComponentRegistry,
-  getCriterionMenuItems,
+  getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";
@@ -30,6 +28,7 @@ import {
   IconThreshold,
   ThresholdType,
   UID,
+  ValueAndLabel,
 } from "../../../../types";
 import { cssPropertiesToCss } from "../../../helpers";
 
@@ -167,15 +166,8 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
    * Cell Is Rule
    ****************************************************************************/
 
-  get cfCriterionMenuItems(): Action[] {
-    return getCriterionMenuItems(
-      (type) => this.editOperator(type as ConditionalFormattingOperatorValues),
-      availableConditionalFormatOperators
-    );
-  }
-
-  get selectedCriterionName(): string {
-    return criterionEvaluatorRegistry.get(this.state.rules.cellIs.operator).name;
+  get cfCriterions(): ValueAndLabel[] {
+    return getCriterionValueAndLabels(availableConditionalFormatOperators);
   }
 
   get criterionComponent(): ComponentConstructor | undefined {
@@ -213,7 +205,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     this.closeMenus();
   }
 
-  private editOperator(operator: ConditionalFormattingOperatorValues) {
+  editOperator(operator: ConditionalFormattingOperatorValues) {
     this.state.rules.cellIs.operator = operator;
     if (operator.includes("date") && !this.state.rules.cellIs.dateValue) {
       this.state.rules.cellIs.dateValue = "exactDate";

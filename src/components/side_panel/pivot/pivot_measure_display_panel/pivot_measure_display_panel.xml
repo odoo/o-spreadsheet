@@ -1,17 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-PivotMeasureDisplayPanel">
     <Section title.translate="Show measure as:">
-      <select
-        class="o-pivot-measure-display-type o-input"
-        t-on-change="(ev) => this.store.updateMeasureDisplayType(ev.target.value)">
-        <t t-foreach="measureDisplayTypeLabels" t-as="measureType" t-key="measureType">
-          <option
-            t-att-value="measureType"
-            t-att-selected="measureType === store.measureDisplay.type"
-            t-esc="measureType_value"
-          />
-        </t>
-      </select>
+      <Select
+        class="'o-pivot-measure-display-type'"
+        values="measureDisplayTypeOptions"
+        selectedValue="store.measureDisplay.type"
+        onChange="(value) => this.store.updateMeasureDisplayType(value)"
+      />
       <div
         class="o-pivot-measure-display-description mt-3 ps-3 border-start"
         t-esc="measureDisplayDescription[store.measureDisplay.type]"

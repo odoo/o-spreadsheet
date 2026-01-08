@@ -5,17 +5,23 @@ import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component, useEffect, useExternalListener } from "@odoo/owl";
 import { colorNumberToHex, deepCopy } from "../../../../helpers";
 import { useLocalStore } from "../../../../store_engine";
-import { ColorScaleThreshold, CommandResult, ConditionalFormat, UID } from "../../../../types";
+import {
+  ColorScaleThreshold,
+  CommandResult,
+  ConditionalFormat,
+  UID,
+  ValueAndLabel,
+} from "../../../../types";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
+import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
-import { SelectMenu } from "../../select_menu/select_menu";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
 interface Props {
@@ -35,7 +41,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     StandaloneComposer,
     BadgeSelection,
     ValidationMessages,
-    SelectMenu,
+    Select,
   };
   static props = { cf: Object, isNewCf: Boolean, onCloseSidePanel: Function };
 
@@ -217,5 +223,30 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       class: "o-sidePanel-composer",
       defaultRangeSheetId: this.activeSheetId,
     };
+  }
+
+  getThresholdTypeSelectOptions(
+    thresholdType: "minimum" | "midpoint" | "maximum" | "iconSet"
+  ): ValueAndLabel[] {
+    const options: ValueAndLabel[] = [
+      { value: "number", label: _t("Number") },
+      { value: "percentage", label: _t("Percentage") },
+      { value: "percentile", label: _t("Percentile") },
+      { value: "formula", label: _t("Formula") },
+    ];
+    if (thresholdType === "iconSet") {
+      return options;
+    }
+    if (thresholdType === "midpoint") {
+      return [{ value: "none", label: _t("None") }, ...options];
+    }
+    return [{ value: "value", label: _t("Cell values") }, ...options];
+  }
+
+  getIconSetOperatorSelectOptions(): ValueAndLabel[] {
+    return [
+      { value: "gt", label: ">" },
+      { value: "ge", label: ">=" },
+    ];
   }
 }

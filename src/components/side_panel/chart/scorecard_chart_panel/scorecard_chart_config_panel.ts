@@ -1,8 +1,13 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
+import {
+  BaselineMode,
+  ScorecardChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
-import { CommandResult, DispatchResult } from "../../../../types/index";
+import { CommandResult, DispatchResult, ValueAndLabel } from "../../../../types/index";
+import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -18,7 +23,7 @@ export class ScorecardChartConfigPanel extends Component<
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
-  static components = { SelectionInput, ChartErrorSection, Section };
+  static components = { SelectionInput, ChartErrorSection, Section, Select };
   static props = ChartSidePanelPropsObject;
 
   private state: PanelState = useState({
@@ -85,7 +90,16 @@ export class ScorecardChartConfigPanel extends Component<
     return this.baseline || "";
   }
 
-  updateBaselineMode(ev) {
-    this.props.updateChart(this.props.chartId, { baselineMode: ev.target.value });
+  updateBaselineMode(baselineMode: BaselineMode) {
+    this.props.updateChart(this.props.chartId, { baselineMode });
+  }
+
+  get baselineModeOptions(): ValueAndLabel[] {
+    return [
+      { value: "text", label: _t("Absolute value") },
+      { value: "difference", label: _t("Value change from key value") },
+      { value: "percentage", label: _t("Percentage change from key value") },
+      { value: "progress", label: _t("Progress bar") },
+    ];
   }
 }

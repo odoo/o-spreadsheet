@@ -32,24 +32,12 @@
       <div class="d-flex flex-row">
         <div class="d-flex py-1 px-2 w-100 small">
           <div class="pivot-dim-operator-label">Aggregated by</div>
-          <select
-            class="o-input flex-grow-1"
-            t-on-change="(ev) => this.updateAggregator(ev.target.value)">
-            <option
-              t-foreach="Object.keys(props.aggregators[measure.type])"
-              t-as="agg"
-              t-key="agg"
-              t-att-value="agg"
-              t-att-selected="agg === measure.aggregator"
-              t-esc="props.aggregators[measure.type][agg]"
-            />
-            <option
-              t-if="measure.computedBy"
-              t-att-value="''"
-              t-att-selected="'' === measure.aggregator">
-              Compute from totals
-            </option>
-          </select>
+          <Select
+            class="'flex-grow-1'"
+            values="aggregatorOptions"
+            selectedValue="props.measure.aggregator"
+            onChange.bind="updateAggregator"
+          />
         </div>
       </div>
     </PivotDimension>

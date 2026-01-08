@@ -1,15 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationDateCriterion">
-    <select class="o-dv-date-value o-input mb-4" t-on-change="onDateValueChanged">
-      <option
-        t-foreach="dateValues"
-        t-as="dateValue"
-        t-key="dateValue.value"
-        t-att-value="dateValue.value"
-        t-esc="dateValue.title"
-        t-att-selected="dateValue.value === currentDateValue"
-      />
-    </select>
+    <Select
+      class="'o-dv-date-value mb-4'"
+      values="dateValues"
+      selectedValue="currentDateValue"
+      onChange.bind="onDateValueChanged"
+    />
 
     <CriterionInput
       t-if="currentDateValue === 'exactDate'"

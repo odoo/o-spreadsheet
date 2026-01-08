@@ -1,12 +1,14 @@
+import { _t } from "@odoo/o-spreadsheet-engine";
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
-import { Color, IsValueInRangeCriterion } from "../../../../types";
+import { Color, IsValueInRangeCriterion, ValueAndLabel } from "../../../../types";
+import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { CriterionForm } from "../criterion_form";
 
 export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCriterion> {
   static template = "o-spreadsheet-ValueInRangeCriterionForm";
-  static components = { RoundColorPicker, SelectionInput };
+  static components = { RoundColorPicker, SelectionInput, Select };
 
   setup() {
     super.setup();
@@ -23,8 +25,7 @@ export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCrite
     this.updateCriterion({ values: [rangeXc] });
   }
 
-  onChangedDisplayStyle(ev: Event) {
-    const displayStyle = (ev.target as HTMLInputElement).value as "arrow" | "plainText";
+  onChangedDisplayStyle(displayStyle: "arrow" | "plainText" | "chip") {
     this.updateCriterion({ displayStyle });
   }
 
@@ -41,5 +42,13 @@ export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCrite
       this.props.criterion
     );
     return new Set(values);
+  }
+
+  get displayTypeOptions(): ValueAndLabel[] {
+    return [
+      { value: "chip", label: _t("Chip") },
+      { value: "arrow", label: _t("Arrow") },
+      { value: "plainText", label: _t("Plain text") },
+    ];
   }
 }
