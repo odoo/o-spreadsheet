@@ -1,4 +1,4 @@
-import { compile, compileTokens, InternalCompiledFormula } from "../../formulas/compiler";
+import { compile } from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
@@ -713,7 +713,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
 
   constructor(
     readonly id: UID,
-    compiledFormula: InternalCompiledFormula,
+    compiledFormula: RangeCompiledFormula,
     readonly format: Format | undefined,
     dependencies: Range[],
     private readonly sheetId: UID,
