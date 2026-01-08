@@ -17,6 +17,7 @@ import {
   getFunnelChartController,
   getFunnelChartElement,
 } from "./chartjs_funnel_chart";
+import { chartMinorGridPlugin } from "./chartjs_minor_grid_plugin";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
 import { sunburstLabelsPlugin } from "./chartjs_sunburst_labels_plugin";
@@ -31,6 +32,10 @@ interface Props {
 chartJsExtensionRegistry.add("chartShowValuesPlugin", {
   register: (Chart) => Chart.register(chartShowValuesPlugin),
   unregister: (Chart) => Chart.unregister(chartShowValuesPlugin),
+});
+chartJsExtensionRegistry.add("chartMinorGridPlugin", {
+  register: (Chart) => Chart.register(chartMinorGridPlugin),
+  unregister: (Chart) => Chart.unregister(chartMinorGridPlugin),
 });
 chartJsExtensionRegistry.add("waterfallLinesPlugin", {
   register: (Chart) => Chart.register(waterfallLinesPlugin),
