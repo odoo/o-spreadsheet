@@ -27,6 +27,7 @@ import {
   AdaptSheetName,
   ApplyRangeChange,
   CellPosition,
+  CompiledFormula,
   HeaderIndex,
   RangeCompiledFormula,
   Style,
@@ -261,7 +262,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{
-        compiledFormula?: InternalCompiledFormula;
+        compiledFormula?: CompiledFormula;
         content?: string;
         style?: number;
         format?: number;
@@ -271,7 +272,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const unsquishedItem of unsquisher.unsquishSheet(
         sheet.cells,
         sheet.id,
-        this.getters.getSheetSize
+        this.getters.getRangeFromSheetXC
       )) {
         if (unsquishedItem.content || unsquishedItem.compiled) {
           const position = {
@@ -314,7 +315,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  export(data: WorkbookData) {
+  export(data: WorkbookData, shouldSquish: boolean) {
     const formats: { [formatId: number]: string } = {};
     const squisher = new Squisher(this.getters.getSheetName);
     for (const _sheet of data.sheets) {
@@ -332,7 +333,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
         const xc = toXC(position.col, position.row);
         if (cell.content) {
-          if (cell.isFormula) {
+          if (cell.isFormula && shouldSquish) {
             // @ts-ignore
             cells[xc] = squisher.squish(cell, _sheet.id);
           } else {
@@ -350,7 +351,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     sheetId: UID,
     content?: string,
     format?: Format,
-    compiledFormula?: InternalCompiledFormula | undefined
+    compiledFormula?: CompiledFormula | undefined
   ): Cell {
     const cellId = this.getNextUid();
     if (compiledFormula) {
@@ -360,7 +361,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    this.export(data, false);
     const incompatibleIds: number[] = [];
     for (const formatId in data.formats || []) {
       if (!isExcelCompatible(data.formats[formatId])) {
@@ -403,7 +404,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   getFormulaString(
     sheetId: UID,
-    tokens: Token[],
+    compiledFormula: RangeCompiledFormula | CompiledFormula,
     dependencies: Range[],
     useBoundedReference: boolean = false
   ): string {
@@ -628,7 +629,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private createFormulaCellFromCompiledFormula(
     id: UID,
-    compiledFormula: InternalCompiledFormula,
+    compiledFormula: CompiledFormula,
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
@@ -653,18 +654,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private createFormulaCellWithDependencies(
     id: UID,
-    compiledFormula: InternalCompiledFormula,
+    compiledFormula: CompiledFormula | RangeCompiledFormula,
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
-    const dependencies: Range[] = [];
-    for (const xc of compiledFormula.dependencies) {
-      if (typeof xc === "string") dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
-      else dependencies.push(xc);
-    }
+    const dependencies: Range[] = compiledFormula.dependencies.map((xc: string | Range) =>
+      typeof xc === "string" ? this.getters.getRangeFromSheetXC(sheetId, xc) : xc
+    );
+
     return new FormulaCellWithDependencies(
       id,
-      compiledFormula,
+      compiledFormula as RangeCompiledFormula,
       format,
       dependencies,
       sheetId,

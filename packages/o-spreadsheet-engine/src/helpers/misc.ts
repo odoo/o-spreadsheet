@@ -603,9 +603,12 @@ export function largeMin(array: number[]) {
 }
 
 export class TokenizingChars {
-  private text: string;
+  private readonly text: string;
   private currentIndex: number = 0;
   current: string;
+  numberIndex: number = 0;
+  stringIndex: number = 0;
+  referenceIndex: number = 0;
 
   constructor(text: string) {
     this.text = text;

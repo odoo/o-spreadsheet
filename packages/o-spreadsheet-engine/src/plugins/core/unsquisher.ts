@@ -1,12 +1,11 @@
-import { compile, InternalCompiledFormula } from "../../formulas/compiler";
-import { toCartesian } from "../../helpers/coordinates";
+import { compile } from "../../formulas/compiler";
 import { expandRange } from "../../helpers/expand_range";
-import { Position, UID } from "../../types/misc";
+import { CompiledFormula, Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR } from "./squisher";
 
 export class Unsquisher {
-  private previousCell: InternalCompiledFormula | undefined;
+  private previousCell: CompiledFormula | undefined;
   private alreadyAppliedNumberOffset: number[] = [];
   private previousString: string[] = [];
   private alreadyAppliedReferenceOffset: Range[] = [];
@@ -25,32 +24,35 @@ export class Unsquisher {
   *unsquishSheet(
     squished: { [key: string]: any },
     sheetId: UID,
-    getRangeFromSheetXC
+    getRangeFromSheetXC: (sheetId: UID, reference: string) => Range
   ): Generator<{
     position: Position;
     content?: string;
-    compiled?: InternalCompiledFormula;
+    compiled?: CompiledFormula;
   }> {
     for (const key in squished) {
-      if (key.includes(":")) {
-        // Range key, e.g. B2:B73
-        const [start, end] = key.split(":");
-        for (const cell of expandRange(start, end)) {
+      if (typeof squished[key] === "string" && squished[key].startsWith("=")) {
+        // compile the found formula. Reset previousCell and offsets because it's a new formula
+        const compiled = compile(squished[key]);
+        this.previousCell = compiled;
+        this.alreadyAppliedNumberOffset = new Array(compiled.literalValues.numbers.length).fill(0);
+        this.previousString = compiled.literalValues.strings.map((s) => s.value);
+        this.alreadyAppliedReferenceOffset = compiled.dependencies.map((ref) =>
+          getRangeFromSheetXC(sheetId, ref)
+        );
+      }
+      const parts = key.split(":");
+      for (const cell of expandRange(parts[0], parts.length > 1 ? parts[1] : parts[0])) {
+        if (typeof squished[key] === "string" && squished[key].startsWith("=")) {
+          // we can reuse the compiled formula for all cells in the range
+          yield { position: { col: cell[0], row: cell[1] }, compiled: this.previousCell };
+        } else {
           const result = this.unsquish(squished[key], sheetId, getRangeFromSheetXC);
           if (typeof result === "string") {
             yield { position: { col: cell[0], row: cell[1] }, content: result };
           } else {
             yield { position: { col: cell[0], row: cell[1] }, compiled: result };
           }
-        }
-      } else {
-        // Single cell
-        toCartesian(key);
-        const result = this.unsquish(squished[key], sheetId, getRangeFromSheetXC);
-        if (typeof result === "string") {
-          yield { position: toCartesian(key), content: result };
-        } else {
-          yield { position: toCartesian(key), compiled: result };
         }
       }
     }
@@ -59,57 +61,24 @@ export class Unsquisher {
   unsquish(
     squishedElement: any,
     sheetId: UID,
-    getRangeFromSheetXC: (sheetId: UID, reference: string) => any
-  ): string | InternalCompiledFormula {
-    /*
-     * 2 cases:
-     * 1) squishedElement is a string -> simple formula, return as is
-     * 2) squishedElement is an object -> complex formula, need to unsquish references, numbers, strings
-     * */
+    getRangeFromSheetXC: (sheetId: UID, reference: string) => Range
+  ): string | CompiledFormula {
     if (typeof squishedElement === "string") {
       if (squishedElement.startsWith("=")) {
-        // simple formula
-        const compiled = compile(squishedElement);
-        this.previousCell = compiled;
-        this.alreadyAppliedNumberOffset = new Array(compiled.literalValues.numbers.length).fill(0);
-        this.previousString = compiled.literalValues.strings.map((s) => s.value);
-        this.alreadyAppliedReferenceOffset = compiled.dependencies.map((ref) =>
-          getRangeFromSheetXC(sheetId, ref)
+        throw new Error(
+          "Programming Error: Formula strings should have been handled by the caller"
         );
-        return compiled;
       }
-
+      // plain string content
       return squishedElement;
     }
     if (typeof squishedElement === "object" && this.previousCell) {
-      const current = this.previousCell;
+      const current = Object.assign({}, this.previousCell);
       if (squishedElement.N !== undefined && squishedElement.N.length > 0) {
-        // numbers
-        current.literalValues.numbers = squishedElement.N.split(SEPARATOR).map(
-          (numStr: string, index: number) => {
-            if (numStr === NO_CHANGE) {
-              return { value: this.alreadyAppliedNumberOffset[index] };
-            } else {
-              const currentOffset = parseFloat(numStr.slice(1));
-              const adjustedOffset = (this.alreadyAppliedNumberOffset[index] || 0) + currentOffset;
-              this.alreadyAppliedNumberOffset[index] = adjustedOffset;
-              return {
-                value: adjustedOffset,
-              };
-            }
-          }
-        );
+        current.literalValues.numbers = squishedElement.N.split(SEPARATOR).map(this.adjustNumbers);
       }
       if (squishedElement.S !== undefined && squishedElement.S.length > 0) {
-        // strings
-        current.literalValues.strings = squishedElement.S.map((str: string, index: number) => {
-          if (str === NO_CHANGE) {
-            return { value: this.previousString[index] };
-          } else {
-            this.previousString[index] = str;
-            return { value: str };
-          }
-        });
+        current.literalValues.strings = squishedElement.S.map(this.adjustStrings);
       }
       if (squishedElement.R !== undefined && this.previousCell) {
         // references
@@ -123,20 +92,31 @@ export class Unsquisher {
 
               if (refStr[1] === "R") {
                 const adjustedOffset = this.alreadyAppliedReferenceOffset[index].zone.top + offset;
-                const updatedRange = Object.assign({}, this.alreadyAppliedReferenceOffset[index], {
-                  ...this.alreadyAppliedReferenceOffset[index].zone,
-                  top: adjustedOffset,
-                  bottom: adjustedOffset,
-                });
+                const updatedRange: Range = Object.assign(
+                  {},
+                  this.alreadyAppliedReferenceOffset[index]
+                );
+                updatedRange.zone = updatedRange.unboundedZone = Object.assign(
+                  {},
+                  updatedRange.zone,
+                  {
+                    top: adjustedOffset,
+                    bottom: adjustedOffset,
+                  }
+                );
                 this.alreadyAppliedReferenceOffset[index] = updatedRange;
                 return updatedRange;
               } else if (refStr[1] === "C") {
                 const adjustedOffset = this.alreadyAppliedReferenceOffset[index].zone.left + offset;
-                const updatedRange = Object.assign({}, this.alreadyAppliedReferenceOffset[index], {
-                  ...this.alreadyAppliedReferenceOffset[index].zone,
-                  left: adjustedOffset,
-                  right: adjustedOffset,
-                });
+                const updatedRange: Range = Object.assign(
+                  {},
+                  this.alreadyAppliedReferenceOffset[index],
+                  {
+                    ...this.alreadyAppliedReferenceOffset[index].zone,
+                    left: adjustedOffset,
+                    right: adjustedOffset,
+                  }
+                );
                 this.alreadyAppliedReferenceOffset[index] = updatedRange;
                 return updatedRange;
               } else {
@@ -155,4 +135,26 @@ export class Unsquisher {
     }
     throw new Error("Invalid squished element or no previous cell to unsquish against");
   }
+
+  private adjustStrings = (str: string, index: number): { value: string } => {
+    if (str === NO_CHANGE) {
+      return { value: this.previousString[index] };
+    } else {
+      this.previousString[index] = str;
+      return { value: str };
+    }
+  };
+
+  private adjustNumbers = (numStr: string, index: number): { value: number } => {
+    if (numStr === NO_CHANGE) {
+      return { value: this.alreadyAppliedNumberOffset[index] };
+    } else {
+      const currentOffset = parseFloat(numStr.slice(1));
+      const adjustedOffset = (this.alreadyAppliedNumberOffset[index] || 0) + currentOffset;
+      this.alreadyAppliedNumberOffset[index] = adjustedOffset;
+      return {
+        value: adjustedOffset,
+      };
+    }
+  };
 }

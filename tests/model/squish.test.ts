@@ -1,3 +1,4 @@
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish similar formulas", () => {
@@ -25,7 +26,6 @@ describe("squish similar formulas", () => {
       D4: '="Test2"',
       D5: '="Test2"',
     });
-    console.log(JSON.stringify(model.exportData().sheets));
     const result = [
       {
         id: "Sheet1",
@@ -64,7 +64,10 @@ describe("squish similar formulas", () => {
         headerGroups: { ROW: [], COL: [] },
       },
     ];
-    expect(model.exportData().sheets).toEqual(result);
+    expect(model.exportData(true).sheets).toEqual(result);
+    const fullExport = model.exportData(false);
+    console.log(JSON.stringify(fullExport.sheets, null, 2));
+    expect(new Model(model.exportData(true)).exportData(false)).toEqual(fullExport);
   });
 
   it("should not squish different formulas", () => {});

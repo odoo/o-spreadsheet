@@ -4,7 +4,7 @@ import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { CompiledFormula, FormulaToExecute } from "../types/misc";
+import { CompiledFormula, FormulaToExecute, LiteralValues } from "../types/misc";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -35,16 +35,6 @@ export const UNARY_OPERATOR_MAP = {
   "%": "UNARY.PERCENT",
 };
 
-interface LiteralValues {
-  numbers: { value: number }[];
-  strings: { value: string }[];
-}
-
-export interface InternalCompiledFormula extends CompiledFormula {
-  literalValues: LiteralValues;
-  symbols: string[];
-}
-
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
@@ -55,12 +45,12 @@ export const functionCache: { [key: string]: FormulaToExecute } = {};
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string): InternalCompiledFormula {
+export function compile(formula: string): CompiledFormula {
   const tokens = rangeTokenize(formula);
   return compileTokens(tokens);
 }
 
-export function compileTokens(tokens: Token[]): InternalCompiledFormula {
+export function compileTokens(tokens: Token[]): CompiledFormula {
   try {
     return compileTokensOrThrow(tokens);
   } catch (error) {
@@ -78,7 +68,7 @@ export function compileTokens(tokens: Token[]): InternalCompiledFormula {
   }
 }
 
-function compileTokensOrThrow(tokens: Token[]): InternalCompiledFormula {
+function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
@@ -232,7 +222,7 @@ function compileTokensOrThrow(tokens: Token[]): InternalCompiledFormula {
       }
     }
   }
-  const compiledFormula: InternalCompiledFormula = {
+  const compiledFormula: CompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
     literalValues,
