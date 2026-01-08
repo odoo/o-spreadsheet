@@ -139,6 +139,21 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   }
 
   /**
+   * Update the anchor cell while keeping the current anchor zone unchanged.
+   */
+  updateAnchorCell(
+    col: HeaderIndex,
+    row: HeaderIndex,
+    options: SelectionEventOptions = { scrollIntoView: true }
+  ): DispatchResult {
+    return this.processEvent({
+      mode: "updateAnchor",
+      anchor: { zone: this.anchor.zone, cell: { col, row } },
+      options,
+    });
+  }
+
+  /**
    * Update the current anchor such that it includes the given
    * cell position.
    */
