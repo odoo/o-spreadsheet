@@ -1,7 +1,8 @@
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { DispatchResult, UID } from "../../../../types/index";
+import { DispatchResult, UID, ValueAndLabel } from "../../../../types/index";
+import { Select } from "../../../select/select";
 import { Section } from "../../components/section/section";
 
 interface Props {
@@ -12,15 +13,14 @@ interface Props {
 
 export class GeoChartRegionSelectSection extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeoChartRegionSelectSection";
-  static components = { Section };
+  static components = { Section, Select };
   static props = {
     chartId: String,
     definition: Object,
     updateChart: Function,
   };
 
-  updateSelectedRegion(ev: Event) {
-    const value = (ev.target as HTMLSelectElement).value;
+  updateSelectedRegion(value: string) {
     this.props.updateChart(this.props.chartId, { region: value });
   }
 
@@ -30,5 +30,9 @@ export class GeoChartRegionSelectSection extends Component<Props, SpreadsheetChi
 
   get selectedRegion() {
     return this.props.definition.region || this.availableRegions[0]?.id;
+  }
+
+  get regionOptions(): ValueAndLabel[] {
+    return this.availableRegions.map((region) => ({ value: region.id, label: region.label }));
   }
 }

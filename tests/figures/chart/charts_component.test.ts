@@ -60,6 +60,7 @@ import {
   click,
   clickAndDrag,
   doubleClick,
+  editSelectComponentValue,
   focusAndKeyDown,
   keyDown,
   setInputValueAndTrigger,
@@ -710,7 +711,7 @@ describe("charts", () => {
       },
     ]);
 
-    setInputValueAndTrigger(".data-series-selector", "serie_2");
+    await editSelectComponentValue(".data-series-selector", "1");
 
     color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
 
@@ -2088,7 +2089,7 @@ describe("charts", () => {
         });
 
         for (const trendType of ["exponential", "logarithmic", "linear", "trailingMovingAverage"]) {
-          setInputValueAndTrigger(".trend-type-selector", trendType);
+          await editSelectComponentValue(".trend-type-selector", trendType);
           definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
           if (trendType === "linear") {
             expect(definition.dataSets[0].trend?.type).toEqual("polynomial");
@@ -2126,7 +2127,7 @@ describe("charts", () => {
           display: true,
         });
 
-        setInputValueAndTrigger(".trend-order-input", "2");
+        await editSelectComponentValue(".trend-order-input", "2");
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend?.order).toEqual(2);
       }
@@ -2169,7 +2170,7 @@ describe("charts", () => {
     );
 
     test.each(["bar", "line", "scatter", "combo"] as const)(
-      "Polynome degree choices are limited by the number of points",
+      "Polynomial degree choices are limited by the number of points",
       async (type: "bar" | "line" | "scatter" | "combo") => {
         createChart(
           model,
@@ -2187,9 +2188,9 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        const selectElement = fixture.querySelector(".trend-order-input") as HTMLSelectElement;
-        const optionValues = [...selectElement.options].map((o) => o.value);
-        expect(optionValues).toEqual(["1", "2", "3", "4"]);
+        await simulateClick(".trend-order-input");
+        const options = [...fixture.querySelectorAll<HTMLOptionElement>(".o-popover option")];
+        expect(options.map((o) => o.value)).toEqual(["1", "2", "3", "4"]);
       }
     );
 

@@ -5,19 +5,21 @@ import { getRefBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 
 export interface SelectProps {
-  class?: string;
-  selectedValue?: string;
-  values?: ValueAndLabel[];
   onChange: (value: string) => void;
+  values: ValueAndLabel[];
+  selectedValue?: string;
+  class?: string;
+  name?: string;
 }
 
 export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Select";
   static props = {
-    selectedValue: { type: String, optional: true },
-    values: Array,
-    class: { type: String, optional: true },
     onChange: Function,
+    values: Array,
+    selectedValue: { type: String, optional: true },
+    class: { type: String, optional: true },
+    name: { type: String, optional: true },
   };
   static components = { Popover };
 
@@ -47,7 +49,9 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
   }
 
   onOptionClick(value: string) {
-    this.props.onChange(value);
+    if (value !== this.props.selectedValue) {
+      this.props.onChange(value);
+    }
     this.state.isPopoverOpen = false;
   }
 

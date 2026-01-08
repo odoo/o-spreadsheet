@@ -1,5 +1,7 @@
 .o-spreadsheet {
   .o-select-dropdown {
+    min-width: 40px;
+
     option {
       cursor: pointer;
       user-select: none;
@@ -9,7 +11,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
 
-      &:hover {
+      &:hover,
+      &:checked {
         background-color: var(--os-button-active-bg);
         color: var(--os-button-active-text-color);
       }

@@ -202,12 +202,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       // if (chartId) {
       //   this.env.model.dispatch("SELECT_FIGURE", { figureId: chartId });
       // }
-      // this.sidePanel.open("ChartPanel");
-      // setTimeout(() => {
-      this.sidePanel.open("Settings");
-      //   document.querySelector<HTMLElement>(".o-panel-design")?.click();
-      // }, 60);
-      // }
+      this.sidePanel.open("ConditionalFormatting");
+      setTimeout(() => {
+        // document.querySelector<HTMLElement>(".o-panel-design")?.click();
+        document.querySelector<HTMLElement>(".o-cf-preview")?.click();
+      }, 60);
 
       // const pivotId = this.model.getters.getPivotIds()[0];
       // if (pivotId) {

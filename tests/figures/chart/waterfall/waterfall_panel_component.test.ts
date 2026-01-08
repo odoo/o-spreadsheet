@@ -6,6 +6,7 @@ import {
   changeRoundColorPickerColor,
   click,
   createWaterfallChart,
+  editSelectComponentValue,
   getHTMLCheckboxValue,
   getHTMLInputValue,
   getHTMLRadioValue,
@@ -108,7 +109,7 @@ describe("Waterfall chart side panel", () => {
 
       await setInputValueAndTrigger(".o-chart-title input", "My Waterfall chart");
       await click(fixture, ".o-vertical-axis-selection input[value=right]");
-      await setInputValueAndTrigger(".o-chart-legend-position", "bottom");
+      await editSelectComponentValue(".o-chart-legend-position", "bottom");
 
       const definition = getWaterfallDefinition(chartId);
 

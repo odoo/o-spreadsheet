@@ -75,12 +75,11 @@ describe("Geo chart side panel", () => {
       await openChartConfigSidePanel(model, env, chartId);
 
       expect(".o-geo-region select").toHaveValue("world");
-      const choices = [
-        ...fixture.querySelectorAll<HTMLOptionElement>(".o-geo-region select option"),
-      ].map((el) => el.value);
-      expect(choices).toEqual(["world", "usa"]);
+      await simulateClick(".o-geo-region select");
+      const choices = [...fixture.querySelectorAll<HTMLOptionElement>(".o-popover option")];
+      expect(choices.map((el) => el.value)).toEqual(["world", "usa"]);
 
-      await setInputValueAndTrigger(".o-geo-region select", "usa");
+      await simulateClick(`.o-popover option[value="usa"]`);
       expect(getGeoChartDefinition(chartId)?.region).toEqual("usa");
       expect(".o-geo-region select").toHaveValue("usa");
     });

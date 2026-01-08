@@ -7,14 +7,6 @@ import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-const VALUES = {
-  none: _t("None"),
-  top: _t("Top"),
-  bottom: _t("Bottom"),
-  left: _t("Left"),
-  right: _t("Right"),
-};
-
 export class ChartLegend extends Component<
   ChartSidePanelProps<ChartWithDataSetDefinition>,
   SpreadsheetChildEnv
@@ -33,9 +25,12 @@ export class ChartLegend extends Component<
   }
 
   get legendValues(): ValueAndLabel[] {
-    return Object.keys(VALUES).map((key) => ({
-      value: key,
-      label: VALUES[key as keyof typeof VALUES],
-    }));
+    return [
+      { value: "none", label: _t("None") },
+      { value: "top", label: _t("Top") },
+      { value: "bottom", label: _t("Bottom") },
+      { value: "left", label: _t("Left") },
+      { value: "right", label: _t("Right") },
+    ];
   }
 }

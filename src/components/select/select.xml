@@ -1,27 +1,27 @@
 <templates>
   <t t-name="o-spreadsheet-Select">
-    <div class="position-relative">
-      <select
-        t-ref="selectRef"
-        class="o-input"
-        t-att-class="props.class"
-        t-on-pointerdown.prevent="onMouseDown">
-        <option selected="true" t-att-value="props.selectedValue" t-esc="selectedLabel"/>
-      </select>
+    <select
+      t-ref="selectRef"
+      class="o-input"
+      t-att-class="props.class"
+      t-att-name="props.name"
+      t-on-pointerdown.prevent="onMouseDown">
+      <option selected="true" t-att-value="props.selectedValue" t-esc="selectedLabel"/>
+    </select>
 
-      <Popover t-if="state.isPopoverOpen" t-props="popoverProps">
-        <div class="o-select-dropdown bg-white overflow-hidden py-2" t-ref="dropdownRef">
+    <Popover t-if="state.isPopoverOpen" t-props="popoverProps">
+      <div class="o-select-dropdown bg-white overflow-hidden py-2" t-ref="dropdownRef">
+        <t t-foreach="props.values" t-as="value" t-key="value_index">
           <option
-            t-foreach="props.values"
-            t-as="value"
-            t-key="value_index"
+            t-att-selected="value.value === props.selectedValue"
             t-att-value="value.value"
             t-esc="value.label"
             t-att-title="value.label"
             t-on-click="() => this.onOptionClick(value.value)"
           />
-        </div>
-      </Popover>
-    </div>
+          <div t-if="value.separator and !value_last" class="o-separator border-bottom"/>
+        </t>
+      </div>
+    </Popover>
   </t>
 </templates>

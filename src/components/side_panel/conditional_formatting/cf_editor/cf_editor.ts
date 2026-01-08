@@ -10,6 +10,7 @@ import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
+import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
@@ -36,6 +37,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     BadgeSelection,
     ValidationMessages,
     SelectMenu,
+    Select,
   };
   static props = { cf: Object, isNewCf: Boolean, onCloseSidePanel: Function };
 

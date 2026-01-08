@@ -8,7 +8,7 @@ import { SingleInputCriterionForm } from "../components/side_panel/criterion_for
 import { Top10CriterionForm } from "../components/side_panel/criterion_form/top_10_criterion/top_10_criterion";
 import { ListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
-import { GenericCriterionType } from "../types";
+import { GenericCriterionType, ValueAndLabel } from "../types";
 
 export type CriterionCategory = "text" | "date" | "number" | "misc" | "list" | "relative";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {
@@ -239,6 +239,7 @@ criterionComponentRegistry.add("top10", {
   sequence: 7,
 });
 
+// ADRM TODO: remove this in filter & dv
 export function getCriterionMenuItems(
   callback: (type: GenericCriterionType) => void,
   availableTypes: Set<GenericCriterionType>
@@ -263,4 +264,27 @@ export function getCriterionMenuItems(
     };
   });
   return createActions(actionSpecs);
+}
+
+export function getCriterionValueAndLabels(
+  availableTypes: Set<GenericCriterionType>
+): ValueAndLabel[] {
+  const items = criterionComponentRegistry
+    .getAll()
+    .filter((item) => availableTypes.has(item.type))
+    .sort((a, b) => {
+      if (a.category === b.category) {
+        return a.sequence - b.sequence;
+      }
+      return criterionCategoriesSequences[a.category] - criterionCategoriesSequences[b.category];
+    });
+
+  return items.map((item, index) => {
+    const evaluator = criterionEvaluatorRegistry.get(item.type);
+    return {
+      label: evaluator.name,
+      value: item.type,
+      separator: item.category !== items[index + 1]?.category,
+    };
+  });
 }

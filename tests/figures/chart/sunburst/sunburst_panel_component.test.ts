@@ -7,6 +7,7 @@ import {
   changeColorPickerWidgetColor,
   changeRoundColorPickerColor,
   createSunburstChart,
+  editSelectComponentValue,
   getColorPickerWidgetColor,
   getHTMLCheckboxValue,
   getHTMLInputValue,
@@ -97,7 +98,7 @@ describe("Sunburst chart side panel", () => {
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await setInputValueAndTrigger(".o-chart-title input", "My Sunburst Title");
-      await setInputValueAndTrigger(".o-chart-legend-position", "left");
+      await editSelectComponentValue(".o-chart-legend-position", "left");
       await changeRoundColorPickerColor(".o-chart-background-color", "#000000");
 
       const definition = getSunburstDefinition(chartId);

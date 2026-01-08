@@ -4,7 +4,7 @@ import { SettingsPanel } from "../../src/components/side_panel/settings/settings
 import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale } from "../../src/types";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
-import { changeSelectComponentValue, simulateClick } from "../test_helpers/dom_helper";
+import { editSelectComponentValue, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 describe("settings sidePanel component", () => {
@@ -41,7 +41,7 @@ describe("settings sidePanel component", () => {
 
     test("Can change locale", async () => {
       await mountSettingsSidePanel();
-      await changeSelectComponentValue(".o-settings-panel select", "fr_FR");
+      await editSelectComponentValue(".o-settings-panel select", "fr_FR");
       expect(model.getters.getLocale().code).toEqual("fr_FR");
     });
 
@@ -64,7 +64,7 @@ describe("settings sidePanel component", () => {
         dateTimePreview: "12/31/1899 02:24:00 PM",
       });
 
-      await changeSelectComponentValue(".o-settings-panel select", "fr_FR");
+      await editSelectComponentValue(".o-settings-panel select", "fr_FR");
       expect(getLocalePreview()).toEqual({
         numberPreview: "1 234 567,89",
         datePreview: "31/12/1899",

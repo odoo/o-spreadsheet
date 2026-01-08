@@ -7,6 +7,7 @@ import {
   changeRoundColorPickerColor,
   click,
   createCalendarChart,
+  editSelectComponentValue,
   getRoundColorPickerValue,
   setCellContent,
   setFormat,
@@ -93,7 +94,7 @@ describe("Calendar chart side panel", () => {
       await openChartConfigSidePanel(model, env, chartId);
 
       expect(".o-horizontal-group-by").toHaveValue("hour_number");
-      await setInputValueAndTrigger(".o-horizontal-group-by", "day_of_week");
+      await editSelectComponentValue(".o-horizontal-group-by", "day_of_week");
       expect(getCalendarChartDefinition(chartId)?.horizontalGroupBy).toEqual("day_of_week");
       expect(".o-horizontal-group-by").toHaveValue("day_of_week");
     });
@@ -113,7 +114,7 @@ describe("Calendar chart side panel", () => {
       await openChartConfigSidePanel(model, env, chartId);
 
       expect(".o-vertical-group-by").toHaveValue("day_of_week");
-      await setInputValueAndTrigger(".o-vertical-group-by", "month_number");
+      await editSelectComponentValue(".o-vertical-group-by", "month_number");
       expect(getCalendarChartDefinition(chartId)?.verticalGroupBy).toEqual("month_number");
       expect(".o-vertical-group-by").toHaveValue("month_number");
     });
