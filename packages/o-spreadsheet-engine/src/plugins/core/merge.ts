@@ -93,7 +93,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         break;
       case "DUPLICATE_SHEET":
         const merges = this.merges[cmd.sheetId];
-        if (!merges) break;
+        if (!merges) {
+          break;
+        }
         for (const range of Object.values(merges).filter(isDefined)) {
           this.addMerge(cmd.sheetIdTo, range.zone);
         }
@@ -133,7 +135,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   getMergesInZone(sheetId: UID, zone: Zone): Merge[] {
     const sheetMap = this.mergeCellMap[sheetId];
-    if (!sheetMap) return [];
+    if (!sheetMap) {
+      return [];
+    }
     const mergeIds = new Set<number>();
 
     for (let col = zone.left; col <= zone.right; col++) {
@@ -326,7 +330,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   private checkDestructiveMerge({ sheetId, target }: AddMergeCommand): CommandResult {
     const sheet = this.getters.tryGetSheet(sheetId);
-    if (!sheet) return CommandResult.Success;
+    if (!sheet) {
+      return CommandResult.Success;
+    }
     const isDestructive = target.some((zone) => this.isMergeDestructive(sheetId, zone));
     return isDestructive ? CommandResult.MergeIsDestructive : CommandResult.Success;
   }
@@ -344,7 +350,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   private checkFrozenPanes({ sheetId, target }: AddMergeCommand): CommandResult {
     const sheet = this.getters.tryGetSheet(sheetId);
-    if (!sheet) return CommandResult.Success;
+    if (!sheet) {
+      return CommandResult.Success;
+    }
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
     if (doesAnyZoneCrossFrozenPane(target, xSplit, ySplit)) {
       return CommandResult.FrozenPaneOverlap;

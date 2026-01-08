@@ -222,7 +222,9 @@ function fits(width: number, linkedString: LinkedString | null): boolean {
       return true;
     }
     width -= linkedString.subString.length;
-    if (width < 0) return false;
+    if (width < 0) {
+      return false;
+    }
     linkedString = linkedString.next;
   }
   return true;

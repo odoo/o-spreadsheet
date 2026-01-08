@@ -10,7 +10,9 @@ const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
  * a child element.
  */
 export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event): boolean {
-  if (!parent) return false;
+  if (!parent) {
+    return false;
+  }
   return !!ev.target && parent!.contains(ev.target as Node);
 }
 
@@ -197,9 +199,15 @@ export function keyboardEventToShortcutString(
 ): string {
   let keyDownString = "";
   if (!MODIFIER_KEYS.includes(ev.key)) {
-    if (isCtrlKey(ev)) keyDownString += "Ctrl+";
-    if (ev.altKey) keyDownString += "Alt+";
-    if (ev.shiftKey) keyDownString += "Shift+";
+    if (isCtrlKey(ev)) {
+      keyDownString += "Ctrl+";
+    }
+    if (ev.altKey) {
+      keyDownString += "Alt+";
+    }
+    if (ev.shiftKey) {
+      keyDownString += "Shift+";
+    }
   }
   const key = mode === "key" ? ev.key : ev.code;
   keyDownString += letterRegex.test(key) ? key.toUpperCase() : key;

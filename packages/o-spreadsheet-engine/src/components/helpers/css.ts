@@ -27,7 +27,9 @@ export function getTextDecoration({
  */
 export function cellStyleToCss(style: Style | undefined): CSSProperties {
   const attributes = cellTextStyleToCss(style);
-  if (!style) return attributes;
+  if (!style) {
+    return attributes;
+  }
 
   if (style.fillColor) {
     attributes["background"] = style.fillColor;
@@ -41,7 +43,9 @@ export function cellStyleToCss(style: Style | undefined): CSSProperties {
  */
 export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
   const attributes: Record<string, string> = {};
-  if (!style) return attributes;
+  if (!style) {
+    return attributes;
+  }
 
   if (style.bold) {
     attributes["font-weight"] = "bold";

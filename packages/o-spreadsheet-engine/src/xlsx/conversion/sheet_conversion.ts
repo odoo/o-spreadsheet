@@ -72,9 +72,13 @@ function convertCols(
   for (let i = 1; i < numberOfCols + 1; i++) {
     const col = sheet.cols.find((col) => col.min <= i && i <= col.max);
     let colSize: number;
-    if (col && col.width) colSize = col.width;
-    else if (sheet.sheetFormat?.defaultColWidth) colSize = sheet.sheetFormat.defaultColWidth;
-    else colSize = EXCEL_DEFAULT_COL_WIDTH;
+    if (col && col.width) {
+      colSize = col.width;
+    } else if (sheet.sheetFormat?.defaultColWidth) {
+      colSize = sheet.sheetFormat.defaultColWidth;
+    } else {
+      colSize = EXCEL_DEFAULT_COL_WIDTH;
+    }
     // In xlsx there is no difference between hidden columns and columns inside a folded group.
     // But in o-spreadsheet folded columns are not considered hidden.
     const colIndex = i - 1;
@@ -99,9 +103,13 @@ function convertRows(
   for (let i = 1; i < numberOfRows + 1; i++) {
     const row = sheet.rows.find((row) => row.index === i);
     let rowSize: number;
-    if (row && row.height) rowSize = row.height;
-    else if (sheet.sheetFormat?.defaultRowHeight) rowSize = sheet.sheetFormat.defaultRowHeight;
-    else rowSize = EXCEL_DEFAULT_ROW_HEIGHT;
+    if (row && row.height) {
+      rowSize = row.height;
+    } else if (sheet.sheetFormat?.defaultRowHeight) {
+      rowSize = sheet.sheetFormat.defaultRowHeight;
+    } else {
+      rowSize = EXCEL_DEFAULT_ROW_HEIGHT;
+    }
     // In xlsx there is no difference between hidden rows and rows inside a folded group.
     // But in o-spreadsheet folded rows are not considered hidden.
     const rowIndex = i - 1;

@@ -51,7 +51,9 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
     const onMouseUp = () => {
       document.body.style.cursor = "";
       const newTableZone = this.state.highlightZone;
-      if (!newTableZone) return;
+      if (!newTableZone) {
+        return;
+      }
       const sheetId = this.props.table.range.sheetId;
       this.env.model.dispatch("RESIZE_TABLE", {
         sheetId,
@@ -73,7 +75,9 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get highlights(): Highlight[] {
-    if (!this.state.highlightZone) return [];
+    if (!this.state.highlightZone) {
+      return [];
+    }
     return [
       {
         range: this.env.model.getters.getRangeFromZone(

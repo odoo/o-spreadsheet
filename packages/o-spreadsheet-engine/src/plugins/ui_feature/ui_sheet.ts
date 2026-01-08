@@ -294,7 +294,9 @@ export class SheetUIPlugin extends UIPlugin {
         sheetId,
         this.getters.getRowsZone(sheetId, row, row)
       )) {
-        if (evaluatedCell.value === undefined) continue;
+        if (evaluatedCell.value === undefined) {
+          continue;
+        }
         const colSize = this.getters.getColSize(sheetId, position.col);
         const style = this.getters.getCellStyle(position);
 

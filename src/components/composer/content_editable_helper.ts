@@ -50,9 +50,15 @@ export class ContentEditableHelper {
         console.warn(
           `wrong selection asked start ${start}, end ${end}, text content length ${textLength}`
         );
-        if (start < 0) start = 0;
-        if (end > textLength) end = textLength;
-        if (start > textLength) start = textLength;
+        if (start < 0) {
+          start = 0;
+        }
+        if (end > textLength) {
+          end = textLength;
+        }
+        if (start > textLength) {
+          start = textLength;
+        }
       }
       const startNode = this.findChildAtCharacterIndex(start);
       const endNode = this.findChildAtCharacterIndex(end);
@@ -156,7 +162,9 @@ export class ContentEditableHelper {
         }
         // this is an empty line in the content
         if (!content.value && !content.classes?.length) {
-          if (child) p.removeChild(child);
+          if (child) {
+            p.removeChild(child);
+          }
           continue;
         }
         const span = document.createElement("span");
@@ -209,7 +217,9 @@ export class ContentEditableHelper {
 
   scrollSelectionIntoView() {
     const focusedNode = document.getSelection()?.focusNode;
-    if (!focusedNode || !this.el.contains(focusedNode)) return;
+    if (!focusedNode || !this.el.contains(focusedNode)) {
+      return;
+    }
     const element = focusedNode instanceof HTMLElement ? focusedNode : focusedNode.parentElement;
     element?.scrollIntoView?.({ block: "nearest" });
   }
@@ -283,10 +293,16 @@ const brNode = doc.parseFromString("<br>", "text/html").body.firstChild;
 const spanBrNode = doc.parseFromString("<span><br></span>", "text/html").body.firstChild;
 
 function isEmptyParagraph(node: Node) {
-  if (node.childNodes.length > 1) return false;
+  if (node.childNodes.length > 1) {
+    return false;
+  }
   const node2 = node.firstChild?.cloneNode(true);
-  if (!node2) return true;
-  if (!(node2 instanceof Element)) return false;
+  if (!node2) {
+    return true;
+  }
+  if (!(node2 instanceof Element)) {
+    return false;
+  }
   node2.removeAttribute("class");
   node2.removeAttribute("style");
   return node2.isEqualNode(brNode) || node2.isEqualNode(spanBrNode) || false;

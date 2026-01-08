@@ -15,8 +15,12 @@ import { XLSXImportData, XLSXPivotTable, XLSXTable, XLSXWorksheet } from "../../
 export function convertTables(convertedData: WorkbookData, xlsxData: XLSXImportData) {
   for (const xlsxSheet of xlsxData.sheets) {
     const sheet = convertedData.sheets.find((sheet) => sheet.name === xlsxSheet.sheetName);
-    if (!sheet) continue;
-    if (!sheet.tables) sheet.tables = [];
+    if (!sheet) {
+      continue;
+    }
+    if (!sheet.tables) {
+      sheet.tables = [];
+    }
 
     for (const table of xlsxSheet.tables) {
       sheet.tables.push({ range: table.ref, config: convertTableConfig(table) });

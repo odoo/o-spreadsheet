@@ -28,7 +28,9 @@ export function convertConditionalFormats(
   const cfs: ConditionalFormat[] = [];
   let cfId = 1;
   for (const cf of xlsxCfs) {
-    if (cf.cfRules.length === 0) continue;
+    if (cf.cfRules.length === 0) {
+      continue;
+    }
 
     addCfConversionWarnings(cf, dxfs, warningManager);
 
@@ -40,8 +42,9 @@ export function convertConditionalFormats(
     if (
       rule.dxfId === undefined &&
       !(rule.type === "colorScale" || rule.type === "iconSet" || rule.type === "dataBar")
-    )
+    ) {
       continue;
+    }
     switch (rule.type) {
       case "aboveAverage":
       case "containsErrors":
@@ -73,12 +76,16 @@ export function convertConditionalFormats(
       case "notContainsText":
       case "beginsWith":
       case "endsWith":
-        if (!rule.text) continue;
+        if (!rule.text) {
+          continue;
+        }
         operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
         values.push(rule.text);
         break;
       case "expression":
-        if (!rule.formula?.length) continue;
+        if (!rule.formula?.length) {
+          continue;
+        }
         operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
         values.push(`=${rule.formula[0]}`);
         break;
@@ -87,7 +94,9 @@ export function convertConditionalFormats(
         operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
         break;
       case "cellIs":
-        if (!rule.operator || !rule.formula || rule.formula.length === 0) continue;
+        if (!rule.operator || !rule.formula || rule.formula.length === 0) {
+          continue;
+        }
         operator = CF_OPERATOR_TYPE_CONVERSION_MAP[rule.operator];
         values.push(prefixFormulaWithEqual(rule.formula[0]));
         if (rule.formula.length === 2) {
@@ -95,7 +104,9 @@ export function convertConditionalFormats(
         }
         break;
       case "top10":
-        if (rule.rank === undefined) continue;
+        if (rule.rank === undefined) {
+          continue;
+        }
         operator = CF_OPERATOR_TYPE_CONVERSION_MAP[rule.type];
         values.push(rule.rank.toString());
         if (rule.percent) {
@@ -129,7 +140,9 @@ export function convertConditionalFormats(
 
 function convertDataBar(id: number, xlsxCf: XLSXConditionalFormat): ConditionalFormat | undefined {
   const dataBar = xlsxCf.cfRules[0].dataBar;
-  if (!dataBar) return undefined;
+  if (!dataBar) {
+    return undefined;
+  }
 
   const color = hexaToInt(convertColor(dataBar.color) || "#FFFFFF");
 
@@ -196,7 +209,9 @@ function convertIconSet(
   warningManager: XLSXImportWarningManager
 ): ConditionalFormat | undefined {
   const xlsxIconSet = xlsxCf.cfRules[0].iconSet;
-  if (!xlsxIconSet) return undefined;
+  if (!xlsxIconSet) {
+    return undefined;
+  }
   let cfVos = xlsxIconSet.cfvos;
   let cfIcons = xlsxIconSet.cfIcons;
   if (cfVos.length < 3 || (cfIcons && cfIcons.length < 3)) {
@@ -277,7 +292,9 @@ function convertIconSet(
  */
 function convertIcons(xlsxIconSet: ExcelIconSet, index: number): string {
   const iconSet = ICON_SET_CONVERSION_MAP[xlsxIconSet];
-  if (!iconSet) return "";
+  if (!iconSet) {
+    return "";
+  }
 
   return index === 0
     ? ICON_SETS[iconSet].bad

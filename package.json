@@ -171,8 +171,8 @@
   },
   "lint-staged": {
     "*": [
-      "prettier --write",
-      "eslint --fix"
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "publishConfig": {

@@ -140,7 +140,9 @@ export class XlsxStyleExtractor extends XlsxBaseExtractor {
     theme: XLSXTheme | undefined
   ): XLSXBorderDescr | undefined {
     const directionElement = this.querySelector(borderElement, direction);
-    if (!directionElement || !directionElement.attributes["style"]) return undefined;
+    if (!directionElement || !directionElement.attributes["style"]) {
+      return undefined;
+    }
     return {
       style: this.extractAttr(directionElement, "style", {
         required: true,

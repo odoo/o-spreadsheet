@@ -274,7 +274,9 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     const styles = new PositionMap<Style>();
     for (const { zone: z, style } of this.styles[sheetId] ?? []) {
       const inter = intersection(z, zone);
-      if (!inter) continue;
+      if (!inter) {
+        continue;
+      }
       for (let col = inter.left; col <= inter.right; col++) {
         for (let row = inter.top; row <= inter.bottom; row++) {
           styles.set({ sheetId, col, row }, style);
@@ -288,7 +290,9 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     const styles: ZoneStyle[] = [];
     for (const style of this.styles[sheetId] ?? []) {
       const inter = intersection(style.zone, zone);
-      if (inter) styles.push({ zone: inter, style: style.style });
+      if (inter) {
+        styles.push({ zone: inter, style: style.style });
+      }
     }
     return styles;
   }

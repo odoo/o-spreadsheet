@@ -58,15 +58,23 @@ export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<st
 }
 
 export function getCanonicalRepresentation(item: any): string {
-  if (item === null) return "null";
-  if (item === undefined) return "undefined";
-  if (typeof item !== "object") return String(item);
+  if (item === null) {
+    return "null";
+  }
+  if (item === undefined) {
+    return "undefined";
+  }
+  if (typeof item !== "object") {
+    return String(item);
+  }
 
   if (Array.isArray(item)) {
     const len = item.length;
     let result = "[";
     for (let i = 0; i < len; i++) {
-      if (i > 0) result += ",";
+      if (i > 0) {
+        result += ",";
+      }
       result += getCanonicalRepresentation(item[i]);
     }
     return result + "]";

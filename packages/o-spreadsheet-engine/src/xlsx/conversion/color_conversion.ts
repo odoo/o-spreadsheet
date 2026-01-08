@@ -54,7 +54,9 @@ export function convertColor(xlsxColor: XLSXColor | undefined): Color | undefine
  * representation #RRGGBBAA
  */
 function xlsxColorToHEXA(color: Color): Color {
-  if (color.length === 6) return "#" + color + "FF";
+  if (color.length === 6) {
+    return "#" + color + "FF";
+  }
   return "#" + color.slice(2) + color.slice(0, 2);
 }
 

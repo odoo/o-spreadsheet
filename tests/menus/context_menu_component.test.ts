@@ -212,7 +212,9 @@ beforeEach(() => {
       const parentPosition = getElPosition(el.parentElement!.parentElement!);
       let offset = MENU_VERTICAL_PADDING;
       for (const e of el.parentElement!.children) {
-        if (e === el) break;
+        if (e === el) {
+          break;
+        }
 
         if (el.classList.contains("o-menu-item")) {
           offset += DESKTOP_MENU_ITEM_HEIGHT;

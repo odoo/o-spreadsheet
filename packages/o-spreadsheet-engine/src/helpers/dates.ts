@@ -548,8 +548,12 @@ export function getYearFrac(startDate: number, endDate: number, _dayCountConvent
   switch (_dayCountConvention) {
     // 30/360 US convention --------------------------------------------------
     case 0:
-      if (dayStart === 31) dayStart = 30;
-      if (dayStart === 30 && dayEnd === 31) dayEnd = 30;
+      if (dayStart === 31) {
+        dayStart = 30;
+      }
+      if (dayStart === 30 && dayEnd === 31) {
+        dayEnd = 30;
+      }
       // If jsStartDate is the last day of February
       if (monthStart === 1 && dayStart === (isLeapYear(yearStart) ? 29 : 28)) {
         dayStart = 30;
@@ -635,8 +639,12 @@ export function getYearFrac(startDate: number, endDate: number, _dayCountConvent
 
     // 30/360 European convention --------------------------------------------
     case 4:
-      if (dayStart === 31) dayStart = 30;
-      if (dayEnd === 31) dayEnd = 30;
+      if (dayStart === 31) {
+        dayStart = 30;
+      }
+      if (dayEnd === 31) {
+        dayEnd = 30;
+      }
       yearsStart = yearStart + (monthStart * 30 + dayStart) / 360;
       yearsEnd = yearEnd + (monthEnd * 30 + dayEnd) / 360;
       break;

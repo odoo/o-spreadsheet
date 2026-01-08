@@ -15,6 +15,7 @@ export default tseslint.config(
       "no-unsafe-optional-chaining": "error", // ban unsafe optional chaining
       eqeqeq: "error", // ban non-strict equal
       "@typescript-eslint/no-non-null-asserted-optional-chain": "error", // ban non-null assertion in optional chain
+      curly: ["error", "all"], // enforce curly braces for all control statements
     },
   }
 );

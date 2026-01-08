@@ -37,8 +37,12 @@ export class Branch<T> {
    */
   getFirstOperationAmong(op1: UID, op2: UID): UID {
     for (const operation of this.operations) {
-      if (operation.id === op1) return op1;
-      if (operation.id === op2) return op2;
+      if (operation.id === op1) {
+        return op1;
+      }
+      if (operation.id === op2) {
+        return op2;
+      }
     }
     throw new Error(`Operation ${op1} and ${op2} not found`);
   }

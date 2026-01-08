@@ -307,7 +307,9 @@ export function reduceZoneOnDeletion<Z extends UnboundedZone | Zone>(
   for (const removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
-      if (newEnd !== undefined) newEnd--;
+      if (newEnd !== undefined) {
+        newEnd--;
+      }
     }
     if (
       zoneEnd !== undefined &&
@@ -386,7 +388,9 @@ export function isEqual(z1: UnboundedZone, z2: UnboundedZone): boolean {
  * Returns the adjacent size of z1 as well as the indexes of the header by which they are adjacent.
  */
 export function adjacent(z1: UnboundedZone, z2: Zone): AdjacentEdge | undefined {
-  if (intersection(z1, z2)) return undefined;
+  if (intersection(z1, z2)) {
+    return undefined;
+  }
   let adjacentEdge: AdjacentEdge | undefined = undefined;
   if (z1.left === z2.right + 1) {
     adjacentEdge = {
@@ -730,7 +734,9 @@ export function boundUnboundedZone(
  * including cells outside the zones
  * */
 export function areZonesContinuous(zones: Zone[]): boolean {
-  if (zones.length < 2) return true;
+  if (zones.length < 2) {
+    return true;
+  }
   return recomputeZones(zones).length === 1;
 }
 
@@ -832,7 +838,9 @@ export function mergeContiguousZones(zones: Zone[]) {
 
 export function splitIfAdjacent(zone: UnboundedZone, zoneToRemove: Zone): UnboundedZone[] {
   const adjacentEdge = adjacent(zone, zoneToRemove);
-  if (!adjacentEdge) return [zone];
+  if (!adjacentEdge) {
+    return [zone];
+  }
   const newZones: UnboundedZone[] = [];
   switch (adjacentEdge.position) {
     case "bottom":

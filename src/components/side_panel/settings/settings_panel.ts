@@ -24,7 +24,9 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
 
   onLocaleChange(code: LocaleCode) {
     const locale = this.loadedLocales.find((l) => l.code === code);
-    if (!locale) return;
+    if (!locale) {
+      return;
+    }
     this.env.model.dispatch("UPDATE_LOCALE", { locale });
   }
 

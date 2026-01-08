@@ -89,7 +89,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         this.history.update("borders", allBorders);
         break;
       case "SET_BORDER":
-        if (cmd.border) this.addBorders(cmd.sheetId, [positionToZone(cmd)], cmd.border);
+        if (cmd.border) {
+          this.addBorders(cmd.sheetId, [positionToZone(cmd)], cmd.border);
+        }
         break;
       case "SET_BORDERS_ON_TARGET":
         for (const zone of cmd.target) {
@@ -224,7 +226,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     for (const border of this.borders[sheetId] ?? []) {
       const { zone: bzone, style: bstyle } = border;
       const inter = intersection(bzone, zone);
-      if (!inter) continue;
+      if (!inter) {
+        continue;
+      }
       for (let col = inter.left; col <= inter.right; col++) {
         for (let row = inter.top; row <= inter.bottom; row++) {
           const cell = borders.get({ sheetId, col, row }) ?? {};
@@ -243,7 +247,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     const colors: Set<Color> = new Set<Color>();
     for (const border of this.borders[sheetId] ?? []) {
       for (const style of Object.values(border.style)) {
-        if (style?.color) colors.add(style.color);
+        if (style?.color) {
+          colors.add(style.color);
+        }
       }
     }
     return [...colors];
@@ -289,10 +295,16 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   private borderIsClear(border: ZoneBorder) {
     const style = border.style;
-    if (style.left || style.right || style.bottom || style.top) return false;
+    if (style.left || style.right || style.bottom || style.top) {
+      return false;
+    }
     const zone = border.zone;
-    if ((zone.bottom === undefined || zone.top < zone.bottom) && style.horizontal) return false;
-    if ((zone.right === undefined || zone.left < zone.right) && style.vertical) return false;
+    if ((zone.bottom === undefined || zone.top < zone.bottom) && style.horizontal) {
+      return false;
+    }
+    if ((zone.right === undefined || zone.left < zone.right) && style.vertical) {
+      return false;
+    }
     return true;
   }
 
@@ -455,7 +467,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   }
 
   private ensureHasBorder(cmd: SetBorderCommand | SetZoneBordersCommand) {
-    if (!cmd.border) return CommandResult.NoChanges;
+    if (!cmd.border) {
+      return CommandResult.NoChanges;
+    }
     return CommandResult.Success;
   }
 

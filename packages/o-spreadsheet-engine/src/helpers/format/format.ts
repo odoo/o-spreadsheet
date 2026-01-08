@@ -291,7 +291,9 @@ function applyIntegerFormat(
     if (digitType === "0") {
       digit = digit || "0";
     }
-    if (!digit) return;
+    if (!digit) {
+      return;
+    }
 
     const digitIndex = integerDigits.length - 1 - indexInIntegerString;
     if (thousandsSeparator && digitIndex > 0 && digitIndex % 3 === 0) {
@@ -384,7 +386,9 @@ function splitNumber(
   maxDecimals: number = MAX_DECIMAL_PLACES
 ): { integerDigits: string; decimalDigits: string | undefined } {
   const asString = value.toString();
-  if (asString.includes("e")) return splitNumberIntl(value, maxDecimals);
+  if (asString.includes("e")) {
+    return splitNumberIntl(value, maxDecimals);
+  }
 
   if (Number.isInteger(value)) {
     return { integerDigits: asString, decimalDigits: undefined };
@@ -613,7 +617,9 @@ export const getDecimalNumberRegex = memoize(function getDecimalNumberRegex(loca
  */
 export function createDefaultFormat(value: number): Format {
   let { integerDigits, decimalDigits } = splitNumber(value);
-  if (!decimalDigits) return "0";
+  if (!decimalDigits) {
+    return "0";
+  }
 
   const digitsInIntegerPart = integerDigits.replace("-", "").length;
 
@@ -930,7 +936,9 @@ export function isExcelCompatible(format: Format): boolean {
 }
 
 export function isTextFormat(format: Format | undefined): boolean {
-  if (!format) return false;
+  if (!format) {
+    return false;
+  }
   try {
     const internalFormat = parseFormat(format);
     return internalFormat.positive.type === "text";
