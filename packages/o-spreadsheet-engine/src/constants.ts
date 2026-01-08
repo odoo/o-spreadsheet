@@ -188,6 +188,7 @@ export const DEFAULT_STYLE = {
   rotation: 0,
 } satisfies Required<Style>;
 
+export const ROTATION_EPSILON = 0.001;
 export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;
 export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
 

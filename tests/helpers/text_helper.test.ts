@@ -12,7 +12,7 @@ describe("computeRotationPosition", () => {
   const textHeight = 20;
   const x = 1000;
   const y = 2000;
-  const textBox = { x, y, textWidth: textWidth + MIN_CELL_TEXT_MARGIN, textHeight };
+  const textBox = { x, y, textWidth: textWidth + 2 * MIN_CELL_TEXT_MARGIN, textHeight };
 
   describe("Top Left anchor", () => {
     const style: Style = { align: "left", verticalAlign: "top" };
@@ -160,7 +160,7 @@ describe("computeRotationPosition", () => {
     test.each([Math.PI / 2, Math.PI / 3, Math.PI / 4])("Positive Rotation", (rotation) => {
       const sin = Math.sin(rotation);
       const newX = textBox.x + (sin * textHeight) / 2;
-      const newY = textBox.y;
+      const newY = textBox.y - textHeight / 2 + sin * textHeight;
 
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
         x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
@@ -171,7 +171,7 @@ describe("computeRotationPosition", () => {
     test.each([-Math.PI / 2, -Math.PI / 3, -Math.PI / 4])("Negative Rotation", (rotation) => {
       const sin = Math.sin(rotation);
       const newX = textBox.x + (sin * textHeight) / 2;
-      const newY = textBox.y;
+      const newY = textBox.y - textHeight / 2 - sin * textHeight;
       expect(computeRotationPosition(textBox, { ...style, rotation })).toMatchObject({
         x: expect.toBeCloseTo(rotate(newX, newY, rotation).x),
         y: expect.toBeCloseTo(rotate(newX, newY, rotation).y),
