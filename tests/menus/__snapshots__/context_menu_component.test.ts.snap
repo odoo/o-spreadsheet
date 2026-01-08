@@ -435,6 +435,11 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         Insert link
       </div>
+      <div
+        class="o-menu-item-description ms-auto text-truncate"
+      >
+        Ctrl+K
+      </div>
       
       
       

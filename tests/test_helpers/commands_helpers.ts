@@ -583,6 +583,13 @@ export function copyPasteCellsOnLeft(model: Model): DispatchResult {
 }
 
 /**
+ * Copy cell and paste on zone
+ */
+export function copyPasteCellsOnZone(model: Model): DispatchResult {
+  return model.dispatch("COPY_PASTE_CELLS_ON_ZONE");
+}
+
+/**
  * Clean clipboard highlight selection.
  */
 export function cleanClipBoardHighlight(model: Model): DispatchResult {
