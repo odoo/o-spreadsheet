@@ -308,7 +308,7 @@ export const POW = {
 export const SPILLED_RANGE = {
   description: _t("Gets the spilled range of an array formula."),
   args: [arg("ref (any, range<any>)", _t("The reference to get the spilled range from."))],
-  compute: function (ref: Arg | undefined) {
+  compute: function (ref: Arg ) {
     if (ref === undefined) {
       return new InvalidReferenceError(expectReferenceError);
     }
@@ -329,21 +329,9 @@ export const SPILLED_RANGE = {
       return new InvalidReferenceError(expectReferenceError);
     }
 
-    const originPosition = this.__originCellPosition;
-    if (originPosition) {
-      // The following line is used to reset the dependencies of the cell, to avoid
-      // keeping dependencies from previous evaluation (i.e. in case the reference
-      // has been changed).
-      this.updateDependencies?.(originPosition);
-    }
-
     const spilledZone = this.getters.getSpreadZone(firstCell.position);
     if (spilledZone === undefined) {
       return new InvalidReferenceError();
-    }
-    const spilledRange = this.getters.getRangeFromZone(this.__originSheetId, spilledZone);
-    if (originPosition) {
-      this.addDependencies?.(originPosition, [spilledRange]);
     }
 
     return generateMatrix(
@@ -351,7 +339,7 @@ export const SPILLED_RANGE = {
       spilledZone.bottom - spilledZone.top + 1,
       (col: number, row: number): FunctionResultObject =>
         this.getRef({
-          sheetId: spilledRange.sheetId,
+          sheetId: this.__originSheetId,
           col: spilledZone.left + col,
           row: spilledZone.top + row,
         })

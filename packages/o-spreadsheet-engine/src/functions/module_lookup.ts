@@ -15,7 +15,7 @@ import {
   NotAvailableError,
 } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -327,20 +327,10 @@ export const INDIRECT: AddFunctionDescription = {
       return new EvaluationError(_t("R1C1 notation is not supported."));
     }
     const sheetId = this.__originSheetId;
-    const originPosition = this.__originCellPosition;
-    if (originPosition) {
-      // The following line is used to reset the dependencies of the cell, to avoid
-      // keeping dependencies from previous evaluation of the INDIRECT formula (i.e.
-      // in case the reference has been changed).
-      this.updateDependencies?.(originPosition);
-    }
 
     const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
     if (range === undefined || range.invalidXc || range.invalidSheetName) {
       return new InvalidReferenceError();
-    }
-    if (originPosition) {
-      this.addDependencies?.(originPosition, [range]);
     }
 
     const values: FunctionResultObject[][] = [];
@@ -1065,11 +1055,6 @@ export const OFFSET = {
     const _offsetRows = toNumber(offsetRows, this.locale);
     const _offsetColumns = toNumber(offsetColumns, this.locale);
 
-    const originPosition = this.__originCellPosition;
-    if (originPosition) {
-      this.updateDependencies?.(originPosition);
-    }
-
     const startingCol = firstCell.position.col + _offsetColumns;
     const startingRow = firstCell.position.row + _offsetRows;
 
@@ -1077,21 +1062,7 @@ export const OFFSET = {
       return new InvalidReferenceError(_t("OFFSET evaluates to an out of bounds range."));
     }
 
-    const dependencyZone: Zone = {
-      left: startingCol,
-      top: startingRow,
-      right: startingCol + offsetWidth - 1,
-      bottom: startingRow + offsetHeight - 1,
-    };
-
     const sheetId = firstCell.position.sheetId;
-    const range = this.getters.getRangeFromZone(sheetId, dependencyZone);
-    if (range.invalidXc || range.invalidSheetName) {
-      return new InvalidReferenceError();
-    }
-    if (originPosition) {
-      this.addDependencies?.(originPosition, [range]);
-    }
 
     return generateMatrix(
       offsetWidth,
