@@ -154,7 +154,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     setDefaultTranslationMethod();
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
-
+    console.log("coucou");
     const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
