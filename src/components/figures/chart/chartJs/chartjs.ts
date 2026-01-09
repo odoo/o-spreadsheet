@@ -9,6 +9,7 @@ import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
+import { cssPropertiesToCss } from "../../../helpers";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import { getCalendarChartController } from "./chartjs_calendar_chart";
 import { chartColorScalePlugin } from "./chartjs_colorscale_plugin";
@@ -89,6 +90,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get canvasStyle() {
+    return cssPropertiesToCss({
+      "background-color": this.background,
+    });
     return `background-color: ${this.background}`;
   }
 
@@ -109,10 +113,38 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
+      const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+      const parent = this.canvas.el?.parentElement as HTMLCanvasElement;
+      const width = parent.parentElement!.clientWidth * zoomLevel;
+      const height = parent.parentElement!.clientHeight * zoomLevel;
+      const zoom = zoomLevel;
+      parent.style.width = `${width}px`;
+      parent.style.height = `${height}px`;
+      // canvas.width = width/zoomLevel;
+      // canvas.height = height/zoomLevel;
+      parent.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1/zoom}`);
+      
+      this.canvas.el!.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1}`);
+      const ctx = (this.canvas.el as HTMLCanvasElement).getContext("2d")!;
+      ctx.scale(zoomLevel*100, zoomLevel);  
       this.createChart(deepCopy(runtime));
     });
     onWillUnmount(this.unmount.bind(this));
     useEffect(() => {
+      return
+      const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+      const parent = this.canvas.el?.parentElement as HTMLCanvasElement;
+      const width = parent.parentElement!.clientWidth * zoomLevel;
+      const height = parent.parentElement!.clientHeight * zoomLevel;
+      const zoom = zoomLevel;
+      debugger
+      parent.style.width = `${width}px`;
+      parent.style.height = `${height}px`;
+      // canvas.width = width/zoomLevel;
+      // canvas.height = height/zoomLevel;
+      parent.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1/zoom}`);
+      
+      this.canvas.el!.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1}`);
       const runtime = this.chartRuntime;
       if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
@@ -126,6 +158,13 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
         this.currentDevicePixelRatio = window.devicePixelRatio;
         this.updateChartJs(deepCopy(this.currentRuntime));
       }
+
+      //@ts-ignore
+      // this.canvas.el!.width = width*2;
+      //@ts-ignore
+      // this.canvas.el!.height = height*2;
+      // canvas.width = this.canvas.el!.clientWidth * zoomLevel;
+      // canvas.height = this.canvas.el!.clientHeight * zoomLevel;
     });
   }
 
@@ -152,6 +191,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
+    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    ctx.scale(zoomLevel*100, zoomLevel);
     this.chart = new globalThis.Chart(ctx, chartData);
   }
 

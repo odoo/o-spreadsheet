@@ -11,6 +11,7 @@ import { ChartJSRuntime } from "../../../../../types";
 import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
@@ -39,10 +40,12 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   get containerStyle() {
+    const zoomLevel = 1 //this.env.model.getters.getViewportZoomLevel();
     const height = this.sliceable ? `calc(100% - ${MASTER_CHART_HEIGHT}px)` : "100%";
-    return `
-      height:${height};
-    `;
+    return cssPropertiesToCss({
+      height: height,
+      zoom: `${1 / zoomLevel}`,
+    });
   }
 
   get masterChartContainerStyle() {

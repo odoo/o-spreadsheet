@@ -131,7 +131,7 @@ export class SheetViewPlugin extends UIPlugin {
   private sheetViewHeight: Pixel = getDefaultSheetViewSize();
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
-  private zoomLevel: number = 1;
+  private zoomLevel: number = 2;
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;

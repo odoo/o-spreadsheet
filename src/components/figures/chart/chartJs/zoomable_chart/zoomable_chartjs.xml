@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-ZoomableChartJsComponent">
     <div class="w-100 h-100" t-att-style="canvasStyle">
       <div t-att-style="containerStyle">
-        <canvas class="o-figure-canvas w-100 h-100" t-ref="graphContainer"/>
+        <canvas class="o-figure-canvas" t-ref="graphContainer"/>
       </div>
       <div
         t-if="sliceable"
