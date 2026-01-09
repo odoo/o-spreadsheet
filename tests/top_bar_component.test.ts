@@ -950,6 +950,17 @@ describe("TopBar - CF", () => {
   });
 });
 
+test("onCancel of dropdown dv editor removes the data validation rule", async () => {
+  const { fixture } = await mountSpreadsheet();
+  await click(fixture, ".o-topbar-menu[data-id='insert']");
+  await click(fixture, ".o-menu-item[data-name='insert_dropdown']");
+  expect(fixture.querySelector(".o-sidePanel .o-dv-form")).toBeTruthy();
+
+  await click(fixture, ".o-sidePanel .o-dv-cancel");
+  expect(fixture.querySelector(".o-dv")).toBeTruthy();
+  expect(fixture.querySelectorAll(".o-dv-preview")).toHaveLength(0);
+});
+
 describe("Topbar - menu item resizing with viewport", () => {
   test("color picker of fill color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
