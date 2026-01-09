@@ -1,11 +1,11 @@
-import { compile } from "../../formulas/compiler";
+import { BananaCompiledFormula, compile } from "../../formulas/compiler";
 import { expandOne, expandRange } from "../../helpers/expand_range";
-import { CompiledFormula, Position, UID } from "../../types/misc";
+import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR } from "./squisher";
 
 export class Unsquisher {
-  private previousCell: CompiledFormula | undefined;
+  private previousCell: BananaCompiledFormula | undefined;
   private alreadyAppliedNumberOffset: number[] = [];
   private previousString: string[] = [];
   private alreadyAppliedReferenceOffset: Range[] = [];
@@ -28,7 +28,7 @@ export class Unsquisher {
   ): Generator<{
     position: Position;
     content?: string;
-    compiled?: CompiledFormula;
+    compiled?: BananaCompiledFormula;
   }> {
     for (const key in squished) {
       if (squished[key] === undefined || squished[key] === null) {
@@ -36,7 +36,7 @@ export class Unsquisher {
       }
       if (typeof squished[key] === "string" && squished[key].startsWith("=")) {
         // compile the found formula. Reset previousCell and offsets because it's a new formula
-        const compiled = compile(squished[key]);
+        const compiled = compile(squished[key], sheetId);
         this.previousCell = compiled;
         this.alreadyAppliedNumberOffset = new Array(compiled.literalValues.numbers.length).fill(0);
         this.previousString = compiled.literalValues.strings.map((s) => s.value);
@@ -71,7 +71,7 @@ export class Unsquisher {
     squishedElement: any,
     sheetId: UID,
     getRangeFromSheetXC: (sheetId: UID, reference: string) => Range
-  ): string | CompiledFormula {
+  ): string | BananaCompiledFormula {
     if (typeof squishedElement === "string") {
       if (squishedElement.startsWith("=")) {
         throw new Error(
@@ -82,12 +82,16 @@ export class Unsquisher {
       return squishedElement;
     }
     if (typeof squishedElement === "object" && this.previousCell) {
-      const current = Object.assign({}, this.previousCell);
+      const current: { numbers: any[]; strings: any[]; dependencies: any[] } = {
+        numbers: [],
+        strings: [],
+        dependencies: [],
+      };
       if (squishedElement.N !== undefined && squishedElement.N.length > 0) {
-        current.literalValues.numbers = squishedElement.N.split(SEPARATOR).map(this.adjustNumbers);
+        current.numbers = squishedElement.N.split(SEPARATOR).map(this.adjustNumbers);
       }
       if (squishedElement.S !== undefined && squishedElement.S.length > 0) {
-        current.literalValues.strings = squishedElement.S.map(this.adjustStrings);
+        current.strings = squishedElement.S.map(this.adjustStrings);
       }
       if (squishedElement.R !== undefined && this.previousCell) {
         // references
@@ -140,7 +144,13 @@ export class Unsquisher {
           }
         );
       }
-      return current;
+      return BananaCompiledFormula.CopyWithDependenciesAndLiteral(
+        this.previousCell,
+        sheetId,
+        current.dependencies,
+        current.numbers,
+        current.strings
+      );
     }
     throw new Error("Invalid squished element or no previous cell to unsquish against");
   }

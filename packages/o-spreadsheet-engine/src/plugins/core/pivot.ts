@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/compiler";
+import { BananaCompiledFormula, compile } from "../../formulas/compiler";
 import { deepCopy, deepEquals } from "../../helpers/misc";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
@@ -7,7 +7,7 @@ import { CommandResult, CoreCommand } from "../../types/commands";
 import { CellPosition, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
-import { ApplyRangeChange, Position, RangeCompiledFormula } from "../../types/misc";
+import { ApplyRangeChange, Position } from "../../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";
 import { WorkbookData } from "../../types/workbook_data";
@@ -22,7 +22,7 @@ interface CoreState {
   nextFormulaId: number;
   pivots: Record<UID, Pivot | undefined>;
   formulaIds: Record<UID, string | undefined>;
-  compiledMeasureFormulas: Record<UID, Record<string, RangeCompiledFormula | undefined>>;
+  compiledMeasureFormulas: Record<UID, Record<string, BananaCompiledFormula | undefined>>;
 }
 
 export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState {
@@ -42,7 +42,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     [pivotId: UID]: Pivot | undefined;
   } = {};
   public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
-  public readonly compiledMeasureFormulas: Record<UID, Record<string, RangeCompiledFormula>> = {};
+  public readonly compiledMeasureFormulas: Record<UID, Record<string, BananaCompiledFormula>> = {};
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -158,7 +158,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
         const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
         const newDependencies: Range[] = [];
-        for (const range of compiledFormula.dependencies) {
+        for (const range of compiledFormula.rangeDependencies) {
           const change = applyChange(range);
           if (change.changeType === "NONE") {
             newDependencies.push(range);
@@ -166,11 +166,12 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
             newDependencies.push(change.range);
           }
         }
-        const newFormulaString = this.getters.getFormulaString(
+        const updatedFormula = BananaCompiledFormula.CopyWithDependencies(
+          compiledFormula,
           sheetId,
-          compiledFormula.tokens,
           newDependencies
         );
+        const newFormulaString = updatedFormula.toString(this.getters);
         if (newFormulaString !== formulaString) {
           this.replaceMeasureFormula(sheetId, formulaString, newFormulaString);
         }
@@ -219,7 +220,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     return pivotId in this.pivots;
   }
 
-  getMeasureCompiledFormula(measure: PivotCoreMeasure): RangeCompiledFormula {
+  getMeasureCompiledFormula(measure: PivotCoreMeasure): BananaCompiledFormula {
     if (!measure.computedBy) {
       throw new Error(`Measure ${measure.fieldName} is not computed by formula`);
     }
@@ -314,15 +315,10 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     return pivot;
   }
 
-  private compileMeasureFormula(sheetId: UID, formulaString: string) {
-    const compiledFormula = compile(formulaString);
-    const rangeDependencies = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
-    return {
-      ...compiledFormula,
-      dependencies: rangeDependencies,
-    };
+  private compileMeasureFormula(sheetId: UID, formulaString: string): BananaCompiledFormula {
+    const compiledFormula = compile(formulaString, sheetId);
+    compiledFormula.convertXCDependenciesToRange(this.getters.getRangeFromSheetXC);
+    return compiledFormula;
   }
 
   private replaceMeasureFormula(sheetId: UID, formulaString: string, newFormulaString: string) {

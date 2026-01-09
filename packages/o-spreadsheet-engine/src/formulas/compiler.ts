@@ -2,9 +2,11 @@ import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
 import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
+import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { CompiledFormula, FormulaToExecute, LiteralValues } from "../types/misc";
+import { CompiledFormula, FormulaToExecute, LiteralValues, UID } from "../types/misc";
+import { Range } from "../types/range";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -41,13 +43,162 @@ export const UNARY_OPERATOR_MAP = {
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
+export class BananaCompiledFormula implements CompiledFormula {
+  private _tokens: Token[];
+  literalValues: LiteralValues;
+  symbols: string[];
+  _dependencies: string[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
+  execute: FormulaToExecute;
+  _rangeDependencies?: Range[];
+  hasDependencies: boolean;
+  sheetId: UID;
+
+  constructor(
+    sheetId: UID,
+    tokens: Token[],
+    literalValues: LiteralValues,
+    symbols: string[],
+    dependencies: (string | Range)[],
+    isBadExpression: boolean,
+    normalizedFormula: string,
+    execute: FormulaToExecute
+  ) {
+    this.sheetId = sheetId;
+    this._tokens = tokens;
+    this.literalValues = literalValues;
+    this.symbols = symbols;
+    this.hasDependencies = dependencies.length > 0;
+    if (dependencies.every((x) => typeof x === "string")) {
+      this._dependencies = dependencies as string[];
+      this._rangeDependencies = [];
+    } else {
+      this._dependencies = [];
+      this._rangeDependencies = dependencies as Range[];
+    }
+    this.isBadExpression = isBadExpression;
+    this.normalizedFormula = normalizedFormula;
+    this.execute = execute;
+  }
+
+  get tokens(): Token[] {
+    console.log("compiled formula to tokens conversion");
+    let referenceIndex = 0;
+    let numberIndex = 0;
+    let stringIndex = 0;
+    return this._tokens.map((token: Token) => {
+      switch (token.type) {
+        case "REFERENCE":
+          token.value = this._dependencies[referenceIndex++];
+          break;
+        case "NUMBER":
+          token.value = this.literalValues.numbers[numberIndex++].value.toString();
+          break;
+        case "STRING":
+          token.value = `"${
+            this.literalValues.strings[stringIndex++].value /*.replace(
+            /"/g,
+            '""'
+          )*/
+          }"`;
+      }
+      return token;
+    });
+  }
+
+  get dependencies(): string[] {
+    if (this.hasDependencies) {
+      if (!this._dependencies.length) {
+        throw new Error(
+          "Dependencies have had its range adapted but not yet converted back to string"
+        );
+      }
+    }
+    return this._dependencies;
+  }
+
+  get rangeDependencies(): Range[] {
+    if (this.hasDependencies) {
+      if (!this._rangeDependencies) {
+        throw new Error("Range dependencies have not been ensured yet.");
+      }
+    }
+    return this._rangeDependencies || [];
+  }
+
+  convertXCDependenciesToRange(
+    getRangeFromSheetXC: (defaultSheetId: UID, sheetXC: string) => Range,
+    sheetId?: UID
+  ) {
+    if (
+      this._dependencies.length &&
+      this._dependencies.some((x: string | Range) => typeof x === "string")
+    ) {
+      this._rangeDependencies = this._dependencies.map((xc: string | Range) =>
+        typeof xc === "string" ? getRangeFromSheetXC(sheetId || this.sheetId, xc) : xc
+      );
+    }
+  }
+
+  static CopyWithDependencies(
+    base: BananaCompiledFormula,
+    sheetId: UID,
+    dependencies: (string | Range)[]
+  ): BananaCompiledFormula {
+    return new BananaCompiledFormula(
+      sheetId,
+      base._tokens,
+      base.literalValues,
+      base.symbols,
+      dependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      base.execute
+    );
+  }
+
+  static CopyWithDependenciesAndLiteral(
+    base: BananaCompiledFormula,
+    sheetId: UID,
+    dependencies: Range[],
+    literalNumbers: { value: number }[],
+    literalStrings: { value: string }[]
+  ): BananaCompiledFormula {
+    return new BananaCompiledFormula(
+      sheetId,
+      base._tokens,
+      { numbers: literalNumbers, strings: literalStrings },
+      base.symbols,
+      dependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      base.execute
+    );
+  }
+
+  toString(getters: CoreGetters): string {
+    throw new Error("Method not implemented.");
+  }
+}
+
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string): CompiledFormula {
+export function compile(formula: string, sheetId: UID): BananaCompiledFormula {
   const tokens = rangeTokenize(formula);
-  return compileTokens(tokens);
+  const compiledFormula = compileTokens(tokens);
+  return new BananaCompiledFormula(
+    sheetId,
+    compiledFormula.tokens,
+    compiledFormula.literalValues,
+    compiledFormula.symbols,
+    compiledFormula.dependencies,
+    compiledFormula.isBadExpression,
+    compiledFormula.normalizedFormula,
+    compiledFormula.execute
+  );
 }
 
 export function compileTokens(tokens: Token[]): CompiledFormula {

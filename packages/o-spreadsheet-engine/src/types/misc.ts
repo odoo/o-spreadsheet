@@ -3,6 +3,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
+import { BananaCompiledFormula } from "../formulas/compiler";
 import { Token } from "../formulas/tokenizer";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
@@ -235,7 +236,7 @@ export interface ClipboardCell {
   content: string;
   style?: Style | undefined;
   format?: Format | undefined;
-  compiledFormula?: RangeCompiledFormula;
+  compiledFormula?: BananaCompiledFormula;
   border?: Border;
 }
 
