@@ -1,4 +1,4 @@
-import { compile, compileTokens } from "../../formulas/compiler";
+import { compile } from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
@@ -408,40 +408,80 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     dependencies: Range[],
     useBoundedReference: boolean = false
   ): string {
-    if (!dependencies.length) {
-      return concat(tokens.map((token) => token.value));
-    }
-    let rangeIndex = 0;
-    return concat(
-      tokens.map((token) => {
-        if (token.type === "REFERENCE") {
-          const range = dependencies[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId, { useBoundedReference });
-        }
-        return token.value;
-      })
+    // if (!dependencies.length) {
+    //   return concat(tokens.map((token) => token.value));
+    // }
+    // let rangeIndex = 0;
+    // return concat(
+    //   tokens.map((token) => {
+    //     if (token.type === "REFERENCE") {
+    //       const range = dependencies[rangeIndex++];
+    //       return this.getters.getRangeString(range, sheetId, { useBoundedReference });
+    //     }
+    //     return token.value;
+    //   })
+    // );
+    throw new Error(
+      "not re-implemented using the dependencies as well as the number and string literals"
     );
+  }
+
+  ensureCompiledFormulaDependenciesAsRanges(
+    sheetId: UID,
+    compiledFormula: RangeCompiledFormula | CompiledFormula
+  ): RangeCompiledFormula {
+    if (
+      compiledFormula.dependencies.length &&
+      compiledFormula.dependencies.some((x: string | Range) => typeof x === "string")
+    ) {
+      compiledFormula.dependencies = compiledFormula.dependencies.map((xc: string | Range) =>
+        typeof xc === "string" ? this.getters.getRangeFromSheetXC(sheetId, xc) : xc
+      );
+    }
+    return compiledFormula as RangeCompiledFormula;
   }
 
   /*
    * Constructs a formula string based on an initial formula and a translation vector
    */
-  getTranslatedCellFormula(sheetId: UID, offsetX: number, offsetY: number, tokens: Token[]) {
+  getTranslatedCellFormula(
+    sheetId: UID,
+    offsetX: number,
+    offsetY: number,
+    compiledFormula: RangeCompiledFormula | CompiledFormula
+  ) {
+    compiledFormula = this.ensureCompiledFormulaDependenciesAsRanges(sheetId, compiledFormula);
+
     const adaptedDependencies = this.getters.createAdaptedRanges(
-      compileTokens(tokens).dependencies.map((d) => this.getters.getRangeFromSheetXC(sheetId, d)),
+      compiledFormula.dependencies,
       offsetX,
       offsetY,
       sheetId
     );
-    return this.getFormulaString(sheetId, tokens, adaptedDependencies);
+
+    const newFormula = Object.assign({}, compiledFormula, { dependencies: adaptedDependencies });
+    return new FormulaCellWithDependencies(
+      "temp",
+      newFormula,
+      undefined,
+      sheetId,
+      this.getters.getRangeString
+    ).content;
   }
 
-  getFormulaMovedInSheet(originSheetId: UID, targetSheetId: UID, tokens: Token[]) {
-    const dependencies = compileTokens(tokens).dependencies.map((d) =>
-      this.getters.getRangeFromSheetXC(originSheetId, d)
+  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: RangeCompiledFormula) {
+    const adaptedDependencies = this.getters.removeRangesSheetPrefix(
+      targetSheetId,
+      compiledFormula.dependencies
     );
-    const adaptedDependencies = this.getters.removeRangesSheetPrefix(targetSheetId, dependencies);
-    return this.getFormulaString(targetSheetId, tokens, adaptedDependencies);
+    const newFormula = Object.assign({}, compiledFormula, { dependencies: adaptedDependencies });
+    return new FormulaCellWithDependencies(
+      "temp",
+      newFormula,
+      undefined,
+      targetSheetId,
+      this.getters.getRangeString
+    ).content;
   }
 
   /**
@@ -666,15 +706,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
-    if (compiledFormula.dependencies?.some((xc: string | Range) => typeof xc === "string")) {
-      compiledFormula.dependencies = compiledFormula.dependencies.map((xc: string | Range) =>
-        typeof xc === "string" ? this.getters.getRangeFromSheetXC(sheetId, xc) : xc
-      );
-    }
+    compiledFormula = this.ensureCompiledFormulaDependenciesAsRanges(sheetId, compiledFormula);
 
     return new FormulaCellWithDependencies(
       id,
-      compiledFormula as RangeCompiledFormula,
+      compiledFormula,
       format,
       sheetId,
       this.getters.getRangeString

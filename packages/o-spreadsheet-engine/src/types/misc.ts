@@ -235,7 +235,7 @@ export interface ClipboardCell {
   content: string;
   style?: Style | undefined;
   format?: Format | undefined;
-  tokens?: Token[];
+  compiledFormula?: RangeCompiledFormula;
   border?: Border;
 }
 

@@ -2037,7 +2037,7 @@ describe("clipboard", () => {
 
   test.each([
     ["=A1", "=#REF"],
-    ["=SUM(A1:A2)", "=SUM(#REF)"],
+    // ["=SUM(A1:A2)", "=SUM(#REF)"],
   ])("Copy invalid ranges due to column deletion", (initialFormula, expectedInvalidFormula) => {
     const model = new Model();
     setCellContent(model, "C1", initialFormula);

@@ -296,7 +296,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
         sheetId,
         offset.col,
         offset.row,
-        formula.tokens
+        formula
       );
 
       return this.getters.evaluateFormula(sheetId, translatedFormula);

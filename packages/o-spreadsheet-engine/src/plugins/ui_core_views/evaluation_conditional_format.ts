@@ -134,7 +134,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                       sheetId,
                       col - zone.left,
                       row - zone.top,
-                      compiledFormula.tokens
+                      compiledFormula
                     );
                   }
                   return value;
