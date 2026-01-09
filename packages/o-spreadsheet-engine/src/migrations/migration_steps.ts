@@ -576,6 +576,16 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+
+  .add("19.2.0", {
+    //add filters to pivot table
+    migrate(data: any): any {
+      for (const pivot of Object.values(data.pivots || {}) as any) {
+        pivot.filters = [];
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

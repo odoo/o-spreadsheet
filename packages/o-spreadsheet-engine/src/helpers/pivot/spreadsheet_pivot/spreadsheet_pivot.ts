@@ -1,9 +1,12 @@
 import { handleError } from "../../../functions/create_compute_function";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { toString } from "../../../functions/helpers";
+import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
+import { DEFAULT_LOCALE } from "../../../types/locale";
 import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import {
@@ -18,6 +21,7 @@ import {
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { Range } from "../../../types/range";
+import { parseLiteral } from "../../cells/cell_evaluation";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepEquals, isDefined } from "../../misc";
@@ -78,7 +82,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    * This array contains the data entries of the pivot. Each entry is an object
    * that contains the values of the fields for a row.
    */
-  private dataEntries: DataEntries = [];
+  private filteredDataEntries: DataEntries = [];
+  private unfilteredDataEntries: DataEntries = [];
+
   /**
    * This object contains the pivot table structure. It is created from the
    * data entries and the pivot definition.
@@ -117,7 +123,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       this._definition = this.loadRuntimeDefinition();
     }
     if (type >= ReloadType.DATA) {
-      this.dataEntries = this.loadData();
+      this.unfilteredDataEntries = this.loadDataEntries();
+      this.filteredDataEntries = this.loadFilteredDataEntries(this.unfilteredDataEntries);
     }
     if (type >= ReloadType.TABLE) {
       this.collapsedTable = undefined;
@@ -181,6 +188,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     for (const row of this.definition.rows) {
       if (!row.isValid) {
+        return false;
+      }
+    }
+    for (const filter of this.definition.filters) {
+      if (!filter.isValid) {
         return false;
       }
     }
@@ -248,7 +260,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       return { value: _t("Total") };
     }
     const dimension = this.getDimension(lastNode.field);
-    const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
+    const cells = this.filterDataEntriesFromDomain(this.filteredDataEntries, domain);
     const finalCell = cells[0]?.[dimension.nameWithGranularity];
     if (dimension.type === "datetime") {
       const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
@@ -264,7 +276,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
-    const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
+    const dataEntries = this.filterDataEntriesFromDomain(this.filteredDataEntries, domain);
     if (dataEntries.length === 0) {
       return { value: "" };
     }
@@ -288,9 +300,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
   }
 
+  getDataEntries(): DataEntries {
+    return this.unfilteredDataEntries;
+  }
+
   getPossibleFieldValues(dimension: PivotDimension): ValueAndLabel<string | number | boolean>[] {
     const values: ValueAndLabel<string | number | boolean>[] = [];
-    const groups = groupPivotDataEntriesBy(this.dataEntries, dimension);
+    const groups = groupPivotDataEntriesBy(this.filteredDataEntries, dimension);
     const orderedKeys = orderDataEntriesKeys(groups, dimension);
     for (const key of orderedKeys) {
       values.push({
@@ -307,7 +323,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     if (!this.collapsedTable) {
       this.collapsedTable = dataEntriesToSpreadsheetPivotTable(
-        this.dataEntries,
+        this.filteredDataEntries,
         this.definition,
         "collapsed"
       );
@@ -321,7 +337,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     if (!this.expandedTable) {
       this.expandedTable = dataEntriesToSpreadsheetPivotTable(
-        this.dataEntries,
+        this.filteredDataEntries,
         this.definition,
         "expanded"
       );
@@ -365,9 +381,54 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return new SpreadsheetPivotRuntimeDefinition(this.coreDefinition, this.fields, this.getters);
   }
 
-  private loadData() {
+  private loadDataEntries() {
     const range = this._definition?.range;
     return this.isValid() && range ? this.extractDataEntriesFromRange(range) : [];
+  }
+
+  private loadFilteredDataEntries(dataEntries) {
+    const sheetId = this._definition?.range?.sheetId;
+    if (!sheetId) {
+      return [];
+    }
+    if (this._definition && this._definition.filters.length > 0) {
+      dataEntries = dataEntries.filter((dataEntry) => {
+        for (const filter of this._definition!.filters) {
+          const temp = dataEntry[filter.fieldName];
+          if (filter.filterType === "values") {
+            if (temp && filter.hiddenValues.includes(temp.formattedValue)) {
+              return false;
+            }
+          } else {
+            if (filter.type === "none") continue;
+            const evaluator = criterionEvaluatorRegistry.get(filter.type);
+
+            const evaluatedCriterionValues = filter.values.map((value) => {
+              if (!value.startsWith("=")) {
+                return parseLiteral(value, DEFAULT_LOCALE);
+              }
+              return this.getters.evaluateFormula(sheetId, value) ?? "";
+            });
+            if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
+              continue;
+            }
+            const evaluatedCriterion = {
+              type: filter.type,
+              values: evaluatedCriterionValues.map(toScalar),
+              dateValue: filter.dateValue,
+            };
+            if (
+              temp &&
+              !evaluator.isValueValid(temp.value, evaluatedCriterion, this.getters, sheetId)
+            ) {
+              return false;
+            }
+          }
+        }
+        return true;
+      });
+    }
+    return dataEntries;
   }
 
   private getTypeOfDimension(fieldWithGranularity: string): string {
