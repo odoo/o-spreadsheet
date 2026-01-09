@@ -218,6 +218,7 @@ export function repairInitialMessages(
   initialMessages = fixChartDefinitions(data, initialMessages);
   initialMessages = fixFigureOffset(data, initialMessages);
   initialMessages = fixTranslatedDuplicateSheetName(data, initialMessages);
+  initialMessages = fixHyperlinkCellUpdate(data, initialMessages);
   return initialMessages;
 }
 
@@ -405,6 +406,13 @@ function fixTranslatedDuplicateSheetName(
       messages.push(message);
     }
   }
+  return initialMessages;
+}
+
+function fixHyperlinkCellUpdate(
+  data: Partial<WorkbookData>,
+  initialMessages: StateUpdateMessage[]
+) {
   return initialMessages;
 }
 

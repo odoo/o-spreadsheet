@@ -15,7 +15,8 @@ const globalIdCounter = new WeakMap<ItemsDic<any>, number>();
 export function getItemId<T>(item: T, itemsDic: ItemsDic<T>) {
   if (!globalReverseLookup.has(itemsDic)) {
     globalReverseLookup.set(itemsDic, new Map());
-    globalIdCounter.set(itemsDic, 0);
+    const x = Math.max(...Object.keys(itemsDic).map((k) => Number(k)), 0);
+    globalIdCounter.set(itemsDic, x);
   }
   const reverseLookup = globalReverseLookup.get(itemsDic)!;
   const canonical = getCanonicalRepresentation(item);
