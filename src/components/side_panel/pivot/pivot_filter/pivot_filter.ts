@@ -1,7 +1,6 @@
 import { _t, CellPosition, deepEquals, UID } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { toLowerCase } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
-import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { Cell } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
@@ -79,69 +78,39 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
       if (!deepEquals(nextProps.definition, this.props.definition)) {
         const nextPosition = this.filterPosition(nextProps.filter);
         if (nextPosition) {
-          this.state.values = this.getFilterHiddenValues(nextPosition, nextProps);
+          this.state.values = this.getFilterHiddenValues(nextProps);
         } else {
           this.props.filter.isValid = false;
         }
       }
     });
-    this.state.values = this.getFilterHiddenValues(
-      this.filterPosition(this.props.filter),
-      this.props
-    );
+    this.state.values = this.getFilterHiddenValues(this.props);
   }
 
-  private getFilterHiddenValues(cellPosition: CellPosition | undefined, props: Props): Value[] {
+  private getFilterHiddenValues(props: Props): Value[] {
     const pivot = this.env.model.getters.getPivot(this.props.pivotId);
     if (pivot.type !== "SPREADSHEET") {
       throw new Error("Filters are only available on spreadsheet pivot table");
     }
-    if (!cellPosition) {
-      return [];
-    }
-    const zonePivot = props.definition.range?.zone;
-    const zoneFilter = zonePivot
-      ? {
-          left: cellPosition.col,
-          right: cellPosition.col,
-          top: zonePivot.top + 1,
-          bottom: zonePivot.bottom,
-        }
-      : null;
-
-    const cells = (zoneFilter ? positions(zoneFilter) : []).map((position) => ({
-      position,
-      cellValue: this.env.model.getters.getEvaluatedCell({
-        sheetId: cellPosition.sheetId,
-        ...position,
-      }).formattedValue,
-    }));
-
-    const cellValues = cells.map((val) => val.cellValue);
-
+    const dataEntries = pivot.getDataEntries();
+    const field = props.filter.fieldName;
     const set = new Set<string>();
     const values: (Value & { normalizedValue: string })[] = [];
-    const addValue = (value: string) => {
+    for (const dataEntry of dataEntries) {
+      const value = dataEntry[field] ? dataEntry[field].formattedValue.toString() : "";
       const normalizedValue = toLowerCase(value);
       if (!set.has(normalizedValue)) {
-        if (props.filter.filterType === "criterion") {
-          values.push({
-            string: value || "",
-            checked: true,
-            normalizedValue,
-          });
-        } else {
-          values.push({
-            string: value || "",
-            checked: !(props.filter as PivotValuesFilter).hiddenValues.includes(value),
-            normalizedValue,
-          });
-        }
+        values.push({
+          string: value,
+          checked:
+            props.filter.filterType === "criterion"
+              ? true
+              : !(props.filter as PivotValuesFilter).hiddenValues.includes(value),
+          normalizedValue,
+        });
         set.add(normalizedValue);
       }
-    };
-    cellValues.forEach(addValue);
-
+    }
     return values.sort((val1, val2) =>
       val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
         numeric: true,

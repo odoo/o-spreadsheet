@@ -254,10 +254,6 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     };
   }
 
-  getDataEntries(): DataEntries {
-    return this.unfilteredDataEntries;
-  }
-
   getPivotHeaderValueAndFormat(domain: PivotDomain): FunctionResultObject {
     const lastNode = domain.at(-1);
     if (!lastNode) {
@@ -302,6 +298,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     } catch (e) {
       return handleError(e, aggregator.toUpperCase());
     }
+  }
+
+  getDataEntries(): DataEntries {
+    return this.unfilteredDataEntries;
   }
 
   getPossibleFieldValues(dimension: PivotDimension): ValueAndLabel<string | number | boolean>[] {

@@ -1,4 +1,5 @@
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
+import { DataEntries } from "../helpers/pivot/spreadsheet_pivot/data_entry_spreadsheet_pivot";
 import { SpreadsheetPivotTable } from "../helpers/pivot/table_spreadsheet_pivot";
 import { FunctionResultObject, Maybe } from "./misc";
 import {
@@ -33,6 +34,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean;
 
   assertIsValid({ throwOnError }: { throwOnError: boolean }): FunctionResultObject | undefined;
+  getDataEntries(): DataEntries;
   getPossibleFieldValues(
     dimension: PivotDimension
   ): { value: string | boolean | number; label: string }[];
