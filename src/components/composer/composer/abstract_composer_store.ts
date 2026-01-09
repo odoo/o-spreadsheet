@@ -124,7 +124,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   abstract stopEdition(direction?: Direction): void;
 
   private handleEvent(event: SelectionEvent) {
-    this.hideHelp();
     const sheetId = this.getters.getActiveSheetId();
     let unboundedZone: UnboundedZone;
     if (event.options.unbounded) {
@@ -518,6 +517,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.colorIndexByRange = {};
     this.hoveredTokens = [];
     this.hoveredContentEvaluation = "";
+    this.hideHelp();
   }
 
   /**
