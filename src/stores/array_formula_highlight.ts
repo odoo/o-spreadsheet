@@ -20,6 +20,10 @@ export class ArrayFormulaHighlight extends SpreadsheetStore {
     if (!zone) {
       return [];
     }
+    const pivotStyle = this.getters.getPivotStyleAtPosition(position);
+    if (pivotStyle?.pivotStyle?.tableStyleId && pivotStyle.pivotStyle.tableStyleId !== "None") {
+      return [];
+    }
     const isArrayFormulaBlocked = this.model.getters.isArrayFormulaSpillBlocked(
       spreader ?? position
     );

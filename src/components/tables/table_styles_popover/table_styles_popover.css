@@ -28,14 +28,24 @@
       padding: 3px;
     }
 
-    .o-table-style-popover-preview {
-      width: 66px;
-      height: 51px;
+    .o-pivot-previews {
+      .o-table-preview {
+        width: 66px;
+        height: 57px;
+      }
+    }
+
+    .o-table-previews {
+      .o-table-preview {
+        width: 66px;
+        height: 51px;
+      }
     }
 
     .o-new-table-style {
       font-size: 36px;
       color: var(--os-text-body-muted);
+
       &:hover {
         background: var(--os-button-hover-bg);
       }

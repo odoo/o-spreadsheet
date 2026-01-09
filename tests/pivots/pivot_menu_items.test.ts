@@ -1,5 +1,5 @@
 import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { PIVOT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/constants";
+import { PIVOT_INSERT_TABLE_STYLE_ID } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, PivotCustomGroup, SortDirection, SpreadsheetPivotTable } from "../../src";
 import { Action } from "../../src/actions/action";
@@ -18,12 +18,17 @@ import {
   getCell,
   getCellContent,
   getCellText,
-  getCoreTable,
   getEvaluatedCell,
   getEvaluatedGrid,
   getTable,
 } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, doAction, getNode, makeTestEnv } from "../test_helpers/helpers";
+import {
+  createModelFromGrid,
+  doAction,
+  getNode,
+  makeTestEnv,
+  setGrid,
+} from "../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
@@ -223,7 +228,7 @@ describe("Pivot fix formula menu item", () => {
     ]);
   });
 
-  test("it also adapts the dynamic table linked to the pivot", () => {
+  test("it converts the pivot style to a static table, and remove any dynamic table on the pivot", () => {
     // prettier-ignore
     const grid = {
      A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
@@ -237,6 +242,7 @@ describe("Pivot fix formula menu item", () => {
       columns: [],
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+      style: { tableStyleId: "PivotTableStyleLight1" },
     });
 
     selectCell(model, "C1");
@@ -251,6 +257,7 @@ describe("Pivot fix formula menu item", () => {
     selectCell(model, "C1");
     cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
 
+    expect(model.getters.getTables(sheetId)).toHaveLength(1);
     expect(model.getters.getCoreTable(activePosition)).toMatchObject({
       type: "static",
       range: model.getters.getRangeFromSheetXC(sheetId, "C1:D5"),
@@ -382,8 +389,8 @@ describe("Pivot fix formula menu item", () => {
       columns: [{ fieldName: "Customer" }],
       rows: [{ fieldName: "Date", granularity: "year" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+      style: { tableStyleId: "PivotTableStyleLight1" },
     });
-    createTable(model, "E1", {}, "dynamic");
 
     selectCell(model, "E1");
     cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
@@ -415,20 +422,15 @@ describe("Pivot reinsertion menu item", () => {
         columns: [],
         rows: [{ fieldName: "Customer" }],
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
+        style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       });
       const env = makeTestEnv({ model });
       selectCell(model, "B8");
       doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
-      expect(
-        model.getters.getCoreTable({
-          sheetId: model.getters.getActiveSheetId(),
-          ...toCartesian("B8"),
-        })
-      ).toMatchObject({
-        range: { zone: toZone("B8") },
-        config: { numberOfHeaders: 1, automaticAutofill: false },
-        type: "dynamic",
+      expect(getTable(model, "B8")).toMatchObject({
+        range: { zone: toZone("B8:C11") },
+        config: { numberOfHeaders: 2 },
       });
     });
 
@@ -464,6 +466,7 @@ describe("Pivot reinsertion menu item", () => {
         columns: [],
         rows: [{ fieldName: "Customer" }],
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
+        style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       });
       const env = makeTestEnv({ model });
       selectCell(model, "B8");
@@ -621,15 +624,15 @@ describe("Pivot reinsertion menu item", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const env = makeTestEnv({ model });
+    setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
     setSelection(model, ["A1:B2"]);
     doAction(insertPivotPath, env, topbarMenuRegistry);
     expect(model.getters.getActiveSheetId()).not.toEqual(sheetId);
     expect(model.getters.getPivotIds()).toHaveLength(1);
     expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
-    expect(getCoreTable(model, "A1")).toMatchObject({
-      range: { zone: toZone("A1") },
-      config: PIVOT_TABLE_CONFIG,
-      type: "dynamic",
+    expect(getTable(model, "A1")).toMatchObject({
+      range: { zone: toZone("A1:A3") },
+      config: { styleId: PIVOT_INSERT_TABLE_STYLE_ID },
     });
   });
 });

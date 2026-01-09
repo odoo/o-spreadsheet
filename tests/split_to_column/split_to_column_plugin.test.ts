@@ -150,8 +150,8 @@ describe("Split text into columns", () => {
     splitTextToColumns(model, " ", "A1:A2", { force: true });
     expect(getGrid(model)).toEqual({ A1: "a", B1: "b", A2: "c", B2: "d" });
     expect(getGridStyle(model)).toEqual({
-      A1: undefined,
-      B1: undefined,
+      A1: {},
+      B1: {},
       A2: { italic: true },
       B2: { italic: true },
     });

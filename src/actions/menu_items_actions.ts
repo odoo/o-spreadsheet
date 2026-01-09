@@ -587,7 +587,8 @@ export const SELECTED_TABLE_HAS_FILTERS = (env: SpreadsheetChildEnv): boolean =>
 export const SELECTION_CONTAINS_SINGLE_TABLE = (env: SpreadsheetChildEnv): boolean => {
   const sheetId = env.model.getters.getActiveSheetId();
   const selectedZones = env.model.getters.getSelectedZones();
-  return env.model.getters.getTablesOverlappingZones(sheetId, selectedZones).length === 1;
+  const tables = env.model.getters.getTablesOverlappingZones(sheetId, selectedZones);
+  return tables.length === 1 && !tables[0].isPivotTable;
 };
 
 export const IS_SELECTION_CONTINUOUS = (env: SpreadsheetChildEnv): boolean => {
