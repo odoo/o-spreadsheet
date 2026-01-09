@@ -65,13 +65,10 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
   }
 
   getPasteTarget(sheetId: UID): ClipboardPasteTarget {
-    return { zones: [], figureId: "1", sheetId };
+    return { zones: [], sheetId };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
-    if (!target.figureId) {
-      return;
-    }
     const { zones } = target;
     const sheetId = target.sheetId;
     for (const clippedFigure of clippedContent.figures) {

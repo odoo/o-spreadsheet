@@ -58,13 +58,10 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    return { sheetId, zones: [], figureId: "1" };
+    return { sheetId, zones: [] };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
-    if (!target.figureId) {
-      return;
-    }
     const { zones } = target;
     for (const clippedFigure of clippedContent.figures) {
       const figureId = new UuidGenerator().smallUuid();
