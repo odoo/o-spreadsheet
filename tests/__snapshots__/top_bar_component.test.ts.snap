@@ -642,7 +642,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
           >
             <span
-              class="o-menu-item-button o-hoverable-button"
+              class="o-menu-item-button opacity-100"
               title="Insert table"
             >
               <span

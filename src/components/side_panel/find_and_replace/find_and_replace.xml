@@ -76,33 +76,35 @@
           <ValidationMessages msgType="'info'" messages="searchInfo" singleBox="true"/>
         </div>
       </Section>
-      <Section class="'pt-0'" t-if="!env.model.getters.isReadonly()" title.translate="Replace">
-        <div class="o-input-search-container">
-          <input
-            type="text"
-            class="o-input o-input-without-count o-replace"
-            t-on-keydown="onKeydownReplace"
-            t-model="store.toReplace"
-            placeholder="e.g. 'replace me'"
-          />
-        </div>
-      </Section>
-      <Section>
-        <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
-          <button
-            t-att-disabled="store.selectedMatchIndex === null"
-            t-on-click="() => store.replace()"
-            class="o-button o-replace">
-            Replace
-          </button>
-          <button
-            t-att-disabled="store.selectedMatchIndex === null"
-            t-on-click="() => store.replaceAll()"
-            class="o-button o-replace-all">
-            Replace all
-          </button>
-        </div>
-      </Section>
+      <t t-if="!env.model.getters.isReadonly()">
+        <Section class="'pt-0'" title.translate="Replace">
+          <div class="o-input-search-container">
+            <input
+              type="text"
+              class="o-input o-input-without-count o-replace"
+              t-on-keydown="onKeydownReplace"
+              t-model="store.toReplace"
+              placeholder="e.g. 'replace me'"
+            />
+          </div>
+        </Section>
+        <Section>
+          <div class="o-sidePanelButtons">
+            <button
+              t-att-disabled="store.selectedMatchIndex === null"
+              t-on-click="() => store.replace()"
+              class="o-button o-replace">
+              Replace
+            </button>
+            <button
+              t-att-disabled="store.selectedMatchIndex === null"
+              t-on-click="() => store.replaceAll()"
+              class="o-button o-replace-all">
+              Replace all
+            </button>
+          </div>
+        </Section>
+      </t>
     </div>
   </t>
 </templates>
