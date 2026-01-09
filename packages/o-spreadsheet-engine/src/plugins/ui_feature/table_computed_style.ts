@@ -47,7 +47,7 @@ export class TableComputedStylePlugin extends UIPlugin {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     for (const sheetId of this.getters.getSheetIds()) {
       if (!this.tableStyles[sheetId]) {
         this.tableStyles[sheetId] = {};

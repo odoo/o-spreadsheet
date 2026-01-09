@@ -1,0 +1,22 @@
+<t t-name="o-spreadsheet-ProgressBar">
+  <div class="o-progressBar-container" t-if="progressBars.length">
+    <t t-foreach="progressBars" t-as="progressBar" t-key="progressBar.id">
+      <div class="o-progressBar">
+        <span
+          class="o-progressBar-text"
+          t-out="progressBar.name + ' ('+progressBar.progress + ' %)'"
+        />
+      </div>
+      <div class="progress">
+        <div
+          class="progress-bar"
+          role="progressbar"
+          t-att-aria-valuenow="progressBar.progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          t-att-style="getStyle(progressBar)"
+        />
+      </div>
+    </t>
+  </div>
+</t>

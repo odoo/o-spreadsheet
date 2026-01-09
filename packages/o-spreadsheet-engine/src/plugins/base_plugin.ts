@@ -65,10 +65,17 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
 
   /**
    * Sometimes, it is useful to perform some work after a command (and all its
-   * subcommands) has been completely handled. For example, when we paste
-   * multiple cells, we only want to reevaluate the cell values once at the end.
+   * subcommands) has been completely handled. Note that this function is called
+   * before the evaluation phase.
    */
   finalize(): void {}
+
+  /**
+   * This is the place to react to the end of an evaluation phase.
+   * For example, Conditional Formatting plugin will update its internal state
+   * based on the new cell values.
+   */
+  onEvaluationComplete(): void {}
 
   /**
    * Combine multiple validation functions into a single function

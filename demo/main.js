@@ -300,6 +300,14 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
+
+    for (let i = 0; i < 500; i++) {
+      let newSheet = Object.assign({}, demoData.sheets[3]);
+      newSheet.id = "newsheet" + i;
+      newSheet.name = "newsheet" + i;
+      demoData.sheets.push(newSheet);
+    }
+
     this.createModel(data || demoData);
     // this.createModel(makePivotDataset(10_000));
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));

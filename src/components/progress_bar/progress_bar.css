@@ -1,0 +1,12 @@
+.o-progressBar-container {
+  position: absolute;
+  right: 15px;
+  bottom: 52px;
+  min-width: 200px;
+  .o-progressBar {
+    .o-progressBar-text {
+      text-wrap: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}

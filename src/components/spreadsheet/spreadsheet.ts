@@ -32,6 +32,7 @@ import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { isMobileOS, zoomCorrectedElementRect } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { SpreadsheetProgressBar } from "../progress_bar/progress_bar";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
@@ -72,6 +73,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SpreadsheetDashboard,
     HeaderGroupContainer,
     FullScreenFigure,
+    SpreadsheetProgressBar,
   };
 
   sidePanel!: Store<SidePanelStore>;

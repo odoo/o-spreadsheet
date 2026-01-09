@@ -86,7 +86,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     if (this.isEvaluationDirty) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.updateHiddenRows(sheetId);

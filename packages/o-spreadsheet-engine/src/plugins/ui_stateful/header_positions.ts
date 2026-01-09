@@ -62,6 +62,17 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       // sheets can be created without this plugin being aware of it
       // in concurrent situations.
       if (this.isDirty || !this.headerPositions[sheetId]) {
+        this.isDirty = true; // TODOPRO Force onEvaluationComplete call
+        this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
+      }
+    }
+  }
+
+  onEvaluationComplete() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      // sheets can be created without this plugin being aware of it
+      // in concurrent situations.
+      if (this.isDirty || !this.headerPositions[sheetId]) {
         this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
       }
     }

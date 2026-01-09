@@ -92,7 +92,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     if (this.isInvalidated) {
       this.isInvalidated = false;
       this.computeFingerprints();
