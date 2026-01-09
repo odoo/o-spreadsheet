@@ -771,7 +771,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
   }
 
   rebuildFormulaString(useBoundedReference: boolean = false): string {
-    console.log("coucou");
+    console.log("compiled formula to string conversion");
     let referenceIndex = 0;
     let numberIndex = 0;
     let stringIndex = 0;
@@ -790,15 +790,45 @@ export class FormulaCellWithDependencies implements FormulaCell {
           case "NUMBER":
             return this.compiledFormula.literalValues.numbers[numberIndex++].value.toString();
           case "STRING":
-            return `"${this.compiledFormula.literalValues.strings[stringIndex++].value.replace(
+            return `"${
+              this.compiledFormula.literalValues.strings[stringIndex++].value /*.replace(
               /"/g,
               '""'
-            )}"`;
+            )*/
+            }"`;
           default:
             return token.value;
         }
       })
     );
+  }
+
+  get tokens(): Token[] {
+    console.log("compiled formula to tokens conversion");
+    let referenceIndex = 0;
+    let numberIndex = 0;
+    let stringIndex = 0;
+    return this.compiledFormula.tokens.map((token: Token) => {
+      switch (token.type) {
+        case "REFERENCE":
+          token.value = this.getRangeString(
+            this.compiledFormula.dependencies[referenceIndex++],
+            this.sheetId
+          );
+          break;
+        case "NUMBER":
+          token.value = this.compiledFormula.literalValues.numbers[numberIndex++].value.toString();
+          break;
+        case "STRING":
+          token.value = `"${
+            this.compiledFormula.literalValues.strings[stringIndex++].value /*.replace(
+            /"/g,
+            '""'
+          )*/
+          }"`;
+      }
+      return token;
+    });
   }
 
   get content() {

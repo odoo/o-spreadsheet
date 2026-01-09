@@ -49,7 +49,7 @@ type TokenType =
 
 export interface Token {
   readonly type: TokenType;
-  readonly value: string;
+  value: string;
 }
 
 export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
