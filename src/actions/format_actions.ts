@@ -36,10 +36,10 @@ export function createFormatActionSpec({
   return {
     name,
     description: (env) =>
-      formatValue(descriptionValue, {
-        format: formatCallback(env),
-        locale: env.model.getters.getLocale(),
-      }),
+      formatValue(
+        { value: descriptionValue, format: formatCallback(env) },
+        env.model.getters.getLocale()
+      ),
     execute: (env) => setFormatter(env, formatCallback(env)),
     isActive: (env) => isFormatSelected(env, formatCallback(env)),
     format,

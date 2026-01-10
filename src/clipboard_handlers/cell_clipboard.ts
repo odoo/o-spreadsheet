@@ -74,7 +74,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
             const content = isSpreaderCopied
               ? ""
-              : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
+              : formatValue({ value: evaluatedCell.value }, this.getters.getLocale());
             cell = {
               id: cell?.id || "",
               format: evaluatedCell.format,

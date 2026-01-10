@@ -814,7 +814,7 @@ function getDateCriterionLocalizedValues(
   const values = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE);
   return values.map((value) =>
     value !== undefined
-      ? formatValue(value, { locale, format: locale.dateFormat })
+      ? formatValue({ value, format: locale.dateFormat }, locale)
       : CellErrorType.InvalidReference
   );
 }

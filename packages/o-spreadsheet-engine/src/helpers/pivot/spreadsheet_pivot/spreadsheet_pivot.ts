@@ -535,13 +535,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
             this.getters.getLocale()
           );
           const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
-          const { format, value: valueToFormat } = adapter.toValueAndFormat(value, locale);
+          const valueAndFormat = adapter.toValueAndFormat(value, locale);
 
           entry[dimension.nameWithGranularity] = {
             value,
             type: entry[dimension.fieldName]?.type || CellValueType.empty,
             format: entry[dimension.fieldName]?.format,
-            formattedValue: formatValue(valueToFormat, { locale, format }),
+            formattedValue: formatValue(valueAndFormat, locale),
           };
         }
       }

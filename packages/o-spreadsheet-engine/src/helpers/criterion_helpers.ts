@@ -63,7 +63,7 @@ export function getDateCriterionFormattedValues(values: string[], locale: Locale
     }
     const value = parseLiteral(valueStr, locale);
     if (typeof value === "number") {
-      return formatValue(value, { format: locale.dateFormat, locale });
+      return formatValue({ value, format: locale.dateFormat }, locale);
     }
     return "";
   });

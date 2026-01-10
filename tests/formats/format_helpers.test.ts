@@ -13,86 +13,86 @@ const locale = DEFAULT_LOCALE;
 
 describe("formatValue on string", () => {
   test("Number format have no impact on string", () => {
-    expect(formatValue("", { locale })).toBe("");
-    expect(formatValue("test", { locale })).toBe("test");
-    expect(formatValue("test", { locale, format: "#,###.0" })).toBe("test");
+    expect(formatValue({ value: "" }, locale)).toBe("");
+    expect(formatValue({ value: "test" }, locale)).toBe("test");
+    expect(formatValue({ value: "test", format: "#,###.0" }, locale)).toBe("test");
   });
 
   test("Number format have no impact on strings with escape characters", () => {
-    expect(formatValue('Hello \\"world\\"', { locale })).toBe('Hello "world"');
+    expect(formatValue({ value: 'Hello \\"world\\"' }, locale)).toBe('Hello "world"');
   });
 
   test("Text format on string", () => {
-    expect(formatValue("test", { locale, format: "[$Hey] @" })).toBe("Hey test");
-    expect(formatValue("test", { locale, format: '"€"@$\\C' })).toBe("€test$C");
-    expect(formatValue("test", { locale, format: "@ $$ @" })).toBe("test $$ test");
+    expect(formatValue({ value: "test", format: "[$Hey] @" }, locale)).toBe("Hey test");
+    expect(formatValue({ value: "test", format: '"€"@$\\C' }, locale)).toBe("€test$C");
+    expect(formatValue({ value: "test", format: "@ $$ @" }, locale)).toBe("test $$ test");
   });
 
   test("Booleans are formatted as string", () => {
-    expect(formatValue(true, { locale, format: "[$Hey] @" })).toBe("Hey TRUE");
-    expect(formatValue(false, { locale, format: '"€" @ $\\C' })).toBe("€ FALSE $C");
+    expect(formatValue({ value: true, format: "[$Hey] @" }, locale)).toBe("Hey TRUE");
+    expect(formatValue({ value: false, format: '"€" @ $\\C' }, locale)).toBe("€ FALSE $C");
   });
 });
 
 describe("formatValue on number", () => {
   test("apply default format ", () => {
-    expect(formatValue(1, { locale })).toBe("1");
-    expect(formatValue(0, { locale })).toBe("0");
-    expect(formatValue(0.1, { locale })).toBe("0.1");
-    expect(formatValue(0.01, { locale })).toBe("0.01");
-    expect(formatValue(0.001, { locale })).toBe("0.001");
-    expect(formatValue(0.0001, { locale })).toBe("0.0001");
-    expect(formatValue(0.00001, { locale })).toBe("0.00001");
-    expect(formatValue(0.000001, { locale })).toBe("0.000001");
-    expect(formatValue(0.0000001, { locale })).toBe("0.0000001");
-    expect(formatValue(0.00000001, { locale })).toBe("0.00000001");
-    expect(formatValue(0.000000001, { locale })).toBe("0.000000001");
-    expect(formatValue(0.0000000001, { locale })).toBe("0");
-    expect(formatValue(0.00000000001, { locale })).toBe("0");
-    expect(formatValue(0.000000000001, { locale })).toBe("0");
-    expect(formatValue(Infinity, { locale })).toBe("∞");
+    expect(formatValue({ value: 1 }, locale)).toBe("1");
+    expect(formatValue({ value: 0 }, locale)).toBe("0");
+    expect(formatValue({ value: 0.1 }, locale)).toBe("0.1");
+    expect(formatValue({ value: 0.01 }, locale)).toBe("0.01");
+    expect(formatValue({ value: 0.001 }, locale)).toBe("0.001");
+    expect(formatValue({ value: 0.0001 }, locale)).toBe("0.0001");
+    expect(formatValue({ value: 0.00001 }, locale)).toBe("0.00001");
+    expect(formatValue({ value: 0.000001 }, locale)).toBe("0.000001");
+    expect(formatValue({ value: 0.0000001 }, locale)).toBe("0.0000001");
+    expect(formatValue({ value: 0.00000001 }, locale)).toBe("0.00000001");
+    expect(formatValue({ value: 0.000000001 }, locale)).toBe("0.000000001");
+    expect(formatValue({ value: 0.0000000001 }, locale)).toBe("0");
+    expect(formatValue({ value: 0.00000000001 }, locale)).toBe("0");
+    expect(formatValue({ value: 0.000000000001 }, locale)).toBe("0");
+    expect(formatValue({ value: Infinity }, locale)).toBe("∞");
 
-    expect(formatValue(-1, { locale })).toBe("-1");
-    expect(formatValue(-0.1, { locale })).toBe("-0.1");
-    expect(formatValue(-0.01, { locale })).toBe("-0.01");
-    expect(formatValue(-0.001, { locale })).toBe("-0.001");
-    expect(formatValue(-0.0001, { locale })).toBe("-0.0001");
-    expect(formatValue(-0.00001, { locale })).toBe("-0.00001");
-    expect(formatValue(-0.000001, { locale })).toBe("-0.000001");
-    expect(formatValue(-0.0000001, { locale })).toBe("-0.0000001");
-    expect(formatValue(-0.00000001, { locale })).toBe("-0.00000001");
-    expect(formatValue(-0.000000001, { locale })).toBe("-0.000000001");
-    expect(formatValue(-0.0000000001, { locale })).toBe("-0");
-    expect(formatValue(-0.00000000001, { locale })).toBe("-0");
-    expect(formatValue(-0.000000000001, { locale })).toBe("-0");
-    expect(formatValue(-Infinity, { locale })).toBe("-∞");
+    expect(formatValue({ value: -1 }, locale)).toBe("-1");
+    expect(formatValue({ value: -0.1 }, locale)).toBe("-0.1");
+    expect(formatValue({ value: -0.01 }, locale)).toBe("-0.01");
+    expect(formatValue({ value: -0.001 }, locale)).toBe("-0.001");
+    expect(formatValue({ value: -0.0001 }, locale)).toBe("-0.0001");
+    expect(formatValue({ value: -0.00001 }, locale)).toBe("-0.00001");
+    expect(formatValue({ value: -0.000001 }, locale)).toBe("-0.000001");
+    expect(formatValue({ value: -0.0000001 }, locale)).toBe("-0.0000001");
+    expect(formatValue({ value: -0.00000001 }, locale)).toBe("-0.00000001");
+    expect(formatValue({ value: -0.000000001 }, locale)).toBe("-0.000000001");
+    expect(formatValue({ value: -0.0000000001 }, locale)).toBe("-0");
+    expect(formatValue({ value: -0.00000000001 }, locale)).toBe("-0");
+    expect(formatValue({ value: -0.000000000001 }, locale)).toBe("-0");
+    expect(formatValue({ value: -Infinity }, locale)).toBe("-∞");
 
-    expect(formatValue(0.9999999, { locale })).toBe("0.9999999");
-    expect(formatValue(0.99999999, { locale })).toBe("0.99999999");
-    expect(formatValue(0.999999999, { locale })).toBe("0.999999999");
-    expect(formatValue(0.9999999999, { locale })).toBe("1");
-    expect(formatValue(0.99999999999, { locale })).toBe("1");
+    expect(formatValue({ value: 0.9999999 }, locale)).toBe("0.9999999");
+    expect(formatValue({ value: 0.99999999 }, locale)).toBe("0.99999999");
+    expect(formatValue({ value: 0.999999999 }, locale)).toBe("0.999999999");
+    expect(formatValue({ value: 0.9999999999 }, locale)).toBe("1");
+    expect(formatValue({ value: 0.99999999999 }, locale)).toBe("1");
 
-    expect(formatValue(1.123456789, { locale })).toBe("1.123456789");
-    expect(formatValue(10.123456789, { locale })).toBe("10.12345679");
-    expect(formatValue(100.123456789, { locale })).toBe("100.1234568");
-    expect(formatValue(1000.123456789, { locale })).toBe("1000.123457");
-    expect(formatValue(10000.123456789, { locale })).toBe("10000.12346");
-    expect(formatValue(-10000.123456789, { locale })).toBe("-10000.12346");
+    expect(formatValue({ value: 1.123456789 }, locale)).toBe("1.123456789");
+    expect(formatValue({ value: 10.123456789 }, locale)).toBe("10.12345679");
+    expect(formatValue({ value: 100.123456789 }, locale)).toBe("100.1234568");
+    expect(formatValue({ value: 1000.123456789 }, locale)).toBe("1000.123457");
+    expect(formatValue({ value: 10000.123456789 }, locale)).toBe("10000.12346");
+    expect(formatValue({ value: -10000.123456789 }, locale)).toBe("-10000.12346");
 
     // too many integer digit to display decimal part
-    expect(formatValue(12345123456.1234, { locale })).toBe("12345123456");
-    expect(formatValue(12345123456.9999, { locale })).toBe("12345123457");
+    expect(formatValue({ value: 12345123456.1234 }, locale)).toBe("12345123456");
+    expect(formatValue({ value: 12345123456.9999 }, locale)).toBe("12345123457");
 
-    expect(formatValue(123.10000000001, { locale })).toBe("123.1");
-    expect(formatValue(123.10000000000000001, { locale })).toBe("123.1");
+    expect(formatValue({ value: 123.10000000001 }, locale)).toBe("123.1");
+    expect(formatValue({ value: 123.10000000000000001 }, locale)).toBe("123.1");
   });
 
   test("format is ignored with infinity value", () => {
     const format = "#,##0.00";
-    expect(formatValue(Infinity, { format, locale })).toBe("∞");
-    expect(formatValue(-Infinity, { format, locale })).toBe("-∞");
-    expect(formatValue(Infinity, { format, locale: FR_LOCALE })).toBe("∞");
+    expect(formatValue({ value: Infinity, format }, locale)).toBe("∞");
+    expect(formatValue({ value: -Infinity, format }, locale)).toBe("-∞");
+    expect(formatValue({ value: Infinity, format }, FR_LOCALE)).toBe("∞");
   });
 
   test.each([
@@ -120,176 +120,176 @@ describe("formatValue on number", () => {
     [0.000000001, "0.00"],
     [0.0000000001, "0.00"],
   ])("apply a normal number format: #,##0.00", (value, result) => {
-    expect(formatValue(value, { format: "#,##0.00", locale })).toBe(result);
+    expect(formatValue({ value, format: "#,##0.00" }, locale)).toBe(result);
   });
 
   test("apply various integer format", () => {
-    expect(formatValue(0, { format: "0", locale })).toBe("0");
-    expect(formatValue(0, { format: "#", locale })).toBe("");
-    expect(formatValue(0, { format: "000", locale })).toBe("000");
-    expect(formatValue(0, { format: "0000", locale })).toBe("0000");
-    expect(formatValue(0, { format: "0###", locale })).toBe("0");
-    expect(formatValue(0, { format: "#0###", locale })).toBe("0");
-    expect(formatValue(0, { format: "0#0###", locale })).toBe("00");
-    expect(formatValue(0, { format: "0#0#0#", locale })).toBe("000");
+    expect(formatValue({ value: 0, format: "0" }, locale)).toBe("0");
+    expect(formatValue({ value: 0, format: "#" }, locale)).toBe("");
+    expect(formatValue({ value: 0, format: "000" }, locale)).toBe("000");
+    expect(formatValue({ value: 0, format: "0000" }, locale)).toBe("0000");
+    expect(formatValue({ value: 0, format: "0###" }, locale)).toBe("0");
+    expect(formatValue({ value: 0, format: "#0###" }, locale)).toBe("0");
+    expect(formatValue({ value: 0, format: "0#0###" }, locale)).toBe("00");
+    expect(formatValue({ value: 0, format: "0#0#0#" }, locale)).toBe("000");
 
-    expect(formatValue(123, { format: "0", locale })).toBe("123");
-    expect(formatValue(123, { format: "#", locale })).toBe("123");
-    expect(formatValue(123, { format: "000", locale })).toBe("123");
-    expect(formatValue(123, { format: "0000", locale })).toBe("0123");
-    expect(formatValue(123, { format: "0###", locale })).toBe("0123");
-    expect(formatValue(123, { format: "#0###", locale })).toBe("0123");
-    expect(formatValue(123, { format: "0#0###", locale })).toBe("00123");
-    expect(formatValue(123, { format: "0#0#0#", locale })).toBe("00123");
+    expect(formatValue({ value: 123, format: "0" }, locale)).toBe("123");
+    expect(formatValue({ value: 123, format: "#" }, locale)).toBe("123");
+    expect(formatValue({ value: 123, format: "000" }, locale)).toBe("123");
+    expect(formatValue({ value: 123, format: "0000" }, locale)).toBe("0123");
+    expect(formatValue({ value: 123, format: "0###" }, locale)).toBe("0123");
+    expect(formatValue({ value: 123, format: "#0###" }, locale)).toBe("0123");
+    expect(formatValue({ value: 123, format: "0#0###" }, locale)).toBe("00123");
+    expect(formatValue({ value: 123, format: "0#0#0#" }, locale)).toBe("00123");
 
-    expect(formatValue(123.456, { format: "0", locale })).toBe("123");
-    expect(formatValue(123.456, { format: "#", locale })).toBe("123");
-    expect(formatValue(123.456, { format: "000", locale })).toBe("123");
-    expect(formatValue(123.456, { format: "0000", locale })).toBe("0123");
-    expect(formatValue(123.456, { format: "0###", locale })).toBe("0123");
-    expect(formatValue(123.456, { format: "#0###", locale })).toBe("0123");
-    expect(formatValue(123.456, { format: "0#0###", locale })).toBe("00123");
-    expect(formatValue(123.456, { format: "0#0#0#", locale })).toBe("00123");
+    expect(formatValue({ value: 123.456, format: "0" }, locale)).toBe("123");
+    expect(formatValue({ value: 123.456, format: "#" }, locale)).toBe("123");
+    expect(formatValue({ value: 123.456, format: "000" }, locale)).toBe("123");
+    expect(formatValue({ value: 123.456, format: "0000" }, locale)).toBe("0123");
+    expect(formatValue({ value: 123.456, format: "0###" }, locale)).toBe("0123");
+    expect(formatValue({ value: 123.456, format: "#0###" }, locale)).toBe("0123");
+    expect(formatValue({ value: 123.456, format: "0#0###" }, locale)).toBe("00123");
+    expect(formatValue({ value: 123.456, format: "0#0#0#" }, locale)).toBe("00123");
 
-    expect(formatValue(0.456, { format: "0", locale })).toBe("0");
-    expect(formatValue(0.456, { format: "#", locale })).toBe("");
-    expect(formatValue(0.456, { format: "000", locale })).toBe("000");
-    expect(formatValue(0.456, { format: "0000", locale })).toBe("0000");
-    expect(formatValue(0.456, { format: "0###", locale })).toBe("0");
-    expect(formatValue(0.456, { format: "0###", locale })).toBe("0");
-    expect(formatValue(0.456, { format: "#0###", locale })).toBe("0");
-    expect(formatValue(0.456, { format: "0#0###", locale })).toBe("00");
-    expect(formatValue(0.456, { format: "0#0#0#", locale })).toBe("000");
+    expect(formatValue({ value: 0.456, format: "0" }, locale)).toBe("0");
+    expect(formatValue({ value: 0.456, format: "#" }, locale)).toBe("");
+    expect(formatValue({ value: 0.456, format: "000" }, locale)).toBe("000");
+    expect(formatValue({ value: 0.456, format: "0000" }, locale)).toBe("0000");
+    expect(formatValue({ value: 0.456, format: "0###" }, locale)).toBe("0");
+    expect(formatValue({ value: 0.456, format: "0###" }, locale)).toBe("0");
+    expect(formatValue({ value: 0.456, format: "#0###" }, locale)).toBe("0");
+    expect(formatValue({ value: 0.456, format: "0#0###" }, locale)).toBe("00");
+    expect(formatValue({ value: 0.456, format: "0#0#0#" }, locale)).toBe("000");
   });
 
   test("apply empty format --> apply default format", () => {
-    expect(formatValue(0, { format: "", locale })).toBe("0");
-    expect(formatValue(123, { format: "", locale })).toBe("123");
-    expect(formatValue(123.456, { format: "", locale })).toBe("123.456");
-    expect(formatValue(0.456, { format: "", locale })).toBe("0.456");
+    expect(formatValue({ value: 0, format: "" }, locale)).toBe("0");
+    expect(formatValue({ value: 123, format: "" }, locale)).toBe("123");
+    expect(formatValue({ value: 123.456, format: "" }, locale)).toBe("123.456");
+    expect(formatValue({ value: 0.456, format: "" }, locale)).toBe("0.456");
   });
 
   test("apply various decimal format", () => {
-    expect(formatValue(0, { format: ".0", locale })).toBe(".0");
-    expect(formatValue(0, { format: "0.0", locale })).toBe("0.0");
-    expect(formatValue(0, { format: ".#", locale })).toBe(".");
-    expect(formatValue(0, { format: "0.#", locale })).toBe("0.");
-    expect(formatValue(0, { format: "0.000", locale })).toBe("0.000");
-    expect(formatValue(0, { format: "0.0000", locale })).toBe("0.0000");
-    expect(formatValue(0, { format: "0.0###", locale })).toBe("0.0");
-    expect(formatValue(0, { format: "0.###0#", locale })).toBe("0.0");
-    expect(formatValue(0, { format: "0.0#0#0#", locale })).toBe("0.000");
-    expect(formatValue(0, { format: "0.###0#0", locale })).toBe("0.00");
-    expect(formatValue(0, { format: "0.#0#0#0", locale })).toBe("0.000");
+    expect(formatValue({ value: 0, format: ".0" }, locale)).toBe(".0");
+    expect(formatValue({ value: 0, format: "0.0" }, locale)).toBe("0.0");
+    expect(formatValue({ value: 0, format: ".#" }, locale)).toBe(".");
+    expect(formatValue({ value: 0, format: "0.#" }, locale)).toBe("0.");
+    expect(formatValue({ value: 0, format: "0.000" }, locale)).toBe("0.000");
+    expect(formatValue({ value: 0, format: "0.0000" }, locale)).toBe("0.0000");
+    expect(formatValue({ value: 0, format: "0.0###" }, locale)).toBe("0.0");
+    expect(formatValue({ value: 0, format: "0.###0#" }, locale)).toBe("0.0");
+    expect(formatValue({ value: 0, format: "0.0#0#0#" }, locale)).toBe("0.000");
+    expect(formatValue({ value: 0, format: "0.###0#0" }, locale)).toBe("0.00");
+    expect(formatValue({ value: 0, format: "0.#0#0#0" }, locale)).toBe("0.000");
 
-    expect(formatValue(123, { format: ".0", locale })).toBe("123.0");
-    expect(formatValue(123, { format: "0.0", locale })).toBe("123.0");
-    expect(formatValue(123, { format: ".#", locale })).toBe("123.");
-    expect(formatValue(123, { format: "0.#", locale })).toBe("123.");
-    expect(formatValue(123, { format: "0.000", locale })).toBe("123.000");
-    expect(formatValue(123, { format: "0.0000", locale })).toBe("123.0000");
-    expect(formatValue(123, { format: "0.0###", locale })).toBe("123.0");
-    expect(formatValue(123, { format: "0.###0#", locale })).toBe("123.0");
-    expect(formatValue(123, { format: "0.0#0#0#", locale })).toBe("123.000");
-    expect(formatValue(123, { format: "0.###0#0", locale })).toBe("123.00");
-    expect(formatValue(123, { format: "0.#0#0#0", locale })).toBe("123.000");
+    expect(formatValue({ value: 123, format: ".0" }, locale)).toBe("123.0");
+    expect(formatValue({ value: 123, format: "0.0" }, locale)).toBe("123.0");
+    expect(formatValue({ value: 123, format: ".#" }, locale)).toBe("123.");
+    expect(formatValue({ value: 123, format: "0.#" }, locale)).toBe("123.");
+    expect(formatValue({ value: 123, format: "0.000" }, locale)).toBe("123.000");
+    expect(formatValue({ value: 123, format: "0.0000" }, locale)).toBe("123.0000");
+    expect(formatValue({ value: 123, format: "0.0###" }, locale)).toBe("123.0");
+    expect(formatValue({ value: 123, format: "0.###0#" }, locale)).toBe("123.0");
+    expect(formatValue({ value: 123, format: "0.0#0#0#" }, locale)).toBe("123.000");
+    expect(formatValue({ value: 123, format: "0.###0#0" }, locale)).toBe("123.00");
+    expect(formatValue({ value: 123, format: "0.#0#0#0" }, locale)).toBe("123.000");
 
-    expect(formatValue(123.123, { format: ".0", locale })).toBe("123.1");
-    expect(formatValue(123.123, { format: "0.0", locale })).toBe("123.1");
-    expect(formatValue(123.123, { format: ".#", locale })).toBe("123.1");
-    expect(formatValue(123.123, { format: "0.#", locale })).toBe("123.1");
-    expect(formatValue(123.123, { format: "0.000", locale })).toBe("123.123");
-    expect(formatValue(123.123, { format: "0.0000", locale })).toBe("123.1230");
-    expect(formatValue(123.123, { format: "0.0###", locale })).toBe("123.123");
-    expect(formatValue(123.123, { format: "0.###0#", locale })).toBe("123.1230");
-    expect(formatValue(123.123, { format: "0.0#0#0#", locale })).toBe("123.1230");
-    expect(formatValue(123.123, { format: "0.###0#0", locale })).toBe("123.12300");
-    expect(formatValue(123.123, { format: "0.#0#0#0", locale })).toBe("123.12300");
+    expect(formatValue({ value: 123.123, format: ".0" }, locale)).toBe("123.1");
+    expect(formatValue({ value: 123.123, format: "0.0" }, locale)).toBe("123.1");
+    expect(formatValue({ value: 123.123, format: ".#" }, locale)).toBe("123.1");
+    expect(formatValue({ value: 123.123, format: "0.#" }, locale)).toBe("123.1");
+    expect(formatValue({ value: 123.123, format: "0.000" }, locale)).toBe("123.123");
+    expect(formatValue({ value: 123.123, format: "0.0000" }, locale)).toBe("123.1230");
+    expect(formatValue({ value: 123.123, format: "0.0###" }, locale)).toBe("123.123");
+    expect(formatValue({ value: 123.123, format: "0.###0#" }, locale)).toBe("123.1230");
+    expect(formatValue({ value: 123.123, format: "0.0#0#0#" }, locale)).toBe("123.1230");
+    expect(formatValue({ value: 123.123, format: "0.###0#0" }, locale)).toBe("123.12300");
+    expect(formatValue({ value: 123.123, format: "0.#0#0#0" }, locale)).toBe("123.12300");
 
-    expect(formatValue(0.123, { format: ".0", locale })).toBe(".1");
-    expect(formatValue(0.123, { format: "0.0", locale })).toBe("0.1");
-    expect(formatValue(0.123, { format: ".#", locale })).toBe(".1");
-    expect(formatValue(0.123, { format: "0.#", locale })).toBe("0.1");
-    expect(formatValue(0.123, { format: "0.000", locale })).toBe("0.123");
-    expect(formatValue(0.123, { format: "0.0000", locale })).toBe("0.1230");
-    expect(formatValue(0.123, { format: "0.0###", locale })).toBe("0.123");
-    expect(formatValue(0.123, { format: "0.###0#", locale })).toBe("0.1230");
-    expect(formatValue(0.123, { format: "0.0#0#0#", locale })).toBe("0.1230");
-    expect(formatValue(0.123, { format: "0.###0#0", locale })).toBe("0.12300");
-    expect(formatValue(0.123, { format: "0.#0#0#0", locale })).toBe("0.12300");
+    expect(formatValue({ value: 0.123, format: ".0" }, locale)).toBe(".1");
+    expect(formatValue({ value: 0.123, format: "0.0" }, locale)).toBe("0.1");
+    expect(formatValue({ value: 0.123, format: ".#" }, locale)).toBe(".1");
+    expect(formatValue({ value: 0.123, format: "0.#" }, locale)).toBe("0.1");
+    expect(formatValue({ value: 0.123, format: "0.000" }, locale)).toBe("0.123");
+    expect(formatValue({ value: 0.123, format: "0.0000" }, locale)).toBe("0.1230");
+    expect(formatValue({ value: 0.123, format: "0.0###" }, locale)).toBe("0.123");
+    expect(formatValue({ value: 0.123, format: "0.###0#" }, locale)).toBe("0.1230");
+    expect(formatValue({ value: 0.123, format: "0.0#0#0#" }, locale)).toBe("0.1230");
+    expect(formatValue({ value: 0.123, format: "0.###0#0" }, locale)).toBe("0.12300");
+    expect(formatValue({ value: 0.123, format: "0.#0#0#0" }, locale)).toBe("0.12300");
   });
 
   test("Decimal formats with locale", () => {
-    expect(formatValue(0, { format: ".0", locale: FR_LOCALE })).toBe(",0");
-    expect(formatValue(123, { format: ".0", locale: FR_LOCALE })).toBe("123,0");
-    expect(formatValue(123.123, { format: ".0", locale: FR_LOCALE })).toBe("123,1");
-    expect(formatValue(0.123, { format: ".0", locale: FR_LOCALE })).toBe(",1");
+    expect(formatValue({ value: 0, format: ".0" }, FR_LOCALE)).toBe(",0");
+    expect(formatValue({ value: 123, format: ".0" }, FR_LOCALE)).toBe("123,0");
+    expect(formatValue({ value: 123.123, format: ".0" }, FR_LOCALE)).toBe("123,1");
+    expect(formatValue({ value: 0.123, format: ".0" }, FR_LOCALE)).toBe(",1");
   });
 
   test("apply decimal format round the last displayed digits", () => {
-    expect(formatValue(0.456789, { format: "0.0", locale })).toBe("0.5");
-    expect(formatValue(0.456789, { format: "0.00", locale })).toBe("0.46");
-    expect(formatValue(0.456789, { format: "0.000", locale })).toBe("0.457");
-    expect(formatValue(0.456789, { format: "0.0000", locale })).toBe("0.4568");
-    expect(formatValue(0.456789, { format: "0.00000", locale })).toBe("0.45679");
+    expect(formatValue({ value: 0.456789, format: "0.0" }, locale)).toBe("0.5");
+    expect(formatValue({ value: 0.456789, format: "0.00" }, locale)).toBe("0.46");
+    expect(formatValue({ value: 0.456789, format: "0.000" }, locale)).toBe("0.457");
+    expect(formatValue({ value: 0.456789, format: "0.0000" }, locale)).toBe("0.4568");
+    expect(formatValue({ value: 0.456789, format: "0.00000" }, locale)).toBe("0.45679");
   });
 
   test("apply decimal with a leading 0 in the decimal part rounded up", () => {
-    expect(formatValue(0.0695, { format: "0.0", locale })).toBe("0.1");
-    expect(formatValue(0.0695, { format: "0.00", locale })).toBe("0.07");
-    expect(formatValue(0.0695, { format: "0.000", locale })).toBe("0.070");
-    expect(formatValue(0.0695, { format: "0.0000", locale })).toBe("0.0695");
+    expect(formatValue({ value: 0.0695, format: "0.0" }, locale)).toBe("0.1");
+    expect(formatValue({ value: 0.0695, format: "0.00" }, locale)).toBe("0.07");
+    expect(formatValue({ value: 0.0695, format: "0.000" }, locale)).toBe("0.070");
+    expect(formatValue({ value: 0.0695, format: "0.0000" }, locale)).toBe("0.0695");
   });
 
   test("apply decimal with two leading 0 in the decimal part rounded up", () => {
-    expect(formatValue(0.00695, { format: "0.0", locale })).toBe("0.0");
-    expect(formatValue(0.00695, { format: "0.00", locale })).toBe("0.01");
-    expect(formatValue(0.00695, { format: "0.000", locale })).toBe("0.007");
-    expect(formatValue(0.00695, { format: "0.0000", locale })).toBe("0.0070");
-    expect(formatValue(0.00695, { format: "0.00000", locale })).toBe("0.00695");
+    expect(formatValue({ value: 0.00695, format: "0.0" }, locale)).toBe("0.0");
+    expect(formatValue({ value: 0.00695, format: "0.00" }, locale)).toBe("0.01");
+    expect(formatValue({ value: 0.00695, format: "0.000" }, locale)).toBe("0.007");
+    expect(formatValue({ value: 0.00695, format: "0.0000" }, locale)).toBe("0.0070");
+    expect(formatValue({ value: 0.00695, format: "0.00000" }, locale)).toBe("0.00695");
   });
 
   test("apply decimal with a leading 0 in the decimal part rounded down", () => {
-    expect(formatValue(0.064, { format: "0.00", locale })).toBe("0.06");
-    expect(formatValue(0.0694, { format: "0.000", locale })).toBe("0.069");
-    expect(formatValue(0.0694, { format: "0.0000", locale })).toBe("0.0694");
+    expect(formatValue({ value: 0.064, format: "0.00" }, locale)).toBe("0.06");
+    expect(formatValue({ value: 0.0694, format: "0.000" }, locale)).toBe("0.069");
+    expect(formatValue({ value: 0.0694, format: "0.0000" }, locale)).toBe("0.0694");
   });
 
   test("apply decimal with two leading 0 in the decimal part rounded down", () => {
-    expect(formatValue(0.0064, { format: "0.000", locale })).toBe("0.006");
-    expect(formatValue(0.00694, { format: "0.0000", locale })).toBe("0.0069");
-    expect(formatValue(0.00694, { format: "0.00000", locale })).toBe("0.00694");
+    expect(formatValue({ value: 0.0064, format: "0.000" }, locale)).toBe("0.006");
+    expect(formatValue({ value: 0.00694, format: "0.0000" }, locale)).toBe("0.0069");
+    expect(formatValue({ value: 0.00694, format: "0.00000" }, locale)).toBe("0.00694");
   });
 
   test("apply format with thousand separator", () => {
-    expect(formatValue(100, { format: "000", locale })).toBe("100");
-    expect(formatValue(100, { format: ",000", locale })).toBe(",100"); // Thousand separator not between digits is a simple string
-    expect(formatValue(100, { format: "0,00", locale })).toBe("100");
+    expect(formatValue({ value: 100, format: "000" }, locale)).toBe("100");
+    expect(formatValue({ value: 100, format: ",000" }, locale)).toBe(",100"); // Thousand separator not between digits is a simple string
+    expect(formatValue({ value: 100, format: "0,00" }, locale)).toBe("100");
 
-    expect(formatValue(1000, { format: "000", locale })).toBe("1000");
-    expect(formatValue(1000, { format: ",000", locale })).toBe(",1000");
-    expect(formatValue(1000, { format: "0,00", locale })).toBe("1,000");
+    expect(formatValue({ value: 1000, format: "000" }, locale)).toBe("1000");
+    expect(formatValue({ value: 1000, format: ",000" }, locale)).toBe(",1000");
+    expect(formatValue({ value: 1000, format: "0,00" }, locale)).toBe("1,000");
 
-    expect(formatValue(1000, { format: "#,##0", locale })).toBe("1,000");
-    expect(formatValue(10000, { format: "#,##0", locale })).toBe("10,000");
-    expect(formatValue(100000, { format: "#,##0", locale })).toBe("100,000");
-    expect(formatValue(1000000, { format: "#,##0", locale })).toBe("1,000,000");
+    expect(formatValue({ value: 1000, format: "#,##0" }, locale)).toBe("1,000");
+    expect(formatValue({ value: 10000, format: "#,##0" }, locale)).toBe("10,000");
+    expect(formatValue({ value: 100000, format: "#,##0" }, locale)).toBe("100,000");
+    expect(formatValue({ value: 1000000, format: "#,##0" }, locale)).toBe("1,000,000");
 
-    expect(formatValue(1000, { format: "###0.0,0", locale })).toBe("1000.00"); // Thousand separator is ignored in decimal part
-    expect(formatValue(1000, { format: "#,##,0.0", locale })).toBe("1,000.0"); // Multiple thousand separator are ignored
+    expect(formatValue({ value: 1000, format: "###0.0,0" }, locale)).toBe("1000.00"); // Thousand separator is ignored in decimal part
+    expect(formatValue({ value: 1000, format: "#,##,0.0" }, locale)).toBe("1,000.0"); // Multiple thousand separator are ignored
   });
 
   test("apply format with thousand separator as a magnitude marker", () => {
     // Thousand separator at the end of the number placeholder divide the number by 1000
-    expect(formatValue(100, { format: "00,", locale })).toBe("00");
-    expect(formatValue(100, { format: "##.0,", locale })).toBe(".1");
-    expect(formatValue(1000, { format: "00,", locale })).toBe("01");
-    expect(formatValue(123456789, { format: "0,0.000,", locale })).toBe("123,456.789");
-    expect(formatValue(1.234, { format: "0.0000,", locale })).toBe("0.0012");
+    expect(formatValue({ value: 100, format: "00," }, locale)).toBe("00");
+    expect(formatValue({ value: 100, format: "##.0," }, locale)).toBe(".1");
+    expect(formatValue({ value: 1000, format: "00," }, locale)).toBe("01");
+    expect(formatValue({ value: 123456789, format: "0,0.000," }, locale)).toBe("123,456.789");
+    expect(formatValue({ value: 1.234, format: "0.0000," }, locale)).toBe("0.0012");
 
-    expect(formatValue(5000000, { format: "0,,", locale })).toBe("5");
-    expect(formatValue(5000000, { format: "0,,%", locale })).toBe("500%");
-    expect(formatValue(5, { format: "0%,,", locale })).toBe("500%,,"); // Thousand separator not at the end of number placeholder
+    expect(formatValue({ value: 5000000, format: "0,," }, locale)).toBe("5");
+    expect(formatValue({ value: 5000000, format: "0,,%" }, locale)).toBe("500%");
+    expect(formatValue({ value: 5, format: "0%,," }, locale)).toBe("500%,,"); // Thousand separator not at the end of number placeholder
   });
 
   test.each([
@@ -298,116 +298,124 @@ describe("formatValue on number", () => {
     [0.1234, "12.34%"],
     [0.12345, "12.35%"],
   ])("apply normal percent format: 0.00%", (value, result) => {
-    expect(formatValue(value, { format: "0.00%", locale })).toBe(result);
+    expect(formatValue({ value, format: "0.00%" }, locale)).toBe(result);
   });
 
   test("apply various percent format", () => {
-    expect(formatValue(0.1234, { format: "0%", locale })).toBe("12%");
-    expect(formatValue(0.1234, { format: "0.0%", locale })).toBe("12.3%");
-    expect(formatValue(0.1234, { format: "0.00%", locale })).toBe("12.34%");
-    expect(formatValue(0.1234, { format: "0.000%", locale })).toBe("12.340%");
-    expect(formatValue(0.1234, { format: "0.%0%", locale })).toBe("1234.%0%"); // Each % symbol in the format multiply by 100 the value
+    expect(formatValue({ value: 0.1234, format: "0%" }, locale)).toBe("12%");
+    expect(formatValue({ value: 0.1234, format: "0.0%" }, locale)).toBe("12.3%");
+    expect(formatValue({ value: 0.1234, format: "0.00%" }, locale)).toBe("12.34%");
+    expect(formatValue({ value: 0.1234, format: "0.000%" }, locale)).toBe("12.340%");
+    expect(formatValue({ value: 0.1234, format: "0.%0%" }, locale)).toBe("1234.%0%"); // Each % symbol in the format multiply by 100 the value
   });
 
   test("various percent format give the same result for infinity", () => {
-    expect(formatValue(Infinity, { format: "0%", locale })).toBe("∞%");
-    expect(formatValue(Infinity, { format: "0.0%", locale })).toBe("∞%");
-    expect(formatValue(-Infinity, { format: "0%", locale })).toBe("-∞%");
-    expect(formatValue(-Infinity, { format: "0.0%", locale })).toBe("-∞%");
+    expect(formatValue({ value: Infinity, format: "0%" }, locale)).toBe("∞%");
+    expect(formatValue({ value: Infinity, format: "0.0%" }, locale)).toBe("∞%");
+    expect(formatValue({ value: -Infinity, format: "0%" }, locale)).toBe("-∞%");
+    expect(formatValue({ value: -Infinity, format: "0.0%" }, locale)).toBe("-∞%");
   });
 
   test("apply various scientific format", () => {
-    expect(formatValue(0.1234, { format: "0e", locale })).toBe("1e-01");
-    expect(formatValue(0.1234, { format: "0.0e", locale })).toBe("1.2e-01");
-    expect(formatValue(0.1234, { format: "0.00e", locale })).toBe("1.23e-01");
-    expect(formatValue(0.1234, { format: "0.000e", locale })).toBe("1.234e-01");
+    expect(formatValue({ value: 0.1234, format: "0e" }, locale)).toBe("1e-01");
+    expect(formatValue({ value: 0.1234, format: "0.0e" }, locale)).toBe("1.2e-01");
+    expect(formatValue({ value: 0.1234, format: "0.00e" }, locale)).toBe("1.23e-01");
+    expect(formatValue({ value: 0.1234, format: "0.000e" }, locale)).toBe("1.234e-01");
   });
 
   test("apply scientific format to various number", () => {
-    expect(formatValue(-0.1234, { format: "0.00e", locale })).toBe("-1.23e-01");
-    expect(formatValue(1234, { format: "0.00e", locale })).toBe("1.23e+03");
-    expect(formatValue(0, { format: "0.00e", locale })).toBe("0.00e+00");
-    expect(formatValue(-1234, { format: "0.00e", locale })).toBe("-1.23e+03");
+    expect(formatValue({ value: -0.1234, format: "0.00e" }, locale)).toBe("-1.23e-01");
+    expect(formatValue({ value: 1234, format: "0.00e" }, locale)).toBe("1.23e+03");
+    expect(formatValue({ value: 0, format: "0.00e" }, locale)).toBe("0.00e+00");
+    expect(formatValue({ value: -1234, format: "0.00e" }, locale)).toBe("-1.23e+03");
   });
 
   test("can apply format with custom currencies", () => {
-    expect(formatValue(1234, { format: "#,##0[$TEST]", locale })).toBe("1,234TEST");
-    expect(formatValue(1234, { format: '#,##0 "TEST"', locale })).toBe("1,234 TEST");
-    expect(formatValue(1234, { format: "#,##0 \\€", locale })).toBe("1,234 €");
-    expect(formatValue(1234, { format: "#,##0[$ TEST]", locale })).toBe("1,234 TEST");
-    expect(formatValue(1234, { format: '#,##0"  TEST "', locale })).toBe("1,234  TEST ");
-    expect(formatValue(1234, { format: "#,##0[$ kikou lol ]", locale })).toBe("1,234 kikou lol ");
-    expect(formatValue(1234, { format: "[$ tune ]#,##0.0", locale })).toBe(" tune 1,234.0");
+    expect(formatValue({ value: 1234, format: "#,##0[$TEST]" }, locale)).toBe("1,234TEST");
+    expect(formatValue({ value: 1234, format: '#,##0 "TEST"' }, locale)).toBe("1,234 TEST");
+    expect(formatValue({ value: 1234, format: "#,##0 \\€" }, locale)).toBe("1,234 €");
+    expect(formatValue({ value: 1234, format: "#,##0[$ TEST]" }, locale)).toBe("1,234 TEST");
+    expect(formatValue({ value: 1234, format: '#,##0"  TEST "' }, locale)).toBe("1,234  TEST ");
+    expect(formatValue({ value: 1234, format: "#,##0[$ kikou lol ]" }, locale)).toBe(
+      "1,234 kikou lol "
+    );
+    expect(formatValue({ value: 1234, format: "[$ tune ]#,##0.0" }, locale)).toBe(" tune 1,234.0");
     expect(
-      formatValue(1234, {
-        format: "[$ toulmonde il veut seulement la thune ]#,##0.0",
-        locale,
-      })
+      formatValue(
+        { value: 1234, format: "[$ toulmonde il veut seulement la thune ]#,##0.0" },
+        locale
+      )
     ).toBe(" toulmonde il veut seulement la thune 1,234.0");
-    expect(formatValue(1234, { format: "[$kama]#,##0.0", locale })).toBe("kama1,234.0");
-    expect(formatValue(1234, { format: "[$兔]#,##0.0", locale })).toBe("兔1,234.0");
+    expect(formatValue({ value: 1234, format: "[$kama]#,##0.0" }, locale)).toBe("kama1,234.0");
+    expect(formatValue({ value: 1234, format: "[$兔]#,##0.0" }, locale)).toBe("兔1,234.0");
     // test with char used in the format reading
-    expect(formatValue(1234, { format: '[$#,##0.0E+00 %"$"]#,##0.0', locale })).toBe(
+    expect(formatValue({ value: 1234, format: '[$#,##0.0E+00 %"$"]#,##0.0' }, locale)).toBe(
       '#,##0.0E+00 %"$"1,234.0'
     );
   });
 
   test("Can escape strings or characters in format", () => {
-    expect(formatValue(5, { format: "0\\%", locale })).toBe("5%");
-    expect(formatValue(5, { format: "0\\€", locale })).toBe("5€");
-    expect(() => formatValue(5, { format: "0€", locale })).toThrow();
-    expect(formatValue(5, { format: "0[$€]", locale })).toBe("5€");
-    expect(formatValue(5, { format: '0"€"', locale })).toBe("5€");
-    expect(formatValue(5, { format: '0"+"', locale })).toBe("5+");
-    expect(formatValue(123, { format: '"000"#', locale })).toBe("000123");
+    expect(formatValue({ value: 5, format: "0\\%" }, locale)).toBe("5%");
+    expect(formatValue({ value: 5, format: "0\\€" }, locale)).toBe("5€");
+    expect(() => formatValue({ value: 5, format: "0€" }, locale)).toThrow();
+    expect(formatValue({ value: 5, format: "0[$€]" }, locale)).toBe("5€");
+    expect(formatValue({ value: 5, format: '0"€"' }, locale)).toBe("5€");
+    expect(formatValue({ value: 5, format: '0"+"' }, locale)).toBe("5+");
+    expect(formatValue({ value: 123, format: '"000"#' }, locale)).toBe("000123");
 
-    expect(() => formatValue(5, { format: '0"€', locale })).toThrow();
-    expect(() => formatValue(5, { format: "0[$", locale })).toThrow();
-    expect(() => formatValue(5, { format: "0\\", locale })).toThrow();
+    expect(() => formatValue({ value: 5, format: '0"€' }, locale)).toThrow();
+    expect(() => formatValue({ value: 5, format: "0[$" }, locale)).toThrow();
+    expect(() => formatValue({ value: 5, format: "0\\" }, locale)).toThrow();
   });
 
   test("Some characters are always escaped in format string", () => {
     for (const char of "$+-/():!^&~{}<>= ") {
-      expect(formatValue(5, { format: `0${char}`, locale })).toBe(`5${char}`);
+      expect(formatValue({ value: 5, format: `0${char}` }, locale)).toBe(`5${char}`);
     }
   });
 
   test("Escaped string in the middle of a number format", () => {
-    expect(formatValue(1234, { format: '0"Str"000', locale })).toBe("1Str234");
-    expect(formatValue(1234, { format: '#,##0"Str"0', locale })).toBe("1,23Str4");
-    expect(formatValue(1234, { format: '#,##0"Str"0.00', locale })).toBe("1,23Str4.00");
-    expect(formatValue(1.234, { format: '0.0"Str"0', locale })).toBe("1.2Str3");
-    expect(formatValue(1234, { format: '0.0"Str"0,', locale })).toBe("1.2Str3");
+    expect(formatValue({ value: 1234, format: '0"Str"000' }, locale)).toBe("1Str234");
+    expect(formatValue({ value: 1234, format: '#,##0"Str"0' }, locale)).toBe("1,23Str4");
+    expect(formatValue({ value: 1234, format: '#,##0"Str"0.00' }, locale)).toBe("1,23Str4.00");
+    expect(formatValue({ value: 1.234, format: '0.0"Str"0' }, locale)).toBe("1.2Str3");
+    expect(formatValue({ value: 1234, format: '0.0"Str"0,' }, locale)).toBe("1.2Str3");
   });
 
   test("Multiple escaped strings in a number format", () => {
-    expect(formatValue(1234, { format: '[$$]0"€"', locale })).toBe("$1234€");
-    expect(formatValue(1234, { format: "[$$]0.00[$€]0", locale })).toBe("$1234.00€0");
-    expect(formatValue(1234, { format: '0"$"0"€"', locale })).toBe("123$4€");
+    expect(formatValue({ value: 1234, format: '[$$]0"€"' }, locale)).toBe("$1234€");
+    expect(formatValue({ value: 1234, format: "[$$]0.00[$€]0" }, locale)).toBe("$1234.00€0");
+    expect(formatValue({ value: 1234, format: '0"$"0"€"' }, locale)).toBe("123$4€");
   });
 
   test.each(["#,##0 dd", "dd #,##0", "#,##0 dd/mm/yyyy", "dd/mm/yyyy #,##0"])(
     "mixing date and numbers",
     (format) => {
-      expect(() => formatValue(1234, { format, locale })).toThrow(
+      expect(() => formatValue({ value: 1234, format }, locale)).toThrow(
         `Invalid first format part of: ${format}`
       );
     }
   );
 
   test("multiple strings in one format", () => {
-    expect(formatValue(1234, { format: "[$TEST]#,##0[$TEST]", locale })).toBe("TEST1,234TEST");
-    expect(formatValue(1234, { format: "#,##0[$TEST][$TEST]", locale })).toBe("1,234TESTTEST");
-    expect(formatValue(1234, { format: "[$TEST][$TEST]#,##0", locale })).toBe("TESTTEST1,234");
+    expect(formatValue({ value: 1234, format: "[$TEST]#,##0[$TEST]" }, locale)).toBe(
+      "TEST1,234TEST"
+    );
+    expect(formatValue({ value: 1234, format: "#,##0[$TEST][$TEST]" }, locale)).toBe(
+      "1,234TESTTEST"
+    );
+    expect(formatValue({ value: 1234, format: "[$TEST][$TEST]#,##0" }, locale)).toBe(
+      "TESTTEST1,234"
+    );
   });
 
   test("Cannot mix text, date and number formats", () => {
-    expect(() => formatValue(1234, { format: "#,##0 dd", locale })).toThrow();
-    expect(() => formatValue(1234, { format: "0 mm", locale })).toThrow();
-    expect(() => formatValue(1234, { format: "# yyyy", locale })).toThrow();
-    expect(() => formatValue(1234, { format: "@ dd", locale })).toThrow();
-    expect(() => formatValue(1234, { format: "# @", locale })).toThrow();
-    expect(() => formatValue(1234, { format: "@0", locale })).toThrow();
+    expect(() => formatValue({ value: 1234, format: "#,##0 dd" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1234, format: "0 mm" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1234, format: "# yyyy" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1234, format: "@ dd" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1234, format: "# @" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1234, format: "@0" }, locale)).toThrow();
   });
 });
 
@@ -426,7 +434,7 @@ describe("formatValue on large numbers", () => {
     [1000000, "1,000k"],
     [10000000, "10,000k"],
   ])("Format thousands with separator", (value, result) => {
-    expect(formatValue(value, { format: "#,##0,[$k]", locale })).toBe(result);
+    expect(formatValue({ value, format: "#,##0,[$k]" }, locale)).toBe(result);
   });
 
   test.each([
@@ -442,7 +450,7 @@ describe("formatValue on large numbers", () => {
     [1_000_000_000, "1,000M"],
     [10_000_000_000, "10,000M"],
   ])("Format millions with separator", (value, result) => {
-    expect(formatValue(value, { format: "#,##0,,[$M]", locale })).toBe(result);
+    expect(formatValue({ value, format: "#,##0,,[$M]" }, locale)).toBe(result);
   });
 
   test.each([
@@ -451,7 +459,7 @@ describe("formatValue on large numbers", () => {
     [1_000_000_000, "1B"],
     [10_000_000_000, "10B"],
   ])("Format billions with separator", (value, result) => {
-    expect(formatValue(value, { format: "#,##0,,,[$B]", locale })).toBe(result);
+    expect(formatValue({ value, format: "#,##0,,,[$B]" }, locale)).toBe(result);
   });
 
   test.each([
@@ -460,8 +468,8 @@ describe("formatValue on large numbers", () => {
     [1000000, "1000k"],
     [10000000, "10000k"],
   ])("Format thousands without separator", (value, result) => {
-    expect(formatValue(value, { format: "###0,[$k]", locale })).toBe(result);
-    expect(formatValue(value, { format: "0,[$k]", locale })).toBe(result);
+    expect(formatValue({ value, format: "###0,[$k]" }, locale)).toBe(result);
+    expect(formatValue({ value, format: "0,[$k]" }, locale)).toBe(result);
   });
 
   test.each([
@@ -470,17 +478,17 @@ describe("formatValue on large numbers", () => {
     [1_000_000_000, "1000M"],
     [10_000_000_000, "10000M"],
   ])("Format millions without separator", (value, result) => {
-    expect(formatValue(value, { format: "###0,,[$M]", locale })).toBe(result);
-    expect(formatValue(value, { format: "0,,[$M]", locale })).toBe(result);
+    expect(formatValue({ value, format: "###0,,[$M]" }, locale)).toBe(result);
+    expect(formatValue({ value, format: "0,,[$M]" }, locale)).toBe(result);
   });
 
   test("large numbers with currencies", () => {
-    expect(formatValue(1, { format: "#,##0,[$k][$$]", locale })).toBe("0k$");
-    expect(formatValue(1000, { format: "#,##0,[$k][$$]", locale })).toBe("1k$");
-    expect(formatValue(1000, { format: "[$$]#,##0,[$k]", locale })).toBe("$1k");
-    expect(formatValue(1000, { format: "[$$]0,[$k]", locale })).toBe("$1k");
-    expect(formatValue(1000000, { format: "[$$]0,[$k]", locale })).toBe("$1000k");
-    expect(formatValue(1000000, { format: "[$$]0,,[$M]", locale })).toBe("$1M");
+    expect(formatValue({ value: 1, format: "#,##0,[$k][$$]" }, locale)).toBe("0k$");
+    expect(formatValue({ value: 1000, format: "#,##0,[$k][$$]" }, locale)).toBe("1k$");
+    expect(formatValue({ value: 1000, format: "[$$]#,##0,[$k]" }, locale)).toBe("$1k");
+    expect(formatValue({ value: 1000, format: "[$$]0,[$k]" }, locale)).toBe("$1k");
+    expect(formatValue({ value: 1000000, format: "[$$]0,[$k]" }, locale)).toBe("$1000k");
+    expect(formatValue({ value: 1000000, format: "[$$]0,,[$M]" }, locale)).toBe("$1M");
   });
 });
 
@@ -540,9 +548,9 @@ describe("formatValue on date and time", () => {
       ["11:69", "12:09"],
     ])("hours minutes 'hh:mm'", (value, result) => {
       const parsedDateTime = parseDateTime(value, locale)!;
-      expect(formatValue(parsedDateTime.value, { format: parsedDateTime.format, locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
+      ).toBe(result);
     });
 
     test.each([
@@ -552,9 +560,9 @@ describe("formatValue on date and time", () => {
       ["11:59:546", "12:08:06"],
     ])("hours minutes seconds 'hh:mm:ss'", (value, result) => {
       const parsedDateTime = parseDateTime(value, locale)!;
-      expect(formatValue(parsedDateTime.value, { format: parsedDateTime.format, locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
+      ).toBe(result);
     });
 
     test.each([
@@ -576,9 +584,9 @@ describe("formatValue on date and time", () => {
       ["18:00 AM", "06:00 AM"],
     ])("hours minutes meridian 'hh:mm a'", (value, result) => {
       const parsedDateTime = parseDateTime(value, locale)!;
-      expect(formatValue(parsedDateTime.value, { format: parsedDateTime.format, locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
+      ).toBe(result);
     });
 
     test.each([
@@ -589,9 +597,9 @@ describe("formatValue on date and time", () => {
       ["11:59:546   AM", "12:08:06 PM"],
     ])("hours minutes seconds meridian 'hh:mm:ss a'", (value, result) => {
       const parsedDateTime = parseDateTime(value, locale)!;
-      expect(formatValue(parsedDateTime.value, { format: parsedDateTime.format, locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
+      ).toBe(result);
     });
 
     test.each([
@@ -602,9 +610,9 @@ describe("formatValue on date and time", () => {
       ["11:59:546   PM", "24:08:06"],
     ])("duration 'hhhh:mm:ss'", (value, result) => {
       const parsedDateTime = parseDateTime(value, locale)!;
-      expect(formatValue(parsedDateTime.value, { format: parsedDateTime.format, locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
+      ).toBe(result);
     });
 
     describe("increment time test", () => {
@@ -616,10 +624,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'm/d/yyyy'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -631,10 +636,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'yyyy/m/d'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -646,10 +648,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'mm/dd/yyyy'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -661,10 +660,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'yyyy/mm/dd'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -676,10 +672,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'm/d'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -691,10 +684,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'mm/dd'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -706,10 +696,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with m d yyyy", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -721,10 +708,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'yyyy m d'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -736,10 +720,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'mm dd yyyy'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -751,10 +732,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'yyyy mm dd'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -766,10 +744,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'm d'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
 
@@ -781,10 +756,7 @@ describe("formatValue on date and time", () => {
       ])("increment time test with 'mm dd'", (value, result) => {
         const parsedDateTime = parseDateTime(value, locale)!;
         expect(
-          formatValue(parsedDateTime.value, {
-            format: parsedDateTime.format,
-            locale,
-          })
+          formatValue({ value: parsedDateTime.value, format: parsedDateTime.format }, locale)
         ).toBe(result);
       });
     });
@@ -804,7 +776,7 @@ describe("formatValue on date and time", () => {
       ["mm/dd", "01/02"],
       ["m/d", "1/2"],
     ])("month day year, with a separator", (format, result) => {
-      expect(formatValue(value, { format: format, locale })).toBe(result);
+      expect(formatValue({ value, format }, locale)).toBe(result);
     });
 
     test.each([
@@ -813,7 +785,7 @@ describe("formatValue on date and time", () => {
       ["mm-dd", "01-02"],
       ["m-d", "1-2"],
     ])("month day year, with - as separator", (format, result) => {
-      expect(formatValue(value, { format: format, locale })).toBe(result);
+      expect(formatValue({ value, format }, locale)).toBe(result);
     });
 
     test.each([
@@ -822,28 +794,28 @@ describe("formatValue on date and time", () => {
       ["mm dd", "01 02"],
       ["m d", "1 2"],
     ])("month day year, with '  as separator", (format, result) => {
-      expect(formatValue(value, { format: format, locale })).toBe(result);
+      expect(formatValue({ value, format }, locale)).toBe(result);
     });
 
     test.each([
       ["yyyy/m/d", "1954/1/2"],
       ["yyyy/mm/dd", "1954/01/02"],
     ])("year month day, with / as separator", (format, result) => {
-      expect(formatValue(value, { format: format, locale })).toBe(result);
+      expect(formatValue({ value, format }, locale)).toBe(result);
     });
 
     test.each([
       ["yyyy-m-d", "1954-1-2"],
       ["yyyy-mm-dd", "1954-01-02"],
     ])("year month day, with - as separator", (format, result) => {
-      expect(formatValue(value, { format: format, locale })).toBe(result);
+      expect(formatValue({ value, format }, locale)).toBe(result);
     });
 
     test.each([
       ["yyyy m d", "1954 1 2"],
       ["yyyy mm dd", "1954 01 02"],
     ])("year month day, with ' ' as separator", (format, result) => {
-      expect(formatValue(value, { format: format, locale })).toBe(result);
+      expect(formatValue({ value, format }, locale)).toBe(result);
     });
 
     test.each([
@@ -856,7 +828,7 @@ describe("formatValue on date and time", () => {
       ["01/07/2023", "Sat-01-2023"],
     ])("three letter day of the week (ddd) %s", (value, result) => {
       expect(
-        formatValue(parseDateTime(value, locale)!.value, { format: "ddd-mm-yyyy", locale })
+        formatValue({ value: parseDateTime(value, locale)!.value, format: "ddd-mm-yyyy" }, locale)
       ).toBe(result);
     });
 
@@ -870,7 +842,7 @@ describe("formatValue on date and time", () => {
       ["2023/01/07", "Saturday-01-2023"],
     ])("Full letter day of the week (dddd) %s", (value, result) => {
       expect(
-        formatValue(parseDateTime(value, locale)!.value, { format: "dddd-mm-yyyy", locale })
+        formatValue({ value: parseDateTime(value, locale)!.value, format: "dddd-mm-yyyy" }, locale)
       ).toBe(result);
     });
 
@@ -890,17 +862,17 @@ describe("formatValue on date and time", () => {
       ["2023/12/01", "Q4"],
       ["2023/12/31", "Q4"],
     ])("quarter %s", (value, result) => {
-      expect(formatValue(parseDateTime(value, locale)!.value, { format: "qq", locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parseDateTime(value, locale)!.value, format: "qq" }, locale)
+      ).toBe(result);
     });
 
     test("quarter with year", () => {
       const date = parseDateTime("2023/01/01", locale)!.value;
-      expect(formatValue(date, { format: "qq yyyy", locale })).toBe("Q1 2023");
-      expect(formatValue(date, { format: "qqqq yyyy", locale })).toBe("Quarter 1 2023");
-      expect(formatValue(date, { format: "yyyy qq", locale })).toBe("2023 Q1");
-      expect(formatValue(date, { format: "qq/yyyy", locale })).toBe("Q1/2023");
+      expect(formatValue({ value: date, format: "qq yyyy" }, locale)).toBe("Q1 2023");
+      expect(formatValue({ value: date, format: "qqqq yyyy" }, locale)).toBe("Quarter 1 2023");
+      expect(formatValue({ value: date, format: "yyyy qq" }, locale)).toBe("2023 Q1");
+      expect(formatValue({ value: date, format: "qq/yyyy" }, locale)).toBe("Q1/2023");
     });
 
     test.each([
@@ -917,9 +889,9 @@ describe("formatValue on date and time", () => {
       ["2023/11/01", "Nov-2023"],
       ["2023/12/01", "Dec-2023"],
     ])("Three letter day of month (mmm) %s", (value, result) => {
-      expect(formatValue(parseDateTime(value, locale)!.value, { format: "mmm-yyyy", locale })).toBe(
-        result
-      );
+      expect(
+        formatValue({ value: parseDateTime(value, locale)!.value, format: "mmm-yyyy" }, locale)
+      ).toBe(result);
     });
 
     test.each([
@@ -937,7 +909,7 @@ describe("formatValue on date and time", () => {
       ["2023/12/01", "December-2023"],
     ])("Full letter day of month (mmmm) %s", (value, result) => {
       expect(
-        formatValue(parseDateTime(value, locale)!.value, { format: "mmmm-yyyy", locale })
+        formatValue({ value: parseDateTime(value, locale)!.value, format: "mmmm-yyyy" }, locale)
       ).toBe(result);
     });
 
@@ -956,7 +928,7 @@ describe("formatValue on date and time", () => {
       ["2023/12/01", "D-2023"],
     ])("One letter day of month (mmmmm) %s", (value, result) => {
       expect(
-        formatValue(parseDateTime(value, locale)!.value, { format: "mmmmm-yyyy", locale })
+        formatValue({ value: parseDateTime(value, locale)!.value, format: "mmmmm-yyyy" }, locale)
       ).toBe(result);
     });
 
@@ -969,7 +941,7 @@ describe("formatValue on date and time", () => {
       [-715508 /* 01/01/-0059 */, "01-59"],
       [-737422 /* 01/01/-0119 */, "01-19"],
     ])("2 last digits of year (yy) %s", (value, result) => {
-      expect(formatValue(value, { format: "mm-yy", locale })).toBe(result);
+      expect(formatValue({ value, format: "mm-yy" }, locale)).toBe(result);
     });
 
     test.each([
@@ -986,7 +958,7 @@ describe("formatValue on date and time", () => {
       ["yyyy", "2023"],
     ])("Format without separators %s", (format, result) => {
       expect(
-        formatValue(parseDateTime("01/01/2023", locale)!.value, { format: format, locale })
+        formatValue({ value: parseDateTime("01/01/2023", locale)!.value, format }, locale)
       ).toBe(result);
     });
   });
@@ -999,7 +971,7 @@ describe("formatValue on date and time", () => {
       ["30:00:00", "06:00"],
     ])("hours minutes 'hh:mm', with format", (date, result) => {
       const value = parseDateTime(date, locale)!.value;
-      expect(formatValue(value, { format: "hh:mm", locale })).toBe(result);
+      expect(formatValue({ value, format: "hh:mm" }, locale)).toBe(result);
     });
 
     test.each([
@@ -1009,7 +981,7 @@ describe("formatValue on date and time", () => {
       ["30:00:00", "06:00:00"],
     ])("hours minutes seconds 'hh:mm:ss', with format", (date, result) => {
       const value = parseDateTime(date, locale)!.value;
-      expect(formatValue(value, { format: "hh:mm:ss", locale })).toBe(result);
+      expect(formatValue({ value, format: "hh:mm:ss" }, locale)).toBe(result);
     });
 
     test.each([
@@ -1019,7 +991,7 @@ describe("formatValue on date and time", () => {
       ["30:00:00", "06:00 AM"],
     ])("hours minutes meridian 'hh:mm a', with format", (date, result) => {
       const value = parseDateTime(date, locale)!.value;
-      expect(formatValue(value, { format: "hh:mm a", locale })).toBe(result);
+      expect(formatValue({ value, format: "hh:mm a" }, locale)).toBe(result);
     });
 
     test.each([
@@ -1029,7 +1001,7 @@ describe("formatValue on date and time", () => {
       ["30:00:00", "06:00:00 AM"],
     ])("hours minutes meridian 'hh:mm:ss a', with format", (date, result) => {
       const value = parseDateTime(date, locale)!.value;
-      expect(formatValue(value, { format: "hh:mm:ss a", locale })).toBe(result);
+      expect(formatValue({ value, format: "hh:mm:ss a" }, locale)).toBe(result);
     });
 
     test.each([
@@ -1039,20 +1011,24 @@ describe("formatValue on date and time", () => {
       ["012:008:006 AM", "0:08:06"],
     ])("hours minutes meridian 'hh:mm:ss a', with format", (date, result) => {
       const value = parseDateTime(date, locale)!.value;
-      expect(formatValue(value, { format: "hhhh:mm:ss", locale })).toBe(result);
+      expect(formatValue({ value, format: "hhhh:mm:ss" }, locale)).toBe(result);
     });
   });
 
   test("Date formats with escaped strings", () => {
     const date = parseDateTime("01/01/2023 12:08:06", locale)!.value;
-    expect(formatValue(date, { format: "[$$]mm/dd/yyyy", locale })).toBe("$01/01/2023");
-    expect(formatValue(date, { format: "mm/dd/yyyy[$$]", locale })).toBe("01/01/2023$");
-    expect(formatValue(date, { format: "[$$]mm/dd/yyyy[$$]", locale })).toBe("$01/01/2023$");
+    expect(formatValue({ value: date, format: "[$$]mm/dd/yyyy" }, locale)).toBe("$01/01/2023");
+    expect(formatValue({ value: date, format: "mm/dd/yyyy[$$]" }, locale)).toBe("01/01/2023$");
+    expect(formatValue({ value: date, format: "[$$]mm/dd/yyyy[$$]" }, locale)).toBe("$01/01/2023$");
 
-    expect(formatValue(date, { format: "[$$]mm+ddyyyy", locale })).toBe("$01+012023");
-    expect(formatValue(date, { format: 'mm.dd" Hey! "yyyy', locale })).toBe("01.01 Hey! 2023");
+    expect(formatValue({ value: date, format: "[$$]mm+ddyyyy" }, locale)).toBe("$01+012023");
+    expect(formatValue({ value: date, format: 'mm.dd" Hey! "yyyy' }, locale)).toBe(
+      "01.01 Hey! 2023"
+    );
 
-    expect(formatValue(date, { format: 'hh.dd" !! "yyyymmss', locale })).toBe("12.01 !! 20230806");
+    expect(formatValue({ value: date, format: 'hh.dd" !! "yyyymmss' }, locale)).toBe(
+      "12.01 !! 20230806"
+    );
   });
 });
 
@@ -1090,31 +1066,31 @@ describe("create currency format", () => {
     };
     const format = createCurrencyFormat(currency);
     expect(format).toBe("[$O$OO θ]#,##0.00");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ1,234.56");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("O$OO θ1,234.56");
   });
 
   test("custom decimal places currency", () => {
     const format = createCurrencyFormat({ symbol, decimalPlaces: 4 });
     expect(format).toBe("[$θ]#,##0.0000");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,234.5600");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("θ1,234.5600");
   });
 
   test("without decimal places currency", () => {
     const format = createCurrencyFormat({ symbol, decimalPlaces: 0 });
     expect(format).toBe("[$θ]#,##0");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,235");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("θ1,235");
   });
 
   test("currency with symbol placed after", () => {
     const format = createCurrencyFormat({ symbol, position: "after" });
     expect(format).toBe("#,##0.00[$θ]");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,234.56θ");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("1,234.56θ");
   });
 
   test("currency with symbol and code placed after", () => {
     const format = createCurrencyFormat({ symbol, code, position: "after" });
     expect(format).toBe("#,##0.00[$ O$OO θ]");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,234.56 O$OO θ");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("1,234.56 O$OO θ");
   });
 });
 
@@ -1132,33 +1108,33 @@ describe("create accounting format", () => {
     };
     const format = createAccountingFormat(currency);
     expect(format).toBe("[$O$OO θ]*  #,##0.00 ;[$O$OO θ]* (#,##0.00);[$O$OO θ]*   -  ");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ 1,234.56 ");
-    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ(1,234.56)");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ  -  ");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("O$OO θ 1,234.56 ");
+    expect(formatValue({ value: -1234.56, format }, DEFAULT_LOCALE)).toBe("O$OO θ(1,234.56)");
+    expect(formatValue({ value: 0, format }, DEFAULT_LOCALE)).toBe("O$OO θ  -  ");
   });
 
   test("custom decimal places on accounting format", () => {
     const format = createAccountingFormat({ symbol, decimalPlaces: 4 });
     expect(format).toBe("[$θ]*  #,##0.0000 ;[$θ]* (#,##0.0000);[$θ]*   -  ");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ 1,234.5600 ");
-    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ(1,234.5600)");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ  -  ");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("θ 1,234.5600 ");
+    expect(formatValue({ value: -1234.56, format }, DEFAULT_LOCALE)).toBe("θ(1,234.5600)");
+    expect(formatValue({ value: 0, format }, DEFAULT_LOCALE)).toBe("θ  -  ");
   });
 
   test("without decimal places currency", () => {
     const format = createAccountingFormat({ symbol, decimalPlaces: 0 });
     expect(format).toBe("[$θ]*  #,##0 ;[$θ]* (#,##0);[$θ]*   -  ");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ 1,235 ");
-    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ(1,235)");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ  -  ");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe("θ 1,235 ");
+    expect(formatValue({ value: -1234.56, format }, DEFAULT_LOCALE)).toBe("θ(1,235)");
+    expect(formatValue({ value: 0, format }, DEFAULT_LOCALE)).toBe("θ  -  ");
   });
 
   test("currency with symbol placed after", () => {
     const format = createAccountingFormat({ symbol, position: "after", decimalPlaces: 0 });
     expect(format).toBe(" #,##0 * [$θ];(#,##0)* [$θ];  -  * [$θ]");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe(" 1,235 θ");
-    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("(1,235)θ");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("  -  θ");
+    expect(formatValue({ value: 1234.56, format }, DEFAULT_LOCALE)).toBe(" 1,235 θ");
+    expect(formatValue({ value: -1234.56, format }, DEFAULT_LOCALE)).toBe("(1,235)θ");
+    expect(formatValue({ value: 0, format }, DEFAULT_LOCALE)).toBe("  -  θ");
   });
 });
 
@@ -1166,72 +1142,72 @@ describe("Multi-part format", () => {
   test("Simple multi-part format", () => {
     const format = "0;0;0;@";
 
-    expect(formatValue(1, { locale, format })).toBe("1");
-    expect(formatValue(0, { locale, format })).toBe("0");
-    expect(formatValue(-1, { locale, format })).toBe("1");
-    expect(formatValue("text", { locale, format })).toBe("text");
+    expect(formatValue({ value: 1, format }, locale)).toBe("1");
+    expect(formatValue({ value: 0, format }, locale)).toBe("0");
+    expect(formatValue({ value: -1, format }, locale)).toBe("1");
+    expect(formatValue({ value: "text", format }, locale)).toBe("text");
   });
 
   test("Multi-part format with negative values format", () => {
     const format = "0[$$];0[$€]";
 
-    expect(formatValue(1, { locale, format })).toBe("1$");
-    expect(formatValue(0, { locale, format })).toBe("0$");
-    expect(formatValue(-1, { locale, format })).toBe("1€");
-    expect(formatValue("text", { locale, format })).toBe("text");
+    expect(formatValue({ value: 1, format }, locale)).toBe("1$");
+    expect(formatValue({ value: 0, format }, locale)).toBe("0$");
+    expect(formatValue({ value: -1, format }, locale)).toBe("1€");
+    expect(formatValue({ value: "text", format }, locale)).toBe("text");
   });
 
   test("Multi-part format with zero values format", () => {
     const format = "0[$$];0[$€];0[$£]";
 
-    expect(formatValue(1, { locale, format })).toBe("1$");
-    expect(formatValue(0, { locale, format })).toBe("0£");
-    expect(formatValue(-1, { locale, format })).toBe("1€");
-    expect(formatValue("text", { locale, format })).toBe("text");
+    expect(formatValue({ value: 1, format }, locale)).toBe("1$");
+    expect(formatValue({ value: 0, format }, locale)).toBe("0£");
+    expect(formatValue({ value: -1, format }, locale)).toBe("1€");
+    expect(formatValue({ value: "text", format }, locale)).toBe("text");
   });
 
   test("Multi-part format with text values format", () => {
     const format = "0[$$];0[$€];0[$£];@[$¥]";
 
-    expect(formatValue(1, { locale, format })).toBe("1$");
-    expect(formatValue(0, { locale, format })).toBe("0£");
-    expect(formatValue(-1, { locale, format })).toBe("1€");
-    expect(formatValue("text", { locale, format })).toBe("text¥");
+    expect(formatValue({ value: 1, format }, locale)).toBe("1$");
+    expect(formatValue({ value: 0, format }, locale)).toBe("0£");
+    expect(formatValue({ value: -1, format }, locale)).toBe("1€");
+    expect(formatValue({ value: "text", format }, locale)).toBe("text¥");
   });
 
   test("Text-part of format cannot be a number or date format", () => {
-    expect(() => formatValue(1, { locale, format: ";;;0" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";;;dd" })).toThrow();
+    expect(() => formatValue({ value: 1, format: ";;;0" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";;;dd" }, locale)).toThrow();
   });
 
   test("negative and null format cannot be text format", () => {
-    expect(() => formatValue(1, { locale, format: "@;;;" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";@;;" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";;@;" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";;;@" })).not.toThrow();
+    expect(() => formatValue({ value: 1, format: "@;;;" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";@;;" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";;@;" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";;;@" }, locale)).not.toThrow();
 
-    expect(() => formatValue(1, { locale, format: "@;;" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";@;" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";;@" })).toThrow();
+    expect(() => formatValue({ value: 1, format: "@;;" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";@;" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";;@" }, locale)).toThrow();
 
-    expect(() => formatValue(1, { locale, format: "@;" })).toThrow();
-    expect(() => formatValue(1, { locale, format: ";@" })).toThrow();
+    expect(() => formatValue({ value: 1, format: "@;" }, locale)).toThrow();
+    expect(() => formatValue({ value: 1, format: ";@" }, locale)).toThrow();
 
-    expect(() => formatValue(1, { locale, format: "@" })).not.toThrow();
+    expect(() => formatValue({ value: 1, format: "@" }, locale)).not.toThrow();
   });
 
   test("Test some particular multi parts format", () => {
     let format = ";;;"; // Empty format
-    expect(formatValue(1, { locale, format })).toBe("");
-    expect(formatValue(0, { locale, format })).toBe("");
-    expect(formatValue(-1, { locale, format })).toBe("");
-    expect(formatValue("text", { locale, format })).toBe("");
+    expect(formatValue({ value: 1, format }, locale)).toBe("");
+    expect(formatValue({ value: 0, format }, locale)).toBe("");
+    expect(formatValue({ value: -1, format }, locale)).toBe("");
+    expect(formatValue({ value: "text", format }, locale)).toBe("");
 
     format = "0.0;dd/mm/yyyy"; // Mix of number and date format
-    expect(formatValue(1, { locale, format })).toBe("1.0");
-    expect(formatValue(0, { locale, format })).toBe("0.0");
-    expect(formatValue(-1, { locale, format })).toBe("31/12/1899");
-    expect(formatValue("text", { locale, format })).toBe("text");
+    expect(formatValue({ value: 1, format }, locale)).toBe("1.0");
+    expect(formatValue({ value: 0, format }, locale)).toBe("0.0");
+    expect(formatValue({ value: -1, format }, locale)).toBe("31/12/1899");
+    expect(formatValue({ value: "text", format }, locale)).toBe("text");
   });
 });
 
@@ -1242,29 +1218,29 @@ describe("Format with repeated character", () => {
 
   test("Repeat a character to fit the width", () => {
     const formatWidth = { measureText, availableWidth: 5 };
-    expect(formatValue(1, { locale, format: "0*c", formatWidth })).toBe("1cccc");
-    expect(formatValue(10, { locale, format: "0*c", formatWidth })).toBe("10ccc");
-    expect(formatValue(1000000, { locale, format: "0*c", formatWidth })).toBe("1000000");
+    expect(formatValue({ value: 1, format: "0*c" }, locale, formatWidth)).toBe("1cccc");
+    expect(formatValue({ value: 10, format: "0*c" }, locale, formatWidth)).toBe("10ccc");
+    expect(formatValue({ value: 1000000, format: "0*c" }, locale, formatWidth)).toBe("1000000");
   });
 
   test("Only first asterisk is repeated", () => {
     expect(
-      formatValue(1, { locale, format: "*c0*c", formatWidth: { measureText, availableWidth: 5 } })
+      formatValue({ value: 1, format: "*c0*c" }, locale, { measureText, availableWidth: 5 })
     ).toBe("ccc1c");
   });
 
   test("Character is not repeated if no with is given to formatValue", () => {
-    expect(formatValue(1, { locale, format: "0* " })).toBe("1");
-    expect(formatValue(1, { locale, format: "* 0" })).toBe("1");
+    expect(formatValue({ value: 1, format: "0* " }, locale)).toBe("1");
+    expect(formatValue({ value: 1, format: "* 0" }, locale)).toBe("1");
   });
 
   test("Can repeat a character in a multi part format", () => {
     const formatWidth = { measureText, availableWidth: 5 };
     const format = '0* "€";$* -0;"£"* 0;* @';
-    expect(formatValue(1, { locale, format, formatWidth })).toBe("1   €");
-    expect(formatValue(-1, { locale, format, formatWidth })).toBe("$  -1");
-    expect(formatValue(0, { locale, format, formatWidth })).toBe("£   0");
-    expect(formatValue("hey", { locale, format, formatWidth })).toBe("  hey");
+    expect(formatValue({ value: 1, format }, locale, formatWidth)).toBe("1   €");
+    expect(formatValue({ value: -1, format }, locale, formatWidth)).toBe("$  -1");
+    expect(formatValue({ value: 0, format }, locale, formatWidth)).toBe("£   0");
+    expect(formatValue({ value: "hey", format }, locale, formatWidth)).toBe("  hey");
   });
 
   test("Thin spaces are added as padding to more closely fit the available width", () => {
@@ -1272,6 +1248,8 @@ describe("Format with repeated character", () => {
       return str === "\u2009" ? 0.5 : str.length * 2;
     };
     const formatWidth = { measureText, availableWidth: 5.5 };
-    expect(formatValue(1, { locale, format: "*a0", formatWidth })).toBe("a\u2009\u2009\u20091");
+    expect(formatValue({ value: 1, format: "*a0" }, locale, formatWidth)).toBe(
+      "a\u2009\u2009\u20091"
+    );
   });
 });

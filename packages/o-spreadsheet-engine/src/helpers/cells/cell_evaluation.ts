@@ -102,7 +102,7 @@ function _createEvaluatedCell(
   let { value, format, message } = functionResult;
   format = cell?.format || format;
 
-  const formattedValue = formatValue(value, { format, locale });
+  const formattedValue = formatValue(functionResult, locale);
   if (isEvaluationError(value)) {
     return errorCell(value, message);
   }

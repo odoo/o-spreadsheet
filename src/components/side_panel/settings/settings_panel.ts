@@ -44,18 +44,18 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
 
   get numberFormatPreview() {
     const locale = this.env.model.getters.getLocale();
-    return formatValue(1234567.89, { format: "#,##0.00", locale });
+    return formatValue({ value: 1234567.89, format: "#,##0.00" }, locale);
   }
 
   get dateFormatPreview() {
     const locale = this.env.model.getters.getLocale();
-    return formatValue(1.6, { format: locale.dateFormat, locale });
+    return formatValue({ value: 1.6, format: locale.dateFormat }, locale);
   }
 
   get dateTimeFormatPreview() {
     const locale = this.env.model.getters.getLocale();
     const dateTimeFormat = getDateTimeFormat(locale);
-    return formatValue(1.6, { format: dateTimeFormat, locale });
+    return formatValue({ value: 1.6, format: dateTimeFormat }, locale);
   }
 
   get firstDayOfWeek() {

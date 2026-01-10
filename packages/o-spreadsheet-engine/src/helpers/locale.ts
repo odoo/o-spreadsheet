@@ -43,9 +43,9 @@ export function isValidLocale(locale: any): locale is Locale {
   }
 
   try {
-    formatValue(1, { locale, format: "#,##0.00" });
-    formatValue(1, { locale, format: locale.dateFormat });
-    formatValue(1, { locale, format: locale.timeFormat });
+    formatValue({ value: 1, format: "#,##0.00" }, locale);
+    formatValue({ value: 1, format: locale.dateFormat }, locale);
+    formatValue({ value: 1, format: locale.timeFormat }, locale);
   } catch {
     return false;
   }
@@ -194,7 +194,7 @@ function canonicalizeLiteral(content: string, locale: Locale) {
     if (!Number.isInteger(dateNumber)) {
       format += " " + DEFAULT_LOCALE.timeFormat;
     }
-    return formatValue(dateNumber, { locale: DEFAULT_LOCALE, format });
+    return formatValue({ value: dateNumber, format }, DEFAULT_LOCALE);
   }
   return canonicalizeNumberLiteral(content, locale);
 }
@@ -233,7 +233,7 @@ function localizeLiteral(literal: string, locale: Locale): string {
     if (!Number.isInteger(dateNumber)) {
       format += " " + locale.timeFormat;
     }
-    return formatValue(dateNumber, { locale, format });
+    return formatValue({ value: dateNumber, format }, locale);
   }
   return localizeNumberLiteral(literal, locale);
 }

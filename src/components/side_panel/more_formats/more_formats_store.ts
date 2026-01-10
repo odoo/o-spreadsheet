@@ -135,7 +135,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
       "0.00e",
       "0.00;(0.00);-",
     ].map((format) => ({
-      label: formatValue(-1234.56, { format, locale: this.getters.getLocale() }),
+      label: formatValue({ value: -1234.56, format }, this.getters.getLocale()),
       format,
     }));
 
@@ -166,7 +166,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
       "qqqq yyyy",
     ];
     return formats.map((format) => ({
-      label: formatValue(EXAMPLE_DATE, { format, locale }),
+      label: formatValue({ value: EXAMPLE_DATE, format }, locale),
       format,
     }));
   }
@@ -215,7 +215,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
         usedFormats.add(format);
         return {
           format,
-          label: formatValue(1000.0, { format, locale }),
+          label: formatValue({ value: 1000.0, format }, locale),
         };
       })
       .filter(isDefined);
@@ -228,16 +228,18 @@ export class MoreFormatsStore extends SpreadsheetStore {
       return [];
     }
     if (this.category === "date") {
-      return [{ label: _t("Sample:"), value: formatValue(EXAMPLE_DATE, { format, locale }) }];
+      return [
+        { label: _t("Sample:"), value: formatValue({ value: EXAMPLE_DATE, format }, locale) },
+      ];
     } else {
       const numberOfParts = getNumberOfFormatParts(format);
       const parts = [
-        { label: _t("Positive:"), value: formatValue(1234.56, { format, locale }) },
-        { label: _t("Negative:"), value: formatValue(-1234.56, { format, locale }) },
-        { label: _t("Zero:"), value: formatValue(0, { format, locale }) },
+        { label: _t("Positive:"), value: formatValue({ value: 1234.56, format }, locale) },
+        { label: _t("Negative:"), value: formatValue({ value: -1234.56, format }, locale) },
+        { label: _t("Zero:"), value: formatValue({ value: 0, format }, locale) },
       ];
       if (numberOfParts === 4) {
-        parts.push({ label: _t("Text:"), value: formatValue("Text", { format, locale }) });
+        parts.push({ label: _t("Text:"), value: formatValue({ value: "Text", format }, locale) });
       }
       return parts;
     }

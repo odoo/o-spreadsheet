@@ -28,7 +28,7 @@ function cellValueToDisplayString(
   const value = result.value;
   switch (typeof value) {
     case "number":
-      return formatValue(value, { locale, format: result.format });
+      return formatValue(result, locale);
     case "string":
       if (isEvaluationError(value)) {
         return value;

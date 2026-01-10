@@ -70,7 +70,7 @@ function getBaselineText(
   if (humanizeNumbers) {
     return humanizeNumber({ value, format }, locale);
   }
-  return formatValue(value, { format, locale });
+  return formatValue({ value, format }, locale);
 }
 
 function getKeyValueText(

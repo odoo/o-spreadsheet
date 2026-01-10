@@ -3,7 +3,7 @@ import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { Currency } from "../../types/currency";
 import { EvaluationError } from "../../types/errors";
-import { Format, FormattedValue, LocaleFormat } from "../../types/format";
+import { Format, FormattedValue } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { FunctionResultObject, Maybe } from "../../types/misc";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
@@ -76,7 +76,7 @@ export function formatOrHumanizeValue(
   if (humanize) {
     return humanizeNumber({ value, format }, locale);
   } else {
-    return formatValue(value, { format, locale });
+    return formatValue({ value, format }, locale);
   }
 }
 
@@ -84,8 +84,9 @@ export function formatOrHumanizeValue(
  * Formats a cell value with its format.
  */
 export function formatValue(
-  value: CellValue,
-  { format, locale, formatWidth }: LocaleFormat & { formatWidth?: FormatWidth }
+  { value, format }: FunctionResultObject,
+  locale: Locale,
+  formatWidth?: FormatWidth
 ): FormattedValue {
   if (typeof value === "boolean") {
     value = value ? "TRUE" : "FALSE";
@@ -743,7 +744,7 @@ export function humanizeNumber({ value, format }: FunctionResultObject, locale: 
     numberFormat = formatLargeNumber({ value, format }, undefined, locale);
   }
 
-  return formatValue(value, { format: numberFormat, locale });
+  return formatValue({ value, format: numberFormat }, locale);
 }
 
 export function formatLargeNumber(
@@ -973,7 +974,7 @@ export function formatHasRepeatedChar(value: CellValue, format: Format | undefin
 
 export function isFormatValid(format: Format): boolean {
   try {
-    formatValue(0, { format, locale: DEFAULT_LOCALE });
+    formatValue({ value: 0, format }, DEFAULT_LOCALE);
     return true;
   } catch {
     return false;

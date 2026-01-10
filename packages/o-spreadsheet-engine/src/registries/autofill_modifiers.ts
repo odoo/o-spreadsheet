@@ -45,7 +45,7 @@ autofillModifiersRegistry
       rule.current += rule.increment;
       const content = rule.current.toString();
       const locale = getters.getLocale();
-      const tooltipValue = formatValue(rule.current, { format: data.cell?.format, locale });
+      const tooltipValue = formatValue({ value: rule.current, format: data.cell?.format }, locale);
       return {
         cellData: {
           border: data.border,
@@ -67,7 +67,7 @@ autofillModifiersRegistry
       const value = jsDateToNumber(date);
       rule.current = value;
       const locale = getters.getLocale();
-      const tooltipValue = formatValue(value, { format: data.cell?.format, locale });
+      const tooltipValue = formatValue({ value, format: data.cell?.format }, locale);
       return {
         cellData: {
           border: data.border,

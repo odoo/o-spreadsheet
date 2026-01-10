@@ -475,10 +475,13 @@ export function formatTickValue(localeFormat: LocaleFormat, humanizeNumbers: boo
     const { locale, format } = localeFormat;
     const formattedValue = humanizeNumbers
       ? humanizeNumber({ value, format }, locale)
-      : formatValue(value, {
-          locale,
-          format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-        });
+      : formatValue(
+          {
+            value,
+            format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+          },
+          locale
+        );
     return truncateLabel(formattedValue);
   };
 }

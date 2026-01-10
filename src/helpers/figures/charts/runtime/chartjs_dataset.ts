@@ -590,7 +590,6 @@ export function getTreeMapChartDatasets(
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"treemap">[] {
   const { dataSetsValues, labels, locale, axisFormats } = args;
-  const localeFormat = { locale, format: axisFormats?.y };
 
   if (dataSetsValues.length === 0) {
     return [];
@@ -631,7 +630,9 @@ export function getTreeMapChartDatasets(
         formatter: (ctx) => {
           return [
             showLabels ? ctx.raw.g : undefined, // group name
-            showValues ? formatValue(ctx.raw.v, localeFormat) : undefined, // formatted value
+            showValues
+              ? formatValue({ value: ctx.raw.v, format: axisFormats?.y }, locale)
+              : undefined, // formatted value
           ].filter(isDefined);
         },
       },

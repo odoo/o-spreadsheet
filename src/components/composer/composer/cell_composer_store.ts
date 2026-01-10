@@ -264,7 +264,7 @@ export class CellComposerStore extends AbstractComposerStore {
           const timeFormat = Number.isInteger(value)
             ? locale.dateFormat
             : getDateTimeFormat(locale);
-          return { text: formatValue(value, { locale, format: timeFormat }) };
+          return { text: formatValue({ value, format: timeFormat }, locale) };
         }
         return { text: this.numberComposerContent(value, format, locale) };
     }

@@ -189,7 +189,7 @@ export function getLineChartScales(
     scales!.x!.type = "linear";
     scales!.x!.ticks!.callback = definition.humanize
       ? (value) => humanizeNumber({ value, format: labelFormat }, locale)
-      : (value) => formatValue(value, { format: labelFormat, locale });
+      : (value) => formatValue({ value, format: labelFormat }, locale);
   }
 
   if (trendDatasets && trendDatasets.length && trendDatasets.some(isDefined)) {
@@ -379,7 +379,7 @@ export function getFunnelChartScales(
           if (!baseValue || value === undefined) {
             return "";
           }
-          return formatValue(value / baseValue, { format: "0%", locale: args.locale });
+          return formatValue({ value: value / baseValue, format: "0%" }, args.locale);
         },
       },
       grid: { display: false },

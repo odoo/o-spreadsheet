@@ -757,7 +757,7 @@ export const TEXT = {
     format: Maybe<FunctionResultObject>
   ): string {
     const _number = toNumber(number, this.locale);
-    return formatValue(_number, { format: toString(format), locale: this.locale });
+    return formatValue({ value: _number, format: toString(format) }, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

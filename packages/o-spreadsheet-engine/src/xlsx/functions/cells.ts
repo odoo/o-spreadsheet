@@ -149,7 +149,7 @@ function convertDateFormat(ast: ASTString): ASTString {
     }
     return {
       ...ast,
-      value: formatValue(internalDate.value, { format: format.join(" "), locale: DEFAULT_LOCALE }),
+      value: formatValue({ value: internalDate.value, format: format.join(" ") }, DEFAULT_LOCALE),
     };
   } else {
     return { ...ast, value: ast.value.replace(/\\"/g, `""`) };

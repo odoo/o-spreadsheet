@@ -53,8 +53,8 @@ export class PivotSortSection extends Component<Props, SpreadsheetChildEnv> {
     const sortValues: { field?: string; value: string }[] = [];
     for (const domainItem of sortedColumn.domain) {
       currentDomain.push(domainItem);
-      const { value, format } = pivot.getPivotHeaderValueAndFormat(currentDomain);
-      const label = formatValue(value, { format, locale });
+      const valueAndFormat = pivot.getPivotHeaderValueAndFormat(currentDomain);
+      const label = formatValue(valueAndFormat, locale);
       const field = pivot.definition.getDimension(domainItem.field);
       sortValues.push({ field: getFieldDisplayName(field), value: label });
     }

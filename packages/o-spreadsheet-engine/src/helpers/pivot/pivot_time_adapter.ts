@@ -174,7 +174,7 @@ const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
 const monthAdapter: PivotTimeAdapterNotNull<string> = {
   normalizeFunctionValue(value) {
     const date = toNumber(value, DEFAULT_LOCALE);
-    return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/yyyy" });
+    return formatValue({ value: date, format: "mm/yyyy" }, DEFAULT_LOCALE);
   },
   toValueAndFormat(normalizedValue) {
     return {

@@ -249,21 +249,21 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
         const domain = this.pivot.parseArgsToPivotDomain(args);
         const locale = this.env.model.getters.getLocale();
         if (domain.at(-1)?.field === "measure") {
-          const { value, format } = this.pivot.getPivotMeasureValue(
+          const valueAndFormat = this.pivot.getPivotMeasureValue(
             toString(domain.at(-1)!.value),
             domain
           );
           current.push({
             formula: `=PIVOT.HEADER(${generatePivotArgs(id, domain).join(",")})`,
-            value: formatValue(value, { format, locale }),
+            value: formatValue(valueAndFormat, locale),
             span: cell.width,
             isMissing: !this.tracker?.isHeaderPresent(domain),
           });
         } else {
-          const { value, format } = this.pivot.getPivotHeaderValueAndFormat(domain);
+          const valueAndFormat = this.pivot.getPivotHeaderValueAndFormat(domain);
           current.push({
             formula: `=PIVOT.HEADER(${generatePivotArgs(id, domain).join(",")})`,
-            value: formatValue(value, { format, locale }),
+            value: formatValue(valueAndFormat, locale),
             span: cell.width,
             isMissing: !this.tracker?.isHeaderPresent(domain),
           });
@@ -288,11 +288,11 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
         args.push({ value: row.fields[i] }, { value: row.values[i] });
       }
       const domain = this.pivot.parseArgsToPivotDomain(args);
-      const { value, format } = this.pivot.getPivotHeaderValueAndFormat(domain);
+      const valueAndFormat = this.pivot.getPivotHeaderValueAndFormat(domain);
       const locale = this.env.model.getters.getLocale();
       const cell: PivotDialogRow = {
         formula: `=PIVOT.HEADER(${generatePivotArgs(id, domain).join(",")})`,
-        value: formatValue(value, { format, locale }),
+        value: formatValue(valueAndFormat, locale),
         isMissing: !this.tracker?.isHeaderPresent(domain),
       };
       if (row.indent > 1) {
@@ -316,11 +316,11 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
           args.push({ value: col.fields[i] }, { value: col.values[i] });
         }
         const domain = this.pivot.parseArgsToPivotDomain(args);
-        const { value, format } = this.pivot.getPivotCellValueAndFormat(measure, domain);
+        const valueAndFormat = this.pivot.getPivotCellValueAndFormat(measure, domain);
         const locale = this.env.model.getters.getLocale();
         current.push({
           formula: `=PIVOT.VALUE(${generatePivotArgs(id, domain, measure).join(",")})`,
-          value: formatValue(value, { format, locale }),
+          value: formatValue(valueAndFormat, locale),
           isMissing: !this.tracker?.isValuePresent(measure, domain),
         });
       }

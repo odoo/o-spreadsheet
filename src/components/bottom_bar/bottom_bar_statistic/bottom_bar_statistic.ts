@@ -68,6 +68,8 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   private getComposedFnName(fnName: string): string {
     const locale = this.env.model.getters.getLocale();
     const fnValue = this.store.statisticFnResults[fnName];
-    return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue(), { locale }) : "__");
+    return (
+      fnName + ": " + (fnValue !== undefined ? formatValue({ value: fnValue() }, locale) : "__")
+    );
   }
 }

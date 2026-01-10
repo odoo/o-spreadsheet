@@ -148,11 +148,7 @@ export class SheetUIPlugin extends UIPlugin {
             measureText: (text: string) => computeTextWidth(this.ctx, text, style || {}),
           }
         : undefined;
-      return formatValue(evaluatedCell.value, {
-        format: evaluatedCell.format,
-        locale,
-        formatWidth,
-      });
+      return formatValue(evaluatedCell, locale, formatWidth);
     }
   }
 
