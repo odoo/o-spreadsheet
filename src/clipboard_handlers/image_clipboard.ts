@@ -94,7 +94,7 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     option?: ClipboardOptions
   ) {
     if (target.length === 0) {
-      return CommandResult.EmptyTarget;
+      return CommandResult.EmptySelectedRange;
     }
     if (option?.pasteOption !== undefined) {
       return CommandResult.WrongFigurePasteOption;
