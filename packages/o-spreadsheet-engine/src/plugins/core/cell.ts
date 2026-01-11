@@ -29,6 +29,7 @@ import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
   detectDateFormat,
   detectNumberFormat,
+  isDateTimeFormat,
   isExcelCompatible,
   isTextFormat,
 } from "../../helpers/format/format";
@@ -510,8 +511,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
-    const format = "format" in after ? after.format : before && before.format;
 
+    let format: Format | undefined = undefined;
+    if (after.format !== undefined) {
+      format = after.format;
+    } else if (before?.format && (before?.format === "@" || isDateTimeFormat(before?.format))) {
+      format = before.format;
+    } else if (after.content) {
+      format = detectDateFormat(after.content, this.getters.getLocale());
+    }
+    if (format === undefined) {
+      format = before?.format || undefined;
+    }
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
      * - the command says the new content is empty and has no format
