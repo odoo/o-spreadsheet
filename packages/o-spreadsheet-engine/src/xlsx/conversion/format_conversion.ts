@@ -1,5 +1,4 @@
-import { formatValue } from "../../helpers/format/format";
-import { DEFAULT_LOCALE } from "../../types/locale";
+import { isFormatValid } from "../../helpers/format/format";
 import { XLSXNumFormat } from "../../types/xlsx";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XLSX_FORMATS_CONVERSION_MAP } from "./conversion_maps";
@@ -35,7 +34,7 @@ export function convertXlsxFormat(
         convertedFormat = convertDateFormat(convertedFormat);
       }
 
-      if (isFormatSupported(convertedFormat)) {
+      if (isFormatValid(convertedFormat)) {
         return convertedFormat;
       }
     } catch (e) {}
@@ -46,15 +45,6 @@ export function convertXlsxFormat(
     format || `nmFmtId ${numFmtId}`
   );
   return undefined;
-}
-
-function isFormatSupported(format: string): boolean {
-  try {
-    formatValue(0, { format, locale: DEFAULT_LOCALE });
-    return true;
-  } catch (e) {
-    return false;
-  }
 }
 
 function isXlsxDateFormat(format: string): boolean {
