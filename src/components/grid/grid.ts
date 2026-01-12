@@ -426,7 +426,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   focusDefaultElement() {
     if (
-      !this.env.model.getters.getSelectedFigureId() &&
+      !this.env.model.getters.getSelectedFiguresIds().length &&
       this.composerFocusStore.activeComposer.editionMode === "inactive"
     ) {
       this.DOMFocusableElementStore.focus();
