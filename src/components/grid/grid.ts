@@ -45,10 +45,10 @@ import {
   CellValueType,
   Client,
   ClipboardMIMEType,
-  Dimension,
-  Direction,
   DOMCoordinates,
   DOMDimension,
+  Dimension,
+  Direction,
   GridClickModifiers,
   HeaderIndex,
   Pixel,
@@ -68,7 +68,10 @@ import { cssPropertiesToCss } from "../helpers";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import {
+  moveAnchorWithinSelection,
+  updateSelectionWithArrowKeys,
+} from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
@@ -235,19 +238,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   private keyDownMapping: { [key: string]: Function } = {
-    Enter: () => {
-      const cell = this.env.model.getters.getActiveCell();
-      cell.type === CellValueType.empty
-        ? this.onComposerCellFocused()
-        : this.onComposerContentFocused();
-    },
-    Tab: () => this.env.model.selection.moveAnchorCell("right", 1),
-    "Shift+Tab": () => this.env.model.selection.moveAnchorCell("left", 1),
+    Enter: () => this.handleEnterKey("down"),
+    "Shift+Enter": () => this.handleEnterKey("up"),
+    Tab: () => this.handleTabKey("right"),
+    "Shift+Tab": () => this.handleTabKey("left"),
     F2: () => {
-      const cell = this.env.model.getters.getActiveCell();
-      cell.type === CellValueType.empty
-        ? this.onComposerCellFocused()
-        : this.onComposerContentFocused();
+      this.focusComposerFromActiveCell();
     },
     Delete: () => {
       this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
@@ -423,6 +419,35 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "Alt+Shift+ArrowUp": () => this.processHeaderGroupingKey("up"),
     "Alt+Shift+ArrowDown": () => this.processHeaderGroupingKey("down"),
   };
+
+  private focusComposerFromActiveCell() {
+    const cell = this.env.model.getters.getActiveCell();
+    cell.type === CellValueType.empty
+      ? this.onComposerCellFocused()
+      : this.onComposerContentFocused();
+  }
+
+  private handleEnterKey(direction: "up" | "down") {
+    if (this.isSingleCellOrMergeSelection()) {
+      this.focusComposerFromActiveCell();
+      return;
+    }
+    moveAnchorWithinSelection(this.env.model.getters, this.env.model.selection, direction);
+  }
+
+  private handleTabKey(direction: "left" | "right") {
+    if (this.isSingleCellOrMergeSelection()) {
+      this.env.model.selection.moveAnchorCell(direction, 1);
+      return;
+    }
+    moveAnchorWithinSelection(this.env.model.getters, this.env.model.selection, direction);
+  }
+
+  private isSingleCellOrMergeSelection(): boolean {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const selectedZone = this.env.model.getters.getSelectedZone();
+    return this.env.model.getters.isSingleCellOrMerge(sheetId, selectedZone);
+  }
 
   focusDefaultElement() {
     if (
