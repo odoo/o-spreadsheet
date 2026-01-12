@@ -20,7 +20,7 @@
             onConfirmed.bind="updateFilterData"
           />
         </Popover>
-        <i>
+        <i class="o-pivot-filter-caption">
           <t t-esc="filterCaption()"/>
         </i>
       </PivotDimension>
