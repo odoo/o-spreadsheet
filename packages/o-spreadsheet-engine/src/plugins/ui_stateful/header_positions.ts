@@ -1,5 +1,5 @@
 import { deepCopy } from "../../helpers/misc";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { Command, invalidateEvaluationCommands, UpdateCellCommand } from "../../types/commands";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -8,6 +8,11 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
 
   private headerPositions: Record<UID, Record<Dimension, Record<HeaderIndex, Pixel>>> = {};
   private isDirty = true;
+
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.headerPositions = {};
+    this.isDirty = true;
+  }
 
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
@@ -21,7 +26,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
           this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
         }
         break;
-      case "UPDATE_CELL":
       case "SET_FORMATTING":
       case "CLEAR_FORMATTING":
         this.headerPositions = {};

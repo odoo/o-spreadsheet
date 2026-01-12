@@ -8,6 +8,7 @@ import {
   CommandResult,
   CoreCommand,
   SetFormattingCommand,
+  UpdateCellCommand,
 } from "../../types/commands";
 import {
   ApplyRangeChange,
@@ -60,6 +61,16 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
     return CommandResult.Success;
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    if (cmd.style !== undefined) {
+      if (cmd.style !== null) {
+        this.setStyles(cmd.sheetId, [positionToZone(cmd)], cmd.style, { force: true });
+      } else {
+        this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
+      }
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "ADD_MERGE":
@@ -78,15 +89,6 @@ export class StylePlugin extends CorePlugin<StylePluginState> implements StylePl
         break;
       case "CLEAR_FORMATTING":
         this.clearStyle(cmd.sheetId, cmd.target);
-        break;
-      case "UPDATE_CELL":
-        if (cmd.style !== undefined) {
-          if (cmd.style !== null) {
-            this.setStyles(cmd.sheetId, [positionToZone(cmd)], cmd.style, { force: true });
-          } else {
-            this.clearStyle(cmd.sheetId, [positionToZone(cmd)]);
-          }
-        }
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {

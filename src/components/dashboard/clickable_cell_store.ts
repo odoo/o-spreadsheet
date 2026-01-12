@@ -3,7 +3,14 @@ import { ComponentConstructor, markRaw } from "@odoo/owl";
 import { positionToZone, toXC } from "../../helpers";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { CellPosition, Command, Rect, UID, invalidateEvaluationCommands } from "../../types";
+import {
+  CellPosition,
+  Command,
+  Rect,
+  UID,
+  UpdateCellCommand,
+  invalidateEvaluationCommands,
+} from "../../types";
 
 export interface ClickableCell {
   coordinates: Rect;
@@ -20,12 +27,17 @@ export class ClickableCellsStore extends SpreadsheetStore {
     clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
   );
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this._clickableCells = markRaw({});
+      this._registryItems = markRaw(
+        clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
+      );
+    }
+  }
+
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this._clickableCells = markRaw({});
       this._registryItems = markRaw(
         clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)

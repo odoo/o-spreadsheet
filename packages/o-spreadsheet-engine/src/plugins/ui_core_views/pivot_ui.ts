@@ -18,6 +18,7 @@ import {
   AddPivotCommand,
   Command,
   CoreCommand,
+  UpdateCellCommand,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
 } from "../../types/commands";
@@ -63,6 +64,10 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.unusedPivotsInFormulas = undefined;
+  }
+
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
       for (const pivotId of this.getters.getPivotIds()) {
@@ -85,8 +90,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
         this.setupPivot(cmd.pivotId, { recreate: true });
         break;
       }
-      case "DELETE_SHEET":
-      case "UPDATE_CELL": {
+      case "DELETE_SHEET": {
         this.unusedPivotsInFormulas = undefined;
         break;
       }

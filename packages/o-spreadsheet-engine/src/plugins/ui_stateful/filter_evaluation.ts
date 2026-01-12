@@ -5,7 +5,13 @@ import { deepCopy, getUniqueText, range } from "../../helpers/misc";
 import { toLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
+import {
+  Command,
+  CommandResult,
+  LocalCommand,
+  UpdateCellCommand,
+  UpdateFilterCommand,
+} from "../../types/commands";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, FilterId, UID } from "../../types/misc";
@@ -41,11 +47,14 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.isEvaluationDirty = true;
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
       case "REDO":
-      case "UPDATE_CELL":
       case "EVALUATE_CELLS":
       case "ACTIVATE_SHEET":
       case "REMOVE_TABLE":

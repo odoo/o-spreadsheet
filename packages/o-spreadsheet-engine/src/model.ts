@@ -523,7 +523,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
           }
-          this.dispatchToHandlers(this.handlers, command);
+          if (command.type === "UPDATE_CELL") {
+            for (const handler of this.handlers) {
+              handler.handleUpdate?.(command);
+            }
+          } else {
+            this.dispatchToHandlers(this.handlers, command);
+          }
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {

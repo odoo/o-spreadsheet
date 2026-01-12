@@ -7,6 +7,7 @@ import {
   invalidateBordersCommands,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../types/commands";
 import { Border, CellPosition, Style, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -18,10 +19,14 @@ export class CellComputedStylePlugin extends UIPlugin {
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.styles = new PositionMap();
+    this.borders = new PositionMap();
+  }
+
   handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "UPDATE_CELL" ||
       cmd.type === "SET_FORMATTING" ||
       cmd.type === "ADD_DATA_VALIDATION_RULE" ||
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||

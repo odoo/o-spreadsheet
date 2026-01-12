@@ -1,7 +1,12 @@
 import { PositionMap } from "../../helpers/cells/position_map";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
+import {
+  Command,
+  CommandTypes,
+  invalidateEvaluationCommands,
+  UpdateCellCommand,
+} from "../../types/commands";
 import { Border, CellPosition, Lazy, Style, TableId, UID, Zone } from "../../types/misc";
 import { Table, TableConfig } from "../../types/table";
 import { UIPlugin } from "../ui_plugin";
@@ -27,12 +32,12 @@ export class TableComputedStylePlugin extends UIPlugin {
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.tableStyles = {};
+  }
+
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.tableStyles = {};
       return;
     }

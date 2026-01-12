@@ -10,6 +10,7 @@ import {
   LocalCommand,
   ResizeViewportCommand,
   SetViewportOffsetCommand,
+  UpdateCellCommand,
 } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream";
 import { AnchorOffset, Figure, FigureUI } from "../../types/figure";
@@ -181,6 +182,19 @@ export class SheetViewPlugin extends UIPlugin {
     }
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    if (
+      "content" in cmd ||
+      "format" in cmd ||
+      cmd.style?.fontSize !== undefined ||
+      cmd.style?.wrapping !== undefined
+    ) {
+      for (const sheetId of this.getters.getSheetIds()) {
+        this.sheetsWithDirtyViewports.add(sheetId);
+      }
+    }
+  }
+
   handle(cmd: Command) {
     // changing the evaluation can hide/show rows because of data filters
     if (invalidateEvaluationCommands.has(cmd.type)) {
@@ -249,7 +263,6 @@ export class SheetViewPlugin extends UIPlugin {
       case "FOLD_ALL_HEADER_GROUPS":
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
         break;
-      case "UPDATE_CELL":
       case "SET_FORMATTING":
         // update cell content or format can change hidden rows because of data filters
         if (

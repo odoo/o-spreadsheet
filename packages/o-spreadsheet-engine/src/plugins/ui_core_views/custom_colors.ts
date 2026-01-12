@@ -9,7 +9,7 @@ import {
   toHex,
 } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
-import { Command } from "../../types/commands";
+import { Command, UpdateCellCommand } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";
 import { TableElementStyle } from "../../types/table";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
@@ -82,6 +82,9 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
     this.tryToAddColors(config.customColors ?? []);
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.history.update("shouldUpdateColors", true);
+  }
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
@@ -95,7 +98,6 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
       case "CREATE_CHART":
         this.tryToAddColors(this.getChartColors(cmd.chartId));
         break;
-      case "UPDATE_CELL":
       case "ADD_CONDITIONAL_FORMAT":
       case "SET_BORDER":
       case "SET_ZONE_BORDERS":

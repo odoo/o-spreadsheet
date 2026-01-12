@@ -1,6 +1,6 @@
 import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
-import { CellPosition, Color, Command, Highlight } from "../../../types";
+import { CellPosition, Color, Command, Highlight, UpdateCellCommand } from "../../../types";
 
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -106,6 +106,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.selectNextCell(Direction.next, { jumpToMatchSheet: true, updateSelection: true });
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.isSearchDirty = true;
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SET_FORMULA_VISIBILITY":
@@ -120,7 +124,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       case "UNHIDE_COLUMNS_ROWS":
       case "ADD_COLUMNS_ROWS":
       case "EVALUATE_CELLS":
-      case "UPDATE_CELL":
         this.isSearchDirty = true;
         break;
       case "ACTIVATE_SHEET":

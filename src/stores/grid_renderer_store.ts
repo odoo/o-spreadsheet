@@ -53,6 +53,7 @@ import {
   Pixel,
   RenderingBox,
   UID,
+  UpdateCellCommand,
   Viewport,
   Zone,
 } from "../types/index";
@@ -117,11 +118,12 @@ export class GridRenderer extends SpreadsheetStore {
       case "PASTE":
         this.zonesWithPreventedAnimationsInNextFrame.push(...this.getters.getSelectedZones());
         break;
-      case "UPDATE_CELL":
-        const zones = this.getters.getCommandZones(cmd);
-        this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
-        break;
     }
+  }
+
+  handleUpdate(cmd: UpdateCellCommand) {
+    const zones = this.getters.getCommandZones(cmd);
+    this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
   }
 
   finalize() {
