@@ -12,7 +12,7 @@ import {
   repairInitialMessages,
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
-import { RangeAdapter } from "./plugins/core/range";
+import { RangeAdapterPlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
 import {
@@ -135,7 +135,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private statefulUIPlugins: UIPlugin[] = [];
 
-  private range: RangeAdapter;
+  private range: RangeAdapterPlugin;
 
   private session: Session;
 
@@ -216,7 +216,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreGetters = {} as CoreGetters;
 
-    this.range = new RangeAdapter(this.coreGetters);
+    this.range = new RangeAdapterPlugin(this.coreGetters);
     this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
     this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
     this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
@@ -230,8 +230,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
     this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
-    this.coreGetters.adaptFormulaStringDependencies =
-      this.range.adaptFormulaStringDependencies.bind(this.range);
     this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
       this.range
     );
