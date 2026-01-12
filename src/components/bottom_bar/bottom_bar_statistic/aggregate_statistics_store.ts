@@ -16,6 +16,7 @@ import {
   EvaluatedCell,
   Lazy,
   Locale,
+  UpdateCellCommand,
   invalidateEvaluationCommands,
 } from "../../../types";
 
@@ -76,11 +77,12 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     });
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.isDirty = true;
+  }
+
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type)) {
       this.isDirty = true;
     }
     switch (cmd.type) {

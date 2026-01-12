@@ -9,7 +9,7 @@ import {
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
-import { Command } from "../../types/commands";
+import { Command, UpdateCellCommand } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import {
   CellPosition,
@@ -57,6 +57,10 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
         break;
     }
+  }
+
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
   }
 
   handle(cmd: Command) {
@@ -119,9 +123,6 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
             this.updateRowSizeForZoneChange(cmd.sheetId, zone);
           }
         }
-        break;
-      case "UPDATE_CELL":
-        this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
         break;
       case "ADD_MERGE":
       case "REMOVE_MERGE":

@@ -113,6 +113,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "SET_FORMATTING":
@@ -129,9 +133,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         } else {
           this.handleAddColumnsRows(cmd, this.copyRowFormat.bind(this));
         }
-        break;
-      case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
         break;
 
       case "CLEAR_CELL":

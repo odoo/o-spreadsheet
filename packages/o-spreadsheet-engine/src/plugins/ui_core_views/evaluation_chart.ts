@@ -8,6 +8,7 @@ import {
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../types/commands";
 import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -29,6 +30,12 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
   charts: Record<UID, ChartRuntime | undefined> = {};
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
+
+  handleUpdate(cmd: UpdateCellCommand) {
+    for (const chartId in this.charts) {
+      this.charts[chartId] = undefined;
+    }
+  }
 
   handle(cmd: CoreViewCommand) {
     if (

@@ -11,6 +11,7 @@ import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../types/commands";
 import {
   CellIsRule,
@@ -46,11 +47,16 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.isStale = true;
+    }
+  }
+
   handle(cmd: CoreViewCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
+      invalidateCFEvaluationCommands.has(cmd.type)
     ) {
       this.isStale = true;
     }

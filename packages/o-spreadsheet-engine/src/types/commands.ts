@@ -1476,6 +1476,7 @@ export interface CommandHandler<T> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
+  handleUpdate?(command: UpdateCellCommand): void;
   finalize(): void;
 }
 

@@ -10,7 +10,11 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
+import {
+  CoreViewCommand,
+  invalidateEvaluationCommands,
+  UpdateCellCommand,
+} from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -52,12 +56,16 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   validationResults: Record<UID, SheetValidationResult> = {};
   criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.validationResults = {};
+      this.criterionPreComputeResult = {};
+      return;
+    }
+  }
+
   handle(cmd: CoreViewCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
       return;

@@ -9,6 +9,7 @@ import {
   CoreViewCommand,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../../types/commands";
 import { Format, FormattedValue } from "../../../types/format";
 import {
@@ -185,19 +186,20 @@ export class EvaluationPlugin extends CoreViewPlugin {
     }
   }
 
+  handleUpdate(cmd: UpdateCellCommand) {
+    if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
+      return;
+    }
+    const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
+    this.positionsToUpdate.push(position);
+
+    if ("content" in cmd) {
+      this.evaluator.updateDependencies(position);
+    }
+  }
+
   handle(cmd: CoreViewCommand) {
     switch (cmd.type) {
-      case "UPDATE_CELL":
-        if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
-          return;
-        }
-        const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
-        this.positionsToUpdate.push(position);
-
-        if ("content" in cmd) {
-          this.evaluator.updateDependencies(position);
-        }
-        break;
       case "EVALUATE_CELLS":
         if (cmd.cellIds) {
           for (let i = 0; i < cmd.cellIds.length; i++) {
