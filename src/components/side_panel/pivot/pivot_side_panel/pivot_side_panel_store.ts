@@ -240,6 +240,21 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         format: measure.format,
         display: measure.display,
       })),
+      filters: definition.filters.map((filter) =>
+        filter.filterType === "values"
+          ? {
+              fieldName: filter.fieldName,
+              filterType: filter.filterType,
+              hiddenValues: filter.hiddenValues,
+            }
+          : {
+              fieldName: filter.fieldName,
+              filterType: filter.filterType,
+              type: filter.type,
+              values: filter.values,
+              dateValue: filter.dateValue,
+            }
+      ),
       sortedColumn: this.shouldKeepSortedColumn(definition) ? definition.sortedColumn : undefined,
     };
     if (cleanedDefinition.collapsedDomains) {
