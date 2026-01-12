@@ -235,7 +235,7 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
       return undefined;
     }
 
-    const cellIds = this.getters.getRowCells(sheetId, row);
+    const cellIds = this.getters.getRowCellIds(sheetId, row);
     let maxHeight = 0;
     let tallestCell: CellWithSize | undefined = undefined;
     for (let i = 0; i < cellIds.length; i++) {

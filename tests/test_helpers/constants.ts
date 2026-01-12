@@ -109,7 +109,7 @@ export const TEST_COMMANDS: CommandMapping = {
   },
   UPDATE_CELL_POSITION: {
     type: "UPDATE_CELL_POSITION",
-    cellId: "Id",
+    cellId: 1,
     sheetId: "Sheet1",
     row: 0,
     col: 0,

@@ -203,7 +203,7 @@ export class Evaluator {
               rTreeItems.push({
                 data: {
                   sheetId,
-                  zone: positionToZone(this.getters.getCellPosition(cellId)),
+                  zone: positionToZone(this.getters.getCellPosition(cell.id)),
                 },
                 boundingBox: { sheetId: range.sheetId, zone: range.zone },
               });
@@ -285,11 +285,11 @@ export class Evaluator {
   }
 
   private nextRangesToUpdate = new RangeSet();
-  private cellsBeingComputed = new Set<UID>();
+  private cellsBeingComputed = new Set<number>();
   private symbolsBeingComputed = new Set<string>();
 
   private evaluate(ranges: Iterable<BoundedRange>) {
-    this.cellsBeingComputed = new Set<UID>();
+    this.cellsBeingComputed = new Set<number>();
     this.nextRangesToUpdate = new RangeSet(ranges);
 
     let currentIteration = 0;

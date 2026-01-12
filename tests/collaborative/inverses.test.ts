@@ -268,7 +268,7 @@ describe("Inverses commands", () => {
     const updateCellPosition: UpdateCellPositionCommand = {
       type: "UPDATE_CELL_POSITION",
       sheetId: "1",
-      cellId: "1",
+      cellId: 1,
       col: 1,
       row: 1,
     };

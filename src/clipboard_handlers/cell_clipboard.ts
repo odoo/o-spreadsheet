@@ -61,7 +61,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
-              id: cell?.id || "",
+              id: cell?.id ?? 0,
               format: cell?.format,
               content: pivotFormula,
               isFormula: false,
@@ -76,7 +76,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               ? ""
               : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
             cell = {
-              id: cell?.id || "",
+              id: cell?.id ?? 0,
               format: evaluatedCell.format,
               content,
               isFormula: false,

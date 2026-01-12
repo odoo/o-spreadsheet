@@ -334,8 +334,10 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
     const unusedPivots = new Set(this.getters.getPivotIds());
     for (const sheetId of this.getters.getSheetIds()) {
-      for (const cellId in this.getters.getCells(sheetId)) {
-        const position = this.getters.getCellPosition(cellId);
+      const cells = this.getters.getCells(sheetId);
+      for (const cellId in cells) {
+        const cell = cells[cellId];
+        const position = this.getters.getCellPosition(cell.id);
         const pivotId = this.getPivotIdFromPosition(position);
         if (pivotId) {
           unusedPivots.delete(pivotId);

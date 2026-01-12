@@ -116,12 +116,13 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
     const activeSheetId = this.getters.getActiveSheetId();
     const cells = this.getters.getCells(activeSheetId);
     for (const cellId in cells) {
-      const fingerprint = this.computeFingerprint(cells[cellId]);
+      const cell = cells[cellId];
+      const fingerprint = this.computeFingerprint(cell);
       if (!fingerprint) {
         continue;
       }
       allFingerprints.add(fingerprint);
-      const position = this.getters.getCellPosition(cellId);
+      const position = this.getters.getCellPosition(cell.id);
       fingerprints.set(position, fingerprint);
     }
     this.assignColors(allFingerprints);

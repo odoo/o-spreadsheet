@@ -344,7 +344,7 @@ export interface UpdateCellCommand extends PositionDependentCommand {
  */
 export interface UpdateCellPositionCommand extends PositionDependentCommand {
   type: "UPDATE_CELL_POSITION";
-  cellId?: UID;
+  cellId?: number;
 }
 
 //------------------------------------------------------------------------------
@@ -919,7 +919,7 @@ export interface ActivateSheetCommand {
 
 export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
-  cellIds?: UID[];
+  cellIds?: number[];
 }
 
 export interface EvaluateChartsCommand {

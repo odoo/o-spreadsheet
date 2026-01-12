@@ -8,7 +8,7 @@ const trackedFormulas = ["SUBTOTAL", "PIVOT"];
 export class FormulaTrackerPlugin extends CoreViewPlugin {
   static getters = ["getCellsWithTrackedFormula"] as const;
 
-  private trackedCells: Record<string, Record<UID, boolean | undefined>> = {};
+  private trackedCells: Record<string, Record<UID, number | undefined>> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -22,7 +22,7 @@ export class FormulaTrackerPlugin extends CoreViewPlugin {
             const cell = cells[cellId];
             for (const formula of trackedFormulas) {
               if (doesCellContainFunction(cell, formula)) {
-                this.history.update("trackedCells", formula, cell.id, true);
+                this.history.update("trackedCells", formula, cell.id, cell.id);
               }
             }
           }
@@ -41,7 +41,7 @@ export class FormulaTrackerPlugin extends CoreViewPlugin {
         }
         for (const formula of trackedFormulas) {
           if (doesCellContainFunction(cell, formula)) {
-            this.history.update("trackedCells", formula, cell.id, true);
+            this.history.update("trackedCells", formula, cell.id, cell.id);
           } else if (this.trackedCells[formula][cell.id]) {
             this.history.update("trackedCells", formula, cell.id, undefined);
           }
@@ -51,9 +51,12 @@ export class FormulaTrackerPlugin extends CoreViewPlugin {
     }
   }
 
-  getCellsWithTrackedFormula(formula: string): string[] {
-    return Object.keys(this.trackedCells[formula] || {}).filter(
-      (cellId) => this.trackedCells[formula][cellId] && this.getters.tryGetCellPosition(cellId)
+  getCellsWithTrackedFormula(formula: string): number[] {
+    return Object.values(this.trackedCells[formula] || {}).filter(
+      (cellId): cellId is number =>
+        cellId !== undefined &&
+        this.trackedCells[formula][cellId] &&
+        this.getters.tryGetCellPosition(cellId)
     );
   }
 }
