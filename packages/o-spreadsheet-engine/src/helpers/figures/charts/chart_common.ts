@@ -145,8 +145,6 @@ export function adaptChartRange(
   }
   const change = applyChange(range);
   switch (change.changeType) {
-    case "NONE":
-      return range;
     case "REMOVE":
       return undefined;
     default:
@@ -332,8 +330,12 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
 ): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
-    const adaptedRange = adaptStringRange(chartSheetId, definition.labelRange, applyChange);
-    if (adaptedRange !== CellErrorType.InvalidReference) {
+    const { changeType, range: adaptedRange } = adaptStringRange(
+      chartSheetId,
+      definition.labelRange,
+      applyChange
+    );
+    if (changeType !== "REMOVE") {
       labelRange = adaptedRange;
     }
   }
@@ -341,9 +343,13 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
   const dataSets: CustomizedDataSet[] = [];
   for (const dataSet of definition.dataSets) {
     const newDataSet = { ...dataSet };
-    const adaptedRange = adaptStringRange(chartSheetId, dataSet.dataRange, applyChange);
+    const { changeType, range: adaptedRange } = adaptStringRange(
+      chartSheetId,
+      dataSet.dataRange,
+      applyChange
+    );
 
-    if (adaptedRange !== CellErrorType.InvalidReference) {
+    if (changeType !== "REMOVE") {
       newDataSet.dataRange = adaptedRange;
       dataSets.push(newDataSet);
     }

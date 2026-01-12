@@ -16,10 +16,9 @@ import {
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
-import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import { ApplyRangeChange, Color, RangeAdapter, UID } from "../../../types/misc";
+import { Color, RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
@@ -213,14 +212,22 @@ export class ScorecardChart extends AbstractChart {
     let baseline: string | undefined;
     let keyValue: string | undefined;
     if (definition.baseline) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.baseline, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.baseline,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         baseline = adaptedRange;
       }
     }
     if (definition.keyValue) {
-      const adaptedRange = adaptStringRange(chartSheetId, definition.keyValue, applyChange);
-      if (adaptedRange !== CellErrorType.InvalidReference) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        definition.keyValue,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
         keyValue = adaptedRange;
       }
     }
@@ -288,7 +295,7 @@ export class ScorecardChart extends AbstractChart {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ScorecardChart {
+  updateRanges({ applyChange }: RangeAdapterFunctions): ScorecardChart {
     const baseline = adaptChartRange(this.baseline, applyChange);
     const keyValue = adaptChartRange(this.keyValue, applyChange);
     if (this.baseline === baseline && this.keyValue === keyValue) {

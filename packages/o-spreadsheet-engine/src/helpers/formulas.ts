@@ -1,5 +1,6 @@
 import { rangeTokenize } from "../formulas/range_tokenizer";
-import { RangeAdapter, UID } from "../types/misc";
+import { CellErrorType } from "../types/errors";
+import { ApplyRangeChangeResult, RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
@@ -20,7 +21,7 @@ export function adaptFormulaStringRanges(
       continue;
     }
     const sheetXC = tokens[tokenIdx].value;
-    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange);
+    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange).range;
 
     if (sheetXC !== newSheetXC) {
       tokens[tokenIdx] = {
@@ -35,29 +36,35 @@ export function adaptFormulaStringRanges(
 export function adaptStringRange(
   defaultSheetId: UID,
   sheetXC: string,
-  applyChange: RangeAdapter
-): string {
+  rangeAdapter: RangeAdapter
+): ApplyRangeChangeResult<string> {
   const sheetName = splitReference(sheetXC).sheetName;
   if (
     sheetName
-      ? !isSheetNameEqual(sheetName, applyChange.sheetName.old)
-      : defaultSheetId !== applyChange.sheetId
+      ? !isSheetNameEqual(sheetName, rangeAdapter.sheetName.old)
+      : defaultSheetId !== rangeAdapter.sheetId
   ) {
-    return sheetXC;
+    return { changeType: "NONE", range: sheetXC };
   }
-  const sheetId = sheetName ? applyChange.sheetId : defaultSheetId;
+  const sheetId = sheetName ? rangeAdapter.sheetId : defaultSheetId;
 
   const range = getRange(sheetXC, sheetId);
   if (range.invalidXc) {
-    return sheetXC;
+    return { changeType: "NONE", range: sheetXC };
   }
 
-  const change = applyChange.applyChange(range);
+  const change = rangeAdapter.applyChange(range);
   if (change.changeType === "NONE" || change.changeType === "REMOVE") {
-    return sheetXC;
+    return { changeType: change.changeType, range: sheetXC };
   }
-
-  return getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
+  const rangeStr = getRangeString(change.range, defaultSheetId, getSheetNameGetter(rangeAdapter));
+  if (rangeStr === CellErrorType.InvalidReference) {
+    return { changeType: "REMOVE", range: rangeStr };
+  }
+  return {
+    changeType: change.changeType,
+    range: rangeStr,
+  };
 }
 
 function getSheetNameGetter(applyChange: RangeAdapter) {
