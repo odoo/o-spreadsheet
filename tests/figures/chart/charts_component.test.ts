@@ -1452,6 +1452,16 @@ describe("charts", () => {
       }
     );
 
+    test("Scorecard > no error when confirming unchanged key value", async () => {
+      createTestChart("scorecard");
+      await mountChartSidePanel();
+
+      expect(errorMessages()).toEqual([]);
+      await simulateClick(".o-data-series input");
+      await simulateClick(".o-data-series .o-selection-ok");
+      expect(errorMessages()).toEqual([]);
+    });
+
     test("Scorecard > error displayed on input fields", async () => {
       createTestChart("scorecard");
       await mountChartSidePanel();
