@@ -101,7 +101,9 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   get designErrorMessages(): string[] {
-    const cancelledReasons = [...(this.state.sectionRuleCancelledReasons || [])];
+    const cancelledReasons = [...(this.state.sectionRuleCancelledReasons || [])].filter(
+      (reason) => reason !== CommandResult.NoChanges
+    );
     return cancelledReasons.map(
       (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
     );
