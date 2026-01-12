@@ -39,7 +39,9 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
   private dataRange: string | undefined = this.props.definition.dataRange;
 
   get configurationErrorMessages(): string[] {
-    const cancelledReasons = [...(this.state.dataRangeDispatchResult?.reasons || [])];
+    const cancelledReasons = [...(this.state.dataRangeDispatchResult?.reasons || [])].filter(
+      (reason) => reason !== CommandResult.NoChanges
+    );
     return cancelledReasons.map(
       (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
     );
