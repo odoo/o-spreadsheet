@@ -48,7 +48,7 @@ interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;
   readonly orderedSheetIds: UID[];
   readonly sheetIdsMapName: Record<string, UID | undefined>;
-  readonly cellPosition: Record<UID, CellPosition | undefined>;
+  readonly cellPosition: Record<number, CellPosition | undefined>;
 }
 
 export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
@@ -66,7 +66,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getCell",
     "getCellPosition",
     "getColsZone",
-    "getRowCells",
+    "getRowCellIds",
     "getRowsZone",
     "getNumberCols",
     "getNumberRows",
@@ -87,7 +87,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
   readonly orderedSheetIds: UID[] = [];
   readonly sheets: Record<UID, Sheet | undefined> = {};
-  readonly cellPosition: Record<UID, CellPosition | undefined> = {};
+  readonly cellPosition: Record<number, CellPosition | undefined> = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -408,7 +408,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
-  getRowCells(sheetId: UID, row: HeaderIndex): UID[] {
+  getRowCellIds(sheetId: UID, row: HeaderIndex): number[] {
     return Object.values(this.getSheet(sheetId).rows[row]?.cells).filter(isDefined);
   }
 
@@ -421,7 +421,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
-  getCellPosition(cellId: UID): CellPosition {
+  getCellPosition(cellId: number): CellPosition {
     const cell = this.cellPosition[cellId];
     if (!cell) {
       throw new Error(`asking for a cell position that doesn't exist, cell id: ${cellId}`);
@@ -429,7 +429,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return cell;
   }
 
-  tryGetCellPosition(cellId: UID): CellPosition | undefined {
+  tryGetCellPosition(cellId: number): CellPosition | undefined {
     return this.cellPosition[cellId];
   }
 
@@ -568,7 +568,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Set the cell at a new position and clear its previous position.
    */
-  private setNewPosition(cellId: UID, sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
+  private setNewPosition(cellId: number, sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
     const currentPosition = this.cellPosition[cellId];
     if (currentPosition) {
       this.clearPosition(sheetId, currentPosition.col, currentPosition.row);

@@ -240,7 +240,7 @@ export interface HeaderDimensions {
 }
 
 export interface Row {
-  cells: Record<number, UID | undefined>; // number is a column index
+  cells: Record<number, number | undefined>; // number is a column index
 }
 
 export interface Position {

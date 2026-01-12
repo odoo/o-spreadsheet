@@ -47,7 +47,7 @@ import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<UID, Cell | undefined> | undefined>;
+  cells: Record<UID, Record<number, Cell | undefined> | undefined>;
   nextId: number;
 }
 
@@ -299,8 +299,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const _sheet of data.sheets) {
       const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: string } = {};
-      const positions = Object.keys(this.cells[_sheet.id] || {})
-        .map((cellId) => this.getters.getCellPosition(cellId))
+      const positions = Object.values(this.cells[_sheet.id] || {})
+        .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
@@ -321,7 +321,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   importCell(sheetId: UID, content?: string, format?: Format): Cell {
-    const cellId = this.getNextUid();
+    const cellId = this.getNextCellId();
     return this.createCell(cellId, content || "", format, sheetId);
   }
 
@@ -357,7 +357,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * get a cell by ID. Used in evaluation when evaluating an async cell, we need to be able to find it back after
    * starting an async evaluation even if it has been moved or re-allocated
    */
-  getCellById(cellId: UID): Cell | undefined {
+  getCellById(cellId: number): Cell | undefined {
     // this must be as fast as possible
     const position = this.getters.getCellPosition(cellId);
     const sheet = this.cells[position.sheetId];
@@ -498,8 +498,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return format;
   }
 
-  private getNextUid() {
-    const id = this.nextId.toString();
+  private getNextCellId(): number {
+    const id = this.nextId;
     this.history.update("nextId", this.nextId + 1);
     return id;
   }
@@ -536,20 +536,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return;
     }
 
-    const cellId = before?.id || this.getNextUid();
+    const cellId = before?.id || this.getNextCellId();
     const cell = this.createCell(cellId, afterContent, format, sheetId);
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
 
-  private createCell(id: UID, content: string, format: Format | undefined, sheetId: UID): Cell {
+  private createCell(id: number, content: string, format: Format | undefined, sheetId: UID): Cell {
     if (!content.startsWith("=")) {
       return this.createLiteralCell(id, content, format);
     }
     return this.createFormulaCell(id, content, format, sheetId);
   }
 
-  private createLiteralCell(id: UID, content: string, format: Format | undefined): LiteralCell {
+  private createLiteralCell(id: number, content: string, format: Format | undefined): LiteralCell {
     const locale = this.getters.getLocale();
     const parsedValue = parseLiteral(content, locale);
 
@@ -571,7 +571,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private createFormulaCell(
-    id: UID,
+    id: number,
     content: string,
     format: Format | undefined,
     sheetId: UID
@@ -597,7 +597,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * being a computed property to rebuild the dependencies XC.
    */
   private createFormulaCellWithDependencies(
-    id: UID,
+    id: number,
     compiledFormula: CompiledFormula,
     format: Format | undefined,
     sheetId: UID
@@ -659,7 +659,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
   readonly compiledFormula: RangeCompiledFormula;
   constructor(
-    readonly id: UID,
+    readonly id: number,
     compiledFormula: CompiledFormula,
     readonly format: Format | undefined,
     dependencies: Range[],
