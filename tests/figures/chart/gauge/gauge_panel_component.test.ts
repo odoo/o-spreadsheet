@@ -25,6 +25,13 @@ beforeEach(async () => {
   await openChartConfigSidePanel(model, env, chartId);
 });
 
+test("No error when confirming unchanged data range", async () => {
+  expect(textContentAll(".o-validation-error")).toHaveLength(0);
+  await simulateClick(".o-data-series input");
+  await simulateClick(".o-data-series .o-selection-ok");
+  expect(textContentAll(".o-validation-error")).toHaveLength(0);
+});
+
 test("Can change gauge inflection operator", async () => {
   await openChartDesignSidePanel(model, env, fixture, chartId);
   expect(model.getters.getChartDefinition(chartId)).toMatchObject({
