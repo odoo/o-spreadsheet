@@ -1,0 +1,88 @@
+<templates>
+  <t t-name="o-spreadsheet-ColumnStatsPanel">
+    <div class="o-column-stats-panel">
+      <t t-if="store.hasSingleColumn">
+        <div class="d-flex justify-content-between align-items-center o-panel-header px-4 py-3">
+          <span class="o-fw-bold w-100 o-column-stats-title" t-esc="columnLabel"/>
+          <span
+            class="p-1 o-row-switcher"
+            data-test-id="previous-column-button"
+            t-att-title="'Switch to previous column'"
+            t-on-click="store.selectPreviousColumn">
+            <t t-call="o-spreadsheet-Icon.ANGLE_LEFT"/>
+          </span>
+          <span
+            class="p-1 o-row-switcher"
+            t-att-title="'Switch to next column'"
+            data-test-id="next-column-button"
+            t-on-click="store.selectNextColumn">
+            <t t-call="o-spreadsheet-Icon.ANGLE_RIGHT"/>
+          </span>
+        </div>
+        <Checkbox
+          name="'ignore_header'"
+          value="this.state.ignoreHeader"
+          onChange.bind="toggleIgnoreHeader"
+          className="'px-4 w-100 pb-2'"
+          label="'Ignore header'"
+          title="'Ignore first non-empty row'"
+        />
+        <SidePanelCollapsible title.translate="Data visualization" isInitiallyCollapsed="true">
+          <t t-set-slot="content">
+            <div class="mx-4 mb-2">
+              <BadgeSelection
+                choices="charts"
+                onChange.bind="switchChart"
+                selectedValue="state.currentChart"
+              />
+              <t t-if="shouldShowChart">
+                <div class="o-column-stats-chart mx-2" style="height: 200px;">
+                  <canvas class="w-100 h-100" t-ref="columnStatsChart"/>
+                </div>
+              </t>
+              <t t-else="">
+                <div class="text-muted mt-4" t-esc="chartErrorMessage"/>
+              </t>
+            </div>
+          </t>
+        </SidePanelCollapsible>
+        <SidePanelCollapsible title.translate="Global statistics" isInitiallyCollapsed="false">
+          <t t-set-slot="content">
+            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+              <t t-foreach="statItems" t-as="stat" t-key="stat.name">
+                <div class="o-column-stats-row d-flex justify-content-between">
+                  <span class="text-muted" t-esc="stat.name"/>
+                  <span class="o-fw-bold" t-att-data-test-id="stat.name" t-esc="stat.value"/>
+                </div>
+              </t>
+            </div>
+          </t>
+        </SidePanelCollapsible>
+        <SidePanelCollapsible title.translate="Frequency" isInitiallyCollapsed="true">
+          <t t-set-slot="content">
+            <div class="mx-4 mb-2">
+              <BadgeSelection
+                choices="frequencyOrders"
+                onChange.bind="switchFrequencyOrder"
+                selectedValue="state.currentFrequencyOrder"
+              />
+            </div>
+            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+              <t t-foreach="valueFrequencies" t-as="value" t-key="value.value">
+                <div class="o-column-stats-row d-flex justify-content-between">
+                  <span class="frequency_label text-muted" t-esc="value.value"/>
+                  <span class="frequency_value o-fw-bold" t-esc="value.count"/>
+                </div>
+              </t>
+            </div>
+          </t>
+        </SidePanelCollapsible>
+      </t>
+      <t t-else="">
+        <div class="o-column-stats-empty text-muted p-4">
+          Select a single column to view statistics.
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>
