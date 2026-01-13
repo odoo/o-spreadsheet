@@ -1,6 +1,8 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Color } from "../types";
 
+export type MenuItemOrSeparator = Action | "separator";
+
 /*
  * An Action represent a menu item for the menus of the top bar
  * and the context menu in the grid. It can also represent a button
@@ -136,4 +138,51 @@ export function createAction(item: ActionSpec): Action {
     onStartHover: item.onStartHover,
     onStopHover: item.onStopHover,
   };
+}
+
+export function getMenuItemsAndSeparators(
+  env: SpreadsheetChildEnv,
+  actions: Action[]
+): MenuItemOrSeparator[] {
+  function isRoot(menu: Action) {
+    return !menu.execute;
+  }
+
+  function hasVisibleChildren(menu: Action) {
+    return menu.children(env).some((child) => child.isVisible(env));
+  }
+
+  const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
+  for (let i = 0; i < actions.length; i++) {
+    const menuItem = actions[i];
+    if (menuItem.isVisible(env) && (!isRoot(menuItem) || hasVisibleChildren(menuItem))) {
+      menuItemsAndSeparators.push(menuItem);
+    }
+    if (
+      menuItem.separator &&
+      i !== actions.length - 1 && // no separator at the end
+      menuItemsAndSeparators[menuItemsAndSeparators.length - 1] !== "separator" // no double separator
+    ) {
+      menuItemsAndSeparators.push("separator");
+    }
+  }
+  if (menuItemsAndSeparators[menuItemsAndSeparators.length - 1] === "separator") {
+    menuItemsAndSeparators.pop();
+  }
+  if (menuItemsAndSeparators.length === 1 && menuItemsAndSeparators[0] === "separator") {
+    return [];
+  }
+  return menuItemsAndSeparators;
+}
+
+export function isMenuItemEnabled(env: SpreadsheetChildEnv, menu: Action): boolean {
+  const children = menu.children?.(env);
+  if (children.length) {
+    return children.some((child) => isMenuItemEnabled(env, child));
+  } else {
+    if (menu.isEnabled(env)) {
+      return env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+    }
+    return false;
+  }
 }

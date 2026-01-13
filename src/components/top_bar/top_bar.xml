@@ -97,11 +97,14 @@
     </div>
     <MenuPopover
       t-if="state.menuState.isOpen"
+      t-key="state.menuState.parentMenu.id"
       anchorRect="state.menuState.anchorRect"
       menuItems="state.menuState.menuItems"
       onClose="() => this.closeMenus()"
       onMenuClicked="() => this.props.onClick()"
       popoverPositioning="'bottom-left'"
+      depth="1"
+      menuId="menuId + state.menuState.parentMenu.id"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
       <div class="d-flex px-2 py-1 flex-wrap align-items-center bg-white">
