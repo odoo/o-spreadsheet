@@ -3,8 +3,10 @@
     <Popover t-if="props.menuItems" t-props="popoverProps">
       <div
         t-ref="menu"
+        tabIndex="-1"
         class="o-menu-wrapper bg-white"
-        t-on-mouseover="() => this.onMouseOverMainMenu()">
+        t-on-mouseover="() => this.onMouseOverMainMenu()"
+        t-on-keydown="this.onKeydown">
         <Menu t-props="menuProps"/>
       </div>
       <MenuPopover
@@ -19,6 +21,8 @@
         menuId="props.menuId"
         onMouseOver.bind="onMouseOverChildMenu"
         width="props.width"
+        autoSelectFirstItem="subMenu.autoSelectFirstItem"
+        autoFocus="false"
       />
     </Popover>
   </t>
