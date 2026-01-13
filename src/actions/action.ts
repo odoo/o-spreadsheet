@@ -12,6 +12,7 @@ export interface ActionSpec {
    */
   name: string | ((env: SpreadsheetChildEnv) => string);
   description?: string | ((env: SpreadsheetChildEnv) => string);
+  shortcut?: string;
   /**
    * which represents its position inside the
    * menus (the lower sequence it has, the upper it is in the menu)
@@ -69,6 +70,7 @@ export interface ActionSpec {
 export interface Action {
   name: (env: SpreadsheetChildEnv) => string;
   description: (env: SpreadsheetChildEnv) => string;
+  shortcut: string;
   sequence: number;
   id: string;
   isVisible: (env: SpreadsheetChildEnv) => boolean;
@@ -99,6 +101,7 @@ export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
   const description = item.description;
+  const shortcut = item.shortcut;
   const icon = item.icon;
   const secondaryIcon = item.secondaryIcon;
   const itemId = item.id || nextItemId++;
@@ -132,6 +135,7 @@ export function createAction(item: ActionSpec): Action {
     iconColor: item.iconColor,
     secondaryIcon: typeof secondaryIcon === "function" ? secondaryIcon : () => secondaryIcon || "",
     description: typeof description === "function" ? description : () => description || "",
+    shortcut: shortcut || "",
     textColor: item.textColor,
     sequence: item.sequence || 0,
     onStartHover: item.onStartHover,

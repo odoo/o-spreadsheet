@@ -33,7 +33,7 @@
                 <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
               </div>
               <div class="o-menu-item-name align-middle text-truncate" t-esc="getName(menuItem)"/>
-              <t t-set="description" t-value="menuItem.description(env)"/>
+              <t t-set="description" t-value="menuItem.description(env) or menuItem.shortcut"/>
               <div
                 t-if="description"
                 class="o-menu-item-description ms-auto text-truncate"

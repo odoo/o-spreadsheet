@@ -188,7 +188,7 @@ export const decreaseDecimalPlaces: ActionSpec = {
 
 export const formatBold: ActionSpec = {
   name: _t("Bold"),
-  description: "Ctrl+B",
+  shortcut: "Ctrl+B",
   execute: (env) => setStyle(env, { bold: !env.model.getters.getCurrentStyle().bold }),
   icon: "o-spreadsheet-Icon.BOLD",
   isActive: (env) => !!env.model.getters.getCurrentStyle().bold,
@@ -196,7 +196,7 @@ export const formatBold: ActionSpec = {
 
 export const formatItalic: ActionSpec = {
   name: _t("Italic"),
-  description: "Ctrl+I",
+  shortcut: "Ctrl+I",
   execute: (env) => setStyle(env, { italic: !env.model.getters.getCurrentStyle().italic }),
   icon: "o-spreadsheet-Icon.ITALIC",
   isActive: (env) => !!env.model.getters.getCurrentStyle().italic,
@@ -204,7 +204,7 @@ export const formatItalic: ActionSpec = {
 
 export const formatUnderline: ActionSpec = {
   name: _t("Underline"),
-  description: "Ctrl+U",
+  shortcut: "Ctrl+U",
   execute: (env) => setStyle(env, { underline: !env.model.getters.getCurrentStyle().underline }),
   icon: "o-spreadsheet-Icon.UNDERLINE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().underline,
@@ -289,7 +289,7 @@ export const formatAlignmentHorizontal: ActionSpec = {
 
 export const formatAlignmentLeft: ActionSpec = {
   name: _t("Left"),
-  description: "Ctrl+Shift+L",
+  shortcut: "Ctrl+Shift+L",
   execute: (env) => ACTIONS.setStyle(env, { align: "left" }),
   isActive: (env) => getHorizontalAlign(env) === "left",
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
@@ -297,7 +297,7 @@ export const formatAlignmentLeft: ActionSpec = {
 
 export const formatAlignmentCenter: ActionSpec = {
   name: _t("Center"),
-  description: "Ctrl+Shift+E",
+  shortcut: "Ctrl+Shift+E",
   execute: (env) => ACTIONS.setStyle(env, { align: "center" }),
   isActive: (env) => getHorizontalAlign(env) === "center",
   icon: "o-spreadsheet-Icon.ALIGN_CENTER",
@@ -305,7 +305,7 @@ export const formatAlignmentCenter: ActionSpec = {
 
 export const formatAlignmentRight: ActionSpec = {
   name: _t("Right"),
-  description: "Ctrl+Shift+R",
+  shortcut: "Ctrl+Shift+R",
   execute: (env) => ACTIONS.setStyle(env, { align: "right" }),
   isActive: (env) => getHorizontalAlign(env) === "right",
   icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
@@ -387,7 +387,7 @@ export const formatCF: ActionSpec = {
 
 export const clearFormat: ActionSpec = {
   name: _t("Clear formatting"),
-  description: "Ctrl+<",
+  shortcut: "Ctrl+<",
   execute: (env) =>
     env.model.dispatch("CLEAR_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
