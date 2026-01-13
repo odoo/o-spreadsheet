@@ -23,7 +23,13 @@ import {
   getCellError,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { addToRegistry, evaluateCell, evaluateGrid, toCellPosition } from "../test_helpers/helpers";
+import {
+  addToRegistry,
+  createModelFromGrid,
+  evaluateCell,
+  evaluateGrid,
+  toCellPosition,
+} from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -1316,7 +1322,7 @@ describe("evaluateCells", () => {
       };
       expect(evaluateCell("A2", grid)).toBe("#NUM!");
     });
-    test("in a matrix", () => {
+    test("in a 1x1 matrix", () => {
       const grid = {
         A1: "1E200",
         B1: "1",
@@ -1325,6 +1331,19 @@ describe("evaluateCells", () => {
         D1: "=MMULT(A1:B1,C1:C2)",
       };
       expect(evaluateCell("D1", grid)).toBe("#NUM!");
+    });
+    test("in a matrix", () => {
+      const model = createModelFromGrid({
+        A1: "1E200",
+        A2: "2",
+        B1: "1",
+        B2: "2",
+        C1: "1E200",
+        C2: "1",
+        D1: "=MMULT(A1:B2,C1:C2)",
+      });
+      expect(getEvaluatedCell(model, "D1").value).toBe("#NUM!");
+      expect(getEvaluatedCell(model, "D2").value).toBe(2e200);
     });
     test("in a vectorization", () => {
       const grid = {
