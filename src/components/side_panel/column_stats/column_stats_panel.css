@@ -1,0 +1,14 @@
+.o-spreadsheet {
+  .o-column-stats-title {
+    font-size: 16px;
+  }
+  .o-row-switcher {
+    cursor: pointer;
+  }
+  .o-column-global-stats {
+    margin: 0 2rem;
+    border: 1px solid var(--os-figure-border-color);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+}

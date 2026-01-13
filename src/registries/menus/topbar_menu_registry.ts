@@ -471,6 +471,10 @@ topbarMenuRegistry
     ...ACTION_DATA.splitToColumns,
     sequence: 20,
   })
+  .addChild("column_statistics", ["data"], {
+    ...ACTION_DATA.columnStatistics,
+    sequence: 25,
+  })
   .addChild("data_validation", ["data"], {
     name: _t("Data Validation"),
     execute: (env) => {
