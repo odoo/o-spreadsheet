@@ -2,17 +2,21 @@ import {
   Component,
   onWillUnmount,
   onWillUpdateProps,
+  useEffect,
   useExternalListener,
   useRef,
   useState,
 } from "@odoo/owl";
-import { Action, getMenuItemsAndSeparators } from "../../actions/action";
+import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
+import { useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
+  getBoundingRectAsPOJO,
   getOpenedMenus,
   getRefBoundingRect,
   isChildEvent,
@@ -39,6 +43,9 @@ interface Props {
   menuId?: UID;
   onMouseOver?: () => void;
   width?: number;
+  autoSelectFirstItem?: boolean;
+  disableKeyboardNavigation?: boolean;
+  onKeyboardNavigation?: (ev: KeyboardEvent) => void;
 }
 
 export interface MenuState {
@@ -48,6 +55,11 @@ export interface MenuState {
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;
+  autoSelectFirstItem?: boolean;
+}
+
+interface State {
+  hoveredMenu?: Action;
 }
 
 export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
@@ -63,11 +75,14 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     menuId: { type: String, optional: true },
     onMouseOver: { type: Function, optional: true },
     width: { type: Number, optional: true },
+    autoSelectFirstItem: { type: Boolean, optional: true },
+    disableKeyboardNavigation: { type: Boolean, optional: true },
+    onKeyboardNavigation: { type: Function, optional: true },
   };
 
   static components = { MenuPopover, Menu, Popover };
   static defaultProps = {
-    depth: 1,
+    depth: 0,
     popoverPositioning: "top-right",
   };
   private subMenu: MenuState = useState({
@@ -77,12 +92,26 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     menuItems: [],
     isHoveringChild: false,
   });
+  private state: State = useState({
+    hoveredMenu: this.props.autoSelectFirstItem ? this.getNextEnabledMenuItem() : undefined,
+  });
   private menuRef = useRef("menu");
-  private hoveredMenu: Action | undefined = undefined;
 
   private openingTimeOut = useTimeOut();
 
   setup() {
+    const domFocusableElementStore = useStore(DOMFocusableElementStore);
+
+    useEffect(() => {
+      if (
+        !this.props.disableKeyboardNavigation &&
+        !this.state.hoveredMenu &&
+        !this.subMenu.isOpen
+      ) {
+        this.menuRef.el?.focus();
+      }
+    });
+
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
     useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps: Props) => {
@@ -91,20 +120,29 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     onWillUnmount(() => {
-      this.hoveredMenu?.onStopHover?.(this.env);
+      this.state.hoveredMenu?.onStopHover?.(this.env);
+      if (this.menuRef.el?.contains(document.activeElement)) {
+        domFocusableElementStore.focus();
+      }
     });
   }
 
   get menuProps(): MenuProps {
+    const menItems = this.menuItems;
+    const hoveredMenuId = menItems
+      .filter((menuItem) => menuItem !== "separator")
+      .find((menuItem) => this.isMenuHovered(menuItem))?.id;
     return {
       menuItems: this.menuItems,
       onClose: this.close.bind(this),
       onClickMenu: this.onClickMenu.bind(this),
-      onMouseOver: this.onMouseOver.bind(this),
+      onMouseEnter: this.onMenuItemMouseEnter.bind(this),
       onMouseLeave: this.onMouseLeave.bind(this),
       width: this.props.width || MENU_WIDTH,
-      isActive: this.isActive.bind(this),
       onScroll: this.onScroll.bind(this),
+      onKeyDown: this.onKeydown.bind(this),
+      hoveredMenuId,
+      isHoveredMenuFocused: !this.subMenu.isOpen,
     };
   }
 
@@ -115,7 +153,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get popoverProps(): PopoverProps {
-    const isRoot = this.props.depth === 1;
+    const isRoot = this.props.depth === 0;
     return {
       anchorRect: {
         x: this.props.anchorRect.x,
@@ -187,15 +225,11 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     return !menu.execute;
   }
 
-  isEnabled(menu: Action) {
-    if (menu.isEnabled(this.env)) {
-      return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
-    }
-    return false;
-  }
-
-  isActive(menuItem: Action): boolean {
-    return (this.subMenu?.isHoveringChild || false) && this.isParentMenu(this.subMenu, menuItem);
+  isMenuHovered(menuItem: Action): boolean {
+    return (
+      ((this.subMenu?.isHoveringChild || false) && this.isParentMenu(this.subMenu, menuItem)) ||
+      this.state.hoveredMenu?.id === menuItem.id
+    );
   }
 
   onScroll(ev) {
@@ -206,12 +240,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  private openSubMenu(menu: Action, parentMenuEl: HTMLElement) {
-    if (!parentMenuEl) {
-      return;
-    }
-    const y = parentMenuEl.getBoundingClientRect().top;
-
+  private openSubMenu(menu: Action, y: number, autoSelectFirstItem = false) {
     this.subMenu.anchorRect = {
       x: getRefBoundingRect(this.menuRef).x,
       y: y - (this.subMenu.scrollOffset || 0),
@@ -221,6 +250,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.menuItems = menu.children(this.env);
     this.subMenu.isOpen = true;
     this.subMenu.parentMenu = menu;
+    this.subMenu.autoSelectFirstItem = autoSelectFirstItem;
   }
 
   private isParentMenu(subMenu: MenuState, menuItem: Action) {
@@ -228,22 +258,22 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private closeSubMenu() {
-    if (this.subMenu.isHoveringChild) {
-      return;
-    }
     this.subMenu.isOpen = false;
     this.subMenu.parentMenu = undefined;
   }
 
   async onClickMenu(menu: Action, ev: PointerEvent) {
     if (this.isRoot(menu)) {
-      this.openSubMenu(menu, ev.currentTarget as HTMLElement);
+      this.openSubMenu(menu, (ev.target as HTMLElement).getBoundingClientRect().top);
     } else {
       await this.activateMenu(menu, isMiddleClickOrCtrlClick(ev));
     }
   }
 
-  onMouseOver(menu: Action, ev: MouseEvent) {
+  onMenuItemMouseEnter(menu: Action, ev: PointerEvent) {
+    this.state.hoveredMenu = menu;
+    menu.onStartHover?.(this.env);
+
     if (this.isParentMenu(this.subMenu, menu)) {
       this.openingTimeOut.clear();
       return;
@@ -251,7 +281,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     const currentTarget = ev.currentTarget as HTMLElement;
     if (this.isRoot(menu)) {
       this.openingTimeOut.schedule(() => {
-        this.openSubMenu(menu, currentTarget);
+        this.openSubMenu(menu, currentTarget.getBoundingClientRect().top);
       }, TIMEOUT_DELAY);
     }
   }
@@ -267,10 +297,115 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseLeave(menu: Action) {
+    this.state.hoveredMenu = undefined;
+    menu.onStopHover?.(this.env);
+
     this.openingTimeOut.schedule(this.closeSubMenu.bind(this), TIMEOUT_DELAY);
   }
 
   get menuStyle() {
     return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
+  }
+
+  onKeydown(ev: KeyboardEvent) {
+    ev.stopPropagation();
+    ev.preventDefault();
+    if (this.navigateMenu(ev.key) !== "eventHandled") {
+      this.props.onKeyboardNavigation?.(ev);
+    }
+  }
+
+  private navigateMenu(key: string): "eventHandled" | "notHandled" {
+    const selectedMenuItem = this.state.hoveredMenu;
+    switch (key) {
+      case "Enter":
+        if (selectedMenuItem && this.isRoot(selectedMenuItem)) {
+          const rect = this.getMenuItemRect(selectedMenuItem.id);
+          if (rect) {
+            this.openSubMenu(selectedMenuItem, rect.y, true);
+            return "eventHandled";
+          }
+        } else if (selectedMenuItem && isMenuItemEnabled(this.env, selectedMenuItem)) {
+          void this.activateMenu(selectedMenuItem);
+          return "eventHandled";
+        }
+        return "notHandled";
+      case "Escape":
+        if (this.subMenu.isOpen) {
+          this.closeSubMenu();
+          return "eventHandled";
+        } else if (this.props.depth === 0) {
+          this.close();
+          return "eventHandled";
+        }
+        return "notHandled";
+      case "ArrowLeft":
+        if (this.subMenu.isOpen) {
+          this.state.hoveredMenu = this.subMenu.parentMenu;
+          this.closeSubMenu();
+          return "eventHandled";
+        }
+        return "notHandled";
+      case "ArrowDown": {
+        this.state.hoveredMenu = this.getNextEnabledMenuItem(this.state.hoveredMenu);
+        return "eventHandled";
+      }
+      case "ArrowUp": {
+        this.state.hoveredMenu = this.getPreviousEnabledMenuItem(this.state.hoveredMenu);
+        return "eventHandled";
+      }
+      case "ArrowRight": {
+        if (
+          selectedMenuItem &&
+          this.isRoot(selectedMenuItem) &&
+          this.subMenu.parentMenu?.id !== selectedMenuItem.id
+        ) {
+          const rect = this.getMenuItemRect(selectedMenuItem.id);
+          if (rect) {
+            this.openSubMenu(selectedMenuItem, rect.y, true);
+          }
+          return "eventHandled";
+        }
+        return "notHandled";
+      }
+    }
+
+    return "notHandled";
+  }
+
+  private getMenuItemRect(menuItemId: UID): Rect | undefined {
+    const menuEl = this.menuRef.el?.querySelector<HTMLElement>(`[data-name="${menuItemId}"]`);
+    return menuEl ? getBoundingRectAsPOJO(menuEl) : undefined;
+  }
+
+  getNextEnabledMenuItem(currentHoveredMenu?: Action): Action | undefined {
+    const menuItems = this.menuItems.filter((i) => i !== "separator");
+    const start = menuItems.findIndex((i) => i.id === currentHoveredMenu?.id);
+
+    for (let offset = 1; offset <= menuItems.length; offset++) {
+      const item = menuItems[(start + offset) % menuItems.length];
+      if (isMenuItemEnabled(this.env, item)) {
+        return item;
+      }
+    }
+
+    return undefined;
+  }
+
+  getPreviousEnabledMenuItem(currentHoveredMenu?: Action): Action | undefined {
+    const menuItems = this.menuItems.filter((i) => i !== "separator");
+    let start = menuItems.findIndex((i) => i.id === currentHoveredMenu?.id);
+    if (start === -1) {
+      start = menuItems.length;
+    }
+
+    for (let offset = 1; offset <= menuItems.length; offset++) {
+      const item = menuItems[(start - offset + menuItems.length) % menuItems.length];
+      if (isMenuItemEnabled(this.env, item)) {
+        return item;
+      }
+    }
+
+    return undefined;
   }
 }

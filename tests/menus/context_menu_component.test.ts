@@ -720,7 +720,7 @@ describe("Context MenuPopover internal tests", () => {
     ]);
     await renderContextMenu(300, 300, { menuItems });
 
-    triggerMouseEvent("div[data-name='menuItem']", "mouseenter");
+    await mouseOverMenuElement("div[data-name='menuItem']");
     expect(onStartHover).toHaveBeenCalled();
     triggerMouseEvent("div[data-name='menuItem']", "mouseleave");
     expect(onStopHover).toHaveBeenCalled();
@@ -738,7 +738,7 @@ describe("Context MenuPopover internal tests", () => {
     ]);
     await renderContextMenu(300, 300, { menuItems });
 
-    triggerMouseEvent("div[data-name='menuItem']", "mouseenter");
+    await mouseOverMenuElement("div[data-name='menuItem']");
     parent.__owl__.destroy();
     expect(onStopHover).toHaveBeenCalled();
   });
