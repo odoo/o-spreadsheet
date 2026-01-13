@@ -382,6 +382,15 @@ export class Evaluator {
       // empty matrix
       return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), cellData);
     }
+    if (nbRows === 1 && nbColumns === 1) {
+      // single value matrix
+      return createEvaluatedCell(
+        nullValueToZeroValue(formulaReturn[0][0]),
+        this.getters.getLocale(),
+        cellData,
+        formulaPosition
+      );
+    }
 
     const resultZone = {
       top: formulaPosition.row,
