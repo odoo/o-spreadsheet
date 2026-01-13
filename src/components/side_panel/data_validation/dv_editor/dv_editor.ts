@@ -28,6 +28,7 @@ import { SelectMenu } from "../../select_menu/select_menu";
 
 interface Props {
   ruleId: UID;
+  onCancel?: () => void;
   onCloseSidePanel: () => void;
 }
 
@@ -40,7 +41,11 @@ interface State {
 export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, SelectMenu, Section, ValidationMessages };
-  static props = { ruleId: String, onCloseSidePanel: Function };
+  static props = {
+    ruleId: String,
+    onCancel: { type: Function, optional: true },
+    onCloseSidePanel: Function,
+  };
 
   state = useState<State>({
     rule: this.defaultDataValidationRule,
@@ -85,6 +90,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   onCancel() {
+    this.props.onCancel?.();
     this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
