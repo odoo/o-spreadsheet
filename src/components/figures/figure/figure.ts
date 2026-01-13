@@ -4,7 +4,9 @@ import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
+  CommandResult,
   CSSProperties,
+  DispatchResult,
   FigureUI,
   Pixel,
   Rect,
@@ -156,7 +158,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onKeyDown(ev: KeyboardEvent) {
     const keyDownShortcut = keyboardEventToShortcutString(ev);
-
+    const sheetId = this.env.model.getters.getFigureSheetId(this.props.figureUI.id);
+    if (!ev.composed && sheetId && this.env.model.getters.isSheetLocked(sheetId)) {
+      this.env.model.trigger("command-rejected", {
+        result: new DispatchResult(CommandResult.SheetLocked),
+        command: { type: "UPDATE_FIGURE", sheetId, figureId: this.props.figureUI.id },
+      });
+    }
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
@@ -271,5 +279,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         this.figureWrapperRef.el.style.setProperty(property, properties[property] || null);
       }
     }
+  }
+
+  get isFigureResizable(): boolean {
+    return (
+      this.isSelected &&
+      !this.env.isMobile() &&
+      !this.env.isDashboard() &&
+      !this.env.model.getters.isCurrentSheetLocked()
+    );
   }
 }

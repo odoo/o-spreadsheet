@@ -36,7 +36,9 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isEnabled() {
-    return this.actionButton.isEnabled(this.env);
+    const isLockedAvailable =
+      this.actionButton.isEnabledOnLockedSheet || !this.env.model.getters.isCurrentSheetLocked();
+    return this.actionButton.isEnabled(this.env) && isLockedAvailable;
   }
 
   get isActive() {

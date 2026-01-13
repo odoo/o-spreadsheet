@@ -3534,6 +3534,11 @@ export const demoData = {
         COL: [],
       },
     },
+    {
+      id: "locked",
+      isLocked: true,
+      name: "Locked Sheet",
+    },
   ],
   styles: {
     1: {

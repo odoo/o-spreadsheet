@@ -18,6 +18,7 @@ export const hideCols: ActionSpec = {
     });
   },
   isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
+
   icon: "o-spreadsheet-Icon.HIDE_COL",
 };
 
@@ -38,6 +39,7 @@ export const unhideCols: ActionSpec = {
     const currentCols = env.model.getters.getElementsFromSelection("COL");
     return currentCols.some((col) => hiddenCols.includes(col));
   },
+
   icon: "o-spreadsheet-Icon.UNHIDE_COL",
 };
 
@@ -53,6 +55,7 @@ export const unhideAllCols: ActionSpec = {
   },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId()).length > 0,
+
   icon: "o-spreadsheet-Icon.UNHIDE_COL",
 };
 
@@ -66,6 +69,7 @@ export const hideRows: ActionSpec = {
       elements: rows,
     });
   },
+
   isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
   icon: "o-spreadsheet-Icon.HIDE_ROW",
 };
@@ -87,6 +91,7 @@ export const unhideRows: ActionSpec = {
     const currentRows = env.model.getters.getElementsFromSelection("ROW");
     return currentRows.some((col) => hiddenRows.includes(col));
   },
+
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
@@ -102,6 +107,7 @@ export const unhideAllRows: ActionSpec = {
   },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
+
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
@@ -117,6 +123,7 @@ export const unFreezePane: ActionSpec = {
     env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
+
   icon: "o-spreadsheet-Icon.UNFREEZE",
 };
 
@@ -207,6 +214,7 @@ export const irregularityMap: ActionSpec = {
     }
   },
   isReadonlyAllowed: true,
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.IRREGULARITY_MAP",
 };
 
@@ -218,6 +226,7 @@ export function zoomAction(zoom: number): ActionSpec {
     },
     isActive: (env: SpreadsheetChildEnv) => env.model.getters.getViewportZoomLevel() === zoom / 100,
     isReadonlyAllowed: true,
+    isEnabledOnLockedSheet: true,
     sequence: zoom,
   };
 }
@@ -228,6 +237,7 @@ export const viewFormulas: ActionSpec = {
   execute: (env) =>
     env.model.dispatch("SET_FORMULA_VISIBILITY", { show: !env.model.getters.shouldShowFormulas() }),
   isReadonlyAllowed: true,
+  isEnabledOnLockedSheet: true,
 };
 
 export const groupColumns: ActionSpec = {
@@ -253,6 +263,7 @@ export const groupColumns: ActionSpec = {
       !groups.some((group) => group.start === selection.left && group.end === selection.right)
     );
   },
+
   icon: "o-spreadsheet-Icon.GROUP_COLUMNS",
 };
 
@@ -275,6 +286,7 @@ export const groupRows: ActionSpec = {
       !groups.some((group) => group.start === selection.top && group.end === selection.bottom)
     );
   },
+
   icon: "o-spreadsheet-Icon.GROUP_ROWS",
 };
 
@@ -291,6 +303,7 @@ export const ungroupColumns: ActionSpec = {
     );
   },
   execute: (env) => ungroupHeaders(env, "COL"),
+
   icon: "o-spreadsheet-Icon.UNGROUP_COLUMNS",
 };
 
@@ -303,6 +316,7 @@ export const ungroupRows: ActionSpec = {
     return _t("Ungroup rows %s - %s", String(selection.top + 1), String(selection.bottom + 1));
   },
   execute: (env) => ungroupHeaders(env, "ROW"),
+
   icon: "o-spreadsheet-Icon.UNGROUP_ROWS",
 };
 

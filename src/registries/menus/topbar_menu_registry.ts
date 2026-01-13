@@ -28,6 +28,7 @@ topbarMenuRegistry
     sequence: 200,
     execute: (env) => env.openSidePanel("Settings"),
     isEnabled: (env) => !env.isSmall,
+    isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.COG",
   })
 
@@ -472,6 +473,7 @@ topbarMenuRegistry
       env.openSidePanel("DataValidation");
     },
     isEnabled: (env) => !env.isSmall,
+    isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
     separator: true,
@@ -495,6 +497,7 @@ topbarMenuRegistry
         name: env.model.getters.getPivotDisplayName(pivotId),
         sequence: sequence + index / numberOfPivots,
         isReadonlyAllowed: true,
+        isEnabledOnLockedSheet: true,
         execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
         isEnabled: (env) => !env.isSmall,
         onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
