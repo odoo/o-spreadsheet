@@ -113,7 +113,10 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
-      const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+      const zoomLevel = 1 //this.env.model.getters.getViewportZoomLevel();
+      
+      // @ts-ignore
+      window.att = this.env.model.getters.getViewportZoomLevel();
       const parent = this.canvas.el?.parentElement as HTMLCanvasElement;
       const width = parent.parentElement!.clientWidth * zoomLevel;
       const height = parent.parentElement!.clientHeight * zoomLevel;
@@ -122,11 +125,18 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       parent.style.height = `${height}px`;
       // canvas.width = width/zoomLevel;
       // canvas.height = height/zoomLevel;
-      parent.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1/zoom}`);
+      // parent.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1/zoom}`);
       
-      this.canvas.el!.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1}`);
-      const ctx = (this.canvas.el as HTMLCanvasElement).getContext("2d")!;
-      ctx.scale(zoomLevel*100, zoomLevel);  
+      // this.canvas.el!.setAttribute("style", `width:${width}px;height:${height}px;zoom:${1}`);
+      // const ctx = (this.canvas.el as HTMLCanvasElement).getContext("2d")!;
+      // ctx.scale(zoomLevel*100, zoomLevel);  
+
+      // curent solution is to patcht the width /height and devicePixelRatio in Chart.js directly
+      // in helper.segment.js file
+      // chart.currentDevicePixelRatio = zoomLevel*zoomLevel*pixelRatio;
+      // canvas.height = zoomLevel*deviceHeight;
+      // canvas.width = zoomLevel*deviceWidth;
+      // chart.ctx.setTransform(zoomLevel*pixelRatio, 0, 0, zoomLevel*pixelRatio, 0, 0);
       this.createChart(deepCopy(runtime));
     });
     onWillUnmount(this.unmount.bind(this));

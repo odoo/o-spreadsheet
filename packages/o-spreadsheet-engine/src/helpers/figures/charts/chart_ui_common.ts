@@ -18,7 +18,7 @@ import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 
 export const CHART_COMMON_OPTIONS = {
   // https://www.chartjs.org/docs/latest/general/responsive.html
-  responsive: false, // will resize when its container is resized
+  responsive: true, // will resize when its container is resized
   maintainAspectRatio: false, // doesn't maintain the aspect ratio (width/height =2 by default) so the user has the choice of the exact layout
   elements: {
     line: {
