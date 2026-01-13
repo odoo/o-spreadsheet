@@ -194,7 +194,7 @@ export const insertPivot: ActionSpec = {
 
 export const insertImage: ActionSpec = {
   name: _t("Image"),
-  description: "Ctrl+O",
+  shortcut: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
   isEnabled: (env) => !env.isSmall,
