@@ -5,6 +5,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 interface Choice {
   value: string;
   label: string;
+  icon?: string;
 }
 
 interface Props {

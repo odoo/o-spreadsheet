@@ -7,27 +7,20 @@ import {
   min,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { lazy, memoize, recomputeZones } from "../../../helpers";
+import { recomputeZones } from "../../../helpers";
+import {
+  SelectionStatisticFunction,
+  StatisticFnResults,
+  computeStatisticFnResults,
+} from "../../../helpers/selection_statistic_functions";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import {
   CellValueType,
   Command,
   EvaluatedCell,
-  Lazy,
-  Locale,
   invalidateEvaluationCommands,
 } from "../../../types";
-
-export interface StatisticFnResults {
-  [name: string]: Lazy<number> | undefined;
-}
-
-interface SelectionStatisticFunction {
-  name: string;
-  compute: (data: EvaluatedCell[], locale: Locale) => number;
-  types: CellValueType[];
-}
 
 const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
@@ -135,25 +128,6 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
       }
     }
     const locale = getters.getLocale();
-    const statisticFnResults: StatisticFnResults = {};
-
-    const getCells = memoize((typeStr: string) => {
-      const types = typeStr.split(",");
-      return cells.filter((c) => types.includes(c.type));
-    });
-    for (const fn of selectionStatisticFunctions) {
-      // We don't want to display statistical information when there is no interest:
-      // We set the statistical result to undefined if the data handled by the selection
-      // does not match the data handled by the function.
-      // Ex: if there are only texts in the selection, we prefer that the SUM result
-      // be displayed as undefined rather than 0.
-      let fnResult: Lazy<number> | undefined = undefined;
-      const evaluatedCells = getCells(fn.types.sort().join(","));
-      if (evaluatedCells.length) {
-        fnResult = lazy(() => fn.compute(evaluatedCells, locale));
-      }
-      statisticFnResults[fn.name] = fnResult;
-    }
-    return statisticFnResults;
+    return computeStatisticFnResults(selectionStatisticFunctions, cells, locale);
   }
 }
