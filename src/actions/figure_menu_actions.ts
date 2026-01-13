@@ -183,6 +183,7 @@ function getCopyMenuItem(
     id: "copy",
     name: _t("Copy"),
     description: "Ctrl+C",
+    shortcut: "Ctrl+C",
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { figureId });
       env.model.dispatch("COPY");
@@ -201,6 +202,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     id: "cut",
     name: _t("Cut"),
     description: "Ctrl+X",
+    shortcut: "Ctrl+X",
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { figureId });
       env.model.dispatch("CUT");
