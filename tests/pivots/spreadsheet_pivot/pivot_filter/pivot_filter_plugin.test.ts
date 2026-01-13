@@ -1,8 +1,10 @@
 //Testing the model
 
+import { Model } from "@odoo/o-spreadsheet-engine";
+import { SpreadsheetPivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { getEvaluatedGrid } from "../../../test_helpers";
 import { createModelFromGrid } from "../../../test_helpers/helpers";
-import { addPivot } from "../../../test_helpers/pivot_helpers";
+import { addPivot, createModelWithTestPivotDataset } from "../../../test_helpers/pivot_helpers";
 
 describe("pivot table with filters", () => {
   test("Hide a value with a values filter", () => {
@@ -163,4 +165,44 @@ describe("pivot table with filters", () => {
       ["Total", "10"]
     ]);
   });
+});
+
+test("migration", () => {
+  const data = {
+    version: "19.1.0",
+    pivots: {
+      1: {
+        type: "SPREADSHEET",
+        columns: [],
+        domain: [],
+        measures: [{ id: "probability:sum", fieldName: "probability", aggregator: "sum" }],
+        model: "partner",
+        rows: [{ fieldName: "bar" }],
+        sortedColumn: {
+          measure: "foo",
+          order: "asc",
+        },
+        name: "A pivot",
+        formulaId: "1",
+      },
+    },
+  };
+  const model = new Model(data);
+  expect(model.getters.getPivot("1").definition.filters).toEqual([]);
+});
+
+test("Import/export", () => {
+  const pivotDefinition: Partial<SpreadsheetPivotCoreDefinition> = {
+    columns: [{ fieldName: "Salesperson" }],
+    sortedColumn: {
+      measure: "measureId",
+      order: "asc",
+      domain: [{ field: "Salesperson", value: "Alice", type: "char" }],
+    },
+  };
+  const model = createModelWithTestPivotDataset(pivotDefinition);
+  const exported = model.exportData();
+  expect(exported.pivots["pivotId"].filters).toEqual([]);
+  const importedModel = new Model(exported);
+  expect(importedModel.getters.getPivot("pivotId").definition.filters).toEqual([]);
 });

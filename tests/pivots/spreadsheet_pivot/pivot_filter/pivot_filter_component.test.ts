@@ -1,7 +1,7 @@
 import { Model } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { click, setInputValueAndTrigger } from "../../../test_helpers";
+import { click, deleteColumns, setInputValueAndTrigger } from "../../../test_helpers";
 import { mountComponentWithPortalTarget, nextTick, setGrid } from "../../../test_helpers/helpers";
 import { addPivot } from "../../../test_helpers/pivot_helpers";
 
@@ -46,18 +46,18 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelectorAll(".o-autocomplete-value").length).toBe(2);
   });
 
-  //   test("shows a warning when there is a filter on a deleted field", async () => {
-  //     deleteColumns(model, ["C"]);
-  //     expect(model.getters.getPivot("1").definition.filters).toEqual([
-  //       {
-  //         fieldName: "Amount",
-  //         displayName: "Amount",
-  //         filterType: "values",
-  //         hiddenValues: [],
-  //         isValid: false,
-  //       },
-  //     ]);
-  //   });
+  test.skip("shows a warning when there is a filter on a deleted field", async () => {
+    deleteColumns(model, ["C"]);
+    expect(model.getters.getPivot("1").definition.filters).toEqual([
+      {
+        fieldName: "Amount",
+        displayName: "Amount",
+        filterType: "values",
+        hiddenValues: [],
+        isValid: false,
+      },
+    ]);
+  });
 
   test("can add a filter", async () => {
     await click(fixture.querySelectorAll(".add-dimension")[3]);
