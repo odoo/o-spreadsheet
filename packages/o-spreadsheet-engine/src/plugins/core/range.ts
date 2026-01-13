@@ -196,13 +196,13 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
    */
-  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
-    if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
+  getRangeFromSheetXC(defaultSheetId: UID | undefined, sheetXC: string): Range {
+    const { sheetName } = splitReference(sheetXC);
+    const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
+    if (!rangeReference.test(sheetXC) || !sheetId || !this.getters.tryGetSheet(sheetId)) {
       return createInvalidRange(sheetXC);
     }
 
-    const { sheetName } = splitReference(sheetXC);
-    const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 
@@ -212,7 +212,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   /**
    * Gets the string that represents the range as it is at the moment of the call.
    * The string will be prefixed with the sheet name if the call specified a sheet id in `forSheetId`
-   * different than the sheet on which the range has been created.
+   * different than the sheet on which the range has been created or if `forSheetId` is not specified.
    *
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
@@ -222,7 +222,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    */
   getRangeString(
     range: Range,
-    forSheetId: UID,
+    forSheetId?: UID,
     options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
   ): string {
     if (!range) {

@@ -8,20 +8,25 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     class="d-flex flex-column text-start o-autocomplete-value-focus"
   >
     <div
-      class="o-autocomplete-value text-truncate"
+      class="d-flex align-items-center gap-2"
     >
-      <span
-        class="o-semi-bold"
-        style="color:#9B359B; "
-      >
-        S
-      </span>
-      <span
-        style=""
-      >
-        UM
-      </span>
       
+      <div
+        class="o-autocomplete-value text-truncate"
+      >
+        <span
+          class="o-semi-bold"
+          style="color:#9B359B; "
+        >
+          S
+        </span>
+        <span
+          style=""
+        >
+          UM
+        </span>
+        
+      </div>
     </div>
     <div
       class="o-autocomplete-description text-truncate"
@@ -34,20 +39,25 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     class="d-flex flex-column text-start"
   >
     <div
-      class="o-autocomplete-value text-truncate"
+      class="d-flex align-items-center gap-2"
     >
-      <span
-        class="o-semi-bold"
-        style="color:#9B359B; "
-      >
-        S
-      </span>
-      <span
-        style=""
-      >
-        ZZ
-      </span>
       
+      <div
+        class="o-autocomplete-value text-truncate"
+      >
+        <span
+          class="o-semi-bold"
+          style="color:#9B359B; "
+        >
+          S
+        </span>
+        <span
+          style=""
+        >
+          ZZ
+        </span>
+        
+      </div>
     </div>
     
   </div>
@@ -69,20 +79,25 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       class="d-flex flex-column text-start o-autocomplete-value-focus"
     >
       <div
-        class="o-autocomplete-value text-truncate"
+        class="d-flex align-items-center gap-2"
       >
-        <span
-          class="o-semi-bold"
-          style="color:#9B359B; "
-        >
-          S
-        </span>
-        <span
-          style=""
-        >
-          UM
-        </span>
         
+        <div
+          class="o-autocomplete-value text-truncate"
+        >
+          <span
+            class="o-semi-bold"
+            style="color:#9B359B; "
+          >
+            S
+          </span>
+          <span
+            style=""
+          >
+            UM
+          </span>
+          
+        </div>
       </div>
       <div
         class="o-autocomplete-description text-truncate"
@@ -95,20 +110,25 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       class="d-flex flex-column text-start"
     >
       <div
-        class="o-autocomplete-value text-truncate"
+        class="d-flex align-items-center gap-2"
       >
-        <span
-          class="o-semi-bold"
-          style="color:#9B359B; "
-        >
-          S
-        </span>
-        <span
-          style=""
-        >
-          ZZ
-        </span>
         
+        <div
+          class="o-autocomplete-value text-truncate"
+        >
+          <span
+            class="o-semi-bold"
+            style="color:#9B359B; "
+          >
+            S
+          </span>
+          <span
+            style=""
+          >
+            ZZ
+          </span>
+          
+        </div>
       </div>
       
     </div>
@@ -132,20 +152,25 @@ exports[`composer Assistant render below the cell by default 1`] = `
       class="d-flex flex-column text-start o-autocomplete-value-focus"
     >
       <div
-        class="o-autocomplete-value text-truncate"
+        class="d-flex align-items-center gap-2"
       >
-        <span
-          class="o-semi-bold"
-          style="color:#9B359B; "
-        >
-          S
-        </span>
-        <span
-          style=""
-        >
-          UM
-        </span>
         
+        <div
+          class="o-autocomplete-value text-truncate"
+        >
+          <span
+            class="o-semi-bold"
+            style="color:#9B359B; "
+          >
+            S
+          </span>
+          <span
+            style=""
+          >
+            UM
+          </span>
+          
+        </div>
       </div>
       <div
         class="o-autocomplete-description text-truncate"
@@ -158,20 +183,25 @@ exports[`composer Assistant render below the cell by default 1`] = `
       class="d-flex flex-column text-start"
     >
       <div
-        class="o-autocomplete-value text-truncate"
+        class="d-flex align-items-center gap-2"
       >
-        <span
-          class="o-semi-bold"
-          style="color:#9B359B; "
-        >
-          S
-        </span>
-        <span
-          style=""
-        >
-          ZZ
-        </span>
         
+        <div
+          class="o-autocomplete-value text-truncate"
+        >
+          <span
+            class="o-semi-bold"
+            style="color:#9B359B; "
+          >
+            S
+          </span>
+          <span
+            style=""
+          >
+            ZZ
+          </span>
+          
+        </div>
       </div>
       
     </div>

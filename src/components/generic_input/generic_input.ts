@@ -6,6 +6,9 @@ import { useAutofocus } from "../helpers/autofocus_hook";
 export interface GenericInputProps {
   value: string | number;
   onChange: (value: string) => void;
+  onInput?: (value: string) => void;
+  onFocused?: () => void;
+  onBlur?: () => void;
   class?: string;
   id?: string;
   placeholder?: string;
@@ -17,6 +20,9 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   static props = {
     value: [Number, String],
     onChange: Function,
+    onFocused: { type: Function, optional: true },
+    onBlur: { type: Function, optional: true },
+    onInput: { type: Function, optional: true },
     class: { type: String, optional: true },
     id: { type: String, optional: true },
     placeholder: { type: String, optional: true },
@@ -27,6 +33,8 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
 
   protected refName = "input";
   protected inputRef!: Ref<HTMLInputElement>;
+
+  private lastOnChangeValue: string = this.props.value.toString();
 
   setup() {
     this.inputRef = useRef(this.refName);
@@ -47,6 +55,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
         this.inputRef.el.value = nextProps.value;
       }
+      this.lastOnChangeValue = nextProps.value.toString();
     });
     onMounted(() => {
       if (this.inputRef.el) {
@@ -73,12 +82,13 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     }
   }
 
-  save(keepFocus = false) {
+  save() {
     const currentValue = (this.inputRef.el?.value || "").trim();
-    if (currentValue !== this.props.value.toString()) {
+    if (currentValue !== this.lastOnChangeValue) {
+      this.lastOnChangeValue = currentValue;
       this.props.onChange(currentValue);
     }
-    if (!keepFocus) {
+    if (document.activeElement === this.inputRef.el) {
       this.inputRef.el?.blur();
     }
   }
@@ -101,5 +111,19 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       ev.preventDefault();
       ev.stopPropagation();
     }
+  }
+
+  onFocus() {
+    this.props.onFocused?.();
+  }
+
+  onBlur() {
+    this.props.onBlur?.();
+    this.save();
+  }
+
+  onInput(ev: Event) {
+    const target = ev.target as HTMLInputElement;
+    this.props.onInput?.(target.value);
   }
 }

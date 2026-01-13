@@ -172,16 +172,11 @@ export interface Border {
   right?: BorderDescr;
 }
 
-export type ReferenceDenormalizer = (
-  range: Range,
-  isMeta: boolean,
-  functionName: string,
-  paramNumber: number
-) => FunctionResultObject;
+export type ReferenceDenormalizer = (range: Range, isMeta: boolean) => FunctionResultObject;
 
 export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FunctionResultObject>;
 
-export type GetSymbolValue = (symbolName: string) => Arg;
+export type GetSymbolValue = (symbolName: string, isRange: boolean, isMeta: boolean) => Arg;
 
 export type FormulaToExecute = (
   deps: Range[],
@@ -418,4 +413,9 @@ export type SortDirection = "asc" | "desc";
 export interface ValueAndLabel<T = string> {
   value: T;
   label: string;
+}
+
+export interface NamedRange {
+  name: string;
+  range: Range;
 }

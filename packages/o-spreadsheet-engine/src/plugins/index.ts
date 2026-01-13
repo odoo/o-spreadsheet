@@ -11,6 +11,7 @@ import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
+import { NamedRangesPlugin } from "./core/named_range";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { SheetPlugin } from "./core/sheet";
@@ -77,7 +78,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("image", ImagePlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
-  .add("tableStyle", TableStylePlugin);
+  .add("tableStyle", TableStylePlugin)
+  .add("named_ranges", NamedRangesPlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()

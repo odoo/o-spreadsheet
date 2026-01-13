@@ -60,12 +60,13 @@ describe("TextInput", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  test("can save the value with enter key", async () => {
+  test("can save the value with enter key, and the onChange is only called once", async () => {
     const onChange = jest.fn();
     await mountTextInput({ value: "hello", onChange });
     fixture.querySelector("input")!.focus();
     setInputValueAndTrigger(fixture.querySelector("input")!, "world");
     await keyDown({ key: "Enter" });
+    expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith("world");
   });
 
