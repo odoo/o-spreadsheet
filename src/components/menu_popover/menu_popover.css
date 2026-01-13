@@ -1,5 +1,6 @@
 .o-spreadsheet {
   .o-menu-wrapper {
     padding: var(--os-menu-vertical-padding) 0px;
+    outline: none;
   }
 }

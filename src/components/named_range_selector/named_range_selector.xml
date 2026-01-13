@@ -23,6 +23,7 @@
 
     <MenuPopover
       t-if="topBarToolStore.isActive"
+      disableKeyboardNavigation="true"
       anchorRect="menuState.anchorRect"
       menuItems="menuState.menuItems"
       onClose="() => {}"

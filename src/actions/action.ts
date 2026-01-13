@@ -96,6 +96,14 @@ export interface Action {
   onStopHover?: (env: SpreadsheetChildEnv) => void;
 }
 
+export interface ComputedAction
+  extends Omit<Action, "name" | "description" | "icon" | "secondaryIcon" | "children"> {
+  name: string;
+  description: string;
+  icon: string;
+  secondaryIcon: string;
+}
+
 export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
 type ActionChildren = (ActionSpec | ActionBuilder)[];
 
@@ -185,4 +193,16 @@ export function isRootMenu(menu: Action) {
 
 export function hasVisibleChildren(env: SpreadsheetChildEnv, menu: Action) {
   return menu.children(env).some((child) => child.isVisible(env));
+}
+
+export function isMenuItemEnabled(env: SpreadsheetChildEnv, menu: Action): boolean {
+  const children = menu.children?.(env);
+  if (children.length) {
+    return children.some((child) => isMenuItemEnabled(env, child));
+  } else {
+    if (menu.isEnabled(env)) {
+      return env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+    }
+    return false;
+  }
 }
