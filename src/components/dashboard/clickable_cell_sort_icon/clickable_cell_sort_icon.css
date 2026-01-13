@@ -1,16 +1,13 @@
 .o-spreadsheet {
   .sorting-icon {
-    margin: 1px;
-
-    .fa-sort-desc {
-      transform: translateY(-2px);
-    }
-    .fa-sort-asc {
-      transform: translateY(4px);
+    margin-right: 1px;
+    .o-icon {
+      width: 100%;
+      height: 100%;
     }
   }
 
-  div:not(:hover) > .sorting-icon:has(> .fa-sort) {
+  div:not(:hover) > .sorting-icon:has(> .o-icon) {
     display: none;
   }
 }

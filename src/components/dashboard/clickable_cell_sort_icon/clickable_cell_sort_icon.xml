@@ -3,9 +3,9 @@
     <div class="w-100 h-100 d-flex flex-column align-items-end" t-att-class="verticalJustifyClass">
       <span
         t-if="props.sortDirection === 'none'"
-        class="o-icon sorting-icon pb-1"
+        class="o-icon sorting-icon mb-1"
         t-att-style="style">
-        <i class="fa fa-small fa-sort"/>
+        <t t-call="o-spreadsheet-Icon.CARET_SORT"/>
       </span>
     </div>
   </t>
