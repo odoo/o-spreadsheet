@@ -1,14 +1,15 @@
+import { Rect } from "@odoo/o-spreadsheet-engine";
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUnmount } from "@odoo/owl";
-import { Action, isRootMenu } from "../../actions/action";
+import { Component, useEffect, useRef } from "@odoo/owl";
+import { Action, isMenuItemEnabled, isRootMenu, MenuItemOrSeparator } from "../../actions/action";
 import { Pixel } from "../../types";
 
 //------------------------------------------------------------------------------
 // Context Menu Component
 //------------------------------------------------------------------------------
 
-type MenuItemOrSeparator = Action | "separator";
+export type MenuItemRects = { [menuItemId: string]: Rect };
 
 export interface MenuProps {
   menuItems: MenuItemOrSeparator[];
@@ -16,10 +17,11 @@ export interface MenuProps {
   onScroll?: (ev: CustomEvent) => void;
   onClickMenu?: (menu: Action, ev: PointerEvent) => void;
   onMouseEnter?: (menu: Action, ev: PointerEvent) => void;
-  onMouseOver?: (menu: Action, ev: PointerEvent) => void;
   onMouseLeave?: (menu: Action, ev: PointerEvent) => void;
-  isActive?: (menu: Action) => boolean;
+  hoveredMenuId?: string;
+  isHoveredMenuFocused?: boolean;
   width?: number;
+  onKeyDown?: (ev: KeyboardEvent) => void;
 }
 
 export interface MenuState {
@@ -37,21 +39,26 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     onClose: Function,
     onClickMenu: { type: Function, optional: true },
     onMouseEnter: { type: Function, optional: true },
-    onMouseOver: { type: Function, optional: true },
     onMouseLeave: { type: Function, optional: true },
     width: { type: Number, optional: true },
-    isActive: { type: Function, optional: true },
+    hoveredMenuId: { type: String, optional: true },
+    isHoveredMenuFocused: { type: Boolean, optional: true },
     onScroll: { type: Function, optional: true },
+    onKeyDown: { type: Function, optional: true },
   };
 
   static components = {};
   static defaultProps = {};
 
-  private hoveredMenu: Action | undefined = undefined;
+  private menuRef = useRef("menu");
 
-  setup() {
-    onWillUnmount(() => {
-      this.hoveredMenu?.onStopHover?.(this.env);
+  setup(): void {
+    useEffect(() => {
+      if (this.props.hoveredMenuId && this.props.isHoveredMenuFocused && this.menuRef.el) {
+        const selector = `[data-name='${this.props.hoveredMenuId}']`;
+        const menuItemElement = this.menuRef.el.querySelector(selector) as HTMLElement;
+        menuItemElement?.focus();
+      }
     });
   }
 
@@ -89,35 +96,11 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   }
 
   isEnabled(menu: Action) {
-    const children = menu.children?.(this.env);
-    if (children.length) {
-      return children.some((child) => this.isEnabled(child));
-    } else {
-      if (menu.isEnabled(this.env)) {
-        const canExecuteOnLockedSheet =
-          menu.isEnabledOnLockedSheet || !this.env.model.getters.isCurrentSheetLocked();
-        return this.env.model.getters.isReadonly()
-          ? menu.isReadonlyAllowed
-          : canExecuteOnLockedSheet;
-      }
-      return false;
-    }
+    return isMenuItemEnabled(this.env, menu);
   }
 
   get menuStyle() {
     return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
-  }
-
-  onMouseEnter(menu: Action, ev: PointerEvent) {
-    this.hoveredMenu = menu;
-    menu.onStartHover?.(this.env);
-    this.props.onMouseEnter?.(menu, ev);
-  }
-
-  onMouseLeave(menu: Action, ev: PointerEvent) {
-    this.hoveredMenu = undefined;
-    menu.onStopHover?.(this.env);
-    this.props.onMouseLeave?.(menu, ev);
   }
 
   onClickMenu(menu: Action, ev: PointerEvent) {
