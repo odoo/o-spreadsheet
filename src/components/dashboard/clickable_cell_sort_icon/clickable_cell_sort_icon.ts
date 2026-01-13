@@ -1,7 +1,7 @@
 import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { blendColors } from "../../../helpers";
+import { blendColors, computeTextFontSizeInPixels } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, Color, SortDirection, Style } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
@@ -26,7 +26,10 @@ export class ClickableCellSortIcon extends Component<Props, SpreadsheetChildEnv>
 
   get style() {
     const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
+    const size = computeTextFontSizeInPixels(cellStyle);
     return cssPropertiesToCss({
+      height: `${size}px`,
+      width: `${size}px`,
       color: cellStyle.textColor || TEXT_BODY_MUTED,
       "background-color": this.getBackgroundColor(cellStyle),
     });

@@ -1,15 +1,14 @@
 import {
+  DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRAY_200,
-  GRID_ICON_EDGE_LENGTH,
-  GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { toZone } from "../../src/helpers";
+import { computeTextFontSizeInPixels, toZone } from "../../src/helpers";
 import { IsValueInListCriterion, UID } from "../../src/types";
 import {
   addDataValidation,
@@ -473,10 +472,16 @@ describe("Selection arrow icon in grid", () => {
 
   test("Icon is displayed in the grid at the correct position", () => {
     const icon = getCellIcons(model, "A1")[0];
-    expect(icon.type).toEqual("data_validation_list_icon");
+    expect(icon.type).toEqual("data_validation_list_chip_icon");
     const rect = model.getters.getCellIconRect(icon, model.getters.getRect(toZone("A1")));
-    expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH);
-    expect(rect.y).toEqual(1 + MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines
+    const cellStyle = model.getters.getCellComputedStyle({
+      col: 0,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    const textSize = computeTextFontSizeInPixels(cellStyle);
+    expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - 4 - textSize); // Cell width - icon margin - icon size;
+    expect(rect.y).toEqual(1 + DEFAULT_CELL_HEIGHT - textSize - MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines
   });
 
   test("Clicking on the icon opens the composer with suggestions", async () => {
