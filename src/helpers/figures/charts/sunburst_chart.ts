@@ -1,9 +1,7 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { createDataSets } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   SunburstChartDefinition,
   SunburstChartRuntime,
@@ -12,11 +10,10 @@ import {
   ChartCreationContext,
   ChartData,
   ChartRangeDataSource,
-  DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { Getters, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -28,8 +25,6 @@ import {
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class SunburstChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
   readonly type = "sunburst";
 
   static allowedDefinitionKeys: readonly (keyof SunburstChartDefinition)[] = [
@@ -46,8 +41,6 @@ export class SunburstChart extends AbstractChart {
 
   constructor(private definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
-    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): SunburstChartDefinition {
