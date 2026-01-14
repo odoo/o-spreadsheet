@@ -10,7 +10,7 @@ import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_p
 import { Store } from "../../src/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { click, clickAndDrag, doubleClick, simulateClick } from "../test_helpers/dom_helper";
-import { addToRegistry, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { addToRegistry, doAction, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let spreadsheetWidth = 1000;
@@ -372,11 +372,12 @@ describe("Side Panel", () => {
 
     test("Can pin a side panel", async () => {
       expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
-      expect(".o-pin-panel").not.toHaveClass("active");
+      expect(".o-pin-panel").toHaveCount(0);
 
-      await click(fixture, ".o-pin-panel");
+      doAction(["view", "toggle_pin_panel"], parent.env);
+      await nextTick();
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
-      expect(".o-pin-panel").toHaveClass("active");
+      expect(".o-pin-panel").toHaveCount(1);
 
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
@@ -386,6 +387,22 @@ describe("Side Panel", () => {
       expect(panels[1].querySelector(".o-sidePanelTitle")).toHaveText("Custom Panel");
       expect(panels[0].querySelector(".o-sidePanelTitle")).toHaveText("Custom Panel 2");
       expect(panels[0].querySelector(".o-pin-panel")).toBeNull();
+    });
+
+    test("Can unpin a side panel with the icon", async () => {
+      doAction(["view", "toggle_pin_panel"], parent.env);
+      await nextTick();
+      expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
+      await click(fixture, ".o-pin-panel");
+      expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
+    });
+
+    test("Can unpin a side panel with the menu", async () => {
+      doAction(["view", "toggle_pin_panel"], parent.env);
+      expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
+      await nextTick();
+      doAction(["view", "toggle_pin_panel"], parent.env);
+      expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
     });
 
     test("Unpinning a panel close it if another panel is open", async () => {
@@ -452,7 +469,7 @@ describe("Side Panel", () => {
         }),
       });
 
-      await click(fixture, ".o-pin-panel");
+      doAction(["view", "toggle_pin_panel"], parent.env);
       parent.env.openSidePanel("OTHER_PANEL", { key: panelKey });
       await nextTick();
       expect(".o-sidePanel").toHaveCount(1);
@@ -460,7 +477,7 @@ describe("Side Panel", () => {
     });
 
     test("Reopening main panel from secondary panel closes secondary panel", async () => {
-      await click(fixture, ".o-pin-panel");
+      doAction(["view", "toggle_pin_panel"], parent.env);
 
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
@@ -473,7 +490,7 @@ describe("Side Panel", () => {
     });
 
     test("Reopening main panel directly does not close secondary panel", async () => {
-      await click(fixture, ".o-pin-panel");
+      doAction(["view", "toggle_pin_panel"], parent.env);
 
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
@@ -485,7 +502,7 @@ describe("Side Panel", () => {
     });
 
     test("Re-opening the same panel un-collapses it", async () => {
-      await click(fixture, ".o-pin-panel");
+      doAction(["view", "toggle_pin_panel"], parent.env);
       await click(fixture, ".o-collapse-panel");
 
       expect(".o-sidePanel").toHaveClass("collapsed");
@@ -498,7 +515,7 @@ describe("Side Panel", () => {
     });
 
     test("Reopening main panel from secondary panel should expand it if collapsed", async () => {
-      await click(fixture, ".o-pin-panel");
+      doAction(["view", "toggle_pin_panel"], parent.env);
       await click(fixture, ".o-collapse-panel");
 
       expect(".o-sidePanel").toHaveClass("collapsed");

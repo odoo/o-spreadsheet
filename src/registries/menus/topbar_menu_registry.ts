@@ -209,6 +209,10 @@ topbarMenuRegistry
     sequence: 1,
     icon: "o-spreadsheet-Icon.ZOOM",
   })
+  .addChild("toggle_pin_panel", ["view"], {
+    ...ACTION_VIEW.togglePinPanel,
+    sequence: 6,
+  })
   .addChild("view_irregularity_map", ["view"], {
     ...ACTION_VIEW.irregularityMap,
     sequence: 40,

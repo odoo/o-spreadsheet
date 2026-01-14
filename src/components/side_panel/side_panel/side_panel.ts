@@ -1,4 +1,3 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { SidePanelContent } from "../../../registries/side_panel_registry";
@@ -37,9 +36,5 @@ export class SidePanel extends Component<SidePanelProps, SpreadsheetChildEnv> {
     return typeof panel.title === "function"
       ? panel.title(this.env, this.props.panelProps)
       : panel.title;
-  }
-
-  get pinInfoMessage() {
-    return _t("Pin this panel to allow to open another side panel beside it.");
   }
 }

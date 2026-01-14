@@ -1105,4 +1105,9 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.THUMB_TACK">
+    <div class="o-icon">
+      <i class="fa fa-thumb-tack"/>
+    </div>
+  </t>
 </templates>
