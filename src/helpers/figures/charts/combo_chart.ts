@@ -3,11 +3,9 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  createDataSets,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ComboChartDataSetStyle,
   ComboChartDefinition,
@@ -18,10 +16,8 @@ import { ChartConfiguration } from "chart.js";
 import {
   ChartCreationContext,
   ChartData,
-  DataSet,
   ExcelChartDefinition,
   Getters,
-  Range,
   UID,
 } from "../../../types";
 import {
@@ -36,8 +32,6 @@ import {
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class ComboChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range;
   readonly type = "combo";
 
   static allowedDefinitionKeys: readonly (keyof ComboChartDefinition)[] = [
@@ -54,8 +48,6 @@ export class ComboChart extends AbstractChart {
 
   constructor(private definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
-    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   getContextCreation(): ChartCreationContext {
@@ -72,11 +64,7 @@ export class ComboChart extends AbstractChart {
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
-      this.definition,
-      this.labelRange,
-      this.dataSets
-    );
+    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
