@@ -135,8 +135,16 @@ describe("evaluate formulas that use/return an array", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
   });
 
-  test("Spreading relations are properly cleared upon cell content change", () => {
+  test("1x1 matrix spreading relations are cleared upon cell content change", () => {
     setCellContent(model, "A1", "=MUNIT(1)");
+    const positionA1 = model.getters.getActivePosition();
+    expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).toEqual(positionA1);
+    setCellContent(model, "A1", "42");
+    expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).not.toBeDefined();
+  });
+
+  test("Spreading relations are properly cleared upon cell content change", () => {
+    setCellContent(model, "A1", "=MUNIT(2)");
     const positionA1 = model.getters.getActivePosition();
     expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).toBeDefined();
     setCellContent(model, "A1", "42");
