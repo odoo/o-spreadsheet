@@ -7,7 +7,7 @@ import {
   updateChartRangesWithDataSets,
 } from "../helpers/figures/charts/chart_common";
 import { createValidRange } from "../helpers/range";
-import { ChartDataSource, ChartDataSourceType } from "../types/chart";
+import { ChartCreationContext, ChartDataSource, ChartDataSourceType } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
@@ -26,6 +26,8 @@ interface ChartDataSourceBuilder<T> {
   ): T;
   copyInSheetId(getters: CoreGetters, sheetIdFrom: UID, sheetIdTo: UID, dataSource: T): T;
   postProcess<T2 extends T>(getters: CoreGetters, sheetId: UID, dataSource: T2): T2;
+  getContextCreation(dataSource: T): ChartCreationContext;
+  fromContextCreation(context: ChartCreationContext): T;
   allowedKeys: readonly string[];
 }
 
@@ -44,6 +46,18 @@ chartDataSourceRegistry.add("range", {
   adaptRanges: updateChartRangesWithDataSets,
   duplicateInDuplicatedSheet: duplicateDataSourceInDuplicatedSheet,
   copyInSheetId: copyChartDataSourceInSheetId,
+  getContextCreation: (dataSource) => {
+    return { auxiliaryRange: dataSource.labelRange };
+  },
+  fromContextCreation(context) {
+    return {
+      type: "range",
+      dataSets: [],
+      dataSetsHaveTitle: false,
+      labelRange: context.auxiliaryRange,
+      ...context.dataSource,
+    };
+  },
   postProcess: (getters, sheetId, dataSource) => {
     const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
     const dataSets = createDataSets(getters, sheetId, dataSource);
