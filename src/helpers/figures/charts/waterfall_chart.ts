@@ -1,12 +1,9 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { createDataSets } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
-  DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -14,7 +11,7 @@ import {
   WaterfallChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { Getters, UID } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -27,8 +24,6 @@ import {
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class WaterfallChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
   readonly type = "waterfall";
 
   static allowedDefinitionKeys: readonly (keyof WaterfallChartDefinition)[] = [
@@ -51,8 +46,6 @@ export class WaterfallChart extends AbstractChart {
 
   constructor(private definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
-    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): WaterfallChartDefinition {

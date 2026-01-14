@@ -1,8 +1,6 @@
 import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { createDataSets } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
@@ -15,7 +13,7 @@ import {
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
-import { CommandResult, DataSet, Getters, Range, UID } from "../../../types";
+import { CommandResult, Getters, UID } from "../../../types";
 import {
   getCalendarChartData,
   getCalendarChartDatasetAndLabels,
@@ -38,8 +36,6 @@ function checkDateGranularity(definition: CalendarChartDefinition): CommandResul
 }
 
 export class CalendarChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
   readonly type = "calendar";
 
   static allowedDefinitionKeys: readonly (keyof CalendarChartDefinition)[] = [
@@ -57,8 +53,6 @@ export class CalendarChart extends AbstractChart {
 
   constructor(private definition: CalendarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
-    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static validateChartDefinition(
