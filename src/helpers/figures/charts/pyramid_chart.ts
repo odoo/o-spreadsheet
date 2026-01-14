@@ -4,6 +4,8 @@ import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_eval
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
+  getCreationContextFromDataSource,
+  getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -53,13 +55,7 @@ export class PyramidChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): PyramidChartDefinition {
     return {
       background: context.background,
-      dataSource: {
-        type: "range",
-        dataSets: [],
-        dataSetsHaveTitle: false,
-        labelRange: context.auxiliaryRange,
-        ...context.dataSource,
-      },
+      dataSource: getDataSourceFromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
@@ -77,7 +73,7 @@ export class PyramidChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      auxiliaryRange: definition.dataSource.labelRange,
+      ...getCreationContextFromDataSource(definition.dataSource),
     };
   }
 
