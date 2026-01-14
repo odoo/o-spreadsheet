@@ -2324,4 +2324,13 @@ describe("Can select de-select zones", () => {
       toZone("A1:D1"),
     ]);
   });
+
+  test("Selecting a zone from the bottom-right to top left leaves the anchor in the bottom-right", () => {
+    gridMouseEvent(model, "pointerdown", "B2");
+    gridMouseEvent(model, "pointermove", "A1");
+    gridMouseEvent(model, "pointerup", "A1");
+
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A1:B2")]);
+    expect(model.getters.getActivePosition()).toMatchObject({ col: 1, row: 1 });
+  });
 });
