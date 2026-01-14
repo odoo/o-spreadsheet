@@ -12,10 +12,15 @@ import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
 import { RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
-import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
+import { createValidRange } from "../../range";
 import { getZoneArea } from "../../zones";
-import { shouldRemoveFirstLabel, toExcelDataset, toExcelLabelRange } from "./chart_common";
+import {
+  createDataSets,
+  shouldRemoveFirstLabel,
+  toExcelDataset,
+  toExcelLabelRange,
+} from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -113,11 +118,13 @@ export abstract class AbstractChart {
    */
   abstract getContextCreation(): ChartCreationContext;
 
-  protected getCommonDataSetAttributesForExcel(
-    definition: ChartWithDataSetDefinition,
-    labelRange: Range | undefined,
-    dataSets: DataSet[]
-  ) {
+  protected getCommonDataSetAttributesForExcel(definition: ChartWithDataSetDefinition) {
+    const dataSets = createDataSets(this.getters, this.sheetId, definition.dataSource);
+    const labelRange = createValidRange(
+      this.getters,
+      this.sheetId,
+      definition.dataSource.labelRange
+    );
     const excelDataSets: ExcelChartDataset[] = dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
