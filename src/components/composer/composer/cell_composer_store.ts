@@ -1,4 +1,5 @@
-import { parseTokens } from "@odoo/o-spreadsheet-engine";
+import { hasHyperlinkContent, parseTokens, Style } from "@odoo/o-spreadsheet-engine";
+import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { prettify } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import {
   isMultipleElementMatrix,
@@ -28,9 +29,9 @@ import {
   Direction,
   Format,
   FormulaCell,
+  isMatrix,
   Locale,
   RemoveColumnsRowsCommand,
-  isMatrix,
 } from "../../../types";
 import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
 
@@ -189,10 +190,17 @@ export class CellComposerStore extends AbstractComposerStore {
       if (cell.link && !isFormula(content)) {
         content = markdownLink(content, cell.link.url);
       }
+      let style: Style | undefined;
+      const cellStyle = this.getters.getCellStyle(this.currentEditedCell);
+      if ((!cellStyle || !cellStyle.textColor) && hasHyperlinkContent(content)) {
+        style = { ...cellStyle, textColor: LINK_COLOR };
+      }
+
       this.addHeadersForSpreadingFormula(content);
       this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
+        style,
       });
     } else {
       this.model.dispatch("UPDATE_CELL", {

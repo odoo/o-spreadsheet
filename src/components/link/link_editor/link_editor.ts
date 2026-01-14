@@ -1,3 +1,4 @@
+import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { detectLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -86,16 +87,19 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   }
 
   save() {
+    const sheetId = this.env.model.getters.getActiveSheetId();
     const { col, row } = this.props.cellPosition;
     const locale = this.env.model.getters.getLocale();
     const label = this.link.label
       ? canonicalizeNumberContent(this.link.label, locale)
       : this.link.url;
+    const style = this.env.model.getters.getCellStyle({ sheetId, col, row });
     this.env.model.dispatch("UPDATE_CELL", {
-      col: col,
-      row: row,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      col,
+      row,
+      sheetId,
       content: markdownLink(label, this.link.url),
+      style: { ...style, textColor: LINK_COLOR },
     });
     this.props.onClosed?.();
   }

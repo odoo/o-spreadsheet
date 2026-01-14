@@ -1,10 +1,11 @@
-import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
+import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER, LINK_COLOR } from "../constants";
 import { toXC } from "../helpers/coordinates";
 import { getItemId } from "../helpers/data_normalization";
-import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
+import { getUniqueText, isMarkdownLink, isWebLink, sanitizeSheetName } from "../helpers/misc";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
+import { recomputeZones } from "../helpers/recompute_zones";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
-import { overlap, toZone, zoneToXc } from "../helpers/zones";
+import { isZoneInside, overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registry";
 import { CustomizedDataSet, schemeToColorScale } from "../types/chart";
 import { Format } from "../types/format";
@@ -576,6 +577,11 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.2.0", {
+    migrate(data: WorkbookData): any {
+      return addHyperlinkStyle(data);
+    },
   });
 
 function fixOverlappingFilters(data: any): any {
@@ -597,6 +603,40 @@ function fixOverlappingFilters(data: any): any {
     sheet.filterTables = knownDataFilterZones.map((zone) => ({
       range: zoneToXc(zone),
     }));
+  }
+  return data;
+}
+
+function addHyperlinkStyle(data: WorkbookData): WorkbookData {
+  for (const sheet of data.sheets || []) {
+    for (const xc in sheet.cells || {}) {
+      const content = sheet.cells[xc];
+      if (content && (isMarkdownLink(content) || isWebLink(content))) {
+        // find the XC in the styles
+        const styleXc = Object.keys(sheet.styles).find((styleXC) =>
+          isZoneInside(toZone(xc), toZone(styleXC))
+        );
+        if (styleXc) {
+          // split the existing style for the sub-zone
+          if (data.styles[sheet.styles[styleXc]].textColor) {
+            continue;
+          }
+          const existingStyleId = sheet.styles[styleXc];
+          const existingStyle = data.styles[existingStyleId];
+          const zones = recomputeZones([toZone(styleXc)], [toZone(xc)]);
+
+          delete sheet.styles[styleXc];
+
+          zones.forEach((zone) => {
+            const zoneXc = zoneToXc(zone);
+            sheet.styles[zoneXc] = existingStyleId;
+          });
+          sheet.styles[xc] = getItemId({ ...existingStyle, textColor: LINK_COLOR }, data.styles);
+        } else {
+          sheet.styles[xc] = getItemId({ textColor: LINK_COLOR }, data.styles);
+        }
+      }
+    }
   }
   return data;
 }
