@@ -1,4 +1,3 @@
-import { positionToZone } from "../../../helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { CellPosition, UID, Zone } from "../../../types";
 import { SpreadsheetRTree } from "./r_tree";
@@ -61,11 +60,16 @@ export class SpreadingRelation {
   }
 
   /**
-   * Remove a node, also remove it from other nodes adjacency list
+   * Remove a spreading relation for a given array formula position
+   * and its result zone
    */
   removeNode(position: CellPosition) {
+    const resultZone = this.arrayFormulasToResults.get(position);
+    if (!resultZone) {
+      return;
+    }
     this.resultsToArrayFormulas.remove({
-      boundingBox: { sheetId: position.sheetId, zone: positionToZone(position) },
+      boundingBox: { sheetId: position.sheetId, zone: resultZone },
       data: position,
     });
     this.arrayFormulasToResults.delete(position);
