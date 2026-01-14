@@ -3,11 +3,9 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  createDataSets,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   BarChartDefinition,
   BarChartRuntime,
@@ -15,12 +13,10 @@ import {
 import {
   ChartCreationContext,
   ChartData,
-  DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { UID } from "@odoo/o-spreadsheet-engine/types/misc";
-import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import {
@@ -35,8 +31,6 @@ import {
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class BarChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
   readonly type = "bar";
 
   static allowedDefinitionKeys: readonly (keyof BarChartDefinition)[] = [
@@ -54,8 +48,6 @@ export class BarChart extends AbstractChart {
 
   constructor(private definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
-    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
@@ -96,11 +88,7 @@ export class BarChart extends AbstractChart {
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
-      this.definition,
-      this.labelRange,
-      this.dataSets
-    );
+    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
