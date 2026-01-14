@@ -214,6 +214,10 @@ topbarMenuRegistry
     sequence: 40,
     separator: true,
   })
+  .addChild("toggle_pin_panel", ["view"], {
+    ...ACTION_VIEW.togglePinPanel,
+    sequence: 1500,
+  })
 
   // ---------------------------------------------------------------------
   // INSERT MENU ITEMS
