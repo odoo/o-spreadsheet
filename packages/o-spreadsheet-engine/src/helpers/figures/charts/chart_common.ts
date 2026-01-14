@@ -1,7 +1,10 @@
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
+  ChartCreationContext,
+  ChartDataSource,
   ChartRangeDataSource,
   ChartWithDataSetDefinition,
   DataSet,
@@ -166,6 +169,25 @@ export function copyChartDataSourceInSheetId(
       })
       .filter(isDefined),
   };
+}
+
+export function getCreationContextFromDataSource(
+  dataSource: ChartDataSource
+): ChartCreationContext {
+  return chartDataSourceRegistry.get(dataSource.type)?.getContextCreation(dataSource) ?? {};
+}
+
+export function getDataSourceFromContextCreation(
+  context: ChartCreationContext
+): ChartRangeDataSource {
+  const type = context.dataSource?.type ?? "range";
+  const dataSource = chartDataSourceRegistry.get(type)?.fromContextCreation(context) ?? {
+    type: "range",
+    dataSets: [],
+    dataSetsHaveTitle: false,
+  };
+  // @ts-ignore TODO remove when definitions accept ChartDataSource
+  return dataSource;
 }
 
 /**
