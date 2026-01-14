@@ -5,18 +5,13 @@ import {
   chartFontColor,
   createDataSets,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import { getZoneArea } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
   ChartCreationContext,
   ChartData,
   DataSet,
-  ExcelChartDataset,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -97,18 +92,10 @@ export class ScatterChart extends AbstractChart {
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
-      .filter((ds) => ds.range !== "");
-
-    const datasetLength = this.dataSets[0]
-      ? getZoneArea(this.dataSets[0].dataRange.zone)
-      : undefined;
-    const labelLength = this.labelRange ? getZoneArea(this.labelRange.zone) : 0;
-    const labelRange = toExcelLabelRange(
-      this.getters,
+    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
+      this.definition,
       this.labelRange,
-      shouldRemoveFirstLabel(labelLength, datasetLength, definition.dataSource.dataSetsHaveTitle)
+      this.dataSets
     );
     return {
       ...definition,
