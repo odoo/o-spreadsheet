@@ -40,7 +40,7 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
     const cancelledReasons = [
       ...(this.state.keyValueDispatchResult?.reasons || []),
       ...(this.state.baselineDispatchResult?.reasons || []),
-    ];
+    ].filter((reason) => reason !== CommandResult.NoChanges);
     return cancelledReasons.map(
       (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
     );
