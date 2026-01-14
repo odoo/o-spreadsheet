@@ -60,8 +60,6 @@ import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { ChartPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/chart";
 import { FigurePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/figures";
 import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
-import { zoneToXc } from "../../../src/helpers";
-import { BarChart } from "../../../src/helpers/figures/charts";
 import {
   getCategoryAxisTickLabels,
   getChartConfiguration,
@@ -1302,15 +1300,13 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
-    const newChart = model.getters.getChart(duplicatedChartId) as BarChart;
-
-    expect(newChart.labelRange?.sheetId).toEqual(secondSheetId);
-    expect(zoneToXc(newChart.labelRange!.zone)).toEqual("A2:A4");
-
-    newChart.dataSets?.map((ds, index) => {
-      expect(ds.dataRange.sheetId).toEqual(secondSheetId);
-      expect(zoneToXc(ds.dataRange.zone)).toEqual(dataSets[index].dataRange);
-    });
+    const newChart = model.getters.getChartDefinition(duplicatedChartId) as BarChartDefinition;
+    expect(newChart).toMatchObject(
+      toChartDataSource({
+        dataSets: dataSets,
+        labelRange: "A2:A4",
+      })
+    );
 
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
