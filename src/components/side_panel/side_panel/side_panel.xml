@@ -16,11 +16,9 @@
         </div>
         <div class="o-sidePanelTitle o-fw-bold ms-2" t-esc="getTitle()"/>
         <div
-          t-if="props.onTogglePinPanel"
-          class="o-pin-panel o-sidePanelAction ms-auto rounded"
-          t-att-class="{'active': props.isPinned}"
-          t-on-click="props.onTogglePinPanel"
-          t-att-title="pinInfoMessage">
+          t-if="props.isPinned"
+          class="o-pin-panel o-sidePanelAction ms-auto rounded active"
+          t-on-click="props.onTogglePinPanel">
           <i class="fa fa-thumb-tack"/>
         </div>
         <div class="o-sidePanelClose o-sidePanelAction rounded" t-on-click="props.onCloseSidePanel">
@@ -61,11 +59,9 @@
           <i class="fa fa-angle-double-left"/>
         </div>
         <div
-          t-if="props.onTogglePinPanel"
-          class="o-pin-panel o-sidePanelAction rounded mb-1"
-          t-att-class="{'active': props.isPinned}"
-          t-on-click.stop="props.onTogglePinPanel"
-          t-att-title="pinInfoMessage">
+          t-if="props.isPinned"
+          class="o-pin-panel o-sidePanelAction ms-auto rounded active"
+          t-on-click="props.onTogglePinPanel">
           <i class="fa fa-thumb-tack"/>
         </div>
         <div

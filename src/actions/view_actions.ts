@@ -1,6 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { Dimension } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { numberToLetters } from "../helpers";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
@@ -336,3 +337,19 @@ export function canUngroupHeaders(env: SpreadsheetChildEnv, dimension: Dimension
     env.model.getters.getHeaderGroupsInZone(sheetId, dimension, selection[0]).length > 0
   );
 }
+
+export const togglePinPanel: ActionSpec = {
+  name: (env) => {
+    const sidepanelStore = env.getStore(SidePanelStore);
+    return sidepanelStore.mainPanel && sidepanelStore.mainPanel.isPinned
+      ? _t("Unpin the side panel")
+      : _t("Pin the side panel");
+  },
+  isVisible: (env) => {
+    return env.getStore(SidePanelStore).isMainPanelOpen;
+  },
+  execute: (env) => {
+    env.getStore(SidePanelStore).togglePinPanel();
+  },
+  icon: "o-spreadsheet-Icon.THUMB_TACK",
+};

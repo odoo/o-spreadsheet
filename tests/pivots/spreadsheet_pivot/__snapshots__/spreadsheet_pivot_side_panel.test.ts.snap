@@ -20,14 +20,6 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
     >
       Pivot #1
     </div>
-    <div
-      class="o-pin-panel o-sidePanelAction ms-auto rounded"
-      title="Pin this panel to allow to open another side panel beside it."
-    >
-      <i
-        class="fa fa-thumb-tack"
-      />
-    </div>
     
     <div
       class="o-sidePanelClose o-sidePanelAction rounded"
@@ -969,14 +961,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
       class="o-sidePanelTitle o-fw-bold ms-2"
     >
       Pivot #1
-    </div>
-    <div
-      class="o-pin-panel o-sidePanelAction ms-auto rounded"
-      title="Pin this panel to allow to open another side panel beside it."
-    >
-      <i
-        class="fa fa-thumb-tack"
-      />
     </div>
     
     <div
