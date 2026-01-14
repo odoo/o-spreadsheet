@@ -1,6 +1,10 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import {
+  getCreationContextFromDataSource,
+  getDataSourceFromContextCreation,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import {
   ChartCreationContext,
@@ -42,13 +46,7 @@ export class GeoChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): GeoChartDefinition {
     return {
       background: context.background,
-      dataSource: {
-        type: "range",
-        dataSets: [],
-        dataSetsHaveTitle: false,
-        labelRange: context.auxiliaryRange,
-        ...context.dataSource,
-      },
+      dataSource: getDataSourceFromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
@@ -61,7 +59,7 @@ export class GeoChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      auxiliaryRange: definition.dataSource.labelRange,
+      ...getCreationContextFromDataSource(definition.dataSource),
     };
   }
 
