@@ -4,15 +4,12 @@ import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_eval
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  createDataSets,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
   ChartData,
-  DataSet,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -21,7 +18,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { Getters, UID } from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
@@ -35,8 +32,6 @@ import {
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class PyramidChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
   readonly type = "pyramid";
 
   static allowedDefinitionKeys: readonly (keyof PyramidChartDefinition)[] = [
@@ -53,8 +48,6 @@ export class PyramidChart extends AbstractChart {
 
   constructor(private definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataSets = createDataSets(getters, sheetId, definition.dataSource);
-    this.labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): PyramidChartDefinition {
@@ -94,11 +87,7 @@ export class PyramidChart extends AbstractChart {
 
   getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
-      this.definition,
-      this.labelRange,
-      this.dataSets
-    );
+    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     const data = getChartData(getters, this.sheetId, definition.dataSource);
     const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;
