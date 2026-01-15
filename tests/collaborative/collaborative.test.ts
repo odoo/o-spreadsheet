@@ -36,6 +36,7 @@ import {
   paste,
   redo,
   setCellContent,
+  setCellFormat,
   setFormat,
   setStyle,
   unMerge,
@@ -1095,6 +1096,33 @@ describe("Multi users synchronisation", () => {
         DEFAULT_TABLE_CONFIG.styleId
       );
     });
+  });
+
+  test("updating a cell content (through UPDATE_CELL) only updates on actual content", () => {
+    setCellContent(alice, "A1", "23");
+    const sheetId = alice.getters.getActiveSheetId();
+    alice.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: undefined });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "23"
+    );
+  });
+
+  test("pasting an empty content empties the target cell", () => {
+    setCellContent(alice, "A1", "23");
+    copy(alice, "A2");
+    paste(alice, "A1");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
+  });
+
+  test("updating a cell format (through UPDATE_CELL) only if format is defined in command", () => {
+    setCellFormat(alice, "A1", "%");
+    const sheetId = alice.getters.getActiveSheetId();
+    alice.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "10", format: undefined });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "A1")?.format,
+      "%"
+    );
   });
 });
 
