@@ -109,7 +109,7 @@ export interface Style {
 }
 
 export interface UpdateCellData {
-  content?: string;
+  content?: string | null;
   formula?: string;
   style?: Style | null;
   format?: Format;
