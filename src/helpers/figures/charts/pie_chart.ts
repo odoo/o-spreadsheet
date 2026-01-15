@@ -51,6 +51,7 @@ export class PieChart extends AbstractChart {
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly type = "pie";
+  readonly slicesColors?: string[];
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
   readonly isDoughnut?: boolean;
@@ -73,6 +74,7 @@ export class PieChart extends AbstractChart {
     this.isDoughnut = definition.isDoughnut;
     this.showValues = definition.showValues;
     this.pieHolePercentage = definition.pieHolePercentage;
+    this.slicesColors = definition.slicesColors;
   }
 
   static transformDefinition(
@@ -104,6 +106,7 @@ export class PieChart extends AbstractChart {
       pieHolePercentage: context.pieHolePercentage,
       showValues: context.showValues,
       humanize: context.humanize,
+      slicesColors: context.slicesColors,
     };
   }
 
@@ -145,6 +148,7 @@ export class PieChart extends AbstractChart {
       showValues: this.showValues,
       pieHolePercentage: this.pieHolePercentage,
       humanize: this.humanize,
+      slicesColors: this.slicesColors,
     };
   }
 
