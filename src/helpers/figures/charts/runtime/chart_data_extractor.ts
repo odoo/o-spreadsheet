@@ -972,9 +972,8 @@ export function getChartLabelFormat(
 function getChartLabelValues(
   getters: Getters,
   dataSets: DataSet[],
-  labelRange?: Range
+  labelRange: Range | undefined
 ): LabelValues {
-  let labels: LabelValues = { values: [], formattedValues: [] };
   if (labelRange) {
     const { left } = labelRange.zone;
     if (
@@ -982,33 +981,20 @@ function getChartLabelValues(
       !labelRange.invalidSheetName &&
       !getters.isColHidden(labelRange.sheetId, left)
     ) {
-      labels = {
+      return {
         formattedValues: getters.getRangeFormattedValues(labelRange),
         values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
       };
-    } else if (dataSets[0]) {
-      const ranges = getData(getters, dataSets[0]);
-      labels = {
-        formattedValues: range(0, ranges.length).map((r) => r.toString()),
-        values: labels.formattedValues,
-      };
-    }
-  } else if (dataSets.length === 1) {
-    const dataLength = getData(getters, dataSets[0]).length;
-    for (let i = 0; i < dataLength; i++) {
-      labels.formattedValues.push("");
-      labels.values.push("");
-    }
-  } else {
-    if (dataSets[0]) {
-      const ranges = getData(getters, dataSets[0]);
-      labels = {
-        formattedValues: range(0, ranges.length).map((r) => r.toString()),
-        values: labels.formattedValues,
-      };
     }
   }
-  return labels;
+  if (dataSets[0]) {
+    const dataLength = getData(getters, dataSets[0]).length;
+    return {
+      values: Array(dataLength).fill(""),
+      formattedValues: Array(dataLength).fill(""),
+    };
+  }
+  return { values: [], formattedValues: [] };
 }
 
 /**

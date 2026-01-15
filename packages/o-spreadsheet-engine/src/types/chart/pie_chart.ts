@@ -1,8 +1,10 @@
 import type { ChartConfiguration } from "chart.js";
+import { Color } from "../misc";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface PieChartDefinition extends CommonChartDefinition {
   readonly type: "pie";
+  readonly slicesColors?: Color[];
   readonly aggregated?: boolean;
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;

@@ -136,4 +136,5 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showHeaders: true,
   zoomable: false,
   humanize: false,
+  slicesColors: [],
 };
