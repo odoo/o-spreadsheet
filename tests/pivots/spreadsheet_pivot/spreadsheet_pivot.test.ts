@@ -1,5 +1,6 @@
 import { GRID_ICON_MARGIN, PIVOT_INDENT } from "@odoo/o-spreadsheet-engine/constants";
 import { resetMapValueDimensionDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { PIVOT_TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/pivot_table_presets";
 import { CellValue, CellValueType } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   CellErrorType,
@@ -7,6 +8,7 @@ import {
   EvaluatedCell,
   FunctionResultObject,
   Model,
+  TableStyle,
 } from "../../../src";
 import { positions, toZone } from "../../../src/helpers";
 import {
@@ -14,6 +16,7 @@ import {
   createSheet,
   deleteContent,
   deleteSheet,
+  hideColumns,
   redo,
   setCellContent,
   setFormat,
@@ -25,7 +28,7 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
-import { createModelFromGrid, getGrid } from "../../test_helpers/helpers";
+import { createModelFromGrid, getGrid, getGridStyle } from "../../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
@@ -2501,6 +2504,99 @@ describe("Spreadsheet Pivot", () => {
         A28: "New",          B28: "TRUE",    C28: 24000,               D28: "",
         A29: "",             B29: "",        C29: "",                  D29: "",
       });
+    });
+
+    test("Pivot table style works on tabular form", () => {
+      const header = { fillColor: "#f00" };
+      const subHeader = { fillColor: "#0f0" };
+      const subSubHeader1 = { fillColor: "#00f" };
+      const subSubHeader2 = { fillColor: "#f0f" };
+      const wholeTable = { fillColor: "#ff0" };
+      const customStyle: TableStyle = {
+        category: "medium",
+        templateName: "TestStyle",
+        displayName: "Test Style",
+        primaryColor: "#ff0000",
+        headerRow: { style: header },
+        mainSubHeaderRow: { style: subHeader },
+        firstAlternatingSubHeaderRow: { style: subSubHeader1 },
+        secondAlternatingSubHeaderRow: { style: subSubHeader2 },
+        wholeTable: { style: wholeTable },
+      };
+      PIVOT_TABLE_PRESETS.TestStyle = customStyle;
+
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [{ fieldName: "Salesperson", order: "asc" }],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+          { fieldName: "Created on", order: "desc", granularity: "year" },
+          { fieldName: "Created on", order: "desc", granularity: "month" },
+          { fieldName: "Created on", order: "desc", granularity: "day_of_month" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true, tableStyleId: "TestStyle" },
+      });
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGridStyle(model, "A25:F30")).toMatchObject({
+        A25: header,     B25: header,        C25: header,        D25: header,        E25: header,        F25: header,
+        A26: header,     B26: header,        C26: header,        D26: header,        E26: header,        F26: header,
+        A27: subHeader,  B27: subSubHeader1, C27: subSubHeader2, D27: subSubHeader1, E27: subSubHeader2, F27: wholeTable,
+        A28: subHeader,  B28: subSubHeader1, C28: subSubHeader2, D28: subSubHeader1, E28: subSubHeader2, F28: wholeTable,
+        A29: subHeader,  B29: subSubHeader1, C29: subSubHeader2, D29: subSubHeader1, E29: subSubHeader2, F29: wholeTable,
+        A30: subHeader,  B30: subSubHeader1, C30: subSubHeader2, D30: subSubHeader1, E30: subSubHeader2, F30: wholeTable,
+      });
+
+      delete PIVOT_TABLE_PRESETS.TestStyle;
+    });
+
+    test("Pivot table style works with hidden columns on tabular form", () => {
+      const header = { fillColor: "#f00" };
+      const subHeader = { fillColor: "#0f0" };
+      const subSubHeader1 = { fillColor: "#00f" };
+      const subSubHeader2 = { fillColor: "#f0f" };
+      const wholeTable = { fillColor: "#ff0" };
+      const customStyle: TableStyle = {
+        category: "medium",
+        templateName: "TestStyle",
+        displayName: "Test Style",
+        primaryColor: "#ff0000",
+        headerRow: { style: header },
+        mainSubHeaderRow: { style: subHeader },
+        firstAlternatingSubHeaderRow: { style: subSubHeader1 },
+        secondAlternatingSubHeaderRow: { style: subSubHeader2 },
+        wholeTable: { style: wholeTable },
+      };
+      PIVOT_TABLE_PRESETS.TestStyle = customStyle;
+
+      const model = createModelWithPivot("A1:I22");
+      updatePivot(model, "1", {
+        columns: [{ fieldName: "Salesperson", order: "asc" }],
+        rows: [
+          { fieldName: "Stage", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+          { fieldName: "Created on", order: "desc", granularity: "year" },
+        ],
+        measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+        style: { tabularForm: true, tableStyleId: "TestStyle" },
+      });
+      hideColumns(model, ["A", "C"]);
+      setCellContent(model, "A25", "=PIVOT(1)");
+
+      // prettier-ignore
+      expect(getGridStyle(model, "A25:F30")).toMatchObject({
+        A25: {},  B25: header,        C25: {}, D25: header,
+        A26: {},  B26: header,        C26: {}, D26: header,
+        A27: {},  B27: subSubHeader1, C27: {}, D27: wholeTable,
+        A28: {},  B28: subSubHeader1, C28: {}, D28: wholeTable,
+        A29: {},  B29: subSubHeader1, C29: {}, D29: wholeTable,
+        A30: {},  B30: subSubHeader1, C30: {}, D30: wholeTable,
+      });
+
+      delete PIVOT_TABLE_PRESETS.TestStyle;
     });
   });
 });
