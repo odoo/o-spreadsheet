@@ -563,7 +563,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
     const before = this.getters.getCell({ sheetId, col, row });
-    const hasContent = "content" in after || "formula" in after;
+    const hasContent = after.content !== undefined || "formula" in after;
 
     // Compute the new cell properties
     const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
