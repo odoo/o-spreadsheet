@@ -25,6 +25,7 @@ import {
   DOMTarget,
   click,
   clickAndDrag,
+  editSelectComponent,
   getTarget,
   keyDown,
   setInputValueAndTrigger,
@@ -86,17 +87,17 @@ const selectors = {
   },
   colorScaleEditor: {
     minColor: ".o-threshold-minimum .o-round-color-picker-button",
-    minType: ".o-threshold-minimum > select",
+    minType: ".o-threshold-minimum > .o-select",
     minValue: ".o-threshold-minimum .o-threshold-value input",
     minValueComposer: ".o-threshold-minimum .o-threshold-value .o-composer",
 
     midColor: ".o-threshold-midpoint .o-round-color-picker-button",
-    midType: ".o-threshold-midpoint > select",
+    midType: ".o-threshold-midpoint > .o-select",
     midValue: ".o-threshold-midpoint .o-threshold-value input",
     midValueComposer: ".o-threshold-midpoint .o-threshold-value .o-composer",
 
     maxColor: ".o-threshold-maximum .o-round-color-picker-button",
-    maxType: ".o-threshold-maximum > select",
+    maxType: ".o-threshold-maximum > .o-select",
     maxValue: ".o-threshold-maximum .o-threshold-value input",
     maxValueComposer: ".o-threshold-maximum .o-threshold-value .o-composer",
 
@@ -128,8 +129,7 @@ async function changeRuleOperatorType(
   fixture: HTMLElement,
   type: ConditionalFormattingOperatorValues
 ) {
-  await click(fixture, selectors.ruleEditor.editor.operatorInput);
-  await click(fixture, `.o-menu-item[data-name="${type}"]`);
+  await editSelectComponent(selectors.ruleEditor.editor.operatorInput, type);
 }
 
 describe("UI of conditional formats", () => {
@@ -360,9 +360,9 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-      await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.minType, "number");
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20");
-      await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
       expect(errorMessages()).toEqual(["Minimum must be smaller then Maximum"]);
@@ -381,13 +381,13 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-      await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.minType, "number");
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "60");
 
-      await setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.midType, "number");
       setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
 
-      await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
       expect(errorMessages()).toEqual([
@@ -412,9 +412,9 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number");
-      await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.minType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.midType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0");
       setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
@@ -439,9 +439,9 @@ describe("UI of conditional formats", () => {
         // change every value
         setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-        setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.midType, "none");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue);
         await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
@@ -464,9 +464,9 @@ describe("UI of conditional formats", () => {
         // change every value
         setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-        setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number");
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.midType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         setInputValueAndTrigger(selectors.colorScaleEditor.midValue, invalidValue);
         await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
@@ -492,9 +492,9 @@ describe("UI of conditional formats", () => {
         // change every value
         setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-        setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.midType, "none");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
         await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, invalidValue);
 
@@ -515,9 +515,9 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula");
-      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
-      await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula");
+      await editSelectComponent(selectors.colorScaleEditor.minType, "formula");
+      await editSelectComponent(selectors.colorScaleEditor.midType, "none");
+      await editSelectComponent(selectors.colorScaleEditor.maxType, "formula");
       await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=hello()");
       await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM(1,2)");
 
@@ -533,9 +533,9 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "formula");
-      await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.minType, "number");
+      await editSelectComponent(selectors.colorScaleEditor.midType, "formula");
+      await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
       editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=hello()");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3");
@@ -562,9 +562,9 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
-      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula");
-      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
-      await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula");
+      await editSelectComponent(selectors.colorScaleEditor.minType, "formula");
+      await editSelectComponent(selectors.colorScaleEditor.midType, "none");
+      await editSelectComponent(selectors.colorScaleEditor.maxType, "formula");
       await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=hello()");
       await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM(1,2)");
 
@@ -629,12 +629,12 @@ describe("UI of conditional formats", () => {
 
     test("Configuration is locally saved when switching cf type", async () => {
       await changeRuleOperatorType(fixture, "beginsWithText");
-      expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("Text begins with");
+      expect(selectors.ruleEditor.editor.operatorInput).toHaveText("Text begins with");
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[0]);
-      expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("Text begins with");
+      expect(selectors.ruleEditor.editor.operatorInput).toHaveText("Text begins with");
     });
   });
 
@@ -730,9 +730,9 @@ describe("UI of conditional formats", () => {
       await nextTick();
 
       await changeRuleOperatorType(fixture, "top10");
-      await setInputValueAndTrigger(".o-top-10-criterion .o-top-10-select-values", "bottom");
+      await editSelectComponent(".o-top-10-criterion .o-top-10-select-values", "bottom");
       await setInputValueAndTrigger(".o-top-10-criterion .o-dv-input input", "3");
-      await setInputValueAndTrigger(".o-top-10-criterion .o-top-10-select-mode", "percent");
+      await editSelectComponent(".o-top-10-criterion .o-top-10-select-mode", "percent");
       await click(fixture, selectors.ruleEditor.editor.bold);
       await click(fixture, selectors.buttonSave);
 
@@ -886,10 +886,7 @@ describe("UI of conditional formats", () => {
       expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
         "A1"
       );
-      expect(
-        (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement)
-          .value
-      ).toBe("Is not empty");
+      expect(selectors.ruleEditor.editor.operatorInput).toHaveText("Is not empty");
     });
 
     describe("CellIsRule", () => {
@@ -1118,11 +1115,11 @@ describe("UI of conditional formats", () => {
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20");
 
         const dispatch = spyModelDispatch(model);
@@ -1162,11 +1159,11 @@ describe("UI of conditional formats", () => {
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "percentage");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "percentage");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentage");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "percentage");
         setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90");
 
         const dispatch = spyModelDispatch(model);
@@ -1206,11 +1203,11 @@ describe("UI of conditional formats", () => {
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "percentile");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "percentile");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentile");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "percentile");
         setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90");
 
         const dispatch = spyModelDispatch(model);
@@ -1250,17 +1247,17 @@ describe("UI of conditional formats", () => {
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.minType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0");
 
-        await setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.midType, "number");
         await click(fixture, selectors.colorScaleEditor.midColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerOrange);
         setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
 
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
-        await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
+        await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
         setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100");
 
         const dispatch = spyModelDispatch(model);
@@ -1390,19 +1387,19 @@ describe("UI of conditional formats", () => {
 
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
         const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
-        const typeinflectionLower = rows[1].querySelectorAll("select")[1];
-        const operatorinflectionLower = rows[1].querySelectorAll("select")[0];
+        const typeinflectionLower = rows[1].querySelectorAll(".o-select")[1];
+        const operatorinflectionLower = rows[1].querySelectorAll(".o-select")[0];
         const inputinflectionLower = rows[1].querySelectorAll("input")[0];
-        const typeinflectionUpper = rows[2].querySelectorAll("select")[1];
-        const operatorinflectionUpper = rows[2].querySelectorAll("select")[0];
+        const typeinflectionUpper = rows[2].querySelectorAll(".o-select")[1];
+        const operatorinflectionUpper = rows[2].querySelectorAll(".o-select")[0];
         const inputinflectionUpper = rows[2].querySelectorAll("input")[0];
 
-        await setInputValueAndTrigger(typeinflectionLower, "number");
-        await setInputValueAndTrigger(operatorinflectionLower, "ge");
+        await editSelectComponent(typeinflectionLower, "number");
+        await editSelectComponent(operatorinflectionLower, "ge");
         await setInputValueAndTrigger(inputinflectionLower, "10");
 
-        await setInputValueAndTrigger(typeinflectionUpper, "number");
-        await setInputValueAndTrigger(operatorinflectionUpper, "ge");
+        await editSelectComponent(typeinflectionUpper, "number");
+        await editSelectComponent(operatorinflectionUpper, "ge");
         await setInputValueAndTrigger(inputinflectionUpper, "0");
 
         const sheetId = model.getters.getActiveSheetId();

@@ -559,7 +559,7 @@ export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [
 export const EN_LOCALE = DEFAULT_LOCALE;
 
 export const FR_LOCALE: Locale = {
-  name: "France",
+  name: "French",
   code: "fr_FR",
   thousandsSeparator: " ",
   decimalSeparator: ",",

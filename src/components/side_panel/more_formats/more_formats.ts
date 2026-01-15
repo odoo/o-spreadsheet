@@ -1,9 +1,11 @@
+import { ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine";
+import { Select } from "../../select/select";
 import { TextInput } from "../../text_input/text_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Checkbox } from "../components/checkbox/checkbox";
@@ -26,6 +28,7 @@ export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {
     Section,
     TextInput,
     Checkbox,
+    Select,
   };
 
   store!: Store<MoreFormatsStore>;
@@ -54,14 +57,20 @@ export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {
     return currency.name + (currency.code ? ` (${currency.code})` : "");
   }
 
-  updateSelectCurrency(ev: InputEvent) {
-    const target = ev.target as HTMLInputElement;
-    const currencyIndex = parseInt(target.value, 10);
+  updateSelectCurrency(value: string) {
+    const currencyIndex = parseInt(value, 10);
     this.store.selectCurrency(currencyIndex);
   }
 
   isFormatSelected(format: string | undefined): boolean {
     const currentFormat = this.store.currentFormat;
     return format === currentFormat;
+  }
+
+  get availableCurrenciesOptions(): ValueAndLabel[] {
+    return this.store.availableCurrencies.map((currency, index) => ({
+      value: index.toString(),
+      label: this.currencyDisplayName(currency),
+    }));
   }
 }

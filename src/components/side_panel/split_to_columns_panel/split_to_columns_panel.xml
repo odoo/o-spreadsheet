@@ -2,16 +2,12 @@
   <t t-name="o-spreadsheet-SplitIntoColumnsPanel">
     <div class="o-split-to-cols-panel">
       <Section title.translate="Separator">
-        <select class="o-input mb-3" t-on-change="(ev) => this.onSeparatorChange(ev.target.value)">
-          <option
-            t-foreach="separators"
-            t-as="separator"
-            t-key="separator.value"
-            t-att-value="separator.value"
-            t-esc="separator.name"
-            t-att-selected="state.separatorValue === separator.value"
-          />
-        </select>
+        <Select
+          class="'mb-3'"
+          values="separators"
+          selectedValue="state.separatorValue"
+          onChange.bind="onSeparatorChange"
+        />
 
         <input
           class="o-input mb-3"

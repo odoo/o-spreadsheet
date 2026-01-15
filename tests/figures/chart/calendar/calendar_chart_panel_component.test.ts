@@ -7,6 +7,7 @@ import {
   changeRoundColorPickerColor,
   click,
   createCalendarChart,
+  editSelectComponent,
   getRoundColorPickerValue,
   setCellContent,
   setFormat,
@@ -55,8 +56,8 @@ describe("Calendar chart side panel", () => {
 
       expect(".o-data-series input").toHaveValue("B1:B3");
       expect(".o-data-labels input").toHaveValue("A1:A3");
-      expect(".o-horizontal-group-by").toHaveValue("day_of_week");
-      expect(".o-vertical-group-by").toHaveValue("month_number");
+      expect(".o-horizontal-group-by").toHaveText("Day of Week");
+      expect(".o-vertical-group-by").toHaveText("Month");
     });
 
     test("Only one data range is enabled", async () => {
@@ -92,10 +93,10 @@ describe("Calendar chart side panel", () => {
       );
       await openChartConfigSidePanel(model, env, chartId);
 
-      expect(".o-horizontal-group-by").toHaveValue("hour_number");
-      await setInputValueAndTrigger(".o-horizontal-group-by", "day_of_week");
+      expect(".o-horizontal-group-by").toHaveText("Hour");
+      await editSelectComponent(".o-horizontal-group-by", "day_of_week");
       expect(getCalendarChartDefinition(chartId)?.horizontalGroupBy).toEqual("day_of_week");
-      expect(".o-horizontal-group-by").toHaveValue("day_of_week");
+      expect(".o-horizontal-group-by").toHaveText("Day of Week");
     });
 
     test("Can change the vertical group by", async () => {
@@ -112,10 +113,10 @@ describe("Calendar chart side panel", () => {
       );
       await openChartConfigSidePanel(model, env, chartId);
 
-      expect(".o-vertical-group-by").toHaveValue("day_of_week");
-      await setInputValueAndTrigger(".o-vertical-group-by", "month_number");
+      expect(".o-vertical-group-by").toHaveText("Day of Week");
+      await editSelectComponent(".o-vertical-group-by", "month_number");
       expect(getCalendarChartDefinition(chartId)?.verticalGroupBy).toEqual("month_number");
-      expect(".o-vertical-group-by").toHaveValue("month_number");
+      expect(".o-vertical-group-by").toHaveText("Month");
     });
   });
 
@@ -135,7 +136,7 @@ describe("Calendar chart side panel", () => {
 
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#FF0000");
       expect(".o-chart-title input").toHaveValue("Title");
-      expect(".o-chart-legend-position").toHaveValue("right");
+      expect(".o-chart-legend-position").toHaveText("Right");
       expect("span[title=Bold]").toHaveClass("active");
       expect(".o-color-scale .color-scale-preview").toHaveAttribute(
         "data-test-colorscale",

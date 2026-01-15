@@ -79,4 +79,8 @@
       color: var(--os-green-arrow-color);
     }
   }
+
+  .o-select-dropdown.o-icon-set-type-select-dropdown {
+    min-width: 100px;
+  }
 }

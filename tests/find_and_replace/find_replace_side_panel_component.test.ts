@@ -4,6 +4,7 @@ import { Model, Spreadsheet } from "../../src";
 import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,
+  editSelectComponent,
   focusAndKeyDown,
   setInputValueAndTrigger,
   simulateClick,
@@ -36,11 +37,8 @@ const selectors = {
   matchesCount: ".o-sidePanel .o-find-and-replace .o-matches-count",
 };
 
-function changeSearchScope(scope: SearchOptions["searchScope"]) {
-  const selectRangeSelection = document.querySelector(
-    selectors.searchRangeSelection
-  ) as HTMLSelectElement;
-  setInputValueAndTrigger(selectRangeSelection, scope);
+async function changeSearchScope(scope: SearchOptions["searchScope"]) {
+  await editSelectComponent(selectors.searchRangeSelection, scope);
 }
 
 async function inputSearchValue(value: string) {
@@ -178,7 +176,7 @@ describe("find and replace sidePanel component", () => {
       inputSearchValue("1");
 
       expect(document.querySelector(selectors.searchRange)).toBeFalsy();
-      changeSearchScope("specificRange");
+      await changeSearchScope("specificRange");
       await nextTick();
       await nextTick(); // selection input need 2 nextTicks because ¯\_(ツ)_/¯
 
@@ -193,7 +191,7 @@ describe("find and replace sidePanel component", () => {
     test("Ranges are properly updated by with several grid selections", async () => {
       setCellContent(model, "A1", "1");
       inputSearchValue("1");
-      changeSearchScope("specificRange");
+      await changeSearchScope("specificRange");
       await nextTick();
       await nextTick();
       (fixture.querySelector(selectors.searchRange) as HTMLInputElement).focus();
@@ -222,16 +220,16 @@ describe("find and replace sidePanel component", () => {
     test.each(["allSheets", "activeSheet"] as const)(
       "Specific range is persistent when changing scopes",
       async (scope) => {
-        changeSearchScope("specificRange");
+        await changeSearchScope("specificRange");
         await nextTick();
         await nextTick(); // selection input need 2 nextTicks because ¯\_(ツ)_/¯
         setInputValueAndTrigger(selectors.searchRange, "A1:B2");
         await nextTick();
         await click(fixture, selectors.confirmSearchRange);
-        changeSearchScope(scope);
+        await changeSearchScope(scope);
         await nextTick();
         expect(document.querySelector(selectors.searchRange)).toBeFalsy();
-        changeSearchScope("specificRange");
+        await changeSearchScope("specificRange");
         await nextTick();
         expect((document.querySelector(selectors.searchRange) as HTMLInputElement).value).toBe(
           "Sheet1!A1:B2"
@@ -241,7 +239,7 @@ describe("find and replace sidePanel component", () => {
 
     test("Change in specific range selectionInput is confirmed when reselecting the search input", async () => {
       setCellContent(model, "A1", "1");
-      changeSearchScope("specificRange");
+      await changeSearchScope("specificRange");
       await inputSearchValue("1");
       await nextTick(); // selection input need 2 nextTicks because ¯\_(ツ)_/¯
 
@@ -405,7 +403,7 @@ describe("find and replace sidePanel component", () => {
       expect(getMatchesCountContent()).toEqual([]);
       await inputSearchValue("hello");
       expect(getMatchesCountContent()).toEqual(["3 matches in Sheet1", "5 matches in all sheets"]);
-      changeSearchScope("specificRange");
+      await changeSearchScope("specificRange");
       await nextTick();
       expect(getMatchesCountContent()).toEqual(["3 matches in Sheet1", "5 matches in all sheets"]);
       await simulateClick(selectors.searchRange);

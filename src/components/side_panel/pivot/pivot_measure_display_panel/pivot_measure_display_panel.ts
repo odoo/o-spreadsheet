@@ -1,8 +1,9 @@
 import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { PivotCoreMeasure, UID } from "../../../..";
+import { PivotCoreMeasure, UID, ValueAndLabel } from "../../../..";
 import { Store, useLocalStore } from "../../../../store_engine";
+import { Select } from "../../../select/select";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";
@@ -21,7 +22,7 @@ export class PivotMeasureDisplayPanel extends Component<Props, SpreadsheetChildE
     pivotId: String,
     measure: Object,
   };
-  static components = { Section, Checkbox, RadioSelection };
+  static components = { Section, Checkbox, RadioSelection, Select };
 
   measureDisplayTypeLabels = measureDisplayTerms.labels;
   measureDisplayDescription = measureDisplayTerms.documentation;
@@ -61,6 +62,13 @@ export class PivotMeasureDisplayPanel extends Component<Props, SpreadsheetChildE
     return this.store.fields.map((field) => ({
       value: field.nameWithGranularity,
       label: field.displayName,
+    }));
+  }
+
+  get measureDisplayTypeOptions(): ValueAndLabel[] {
+    return Object.keys(this.measureDisplayTypeLabels).map((key) => ({
+      value: key,
+      label: this.measureDisplayTypeLabels[key],
     }));
   }
 }

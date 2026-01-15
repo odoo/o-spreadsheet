@@ -1,5 +1,4 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
@@ -7,10 +6,17 @@ import { EditionMode } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
   click,
+  editSelectComponent,
   setCheckboxValueAndTrigger,
   setInputValueAndTrigger,
+  simulateClick,
 } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick, setGrid, spyModelDispatch } from "../test_helpers/helpers";
+import {
+  mountComponentWithPortalTarget,
+  nextTick,
+  setGrid,
+  spyModelDispatch,
+} from "../test_helpers/helpers";
 
 describe("split to columns sidePanel component", () => {
   let model: Model;
@@ -19,11 +25,11 @@ describe("split to columns sidePanel component", () => {
   let confirmButton: HTMLButtonElement;
   let checkBox: HTMLInputElement;
   let onCloseSidePanel: jest.Mock;
-  let parent: Component<SplitIntoColumnsPanel["props"], SpreadsheetChildEnv>;
+  let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
     onCloseSidePanel = jest.fn();
-    ({ model, fixture, parent } = await mountComponent(SplitIntoColumnsPanel, {
+    ({ model, fixture, env } = await mountComponentWithPortalTarget(SplitIntoColumnsPanel, {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));
     dispatch = spyModelDispatch(model);
@@ -31,11 +37,12 @@ describe("split to columns sidePanel component", () => {
     checkBox = fixture.querySelector('.o-split-to-cols-panel input[type="checkbox"]')!;
   });
 
-  test("Separator values", () => {
+  test("Separator values", async () => {
+    await simulateClick(".o-split-to-cols-panel .o-select");
     const separatorValues = fixture.querySelectorAll<HTMLOptionElement>(
-      ".o-split-to-cols-panel select option"
+      ".o-select-dropdown .o-select-option"
     );
-    const values = Array.from(separatorValues).map((option) => option.value);
+    const values = Array.from(separatorValues).map((option) => option.dataset.id);
     expect(values).toHaveLength(6);
     expect(values).toContain(" ");
     expect(values).toContain(",");
@@ -45,15 +52,15 @@ describe("split to columns sidePanel component", () => {
     expect(values).toContain("auto");
   });
 
-  test("Selected separator is dispatched on confirm", () => {
-    setInputValueAndTrigger(".o-split-to-cols-panel select", ",");
+  test("Selected separator is dispatched on confirm", async () => {
+    await editSelectComponent(".o-split-to-cols-panel .o-select", ",");
     click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: ",",
       addNewColumns: expect.any(Boolean),
     });
 
-    setInputValueAndTrigger(".o-split-to-cols-panel select", ";");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", ";");
     click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: ";",
@@ -64,7 +71,7 @@ describe("split to columns sidePanel component", () => {
   test("Custom separator", async () => {
     let input = fixture.querySelector('.o-split-to-cols-panel input[type="text"]')!;
     expect(input).toBeFalsy();
-    await setInputValueAndTrigger(".o-split-to-cols-panel select", "custom");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", "custom");
 
     input = fixture.querySelector('.o-split-to-cols-panel input[type="text"]')!;
     expect(input).toBeTruthy();
@@ -101,7 +108,7 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Empty custom separator : confirm button disabled but no error message", async () => {
-    await setInputValueAndTrigger(".o-split-to-cols-panel select", "custom");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", "custom");
 
     expect(confirmButton.classList).toContain("o-disabled");
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
@@ -110,7 +117,7 @@ describe("split to columns sidePanel component", () => {
   test("No separator in selection : confirm button disabled + error message", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "hello");
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
@@ -121,7 +128,7 @@ describe("split to columns sidePanel component", () => {
   test("Warning if we will overwrite some content", async () => {
     setSelection(model, ["A1"]);
     setGrid(model, { A1: "hello there", B1: "content" });
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
@@ -132,7 +139,7 @@ describe("split to columns sidePanel component", () => {
   test("Warning not displayed if there's an error", async () => {
     setSelection(model, ["A1:B1"]);
     setGrid(model, { A1: "hello there", B1: "content" });
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
@@ -143,18 +150,18 @@ describe("split to columns sidePanel component", () => {
   test("Errors updated on separator selection change", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "hello there");
-    await setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
 
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
 
-    await setInputValueAndTrigger(".o-split-to-cols-panel select", ";");
+    await editSelectComponent(".o-split-to-cols-panel .o-select", ";");
 
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(1);
   });
 
   test("Panel is closed if the user starts to edit a cell", async () => {
     expect(onCloseSidePanel).not.toHaveBeenCalled();
-    const composerFocusStore = parent.env.getStore(ComposerFocusStore);
+    const composerFocusStore = env.getStore(ComposerFocusStore);
     composerFocusStore.focusComposer(
       {
         id: "testComposer",
