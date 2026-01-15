@@ -349,8 +349,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
-  getCells(sheetId: UID): Record<UID, Cell> {
-    return this.cells[sheetId] || {};
+  getCells(sheetId: UID): Cell[] {
+    return Object.values(this.cells[sheetId] || {});
   }
 
   /**

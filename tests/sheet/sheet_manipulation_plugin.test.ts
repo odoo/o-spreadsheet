@@ -135,7 +135,7 @@ describe("Clear columns", () => {
     clearColumns(["B", "C"]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(3);
+    expect(model.getters.getCells(model.getters.getActiveSheetId())).toHaveLength(3);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
@@ -186,7 +186,7 @@ describe("Clear rows", () => {
     clearRows([1, 2]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(3);
+    expect(model.getters.getCells(model.getters.getActiveSheetId())).toHaveLength(3);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCellStyle(model, "A2")).toMatchObject(style);
     expect(getBorder(model, "A2")).toEqual(border);

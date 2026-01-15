@@ -191,9 +191,7 @@ export class Evaluator {
     this.formulaDependencies = lazy(() => {
       const rTreeItems: RTreeItem<BoundedRange>[] = [];
       for (const sheetId of this.getters.getSheetIds()) {
-        const cells = this.getters.getCells(sheetId);
-        for (const cellId in cells) {
-          const cell = cells[cellId];
+        for (const cell of this.getters.getCells(sheetId)) {
           if (cell.isFormula) {
             const directDependencies = cell.compiledFormula.dependencies;
             for (const range of directDependencies) {

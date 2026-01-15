@@ -34,9 +34,7 @@ export class SettingsPlugin extends CorePlugin {
 
   private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
     for (const sheetId of this.getters.getSheetIds()) {
-      const cells = this.getters.getCells(sheetId);
-      for (const cellId in cells) {
-        const cell = cells[cellId];
+      for (const cell of this.getters.getCells(sheetId)) {
         let formatToApply: Format | undefined;
         if (cell.format === oldLocale.dateFormat) {
           formatToApply = newLocale.dateFormat;

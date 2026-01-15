@@ -43,7 +43,7 @@ import { createModelFromGrid, makeTestEnv, target } from "../test_helpers/helper
 
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
-  for (const cell of Object.values(model.getters.getCells(sheetId))) {
+  for (const cell of model.getters.getCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {
       ...cell,

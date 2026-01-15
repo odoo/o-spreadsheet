@@ -37,7 +37,7 @@ import {
 } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
-  return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
+  return model.getters.getCells(model.getters.getActiveSheetId()).map((cell) => {
     const { col, row } = model.getters.getCellPosition(cell.id);
     return toXC(col, row);
   });
