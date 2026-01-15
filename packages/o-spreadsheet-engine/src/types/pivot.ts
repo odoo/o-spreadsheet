@@ -154,6 +154,11 @@ export interface PivotHeaderCell {
   dimension: Dimension;
 }
 
+export interface PivotGroupNameCell {
+  type: "ROW_GROUP_NAME";
+  groupByIndex: number;
+}
+
 export interface PivotMeasureHeaderCell {
   type: "MEASURE_HEADER";
   domain: PivotDomain;
@@ -172,6 +177,7 @@ export interface PivotEmptyCell {
 
 export type PivotTableCell =
   | PivotHeaderCell
+  | PivotGroupNameCell
   | PivotMeasureHeaderCell
   | PivotValueCell
   | PivotEmptyCell;
@@ -249,4 +255,5 @@ export interface PivotStyle {
   bandedRows?: boolean;
   bandedColumns?: boolean;
   hasFilters?: boolean;
+  tabularForm?: boolean;
 }

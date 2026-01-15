@@ -910,6 +910,10 @@ export const PIVOT = {
       "include_measure_titles (boolean, default=TRUE)",
       _t("Whether to include the measure titles row or not.")
     ),
+    arg(
+      "tabular_form (boolean, default=FALSE)",
+      _t("Whether to display the pivot in a tabular form.")
+    ),
   ],
   compute: function (
     pivotFormulaId: Maybe<FunctionResultObject>,
@@ -917,7 +921,8 @@ export const PIVOT = {
     includeTotal: Maybe<FunctionResultObject>,
     includeColumnHeaders: Maybe<FunctionResultObject>,
     columnCount: Maybe<FunctionResultObject>,
-    includeMeasureTitles: Maybe<FunctionResultObject>
+    includeMeasureTitles: Maybe<FunctionResultObject>,
+    tabularForm: Maybe<FunctionResultObject>
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
@@ -931,6 +936,7 @@ export const PIVOT = {
       includeColumnHeaders,
       columnCount,
       includeMeasureTitles,
+      tabularForm,
       this.locale
     );
 
@@ -984,10 +990,16 @@ export const PIVOT = {
           case "VALUE":
             result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
             break;
+          case "ROW_GROUP_NAME":
+            result[col].push(pivot.getPivotRowGroupName(pivotCell.groupByIndex));
+            break;
         }
       }
     }
-    if (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) {
+    if (
+      (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) &&
+      cells[0][0].type === "EMPTY"
+    ) {
       result[0][0] = { value: pivotTitle };
     }
     return result;
