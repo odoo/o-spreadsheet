@@ -307,7 +307,7 @@ export function getPieChartData(
   labelRange: Range | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getSpecialChartLabelValues(getters, dataSets, labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
@@ -400,7 +400,7 @@ export function getFunnelChartData(
   labelRange: Range | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getSpecialChartLabelValues(getters, dataSets, labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
@@ -974,7 +974,29 @@ function getChartLabelValues(
   dataSets: DataSet[],
   labelRange?: Range
 ): LabelValues {
-  let labels: LabelValues = { values: [], formattedValues: [] };
+  return getLabels(getters, dataSets, labelRange, (len) => ({
+    values: [],
+    formattedValues: range(0, len).map((r) => r.toString()),
+  }));
+}
+
+function getSpecialChartLabelValues(
+  getters: Getters,
+  dataSets: DataSet[],
+  labelRange?: Range
+): LabelValues {
+  return getLabels(getters, dataSets, labelRange, (len) => ({
+    values: Array(len).fill(""),
+    formattedValues: Array(len).fill(""),
+  }));
+}
+
+function getLabels(
+  getters: Getters,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  fallbackGenerator: (length: number) => LabelValues
+): LabelValues {
   if (labelRange) {
     const { left } = labelRange.zone;
     if (
@@ -982,33 +1004,17 @@ function getChartLabelValues(
       !labelRange.invalidSheetName &&
       !getters.isColHidden(labelRange.sheetId, left)
     ) {
-      labels = {
+      return {
         formattedValues: getters.getRangeFormattedValues(labelRange),
         values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
       };
-    } else if (dataSets[0]) {
-      const ranges = getData(getters, dataSets[0]);
-      labels = {
-        formattedValues: range(0, ranges.length).map((r) => r.toString()),
-        values: labels.formattedValues,
-      };
-    }
-  } else if (dataSets.length === 1) {
-    const dataLength = getData(getters, dataSets[0]).length;
-    for (let i = 0; i < dataLength; i++) {
-      labels.formattedValues.push("");
-      labels.values.push("");
-    }
-  } else {
-    if (dataSets[0]) {
-      const ranges = getData(getters, dataSets[0]);
-      labels = {
-        formattedValues: range(0, ranges.length).map((r) => r.toString()),
-        values: labels.formattedValues,
-      };
     }
   }
-  return labels;
+  if (dataSets[0]) {
+    const dataLength = getData(getters, dataSets[0]).length;
+    return fallbackGenerator(dataLength);
+  }
+  return { values: [], formattedValues: [] };
 }
 
 /**

@@ -4,6 +4,7 @@ import { CommonChartDefinition } from "./common_chart";
 
 export interface PieChartDefinition extends CommonChartDefinition {
   readonly type: "pie";
+  readonly slicesColors?: string[];
   readonly aggregated?: boolean;
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;

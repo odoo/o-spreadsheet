@@ -1826,11 +1826,11 @@ describe("Chart without labels", () => {
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
   });
 
-  test("Labels are empty if there is only one dataSet and no label", () => {
+  test("Labels are generated if there is no label", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     createChart(model, defaultChart, "42");
-    expect(getChartConfiguration(model, "42").data?.labels).toEqual(["", ""]);
+    expect(getChartConfiguration(model, "42").data?.labels).toEqual(["0", "1"]);
 
     createChart(
       model,
