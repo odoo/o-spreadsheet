@@ -83,6 +83,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   protected animationStore: Store<ChartAnimationStore> | undefined;
 
   private currentDevicePixelRatio = window.devicePixelRatio;
+  private currentZoomLevel = this.env.model.getters.getViewportZoomLevel();
 
   get background(): string {
     return this.chartRuntime.background;
@@ -113,6 +114,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     });
     onWillUnmount(this.unmount.bind(this));
     useEffect(() => {
+      // @ts-ignore
+      window.truc = this.chart;
       const runtime = this.chartRuntime;
       if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
@@ -123,8 +126,15 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
         }
         this.currentRuntime = runtime;
       } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
-        this.currentDevicePixelRatio = window.devicePixelRatio;
         this.updateChartJs(deepCopy(this.currentRuntime));
+        this.currentDevicePixelRatio = window.devicePixelRatio;
+        // @ts-ignore
+        this.chart.currentDevicePixelRatio = window.devicePixelRatio * this.currentZoomLevel;
+      }
+      this.currentZoomLevel = this.env.model.getters.getViewportZoomLevel();
+      // @ts-ignore
+      this.chart.currentDevicePixelRatio = window.devicePixelRatio * this.currentZoomLevel;
+      if (this.chart && this.currentZoomLevel !== this.env.model.getters.getViewportZoomLevel()) {
       }
     });
   }
@@ -138,10 +148,13 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
+    console.log("Creating Chart.js chart");
     if (!globalThis.Chart) {
       throw new Error("Chart.js library is not loaded");
     }
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
+    // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    // chartData.options.devicePixelRatio = window.devicePixelRatio * zoomLevel;
     if (this.shouldAnimate && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
@@ -152,11 +165,17 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
+    chartData.options.devicePixelRatio = window.devicePixelRatio;
     this.chart = new globalThis.Chart(ctx, chartData);
+    // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    // @ts-ignore
+    // this.chart.currentDevicePixelRatio = window.devicePixelRatio * zoomLevel;
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
+    // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    // chartData.options.devicePixelRatio = window.devicePixelRatio * zoomLevel;
     if (this.shouldAnimate) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
@@ -173,8 +192,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.chart!.data.datasets = [];
     }
+    chartData.options.devicePixelRatio = window.devicePixelRatio;
     this.chart!.config.options = chartData.options;
+
+    // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    // @ts-ignore
+    // this.chart.currentDevicePixelRatio = window.devicePixelRatio * zoomLevel;
     this.chart!.update();
+    console.log("Chart updated ", this.chart!.currentDevicePixelRatio);
   }
 
   private hasChartDataChanged() {
