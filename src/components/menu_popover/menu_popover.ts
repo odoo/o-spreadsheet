@@ -9,14 +9,17 @@ import {
   Component,
   onWillUnmount,
   onWillUpdateProps,
+  useEffect,
   useExternalListener,
   useRef,
   useState,
 } from "@odoo/owl";
-import { Action } from "../../actions/action";
+import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
+import { Store, useStore } from "../../store_engine";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import {
+  getBoundingRectAsPOJO,
   getOpenedMenus,
   getRefBoundingRect,
   isChildEvent,
@@ -24,6 +27,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useTimeOut } from "../helpers/time_hooks";
 import { Menu, MenuProps } from "../menu/menu";
+import { MenuNavigationStore } from "../menu/menu_navigation_store";
 import { Popover, PopoverProps } from "../popover/popover";
 
 //------------------------------------------------------------------------------
@@ -43,6 +47,8 @@ interface Props {
   menuId?: UID;
   onMouseOver?: () => void;
   width?: number;
+  autoSelectFirstItem?: boolean;
+  autoFocus?: boolean;
 }
 
 export interface MenuState {
@@ -52,6 +58,11 @@ export interface MenuState {
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;
+  autoSelectFirstItem?: boolean;
+}
+
+interface State {
+  hoveredMenu?: Action;
 }
 
 export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
@@ -67,12 +78,15 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     menuId: { type: String, optional: true },
     onMouseOver: { type: Function, optional: true },
     width: { type: Number, optional: true },
+    autoSelectFirstItem: { type: Boolean, optional: true },
+    autoFocus: { type: Boolean, optional: true },
   };
 
   static components = { MenuPopover, Menu, Popover };
   static defaultProps = {
-    depth: 1,
+    depth: 0,
     popoverPositioning: "top-right",
+    autoFocus: true,
   };
   private subMenu: MenuState = useState({
     isOpen: false,
@@ -81,12 +95,33 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     menuItems: [],
     isHoveringChild: false,
   });
+  private state: State = useState({
+    hoveredMenu: this.props.autoSelectFirstItem ? this.props.menuItems[0] : undefined,
+  });
   private menuRef = useRef("menu");
-  private hoveredMenu: Action | undefined = undefined;
 
   private openingTimeOut = useTimeOut();
 
+  private menuNavigationStore!: Store<MenuNavigationStore>;
+
   setup() {
+    this.menuNavigationStore = useStore(MenuNavigationStore);
+    if (this.navigationMenuId) {
+      this.menuNavigationStore.registerMenu(
+        this.navigationMenuId,
+        this.props.depth || 0,
+        this.navigateMenu.bind(this)
+      );
+    }
+    onWillUnmount(() => {
+      this.menuNavigationStore.unregisterMenu(this.navigationMenuId);
+    });
+    useEffect(() => {
+      if (this.props.autoFocus) {
+        this.menuRef.el?.focus();
+      }
+    });
+
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
     useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps: Props) => {
@@ -95,22 +130,26 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     onWillUnmount(() => {
-      this.hoveredMenu?.onStopHover?.(this.env);
+      this.state.hoveredMenu?.onStopHover?.(this.env);
     });
   }
 
   get menuProps(): MenuProps {
     return {
-      menuItems: this.props.menuItems,
+      menuItems: this.menuItems,
       onClose: this.close.bind(this),
       // @ts-ignore
       onClickMenu: this.onClickMenu.bind(this),
-      onMouseOver: this.onMouseOver.bind(this),
+      onMouseEnter: this.onMenuItemMouseEnter.bind(this),
       onMouseLeave: this.onMouseLeave.bind(this),
       width: this.props.width || MENU_WIDTH,
       isActive: this.isActive.bind(this),
       onScroll: this.onScroll.bind(this),
     };
+  }
+
+  get menuItems() {
+    return getMenuItemsAndSeparators(this.env, this.props.menuItems);
   }
 
   get subMenuAnchorRect(): Rect {
@@ -120,7 +159,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get popoverProps(): PopoverProps {
-    const isRoot = this.props.depth === 1;
+    const isRoot = this.props.depth === 0;
     return {
       anchorRect: {
         x: this.props.anchorRect.x,
@@ -188,15 +227,11 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     return !menu.execute;
   }
 
-  isEnabled(menu: Action) {
-    if (menu.isEnabled(this.env)) {
-      return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
-    }
-    return false;
-  }
-
   isActive(menuItem: Action): boolean {
-    return (this.subMenu?.isHoveringChild || false) && this.isParentMenu(this.subMenu, menuItem);
+    return (
+      ((this.subMenu?.isHoveringChild || false) && this.isParentMenu(this.subMenu, menuItem)) ||
+      this.state.hoveredMenu?.id === menuItem.id
+    );
   }
 
   onScroll(ev) {
@@ -207,12 +242,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  private openSubMenu(menu: Action, parentMenuEl: HTMLElement) {
-    if (!parentMenuEl) {
-      return;
-    }
-    const y = parentMenuEl.getBoundingClientRect().top;
-
+  private openSubMenu(menu: Action, y: number, autoSelectFirstItem = false) {
     this.subMenu.anchorRect = {
       x: getRefBoundingRect(this.menuRef).x,
       y: y - (this.subMenu.scrollOffset || 0),
@@ -222,6 +252,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.menuItems = menu.children(this.env);
     this.subMenu.isOpen = true;
     this.subMenu.parentMenu = menu;
+    this.subMenu.autoSelectFirstItem = autoSelectFirstItem;
   }
 
   private isParentMenu(subMenu: MenuState, menuItem: Action) {
@@ -236,15 +267,25 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
+  private forceCloseSubMenu() {
+    // TODO: see if if(this.subMenu.isHoveringChild) is really needed/not buggy in closeSubMenu
+    this.subMenu.isOpen = false;
+    this.subMenu.parentMenu = undefined;
+  }
+
   onClickMenu(menu: Action, ev: MouseEvent) {
     if (this.isRoot(menu)) {
-      this.openSubMenu(menu, ev.currentTarget as HTMLElement);
+      this.openSubMenu(menu, (ev.target as HTMLElement).getBoundingClientRect().top);
     } else {
       this.activateMenu(menu, isMiddleClickOrCtrlClick(ev));
     }
   }
 
-  onMouseOver(menu: Action, ev: MouseEvent) {
+  onMenuItemMouseEnter(menu: Action, ev: MouseEvent) {
+    console.log("MenuPopover onMouseOver", menu.id);
+    this.state.hoveredMenu = menu;
+    menu.onStartHover?.(this.env);
+
     if (this.isParentMenu(this.subMenu, menu)) {
       this.openingTimeOut.clear();
       return;
@@ -252,7 +293,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     const currentTarget = ev.currentTarget as HTMLElement;
     if (this.isRoot(menu)) {
       this.openingTimeOut.schedule(() => {
-        this.openSubMenu(menu, currentTarget);
+        this.openSubMenu(menu, currentTarget.getBoundingClientRect().top);
       }, TIMEOUT_DELAY);
     }
   }
@@ -268,10 +309,119 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseLeave(menu: Action) {
+    this.state.hoveredMenu = undefined;
+    menu.onStopHover?.(this.env);
+
     this.openingTimeOut.schedule(this.closeSubMenu.bind(this), TIMEOUT_DELAY);
   }
 
   get menuStyle() {
     return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
+  }
+
+  onKeydown(ev: KeyboardEvent) {
+    console.log("menu popover onkeydown", ev.key);
+    if (this.menuNavigationStore.handledKeys.includes(ev.key)) {
+      this.menuNavigationStore.onNavigationKey(ev.key);
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+  }
+
+  private navigateMenu(key: string): "eventHandled" | "notHandled" {
+    console.log("Navigate menu popover:", this.navigationMenuId, key);
+    switch (key) {
+      case "Enter":
+        if (this.state.hoveredMenu && this.isRoot(this.state.hoveredMenu)) {
+          const rect = this.getMenuItemRect(this.state.hoveredMenu.id);
+          if (rect) {
+            this.openSubMenu(this.state.hoveredMenu, rect.y, true);
+            return "eventHandled";
+          }
+        } else if (this.state.hoveredMenu && isMenuItemEnabled(this.env, this.state.hoveredMenu)) {
+          this.activateMenu(this.state.hoveredMenu);
+          return "eventHandled";
+        }
+        return "notHandled";
+      case "Escape":
+        if (this.subMenu.isOpen) {
+          this.forceCloseSubMenu();
+          return "eventHandled";
+        } else if (this.props.depth === 0) {
+          this.close();
+          return "eventHandled";
+        }
+        return "notHandled";
+      case "ArrowLeft":
+        if (this.subMenu.isOpen) {
+          this.forceCloseSubMenu();
+          return "eventHandled";
+        }
+        return "notHandled";
+      case "ArrowDown": {
+        this.state.hoveredMenu = this.getNextEnabledMenuItem();
+        return "eventHandled";
+      }
+      case "ArrowUp": {
+        this.state.hoveredMenu = this.getPreviousEnabledMenuItem();
+        return "eventHandled";
+      }
+      case "ArrowRight": {
+        if (
+          this.state.hoveredMenu &&
+          this.isRoot(this.state.hoveredMenu) &&
+          this.subMenu.parentMenu?.id !== this.state.hoveredMenu.id
+        ) {
+          const rect = this.getMenuItemRect(this.state.hoveredMenu.id);
+          if (rect) {
+            this.openSubMenu(this.state.hoveredMenu, rect.y, true);
+          }
+          return "eventHandled";
+        }
+        return "notHandled";
+      }
+    }
+
+    return "notHandled";
+  }
+
+  get navigationMenuId() {
+    return (this.props.menuId || "menu-popover") + this.props.depth;
+  }
+
+  private getMenuItemRect(menuItemId: UID): Rect | undefined {
+    const menuEl = this.menuRef.el?.querySelector<HTMLElement>(`[data-name="${menuItemId}"]`);
+    return menuEl ? getBoundingRectAsPOJO(menuEl) : undefined;
+  }
+
+  getNextEnabledMenuItem(): Action | undefined {
+    const menuItems = this.menuItems.filter((i) => i !== "separator");
+    const start = menuItems.findIndex((i) => i.id === this.state.hoveredMenu?.id);
+
+    for (let offset = 1; offset <= menuItems.length; offset++) {
+      const item = menuItems[(start + offset) % menuItems.length];
+      if (isMenuItemEnabled(this.env, item)) {
+        return item;
+      }
+    }
+
+    return undefined;
+  }
+
+  getPreviousEnabledMenuItem(): Action | undefined {
+    const menuItems = this.menuItems.filter((i) => i !== "separator");
+    let start = menuItems.findIndex((i) => i.id === this.state.hoveredMenu?.id);
+    if (start === -1) {
+      start = menuItems.length;
+    }
+
+    for (let offset = 1; offset <= menuItems.length; offset++) {
+      const item = menuItems[(start - offset + menuItems.length) % menuItems.length];
+      if (isMenuItemEnabled(this.env, item)) {
+        return item;
+      }
+    }
+
+    return undefined;
   }
 }

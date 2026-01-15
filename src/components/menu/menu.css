@@ -13,7 +13,6 @@
         );
       }
       & {
-        &:hover,
         &.o-menu-item-active {
           background-color: var(--os-button-active-bg);
           color: var(--os-button-active-text-color);
