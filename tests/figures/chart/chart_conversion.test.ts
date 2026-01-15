@@ -55,22 +55,57 @@ describe("chart conversion", () => {
     expect(spy).toHaveBeenCalledWith("Chart.js library is not loaded");
   });
 
-  test("cannot export if the chart type is not supported", async () => {
-    globalThis.Chart!.registry.controllers.get = (controllerName: string) => undefined;
-    const spy = jest.spyOn(console, "log").mockImplementation(() => {});
-
+  test("export uses Chart.js type from runtime config, not the UI chart type", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
+
+    createChart(model, TEST_CHART_DATA.waterfall, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
-    const runtime = model.getters.getChartRuntime(chartId);
+    const runtime = model.getters.getChartRuntime(chartId) as any;
+    expect(runtime.chartJsConfig.type).toBe("bar");
 
-    const imageUrl = await chartToImageUrl(runtime, figure, "bar");
+    const registrySpy = jest.spyOn(globalThis.Chart!.registry.controllers, "get");
+
+    const imageUrl = await chartToImageUrl(runtime, figure, "waterfall");
+    expect(imageUrl).toBe("data:image/png;base64,");
+    expect(registrySpy).toHaveBeenCalledWith("bar");
+    expect(registrySpy).not.toHaveBeenCalledWith("waterfall");
+
+    const imageFile = await chartToImageFile(runtime, figure, "waterfall");
+    expect(imageFile).toBeInstanceOf(Blob);
+    expect(registrySpy).toHaveBeenCalledWith("bar");
+    expect(registrySpy).not.toHaveBeenCalledWith("waterfall");
+  });
+
+  test("cannot export if the chart runtime config type is not supported", async () => {
+    globalThis.Chart!.registry.controllers.get = (type: string) => {
+      return type === "bar" ? {} : (undefined as any);
+    };
+    const spy = jest.spyOn(console, "log").mockImplementation(() => {});
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    createChart(model, TEST_CHART_DATA.waterfall, chartId, undefined, { figureId });
+    const figure = model.getters.getFigure(sheetId, figureId)!;
+    const originalRuntime = model.getters.getChartRuntime(chartId) as any;
+    const runtime = {
+      ...originalRuntime,
+      chartJsConfig: {
+        ...originalRuntime.chartJsConfig,
+        type: "waterfall",
+      },
+    };
+
+    const imageUrl = await chartToImageUrl(runtime, figure, "waterfall");
     expect(imageUrl).toBeUndefined();
-    expect(spy).toHaveBeenCalledWith('Chart of type "bar" is not registered in Chart.js library.');
+    expect(spy).toHaveBeenCalledWith(
+      'Chart of type "waterfall" is not registered in Chart.js library.'
+    );
 
-    const imageFile = await chartToImageFile(runtime, figure, "bar");
+    const imageFile = await chartToImageFile(runtime, figure, "waterfall");
     expect(imageFile).toBeNull();
-    expect(spy).toHaveBeenCalledWith('Chart of type "bar" is not registered in Chart.js library.');
+    expect(spy).toHaveBeenCalledWith(
+      'Chart of type "waterfall" is not registered in Chart.js library.'
+    );
   });
 });
