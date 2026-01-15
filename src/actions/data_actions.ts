@@ -70,6 +70,13 @@ export const splitToColumns: ActionSpec = {
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
 
+export const columnStatistics: ActionSpec = {
+  name: _t("Column statistics"),
+  execute: (env) => env.openSidePanel("ColumnStats", {}),
+  isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
+  icon: "o-spreadsheet-Icon.COLUMN_STATS",
+};
+
 export const reinsertDynamicPivotMenu: ActionSpec = {
   id: "reinsert_dynamic_pivot",
   name: _t("Re-insert dynamic pivot"),
