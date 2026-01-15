@@ -434,7 +434,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (content !== "" || origin.cell?.format || origin.cell?.style) {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        content,
+        content: content ?? "",
         style: origin.cell?.style || null,
         format: origin.cell?.format,
       });
