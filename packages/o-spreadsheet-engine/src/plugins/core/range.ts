@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/compiler";
+import { BananaCompiledFormula, compile } from "../../formulas/compiler";
 import { rangeReference, splitReference } from "../../helpers";
 import {
   createInvalidRange,
@@ -212,7 +212,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   /**
    * Gets the string that represents the range as it is at the moment of the call.
    * The string will be prefixed with the sheet name if the call specified a sheet id in `forSheetId`
-   * different than the sheet on which the range has been created.
+   * different from the sheet on which the range has been created.
    *
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
@@ -320,13 +320,17 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return formula;
     }
 
-    const compiledFormula = compile(formula);
+    const compiledFormula = compile(formula, sheetId);
     const updatedDependencies = compiledFormula.dependencies.map((dep) => {
       const range = this.getters.getRangeFromSheetXC(sheetId, dep);
       const changedRange = applyChange(range);
       return changedRange.changeType === "NONE" ? range : changedRange.range;
     });
-    return this.getters.getFormulaString(sheetId, compiledFormula.tokens, updatedDependencies);
+    return BananaCompiledFormula.CopyWithDependencies(
+      compiledFormula,
+      sheetId,
+      updatedDependencies
+    ).toFormulaString(this.getters);
   }
 
   /**
@@ -346,13 +350,17 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return formula;
     }
 
-    const compiledFormula = compile(formula);
+    const compiledFormula = compile(formula, sheetIdFrom);
     const updatedDependencies = compiledFormula.dependencies.map((dep) => {
       const range = this.getters.getRangeFromSheetXC(sheetIdFrom, dep);
       return mode === "keepSameReference"
         ? range
         : duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range);
     });
-    return this.getters.getFormulaString(sheetIdTo, compiledFormula.tokens, updatedDependencies);
+    return BananaCompiledFormula.CopyWithDependencies(
+      compiledFormula,
+      sheetIdTo,
+      updatedDependencies
+    ).toFormulaString(this.getters);
   }
 }

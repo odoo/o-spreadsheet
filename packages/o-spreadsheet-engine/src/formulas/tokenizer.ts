@@ -49,7 +49,7 @@ type TokenType =
 
 export interface Token {
   readonly type: TokenType;
-  readonly value: string;
+  value: string;
 }
 
 export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
@@ -155,7 +155,11 @@ function tokenizeOperator(chars: TokenizingChars): Token | null {
 
 const FIRST_POSSIBLE_NUMBER_CHARS = new Set("0123456789");
 
-function tokenizeNumber(chars: TokenizingChars, locale: Locale): Token | null {
+function tokenizeNumber(
+  chars: TokenizingChars,
+  locale: Locale,
+  numberIndex: number = 0
+): Token | null {
   if (
     !FIRST_POSSIBLE_NUMBER_CHARS.has(chars.current) &&
     chars.current !== locale.decimalSeparator
@@ -291,7 +295,10 @@ function tokenizeNewLine(chars: TokenizingChars): Token | null {
 function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
   if (chars.currentStartsWith(CellErrorType.InvalidReference)) {
     chars.advanceBy(CellErrorType.InvalidReference.length);
-    return { type: "INVALID_REFERENCE", value: CellErrorType.InvalidReference };
+    return {
+      type: "INVALID_REFERENCE",
+      value: CellErrorType.InvalidReference,
+    };
   }
   return null;
 }

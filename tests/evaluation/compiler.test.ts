@@ -1,11 +1,11 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { compile, functionCache, Model } from "../../src";
 
+import { BananaCompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { createValidRange } from "../../src/helpers";
-import { CompiledFormula } from "../../src/types";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
-function compiledBaseFunction(formula: string): CompiledFormula {
+function compiledBaseFunction(formula: string): BananaCompiledFormula {
   for (const f in functionCache) {
     delete functionCache[f];
   }
@@ -13,7 +13,7 @@ function compiledBaseFunction(formula: string): CompiledFormula {
 }
 
 function compileFromCompleteFormula(formula: string) {
-  return compile(formula);
+  return compile(formula, "no_sheet");
 }
 
 describe("expression compiler", () => {
@@ -355,10 +355,10 @@ describe("compile functions", () => {
   test("function cache ignore spaces in functions", () => {
     compiledBaseFunction("=SUM(A1)");
     expect(Object.keys(functionCache)).toEqual(["=SUM(|C|)"]);
-    compile("= SUM(A1)");
-    compile("=SUM( A1)");
-    compile("= SUM(A1 )");
-    compile("= SUM   (    A1    )");
+    compile("= SUM(A1)", "no_sheet");
+    compile("=SUM( A1)", "no_sheet");
+    compile("= SUM(A1 )", "no_sheet");
+    compile("= SUM   (    A1    )", "no_sheet");
     expect(Object.keys(functionCache)).toEqual(["=SUM(|C|)"]);
   });
 

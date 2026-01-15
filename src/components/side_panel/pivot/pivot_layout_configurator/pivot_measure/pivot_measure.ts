@@ -104,6 +104,6 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   get isCalculatedMeasureInvalid(): boolean {
-    return compile(this.props.measure.computedBy?.formula ?? "").isBadExpression;
+    return compile(this.props.measure.computedBy?.formula ?? "", "no_sheet").isBadExpression;
   }
 }

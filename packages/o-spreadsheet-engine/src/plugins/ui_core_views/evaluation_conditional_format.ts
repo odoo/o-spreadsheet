@@ -111,9 +111,18 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           }
           break;
         case "CellIsRule":
-          const formulas = cf.rule.values.map((value) =>
-            value.startsWith("=") ? compile(value) : undefined
-          );
+          const formulas = cf.rule.values.map((value) => {
+            if (value.startsWith("=")) {
+              const compilationResult = compile(value, sheetId);
+              compilationResult.convertXCDependenciesToRange(
+                this.getters.getRangeFromSheetXC,
+                sheetId
+              );
+              return compilationResult;
+            } else {
+              return undefined;
+            }
+          });
           const evaluator = criterionEvaluatorRegistry.get(cf.rule.operator);
           const criterion = { ...cf.rule, type: cf.rule.operator };
           const ranges = cf.ranges.map((xc) => this.getters.getRangeFromSheetXC(sheetId, xc));
@@ -134,7 +143,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                       sheetId,
                       col - zone.left,
                       row - zone.top,
-                      compiledFormula.tokens
+                      compiledFormula
                     );
                   }
                   return value;

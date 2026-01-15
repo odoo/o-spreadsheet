@@ -355,7 +355,9 @@ export class DataValidationPlugin
         return true;
       }
       if (value.startsWith("=")) {
-        return evaluator.allowedValues === "onlyLiterals" || compile(value).isBadExpression;
+        return (
+          evaluator.allowedValues === "onlyLiterals" || compile(value, "no_sheet").isBadExpression
+        );
       }
       return !evaluator.isCriterionValueValid(value);
     };

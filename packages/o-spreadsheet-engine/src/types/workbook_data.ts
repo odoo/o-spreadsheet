@@ -1,4 +1,5 @@
 import { ZoneBorderData } from "../plugins/core/borders";
+import { SquishedCell } from "../plugins/core/squisher";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
@@ -47,7 +48,7 @@ export interface SheetData {
   name: string;
   colNumber: number;
   rowNumber: number;
-  cells: { [key: string]: string | undefined };
+  cells: { [key: string]: string | undefined | SquishedCell };
   styles: { [zone: string]: number };
   formats: { [zone: string]: number };
   borders: { [zone: string]: number };

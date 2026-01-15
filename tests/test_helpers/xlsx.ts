@@ -1,3 +1,4 @@
+import { SquishedCell } from "@odoo/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/plugins/core/squisher";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import {
   DataValidationRuleData,
@@ -11,7 +12,11 @@ export function getWorkbookSheet(sheetName: string, data: WorkbookData): SheetDa
   return data.sheets.find((sheet) => isSheetNameEqual(sheet.name, sheetName));
 }
 
-export function getWorkbookCell(col: number, row: number, sheet: SheetData): string | undefined {
+export function getWorkbookCell(
+  col: number,
+  row: number,
+  sheet: SheetData
+): string | undefined | SquishedCell {
   return sheet.cells[toXC(col, row)];
 }
 

@@ -49,7 +49,7 @@ export class CorePlugin<State = any>
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {}
-  export(data: WorkbookData) {}
+  export(data: WorkbookData, shouldSquish: boolean) {}
 
   /**
    * This method can be implemented in any plugin, to loop over the plugin's data structure and adapt the plugin's ranges.

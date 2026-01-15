@@ -552,12 +552,19 @@ export function getRangeCellsAsMatrix(
   return rangeValue;
 }
 
-export function createModelFromGrid(grid: GridDescr): Model {
+export function createModelFromGrid(grid: GridDescr, addExtraSheet = false): Model {
   const model = new Model();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
     }
+  }
+  if (addExtraSheet) {
+    model.dispatch("CREATE_SHEET", {
+      position: 2,
+      name: "Sheet2",
+      sheetId: "Sheet2",
+    });
   }
   return model;
 }

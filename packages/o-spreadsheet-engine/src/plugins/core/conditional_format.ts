@@ -546,7 +546,7 @@ export class ConditionalFormatPlugin
     if (threshold.type !== "formula") {
       return CommandResult.Success;
     }
-    const compiledFormula = compile(threshold.value || "");
+    const compiledFormula = compile(threshold.value || "", "no_sheet");
     if (compiledFormula.isBadExpression) {
       switch (thresholdName) {
         case "min":
@@ -638,7 +638,7 @@ export class ConditionalFormatPlugin
       if (!value.startsWith("=")) {
         continue;
       }
-      const compiledFormula = compile(value || "");
+      const compiledFormula = compile(value || "", "no_sheet");
       if (compiledFormula.isBadExpression) {
         return CommandResult.ValueCellIsInvalidFormula;
       }
