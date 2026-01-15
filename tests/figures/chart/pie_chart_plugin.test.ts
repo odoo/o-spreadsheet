@@ -28,6 +28,7 @@ describe("pie chart", () => {
       pieHolePercentage: 0,
       showValues: false,
       humanize: false,
+      slicesColors: [],
     });
   });
 
