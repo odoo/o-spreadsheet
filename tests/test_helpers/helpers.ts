@@ -999,7 +999,7 @@ interface CellObject {
 
 export function getCellsObject(model: Model, sheetId: UID): Record<string, CellObject> {
   const cells: Record<string, CellObject> = {};
-  for (const cell of Object.values(model.getters.getCells(sheetId))) {
+  for (const cell of model.getters.getCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {
       format: cell.format,

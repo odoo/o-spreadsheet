@@ -17,9 +17,7 @@ export class FormulaTrackerPlugin extends CoreViewPlugin {
           this.trackedCells[formula] = {};
         }
         for (const sheetId of this.getters.getSheetIds()) {
-          const cells = this.getters.getCells(sheetId);
-          for (const cellId in cells) {
-            const cell = cells[cellId];
+          for (const cell of this.getters.getCells(sheetId)) {
             for (const formula of trackedFormulas) {
               if (doesCellContainFunction(cell, formula)) {
                 this.history.update("trackedCells", formula, cell.id, cell.id);
