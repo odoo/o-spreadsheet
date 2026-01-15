@@ -16,5 +16,23 @@
         />
       </t>
     </GeneralDesignEditor>
+
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Pie Slice">
+      <t t-set-slot="content">
+        <select
+          class="o-input data-series-selector"
+          t-on-change="(ev) => this.updateEditedValues(ev)">
+          <t t-foreach="getLabels()" t-as="label" t-key="label_index">
+            <option t-att-value="label" t-att-selected="state.index === label_index" t-esc="label"/>
+          </t>
+        </select>
+        <Section class="'px-0'">
+          <div class="d-flex align-items-center">
+            <span class="o-section-title mb-0 pe-2">Series color</span>
+            <RoundColorPicker currentColor="getSliceColor()" onColorPicked.bind="updateSliceColor"/>
+          </div>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
   </t>
 </templates>
