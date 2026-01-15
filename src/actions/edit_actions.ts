@@ -10,6 +10,7 @@ import * as ACTIONS from "./menu_items_actions";
 export const undo: ActionSpec = {
   name: _t("Undo"),
   description: "Ctrl+Z",
+  shortcut: "Ctrl+Z",
   execute: (env) => env.model.dispatch("REQUEST_UNDO"),
   isEnabled: (env) => env.model.getters.canUndo(),
   icon: "o-spreadsheet-Icon.UNDO",
@@ -18,6 +19,7 @@ export const undo: ActionSpec = {
 export const redo: ActionSpec = {
   name: _t("Redo"),
   description: "Ctrl+Y",
+  shortcut: "Ctrl+Y",
   execute: (env) => env.model.dispatch("REQUEST_REDO"),
   isEnabled: (env) => env.model.getters.canRedo(),
   icon: "o-spreadsheet-Icon.REDO",
@@ -26,6 +28,7 @@ export const redo: ActionSpec = {
 export const copy: ActionSpec = {
   name: _t("Copy"),
   description: "Ctrl+C",
+  shortcut: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: async (env) => {
     env.model.dispatch("COPY");
@@ -37,6 +40,7 @@ export const copy: ActionSpec = {
 export const cut: ActionSpec = {
   name: _t("Cut"),
   description: "Ctrl+X",
+  shortcut: "Ctrl+X",
   execute: async (env) => {
     interactiveCut(env);
     await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
@@ -47,6 +51,7 @@ export const cut: ActionSpec = {
 export const paste: ActionSpec = {
   name: _t("Paste"),
   description: "Ctrl+V",
+  shortcut: "Ctrl+V",
   execute: ACTIONS.PASTE_ACTION,
   icon: "o-spreadsheet-Icon.PASTE",
 };
@@ -62,6 +67,7 @@ export const pasteSpecial: ActionSpec = {
 export const pasteSpecialValue: ActionSpec = {
   name: _t("Paste as value"),
   description: "Ctrl+Shift+V",
+  shortcut: "Ctrl+Shift+V",
   execute: ACTIONS.PASTE_AS_VALUE_ACTION,
 };
 
@@ -73,6 +79,7 @@ export const pasteSpecialFormat: ActionSpec = {
 export const findAndReplace: ActionSpec = {
   name: _t("Find and replace"),
   description: "Ctrl+H",
+  shortcut: "Ctrl+H",
   isReadonlyAllowed: true,
   execute: (env) => {
     env.openSidePanel("FindAndReplace", {});
