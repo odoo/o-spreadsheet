@@ -71,7 +71,7 @@ export interface CommonPivotCoreDefinition {
   columns: PivotCoreDimension[];
   rows: PivotCoreDimension[];
   measures: PivotCoreMeasure[];
-  filters: PivotCoreFilter[];
+  filters?: PivotCoreFilter[];
   name: string;
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;

@@ -125,7 +125,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   get unusedFilterFields() {
     const filterFields = Object.values(this.fields).filter((field) => field !== undefined);
     const { filters } = this.definition;
-    const currentlyUsed = filters.map((field) => field.fieldName);
+    const currentlyUsed = (filters ?? []).map((field) => field.fieldName);
     return filterFields
       .filter((field) => !currentlyUsed.includes(field.name))
       .sort((a, b) => a.string.localeCompare(b.string));
@@ -230,7 +230,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         format: measure.format,
         display: measure.display,
       })),
-      filters: definition.filters.map((filter) =>
+      filters: (definition.filters ?? []).map((filter) =>
         filter.filterType === "values"
           ? {
               fieldName: filter.fieldName,

@@ -128,7 +128,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
   removeFilter(filter: PivotFilter) {
     const { filters } = this.props.definition;
     this.props.onFiltersUpdated({
-      filters: filters.filter((f) => f.fieldName !== filter.fieldName),
+      filters: (filters ?? []).filter((f) => f.fieldName !== filter.fieldName),
     });
   }
 
@@ -143,7 +143,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
   updateFilterData(updatedCriterionValue: DataFilterValue) {
     const { filters } = this.props.definition;
     const filter = this.props.filter;
-    const updatedFilters = filters.map((f) => {
+    const updatedFilters = (filters ?? []).map((f) => {
       if (f.fieldName === filter.fieldName) {
         return {
           ...f,

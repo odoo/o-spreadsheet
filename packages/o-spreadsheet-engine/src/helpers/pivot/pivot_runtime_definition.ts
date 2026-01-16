@@ -24,7 +24,7 @@ export class PivotRuntimeDefinition {
   readonly measures: PivotMeasure[];
   readonly columns: PivotDimension[];
   readonly rows: PivotDimension[];
-  readonly filters: PivotFilter[];
+  readonly filters?: PivotFilter[];
   readonly sortedColumn?: PivotSortedColumn;
   readonly collapsedDomains?: PivotCollapsedDomains;
   readonly customFields?: Record<string, PivotCustomGroupedField>;
@@ -35,7 +35,9 @@ export class PivotRuntimeDefinition {
     );
     this.rows = definition.rows.map((dimension) => this.createPivotDimension(fields, dimension));
     this.measures = definition.measures.map((measure) => this.createMeasure(fields, measure));
-    this.filters = definition.filters.map((filter) => this.createPivotFilter(fields, filter));
+    this.filters = (definition.filters ?? []).map((filter) =>
+      this.createPivotFilter(fields, filter)
+    );
     this.sortedColumn = definition.sortedColumn;
     this.collapsedDomains = definition.collapsedDomains;
     this.customFields = definition.customFields;

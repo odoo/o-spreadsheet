@@ -191,7 +191,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         return false;
       }
     }
-    for (const filter of this.definition.filters) {
+    for (const filter of this.definition.filters ?? []) {
       if (!filter.isValid) {
         return false;
       }
@@ -391,9 +391,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (!sheetId) {
       return [];
     }
-    if (this._definition && this._definition.filters.length > 0) {
+    if (this._definition && this._definition.filters) {
       dataEntries = dataEntries.filter((dataEntry) => {
-        for (const filter of this._definition!.filters) {
+        for (const filter of this._definition!.filters!) {
           const fieldData = dataEntry[filter.fieldName];
           if (filter.filterType === "values") {
             if (fieldData && filter.hiddenValues.includes(fieldData.formattedValue)) {
