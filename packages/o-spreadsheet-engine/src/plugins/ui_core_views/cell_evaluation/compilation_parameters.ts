@@ -40,8 +40,6 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, Matrix<FunctionResultObject>> = {};
-
   constructor(
     context: ModelConfig["custom"],
     private getters: Getters,
@@ -109,16 +107,6 @@ class CompilationParametersBuilder {
       return [[]];
     }
 
-    if (this.evalContext.__originCellPosition) {
-      this.evalContext.currentFormulaDependencies?.push(range);
-    }
-
-    const { top, left, bottom, right } = zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
-    if (cacheKey in this.rangeCache) {
-      return this.rangeCache[cacheKey];
-    }
-
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
     const matrix: Matrix<FunctionResultObject> = new Array(width);
@@ -130,11 +118,10 @@ class CompilationParametersBuilder {
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
         const position = { sheetId, col, row };
-        matrix[colIndex][rowIndex] = this.computeCell(position);
+        matrix[colIndex][rowIndex] = this.getRef(position);
       }
     }
 
-    this.rangeCache[cacheKey] = matrix;
     return matrix;
   }
 
