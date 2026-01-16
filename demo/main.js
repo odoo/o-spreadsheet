@@ -123,6 +123,7 @@ class Demo extends Component {
       execute: () => (this.state.displayHeader = !this.state.displayHeader),
       icon: "o-spreadsheet-Icon.DISPLAY_HEADER",
       sequence: 1000,
+      separator: true,
     });
 
     topbarMenuRegistry.add("notify", {
