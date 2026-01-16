@@ -1,5 +1,6 @@
 import { _t, CellPosition, deepEquals, UID } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
+import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { toLowerCase } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { Cell } from "@odoo/o-spreadsheet-engine/types/cells";
@@ -82,7 +83,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getFilterHiddenValues(props: Props): Value[] {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.env.model.getters.getPivot(this.props.pivotId) as SpreadsheetPivot;
     if (pivot.type !== "SPREADSHEET") {
       throw new Error("Filters are only available on spreadsheet pivot table");
     }

@@ -37,6 +37,9 @@ describe("Spreadsheet pivot side panel", () => {
   test("can only have a filter on a field once", async () => {
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     expect(".o-autocomplete-value").toHaveCount(3);
+    expect(fixture.querySelectorAll(".o-autocomplete-value")[0].textContent).toBe("Customer");
+    expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("Date");
+    expect(fixture.querySelectorAll(".o-autocomplete-value")[2].textContent).toBe("Product");
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     expect(".o-autocomplete-value").toHaveCount(2);
@@ -117,7 +120,7 @@ describe("Spreadsheet pivot side panel", () => {
         dateValue: undefined,
       },
     ]);
-    expect(".o-pivot-filter-caption").toHaveText(`Is equal to "10"`);
+    expect(".o-pivot-filter-caption").toHaveText("Value is equal to 10");
   });
 
   test("can update the criterion of a criterion filter with date type", async () => {
