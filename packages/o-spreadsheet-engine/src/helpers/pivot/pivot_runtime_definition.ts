@@ -161,23 +161,10 @@ export class PivotRuntimeDefinition {
 
   private createPivotFilter(fields: PivotFields, filter: PivotCoreFilter): PivotFilter {
     const field = fields[filter.fieldName];
-    if (filter.filterType === "values") {
-      return {
-        fieldName: filter.fieldName,
-        displayName: field?.name ?? filter.fieldName,
-        isValid: !!field,
-        filterType: "values",
-        hiddenValues: filter.hiddenValues,
-      };
-    }
     return {
-      fieldName: filter.fieldName,
+      ...filter,
       displayName: field?.name ?? filter.fieldName,
       isValid: !!field,
-      filterType: "criterion",
-      type: filter.type,
-      values: filter.values,
-      dateValue: filter.dateValue,
     };
   }
 }

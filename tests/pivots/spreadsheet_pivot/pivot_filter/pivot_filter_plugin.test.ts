@@ -1,5 +1,3 @@
-//Testing the model
-
 import { Model } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetPivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { getEvaluatedGrid } from "../../../test_helpers";

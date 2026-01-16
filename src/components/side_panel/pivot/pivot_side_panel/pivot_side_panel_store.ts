@@ -123,17 +123,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   }
 
   get unusedFilterFields() {
-    const filterFields: PivotField[] = [];
-    const fields = this.fields;
-    for (const fieldName in fields) {
-      const field = fields[fieldName];
-      if (!field) {
-        continue;
-      }
-      if (pivotRegistry.get(this.pivot.type).isFilterCandidate(field)) {
-        filterFields.push(field);
-      }
-    }
+    const filterFields = Object.values(this.fields).filter((field) => field !== undefined);
     const { filters } = this.definition;
     const currentlyUsed = filters.map((field) => field.fieldName);
     return filterFields

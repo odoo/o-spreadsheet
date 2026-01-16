@@ -5,7 +5,6 @@ import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registrie
 import { Cell } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   PivotFilter,
-  PivotValuesFilter,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -51,6 +50,20 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
   private buttonFilter = useRef("buttonFilter");
   private popover = useState({ isOpen: false });
 
+  setup() {
+    useExternalListener(window, "click", (ev) => {
+      if (ev.target !== this.buttonFilter.el) {
+        this.popover.isOpen = false;
+      }
+    });
+    onWillUpdateProps((nextProps: Props) => {
+      if (!deepEquals(nextProps.definition, this.props.definition)) {
+        this.state.values = this.getFilterHiddenValues(nextProps);
+      }
+    });
+    this.state.values = this.getFilterHiddenValues(this.props);
+  }
+
   filterCaption() {
     if (this.props.filter.filterType === "criterion") {
       const evaluator = criterionEvaluatorRegistry.get(this.props.filter.type);
@@ -66,25 +79,6 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
     } else {
       return _t("showing %s items", numberOfShownValues);
     }
-  }
-
-  setup() {
-    useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonFilter.el) {
-        this.popover.isOpen = false;
-      }
-    });
-    onWillUpdateProps((nextProps: Props) => {
-      if (!deepEquals(nextProps.definition, this.props.definition)) {
-        const nextPosition = this.filterPosition(nextProps.filter);
-        if (nextPosition) {
-          this.state.values = this.getFilterHiddenValues(nextProps);
-        } else {
-          this.props.filter.isValid = false;
-        }
-      }
-    });
-    this.state.values = this.getFilterHiddenValues(this.props);
   }
 
   private getFilterHiddenValues(props: Props): Value[] {
@@ -105,7 +99,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
           checked:
             props.filter.filterType === "criterion"
               ? true
-              : !(props.filter as PivotValuesFilter).hiddenValues.includes(value),
+              : !props.filter.hiddenValues.includes(value),
           normalizedValue,
         });
         set.add(normalizedValue);
@@ -129,25 +123,6 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
 
   getCell(position: CellPosition): Cell | undefined {
     return this.env.model.getters.getCell(position);
-  }
-
-  filterPosition(filter: PivotFilter): CellPosition | undefined {
-    if (!this.props.definition.range) {
-      throw new Error("No range defined for the pivot");
-    }
-    const zone = this.props.definition.range?.zone;
-    const sheetId = this.props.definition.range?.sheetId as UID;
-    for (let col = zone.left; col <= zone.right; col++) {
-      const position = { sheetId, row: zone.top, col };
-      const cell = this.getCell(position);
-      if (cell) {
-        const content = cell.content;
-        if (content === filter.displayName) {
-          return { sheetId, col, row: zone.top };
-        }
-      }
-    }
-    return;
   }
 
   removeFilter(filter: PivotFilter) {

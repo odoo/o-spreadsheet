@@ -394,9 +394,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (this._definition && this._definition.filters.length > 0) {
       dataEntries = dataEntries.filter((dataEntry) => {
         for (const filter of this._definition!.filters) {
-          const temp = dataEntry[filter.fieldName];
+          const fieldData = dataEntry[filter.fieldName];
           if (filter.filterType === "values") {
-            if (temp && filter.hiddenValues.includes(temp.formattedValue)) {
+            if (fieldData && filter.hiddenValues.includes(fieldData.formattedValue)) {
               return false;
             }
           } else {
@@ -418,8 +418,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
               dateValue: filter.dateValue,
             };
             if (
-              temp &&
-              !evaluator.isValueValid(temp.value, evaluatedCriterion, this.getters, sheetId)
+              fieldData &&
+              !evaluator.isValueValid(fieldData.value, evaluatedCriterion, this.getters, sheetId)
             ) {
               return false;
             }

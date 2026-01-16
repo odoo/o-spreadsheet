@@ -18,10 +18,10 @@ describe("Spreadsheet pivot side panel", () => {
     }));
     // prettier-ignore
     const grid = {
-            A1: "Customer", B1: "Product", C1: "Amount", D1: "Date",
-            A2: "Alice", B2: "Chair", C2: "10", D2: "1/1/2001",
-            A3: "Bob", B3: "Table", C3: "20", D3: "2/2/2002",
-        };
+      A1: "Customer", B1: "Product", C1: "Amount", D1: "Date",
+      A2: "Alice", B2: "Chair", C2: "10", D2: "1/1/2001",
+      A3: "Bob", B3: "Table", C3: "20", D3: "2/2/2002",
+    };
     setGrid(model, grid);
 
     addPivot(model, "A1:D3", {
@@ -34,16 +34,12 @@ describe("Spreadsheet pivot side panel", () => {
     await nextTick();
   });
 
-  test("displays the filter with a caption", async () => {
-    expect(fixture.querySelector(".o-pivot-filter-caption")!.textContent).toBe("showing all items");
-  });
-
   test("can only have a filter on a field once", async () => {
     await click(fixture.querySelectorAll(".add-dimension")[3]);
-    expect(fixture.querySelectorAll(".o-autocomplete-value").length).toBe(3);
+    expect(".o-autocomplete-value").toHaveCount(3);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
     await click(fixture.querySelectorAll(".add-dimension")[3]);
-    expect(fixture.querySelectorAll(".o-autocomplete-value").length).toBe(2);
+    expect(".o-autocomplete-value").toHaveCount(2);
   });
 
   test.skip("shows a warning when there is a filter on a deleted field", async () => {
@@ -83,18 +79,19 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("the list of values is correct", async () => {
     await click(fixture.querySelector(".fa-filter")!);
-    expect(fixture.querySelector(".o-popover")).toBeDefined();
-    expect(fixture.querySelectorAll(".o-filter-menu-item").length).toBe(2);
+    expect(".o-popover").toHaveCount(1);
+    expect(".o-filter-menu-item").toHaveCount(2);
     const firstValue = fixture.querySelectorAll(".o-filter-menu-item")[0].textContent;
     const secondValue = fixture.querySelectorAll(".o-filter-menu-item")[1].textContent;
     expect([firstValue, secondValue]).toEqual(["10", "20"]);
   });
 
   test("can update the hidden values of a values filter", async () => {
+    expect(".o-pivot-filter-caption").toHaveText("showing all items");
     await click(fixture.querySelector(".fa-filter")!);
     await click(fixture.querySelectorAll(".o-filter-menu-item .o-checkbox")[0]);
     await click(fixture, ".o-filter-menu-confirm");
-    expect(fixture.querySelector(".o-popover")).toBeNull();
+    expect(".o-popover").toHaveCount(0);
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([
       {
         fieldName: "Amount",
@@ -102,7 +99,7 @@ describe("Spreadsheet pivot side panel", () => {
         hiddenValues: ["10"],
       },
     ]);
-    expect(fixture.querySelector(".o-pivot-filter-caption")!.textContent).toBe("showing 1 item");
+    expect(".o-pivot-filter-caption").toHaveText("showing 1 item");
   });
 
   test("can update the criterion of a criterion filter", async () => {
@@ -120,8 +117,9 @@ describe("Spreadsheet pivot side panel", () => {
         dateValue: undefined,
       },
     ]);
-    expect(fixture.querySelector(".o-pivot-filter-caption")!.textContent).toBe(`Is equal to "10"`);
+    expect(".o-pivot-filter-caption").toHaveText(`Is equal to "10"`);
   });
+
   test("can update the criterion of a criterion filter with date type", async () => {
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
