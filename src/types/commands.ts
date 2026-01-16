@@ -269,7 +269,7 @@ export function canExecuteInReadonly(cmd: Command): boolean {
 //------------------------------------------------------------------------------
 export interface UpdateCellCommand extends PositionDependentCommand {
   type: "UPDATE_CELL";
-  content?: string;
+  content?: string | null;
   style?: Style | null;
   format?: Format;
 }
@@ -664,7 +664,7 @@ export interface AutoFillCellCommand {
   originRow: number;
   col: HeaderIndex;
   row: HeaderIndex;
-  content?: string;
+  content?: string | null;
   style?: Style | null;
   border?: Border;
   format?: Format;
