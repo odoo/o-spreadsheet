@@ -67,10 +67,10 @@ function convertFormula(formula: string, data: XLSXImportData): string {
   formula = formula.replace(externalReferenceRegex, (match, externalRefId, sheetName, cellRef) => {
     externalRefId = Number(externalRefId) - 1;
     cellRef = cellRef.replace(/\$/g, "");
-
-    const sheetIndex = data.externalBooks[externalRefId].sheetNames.findIndex((name) =>
-      isSheetNameEqual(name, sheetName)
-    );
+    const sheetIndex =
+      data.externalBooks[externalRefId]?.sheetNames.findIndex((name) =>
+        isSheetNameEqual(name, sheetName)
+      ) ?? -1;
     if (sheetIndex === -1) {
       return match;
     }
