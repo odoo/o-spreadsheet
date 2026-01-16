@@ -2,7 +2,6 @@ import {
   DEFAULT_CELL_WIDTH,
   GRAY_200,
   GRID_ICON_EDGE_LENGTH,
-  GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -473,9 +472,9 @@ describe("Selection arrow icon in grid", () => {
 
   test("Icon is displayed in the grid at the correct position", () => {
     const icon = getCellIcons(model, "A1")[0];
-    expect(icon.type).toEqual("data_validation_list_icon");
+    expect(icon.type).toEqual("data_validation_list_chip_icon");
     const rect = model.getters.getCellIconRect(icon, model.getters.getRect(toZone("A1")));
-    expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH);
+    expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - 4 - GRID_ICON_EDGE_LENGTH);
     expect(rect.y).toEqual(1 + MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines
   });
 
