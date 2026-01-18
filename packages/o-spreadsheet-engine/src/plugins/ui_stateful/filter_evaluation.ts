@@ -1,12 +1,8 @@
-import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
-import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { toXC } from "../../helpers/coordinates";
+import { dataPassFilter } from "../../helpers/evaluation_helpers";
 import { deepCopy, getUniqueText, range } from "../../helpers/misc";
-import { toLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
-import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
-import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, FilterId, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue, Table } from "../../types/table";
 import { ExcelFilterData, ExcelWorkbookData } from "../../types/workbook_data";
@@ -162,50 +158,15 @@ export class FilterEvaluationPlugin extends UIPlugin {
       ) {
         continue;
       }
-      if (filterValue.filterType === "values") {
-        const filteredValues = filterValue.hiddenValues?.map(toLowerCase);
-        if (!filteredValues) continue;
-        const filteredValuesSet = new Set(filteredValues);
-        for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
-          const value = this.getCellValueAsString(sheetId, filter.col, row);
-          if (filteredValuesSet.has(value)) {
-            hiddenRows.add(row);
-          }
-        }
-      } else {
-        if (filterValue.type === "none") continue;
-        const evaluator = criterionEvaluatorRegistry.get(filterValue.type);
-
-        const evaluatedCriterionValues = filterValue.values.map((value) => {
-          if (!value.startsWith("=")) {
-            return parseLiteral(value, DEFAULT_LOCALE);
-          }
-          return this.getters.evaluateFormula(sheetId, value) ?? "";
-        });
-        if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
-          continue;
-        }
-
-        const evaluatedCriterion = {
-          type: filterValue.type,
-          values: evaluatedCriterionValues.map(toScalar),
-          dateValue: filterValue.dateValue,
-        };
-        for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
-          const position = { sheetId, col: filter.col, row };
-          const value = this.getters.getEvaluatedCell(position).value ?? "";
-          if (!evaluator.isValueValid(value, evaluatedCriterion, this.getters, sheetId)) {
-            hiddenRows.add(row);
-          }
+      for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
+        const position = { sheetId, col: filter.col, row };
+        const evaluatedCell = this.getters.getEvaluatedCell(position);
+        if (!dataPassFilter(this.getters, sheetId, evaluatedCell, filterValue)) {
+          hiddenRows.add(row);
         }
       }
     }
     this.hiddenRows[sheetId] = hiddenRows;
-  }
-
-  private getCellValueAsString(sheetId: UID, col: number, row: number): string {
-    const value = this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
-    return value.toLowerCase();
   }
 
   exportForExcel(data: ExcelWorkbookData) {

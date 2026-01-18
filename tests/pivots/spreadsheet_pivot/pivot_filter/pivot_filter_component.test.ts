@@ -120,7 +120,7 @@ describe("Spreadsheet pivot side panel", () => {
         dateValue: undefined,
       },
     ]);
-    expect(".o-pivot-filter-caption").toHaveText("Value is equal to 10");
+    expect(".o-pivot-filter-caption").toHaveText(`Is equal to "10"`);
   });
 
   test("can update the criterion of a criterion filter with date type", async () => {
