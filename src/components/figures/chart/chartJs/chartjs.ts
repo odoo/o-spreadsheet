@@ -153,8 +153,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       throw new Error("Chart.js library is not loaded");
     }
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
-    // chartData.options.devicePixelRatio = window.devicePixelRatio * zoomLevel;
+    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    chartData.options.devicePixelRatio = window.devicePixelRatio * zoomLevel;
     if (this.shouldAnimate && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
@@ -168,14 +168,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     chartData.options.devicePixelRatio = window.devicePixelRatio;
     this.chart = new globalThis.Chart(ctx, chartData);
     // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
-    // @ts-ignore
-    // this.chart.currentDevicePixelRatio = window.devicePixelRatio * zoomLevel;
+    //@ts-ignore
+    this.chart.currentDevicePixelRatio = window.devicePixelRatio * zoomLevel;
   }
 
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
-    // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
-    // chartData.options.devicePixelRatio = window.devicePixelRatio * zoomLevel;
+    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    chartData.options.devicePixelRatio = window.devicePixelRatio * zoomLevel;
     if (this.shouldAnimate) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
@@ -196,9 +196,11 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart!.config.options = chartData.options;
 
     // const zoomLevel = this.env.model.getters.getViewportZoomLevel();
-    // @ts-ignore
-    // this.chart.currentDevicePixelRatio = window.devicePixelRatio * zoomLevel;
     this.chart!.update();
+    // @ts-ignore
+    this.chart!.options.font.size = 12 * zoomLevel;
+    // @ts-ignore
+    this.chart.currentDevicePixelRatio = window.devicePixelRatio * zoomLevel;
     console.log("Chart updated ", this.chart!.currentDevicePixelRatio);
   }
 

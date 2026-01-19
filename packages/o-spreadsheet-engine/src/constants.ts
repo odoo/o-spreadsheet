@@ -171,7 +171,7 @@ export const MENU_SEPARATOR_PADDING = 5;
 export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;
 
 // Zoom
-export const ZOOM_VALUES = [50, 75, 100, 125, 150, 200];
+export const ZOOM_VALUES = [50, 75, 100, 125, 150, 200, 300];
 
 // Style
 export const DEFAULT_STYLE = {
