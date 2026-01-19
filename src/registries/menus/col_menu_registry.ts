@@ -50,6 +50,11 @@ colMenuRegistry
     ...ACTION_DATA.sortDescending,
     sequence: 20,
   })
+  .add("column_statistics", {
+    ...ACTION_DATA.columnStatistics,
+    sequence: 60,
+    separator: true,
+  })
   .add("add_column_before", {
     ...ACTION_INSERT.colInsertColsBefore,
     sequence: 70,
