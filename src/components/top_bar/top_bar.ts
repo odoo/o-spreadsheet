@@ -13,7 +13,6 @@ import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
-import { MenuNavigationStore } from "../menu/menu_navigation_store";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { Popover, PopoverProps } from "../popover";
 import { TopBarToolStore } from "./top_bar_tool_store";
@@ -57,7 +56,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
   menus: Action[] = [];
-  private menuId = "topBarMenu";
 
   toolbarMenuRegistry = topBarToolBarRegistry;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
@@ -75,10 +73,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   spreadsheetRect = useSpreadsheetRect();
 
-  private menuNavigationStore!: Store<MenuNavigationStore>;
-
   setup() {
-    this.menuNavigationStore = useStore(MenuNavigationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
     this.topBarToolStore = useStore(TopBarToolStore);
@@ -175,15 +170,12 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  private openMenu(menu: Action, target: HTMLElement | undefined) {
+  private openMenu(menu: Action, target: HTMLElement | undefined, autoSelectFirstItem = false) {
     if (!target) {
       return;
     }
     if (this.topBarToolStore.currentDropdown) {
       this.topBarToolStore.closeDropdowns();
-    }
-    if (!this.state.menuState.isOpen) {
-      this.menuNavigationStore.registerMenu(this.menuId, 0, this.navigateMenu.bind(this));
     }
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = true;
@@ -192,6 +184,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       .children(this.env)
       .sort((a, b) => a.sequence - b.sequence);
     this.state.menuState.parentMenu = menu;
+    this.state.menuState.autoSelectFirstItem = autoSelectFirstItem;
     this.isSelectingMenu = true;
     this.openedEl = target;
     this.composerFocusStore.activeComposer.stopEdition();
@@ -248,25 +241,25 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  private navigateMenu(key: string): "eventHandled" | "notHandled" {
-    console.log("topBar navigate menu", key);
+  onKeyboardNavigation(ev: KeyboardEvent) {
+    console.log("topBar navigate menu", ev.key);
     const openedMenuIndex = this.menus.findIndex(
       (action) => action.id === this.state.menuState.parentMenu?.id || ""
     );
     if (openedMenuIndex === -1) {
       return "notHandled";
     }
-    switch (key) {
+    switch (ev.key) {
       case "ArrowLeft": {
         const nextMenuIndex = (openedMenuIndex - 1 + this.menus.length) % this.menus.length;
         const nextMenu = this.menus[nextMenuIndex];
-        this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id));
+        this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id), true);
         return "eventHandled";
       }
       case "ArrowRight": {
         const nextMenuIndex = (openedMenuIndex + 1) % this.menus.length;
         const nextMenu = this.menus[nextMenuIndex];
-        this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id));
+        this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id), true);
         return "eventHandled";
       }
     }

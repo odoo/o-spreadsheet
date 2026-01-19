@@ -15,7 +15,6 @@ import {
   useState,
 } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
-import { Store, useStore } from "../../store_engine";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import {
@@ -27,7 +26,6 @@ import {
 } from "../helpers/dom_helpers";
 import { useTimeOut } from "../helpers/time_hooks";
 import { Menu, MenuProps } from "../menu/menu";
-import { MenuNavigationStore } from "../menu/menu_navigation_store";
 import { Popover, PopoverProps } from "../popover/popover";
 
 //------------------------------------------------------------------------------
@@ -48,7 +46,7 @@ interface Props {
   onMouseOver?: () => void;
   width?: number;
   autoSelectFirstItem?: boolean;
-  autoFocus?: boolean;
+  onKeyboardNavigation?: (ev: KeyboardEvent) => void;
 }
 
 export interface MenuState {
@@ -78,16 +76,14 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     menuId: { type: String, optional: true },
     onMouseOver: { type: Function, optional: true },
     width: { type: Number, optional: true },
-    // ADRM TODO: why both ?
     autoSelectFirstItem: { type: Boolean, optional: true },
-    autoFocus: { type: Boolean, optional: true },
+    onKeyboardNavigation: { type: Function, optional: true },
   };
 
   static components = { MenuPopover, Menu, Popover };
   static defaultProps = {
     depth: 0,
     popoverPositioning: "top-right",
-    autoFocus: true,
   };
   private subMenu: MenuState = useState({
     isOpen: false,
@@ -103,23 +99,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
   private openingTimeOut = useTimeOut();
 
-  private menuNavigationStore!: Store<MenuNavigationStore>;
-
   setup() {
-    this.menuNavigationStore = useStore(MenuNavigationStore);
-    if (this.navigationMenuId) {
-      this.menuNavigationStore.registerMenu(
-        this.navigationMenuId,
-        this.props.depth || 0,
-        this.navigateMenu.bind(this)
-      );
-    }
-    if (this.props.autoFocus) {
-      this.selectMenuItem(this.getNextEnabledMenuItem());
-    }
-    onWillUnmount(() => {
-      this.menuNavigationStore.unregisterMenu(this.navigationMenuId);
-    });
     useEffect(() => {
       if (!this.state.hoveredMenu && !this.subMenu.isOpen) {
         this.menuRef.el?.focus();
@@ -289,7 +269,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
   onMenuItemMouseEnter(menu: Action, ev: MouseEvent) {
     console.log("MenuPopover onMouseOver", menu.id);
-    this.selectMenuItem(menu);
+    this.state.hoveredMenu = menu;
     menu.onStartHover?.(this.env);
 
     if (this.isParentMenu(this.subMenu, menu)) {
@@ -326,16 +306,15 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    console.log("menu popover onkeydown", ev.key);
-    if (this.menuNavigationStore.handledKeys.includes(ev.key)) {
-      this.menuNavigationStore.onNavigationKey(ev.key);
-      ev.preventDefault();
-      ev.stopPropagation();
+    ev.stopPropagation();
+    ev.preventDefault();
+    if (this.navigateMenu(ev.key) !== "eventHandled") {
+      this.props.onKeyboardNavigation?.(ev);
     }
   }
 
   private navigateMenu(key: string): "eventHandled" | "notHandled" {
-    console.log("Navigate menu popover:", this.navigationMenuId, key);
+    console.log("Navigate menu popover:", this.props.menuId + " " + this.props.depth, key);
     const selectedMenuItem = this.state.hoveredMenu;
     switch (key) {
       case "Enter":
@@ -361,17 +340,17 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
         return "notHandled";
       case "ArrowLeft":
         if (this.subMenu.isOpen) {
-          this.selectMenuItem(this.subMenu.parentMenu);
+          this.state.hoveredMenu = this.subMenu.parentMenu;
           this.forceCloseSubMenu();
           return "eventHandled";
         }
         return "notHandled";
       case "ArrowDown": {
-        this.selectMenuItem(this.getNextEnabledMenuItem(this.state.hoveredMenu));
+        this.state.hoveredMenu = this.getNextEnabledMenuItem(this.state.hoveredMenu);
         return "eventHandled";
       }
       case "ArrowUp": {
-        this.selectMenuItem(this.getPreviousEnabledMenuItem(this.state.hoveredMenu));
+        this.state.hoveredMenu = this.getPreviousEnabledMenuItem(this.state.hoveredMenu);
         return "eventHandled";
       }
       case "ArrowRight": {
@@ -391,14 +370,6 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return "notHandled";
-  }
-
-  get navigationMenuId() {
-    return (this.props.menuId || "menu-popover") + this.props.depth;
-  }
-
-  private selectMenuItem(menuItem: Action | undefined) {
-    this.state.hoveredMenu = menuItem;
   }
 
   private getMenuItemRect(menuItemId: UID): Rect | undefined {

@@ -105,6 +105,8 @@
       popoverPositioning="'bottom-left'"
       depth="1"
       menuId="menuId + state.menuState.parentMenu.id"
+      autoSelectFirstItem="state.menuState.autoSelectFirstItem"
+      onKeyboardNavigation.bind="this.onKeyboardNavigation"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
       <div class="d-flex px-2 py-1 flex-wrap align-items-center bg-white">

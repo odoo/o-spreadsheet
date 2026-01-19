@@ -22,7 +22,7 @@
         onMouseOver.bind="onMouseOverChildMenu"
         width="props.width"
         autoSelectFirstItem="subMenu.autoSelectFirstItem"
-        autoFocus="false"
+        onKeyboardNavigation.bind="this.onKeydown"
       />
     </Popover>
   </t>
