@@ -247,24 +247,26 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       (action) => action.id === this.state.menuState.parentMenu?.id || ""
     );
     if (openedMenuIndex === -1) {
-      return "notHandled";
+      return;
     }
     switch (ev.key) {
       case "ArrowLeft": {
         const nextMenuIndex = (openedMenuIndex - 1 + this.menus.length) % this.menus.length;
         const nextMenu = this.menus[nextMenuIndex];
         this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id), true);
-        return "eventHandled";
+        break;
       }
       case "ArrowRight": {
         const nextMenuIndex = (openedMenuIndex + 1) % this.menus.length;
         const nextMenu = this.menus[nextMenuIndex];
         this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id), true);
-        return "eventHandled";
+        break;
+      }
+      case "Escape": {
+        this.closeMenus();
+        break;
       }
     }
-
-    return "notHandled";
   }
 
   private getMenuItemEl(menuItemId: UID): HTMLElement | undefined {

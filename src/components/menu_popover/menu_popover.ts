@@ -15,6 +15,8 @@ import {
   useState,
 } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
+import { useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import {
@@ -100,6 +102,8 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   private openingTimeOut = useTimeOut();
 
   setup() {
+    const domFocusableElementStore = useStore(DOMFocusableElementStore);
+
     useEffect(() => {
       if (!this.state.hoveredMenu && !this.subMenu.isOpen) {
         this.menuRef.el?.focus();
@@ -115,10 +119,17 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     });
     onWillUnmount(() => {
       this.state.hoveredMenu?.onStopHover?.(this.env);
+      if (this.menuRef.el?.contains(document.activeElement)) {
+        domFocusableElementStore.focus();
+      }
     });
   }
 
   get menuProps(): MenuProps {
+    const menItems = this.menuItems;
+    const hoveredMenuId = menItems
+      .filter((menuItem) => menuItem !== "separator")
+      .find((menuItem) => this.isMenuHovered(menuItem))?.id;
     return {
       menuItems: this.menuItems,
       onClose: this.close.bind(this),
@@ -127,10 +138,10 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       onMouseEnter: this.onMenuItemMouseEnter.bind(this),
       onMouseLeave: this.onMouseLeave.bind(this),
       width: this.props.width || MENU_WIDTH,
-      isActive: this.isActive.bind(this),
       onScroll: this.onScroll.bind(this),
       onKeyDown: this.onKeydown.bind(this),
-      focusedMenuItemId: this.subMenu.isOpen ? undefined : this.state.hoveredMenu?.id,
+      hoveredMenuId,
+      isHoveredMenuFocused: !this.subMenu.isOpen,
     };
   }
 
@@ -213,7 +224,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     return !menu.execute;
   }
 
-  isActive(menuItem: Action): boolean {
+  isMenuHovered(menuItem: Action): boolean {
     return (
       ((this.subMenu?.isHoveringChild || false) && this.isParentMenu(this.subMenu, menuItem)) ||
       this.state.hoveredMenu?.id === menuItem.id
@@ -268,7 +279,6 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMenuItemMouseEnter(menu: Action, ev: MouseEvent) {
-    console.log("MenuPopover onMouseOver", menu.id);
     this.state.hoveredMenu = menu;
     menu.onStartHover?.(this.env);
 

@@ -88,6 +88,14 @@ export interface Action {
   onStopHover?: (env: SpreadsheetChildEnv) => void;
 }
 
+export interface ComputedAction
+  extends Omit<Action, "name" | "description" | "icon" | "secondaryIcon" | "children"> {
+  name: string;
+  description: string;
+  icon: string;
+  secondaryIcon: string;
+}
+
 export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
 type ActionChildren = (ActionSpec | ActionBuilder)[];
 

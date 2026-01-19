@@ -18,9 +18,9 @@ export interface MenuProps {
   onClickMenu?: (menu: Action, ev: CustomEvent) => void;
   onMouseEnter?: (menu: Action, ev: PointerEvent) => void;
   onMouseLeave?: (menu: Action, ev: PointerEvent) => void;
-  isActive?: (menu: Action) => boolean;
+  hoveredMenuId?: string;
+  isHoveredMenuFocused?: boolean;
   width?: number;
-  focusedMenuItemId?: string;
   onKeyDown?: (ev: KeyboardEvent) => void;
 }
 
@@ -41,9 +41,9 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     onMouseEnter: { type: Function, optional: true },
     onMouseLeave: { type: Function, optional: true },
     width: { type: Number, optional: true },
-    isActive: { type: Function, optional: true },
+    hoveredMenuId: { type: String, optional: true },
+    isHoveredMenuFocused: { type: Boolean, optional: true },
     onScroll: { type: Function, optional: true },
-    focusedMenuItemId: { type: String, optional: true },
     onKeyDown: { type: Function, optional: true },
   };
 
@@ -54,8 +54,8 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
 
   setup(): void {
     useEffect(() => {
-      if (this.props.focusedMenuItemId && this.menuRef.el) {
-        const selector = `[data-name='${this.props.focusedMenuItemId}']`;
+      if (this.props.hoveredMenuId && this.props.isHoveredMenuFocused && this.menuRef.el) {
+        const selector = `[data-name='${this.props.hoveredMenuId}']`;
         const menuItemElement = this.menuRef.el.querySelector(selector) as HTMLElement;
         menuItemElement?.focus();
       }

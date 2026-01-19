@@ -103,8 +103,7 @@
       onClose="() => this.closeMenus()"
       onMenuClicked="() => this.props.onClick()"
       popoverPositioning="'bottom-left'"
-      depth="1"
-      menuId="menuId + state.menuState.parentMenu.id"
+      menuId="state.menuState.parentMenu.id"
       autoSelectFirstItem="state.menuState.autoSelectFirstItem"
       onKeyboardNavigation.bind="this.onKeyboardNavigation"
     />
