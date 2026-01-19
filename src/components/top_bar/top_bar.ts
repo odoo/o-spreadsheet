@@ -68,6 +68,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toolBarContainerRef = useRef("toolBarContainer");
   toolbarRef = useRef("toolBar");
+  topBarTopRef = useRef("topBarTop");
 
   moreToolsContainerRef = useRef("moreToolsContainer");
   moreToolsButtonRef = useRef("moreToolsButton");
@@ -275,7 +276,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   private getMenuItemEl(menuItemId: UID): HTMLElement | undefined {
     return (
-      this.toolbarRef.el?.querySelector<HTMLElement>(`[data-name="${menuItemId}"]`) || undefined
+      this.topBarTopRef.el?.querySelector<HTMLElement>(`[data-id="${menuItemId}"]`) || undefined
     );
   }
 }

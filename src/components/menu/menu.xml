@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-Menu">
     <div
       class="o-menu bg-white"
+      t-ref="menu"
       t-att-style="menuStyle"
       t-on-scroll="props.onScroll"
       t-on-wheel.stop=""
@@ -14,12 +15,14 @@
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
           <div
+            tabIndex="-1"
             t-att-title="getName(menuItem)"
             t-att-data-name="menuItem.id"
             t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
             t-on-auxclick="(ev) => this.onClickMenu(menuItem, ev)"
             t-on-mouseenter="(ev) => this.props.onMouseEnter?.(menuItem, ev)"
             t-on-mouseleave="(ev) => this.props.onMouseLeave?.(menuItem)"
+            t-on-keydown="(ev) => props.onKeyDown?.(ev)"
             class="o-menu-item d-flex justify-content-between align-items-center"
             t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': props.isActive?.(menuItem)}"
             t-att-style="getColor(menuItem)">

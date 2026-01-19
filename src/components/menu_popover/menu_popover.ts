@@ -78,6 +78,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     menuId: { type: String, optional: true },
     onMouseOver: { type: Function, optional: true },
     width: { type: Number, optional: true },
+    // ADRM TODO: why both ?
     autoSelectFirstItem: { type: Boolean, optional: true },
     autoFocus: { type: Boolean, optional: true },
   };
@@ -96,7 +97,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     isHoveringChild: false,
   });
   private state: State = useState({
-    hoveredMenu: this.props.autoSelectFirstItem ? this.props.menuItems[0] : undefined,
+    hoveredMenu: this.props.autoSelectFirstItem ? this.getNextEnabledMenuItem() : undefined,
   });
   private menuRef = useRef("menu");
 
@@ -113,11 +114,14 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
         this.navigateMenu.bind(this)
       );
     }
+    if (this.props.autoFocus) {
+      this.selectMenuItem(this.getNextEnabledMenuItem());
+    }
     onWillUnmount(() => {
       this.menuNavigationStore.unregisterMenu(this.navigationMenuId);
     });
     useEffect(() => {
-      if (this.props.autoFocus) {
+      if (!this.state.hoveredMenu && !this.subMenu.isOpen) {
         this.menuRef.el?.focus();
       }
     });
@@ -145,6 +149,8 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       width: this.props.width || MENU_WIDTH,
       isActive: this.isActive.bind(this),
       onScroll: this.onScroll.bind(this),
+      onKeyDown: this.onKeydown.bind(this),
+      focusedMenuItemId: this.subMenu.isOpen ? undefined : this.state.hoveredMenu?.id,
     };
   }
 
@@ -283,7 +289,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
   onMenuItemMouseEnter(menu: Action, ev: MouseEvent) {
     console.log("MenuPopover onMouseOver", menu.id);
-    this.state.hoveredMenu = menu;
+    this.selectMenuItem(menu);
     menu.onStartHover?.(this.env);
 
     if (this.isParentMenu(this.subMenu, menu)) {
@@ -330,16 +336,17 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
   private navigateMenu(key: string): "eventHandled" | "notHandled" {
     console.log("Navigate menu popover:", this.navigationMenuId, key);
+    const selectedMenuItem = this.state.hoveredMenu;
     switch (key) {
       case "Enter":
-        if (this.state.hoveredMenu && this.isRoot(this.state.hoveredMenu)) {
-          const rect = this.getMenuItemRect(this.state.hoveredMenu.id);
+        if (selectedMenuItem && this.isRoot(selectedMenuItem)) {
+          const rect = this.getMenuItemRect(selectedMenuItem.id);
           if (rect) {
-            this.openSubMenu(this.state.hoveredMenu, rect.y, true);
+            this.openSubMenu(selectedMenuItem, rect.y, true);
             return "eventHandled";
           }
-        } else if (this.state.hoveredMenu && isMenuItemEnabled(this.env, this.state.hoveredMenu)) {
-          this.activateMenu(this.state.hoveredMenu);
+        } else if (selectedMenuItem && isMenuItemEnabled(this.env, selectedMenuItem)) {
+          this.activateMenu(selectedMenuItem);
           return "eventHandled";
         }
         return "notHandled";
@@ -354,27 +361,28 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
         return "notHandled";
       case "ArrowLeft":
         if (this.subMenu.isOpen) {
+          this.selectMenuItem(this.subMenu.parentMenu);
           this.forceCloseSubMenu();
           return "eventHandled";
         }
         return "notHandled";
       case "ArrowDown": {
-        this.state.hoveredMenu = this.getNextEnabledMenuItem();
+        this.selectMenuItem(this.getNextEnabledMenuItem(this.state.hoveredMenu));
         return "eventHandled";
       }
       case "ArrowUp": {
-        this.state.hoveredMenu = this.getPreviousEnabledMenuItem();
+        this.selectMenuItem(this.getPreviousEnabledMenuItem(this.state.hoveredMenu));
         return "eventHandled";
       }
       case "ArrowRight": {
         if (
-          this.state.hoveredMenu &&
-          this.isRoot(this.state.hoveredMenu) &&
-          this.subMenu.parentMenu?.id !== this.state.hoveredMenu.id
+          selectedMenuItem &&
+          this.isRoot(selectedMenuItem) &&
+          this.subMenu.parentMenu?.id !== selectedMenuItem.id
         ) {
-          const rect = this.getMenuItemRect(this.state.hoveredMenu.id);
+          const rect = this.getMenuItemRect(selectedMenuItem.id);
           if (rect) {
-            this.openSubMenu(this.state.hoveredMenu, rect.y, true);
+            this.openSubMenu(selectedMenuItem, rect.y, true);
           }
           return "eventHandled";
         }
@@ -389,14 +397,18 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     return (this.props.menuId || "menu-popover") + this.props.depth;
   }
 
+  private selectMenuItem(menuItem: Action | undefined) {
+    this.state.hoveredMenu = menuItem;
+  }
+
   private getMenuItemRect(menuItemId: UID): Rect | undefined {
     const menuEl = this.menuRef.el?.querySelector<HTMLElement>(`[data-name="${menuItemId}"]`);
     return menuEl ? getBoundingRectAsPOJO(menuEl) : undefined;
   }
 
-  getNextEnabledMenuItem(): Action | undefined {
+  getNextEnabledMenuItem(currentHoveredMenu?: Action): Action | undefined {
     const menuItems = this.menuItems.filter((i) => i !== "separator");
-    const start = menuItems.findIndex((i) => i.id === this.state.hoveredMenu?.id);
+    const start = menuItems.findIndex((i) => i.id === currentHoveredMenu?.id);
 
     for (let offset = 1; offset <= menuItems.length; offset++) {
       const item = menuItems[(start + offset) % menuItems.length];
@@ -408,9 +420,9 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     return undefined;
   }
 
-  getPreviousEnabledMenuItem(): Action | undefined {
+  getPreviousEnabledMenuItem(currentHoveredMenu?: Action): Action | undefined {
     const menuItems = this.menuItems.filter((i) => i !== "separator");
-    let start = menuItems.findIndex((i) => i.id === this.state.hoveredMenu?.id);
+    let start = menuItems.findIndex((i) => i.id === currentHoveredMenu?.id);
     if (start === -1) {
       start = menuItems.length;
     }

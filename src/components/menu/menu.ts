@@ -1,7 +1,7 @@
 import { Rect } from "@odoo/o-spreadsheet-engine";
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
+import { Component, useEffect, useRef } from "@odoo/owl";
 import { Action, isMenuItemEnabled, MenuItemOrSeparator } from "../../actions/action";
 import { Pixel } from "../../types";
 
@@ -20,6 +20,8 @@ export interface MenuProps {
   onMouseLeave?: (menu: Action, ev: PointerEvent) => void;
   isActive?: (menu: Action) => boolean;
   width?: number;
+  focusedMenuItemId?: string;
+  onKeyDown?: (ev: KeyboardEvent) => void;
 }
 
 export interface MenuState {
@@ -41,10 +43,24 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     width: { type: Number, optional: true },
     isActive: { type: Function, optional: true },
     onScroll: { type: Function, optional: true },
+    focusedMenuItemId: { type: String, optional: true },
+    onKeyDown: { type: Function, optional: true },
   };
 
   static components = {};
   static defaultProps = {};
+
+  private menuRef = useRef("menu");
+
+  setup(): void {
+    useEffect(() => {
+      if (this.props.focusedMenuItemId && this.menuRef.el) {
+        const selector = `[data-name='${this.props.focusedMenuItemId}']`;
+        const menuItemElement = this.menuRef.el.querySelector(selector) as HTMLElement;
+        menuItemElement?.focus();
+      }
+    });
+  }
 
   get childrenHaveIcon(): boolean {
     return this.props.menuItems.some(

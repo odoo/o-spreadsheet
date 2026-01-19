@@ -2,6 +2,7 @@
   .o-menu {
     user-select: none;
     .o-menu-item {
+      outline: none;
       cursor: pointer;
       user-select: none;
       height: var(--os-desktop-menu-item-height);
