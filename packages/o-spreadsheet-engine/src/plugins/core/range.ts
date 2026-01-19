@@ -1,4 +1,4 @@
-import { BananaCompiledFormula, compile } from "../../formulas/compiler";
+import { CompiledFormula, compile } from "../../formulas/compiler";
 import { rangeReference, splitReference } from "../../helpers";
 import {
   createInvalidRange,
@@ -326,7 +326,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       const changedRange = applyChange(range);
       return changedRange.changeType === "NONE" ? range : changedRange.range;
     });
-    return BananaCompiledFormula.CopyWithDependencies(
+    return CompiledFormula.CopyWithDependencies(
       compiledFormula,
       sheetId,
       updatedDependencies
@@ -357,7 +357,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         ? range
         : duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range);
     });
-    return BananaCompiledFormula.CopyWithDependencies(
+    return CompiledFormula.CopyWithDependencies(
       compiledFormula,
       sheetIdTo,
       updatedDependencies

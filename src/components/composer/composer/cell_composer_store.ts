@@ -282,7 +282,7 @@ export class CellComposerStore extends AbstractComposerStore {
     const tokens =
       cell instanceof FormulaCellWithDependencies
         ? cell.tokens
-        : cell.compiledFormula.getStringifiedTokens(this.getters);
+        : cell.compiledFormula.getTokens(this.getters);
     return prettify(parseTokens(tokens), width);
   }
 

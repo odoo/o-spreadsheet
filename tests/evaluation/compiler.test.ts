@@ -1,11 +1,11 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { compile, functionCache, Model } from "../../src";
 
-import { BananaCompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
+import { CompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { createValidRange } from "../../src/helpers";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
-function compiledBaseFunction(formula: string): BananaCompiledFormula {
+function compiledBaseFunction(formula: string): CompiledFormula {
   for (const f in functionCache) {
     delete functionCache[f];
   }

@@ -1,11 +1,11 @@
-import { BananaCompiledFormula, compile } from "../../formulas/compiler";
+import { CompiledFormula, compile } from "../../formulas/compiler";
 import { expandOne, expandRange } from "../../helpers/expand_range";
 import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR } from "./squisher";
 
 export class Unsquisher {
-  private previousCell: BananaCompiledFormula | undefined;
+  private previousCell: CompiledFormula | undefined;
   private alreadyAppliedNumberOffset: number[] = [];
   private previousString: string[] = [];
   private alreadyAppliedReferenceOffset: Range[] = [];
@@ -29,7 +29,7 @@ export class Unsquisher {
   ): Generator<{
     position: Position;
     content?: string;
-    compiled?: BananaCompiledFormula;
+    compiled?: CompiledFormula;
   }> {
     for (const key in squished) {
       if (squished[key] === undefined || squished[key] === null || squished[key] === "") {
@@ -87,7 +87,7 @@ export class Unsquisher {
     squishedElement: any,
     sheetId: UID,
     getRangeFromSheetXC: (sheetId: UID, reference: string) => Range
-  ): BananaCompiledFormula {
+  ): CompiledFormula {
     if (typeof squishedElement === "string") {
       if (squishedElement.startsWith("=")) {
         throw new Error(
@@ -176,7 +176,7 @@ export class Unsquisher {
       } else {
         current.dependencies = this.previousCell.rangeDependencies;
       }
-      return BananaCompiledFormula.CopyWithDependenciesAndLiteral(
+      return CompiledFormula.CopyWithDependenciesAndLiteral(
         this.previousCell,
         sheetId,
         current.dependencies,

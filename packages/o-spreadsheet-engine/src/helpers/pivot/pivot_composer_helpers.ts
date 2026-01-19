@@ -1,4 +1,4 @@
-import { BananaCompiledFormula } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { CoreGetters } from "../../types/core_getters";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
@@ -6,10 +6,7 @@ const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 /**
  * Get the first Pivot function description of the given formula.
  */
-export function getFirstPivotFunction(
-  compiledFormula: BananaCompiledFormula,
-  getters: CoreGetters
-) {
+export function getFirstPivotFunction(compiledFormula: CompiledFormula, getters: CoreGetters) {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters)[0];
 }
 
@@ -18,7 +15,7 @@ export function getFirstPivotFunction(
  * present in the given formula.
  */
 export function getNumberOfPivotFunctions(
-  compiledFormula: BananaCompiledFormula,
+  compiledFormula: CompiledFormula,
   getters: CoreGetters
 ): number {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters).length;

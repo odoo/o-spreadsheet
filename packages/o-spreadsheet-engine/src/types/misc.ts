@@ -3,8 +3,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-import { BananaCompiledFormula } from "../formulas/compiler";
-import { Token } from "../formulas/tokenizer";
+import { CompiledFormula } from "../formulas/compiler";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
@@ -198,16 +197,6 @@ export interface LiteralValues {
   strings: { value: string }[];
 }
 
-export interface CompiledFormula {
-  execute: FormulaToExecute;
-  tokens: Token[];
-  dependencies: string[];
-  isBadExpression: boolean;
-  normalizedFormula: string;
-  literalValues: LiteralValues;
-  symbols: string[];
-}
-
 export type Matrix<T = unknown> = T[][];
 
 export type FunctionResultObject = {
@@ -233,7 +222,7 @@ export interface ClipboardCell {
   content: string;
   style?: Style | undefined;
   format?: Format | undefined;
-  compiledFormula?: BananaCompiledFormula;
+  compiledFormula?: CompiledFormula;
   border?: Border;
 }
 

@@ -5,7 +5,7 @@ import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { CompiledFormula, FormulaToExecute, LiteralValues, UID } from "../types/misc";
+import { FormulaToExecute, LiteralValues, UID } from "../types/misc";
 import { Range, RangeStringOptions } from "../types/range";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
@@ -38,13 +38,23 @@ export const UNARY_OPERATOR_MAP = {
   "#": "SPILLED.RANGE",
 };
 
+interface ICompiledFormula {
+  execute: FormulaToExecute;
+  tokens: Token[];
+  dependencies: string[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
+  literalValues: LiteralValues;
+  symbols: string[];
+}
+
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
-export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
+export class CompiledFormula implements Omit<ICompiledFormula, "tokens"> {
   private readonly _tokens: Token[];
   literalValues: LiteralValues;
   symbols: string[];
@@ -88,10 +98,7 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
     this.execute = execute;
   }
 
-  getStringifiedTokens(
-    getters: CoreGetters,
-    referenceOption?: RangeStringOptions
-  ): readonly Token[] {
+  getTokens(getters: CoreGetters, referenceOption?: RangeStringOptions): readonly Token[] {
     let referenceIndex = 0;
     let numberIndex = 0;
     let stringIndex = 0;
@@ -147,12 +154,9 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
     getRangeFromSheetXC: (defaultSheetId: UID, sheetXC: string) => Range,
     sheetId?: UID
   ) {
-    if (
-      this._dependencies?.length &&
-      this._dependencies.some((x: string | Range) => typeof x === "string")
-    ) {
-      this._rangeDependencies = this._dependencies.map((xc: string | Range) =>
-        typeof xc === "string" ? getRangeFromSheetXC(sheetId || this.sheetId, xc) : xc
+    if (this.hasDependencies && this._dependencies) {
+      this._rangeDependencies = this._dependencies.map((xc: string) =>
+        getRangeFromSheetXC(sheetId || this.sheetId, xc)
       );
       this._dependencies = undefined;
     }
@@ -163,7 +167,7 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
       return this.normalizedFormula;
     }
 
-    return concat(this.getStringifiedTokens(getters, referenceOption).map((t) => t.value));
+    return concat(this.getTokens(getters, referenceOption).map((t) => t.value));
   }
 
   usesSymbol(symbol: string) {
@@ -189,7 +193,7 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
     }
     let ast: AST | undefined;
     try {
-      ast = parseTokens(this.getStringifiedTokens(getters));
+      ast = parseTokens(this.getTokens(getters));
     } catch {
       return [];
     }
@@ -204,16 +208,16 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
   isFirstNonWhitespaceToken(tokenValue: string): boolean {
     const firstNonSpaceToken = this._tokens.find((token, i) => i > 0 && token.type !== "SPACE");
     return (
-      firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === "PIVOT"
+      firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === tokenValue
     );
   }
 
   static CopyWithDependencies(
-    base: BananaCompiledFormula,
+    base: CompiledFormula,
     sheetId: UID,
     dependencies: string[] | Range[]
-  ): BananaCompiledFormula {
-    return new BananaCompiledFormula(
+  ): CompiledFormula {
+    return new CompiledFormula(
       sheetId,
       base._tokens,
       base.literalValues,
@@ -226,13 +230,13 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
   }
 
   static CopyWithDependenciesAndLiteral(
-    base: BananaCompiledFormula,
+    base: CompiledFormula,
     sheetId: UID,
     dependencies: Range[],
     literalNumbers: { value: number }[],
     literalStrings: { value: string }[]
-  ): BananaCompiledFormula {
-    return new BananaCompiledFormula(
+  ): CompiledFormula {
+    return new CompiledFormula(
       sheetId,
       base._tokens,
       { numbers: literalNumbers, strings: literalStrings },
@@ -247,9 +251,9 @@ export class BananaCompiledFormula implements Omit<CompiledFormula, "tokens"> {
   static CompileForSerializedFormula(
     sheetId: UID,
     base: SerializedBananaCompiledFormula
-  ): BananaCompiledFormula {
+  ): CompiledFormula {
     const compiledFormula = compileTokens(base._tokens);
-    return new BananaCompiledFormula(
+    return new CompiledFormula(
       sheetId,
       compiledFormula.tokens,
       base.literalValues,
@@ -276,10 +280,10 @@ export type SerializedBananaCompiledFormula = {
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string, sheetId: UID): BananaCompiledFormula {
+export function compile(formula: string, sheetId: UID): CompiledFormula {
   const tokens = rangeTokenize(formula);
   const compiledFormula = compileTokens(tokens);
-  return new BananaCompiledFormula(
+  return new CompiledFormula(
     sheetId,
     compiledFormula.tokens,
     compiledFormula.literalValues,
@@ -291,7 +295,7 @@ export function compile(formula: string, sheetId: UID): BananaCompiledFormula {
   );
 }
 
-export function compileTokens(tokens: Token[]): CompiledFormula {
+export function compileTokens(tokens: Token[]): ICompiledFormula {
   try {
     return compileTokensOrThrow(tokens);
   } catch (error) {
@@ -309,7 +313,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
   }
 }
 
-function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
+function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
   const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
@@ -467,7 +471,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       }
     }
   }
-  const compiledFormula: CompiledFormula = {
+  const compiledFormula: ICompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
     literalValues,

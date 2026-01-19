@@ -1,4 +1,4 @@
-import { BananaCompiledFormula, compile } from "../../../formulas/compiler";
+import { compile, CompiledFormula } from "../../../formulas/compiler";
 
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 
@@ -238,7 +238,7 @@ export class Evaluator {
 
   evaluateCompiledFormula(
     sheetId: UID,
-    compiledFormula: BananaCompiledFormula,
+    compiledFormula: CompiledFormula,
     getContextualSymbolValue?: GetSymbolValue
   ) {
     try {
@@ -625,7 +625,7 @@ function validateNumberValue(data: FunctionResultObject): FunctionResultObject {
 }
 
 export function updateEvalContextAndExecute(
-  compiledFormula: BananaCompiledFormula,
+  compiledFormula: CompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
   getSymbolValue: GetSymbolValue,

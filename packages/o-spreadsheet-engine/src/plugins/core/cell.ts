@@ -1,8 +1,4 @@
-import {
-  BananaCompiledFormula,
-  compile,
-  SerializedBananaCompiledFormula,
-} from "../../formulas/compiler";
+import { compile, CompiledFormula, SerializedBananaCompiledFormula } from "../../formulas/compiler";
 import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
@@ -267,7 +263,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{
-        compiledFormula?: BananaCompiledFormula;
+        compiledFormula?: CompiledFormula;
         content?: string;
         style?: number;
         format?: number;
@@ -356,7 +352,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     sheetId: UID,
     content?: string,
     format?: Format,
-    compiledFormula?: BananaCompiledFormula | undefined
+    compiledFormula?: CompiledFormula | undefined
   ): Cell {
     const cellId = this.getNextUid();
     if (compiledFormula) {
@@ -409,15 +405,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   getFormulaString(
     sheetId: UID,
-    compiledFormula: BananaCompiledFormula,
+    compiledFormula: CompiledFormula,
     dependencies: Range[],
     useBoundedReference: boolean = false
   ): string {
-    const newFormula = BananaCompiledFormula.CopyWithDependencies(
-      compiledFormula,
-      sheetId,
-      dependencies
-    );
+    const newFormula = CompiledFormula.CopyWithDependencies(compiledFormula, sheetId, dependencies);
     const tempFormula = new FormulaCellWithDependencies(
       "temp",
       newFormula,
@@ -434,31 +426,27 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     sheetId: UID,
     offsetX: number,
     offsetY: number,
-    compiledFormula: BananaCompiledFormula | SerializedBananaCompiledFormula
+    compiledFormula: CompiledFormula | SerializedBananaCompiledFormula
   ) {
-    if (!(compiledFormula instanceof BananaCompiledFormula)) {
-      compiledFormula = BananaCompiledFormula.CompileForSerializedFormula(sheetId, compiledFormula);
+    if (!(compiledFormula instanceof CompiledFormula)) {
+      compiledFormula = CompiledFormula.CompileForSerializedFormula(sheetId, compiledFormula);
     }
     const adaptedDependencies = this.getters.createAdaptedRanges(
-      (compiledFormula as BananaCompiledFormula).rangeDependencies,
+      (compiledFormula as CompiledFormula).rangeDependencies,
       offsetX,
       offsetY,
       sheetId
     );
 
-    return this.getFormulaString(
-      sheetId,
-      compiledFormula as BananaCompiledFormula,
-      adaptedDependencies
-    );
+    return this.getFormulaString(sheetId, compiledFormula as CompiledFormula, adaptedDependencies);
   }
 
-  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: BananaCompiledFormula) {
+  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: CompiledFormula) {
     const adaptedDependencies = this.getters.removeRangesSheetPrefix(
       targetSheetId,
       compiledFormula.rangeDependencies
     );
-    return BananaCompiledFormula.CopyWithDependencies(
+    return CompiledFormula.CopyWithDependencies(
       compiledFormula,
       targetSheetId,
       adaptedDependencies
@@ -652,7 +640,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private createFormulaCellFromCompiledFormula(
     id: UID,
-    compiledFormula: BananaCompiledFormula,
+    compiledFormula: CompiledFormula,
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
@@ -678,7 +666,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private createFormulaCellWithDependencies(
     id: UID,
-    compiledFormula: BananaCompiledFormula,
+    compiledFormula: CompiledFormula,
     format: Format | undefined,
     sheetId: UID
   ): FormulaCell {
@@ -728,11 +716,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
 export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
-  readonly compiledFormula: BananaCompiledFormula;
+  readonly compiledFormula: CompiledFormula;
 
   constructor(
     readonly id: UID,
-    compiledFormula: BananaCompiledFormula,
+    compiledFormula: CompiledFormula,
     readonly format: Format | undefined,
     private readonly getters: CoreGetters
   ) {
@@ -741,7 +729,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
   }
 
   get tokens(): readonly Token[] {
-    return this.compiledFormula.getStringifiedTokens(this.getters);
+    return this.compiledFormula.getTokens(this.getters);
   }
 
   get content() {

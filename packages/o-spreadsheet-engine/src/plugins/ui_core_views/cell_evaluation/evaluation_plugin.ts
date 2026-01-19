@@ -1,4 +1,4 @@
-import { BananaCompiledFormula } from "../../../formulas/compiler";
+import { CompiledFormula } from "../../../formulas/compiler";
 // import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
@@ -243,7 +243,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   evaluateCompiledFormula(
     sheetId: UID,
-    compiledFormula: BananaCompiledFormula,
+    compiledFormula: CompiledFormula,
     getSymbolValue: GetSymbolValue
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);

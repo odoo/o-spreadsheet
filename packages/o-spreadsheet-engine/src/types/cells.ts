@@ -1,4 +1,4 @@
-import { BananaCompiledFormula } from "../formulas/compiler";
+import { CompiledFormula } from "../formulas/compiler";
 import { Format, FormattedValue } from "./format";
 import { FunctionResultObject, Link, UID } from "./misc";
 
@@ -18,7 +18,7 @@ export interface LiteralCell extends CellAttributes {
 
 export interface FormulaCell extends CellAttributes {
   readonly isFormula: true;
-  readonly compiledFormula: BananaCompiledFormula;
+  readonly compiledFormula: CompiledFormula;
 }
 
 export type Cell = LiteralCell | FormulaCell;

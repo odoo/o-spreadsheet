@@ -1,4 +1,4 @@
-import { BananaCompiledFormula } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
 import { deepCopy } from "../../helpers";
@@ -147,7 +147,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
     return false;
   }
 
-  getFirstPivotFunction(sheetId: UID, compiledFormula: BananaCompiledFormula) {
+  getFirstPivotFunction(sheetId: UID, compiledFormula: CompiledFormula) {
     const pivotFunction = getFirstPivotFunction(compiledFormula, this.getters);
     if (!pivotFunction) {
       return undefined;
