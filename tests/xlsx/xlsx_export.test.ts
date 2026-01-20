@@ -7,7 +7,7 @@ import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
 import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
+import { CellIsRule, ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
 
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
@@ -794,6 +794,35 @@ describe("Test XLSX export", () => {
       expect(rules[0].getAttribute("rank")).toBe("2");
       expect(rules[0].getAttribute("bottom")).toBe("1");
       expect(rules[0].getAttribute("percent")).toBe("1");
+    });
+
+    test("Can export uniqueValues/duplicateValues conditional format", async () => {
+      const model = new Model();
+      const uniqueValuesCF: CellIsRule = {
+        type: "CellIsRule",
+        operator: "uniqueValues",
+        values: [],
+        style: { fillColor: "#B6D7A8" },
+      };
+      addCfRule(model, "A1:A4", uniqueValuesCF, "cf1");
+      const duplicateValuesCF: CellIsRule = {
+        type: "CellIsRule",
+        operator: "duplicateValues",
+        values: [],
+        style: { fillColor: "#ABD458" },
+      };
+      addCfRule(model, "B1:B4", duplicateValuesCF, "cf2");
+
+      const exportedXlsx = await model.exportXLSX();
+      const sheet = exportedXlsx.files.find((f) => f["contentType"] === "sheet")!["content"];
+      const xml = parseXML(sheet);
+
+      const cfs = xml.querySelectorAll("conditionalFormatting");
+      expect(cfs.length).toBe(2);
+      expect(cfs[0].getAttribute("sqref")).toBe("A1:A4");
+      expect(cfs[0].querySelector("cfRule")?.getAttribute("type")).toBe("uniqueValues");
+      expect(cfs[1].getAttribute("sqref")).toBe("B1:B4");
+      expect(cfs[1].querySelector("cfRule")?.getAttribute("type")).toBe("duplicateValues");
     });
 
     test("Data validation", async () => {

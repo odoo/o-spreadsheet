@@ -292,6 +292,8 @@ function changeCFRuleLocale(
         case "notContainsText":
         case "isEmpty":
         case "isNotEmpty":
+        case "uniqueValues":
+        case "duplicateValues":
           return rule;
       }
     case "DataBarRule":

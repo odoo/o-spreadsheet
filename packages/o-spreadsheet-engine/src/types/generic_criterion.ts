@@ -39,7 +39,9 @@ export type GenericCriterionType =
   | "endsWithText"
   | "isNotEmpty"
   | "isEmpty"
-  | "top10";
+  | "top10"
+  | "uniqueValues"
+  | "duplicateValues";
 
 export type DateCriterionValue =
   | "today"

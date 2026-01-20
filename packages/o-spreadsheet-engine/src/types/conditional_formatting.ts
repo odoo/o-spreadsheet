@@ -172,6 +172,8 @@ const cfOperators = [
   "dateIsOnOrBefore",
   "dateIsOnOrAfter",
   "top10",
+  "uniqueValues",
+  "duplicateValues",
 ] as const;
 
 export type ConditionalFormattingOperatorValues = (typeof cfOperators)[number];
