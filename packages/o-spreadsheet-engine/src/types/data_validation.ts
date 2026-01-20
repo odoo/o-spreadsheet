@@ -145,6 +145,16 @@ export type Top10Criterion = {
   isBottom?: boolean;
 };
 
+export type UniqueValuesCriterion = {
+  type: "uniqueValues";
+  values: string[];
+};
+
+export type DuplicateValuesCriterion = {
+  type: "duplicateValues";
+  values: string[];
+};
+
 export type CustomFormulaCriterion = {
   type: "customFormula";
   values: string[];

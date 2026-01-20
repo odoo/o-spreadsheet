@@ -1,5 +1,5 @@
 import { DVTerms } from "../components/translations_terms";
-import { tryToNumber } from "../functions/helpers";
+import { toString, tryToNumber } from "../functions/helpers";
 import {
   getDateCriterionFormattedValues,
   getDateNumberCriterionValues,
@@ -30,7 +30,9 @@ import {
   DateIsNotBetweenCriterion,
   DateIsOnOrAfterCriterion,
   DateIsOnOrBeforeCriterion,
+  DuplicateValuesCriterion,
   Top10Criterion,
+  UniqueValuesCriterion,
 } from "../types/data_validation";
 import { CellErrorType } from "../types/errors";
 import {
@@ -796,6 +798,62 @@ criterionEvaluatorRegistry.add("top10", {
   },
 } satisfies CriterionEvaluator<number | undefined>);
 
+criterionEvaluatorRegistry.add("uniqueValues", {
+  type: "uniqueValues",
+  preComputeCriterion: (
+    criterion: UniqueValuesCriterion,
+    criterionRanges: Range[],
+    getters: Getters
+  ): Set<string> => {
+    const occurrences = getOccurrencesInRanges(criterionRanges, getters);
+    return new Set<string>(Object.keys(occurrences).filter((key) => occurrences[key] === 1));
+  },
+  isValueValid: (
+    value: CellValue,
+    criterion: EvaluatedCriterion<UniqueValuesCriterion>,
+    uniquesValues
+  ) => {
+    if (value === null || uniquesValues === undefined) {
+      return false;
+    }
+    return uniquesValues.has(String(value).toLowerCase());
+  },
+  getErrorString: () => _t("The value must be unique"),
+  isCriterionValueValid: () => true,
+  criterionValueErrorString: "",
+  numberOfValues: () => 0,
+  name: _t("Is value unique"),
+  getPreview: () => _t("Value is unique"),
+} satisfies CriterionEvaluator<Set<string>>);
+
+criterionEvaluatorRegistry.add("duplicateValues", {
+  type: "duplicateValues",
+  preComputeCriterion: (
+    criterion: DuplicateValuesCriterion,
+    criterionRanges: Range[],
+    getters: Getters
+  ): Set<string> => {
+    const occurrences = getOccurrencesInRanges(criterionRanges, getters);
+    return new Set<string>(Object.keys(occurrences).filter((key) => occurrences[key] !== 1));
+  },
+  isValueValid: (
+    value: CellValue,
+    criterion: EvaluatedCriterion<DuplicateValuesCriterion>,
+    duplicateValues
+  ) => {
+    if (value === null || duplicateValues === undefined) {
+      return false;
+    }
+    return duplicateValues.has(String(value).toLowerCase());
+  },
+  getErrorString: () => _t("The value must not be unique"),
+  isCriterionValueValid: () => true,
+  criterionValueErrorString: "",
+  numberOfValues: () => 0,
+  name: _t("Is value duplicate"),
+  getPreview: () => _t("Value is duplicate"),
+} satisfies CriterionEvaluator<Set<string>>);
+
 function getNumberCriterionlocalizedValues(
   criterion: EvaluatedCriterion,
   locale: Locale
@@ -832,4 +890,20 @@ function checkValueIsNumber(value: string): boolean {
 function checkValueIsPositiveNumber(value: string): boolean {
   const valueAsNumber = tryToNumber(value, DEFAULT_LOCALE);
   return valueAsNumber !== undefined && valueAsNumber > 0;
+}
+
+function getOccurrencesInRanges(
+  criterionRanges: Range[],
+  getters: Getters
+): Record<string, number> {
+  const occurrences: Record<string, number> = {};
+  for (const range of criterionRanges) {
+    for (const cellValue of getters.getRangeValues(range)) {
+      const key = toString(cellValue).toLowerCase();
+      if (key) {
+        occurrences[key] = (occurrences[key] || 0) + 1;
+      }
+    }
+  }
+  return occurrences;
 }

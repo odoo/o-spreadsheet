@@ -282,7 +282,7 @@ describe("Import xlsx data", () => {
     ["cellIs lessThanOrEqual", "B21"],
     ["cellIs between", "B22"],
     ["cellIs notBetween", "B23"],
-  ])("Can import conditional format '%s'", (cfDescription, cfStartRange) => {
+  ])("Can import conditional format %s", (cfDescription, cfStartRange) => {
     const testSheet = getWorkbookSheet("jestCfs", convertedData)!;
     const split = cfDescription.split(" ");
     const cfType = split[0];
@@ -296,8 +296,6 @@ describe("Import xlsx data", () => {
       case "notContainsErrors":
       case "timePeriod":
       case "aboveAverage":
-      case "uniqueValues":
-      case "duplicateValues":
       case "dataBar":
         // Unsupported CF types
         expect(cf).toBeUndefined();
@@ -315,6 +313,8 @@ describe("Import xlsx data", () => {
         break;
       case "containsBlanks":
       case "notContainsBlanks":
+      case "uniqueValues":
+      case "duplicateValues":
         operator = CF_TYPE_CONVERSION_MAP[cfType]!;
         break;
       case "cellIs":
@@ -325,7 +325,7 @@ describe("Import xlsx data", () => {
         }
         break;
       case "top10":
-        operator = "top10";
+        operator = CF_TYPE_CONVERSION_MAP[cfType]!;
         values.push("50");
         expect(cf.rule["isPercent"]).toBe(true);
         expect(cf.rule["isBottom"]).toBe(true);

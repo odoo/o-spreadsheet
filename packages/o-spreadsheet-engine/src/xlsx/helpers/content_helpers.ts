@@ -84,6 +84,10 @@ export function convertOperator(operator: ConditionalFormattingOperatorValues): 
       return "lessThanOrEqual";
     case "top10":
       return "top10";
+    case "uniqueValues":
+      return "uniqueValues";
+    case "duplicateValues":
+      return "duplicateValues";
   }
 }
 

@@ -5,15 +5,17 @@ import {
 } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { Model } from "../../src";
 import {
-  DEFAULT_LOCALE,
   DataValidationCriterion,
   DateCriterionValue,
+  DEFAULT_LOCALE,
+  DuplicateValuesCriterion,
   EvaluatedCriterion,
   GenericCriterion,
   GenericDateCriterion,
   Getters,
   Top10Criterion,
   UID,
+  UniqueValuesCriterion,
 } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -824,6 +826,80 @@ describe("Data validation registry", () => {
         { ...top10Criterion, isBottom: true, isPercent: true },
         "The value must be in bottom 3%"
       );
+    });
+  });
+
+  describe("Unique values", () => {
+    const criterion: UniqueValuesCriterion = { type: "uniqueValues", values: [] };
+    const evaluator = criterionEvaluatorRegistry.get("uniqueValues");
+
+    test("Can find unique values", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "20", A4: "20.5", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(20.5, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(true);
+    });
+
+    test("Unique values are case/type independent", () => {
+      setGrid(model, { A1: "10", A2: '="10"', A3: "HELLO", A4: "HeLLo" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("10", criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("HELLO", criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("HeLLo", criterion, preComputedResult)).toEqual(false);
+    });
+
+    test("Unique values ignore empty strings", () => {
+      setGrid(model, { A1: "'", A2: "Hello" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A2");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(null, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("", criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("Hello", criterion, preComputedResult)).toEqual(true);
+    });
+  });
+
+  describe("Duplicate values", () => {
+    const criterion: DuplicateValuesCriterion = { type: "duplicateValues", values: [] };
+    const evaluator = criterionEvaluatorRegistry.get("duplicateValues");
+
+    test("Can find duplicate values", () => {
+      setGrid(model, { A1: "10", A2: "20", A3: "20", A4: "20.5", A5: "50" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(20, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid(20.5, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(false);
+    });
+
+    test("Duplicate values are case/type independent", () => {
+      setGrid(model, { A1: "10", A2: '="10"', A3: "HELLO", A4: "HeLLo" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid("10", criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid("HELLO", criterion, preComputedResult)).toEqual(true);
+      expect(evaluator.isValueValid("HeLLo", criterion, preComputedResult)).toEqual(true);
+    });
+
+    test("Duplicate values ignore empty strings", () => {
+      setGrid(model, { A1: "'", A2: '=""', A3: undefined, A4: "Hello" });
+      const range = getters.getRangeFromSheetXC(sheetId, "A1:A4");
+
+      const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
+      expect(evaluator.isValueValid(null, criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("", criterion, preComputedResult)).toEqual(false);
+      expect(evaluator.isValueValid("Hello", criterion, preComputedResult)).toEqual(false);
     });
   });
 
