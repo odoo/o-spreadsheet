@@ -1819,6 +1819,38 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A4")).toEqual(cfStyle);
     });
 
+    test("Operator uniqueValues", () => {
+      const cfStyle = { fillColor: "#ff0f0f", italic: true };
+      setGrid(model, { A1: "Hello", A2: "hello", A3: "bonjour", A4: "22" });
+      addCfRule(model, "A1:A4", {
+        type: "CellIsRule",
+        operator: "uniqueValues",
+        values: [],
+        style: cfStyle,
+      });
+
+      expect(getStyle(model, "A1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({});
+      expect(getStyle(model, "A3")).toEqual(cfStyle);
+      expect(getStyle(model, "A4")).toEqual(cfStyle);
+    });
+
+    test("Operator duplicateValues", () => {
+      const cfStyle = { fillColor: "#ff0f0f", italic: true };
+      setGrid(model, { A1: "Hello", A2: "hello", A3: "bonjour", A4: "22" });
+      addCfRule(model, "A1:A4", {
+        type: "CellIsRule",
+        operator: "duplicateValues",
+        values: [],
+        style: cfStyle,
+      });
+
+      expect(getStyle(model, "A1")).toEqual(cfStyle);
+      expect(getStyle(model, "A2")).toEqual(cfStyle);
+      expect(getStyle(model, "A3")).toEqual({});
+      expect(getStyle(model, "A4")).toEqual({});
+    });
+
     test.each([
       ["isEmpty", ["", ""]],
       ["isEmpty", []],

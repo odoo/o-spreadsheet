@@ -49,8 +49,6 @@ export function convertConditionalFormats(
       case "aboveAverage":
       case "containsErrors":
       case "notContainsErrors":
-      case "duplicateValues":
-      case "uniqueValues":
       case "timePeriod":
         // Not supported
         continue;
@@ -89,6 +87,8 @@ export function convertConditionalFormats(
         operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
         values.push(`=${rule.formula[0]}`);
         break;
+      case "duplicateValues":
+      case "uniqueValues":
       case "containsBlanks":
       case "notContainsBlanks":
         operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
@@ -107,7 +107,7 @@ export function convertConditionalFormats(
         if (rule.rank === undefined) {
           continue;
         }
-        operator = CF_OPERATOR_TYPE_CONVERSION_MAP[rule.type];
+        operator = CF_TYPE_CONVERSION_MAP[rule.type];
         values.push(rule.rank.toString());
         if (rule.percent) {
           cfAdditionalProperties.isPercent = true;

@@ -239,6 +239,20 @@ criterionComponentRegistry.add("top10", {
   sequence: 7,
 });
 
+criterionComponentRegistry.add("uniqueValues", {
+  type: "uniqueValues",
+  component: undefined,
+  category: "relative",
+  sequence: 8,
+});
+
+criterionComponentRegistry.add("duplicateValues", {
+  type: "duplicateValues",
+  component: undefined,
+  category: "relative",
+  sequence: 9,
+});
+
 export function getCriterionMenuItems(
   callback: (type: GenericCriterionType) => void,
   availableTypes: Set<GenericCriterionType>
