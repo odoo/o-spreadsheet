@@ -386,7 +386,12 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     searchOptions: SearchOptions
   ) {
     const cell = this.getters.getCell(selectedMatch);
-    if (!cell?.content) {
+    let isEmptyCell = false;
+    if (!cell?.isFormula) {
+      isEmptyCell = !cell?.content;
+    }
+
+    if (isEmptyCell) {
       return;
     }
 

@@ -6,7 +6,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { getDateTimeFormat, localizeFormula } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { FormulaCellWithDependencies } from "@odoo/o-spreadsheet-engine/plugins/core/cell";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
@@ -273,16 +272,13 @@ export class CellComposerStore extends AbstractComposerStore {
 
   private getPrettifiedFormula(cell: FormulaCell): string {
     if (cell.compiledFormula.isBadExpression) {
-      return cell.content;
+      return cell.compiledFormula.toFormulaString(this.getters);
     }
     const width =
       this.editionMode === "inactive"
         ? Infinity // one liner
         : 80;
-    const tokens =
-      cell instanceof FormulaCellWithDependencies
-        ? cell.tokens
-        : cell.compiledFormula.getTokens(this.getters);
+    const tokens = cell.compiledFormula.getTokens(this.getters);
     return prettify(parseTokens(tokens), width);
   }
 

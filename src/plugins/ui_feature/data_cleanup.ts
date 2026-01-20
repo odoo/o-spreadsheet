@@ -213,8 +213,11 @@ export class DataCleanupPlugin extends UIPlugin {
       if (!cell) {
         continue;
       }
-      const trimmedContent = trimContent(cell.content);
-      if (trimmedContent !== cell.content) {
+      const originalContent = cell.isFormula
+        ? cell.compiledFormula.toFormulaString(this.getters)
+        : cell.content;
+      const trimmedContent = trimContent(originalContent);
+      if (trimmedContent !== originalContent) {
         count += 1;
         this.dispatch("UPDATE_CELL", {
           sheetId,

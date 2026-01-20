@@ -1,5 +1,4 @@
 import { compile, CompiledFormula, SerializedBananaCompiledFormula } from "../../formulas/compiler";
-import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
@@ -320,7 +319,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   export(data: WorkbookData, shouldSquish: boolean) {
     const formats: { [formatId: number]: string } = {};
     for (const _sheet of data.sheets) {
-      const squisher = new Squisher(this.getters.getSheetName);
+      const squisher = new Squisher(this.getters);
       const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: string | SquishedCell } = {};
       const positions = Object.keys(this.cells[_sheet.id] || {})
@@ -334,8 +333,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId].push(position);
         }
         const xc = toXC(position.col, position.row);
-        if (cell.isFormula && shouldSquish) {
-          cells[xc] = squisher.squish(cell, _sheet.id);
+        if (cell.isFormula) {
+          if (shouldSquish) {
+            cells[xc] = squisher.squish(cell, _sheet.id);
+          } else {
+            cells[xc] = cell.compiledFormula.toFormulaString(this.getters);
+          }
         } else {
           if (cell.content) {
             cells[xc] = cell.content;
@@ -410,13 +413,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     useBoundedReference: boolean = false
   ): string {
     const newFormula = CompiledFormula.CopyWithDependencies(compiledFormula, sheetId, dependencies);
-    const tempFormula = new FormulaCellWithDependencies(
-      "temp",
-      newFormula,
-      undefined,
-      this.getters
-    );
-    return useBoundedReference ? tempFormula.contentWithFixedReferences : tempFormula.content;
+    return newFormula.toFormulaString(this.getters, { useBoundedReference });
   }
 
   /*
@@ -553,8 +550,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const before = this.getters.getCell({ sheetId, col, row });
     const hasContent = "content" in after || "formula" in after;
 
+    const beforeContent = before?.isFormula
+      ? before.compiledFormula.toFormulaString(this.getters)
+      : before?.content;
+
     // Compute the new cell properties
-    const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
+    const afterContent = hasContent ? replaceNewLines(after?.content) : beforeContent || "";
     const format = "format" in after ? after.format : before && before.format;
 
     /* Read the following IF as:
@@ -566,7 +567,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *  */
     if (
       ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (!before || before.content === ""))) &&
+        (!hasContent && (!before || beforeContent === ""))) &&
       !format
     ) {
       if (before) {
@@ -631,7 +632,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
     return {
       id,
-      content,
+      //content,
       format,
       isFormula: true,
       compiledFormula,
@@ -653,7 +654,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
     return {
       id,
-      content: compiledFormula.toFormulaString(this.getters),
+      //content: compiledFormula.toFormulaString(this.getters),
       format,
       isFormula: true,
       compiledFormula,
@@ -691,7 +692,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (!cell) {
       return CommandResult.NoChanges;
     }
-    if (!cell.content && !style && !cell.format) {
+    const cellIsEmpty = !cell.isFormula && !cell.content;
+    if (cellIsEmpty && !style && !cell.format) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
@@ -703,8 +705,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasStyle = "style" in cmd;
     const oldStyle = hasStyle && this.getters.getCellStyle(cmd);
     const hasFormat = "format" in cmd;
+    const cellContent = cell?.isFormula
+      ? cell.compiledFormula.toFormulaString(this.getters)
+      : cell?.content;
     if (
-      (!hasContent || cell?.content === cmd.content) &&
+      (!hasContent || cellContent === cmd.content) &&
       (!hasStyle || deepEquals(oldStyle, cmd.style)) &&
       (!hasFormat || cell?.format === cmd.format)
     ) {
@@ -728,15 +733,8 @@ export class FormulaCellWithDependencies implements FormulaCell {
     this.getters = getters;
   }
 
-  get tokens(): readonly Token[] {
-    return this.compiledFormula.getTokens(this.getters);
-  }
-
   get content() {
+    throw new Error("no content for you!");
     return this.compiledFormula.toFormulaString(this.getters);
-  }
-
-  get contentWithFixedReferences() {
-    return this.compiledFormula.toFormulaString(this.getters, { useBoundedReference: true });
   }
 }

@@ -242,10 +242,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       for (let col = zoneToCheckIfEmpty.left; col <= zoneToCheckIfEmpty.right; col++) {
         const cellPosition = { sheetId, col, row };
         // Since this plugin is loaded before CellPlugin, the getters still give us the old cell content
-        const cellContent = this.getters.getCell(cellPosition)?.content;
+        const cell = this.getters.getCell(cellPosition);
+        let isEmpty = false;
+        if (!cell?.isFormula) {
+          isEmpty = !cell?.content;
+        }
 
         if (
-          cellContent ||
+          isEmpty ||
           this.getters.isInMerge(cellPosition) ||
           this.getTablesOverlappingZones(sheetId, [positionToZone(cellPosition)]).length
         ) {

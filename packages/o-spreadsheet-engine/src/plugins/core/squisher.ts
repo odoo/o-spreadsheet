@@ -2,6 +2,7 @@ import { deepEquals } from "../../helpers";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { getRangeString } from "../../helpers/range";
 import { Cell, FormulaCell } from "../../types/cells";
+import { CoreGetters } from "../../types/core_getters";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
 
@@ -18,7 +19,6 @@ export const NO_CHANGE = "=";
 
 export class Squisher {
   previousCell: FormulaCell | undefined;
-  private readonly getSheetName: (sheetId: UID) => string;
   private alreadyAppliedOffsets = [
     {
       rows: 0,
@@ -29,9 +29,10 @@ export class Squisher {
   private previousStrings: string[] = [];
   private previousNumberPattern: string | null = null;
   private previousReferencePattern: string | string[] | null = null;
+  private readonly getters: CoreGetters;
 
-  constructor(getSheetName: (sheetId: UID) => string) {
-    this.getSheetName = getSheetName;
+  constructor(getters: CoreGetters) {
+    this.getters = getters;
   }
 
   buildResultExcludingIdentical(
@@ -91,7 +92,7 @@ export class Squisher {
       this.previousCell.compiledFormula.normalizedFormula !== cell.compiledFormula.normalizedFormula
     ) {
       this.resetBaseTo(cell);
-      return cell.content;
+      return cell.compiledFormula.toFormulaString(this.getters);
     } else {
       numbers = this.squishNumbers(cell.compiledFormula.literalValues.numbers);
       strings = this.squishStrings(cell.compiledFormula.literalValues.strings);
@@ -185,7 +186,7 @@ export class Squisher {
       previousReference.invalidSheetName !== reference.invalidSheetName
     ) {
       // sheet changed, cannot squish
-      return getRangeString(reference, forSheetId, this.getSheetName);
+      return getRangeString(reference, forSheetId, this.getters.getSheetName);
     }
     if (
       previousReference.unboundedZone.bottom === undefined ||
@@ -194,7 +195,7 @@ export class Squisher {
       reference.unboundedZone.right === undefined
     ) {
       // unbounded ranges, cannot squish
-      return getRangeString(reference, forSheetId, this.getSheetName);
+      return getRangeString(reference, forSheetId, this.getters.getSheetName);
     }
     for (let i = 0; i < reference.parts.length; i++) {
       if (
@@ -202,7 +203,7 @@ export class Squisher {
         previousReference.parts[i].rowFixed !== reference.parts[i].rowFixed
       ) {
         // absolute/relative parts changed, cannot squish
-        return getRangeString(reference, forSheetId, this.getSheetName);
+        return getRangeString(reference, forSheetId, this.getters.getSheetName);
       }
     }
     const currentZone = reference.zone;
@@ -214,7 +215,7 @@ export class Squisher {
       previousZone.left !== previousZone.right
     ) {
       // ranges, cannot squish
-      return getRangeString(reference, forSheetId, this.getSheetName);
+      return getRangeString(reference, forSheetId, this.getters.getSheetName);
     }
 
     if (
@@ -236,7 +237,7 @@ export class Squisher {
         return "+R" + diffRow.toString();
       }
     }
-    return getRangeString(reference, forSheetId, this.getSheetName);
+    return getRangeString(reference, forSheetId, this.getters.getSheetName);
   }
 
   /**

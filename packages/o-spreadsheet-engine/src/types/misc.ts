@@ -219,7 +219,7 @@ export function isMatrix(x: any): x is Matrix<any> {
 export interface ClipboardCell {
   evaluatedCell: EvaluatedCell;
   position: CellPosition;
-  content: string;
+  content?: string;
   style?: Style | undefined;
   format?: Format | undefined;
   compiledFormula?: CompiledFormula;

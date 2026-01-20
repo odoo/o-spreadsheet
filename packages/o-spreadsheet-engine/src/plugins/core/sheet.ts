@@ -761,7 +761,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         sheetId: newSheet.id,
         col,
         row,
-        content: cell.content,
+        content: cell.isFormula ? cell.compiledFormula.toFormulaString(this.getters) : cell.content,
         format: cell.format,
         style,
       });

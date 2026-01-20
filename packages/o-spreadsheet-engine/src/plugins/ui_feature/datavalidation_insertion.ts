@@ -15,14 +15,21 @@ export class DataValidationInsertionPlugin extends UIPlugin {
             const cell = this.getters.getCell(position);
             const evaluatedCell = this.getters.getEvaluatedCell(position);
 
-            if (!cell?.content) {
+            if (!cell?.isFormula && !cell?.content) {
               this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
               // In this case, a cell has been updated in the core plugin but
               // not yet evaluated. This can occur after a paste operation.
-            } else if (cell?.content && evaluatedCell.type === CellValueType.empty) {
+            } else if (
+              (cell.isFormula || cell?.content) &&
+              evaluatedCell.type === CellValueType.empty
+            ) {
               let value: string | undefined;
-              if (cell.content.startsWith("=")) {
-                const result = this.getters.evaluateFormula(position.sheetId, cell.content);
+              if (cell.isFormula) {
+                // TODO: it's weird to have to re-evaluate the formula here, especially from it's string representation
+                const result = this.getters.evaluateFormula(
+                  position.sheetId,
+                  cell.compiledFormula.toFormulaString(this.getters)
+                );
                 value = (isMatrix(result) ? result[0][0] : result)?.toString();
               } else {
                 value = cell.content;

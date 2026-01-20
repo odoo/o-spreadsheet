@@ -16,7 +16,7 @@ export interface LiteralCell extends CellAttributes {
   readonly parsedValue: CellValue;
 }
 
-export interface FormulaCell extends CellAttributes {
+export interface FormulaCell extends Omit<CellAttributes, "content"> {
   readonly isFormula: true;
   readonly compiledFormula: CompiledFormula;
 }

@@ -167,13 +167,17 @@ export class Evaluator {
     const impactedRanges = new RangeSet();
 
     for (const position of positions) {
-      const content = this.getters.getCell(position)?.content;
+      const cell = this.getters.getCell(position);
+      let cellHasNoContent = false;
+      if (!cell?.isFormula) {
+        cellHasNoContent = !cell?.content;
+      }
       const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
       if (arrayFormulaPosition !== undefined) {
         // take into account new collisions.
         impactedRanges.addPosition(arrayFormulaPosition);
       }
-      if (!content) {
+      if (cellHasNoContent) {
         // The previous content could have blocked some array formulas
         impactedRanges.addPosition(position);
       }
@@ -489,6 +493,7 @@ export class Evaluator {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
       if (
+        rawCell?.isFormula ||
         rawCell?.content ||
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
@@ -534,8 +539,8 @@ export class Evaluator {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const resultPosition = { sheetId: position.sheetId, col, row };
-        const content = this.getters.getCell(resultPosition)?.content;
-        if (content) {
+        const cell = this.getters.getCell(resultPosition);
+        if (cell?.isFormula || cell?.content) {
           // there's no point at re-evaluating overlapping array formulas,
           // there's still a collision
           continue;

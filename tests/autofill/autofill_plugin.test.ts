@@ -626,11 +626,11 @@ describe("Autofill", () => {
     ])("Autofill invalid range  due to row deletion", (initialFormula, expectedInvalidFormula) => {
       setCellContent(model, "C2", initialFormula);
       deleteRows(model, [0]);
-      expect(getCell(model, "C1")?.content).toBe(expectedInvalidFormula);
+      expect(getCellContent(model, "C1")).toBe(expectedInvalidFormula);
       autofill("C1", "C2");
       autofill("C1", "D1");
-      expect(getCell(model, "C2")?.content).toBe(expectedInvalidFormula);
-      expect(getCell(model, "D1")?.content).toBe(expectedInvalidFormula);
+      expect(getCellContent(model, "C2")).toBe(expectedInvalidFormula);
+      expect(getCellContent(model, "D1")).toBe(expectedInvalidFormula);
     });
 
     test.each([

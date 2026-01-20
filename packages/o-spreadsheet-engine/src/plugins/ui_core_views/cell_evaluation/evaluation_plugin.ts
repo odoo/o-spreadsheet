@@ -1,5 +1,4 @@
 import { CompiledFormula } from "../../../formulas/compiler";
-// import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
@@ -23,7 +22,6 @@ import {
 } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
-import { FormulaCellWithDependencies } from "../../core/cell";
 import { SquishedCell } from "../../core/squisher";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
@@ -373,7 +371,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
       if (formulaCell) {
         const cell = this.getters.getCell(position);
         isExported = formulaCell.compiledFormula.areAllFunctionsExportableToExcel();
-        isFormula = isExported && cell?.content === formulaCell.content;
+        isFormula = isExported && cell?.isFormula === true;
 
         // If the cell contains a non-exported formula and that is evaluated to
         // nothing* ,we don't export it.
@@ -392,8 +390,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
       const exportedCellData = exportedSheetData.cells[xc];
 
       let content: string | undefined | SquishedCell;
-      if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
-        content = formulaCell.contentWithFixedReferences;
+      if (isExported && isFormula && formulaCell?.compiledFormula instanceof CompiledFormula) {
+        content = formulaCell.compiledFormula.toFormulaString(this.getters, {
+          useBoundedReference: true,
+        });
       } else {
         content = !isExported ? newContent : exportedCellData;
       }

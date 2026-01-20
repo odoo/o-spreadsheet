@@ -135,10 +135,12 @@ export class SheetUIPlugin extends UIPlugin {
   ): string {
     const cell = this.getters.getCell(position);
     const locale = this.getters.getLocale();
-    if (args?.showFormula && cell?.isFormula) {
-      return localizeFormula(cell.content, locale);
-    } else if (args?.showFormula && !cell?.content) {
-      return "";
+    if (args?.showFormula) {
+      if (cell?.isFormula) {
+        return localizeFormula(cell.compiledFormula.toFormulaString(this.getters), locale);
+      } else {
+        return cell?.content || "";
+      }
     } else {
       const style = this.getters.getCellStyle(position);
       const evaluatedCell = this.getters.getEvaluatedCell(position);

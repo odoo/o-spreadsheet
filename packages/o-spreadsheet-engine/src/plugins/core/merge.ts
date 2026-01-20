@@ -287,7 +287,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = this.getters.getCell({ sheetId, col, row });
-          if (cell && cell.content !== "") {
+          if (cell?.isFormula || cell?.content !== "") {
             return true;
           }
         }
