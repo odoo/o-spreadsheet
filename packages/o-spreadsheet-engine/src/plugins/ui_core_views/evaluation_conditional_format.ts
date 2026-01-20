@@ -24,7 +24,8 @@ import {
 import { EvaluatedCriterion, EvaluatedDateCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
+import { Evaluator } from "./cell_evaluation/evaluator";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
@@ -41,6 +42,14 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
   private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
   private computedDataBars: { [sheet: string]: Lazy<ComputedDataBars> } = {};
+  private evaluator: Evaluator;
+
+  constructor(config: CoreViewPluginConfig) {
+    super(config);
+    //@ts-ignore TODOPRO Au secours
+    this.evaluator = new Evaluator(config.custom, this.getters);
+    this.evaluator;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -57,6 +66,17 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   }
 
   finalize() {
+    //TODOPRO Deduplicate with onEvaluationComplete
+    if (this.isStale) {
+      for (const sheetId of this.getters.getSheetIds()) {
+        this.computedStyles[sheetId] = lazy(() => ({}));
+        this.computedIcons[sheetId] = lazy(() => ({}));
+        this.computedDataBars[sheetId] = lazy(() => ({}));
+      }
+    }
+  }
+
+  onEvaluationComplete() {
     if (this.isStale) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));

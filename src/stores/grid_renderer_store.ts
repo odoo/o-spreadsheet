@@ -125,7 +125,7 @@ export class GridRenderer extends SpreadsheetStore {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     this.zonesWithPreventedAnimationsInNextFrame = recomputeZones(
       this.zonesWithPreventedAnimationsInNextFrame
     );

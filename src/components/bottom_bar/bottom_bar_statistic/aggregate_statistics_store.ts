@@ -98,7 +98,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     if (this.isDirty) {
       this.isDirty = false;
       this.statisticFnResults = this._computeStatisticFnResults();

@@ -107,7 +107,7 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     if (this.shouldUpdateColors) {
       this.history.update("shouldUpdateColors", false);
       this.tryToAddColors(this.computeCustomColors());

@@ -147,7 +147,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     if (this.isSearchDirty) {
       this.refreshSearch({
         jumpToMatchSheet: false,

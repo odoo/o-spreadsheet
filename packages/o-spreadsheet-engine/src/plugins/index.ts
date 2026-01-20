@@ -20,7 +20,6 @@ import { TableStylePlugin } from "./core/table_style";
 import { TablePlugin } from "./core/tables";
 import { CorePluginConstructor } from "./core_plugin";
 import { CoreViewPluginConstructor } from "./core_view_plugin";
-import { EvaluationPlugin } from "./ui_core_views/cell_evaluation";
 import { CellIconPlugin } from "./ui_core_views/cell_icon_plugin";
 import { CustomColorsPlugin } from "./ui_core_views/custom_colors";
 import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
@@ -115,7 +114,6 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
-  .add("evaluation", EvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
   .add("row_size", HeaderSizeUIPlugin)

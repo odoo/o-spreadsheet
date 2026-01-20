@@ -54,7 +54,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
     }
   }
 
-  finalize() {
+  onEvaluationComplete() {
     for (const sheetId of this.getters.getSheetIds()) {
       if (!this.tables[sheetId]) {
         this.tables[sheetId] = this.computeTables(sheetId);

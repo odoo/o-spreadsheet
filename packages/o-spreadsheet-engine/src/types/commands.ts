@@ -1482,6 +1482,7 @@ export interface CommandHandler<T> {
   beforeHandle(command: T): void;
   handle(command: T): void;
   finalize(): void;
+  onEvaluationComplete(): void;
 }
 
 export interface CommandDispatcher {

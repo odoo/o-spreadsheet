@@ -33,6 +33,7 @@
         <div class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
           <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
           <BottomBar t-else="" onClick="() => this.focusGrid()"/>
+          <SpreadsheetProgressBar t-props="{longRunner: model.getters.getLongRunner()}"/>
         </div>
       </t>
     </div>

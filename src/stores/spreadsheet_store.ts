@@ -13,7 +13,7 @@ export class SpreadsheetStore extends DisposableStore {
   constructor(get: Get) {
     super(get);
     this.model.on("command-dispatched", this, this.handle);
-    this.model.on("command-finalized", this, this.finalize);
+    this.model.on("command-finalized", this, this.onEvaluationComplete);
     this.renderer.register(this);
 
     this.onDispose(() => {
@@ -29,6 +29,7 @@ export class SpreadsheetStore extends DisposableStore {
 
   protected handle(cmd: Command) {}
   protected finalize() {}
+  protected onEvaluationComplete() {}
 
   drawLayer(ctx: GridRenderingContext, layer: LayerName, timestamp: number | undefined) {}
 }

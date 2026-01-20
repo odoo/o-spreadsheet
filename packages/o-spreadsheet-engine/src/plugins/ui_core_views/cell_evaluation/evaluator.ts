@@ -24,6 +24,7 @@ import {
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
+import { LongRunner, SynchronousLongRunner } from "../../../helpers/long_runner";
 import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
@@ -56,6 +57,8 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  public asyncLongRunner: LongRunner = new LongRunner(); //TODOPRO Public is perfect :D
+  private syncLongRunner: SynchronousLongRunner = new SynchronousLongRunner();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -296,22 +299,32 @@ export class Evaluator {
       const ranges = [...this.nextRangesToUpdate];
       this.nextRangesToUpdate.clear();
       this.clearEvaluatedRanges(ranges);
-      for (const range of ranges) {
-        const { left, bottom, right, top } = range.zone;
-        for (let col = left; col <= right; col++) {
-          for (let row = top; row <= bottom; row++) {
-            const position = { sheetId: range.sheetId, col, row };
-            if (this.nextRangesToUpdate.hasPosition(position)) {
-              continue;
-            }
-            const evaluatedCell = this.computeCell(position);
-            if (evaluatedCell !== EMPTY_CELL) {
-              this.evaluatedCells.set(position, evaluatedCell);
+      this.asyncLongRunner; //TODOPRO Later
+      this.syncLongRunner; //TODOPRO Later
+      this.asyncLongRunner.queueJob(
+        "evaluation",
+        ranges,
+        (range) => {
+          const { left, bottom, right, top } = range.zone;
+          for (let col = left; col <= right; col++) {
+            for (let row = top; row <= bottom; row++) {
+              const position = { sheetId: range.sheetId, col, row };
+              if (this.nextRangesToUpdate.hasPosition(position)) {
+                continue;
+              }
+              const evaluatedCell = this.computeCell(position);
+              if (evaluatedCell !== EMPTY_CELL) {
+                this.evaluatedCells.set(position, evaluatedCell);
+              }
             }
           }
-        }
-      }
-      onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
+        },
+        1,
+        () => {
+          onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
+        },
+        15
+      ); //TODOPRO Finetune parameters
     }
     if (currentIteration >= MAX_ITERATION) {
       console.warn("Maximum iteration reached while evaluating cells");
