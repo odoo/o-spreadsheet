@@ -18,7 +18,7 @@ import {
 } from "../../types/data_validation";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import { CellPosition, HeaderIndex, Lazy, Matrix, Offset, Style, UID } from "../../types/misc";
+import { CellPosition, HeaderIndex, Lazy, Offset, Style, UID } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface InvalidValidationResult {
@@ -285,7 +285,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     sheetId: UID,
     offset: Offset,
     criterion: DataValidationCriterion
-  ): (CellValue | Matrix<CellValue>)[] {
+  ): (CellValue | CellValue[][])[] {
     return criterion.values.map((value) => {
       if (!value.startsWith("=")) {
         return parseLiteral(value, DEFAULT_LOCALE);

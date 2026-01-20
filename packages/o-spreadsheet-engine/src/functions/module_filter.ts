@@ -5,17 +5,14 @@ import { CellValue, CellValueType } from "../types/cells";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import { Arg, FunctionResultObject, isMatrix, Matrix, Maybe, SortDirection } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe, SortDirection } from "../types/misc";
 import { arg } from "./arguments";
-import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
-import { toScalar } from "./helper_matrices";
-import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
+import { isMimicMatrix, MimicMatrix, toMimicMatrix, toScalarMimicMatrix } from "./helper_arg";
+import { areSameDimensions, assert } from "./helper_assert";
+import { toBoolean, toNumber } from "./helpers";
 
-function sortMatrix(
-  matrix: Matrix<FunctionResultObject>,
-  locale: Locale,
-  ...criteria: Arg[]
-): Matrix<FunctionResultObject> {
+// TO DO: see to rewrite sortMatrix to avoid to transpose twice in SORT and SORTN
+function sortMatrix(matrix: MimicMatrix, locale: Locale, ...criteria: Arg[]): MimicMatrix {
   for (let i = 0; i < criteria.length; i++) {
     const param = i % 2 === 0 ? "sort_column" : "is_ascending";
     assert(
@@ -25,33 +22,33 @@ function sortMatrix(
   }
   const sortingOrders: SortDirection[] = [];
   const sortColumns: Matrix<CellValue> = [];
-  const nRows = matrix.length;
+  const nRows = matrix.width;
   for (let i = 0; i < criteria.length; i += 2) {
-    sortingOrders.push(toBoolean(toScalar(criteria[i + 1])?.value) ? "asc" : "desc");
+    sortingOrders.push(toBoolean(toScalarMimicMatrix(criteria[i + 1])?.value) ? "asc" : "desc");
     const sortColumn = criteria[i];
-    if (isMatrix(sortColumn) && (sortColumn.length > 1 || sortColumn[0].length > 1)) {
+    if (isMimicMatrix(sortColumn) && (sortColumn.width > 1 || sortColumn.height > 1)) {
       assert(
-        sortColumn.length === 1 && sortColumn[0].length === nRows,
+        sortColumn.width === 1 && sortColumn.height === nRows,
         _t(
           "Wrong size for %s. Expected a range of size 1x%s. Got %sx%s.",
           `sort_column${i + 1}`,
           nRows,
-          sortColumn.length,
-          sortColumn[0].length
+          sortColumn.width,
+          sortColumn.height
         )
       );
-      sortColumns.push(sortColumn.flat().map((c) => c.value));
+      sortColumns.push(sortColumn.flatten("rowFirst", (c) => c.value));
     } else {
-      const colIndex = toNumber(toScalar(sortColumn)?.value, locale);
-      if (colIndex < 1 || colIndex > matrix[0].length) {
+      const colIndex = toNumber(toScalarMimicMatrix(sortColumn)?.value, locale);
+      if (colIndex < 1 || colIndex > matrix.height) {
         return matrix;
       }
-      sortColumns.push(matrix.map((row) => row[colIndex - 1].value));
+      sortColumns.push(matrix.getRow(colIndex - 1).flatten("rowFirst", (c) => c.value));
     }
   }
   if (sortColumns.length === 0) {
-    for (let i = 0; i < matrix[0].length; i++) {
-      sortColumns.push(matrix.map((row) => row[i].value));
+    for (let i = 0; i < matrix.height; i++) {
+      sortColumns.push(matrix.getRow(i).flatten("rowFirst", (c) => c.value));
       sortingOrders.push("asc");
     }
   }
@@ -59,7 +56,7 @@ function sortMatrix(
     desc: cellsSortingCriterion("desc"),
     asc: cellsSortingCriterion("asc"),
   };
-  const indexes = range(0, matrix.length);
+  const indexes = range(0, matrix.width);
   indexes.sort((a, b) => {
     for (const [i, sortColumn] of sortColumns.entries()) {
       const left = sortColumn[a];
@@ -89,7 +86,9 @@ function sortMatrix(
     }
     return 0;
   });
-  return indexes.map((i) => matrix[i]);
+  return new MimicMatrix(indexes.length, matrix.height, (col, row) =>
+    matrix.get(indexes[col], row)
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -107,41 +106,58 @@ export const FILTER = {
     ),
   ],
   compute: function (range: Arg, ...conditions: Arg[]) {
-    let _array = toMatrix(range);
-    const _conditionsMatrices = conditions.map((cond) =>
-      matrixMap(toMatrix(cond), (data) => data.value)
-    );
-    for (const c of _conditionsMatrices) {
-      if (!isSingleColOrRow(c)) {
+    const _array = toMimicMatrix(range);
+    const _conditions = conditions.map((cond) => toMimicMatrix(cond));
+
+    for (const c of _conditions) {
+      if (!c.isSingleColOrRow()) {
         return new EvaluationError(_t("The arguments condition must be a single column or row."));
       }
     }
     if (!areSameDimensions(...conditions)) {
       return new EvaluationError(_t("The arguments conditions must have the same dimensions."));
     }
-    const _conditions = _conditionsMatrices.map((c) => c.flat());
 
-    const mode = _conditionsMatrices[0].length === 1 ? "row" : "col";
-    _array = mode === "row" ? transposeMatrix(_array) : _array;
-    if (_conditions.some((cond) => cond.length !== _array.length)) {
+    const filterByRow = _conditions[0].width === 1 ? true : false;
+    if (
+      (!filterByRow && _conditions[0].width !== _array.width) ||
+      (filterByRow && _conditions[0].height !== _array.height)
+    ) {
       return new EvaluationError(_t("FILTER has mismatched sizes on the range and conditions."));
     }
 
-    const result: Matrix<FunctionResultObject> = [];
-    for (let i = 0; i < _array.length; i++) {
-      const row = _array[i];
-      if (
-        _conditions.every((c) => (typeof c[i] === "boolean" || typeof c[i] === "number") && c[i])
-      ) {
-        result.push(row);
+    const length = filterByRow ? _array.height : _array.width;
+    const validIndexes: number[] = [];
+
+    for (let idx = 0; idx < length; idx++) {
+      let everyPositive = true;
+      for (let i = 0; i < _conditions.length; i++) {
+        const value = filterByRow
+          ? _conditions[i].get(0, idx).value
+          : _conditions[i].get(idx, 0).value;
+        const isBoolean = typeof value === "boolean" || typeof value === "number";
+        if (!isBoolean || !value) {
+          everyPositive = false;
+          break;
+        }
+      }
+      if (everyPositive) {
+        validIndexes.push(idx);
       }
     }
 
-    if (!result.length) {
+    if (validIndexes.length === 0) {
       return new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
-    return mode === "row" ? transposeMatrix(result) : result;
+    if (filterByRow) {
+      return new MimicMatrix(_array.width, validIndexes.length, (col, row) =>
+        _array.get(col, validIndexes[row])
+      );
+    }
+    return new MimicMatrix(validIndexes.length, _array.height, (col, row) =>
+      _array.get(validIndexes[col], row)
+    );
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -170,12 +186,9 @@ export const SORT: AddFunctionDescription = {
       ]
     ),
   ],
-  compute: function (
-    range: Matrix<FunctionResultObject>,
-    ...sortingCriteria: Arg[]
-  ): Matrix<FunctionResultObject> {
-    const _range = transposeMatrix(range);
-    return transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria));
+  compute: function (range: MimicMatrix, ...sortingCriteria: Arg[]) {
+    const _range = range.transpose();
+    return sortMatrix(_range, this.locale, ...sortingCriteria).transpose();
   },
   isExported: true,
 };
@@ -210,11 +223,11 @@ export const SORTN: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    range: Matrix<FunctionResultObject>,
+    range: MimicMatrix,
     n: Maybe<FunctionResultObject>,
     ...displayTiesMode_sortingCriteria: [Maybe<FunctionResultObject>, ...Array<Arg>]
   ): any {
-    const _n = toNumber(n?.value ?? 1, this.locale);
+    const _n = Math.min(toNumber(n?.value ?? 1, this.locale), range.height);
 
     const _displayTiesMode: number =
       displayTiesMode_sortingCriteria.length % 2 === 0
@@ -237,10 +250,10 @@ export const SORTN: AddFunctionDescription = {
         )
       );
     }
-    const sortedData = sortMatrix(transposeMatrix(range), this.locale, ...sortingCriteria);
+    const sortedData = sortMatrix(range.transpose(), this.locale, ...sortingCriteria);
     const sameRows = (i: number, j: number) =>
-      JSON.stringify(sortedData[i].map((c) => c.value)) ===
-      JSON.stringify(sortedData[j].map((c) => c.value));
+      JSON.stringify(sortedData.getCol(i).flatten("rowFirst", (c) => c.value)) ===
+      JSON.stringify(sortedData.getCol(j).flatten("rowFirst", (c) => c.value));
     /*
      * displayTiesMode determine how ties (equal values) are dealt with:
      * 0 - ignore ties and show first n rows only
@@ -250,41 +263,47 @@ export const SORTN: AddFunctionDescription = {
      */
     switch (_displayTiesMode) {
       case 0:
-        return transposeMatrix(sortedData.slice(0, _n));
+        return sortedData.sliceCols(0, _n).transpose();
       case 1:
-        for (let i = _n; i < sortedData.length; i++) {
+        for (let i = _n; i < sortedData.width; i++) {
           if (!sameRows(i, _n - 1)) {
-            return transposeMatrix(sortedData.slice(0, i));
+            return sortedData.sliceCols(0, i).transpose();
           }
         }
-        return transposeMatrix(sortedData);
+        return sortedData.transpose();
       case 2: {
-        const uniques = [sortedData[0]];
-        for (let i = 1; i < sortedData.length; i++) {
+        const uniqueIndex = [0];
+
+        for (let i = 1; i < sortedData.width; i++) {
           for (let j = 0; j < i; j++) {
             if (sameRows(i, j)) {
               break;
             }
             if (j === i - 1) {
-              uniques.push(sortedData[i]);
+              uniqueIndex.push(i);
             }
           }
         }
-        return transposeMatrix(uniques.slice(0, _n));
+        const reduceUniqueIndex = uniqueIndex.slice(0, _n);
+        return new MimicMatrix(reduceUniqueIndex.length, sortedData.height, (col, row) =>
+          sortedData.getCol(reduceUniqueIndex[col]).get(0, row)
+        ).transpose();
       }
       case 3: {
-        const uniques = [sortedData[0]];
+        const uniqueIndexes = [0];
         let counter = 1;
-        for (let i = 1; i < sortedData.length; i++) {
+        for (let i = 1; i < sortedData.width; i++) {
           if (!sameRows(i, i - 1)) {
             counter++;
           }
           if (counter > _n) {
             break;
           }
-          uniques.push(sortedData[i]);
+          uniqueIndexes.push(i);
         }
-        return transposeMatrix(uniques);
+        return new MimicMatrix(uniqueIndexes.length, sortedData.height, (col, row) =>
+          sortedData.getCol(uniqueIndexes[col]).get(0, row)
+        ).transpose();
       }
     }
   },
@@ -316,45 +335,46 @@ export const UNIQUE = {
     ),
   ],
   compute: function (
-    range: Arg = { value: "" },
+    range: Arg,
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>
   ) {
-    if (!isMatrix(range)) {
-      return [[range]];
-    }
-
+    let _range = toMimicMatrix(range);
     const _byColumn = toBoolean(byColumn?.value) || false;
     const _exactlyOnce = toBoolean(exactlyOnce?.value) || false;
+    // TO DO: optimize this function to avoid transposing twice
     if (!_byColumn) {
-      range = transposeMatrix(range);
+      _range = _range.transpose();
     }
 
-    const map: Map<string, { data: FunctionResultObject[]; count: number }> = new Map();
+    const map: Map<string, { index: number; count: number }> = new Map();
 
-    for (const data of range) {
-      const key = JSON.stringify(data.map((item) => item.value));
+    for (let i = 0; i < _range.width; i++) {
+      const key = JSON.stringify(_range.getCol(i).flatten("rowFirst", (c) => c.value));
       const occurrence = map.get(key);
       if (!occurrence) {
-        map.set(key, { data, count: 1 });
+        map.set(key, { index: i, count: 1 });
       } else {
         occurrence.count++;
       }
     }
 
-    const result: Matrix<FunctionResultObject> = [];
+    const uniqueIndexes: number[] = [];
     for (const row of map.values()) {
       if (_exactlyOnce && row.count > 1) {
         continue;
       }
-      result.push(row.data);
+      uniqueIndexes.push(row.index);
     }
 
-    if (!result.length) {
+    if (!uniqueIndexes.length) {
       return new EvaluationError(_t("No unique values found"));
     }
 
-    return _byColumn ? result : transposeMatrix(result);
+    const result = new MimicMatrix(uniqueIndexes.length, _range.height, (col, row) =>
+      _range.getCol(uniqueIndexes[col]).get(0, row)
+    );
+    return _byColumn ? result : result.transpose();
   },
   isExported: true,
 } satisfies AddFunctionDescription;

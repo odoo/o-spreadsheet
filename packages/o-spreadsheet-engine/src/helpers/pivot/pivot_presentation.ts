@@ -1,6 +1,7 @@
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 
 import { handleError } from "../../functions/create_compute_function";
+import { matrixToMimicMatrix } from "../../functions/helper_arg";
 import { toNumber, transposeMatrix } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
@@ -119,7 +120,7 @@ export default function (PivotClass: PivotUIConstructor) {
           return { value: 0 };
         }
         try {
-          return aggregator([values], this.getters.getLocale());
+          return aggregator(matrixToMimicMatrix([values]), this.getters.getLocale()); // TO DO optimize Pivot
         } catch (error) {
           return handleError(error, measure.aggregator.toUpperCase());
         }

@@ -34,6 +34,7 @@ import {
 } from "../test_helpers/helpers";
 
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { matrixToMimicMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import { AutofillPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/autofill";
 import { Model } from "../../src";
 import { DIRECTION } from "../../src/types/index";
@@ -821,11 +822,11 @@ describe("Autofill", () => {
     addToRegistry(functionRegistry, "SPREAD.EMPTY", {
       description: "spreads empty values",
       args: [],
-      compute: function (): null[][] {
-        return [
+      compute: function () {
+        return matrixToMimicMatrix([
           [null, null, null], // return 2 col, 3 row matrix
           [null, null, null],
-        ];
+        ]);
       },
       isExported: false,
     });

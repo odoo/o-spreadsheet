@@ -1,6 +1,6 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { toMimicMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import { toCartesian } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CellErrorType, CellValueType, ErrorCell, EvaluationError, UID } from "../../src/types";
@@ -316,11 +316,12 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
 
-  test("Evaluate only existing cells from a range partially outside of sheet", () => {
+  test("Can evaluate cells from a range partially outside of sheet", () => {
     addToRegistry(functionRegistry, "RANGE.COUNT.FUNCTION", {
       description: "any function",
       compute: function (range) {
-        return toMatrix(range).flat().length;
+        const values = toMimicMatrix(range);
+        return { value: values.width * values.height };
       },
       args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
     });
@@ -329,10 +330,10 @@ describe("evaluateCells", () => {
     setCellContent(model, "A1", "=RANGE.COUNT.FUNCTION(A2:AZ999)");
     setCellContent(model, "A2", "=RANGE.COUNT.FUNCTION(B2:AZ2)");
 
-    expect(getEvaluatedCell(model, "A1").value).toBe(2574);
-    expect(getEvaluatedCell(model, "A2").value).toBe(25);
+    expect(getEvaluatedCell(model, "A1").value).toBe(51896);
+    expect(getEvaluatedCell(model, "A2").value).toBe(51);
     addColumns(model, "after", "Z", 1);
-    expect(getEvaluatedCell(model, "A2").value).toBe(26);
+    expect(getEvaluatedCell(model, "A2").value).toBe(52);
   });
 
   test("range totally outside of sheet", () => {
@@ -1398,7 +1399,9 @@ describe("evaluate formula getter", () => {
     let value = 1;
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => {
+        return { value };
+      },
       args: [],
     });
     setCellContent(model, "A1", "=GETVALUE()");
@@ -1419,7 +1422,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("cells are re-evaluated if one of their dependency changes", () => {
-    const mockCompute = jest.fn().mockReturnValue("Hi");
+    const mockCompute = jest.fn().mockReturnValue({ value: "Hi" });
 
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1430,7 +1433,7 @@ describe("evaluate formula getter", () => {
     expect(getCellContent(model, "A1")).toBe("Hi");
     expect(mockCompute).toHaveBeenCalledTimes(1);
     resetAllMocks();
-    mockCompute.mockReturnValue("Hello");
+    mockCompute.mockReturnValue({ value: "Hello" });
     setCellContent(model, "A2", "1");
     expect(getCellContent(model, "A1")).toBe("Hello");
     expect(mockCompute).toHaveBeenCalledTimes(1);
@@ -1440,7 +1443,9 @@ describe("evaluate formula getter", () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => {
+        return { value };
+      },
       args: [],
     });
     setCellContent(model, "A1", "=SUM(A2)");
@@ -1457,7 +1462,9 @@ describe("evaluate formula getter", () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => {
+        return { value };
+      },
       args: [],
     });
     createSheet(model, { sheetId: "sheet2" });

@@ -1,4 +1,5 @@
 import { handleError } from "../../../functions/create_compute_function";
+import { matrixToMimicMatrix } from "../../../functions/helper_arg";
 import { toString } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
@@ -278,7 +279,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
 
     try {
-      const result = operator([allValues], this.getters.getLocale());
+      const result = operator(matrixToMimicMatrix([allValues]), this.getters.getLocale()); // TO DO optimize Pivot
       if (values.length === 0) {
         return { ...result, value: "" };
       }

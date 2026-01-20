@@ -1,10 +1,12 @@
 import { toXC } from "../helpers/coordinates";
 import { _t } from "../translation";
+import { CellValue } from "../types/cells";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { isEvaluationError, toMatrix, toString } from "./helpers";
+import { toMimicMatrix } from "./helper_arg";
+import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
@@ -44,41 +46,48 @@ export const CELL = {
       );
     }
 
-    const firstReference = toMatrix(reference)[0][0];
+    const firstReference = toMimicMatrix(reference).get(0, 0);
     const position = firstReference.position;
     if (position === undefined) {
       return new EvaluationError(_t("The reference is invalid."));
     }
 
+    let result: CellValue = "";
     switch (_info) {
       case "address":
         const sheetName =
           this.__originSheetId === position.sheetId
             ? ""
             : this.getters.getSheetName(position.sheetId) + "!";
-        return sheetName + toXC(position.col, position.row, { colFixed: true, rowFixed: true });
+        result = sheetName + toXC(position.col, position.row, { colFixed: true, rowFixed: true });
+        break;
       case "col":
-        return position.col + 1;
+        result = position.col + 1;
+        break;
       case "contents": {
-        return firstReference.value;
+        result = firstReference.value;
+        break;
       }
       case "format": {
-        return firstReference.format || "";
+        result = firstReference.format || "";
+        break;
       }
       case "row":
-        return position.row + 1;
+        result = position.row + 1;
+        break;
       case "type": {
         if (firstReference.type === "empty") {
-          return "b"; // blank
+          result = "b"; // blank
         } else if (firstReference.type === "text") {
-          return "l"; // label
+          result = "l"; // label
         } else {
-          return "v"; // value
+          result = "v"; // value
         }
+        break;
       }
     }
 
-    return "";
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -89,9 +98,9 @@ export const CELL = {
 export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FunctionResultObject>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>) {
     const value = data?.value;
-    return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
+    return { value: isEvaluationError(value) && value !== CellErrorType.NotAvailable };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -102,9 +111,9 @@ export const ISERR = {
 export const ISERROR = {
   description: _t("Whether a value is an error."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FunctionResultObject>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>) {
     const value = data?.value;
-    return isEvaluationError(value);
+    return { value: isEvaluationError(value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -115,8 +124,8 @@ export const ISERROR = {
 export const ISLOGICAL = {
   description: _t("Whether a value is `true` or `false`."),
   args: [arg("value (any)", _t("The value to be verified as a logical TRUE or FALSE."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return typeof value?.value === "boolean";
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: typeof value?.value === "boolean" };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -127,8 +136,8 @@ export const ISLOGICAL = {
 export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FunctionResultObject>): boolean {
-    return data?.value === CellErrorType.NotAvailable;
+  compute: function (data: Maybe<FunctionResultObject>) {
+    return { value: data?.value === CellErrorType.NotAvailable };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -139,8 +148,8 @@ export const ISNA = {
 export const ISNONTEXT = {
   description: _t("Whether a value is non-textual."),
   args: [arg("value (any)", _t("The value to be checked."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return !ISTEXT.compute.bind(this)(value);
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: ISTEXT.compute.bind(this)(value).value === false };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -152,8 +161,8 @@ export const ISNONTEXT = {
 export const ISNUMBER = {
   description: _t("Whether a value is a number."),
   args: [arg("value (any)", _t("The value to be verified as a number."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return typeof value?.value === "number";
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: typeof value?.value === "number" };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -164,8 +173,8 @@ export const ISNUMBER = {
 export const ISTEXT = {
   description: _t("Whether a value is text."),
   args: [arg("value (any)", _t("The value to be verified as text."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: typeof value?.value === "string" && isEvaluationError(value?.value) === false };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -176,8 +185,8 @@ export const ISTEXT = {
 export const ISBLANK = {
   description: _t("Whether the referenced cell is empty"),
   args: [arg("value (any)", _t("Reference to the cell that will be checked for emptiness."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return value?.value === null;
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: value?.value === null };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -188,7 +197,7 @@ export const ISBLANK = {
 export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
-  compute: function (): FunctionResultObject {
+  compute: function () {
     return { value: CellErrorType.NotAvailable };
   },
   isExported: true,

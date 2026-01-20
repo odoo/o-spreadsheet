@@ -2,30 +2,27 @@ import { evaluationResultToDisplayString } from "../helpers/matrix";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
+import { implementationErrorMessage } from "./create_compute_function";
+import { isMimicMatrix, matrixToMimicMatrix, MimicMatrix, toMimicMatrix } from "./helper_arg";
+import { areSameDimensions, isSquareMatrix } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
-  flattenRowFirst,
-  generateMatrix,
   isEvaluationError,
   toBoolean,
   toInteger,
-  toMatrix,
   toNumber,
   toNumberMatrix,
   toString,
-  transposeMatrix,
 } from "./helpers";
 
 function stackHorizontally(
   ranges: Arg[],
   options?: { requireSameRowCount?: boolean }
-): Matrix<FunctionResultObject> | EvaluationError {
-  const matrices = ranges.map(toMatrix);
-  const nbRowsArr = matrices.map((m) => m?.[0]?.length ?? 0);
-  const nbRows = Math.max(...nbRowsArr);
+): MimicMatrix | EvaluationError {
+  const matrices = ranges.map(toMimicMatrix);
+  const nbRowsArr = matrices.map((m) => m.height);
 
   if (options?.requireSameRowCount) {
     const firstLength = nbRowsArr[0];
@@ -39,27 +36,33 @@ function stackHorizontally(
     }
   }
 
-  const result: Matrix<FunctionResultObject> = [];
-  for (const matrix of matrices) {
-    for (let col = 0; col < matrix.length; col++) {
-      // Fill with nulls if needed
-      const array: FunctionResultObject[] = Array(nbRows).fill({ value: null });
-      for (let row = 0; row < matrix[col].length; row++) {
-        array[row] = matrix[col][row];
+  const colSteps: number[] = [];
+  let currentCol = 0;
+  colSteps.push(...matrices.map((m) => (currentCol += m.width)));
+
+  const nbCols = colSteps[colSteps.length - 1];
+  const nbRows = Math.max(...nbRowsArr);
+  return new MimicMatrix(nbCols, nbRows, (col, row) => {
+    for (let i = 0; i < colSteps.length; i++) {
+      const prevStepValue = i === 0 ? 0 : colSteps[i - 1];
+      if (col < colSteps[i]) {
+        // colSteps is an array of increasing values
+        if (row < matrices[i].height) {
+          return matrices[i].get(col - prevStepValue, row);
+        }
+        return { value: null };
       }
-      result.push(array);
     }
-  }
-  return result;
+    return { value: null };
+  });
 }
 
 function stackVertically(
   ranges: Arg[],
   options?: { requireSameColCount?: boolean }
-): Matrix<FunctionResultObject> | EvaluationError {
-  const matrices = ranges.map(toMatrix);
-  const nbColsArr = matrices.map((m) => m?.length ?? 0);
-  const nbCols = Math.max(...nbColsArr);
+): MimicMatrix | EvaluationError {
+  const matrices = ranges.map(toMimicMatrix);
+  const nbColsArr = matrices.map((m) => m.width);
 
   if (options?.requireSameColCount) {
     const firstLength = nbColsArr[0];
@@ -73,22 +76,25 @@ function stackVertically(
     }
   }
 
-  const nbRows = matrices.reduce((acc, m) => acc + (m?.[0]?.length ?? 0), 0);
-  const result: Matrix<FunctionResultObject> = generateMatrix(nbCols, nbRows, () => ({
-    value: null,
-  }));
-
+  const rowSteps: number[] = [];
   let currentRow = 0;
-  for (const matrix of matrices) {
-    for (let col = 0; col < matrix.length; col++) {
-      for (let row = 0; row < matrix[col].length; row++) {
-        result[col][currentRow + row] = matrix[col][row];
+  rowSteps.push(...matrices.map((m) => (currentRow += m.height)));
+
+  const nbCols = Math.max(...nbColsArr);
+  const nbRows = rowSteps[rowSteps.length - 1];
+  return new MimicMatrix(nbCols, nbRows, (col, row) => {
+    for (let i = 0; i < rowSteps.length; i++) {
+      const prevStepValue = i === 0 ? 0 : rowSteps[i - 1];
+      if (row < rowSteps[i]) {
+        // rowSteps is an array of increasing values
+        if (col < matrices[i].width) {
+          return matrices[i].get(col, row - prevStepValue);
+        }
+        return { value: null };
       }
     }
-    currentRow += matrix[0]?.length ?? 0;
-  }
-
-  return result;
+    return { value: null };
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -106,7 +112,7 @@ export const ARRAY_CONSTRAIN = {
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
-    const _array = toMatrix(array);
+    const _array = toMimicMatrix(array);
     const _rowsArg = toInteger(rows?.value, this.locale);
     const _columnsArg = toInteger(columns?.value, this.locale);
 
@@ -121,10 +127,10 @@ export const ARRAY_CONSTRAIN = {
       );
     }
 
-    const _nbRows = Math.min(_rowsArg, _array[0].length);
-    const _nbColumns = Math.min(_columnsArg, _array.length);
+    const _nbRows = Math.min(_rowsArg, _array.height);
+    const _nbColumns = Math.min(_columnsArg, _array.width);
 
-    return generateMatrix(_nbColumns, _nbRows, (col, row) => _array[col][row]);
+    return new MimicMatrix(_nbColumns, _nbRows, (col, row) => _array.get(col, row));
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -172,29 +178,30 @@ export const CHOOSECOLS = {
     ),
   ],
   compute: function (array: Arg, ...columns: Arg[]) {
-    const _array = toMatrix(array);
-    const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
+    const _array = toMimicMatrix(array);
 
-    const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
+    const _columns = columns
+      .flatMap((arg) => (isMimicMatrix(arg) ? arg.flatten("rowFirst") : [arg]))
+      .map((item) => toInteger(item?.value, this.locale));
+
+    const argOutOfRange = _columns.filter((col) => col === 0 || _array.width < Math.abs(col));
     if (argOutOfRange.length !== 0) {
       return new EvaluationError(
         _t(
           "The columns arguments must be between -%s and %s (got %s), excluding 0.",
-          _array.length.toString(),
-          _array.length.toString(),
+          _array.width.toString(),
+          _array.width.toString(),
           argOutOfRange.join(",")
         )
       );
     }
 
-    const result: Matrix<FunctionResultObject> = Array(_columns.length);
-    for (let col = 0; col < _columns.length; col++) {
+    const result = new MimicMatrix(_columns.length, _array.height, (col, row) => {
       if (_columns[col] > 0) {
-        result[col] = _array[_columns[col] - 1]; // -1 because columns arguments are 1-indexed
-      } else {
-        result[col] = _array[_array.length + _columns[col]];
+        return _array.get(_columns[col] - 1, row); // -1 because columns arguments are 1-indexed
       }
-    }
+      return _array.get(_array.width + _columns[col], row);
+    });
 
     return result;
   },
@@ -214,27 +221,28 @@ export const CHOOSEROWS = {
     ),
   ],
   compute: function (array: Arg, ...rows: Arg[]) {
-    const _array = toMatrix(array);
-    const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
-    const _nbColumns = _array.length;
+    const _array = toMimicMatrix(array);
+    const _rows = rows
+      .flatMap((arg) => (isMimicMatrix(arg) ? arg.flatten("rowFirst") : [arg]))
+      .map((item) => toInteger(item?.value, this.locale));
 
-    const argOutOfRange = _rows.filter((row) => row === 0 || _array[0].length < Math.abs(row));
+    const argOutOfRange = _rows.filter((row) => row === 0 || _array.height < Math.abs(row));
     if (argOutOfRange.length !== 0) {
       return new EvaluationError(
         _t(
           "The rows arguments must be between -%s and %s (got %s), excluding 0.",
-          _array[0].length.toString(),
-          _array[0].length.toString(),
+          _array.height.toString(),
+          _array.height.toString(),
           argOutOfRange.join(",")
         )
       );
     }
 
-    return generateMatrix(_nbColumns, _rows.length, (col, row) => {
+    return new MimicMatrix(_array.width, _rows.length, (col, row) => {
       if (_rows[row] > 0) {
-        return _array[col][_rows[row] - 1]; // -1 because columns arguments are 1-indexed
+        return _array.get(col, _rows[row] - 1); // -1 because rows arguments are 1-indexed
       }
-      return _array[col][_array[col].length + _rows[row]];
+      return _array.get(col, _array.height + _rows[row]);
     });
   },
   isExported: true,
@@ -263,12 +271,11 @@ export const EXPAND = {
     columns?: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
   ) {
-    const _array = toMatrix(arg);
+    const _array = toMimicMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
-    const _nbColumns =
-      columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
+    const _nbColumns = columns !== undefined ? toInteger(columns.value, this.locale) : _array.width;
 
-    if (_nbRows < _array[0].length) {
+    if (_nbRows < _array.height) {
       return new EvaluationError(
         _t(
           "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
@@ -277,7 +284,7 @@ export const EXPAND = {
       );
     }
 
-    if (_nbColumns < _array.length) {
+    if (_nbColumns < _array.width) {
       return new EvaluationError(
         _t(
           "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
@@ -286,8 +293,8 @@ export const EXPAND = {
       );
     }
 
-    return generateMatrix(_nbColumns, _nbRows, (col, row) =>
-      col >= _array.length || row >= _array[col].length ? padWith : _array[col][row]
+    return new MimicMatrix(_nbColumns, _nbRows, (col, row) =>
+      col >= _array.width || row >= _array.height ? padWith : _array.get(col, row)
     );
   },
   isExported: true,
@@ -299,8 +306,29 @@ export const EXPAND = {
 export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to flatten."))],
-  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
-    return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
+  compute: function (...ranges: Arg[]) {
+    const steps: number[] = [];
+    let currentIndex = 0;
+    steps.push(
+      ...ranges.map((arg) => (currentIndex += isMimicMatrix(arg) ? arg.height * arg.width : 1))
+    );
+
+    return new MimicMatrix(1, steps[steps.length - 1], (col, row) => {
+      for (let i = 0; i < steps.length; i++) {
+        if (row < steps[i]) {
+          const arg = ranges[i];
+          if (!isMimicMatrix(arg)) {
+            return arg === undefined ? { value: "" } : arg;
+          }
+          const prevStepValue = i === 0 ? 0 : steps[i - 1];
+          const positionInRange = row - prevStepValue; // position is the position in the flattened range
+          return arg.get(positionInRange % arg.width, Math.floor(positionInRange / arg.width));
+        }
+      }
+      return new EvaluationError(
+        implementationErrorMessage + " In FLATTEN function: could not find value at position."
+      );
+    });
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -314,17 +342,18 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  compute: function (
-    data: Matrix<FunctionResultObject>,
-    classes: Matrix<FunctionResultObject>
-  ): Matrix<number> {
-    const _data = flattenRowFirst([data], (data) => data.value).filter(
-      (val): val is number => typeof val === "number"
-    );
-    const _classes = flattenRowFirst([classes], (data) => data.value).filter(
-      (val): val is number => typeof val === "number"
-    );
-
+  compute: function (data: MimicMatrix, classes: Arg) {
+    // TO DO: use reduceNumber here
+    const _data = data
+      .flatten("rowFirst")
+      .map((obj) => obj.value)
+      .filter((val): val is number => typeof val === "number");
+    if (classes === undefined) {
+      return new EvaluationError(_t("The classes argument is required."));
+    }
+    const _classes = (isMimicMatrix(classes) ? classes.flatten("rowFirst") : [classes])
+      .map((obj) => obj.value)
+      .filter((val): val is number => typeof val === "number");
     /**
      * Returns the frequency distribution of the data in the classes, ie. the number of elements in the range
      * between each classes.
@@ -360,7 +389,7 @@ export const FREQUENCY = {
     const result = sortedClasses
       .sort((a, b) => a.initialIndex - b.initialIndex)
       .map((val) => val.count);
-    return [result];
+    return new MimicMatrix(1, result.length, (col, row) => ({ value: result[row] }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -397,7 +426,7 @@ export const MDETERM = {
         _t("The argument square_matrix must have the same number of columns and rows.")
       );
     }
-    return invertMatrix(_matrix).determinant;
+    return { value: invertMatrix(_matrix).determinant };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -426,7 +455,9 @@ export const MINVERSE = {
     if (!inverted) {
       return new EvaluationError(_t("The matrix is not invertible."));
     }
-    return inverted;
+    return new MimicMatrix(_matrix.length, _matrix.length, (col, row) => ({
+      value: inverted[col][row],
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -467,7 +498,7 @@ export const MMULT = {
       );
     }
 
-    return multiplyMatrices(_matrix1, _matrix2);
+    return matrixToMimicMatrix(multiplyMatrices(_matrix1, _matrix2));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -491,21 +522,24 @@ export const SUMPRODUCT = {
     if (!areSameDimensions(...args)) {
       return new EvaluationError(_t("All the ranges must have the same dimensions."));
     }
-    const _args = args.map(toMatrix);
+    const _args = args.map(toMimicMatrix);
     let result = 0;
-    for (let col = 0; col < _args[0].length; col++) {
-      for (let row = 0; row < _args[0][col].length; row++) {
-        if (!_args.every((range) => typeof range[col][row].value === "number")) {
+    for (let col = 0; col < _args[0].width; col++) {
+      for (let row = 0; row < _args[0].height; row++) {
+        // prefer a 'every' implementation and not a 'some' to force accessing all
+        // elements in ranges to store indirectly corresponding dependencies
+        // But in practice, we could see if other spreadsheets tools do that
+        if (!_args.every((range) => typeof range.get(col, row).value === "number")) {
           continue;
         }
         let product = 1;
         for (const range of _args) {
-          product *= toNumber(range[col][row], this.locale);
+          product *= toNumber(range.get(col, row), this.locale);
         }
         result += product;
       }
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -519,21 +553,29 @@ export const SUMPRODUCT = {
  *
  * Ignore the pairs X,Y where one of the value isn't a number. Throw an error if no pair of numbers is found.
  */
-function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => number) {
+function getSumXAndY(
+  arrayX: Arg,
+  arrayY: Arg,
+  cb: (x: number, y: number) => number
+): FunctionResultObject {
   if (!areSameDimensions(arrayX, arrayY)) {
+    // TO DO: see if we want to store dependencies on all cells even in error case
+    // in theory no, because dimensions depend only on what user writes in the formula
+    // so when changing dimensions of one of the arrays, the formula should recalculate
+    // But what happens with the range selector (#) if one of the ranges change size ?
     return new EvaluationError(
       _t("The arguments array_x and array_y must have the same dimensions.")
     );
   }
-  const _arrayX = toMatrix(arrayX);
-  const _arrayY = toMatrix(arrayY);
+  const _arrayX = toMimicMatrix(arrayX);
+  const _arrayY = toMimicMatrix(arrayY);
 
   let validPairFound = false;
   let result = 0;
-  for (const col in _arrayX) {
-    for (const row in _arrayX[col]) {
-      const arrayXValue = _arrayX[col][row].value;
-      const arrayYValue = _arrayY[col][row].value;
+  for (let col = 0; col < _arrayX.width; col++) {
+    for (let row = 0; row < _arrayX.height; row++) {
+      const arrayXValue = _arrayX.get(col, row).value;
+      const arrayYValue = _arrayY.get(col, row).value;
       if (typeof arrayXValue !== "number" || typeof arrayYValue !== "number") {
         continue;
       }
@@ -548,7 +590,7 @@ function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => num
     );
   }
 
-  return result;
+  return { value: result };
 }
 
 export const SUMX2MY2 = {
@@ -669,6 +711,8 @@ function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolea
   throw new EvaluationError(_t("Argument ignore must be between 0 and 3"));
 }
 
+// TO DO: When keeping all values, consider whether values are accessed directly ?
+// which may affect whether dependencies are stored.
 export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
@@ -677,17 +721,16 @@ export const TOCOL = {
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
-    const _array = toMatrix(array);
+    const _array = toMimicMatrix(array);
     const _ignore = toNumber(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
-
-    const result = (_scanByColumn ? _array : transposeMatrix(_array))
-      .flat()
+    const result = _array
+      .flatten(_scanByColumn ? "colFirst" : "rowFirst")
       .filter(shouldKeepValue(_ignore));
     if (result.length === 0) {
       return new NotAvailableError(_t("No results for the given arguments of TOCOL."));
     }
-    return [result];
+    return matrixToMimicMatrix([result]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -695,6 +738,9 @@ export const TOCOL = {
 // -----------------------------------------------------------------------------
 // TOROW
 // -----------------------------------------------------------------------------
+
+// TO DO: When keeping all values, consider whether values are accessed directly ?
+// which may affect whether dependencies are stored.
 export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
@@ -703,15 +749,17 @@ export const TOROW = {
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
-    const _array = toMatrix(array);
+    const _array = toMimicMatrix(array);
     const _ignore = toNumber(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
-    const result = (_scanByColumn ? _array : transposeMatrix(_array))
-      .flat()
-      .filter(shouldKeepValue(_ignore))
-      .map((item) => [item]);
+    const result = matrixToMimicMatrix(
+      _array
+        .flatten(_scanByColumn ? "colFirst" : "rowFirst")
+        .filter(shouldKeepValue(_ignore))
+        .map((item) => [item])
+    );
 
-    if (result.length === 0 || result[0].length === 0) {
+    if (result.height === 0) {
       return new NotAvailableError(_t("No results for the given arguments of TOROW."));
     }
     return result;
@@ -725,12 +773,8 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  compute: function (arg: Arg): Matrix<FunctionResultObject> {
-    const _array = toMatrix(arg);
-    const nbColumns = _array[0].length;
-    const nbRows = _array.length;
-
-    return generateMatrix(nbColumns, nbRows, (col, row) => _array[row][col]);
+  compute: function (arg: Arg) {
+    return toMimicMatrix(arg).transpose();
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -761,7 +805,7 @@ export const WRAPCOLS = {
       _t("The maximum number of cells for each column, rounded down to the nearest whole number.")
     ),
     arg(
-      "pad_with  (any, default=0)", // TODO : replace with #N/A
+      "pad_with  (any, default=0)", // TO DO : replace with #N/A
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
@@ -770,19 +814,32 @@ export const WRAPCOLS = {
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
   ) {
-    const _array = toMatrix(range);
+    const _array = toMimicMatrix(range);
     const nbRows = toInteger(wrapCount?.value, this.locale);
 
-    if (!isSingleColOrRow(_array)) {
+    if (!_array.isSingleColOrRow()) {
       return new EvaluationError(_t("Argument range must be a single row or column."));
     }
 
-    const array = _array.flat();
-    const nbColumns = Math.ceil(array.length / nbRows);
+    if (nbRows <= 0) {
+      return new EvaluationError(
+        _t('Argument wrap_count value is "%s", it should be greater or equal to 1.', nbRows)
+      );
+    }
 
-    return generateMatrix(nbColumns, nbRows, (col, row) => {
+    if (_array.width > _array.height) {
+      // it's a single row
+      const nbColumns = Math.ceil(_array.width / nbRows);
+      return new MimicMatrix(nbColumns, nbRows, (col, row) => {
+        const index = col * nbRows + row;
+        return index < _array.width ? _array.get(index, 0) : padWith;
+      });
+    }
+
+    const nbColumns = Math.ceil(_array.height / nbRows);
+    return new MimicMatrix(nbColumns, nbRows, (col, row) => {
       const index = col * nbRows + row;
-      return index < array.length ? array[index] : padWith;
+      return index < _array.height ? _array.get(0, index) : padWith;
     });
   },
   isExported: true,
@@ -802,7 +859,7 @@ export const WRAPROWS = {
       _t("The maximum number of cells for each row, rounded down to the nearest whole number.")
     ),
     arg(
-      "pad_with  (any, default=0)", // TODO : replace with #N/A
+      "pad_with  (any, default=0)", // TO DO : replace with #N/A
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
@@ -811,19 +868,32 @@ export const WRAPROWS = {
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
   ) {
-    const _array = toMatrix(range);
+    const _array = toMimicMatrix(range);
     const nbColumns = toInteger(wrapCount?.value, this.locale);
 
-    if (!isSingleColOrRow(_array)) {
+    if (!_array.isSingleColOrRow()) {
       return new EvaluationError(_t("Argument range must be a single row or column."));
     }
 
-    const array = _array.flat();
-    const nbRows = Math.ceil(array.length / nbColumns);
+    if (nbColumns <= 0) {
+      return new EvaluationError(
+        _t('Argument wrap_count value is "%s", it should be greater or equal to 1.', nbColumns)
+      );
+    }
 
-    return generateMatrix(nbColumns, nbRows, (col, row) => {
+    if (_array.width > _array.height) {
+      // it's a single row
+      const nbRows = Math.ceil(_array.width / nbColumns);
+      return new MimicMatrix(nbColumns, nbRows, (col, row) => {
+        const index = row * nbColumns + col;
+        return index < _array.width ? _array.get(index, 0) : padWith;
+      });
+    }
+
+    const nbRows = Math.ceil(_array.height / nbColumns);
+    return new MimicMatrix(nbColumns, nbRows, (col, row) => {
       const index = row * nbColumns + col;
-      return index < array.length ? array[index] : padWith;
+      return index < _array.height ? _array.get(0, index) : padWith;
     });
   },
   isExported: true,
@@ -846,27 +916,27 @@ export const ARRAYTOTEXT = {
     arg("array (range)", _t("The array to convert into text")),
     arg("format (number, default=0)", _t("The format of the returned data."), FORMAT_OPTIONS),
   ],
-  compute: function (
-    array: Matrix<{ value: string }>,
-    format: Maybe<FunctionResultObject> = { value: 0 }
-  ) {
+  // TO DO: check if normal args must be accepted on array argument
+  compute: function (array: MimicMatrix, format: Maybe<FunctionResultObject> = { value: 0 }) {
     const _format = toNumber(format, this.locale);
-    const _array = toMatrix(array);
+    const _array = toMimicMatrix(array);
+
     if (_format === 1) {
-      return evaluationResultToDisplayString(_array, "", this.locale);
-    } else if (_format === 0) {
-      const rowSeparator = this.locale.decimalSeparator === "," ? "/" : ",";
-      const arrayStr = transposeMatrix(_array)
-        .flatMap((row) =>
-          row.map((value) => {
-            return isEvaluationError(value.value) ? value.value : toString(value);
-          })
-        )
-        .join(rowSeparator);
-      return arrayStr;
-    } else {
-      return new EvaluationError(_t("Format must be 0 or 1"));
+      return { value: evaluationResultToDisplayString(_array.getAll(), "", this.locale) };
     }
+
+    if (_format === 0) {
+      const rowSeparator = this.locale.decimalSeparator === "," ? "/" : ",";
+      const arrayStr = _array
+        .flatten("rowFirst")
+        .map((obj) => {
+          return isEvaluationError(obj.value) ? obj.value : toString(obj);
+        })
+        .join(rowSeparator);
+      return { value: arrayStr };
+    }
+
+    return new EvaluationError(_t("Format must be 0 or 1"));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
