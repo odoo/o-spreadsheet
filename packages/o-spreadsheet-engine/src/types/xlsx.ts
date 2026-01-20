@@ -448,8 +448,7 @@ export type XLSXCfOperatorType =
   | "lessThanOrEqual"
   | "notBetween"
   | "notContains"
-  | "notEqual"
-  | "top10";
+  | "notEqual";
 
 export type XLSXDataValidationOperatorType =
   | "between"

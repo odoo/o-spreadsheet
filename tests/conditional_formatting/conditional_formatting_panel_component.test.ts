@@ -22,9 +22,9 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
-  DOMTarget,
   click,
   clickAndDrag,
+  DOMTarget,
   editSelectComponent,
   getTarget,
   keyDown,
@@ -744,6 +744,23 @@ describe("UI of conditional formats", () => {
         isPercent: true,
         values: ["3"],
         style: { bold: true },
+      });
+    });
+
+    test("Can select a uniqueValues/duplicateValues CF", async () => {
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+
+      await changeRuleOperatorType(fixture, "uniqueValues");
+      expect(model.getters.getConditionalFormats(sheetId)[0]?.rule).toMatchObject({
+        type: "CellIsRule",
+        operator: "uniqueValues",
+      });
+
+      await changeRuleOperatorType(fixture, "duplicateValues");
+      expect(model.getters.getConditionalFormats(sheetId)[0]?.rule).toMatchObject({
+        type: "CellIsRule",
+        operator: "duplicateValues",
       });
     });
 

@@ -167,6 +167,8 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
           throw new Error("dateValue should be defined");
       }
     case "top10":
+    case "uniqueValues":
+    case "duplicateValues":
       return [];
   }
 }
@@ -184,6 +186,8 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
       ];
     case "isEmpty":
     case "isNotEmpty":
+    case "uniqueValues":
+    case "duplicateValues":
       return [["type", operator]];
     case "isEqual":
     case "isNotEqual":

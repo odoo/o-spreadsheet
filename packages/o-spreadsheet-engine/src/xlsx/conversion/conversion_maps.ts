@@ -120,7 +120,6 @@ export const CF_OPERATOR_TYPE_CONVERSION_MAP: Record<
   greaterThanOrEqual: "isGreaterOrEqualTo",
   lessThan: "isLessThan",
   lessThanOrEqual: "isLessOrEqualTo",
-  top10: "top10",
 };
 
 /** Conversion map CF types in XLSX <=> Cf types in o_spreadsheet */
@@ -134,9 +133,9 @@ export const CF_TYPE_CONVERSION_MAP: Record<
   colorScale: undefined, // exist but isn't an operator in o_spreadsheet
   dataBar: undefined,
   iconSet: undefined, // exist but isn't an operator in o_spreadsheet
-  top10: undefined,
-  uniqueValues: undefined,
-  duplicateValues: undefined,
+  top10: "top10",
+  uniqueValues: "uniqueValues",
+  duplicateValues: "duplicateValues",
   containsText: "containsText",
   notContainsText: "notContainsText",
   beginsWith: "beginsWithText",
