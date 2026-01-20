@@ -229,4 +229,58 @@ describe("Pivot side panel", () => {
     expect(definition.columns).toHaveLength(1);
     expect(definition.collapsedDomains?.COL).toHaveLength(1);
   });
+
+  test("display the description of the show as", async () => {
+    //prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "Year",
+      A2: "Alice",    B2: "10",    C2: "2020",
+      A3: "Alice",    B3: "20",    C3: "2021",
+	  };
+    setGrid(model, grid);
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      rows: [],
+      measures: [
+        {
+          id: "Price",
+          fieldName: "Price",
+          aggregator: "sum",
+          display: { type: "%_of", fieldNameWithGranularity: "Customer", value: "Alice" },
+        },
+      ],
+      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
+    });
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    expect(".o-measure-description").toHaveText(`Displayed as % of "Customer" : Alice`);
+  });
+
+  test(`display the description of the show as with "previous" item`, async () => {
+    //prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "Year",
+      A2: "Alice",    B2: "10",    C2: "2020",
+      A3: "Alice",    B3: "20",    C3: "2021",
+	  };
+    setGrid(model, grid);
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      rows: [],
+      measures: [
+        {
+          id: "Price",
+          fieldName: "Price",
+          aggregator: "sum",
+          display: { type: "%_of", fieldNameWithGranularity: "Customer", value: "(previous)" },
+        },
+      ],
+      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
+    });
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    expect(".o-measure-description").toHaveText(`Displayed as % of previous "Customer"`);
+  });
 });

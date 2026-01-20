@@ -1,7 +1,5 @@
-import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   AGGREGATORS,
-  getFieldDisplayName,
   isDateOrDatetimeField,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
@@ -320,20 +318,6 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         return col;
       }),
     });
-  }
-
-  getMeasureDescription(measure: PivotMeasure) {
-    const measureDisplay = measure.display;
-    if (!measureDisplay || measureDisplay.type === "no_calculations") {
-      return "";
-    }
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
-    const field = [...pivot.definition.columns, ...pivot.definition.rows].find(
-      (f) => f.nameWithGranularity === measureDisplay.fieldNameWithGranularity
-    );
-    const fieldName = field ? getFieldDisplayName(field) : "";
-
-    return measureDisplayTerms.descriptions[measureDisplay.type](fieldName);
   }
 
   getHugeDimensionErrorMessage(dimension: PivotDimensionType) {
