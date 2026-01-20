@@ -158,7 +158,7 @@ describe("Aggregate statistic functions", () => {
     addToRegistry(functionRegistry, "TWOARGSNEEDED", {
       description: "any function",
       compute: () => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },

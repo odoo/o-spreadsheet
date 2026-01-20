@@ -1,16 +1,10 @@
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import {
-  expectReferenceError,
-  generateMatrix,
-  isEvaluationError,
-  toMatrix,
-  toNumber,
-  toString,
-} from "./helpers";
+import { MimicMatrix, toMimicMatrix } from "./helper_arg";
+import { expectReferenceError, isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -22,10 +16,7 @@ export const ADD = {
     arg("value1 (number)", _t("The first addend.")),
     arg("value2 (number)", _t("The second addend.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return {
       value: toNumber(value1, this.locale) + toNumber(value2, this.locale),
       format: value1?.format || value2?.format,
@@ -45,8 +36,8 @@ export const CONCAT = {
   compute: function (
     value1: Maybe<FunctionResultObject>,
     value2: Maybe<FunctionResultObject>
-  ): string {
-    return toString(value1) + toString(value2);
+  ): { value: string } {
+    return { value: toString(value1) + toString(value2) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -232,10 +223,7 @@ export const MINUS = {
     arg("value1 (number)", _t("The minuend, or number to be subtracted from.")),
     arg("value2 (number)", _t("The subtrahend, or number to subtract from value1.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return {
       value: toNumber(value1, this.locale) - toNumber(value2, this.locale),
       format: value1?.format || value2?.format,
@@ -252,10 +240,7 @@ export const MULTIPLY = {
     arg("factor1 (number)", _t("The first multiplicand.")),
     arg("factor2 (number)", _t("The second multiplicand.")),
   ],
-  compute: function (
-    factor1: Maybe<FunctionResultObject>,
-    factor2: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (factor1: Maybe<FunctionResultObject>, factor2: Maybe<FunctionResultObject>) {
     return {
       value: toNumber(factor1, this.locale) * toNumber(factor2, this.locale),
       format: factor1?.format || factor2?.format,
@@ -308,18 +293,18 @@ export const POW = {
 export const SPILLED_RANGE = {
   description: _t("Gets the spilled range of an array formula."),
   args: [arg("ref (any, range<any>)", _t("The reference to get the spilled range from."))],
-  compute: function (ref: Arg ) {
+  compute: function (ref: Arg) {
     if (ref === undefined) {
       return new InvalidReferenceError(expectReferenceError);
     }
 
-    const _ref = toMatrix(ref);
-    if (_ref.length !== 1 || _ref[0].length !== 1) {
+    const _ref = toMimicMatrix(ref);
+    if (!_ref.isSingleElement()) {
       return new EvaluationError(
         _t("Only single-cell references are allowed to get the spilled range.")
       );
     }
-    const firstCell = _ref[0][0];
+    const firstCell = _ref.get(0, 0);
 
     if (isEvaluationError(firstCell.value)) {
       return firstCell;
@@ -334,7 +319,9 @@ export const SPILLED_RANGE = {
       return new InvalidReferenceError();
     }
 
-    return generateMatrix(
+    // TO DO: see to use directly the'range' function from compilation_parameters
+    // to benefit from its caching system instead of creating a new MimicMatrix here
+    return new MimicMatrix(
       spilledZone.right - spilledZone.left + 1,
       spilledZone.bottom - spilledZone.top + 1,
       (col: number, row: number): FunctionResultObject =>
@@ -359,7 +346,7 @@ export const UMINUS = {
       _t("The number to have its sign reversed. Equivalently, the number to multiply by -1.")
     ),
   ],
-  compute: function (value: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (value: Maybe<FunctionResultObject>) {
     return {
       value: -toNumber(value, this.locale),
       format: value?.format,
@@ -373,8 +360,8 @@ export const UMINUS = {
 export const UNARY_PERCENT = {
   description: _t("Value interpreted as a percentage."),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
-  compute: function (percentage: Maybe<FunctionResultObject>): number {
-    return toNumber(percentage, this.locale) / 100;
+  compute: function (percentage: Maybe<FunctionResultObject>) {
+    return { value: toNumber(percentage, this.locale) / 100 };
   },
 } satisfies AddFunctionDescription;
 
@@ -384,7 +371,7 @@ export const UNARY_PERCENT = {
 export const UPLUS = {
   description: _t("A specified number, unchanged."),
   args: [arg("value (any)", _t("The number to return."))],
-  compute: function (value: Maybe<FunctionResultObject> = { value: null }): FunctionResultObject {
+  compute: function (value: Maybe<FunctionResultObject> = { value: null }) {
     return value;
   },
 } satisfies AddFunctionDescription;

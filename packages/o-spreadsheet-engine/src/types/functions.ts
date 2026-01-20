@@ -1,7 +1,8 @@
+import { MimicMatrix } from "../functions/helper_arg";
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
+import { Arg, CellPosition, FunctionResultObject, UID } from "./misc";
 import { Range } from "./range";
 
 export type ArgType =
@@ -36,9 +37,7 @@ export type ArgProposal = { value: CellValue; label?: string };
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
-  compute: ComputeFunction<
-    FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>
-  >;
+  compute: ComputeFunction<FunctionResultObject | MimicMatrix>;
   description: string;
   category?: string;
   args: ArgDefinition[];
@@ -62,7 +61,7 @@ export type EvalContext = {
   getRef: (position: CellPosition) => FunctionResultObject;
   [key: string]: any;
   currentFormulaDependencies?: Range[];
-  updateDependencies?: (position: CellPosition) => void;
+  removeDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
   lookupCaches?: LookupCaches;

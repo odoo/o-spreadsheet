@@ -1,6 +1,9 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  matrixToMimicMatrix,
+  toScalarMimicMatrix,
+} from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import {
   isEvaluationError,
   toBoolean,
@@ -19,7 +22,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: function (arg) {
-        return 2 * toNumber(toScalar(arg), DEFAULT_LOCALE);
+        return { value: 2 * toNumber(toScalarMimicMatrix(arg), DEFAULT_LOCALE) };
       },
       args: [arg("number (number)", "my number")],
     });
@@ -30,7 +33,7 @@ describe("functions", () => {
     const createBadFunction = () => {
       addToRegistry(functionRegistry, "TEST*FUNCTION", {
         description: "Double the first argument",
-        compute: () => 0,
+        compute: () => ({ value: 0 }),
         args: [],
       });
     };
@@ -43,7 +46,7 @@ describe("functions", () => {
     const createBadFunction = () => {
       addToRegistry(functionRegistry, "TEST_FUNCTION", {
         description: "Double the first argument",
-        compute: () => 0,
+        compute: () => ({ value: 0 }),
         args: [],
       });
     };
@@ -55,7 +58,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
       compute: function (arg) {
-        return toNumber(toScalar(arg), DEFAULT_LOCALE) * 2;
+        return { value: toNumber(toScalarMimicMatrix(arg), DEFAULT_LOCALE) * 2 };
       },
       args: [arg("number (number)", "blabla")],
     });
@@ -72,7 +75,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg: Arg) {
-        return isEvaluationError(toScalar(arg)?.value);
+        return { value: isEvaluationError(toScalarMimicMatrix(arg)?.value) };
       },
       args: [arg("arg (any)", "blabla")],
     });
@@ -89,7 +92,10 @@ describe("functions", () => {
       description: "return value depending on input error",
       compute: function (arg) {
         const error = new EvaluationError("Les calculs sont pas bons KEVIN !");
-        return toBoolean(toScalar(arg)) ? error : "ceci n'est pas une erreur";
+        if (toBoolean(toScalarMimicMatrix(arg))) {
+          return error;
+        }
+        return { value: "ceci n'est pas une erreur" };
       },
       args: [arg("arg (any)", "blabla")],
     });
@@ -105,9 +111,12 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg) {
-        return toScalar(arg)?.value === CellErrorType.BadExpression
-          ? CellErrorType.CircularDependency
-          : CellErrorType.InvalidReference;
+        return {
+          value:
+            toScalarMimicMatrix(arg)?.value === CellErrorType.BadExpression
+              ? CellErrorType.CircularDependency
+              : CellErrorType.InvalidReference,
+        };
       },
       args: [arg("arg (any)", "blabla")],
     });
@@ -123,7 +132,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
       compute: function (arg) {
-        return { value: 42, format: toScalar(arg)?.format };
+        return { value: 42, format: toScalarMimicMatrix(arg)?.format };
       },
       args: [arg("number (number)", "blabla")],
     });
@@ -142,7 +151,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       compute: function (arg) {
-        const value = toNumber(toScalar(arg), DEFAULT_LOCALE);
+        const value = toNumber(toScalarMimicMatrix(arg), DEFAULT_LOCALE);
         return {
           value,
           format: value >= 0 ? "0%" : "#,##0.00",
@@ -171,8 +180,8 @@ describe("functions", () => {
       args: [arg("cell (any)", "blabla")],
       description: "Check if argument is a reference",
       compute: function (arg) {
-        const _arg = toScalar(arg);
-        return !!_arg?.position;
+        const _arg = toScalarMimicMatrix(arg);
+        return { value: !!_arg?.position };
       },
     });
 
@@ -201,7 +210,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "GETCOUCOU", {
       description: "Get coucou's name",
       compute: function () {
-        return (this as any).coucou;
+        return { value: (this as any).coucou };
       },
       args: [],
     });
@@ -215,7 +224,7 @@ describe("functions", () => {
       description: "Get the number of columns",
       compute: function () {
         const sheetId = (this as any).getters.getActiveSheetId();
-        return (this as any).getters.getNumberCols(sheetId);
+        return { value: (this as any).getters.getNumberCols(sheetId) };
       },
       args: [],
     });
@@ -229,7 +238,7 @@ describe("functions", () => {
       description: "undefined",
       // @ts-expect-error can happen in a vanilla javascript code base
       compute: function () {
-        return undefined;
+        return { value: undefined };
       },
       args: [],
     });
@@ -241,7 +250,7 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "RANGEEXPECTED", {
         description: "function expect number in 1st arg",
         compute: (arg) => {
-          return true;
+          return { value: true };
         },
         args: [arg("arg1 (range<any>)", "1st argument")],
       });
@@ -249,7 +258,7 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE", {
         description: "function returning range",
         compute: () => {
-          return [["cucumber"]];
+          return matrixToMimicMatrix([["cucumber"]]);
         },
         args: [],
       });
@@ -257,7 +266,7 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "FORMULA_NOT_RETURNING_RANGE", {
         description: "function returning range",
         compute: () => {
-          return "cucumber";
+          return { value: "cucumber" };
         },
         args: [],
       });
@@ -265,7 +274,7 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "FORMULA_RETURNING_ERROR", {
         description: "function returning ERROR",
         compute: () => {
-          return "#ERROR";
+          return { value: "#ERROR" };
         },
         args: [],
       });
@@ -281,7 +290,7 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE_WITH_ERROR", {
         description: "function returning range",
         compute: () => {
-          return [["#ERROR"]];
+          return matrixToMimicMatrix([["#ERROR"]]);
         },
         args: [],
       });
@@ -350,7 +359,7 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "SIMPLE_VALUE_EXPECTED", {
         description: "does not accept a range",
         compute: (arg) => {
-          return true;
+          return { value: true };
         },
         args: [{ name: "arg1", description: "", type: ["NUMBER"] }],
       });

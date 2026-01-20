@@ -21,6 +21,7 @@ import {
   handleError,
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
+import { isMimicMatrix } from "../../../functions/helper_arg";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
@@ -108,7 +109,7 @@ export class Evaluator {
     return this.blockedArrayFormulas.has(position);
   }
 
-  updateDependencies(position: CellPosition) {
+  removeDependencies(position: CellPosition) {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
     // The data structure is optimized for searches the other way around
@@ -119,7 +120,7 @@ export class Evaluator {
     this.formulaDependencies().addDependencies(position, dependencies);
     for (const range of dependencies) {
       // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range);
+      this.compilationParams.ensureRange(range).getAll(); // TO DO: see if we can avoid this step for performance
     }
   }
 
@@ -130,7 +131,7 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
-    this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
+    this.compilationParams.evalContext.removeDependencies = this.removeDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
     this.compilationParams.evalContext.lookupCaches = {
       forwardSearch: new Map(),
@@ -641,7 +642,7 @@ export function updateEvalContextAndExecute(
   getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined,
   formulaDependencies: Lazy<FormulaDependencyGraph>
-) {
+): FunctionResultObject | Matrix<FunctionResultObject> {
   const evalContext = compilationParams.evalContext;
   const currentCellPosition = evalContext.__originCellPosition;
   const currentSheetId = evalContext.__originSheetId;
@@ -649,7 +650,7 @@ export function updateEvalContextAndExecute(
   evalContext.__originCellPosition = originCellPosition;
   evalContext.__originSheetId = sheetId;
   compilationParams.evalContext.currentFormulaDependencies = [];
-  const result = compiledFormula.execute(
+  const compiledFormulaResult = compiledFormula.execute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
@@ -657,7 +658,11 @@ export function updateEvalContextAndExecute(
     evalContext
   );
 
-    if (originCellPosition) {
+  const result = isMimicMatrix(compiledFormulaResult)
+    ? compiledFormulaResult.getAll() // getAll will allow us to store on evalContext.currentFormulaDependencies all dependencies really used in the matrix
+    : compiledFormulaResult;
+
+  if (originCellPosition) {
     formulaDependencies().addDependencies(
       originCellPosition,
       compilationParams.evalContext.currentFormulaDependencies

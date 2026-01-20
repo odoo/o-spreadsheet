@@ -1,4 +1,4 @@
-import { Arg } from "../types/misc";
+import { Arg } from "..";
 import { conditionalVisitBoolean } from "./helpers";
 
 export function boolAnd(args: Arg[]) {

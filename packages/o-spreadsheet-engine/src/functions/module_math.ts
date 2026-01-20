@@ -2,21 +2,19 @@ import { doesCellContainFunction } from "../helpers";
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import {
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import {
+  isMimicMatrix,
+  matrixToMimicMatrix,
+  MimicMatrix,
+  toMimicMatrix,
+  unitMimicMatrix,
+} from "./helper_arg";
 import { assertNotZero } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
-import { getUnitMatrix } from "./helper_matrices";
 import {
   expectReferenceError,
-  generateMatrix,
   inferFormat,
   isDataNonEmpty,
   isEvaluationError,
@@ -24,7 +22,6 @@ import {
   strictToNumber,
   toBoolean,
   toInteger,
-  toMatrix,
   toNumber,
   toString,
   visitMatchingRanges,
@@ -43,8 +40,8 @@ const DECIMAL_REPRESENTATION = /^-?[a-z0-9]+$/i;
 export const ABS = {
   description: _t("Absolute value of a number."),
   args: [arg("value (number)", _t("The number of which to return the absolute value."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.abs(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.abs(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -67,7 +64,7 @@ export const ACOS = {
     if (Math.abs(_value) > 1) {
       return new EvaluationError(_t("The value (%s) must be between -1 and 1 inclusive.", _value));
     }
-    return Math.acos(_value);
+    return { value: Math.acos(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -90,7 +87,7 @@ export const ACOSH = {
     if (_value < 1) {
       return new EvaluationError(_t("The value (%s) must be greater than or equal to 1.", _value));
     }
-    return Math.acosh(_value);
+    return { value: Math.acosh(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -101,13 +98,13 @@ export const ACOSH = {
 export const ACOT = {
   description: _t("Inverse cotangent of a value."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse cotangent."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
+  compute: function (value: Maybe<FunctionResultObject>) {
     const _value = toNumber(value, this.locale);
     const sign = Math.sign(_value) || 1;
     // ACOT has two possible configurations:
     // @compatibility Excel: return Math.PI / 2 - Math.atan(toNumber(_value, this.locale));
     // @compatibility Google: return sign * Math.PI / 2 - Math.atan(toNumber(_value, this.locale));
-    return (sign * Math.PI) / 2 - Math.atan(_value);
+    return { value: (sign * Math.PI) / 2 - Math.atan(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -132,7 +129,7 @@ export const ACOTH = {
         _t("The value (%s) cannot be between -1 and 1 inclusive.", _value)
       );
     }
-    return Math.log((_value + 1) / (_value - 1)) / 2;
+    return { value: Math.log((_value + 1) / (_value - 1)) / 2 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -153,7 +150,7 @@ export const ASIN = {
     if (Math.abs(_value) > 1) {
       return new EvaluationError(_t("The value (%s) must be between -1 and 1 inclusive.", _value));
     }
-    return Math.asin(_value);
+    return { value: Math.asin(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -166,8 +163,8 @@ export const ASINH = {
   args: [
     arg("value (number)", _t("The value for which to calculate the inverse hyperbolic sine.")),
   ],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.asinh(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.asinh(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -178,8 +175,8 @@ export const ASINH = {
 export const ATAN = {
   description: _t("Inverse tangent of a value, in radians."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse tangent."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.atan(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.atan(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -211,7 +208,7 @@ export const ATAN2 = {
         _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return Math.atan2(_y, _x);
+    return { value: Math.atan2(_y, _x) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -234,7 +231,7 @@ export const ATANH = {
     if (Math.abs(_value) >= 1) {
       return new EvaluationError(_t("The value (%s) must be between -1 and 1 exclusive.", _value));
     }
-    return Math.atanh(_value);
+    return { value: Math.atanh(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -359,8 +356,8 @@ export const CEILING_PRECISE = {
 export const COS = {
   description: _t("Cosine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosine of, in radians."))],
-  compute: function (angle: Maybe<FunctionResultObject>): number {
-    return Math.cos(toNumber(angle, this.locale));
+  compute: function (angle: Maybe<FunctionResultObject>) {
+    return { value: Math.cos(toNumber(angle, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -371,8 +368,8 @@ export const COS = {
 export const COSH = {
   description: _t("Hyperbolic cosine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosine of."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.cosh(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.cosh(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -390,7 +387,7 @@ export const COT = {
         _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return 1 / Math.tan(_angle);
+    return { value: 1 / Math.tan(_angle) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -408,7 +405,7 @@ export const COTH = {
         _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return 1 / Math.tanh(_value);
+    return { value: 1 / Math.tanh(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -424,23 +421,25 @@ export const COUNTBLANK = {
       _t("Value or range in which to count the number of blanks.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return reduceAny(
-      args,
-      (acc, a) => {
-        if (a === undefined) {
-          return acc + 1;
-        }
-        if (a.value === null) {
-          return acc + 1;
-        }
-        if (a.value === "") {
-          return acc + 1;
-        }
-        return acc;
-      },
-      0
-    );
+  compute: function (...args: Arg[]) {
+    return {
+      value: reduceAny(
+        args,
+        (acc, a) => {
+          if (a === undefined) {
+            return acc + 1;
+          }
+          if (a.value === null) {
+            return acc + 1;
+          }
+          if (a.value === "") {
+            return acc + 1;
+          }
+          return acc;
+        },
+        0
+      ),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -454,7 +453,7 @@ export const COUNTIF = {
     arg("range (range)", _t("The range that is tested against criterion.")),
     arg("criterion (string)", _t("The pattern or test to apply to range.")),
   ],
-  compute: function (...args: Arg[]): number {
+  compute: function (...args: Arg[]) {
     let count = 0;
     visitMatchingRanges(
       args,
@@ -463,7 +462,7 @@ export const COUNTIF = {
       },
       this.locale
     );
-    return count;
+    return { value: count };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -477,7 +476,7 @@ export const COUNTIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range over which to evaluate criteria.")),
     arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
-  compute: function (...args: Arg[]): number {
+  compute: function (...args: Arg[]) {
     let count = 0;
     visitMatchingRanges(
       args,
@@ -486,7 +485,7 @@ export const COUNTIFS = {
       },
       this.locale
     );
-    return count;
+    return { value: count };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -498,8 +497,8 @@ export const COUNTIFS = {
 export const COUNTUNIQUE = {
   description: _t("Counts number of unique values in a range."),
   args: [arg("value (any, range, repeating)", _t("Value or range to consider for uniqueness."))],
-  compute: function (...args: Arg[]): number {
-    return countUnique(args);
+  compute: function (...args: Arg[]) {
+    return { value: countUnique(args) };
   },
 } satisfies AddFunctionDescription;
 
@@ -517,19 +516,19 @@ export const COUNTUNIQUEIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range over which to evaluate criteria.")),
     arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
-  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
+  compute: function (range: MimicMatrix, ...args: Arg[]) {
     const uniqueValues = new Set();
     visitMatchingRanges(
       args,
       (i, j) => {
-        const data = range[i]?.[j];
+        const data = range.get(i, j);
         if (isDataNonEmpty(data)) {
           uniqueValues.add(data.value);
         }
       },
       this.locale
     );
-    return uniqueValues.size;
+    return { value: uniqueValues.size };
   },
 } satisfies AddFunctionDescription;
 
@@ -546,7 +545,7 @@ export const CSC = {
         _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return 1 / Math.sin(_angle);
+    return { value: 1 / Math.sin(_angle) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -564,7 +563,7 @@ export const CSCH = {
         _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return 1 / Math.sinh(_value);
+    return { value: 1 / Math.sinh(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -588,7 +587,7 @@ export const DECIMAL = {
 
     const _value = toString(value);
     if (_value === "") {
-      return 0;
+      return { value: 0 };
     }
 
     /**
@@ -608,7 +607,7 @@ export const DECIMAL = {
         _t("The value (%s) must be a valid base %s representation.", _value, _base)
       );
     }
-    return deci;
+    return { value: deci };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -619,8 +618,8 @@ export const DECIMAL = {
 export const DEGREES = {
   description: _t("Converts an angle value in radians to degrees."),
   args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
-  compute: function (angle: Maybe<FunctionResultObject>): number {
-    return (toNumber(angle, this.locale) * 180) / Math.PI;
+  compute: function (angle: Maybe<FunctionResultObject>) {
+    return { value: (toNumber(angle, this.locale) * 180) / Math.PI };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -631,8 +630,8 @@ export const DEGREES = {
 export const EXP = {
   description: _t("Euler's number, e (~2.718) raised to a power."),
   args: [arg("value (number)", _t("The exponent to raise e."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.exp(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.exp(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -672,7 +671,7 @@ export const FLOOR = {
 // FLOOR.MATH
 // -----------------------------------------------------------------------------
 
-function floorMath(number: number, significance: number, mode: number = 0): number {
+function floorMath(number: number, significance: number, mode: number = 0) {
   if (significance === 0) {
     return 0;
   }
@@ -757,10 +756,10 @@ export const FLOOR_PRECISE = {
 export const ISEVEN = {
   description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>) {
     const _value = strictToNumber(value, this.locale);
 
-    return Math.floor(Math.abs(_value)) & 1 ? false : true;
+    return { value: Math.floor(Math.abs(_value)) & 1 ? false : true };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -783,7 +782,7 @@ export const ISO_CEILING = {
   compute: function (
     number: Maybe<FunctionResultObject>,
     significance: Maybe<FunctionResultObject> = { value: DEFAULT_SIGNIFICANCE }
-  ): FunctionResultNumber {
+  ) {
     const _number = toNumber(number, this.locale);
     const _significance = toNumber(significance, this.locale);
     return {
@@ -800,10 +799,10 @@ export const ISO_CEILING = {
 export const ISODD = {
   description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>) {
     const _value = strictToNumber(value, this.locale);
 
-    return Math.floor(Math.abs(_value)) & 1 ? true : false;
+    return { value: Math.floor(Math.abs(_value)) & 1 ? true : false };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -819,7 +818,7 @@ export const LN = {
     if (_value <= 0) {
       return new EvaluationError(_t("The value (%s) must be strictly positive.", _value));
     }
-    return Math.log(_value);
+    return { value: Math.log(_value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -848,7 +847,7 @@ export const LOG = {
     if (_base === 1) {
       return new EvaluationError(_t("The base must be different from 1."));
     }
-    return Math.log10(_value) / Math.log10(_base);
+    return { value: Math.log10(_value) / Math.log10(_base) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -856,7 +855,7 @@ export const LOG = {
 // -----------------------------------------------------------------------------
 // MOD
 // -----------------------------------------------------------------------------
-function mod(dividend: number, divisor: number): number {
+function mod(dividend: number, divisor: number) {
   assertNotZero(divisor, _t("The divisor must be different from 0."));
   const modulus = dividend % divisor;
   // -42 % 10 = -2 but we want 8, so need the code below
@@ -902,7 +901,7 @@ export const MUNIT = {
     if (_n < 1) {
       return new EvaluationError(_t("The argument dimension must be positive"));
     }
-    return getUnitMatrix(_n);
+    return unitMimicMatrix(_n);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -913,7 +912,7 @@ export const MUNIT = {
 export const ODD = {
   description: _t("Rounds a number up to the nearest odd integer."),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
-  compute: function (value: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (value: Maybe<FunctionResultObject>) {
     const _value = toNumber(value, this.locale);
 
     let temp = Math.ceil(Math.abs(_value));
@@ -932,8 +931,8 @@ export const ODD = {
 export const PI = {
   description: _t("The number pi."),
   args: [],
-  compute: function (): number {
-    return Math.PI;
+  compute: function () {
+    return { value: Math.PI };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -975,19 +974,17 @@ export const PRODUCT = {
     let count = 0;
     let acc = 1;
     for (const n of factors) {
-      if (isMatrix(n)) {
-        for (const i of n) {
-          for (const j of i) {
-            const f = j.value;
-            if (typeof f === "number") {
-              acc *= f;
-              count += 1;
-            }
-            if (isEvaluationError(f)) {
-              return j;
-            }
+      if (isMimicMatrix(n)) {
+        n.visit((obj) => {
+          const f = obj.value;
+          if (typeof f === "number") {
+            acc *= f;
+            count += 1;
           }
-        }
+          if (isEvaluationError(f)) {
+            throw obj;
+          }
+        });
       } else if (n !== undefined && n.value !== null) {
         acc *= strictToNumber(n, this.locale);
         count += 1;
@@ -1007,8 +1004,8 @@ export const PRODUCT = {
 export const RAND = {
   description: _t("A random number between 0 inclusive and 1 exclusive."),
   args: [],
-  compute: function (): number {
-    return Math.random();
+  compute: function () {
+    return { value: Math.random() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1064,18 +1061,16 @@ export const RANDARRAY = {
       }
     }
 
-    const result: number[][] = Array(_cols);
-    for (let col = 0; col < _cols; col++) {
-      result[col] = Array(_rows);
-      for (let row = 0; row < _rows; row++) {
-        if (!_whole_number) {
-          result[col][row] = _min + Math.random() * (_max - _min);
-        } else {
-          result[col][row] = Math.floor(Math.random() * (_max - _min + 1) + _min);
-        }
-      }
+    if (_whole_number) {
+      const diff = _max - _min + 1;
+      return new MimicMatrix(_cols, _rows, () => {
+        return { value: Math.floor(Math.random() * diff + _min) };
+      });
     }
-    return result;
+    const diff = _max - _min;
+    return new MimicMatrix(_cols, _rows, () => {
+      return { value: Math.random() * diff + _min };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1233,8 +1228,8 @@ export const ROUNDUP = {
 export const SEC = {
   description: _t("Secant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the secant of, in radians."))],
-  compute: function (angle: Maybe<FunctionResultObject>): number {
-    return 1 / Math.cos(toNumber(angle, this.locale));
+  compute: function (angle: Maybe<FunctionResultObject>) {
+    return { value: 1 / Math.cos(toNumber(angle, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1245,8 +1240,8 @@ export const SEC = {
 export const SECH = {
   description: _t("Hyperbolic secant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return 1 / Math.cosh(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: 1 / Math.cosh(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1281,7 +1276,7 @@ export const SEQUENCE = {
     if (_rows < 1) {
       return new EvaluationError(_t("The number of rows (%s) must be positive.", _rows));
     }
-    return generateMatrix(_columns, _rows, (col, row) => {
+    return new MimicMatrix(_columns, _rows, (col, row) => {
       return {
         value: _start + row * _columns * _step + col * _step,
       };
@@ -1296,8 +1291,8 @@ export const SEQUENCE = {
 export const SIN = {
   description: _t("Sine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the sine of, in radians."))],
-  compute: function (angle: Maybe<FunctionResultObject>): number {
-    return Math.sin(toNumber(angle, this.locale));
+  compute: function (angle: Maybe<FunctionResultObject>) {
+    return { value: Math.sin(toNumber(angle, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1308,8 +1303,8 @@ export const SIN = {
 export const SINH = {
   description: _t("Hyperbolic sine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic sine of."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.sinh(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.sinh(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1391,13 +1386,13 @@ export const SUBTOTAL = {
     const functionResults: FunctionResultObject[] = [];
 
     for (const ref of refs) {
-      const _ref = toMatrix(ref);
-      const firstPosition = _ref[0][0]?.position;
+      const _ref = toMimicMatrix(ref);
+      const firstPosition = _ref.get(0, 0).position;
       if (firstPosition === undefined) {
         return new InvalidReferenceError(expectReferenceError);
       }
-      const right = firstPosition.col + _ref.length - 1;
-      const bottom = firstPosition.row + _ref[0].length - 1;
+      const right = firstPosition.col + _ref.width - 1;
+      const bottom = firstPosition.row + _ref.height - 1;
       const sheetId = firstPosition.sheetId;
 
       for (let row = firstPosition.row; row <= bottom; row++) {
@@ -1416,8 +1411,10 @@ export const SUBTOTAL = {
         }
       }
     }
-
-    return this[subtotalFunctionAggregateByCode[code]].apply(this, [[functionResults]]);
+    const result = this[subtotalFunctionAggregateByCode[code]].apply(this, [
+      matrixToMimicMatrix([functionResults]),
+    ]);
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1452,10 +1449,10 @@ export const SUMIF = {
     ),
   ],
   compute: function (
-    criteriaRange: Matrix<FunctionResultObject>,
+    criteriaRange: MimicMatrix,
     criterion: Maybe<FunctionResultObject>,
-    sumRange: Matrix<FunctionResultObject>
-  ): number {
+    sumRange: Maybe<MimicMatrix>
+  ) {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
     }
@@ -1464,14 +1461,14 @@ export const SUMIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = sumRange[i]?.[j]?.value;
+        const value = sumRange.get(i, j).value;
         if (typeof value === "number") {
           sum += value;
         }
       },
       this.locale
     );
-    return sum;
+    return { value: sum };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1486,19 +1483,19 @@ export const SUMIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range to check.")),
     arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
-  compute: function (sumRange: Matrix<FunctionResultObject>, ...criters: Arg[]): number {
+  compute: function (sumRange: MimicMatrix, ...criters: Arg[]) {
     let sum = 0;
     visitMatchingRanges(
       criters,
       (i, j) => {
-        const value = sumRange[i]?.[j]?.value;
+        const value = sumRange.get(i, j).value;
         if (typeof value === "number") {
           sum += value;
         }
       },
       this.locale
     );
-    return sum;
+    return { value: sum };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1509,8 +1506,8 @@ export const SUMIFS = {
 export const TAN = {
   description: _t("Tangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the tangent of, in radians."))],
-  compute: function (angle: Maybe<FunctionResultObject>): number {
-    return Math.tan(toNumber(angle, this.locale));
+  compute: function (angle: Maybe<FunctionResultObject>) {
+    return { value: Math.tan(toNumber(angle, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1521,8 +1518,8 @@ export const TAN = {
 export const TANH = {
   description: _t("Hyperbolic tangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic tangent of."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.tanh(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.tanh(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1530,7 +1527,7 @@ export const TANH = {
 // -----------------------------------------------------------------------------
 // TRUNC
 // -----------------------------------------------------------------------------
-function trunc(value: number, places: number): number {
+function trunc(value: number, places: number) {
   if (places === 0) {
     return Math.trunc(value);
   }
@@ -1566,8 +1563,8 @@ export const TRUNC = {
 export const INT = {
   description: _t("Rounds a number down to the nearest integer that is less than or equal to it."),
   args: [arg("value (number)", _t("The number to round down to the nearest integer."))],
-  compute: function (value: Maybe<FunctionResultObject>): number {
-    return Math.floor(toNumber(value, this.locale));
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: Math.floor(toNumber(value, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

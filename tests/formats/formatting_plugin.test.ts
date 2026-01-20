@@ -12,7 +12,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { toScalarMimicMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import {
@@ -181,8 +181,8 @@ describe("formatting values (with formatters)", () => {
       args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
       compute: function (value, format) {
         return {
-          value: toScalar(value)?.value || 0,
-          format: toString(toScalar(format)),
+          value: toScalarMimicMatrix(value)?.value || 0,
+          format: toString(toScalarMimicMatrix(format)),
         };
       },
     });

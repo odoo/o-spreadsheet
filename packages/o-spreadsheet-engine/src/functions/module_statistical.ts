@@ -3,15 +3,9 @@ import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import {
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { isMimicMatrix, matrixToMimicMatrix, MimicMatrix, toMimicMatrix } from "./helper_arg";
 import { areSameDimensions, assert, assertNotZero } from "./helper_assert";
 import {
   assertSameNumberOfElements,
@@ -31,12 +25,10 @@ import {
   dichotomicSearch,
   emptyDataErrorMessage,
   inferFormat,
-  matrixMap,
   noValidInputErrorMessage,
   reduceNumbers,
   reduceNumbersTextAs0,
   toBoolean,
-  toMatrix,
   toNumber,
   toNumberMatrix,
   visitAny,
@@ -230,7 +222,9 @@ export const AVEDEV = {
       );
     }
     const average = sum / count;
-    return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count;
+    return {
+      value: reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -279,11 +273,13 @@ export const AVERAGE_WEIGHTED = {
         return new EvaluationError(rangeError);
       }
 
-      if (isMatrix(argN)) {
-        for (let i = 0; i < argN.length; i++) {
-          for (let j = 0; j < argN[0].length; j++) {
-            const value = argN[i][j].value;
-            const weight = isMatrix(argN1) ? argN1?.[i][j].value : toNumber(argN1, this.locale);
+      if (isMimicMatrix(argN)) {
+        for (let i = 0; i < argN.width; i++) {
+          for (let j = 0; j < argN.height; j++) {
+            const value = argN.get(i, j).value;
+            const weight = isMimicMatrix(argN1)
+              ? argN1.get(i, j).value
+              : toNumber(argN1, this.locale);
             const valueIsNumber = typeof value === "number";
             const weightIsNumber = typeof weight === "number";
 
@@ -302,7 +298,7 @@ export const AVERAGE_WEIGHTED = {
         }
       } else {
         const value = toNumber(argN, this.locale);
-        const weight = isMatrix(argN1) ? argN1?.[0][0].value : toNumber(argN1, this.locale);
+        const weight = isMimicMatrix(argN1) ? argN1.get(0, 0).value : toNumber(argN1, this.locale);
         if (typeof weight === "number") {
           if (weight < 0) {
             return new EvaluationError(negativeWeightError);
@@ -375,7 +371,7 @@ export const AVERAGEIF = {
     averageRange: Arg
   ) {
     const _averageRange =
-      averageRange === undefined ? toMatrix(criteriaRange) : toMatrix(averageRange);
+      averageRange === undefined ? toMimicMatrix(criteriaRange) : toMimicMatrix(averageRange);
 
     let count = 0;
     let sum = 0;
@@ -383,7 +379,7 @@ export const AVERAGEIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = _averageRange[i]?.[j]?.value;
+        const value = _averageRange.get(i, j).value;
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -396,7 +392,7 @@ export const AVERAGEIF = {
         _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return sum / count;
+    return { value: sum / count };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -411,14 +407,14 @@ export const AVERAGEIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range to check.")),
     arg("criterion (string, repeating)", _t("Criterion to check.")),
   ],
-  compute: function (averageRange: Matrix<FunctionResultObject>, ...args: Arg[]) {
-    const _averageRange = toMatrix(averageRange);
+  compute: function (averageRange: MimicMatrix, ...args: Arg[]) {
+    const _averageRange = toMimicMatrix(averageRange);
     let count = 0;
     let sum = 0;
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = _averageRange[i]?.[j]?.value;
+        const value = _averageRange.get(i, j).value;
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -431,7 +427,7 @@ export const AVERAGEIFS = {
         _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
       );
     }
-    return sum / count;
+    return { value: sum / count };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -447,8 +443,10 @@ export const COUNT = {
       _t("Value or range to consider when counting.")
     ),
   ],
-  compute: function (...values: Arg[]): number {
-    return countNumbers(values, this.locale);
+  compute: function (...values: Arg[]) {
+    return {
+      value: countNumbers(values, this.locale),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -459,8 +457,10 @@ export const COUNT = {
 export const COUNTA = {
   description: _t("The number of values in a dataset."),
   args: [arg("value (any, range, repeating)", _t("Value or range to consider when counting."))],
-  compute: function (...values: Arg[]): number {
-    return countAny(values);
+  compute: function (...values: Arg[]) {
+    return {
+      value: countAny(values),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -480,8 +480,8 @@ export const COVAR = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Arg, dataX: Arg): number {
-    return covariance(dataY, dataX, false);
+  compute: function (dataY: Arg, dataX: Arg) {
+    return { value: covariance(dataY, dataX, false) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -498,8 +498,8 @@ export const COVARIANCE_P = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Arg, dataX: Arg): number {
-    return covariance(dataY, dataX, false);
+  compute: function (dataY: Arg, dataX: Arg) {
+    return { value: covariance(dataY, dataX, false) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -516,8 +516,8 @@ export const COVARIANCE_S = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Arg, dataX: Arg): number {
-    return covariance(dataY, dataX, true);
+  compute: function (dataY: Arg, dataX: Arg) {
+    return { value: covariance(dataY, dataX, true) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -540,21 +540,20 @@ export const FORECAST: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    x: Arg,
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>
-  ) {
+  compute: function (x: Arg, dataY: MimicMatrix, dataX: MimicMatrix) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
     }
 
-    return predictLinearValues(
-      [flatDataY],
-      [flatDataX],
-      matrixMap(toMatrix(x), (value) => toNumber(value, this.locale)),
-      true
+    // TO DO: see to optimize predictLinearValues to return a MimicMatrix directly
+    return matrixToMimicMatrix(
+      predictLinearValues(
+        [flatDataY],
+        [flatDataX],
+        toMimicMatrix(x).map((obj) => toNumber(obj, this.locale)),
+        true
+      )
     );
   },
   isExported: true,
@@ -589,20 +588,23 @@ export const GROWTH: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    knownDataY: Matrix<FunctionResultObject>,
-    knownDataX: Matrix<FunctionResultObject> = [[]],
-    newDataX: Matrix<FunctionResultObject> = [[]],
+    knownDataY: MimicMatrix,
+    knownDataX: Maybe<MimicMatrix>, // "Maybe<MimicMatrix>" and not "MimicMatrix" because default value in the definition
+    newDataX: Arg,
     b: Maybe<FunctionResultObject> = { value: true }
   ) {
-    if (knownDataY.length === 0 || knownDataY[0].length === 0) {
+    if (knownDataY.isEmpty()) {
       return new EvaluationError(emptyDataErrorMessage("known_data_y"));
     }
-    return expM(
-      predictLinearValues(
-        logM(toNumberMatrix(knownDataY, "known_data_y")),
-        toNumberMatrix(knownDataX, "known_data_x"),
-        toNumberMatrix(newDataX, "new_data_y"),
-        toBoolean(b)
+    // TO DO: See to optimize predictLinearValues to return a MimicMatrix directly
+    return matrixToMimicMatrix(
+      expM(
+        predictLinearValues(
+          logM(toNumberMatrix(knownDataY, "known_data_y")),
+          toNumberMatrix(knownDataX, "known_data_x"),
+          toNumberMatrix(newDataX, "new_data_x"),
+          toBoolean(b)
+        )
       )
     );
   },
@@ -623,13 +625,13 @@ export const INTERCEPT: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
+  compute: function (dataY: MimicMatrix, dataX: MimicMatrix) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
     }
     const [[], [intercept]] = fullLinearRegression([flatDataX], [flatDataY]);
-    return intercept as number;
+    return { value: intercept as number };
   },
   isExported: true,
 };
@@ -643,7 +645,7 @@ export const LARGE = {
     arg("data (any, range)", _t("Array or range containing the dataset to consider.")),
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
-  compute: function (data: Arg, n: Maybe<FunctionResultObject>): FunctionResultObject {
+  compute: function (data: Arg, n: Maybe<FunctionResultObject>) {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     const largests: FunctionResultObject[] = [];
     let index: number;
@@ -710,19 +712,21 @@ export const LINEST: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject> = [[]],
+    dataY: MimicMatrix,
+    dataX: Maybe<MimicMatrix>, // Maybe<MimicMatrix> and not MimicMatrix because default value in the definition
     calculateB: Maybe<FunctionResultObject> = { value: true },
     verbose: Maybe<FunctionResultObject> = { value: false }
   ) {
-    if (dataY.length === 0 || dataY[0].length === 0) {
+    if (dataY.isEmpty()) {
       return new EvaluationError(emptyDataErrorMessage("data_y"));
     }
-    return fullLinearRegression(
-      toNumberMatrix(dataX, "data_x"),
-      toNumberMatrix(dataY, "data_y"),
-      toBoolean(calculateB),
-      toBoolean(verbose)
+    return matrixToMimicMatrix(
+      fullLinearRegression(
+        toNumberMatrix(dataX, "data_x"),
+        toNumberMatrix(dataY, "data_y"),
+        toBoolean(calculateB),
+        toBoolean(verbose)
+      )
     );
   },
   isExported: true,
@@ -758,12 +762,12 @@ export const LOGEST: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject> = [[]],
+    dataY: MimicMatrix,
+    dataX: Maybe<MimicMatrix>, // Maybe<MimicMatrix> and not MimicMatrix because default value in the definition
     calculateB: Maybe<FunctionResultObject> = { value: true },
     verbose: Maybe<FunctionResultObject> = { value: false }
   ) {
-    if (dataY.length === 0 || dataY[0].length === 0) {
+    if (dataY.isEmpty()) {
       return new EvaluationError(emptyDataErrorMessage("data_y"));
     }
     const coeffs = fullLinearRegression(
@@ -775,7 +779,7 @@ export const LOGEST: AddFunctionDescription = {
     for (let i = 0; i < coeffs.length; i++) {
       coeffs[i][0] = Math.exp(coeffs[i][0] as number);
     }
-    return coeffs;
+    return matrixToMimicMatrix(coeffs);
   },
   isExported: true,
 };
@@ -789,9 +793,9 @@ export const MATTHEWS: AddFunctionDescription = {
     arg("data_x (range)", _t("The range representing the array or matrix of observed data.")),
     arg("data_y (range)", _t("The range representing the array or matrix of predicted data.")),
   ],
-  compute: function (dataX: Matrix<FunctionResultObject>, dataY: Matrix<FunctionResultObject>) {
-    const flatX = dataX.flat();
-    const flatY = dataY.flat();
+  compute: function (dataX: MimicMatrix, dataY: MimicMatrix) {
+    const flatX = dataX.flatten();
+    const flatY = dataY.flatten();
     assertSameNumberOfElements(flatX, flatY);
     if (flatX.length === 0 || flatY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
@@ -819,10 +823,11 @@ export const MATTHEWS: AddFunctionDescription = {
         }
       }
     }
-    return (
-      (trueP * trueN - falseP * falseN) /
-      Math.sqrt((trueP + falseP) * (trueP + falseN) * (trueN + falseP) * (trueN + falseN))
-    );
+    return {
+      value:
+        (trueP * trueN - falseP * falseN) /
+        Math.sqrt((trueP + falseP) * (trueP + falseN) * (trueN + falseP) * (trueN + falseN)),
+    };
   },
   isExported: false,
 };
@@ -879,19 +884,19 @@ export const MAXIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range to evaluate criteria.")),
     arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
-  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
+  compute: function (range: MimicMatrix, ...args: Arg[]) {
     let result = -Infinity;
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = range[i]?.[j]?.value;
+        const value = range.get(i, j).value;
         if (typeof value === "number") {
           result = result < value ? value : result;
         }
       },
       this.locale
     );
-    return result === -Infinity ? 0 : result;
+    return { value: result === -Infinity ? 0 : result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -952,7 +957,7 @@ export const MINA = {
       _t("Value or range to consider when calculating the minimum value.")
     ),
   ],
-  compute: function (...args: Arg[]): FunctionResultNumber {
+  compute: function (...args: Arg[]) {
     const mina: number = reduceNumbersTextAs0(
       args,
       (acc, a) => {
@@ -976,19 +981,19 @@ export const MINIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range to evaluate criteria.")),
     arg("criterion (string, repeating)", _t("Criterion to check.")),
   ],
-  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
+  compute: function (range: MimicMatrix, ...args: Arg[]) {
     let result = Infinity;
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = range[i]?.[j]?.value;
+        const value = range.get(i, j).value;
         if (typeof value === "number") {
           result = result > value ? value : result;
         }
       },
       this.locale
     );
-    return result === Infinity ? 0 : result;
+    return { value: result === Infinity ? 0 : result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -996,10 +1001,10 @@ export const MINIFS = {
 // -----------------------------------------------------------------------------
 // PEARSON
 // -----------------------------------------------------------------------------
-function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
+function pearson(dataY: MimicMatrix, dataX: MimicMatrix) {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   if (flatDataX.length === 0 || flatDataY.length === 0) {
-    return new NotAvailableError(noValidInputErrorMessage);
+    throw new NotAvailableError(noValidInputErrorMessage);
   }
   const n = flatDataX.length;
 
@@ -1036,11 +1041,8 @@ export const PEARSON: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>
-  ): number | NotAvailableError {
-    return pearson(dataY, dataX);
+  compute: function (dataY: MimicMatrix, dataX: MimicMatrix) {
+    return { value: pearson(dataY, dataX) };
   },
   isExported: true,
 };
@@ -1137,8 +1139,8 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>,
+    dataY: MimicMatrix,
+    dataX: MimicMatrix,
     order: Maybe<FunctionResultObject>,
     intercept: Maybe<FunctionResultObject> = { value: true }
   ) {
@@ -1146,11 +1148,8 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
     }
-    return polynomialRegression(
-      flatDataY,
-      flatDataX,
-      toNumber(order, this.locale),
-      toBoolean(intercept)
+    return matrixToMimicMatrix(
+      polynomialRegression(flatDataY, flatDataX, toNumber(order, this.locale), toBoolean(intercept))
     );
   },
   isExported: false,
@@ -1184,8 +1183,8 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
   ],
   compute: function (
     x: Arg,
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>,
+    dataY: MimicMatrix,
+    dataX: MimicMatrix,
     order: Maybe<FunctionResultObject>,
     intercept: Maybe<FunctionResultObject> = { value: true }
   ) {
@@ -1195,9 +1194,11 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
       return new NotAvailableError(noValidInputErrorMessage);
     }
     const coeffs = polynomialRegression(flatDataY, flatDataX, _order, toBoolean(intercept)).flat();
-    return matrixMap(toMatrix(x), (xij) =>
-      evaluatePolynomial(coeffs, toNumber(xij, this.locale), _order)
-    );
+    return toMimicMatrix(x).transform((obj) => {
+      return {
+        value: evaluatePolynomial(coeffs, toNumber(obj, this.locale), _order),
+      };
+    });
   },
   isExported: false,
 };
@@ -1278,30 +1279,29 @@ export const RANK: AddFunctionDescription = {
   ],
   compute: function (
     value: Maybe<FunctionResultObject>,
-    data: Matrix<FunctionResultObject>,
+    data: MimicMatrix,
     isAscending: Maybe<FunctionResultObject> = { value: false }
   ) {
     const _isAscending = toBoolean(isAscending);
     const _value = toNumber(value, this.locale);
     let rank = 1;
     let found = false;
-    for (const row of data) {
-      for (const cell of row) {
-        if (typeof cell.value !== "number") {
-          continue;
-        }
-        const _cell = toNumber(cell, this.locale);
-        if (_cell === _value) {
+
+    data.visit((obj) => {
+      if (typeof obj.value === "number") {
+        const _obj = toNumber(obj, this.locale);
+        if (_obj === _value) {
           found = true;
-        } else if (_cell > _value !== _isAscending) {
+        } else if (_obj > _value !== _isAscending) {
           rank++;
         }
       }
-    }
+    });
+
     if (!found) {
       return new NotAvailableError(_t("Value not found in the given data."));
     }
-    return rank;
+    return { value: rank };
   },
   isExported: true,
 };
@@ -1323,15 +1323,9 @@ export const RSQ: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
-    dataY: Matrix<FunctionResultObject>,
-    dataX: Matrix<FunctionResultObject>
-  ): number {
+  compute: function (dataY: MimicMatrix, dataX: MimicMatrix) {
     const value = pearson(dataY, dataX);
-    if (value instanceof Error) {
-      throw value;
-    }
-    return Math.pow(value as number, 2.0);
+    return { value: Math.pow(value as number, 2.0) };
   },
   isExported: true,
 };
@@ -1351,13 +1345,13 @@ export const SLOPE: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
+  compute: function (dataY: MimicMatrix, dataX: MimicMatrix) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
     }
     const [[slope]] = fullLinearRegression([flatDataX], [flatDataY]);
-    return slope as number;
+    return { value: slope as number };
   },
   isExported: true,
 };
@@ -1371,7 +1365,7 @@ export const SMALL = {
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
-  compute: function (data: Arg, n: Maybe<FunctionResultObject>): FunctionResultObject {
+  compute: function (data: Arg, n: Maybe<FunctionResultObject>) {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     const largests: FunctionResultObject[] = [];
     let index: number;
@@ -1423,7 +1417,7 @@ export const SPEARMAN: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataX: Matrix<FunctionResultObject>, dataY: Matrix<FunctionResultObject>) {
+  compute: function (dataX: MimicMatrix, dataY: MimicMatrix) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
@@ -1442,7 +1436,7 @@ export const SPEARMAN: AddFunctionDescription = {
     for (let i = 0; i < n; ++i) {
       sum += (order[i][0] - i) ** 2;
     }
-    return 1 - (6 * sum) / (n ** 3 - n);
+    return { value: 1 - (6 * sum) / (n ** 3 - n) };
   },
   isExported: false,
 };
@@ -1455,8 +1449,8 @@ export const STDEV = {
   args: [
     arg("value (number, range<number>, repeating)", _t("Value or range to include in the sample.")),
   ],
-  compute: function (...args: Arg[]): number {
-    return Math.sqrt(VAR.compute.bind(this)(...args));
+  compute: function (...args: Arg[]) {
+    return { value: Math.sqrt(VAR.compute.bind(this)(...args).value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1472,8 +1466,8 @@ export const STDEV_P = {
       _t("Value or range to include in the population.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return Math.sqrt(VAR_P.compute.bind(this)(...args));
+  compute: function (...args: Arg[]) {
+    return { value: Math.sqrt(VAR_P.compute.bind(this)(...args).value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1486,8 +1480,8 @@ export const STDEV_S = {
   args: [
     arg("value (number, range<number>, repeating)", _t("Value or range to include in the sample.")),
   ],
-  compute: function (...args: Arg[]): number {
-    return Math.sqrt(VAR_S.compute.bind(this)(...args));
+  compute: function (...args: Arg[]) {
+    return { value: Math.sqrt(VAR_S.compute.bind(this)(...args).value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1500,8 +1494,8 @@ export const STDEVA = {
   args: [
     arg("value (number, range<number>, repeating)", _t("Value or range to include in the sample.")),
   ],
-  compute: function (...args: Arg[]): number {
-    return Math.sqrt(VARA.compute.bind(this)(...args));
+  compute: function (...args: Arg[]) {
+    return { value: Math.sqrt(VARA.compute.bind(this)(...args).value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1517,8 +1511,8 @@ export const STDEVP = {
       _t("Value or range to include in the population.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return Math.sqrt(VARP.compute.bind(this)(...args));
+  compute: function (...args: Arg[]) {
+    return { value: Math.sqrt(VARP.compute.bind(this)(...args).value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1534,8 +1528,8 @@ export const STDEVPA = {
       _t("Value or range to include in the population.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return Math.sqrt(VARPA.compute.bind(this)(...args));
+  compute: function (...args: Arg[]) {
+    return { value: Math.sqrt(VARPA.compute.bind(this)(...args).value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1557,13 +1551,13 @@ export const STEYX: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>) {
+  compute: function (dataY: MimicMatrix, dataX: MimicMatrix) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
     }
     const data = fullLinearRegression([flatDataX], [flatDataY], true, true);
-    return data[1][2] as number;
+    return { value: data[1][2] as number };
   },
   isExported: true,
 };
@@ -1597,19 +1591,21 @@ export const TREND: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    knownDataY: Matrix<FunctionResultObject>,
-    knownDataX: Matrix<FunctionResultObject> = [[]],
-    newDataX: Matrix<FunctionResultObject> = [[]],
+    knownDataY: Arg,
+    knownDataX: Arg,
+    newDataX: Arg,
     b: Maybe<FunctionResultObject> = { value: true }
   ) {
-    if (knownDataY.length === 0 || knownDataY[0].length === 0) {
+    if (knownDataY === undefined) {
       return new EvaluationError(emptyDataErrorMessage("known_data_y"));
     }
-    return predictLinearValues(
-      toNumberMatrix(knownDataY, "known_data_y"),
-      toNumberMatrix(knownDataX, "known_data_x"),
-      toNumberMatrix(newDataX, "new_data_y"),
-      toBoolean(b)
+    return matrixToMimicMatrix(
+      predictLinearValues(
+        toNumberMatrix(knownDataY, "known_data_y"),
+        toNumberMatrix(knownDataX, "known_data_x"),
+        toNumberMatrix(newDataX, "new_data_y"),
+        toBoolean(b)
+      )
     );
   },
 };
@@ -1622,8 +1618,8 @@ export const VAR = {
   args: [
     arg("value (number, range<number>, repeating)", _t("Value or range to include in the sample.")),
   ],
-  compute: function (...args: Arg[]): number {
-    return variance(args, true, false, this.locale);
+  compute: function (...args: Arg[]) {
+    return { value: variance(args, true, false, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1639,8 +1635,8 @@ export const VAR_P = {
       _t("Value or range to include in the population.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return variance(args, false, false, this.locale);
+  compute: function (...args: Arg[]) {
+    return { value: variance(args, false, false, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1653,8 +1649,8 @@ export const VAR_S = {
   args: [
     arg("value (number, range<number>, repeating)", _t("Value or range to include in the sample.")),
   ],
-  compute: function (...args: Arg[]): number {
-    return variance(args, true, false, this.locale);
+  compute: function (...args: Arg[]) {
+    return { value: variance(args, true, false, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1667,8 +1663,8 @@ export const VARA = {
   args: [
     arg("value (number, range<number>, repeating)", _t("Value or range to include in the sample.")),
   ],
-  compute: function (...args: Arg[]): number {
-    return variance(args, true, true, this.locale);
+  compute: function (...args: Arg[]) {
+    return { value: variance(args, true, true, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1684,8 +1680,8 @@ export const VARP = {
       _t("Value or range to include in the population.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return variance(args, false, false, this.locale);
+  compute: function (...args: Arg[]) {
+    return { value: variance(args, false, false, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1701,8 +1697,8 @@ export const VARPA = {
       _t("Value or range to include in the population.")
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    return variance(args, false, true, this.locale);
+  compute: function (...args: Arg[]) {
+    return { value: variance(args, false, true, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

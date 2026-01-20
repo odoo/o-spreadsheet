@@ -17,7 +17,7 @@ import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { assert } from "./helper_assert";
 import { DAY_COUNT_CONVENTION_OPTIONS } from "./helper_financial";
@@ -85,6 +85,67 @@ export const DATE = {
 // -----------------------------------------------------------------------------
 // DATEDIF
 // -----------------------------------------------------------------------------
+function datedif(startDate: number, endDate: number, unit: TIME_UNIT): number {
+  const jsStartDate = numberToJsDate(startDate);
+  const jsEndDate = numberToJsDate(endDate);
+
+  if (endDate < startDate) {
+    throw new EvaluationError(
+      _t(
+        "start_date (%s) should be on or before end_date (%s).",
+        jsStartDate.toLocaleDateString(),
+        jsEndDate.toLocaleDateString()
+      )
+    );
+  }
+
+  switch (unit) {
+    case TIME_UNIT.WHOLE_YEARS:
+      return getTimeDifferenceInWholeYears(jsStartDate, jsEndDate);
+    case TIME_UNIT.WHOLE_MONTHS:
+      return getTimeDifferenceInWholeMonths(jsStartDate, jsEndDate);
+    case TIME_UNIT.WHOLE_DAYS: {
+      return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
+    }
+    case TIME_UNIT.MONTH_WITHOUT_WHOLE_YEARS: {
+      return (
+        getTimeDifferenceInWholeMonths(jsStartDate, jsEndDate) -
+        getTimeDifferenceInWholeYears(jsStartDate, jsEndDate) * 12
+      );
+    }
+    case TIME_UNIT.DAYS_WITHOUT_WHOLE_MONTHS:
+      // Using "MD" may get incorrect result in Excel
+      // See: https://support.microsoft.com/en-us/office/datedif-function-25dba1a4-2812-480b-84dd-8b32a451b35c
+      let days = jsEndDate.getDate() - jsStartDate.getDate();
+      if (days < 0) {
+        const monthBeforeEndMonth = new DateTime(
+          jsEndDate.getFullYear(),
+          jsEndDate.getMonth() - 1,
+          1
+        );
+        const daysInMonthBeforeEndMonth = getDaysInMonth(monthBeforeEndMonth);
+        days = daysInMonthBeforeEndMonth - Math.abs(days);
+      }
+      return days;
+    case TIME_UNIT.DAYS_BETWEEN_NO_MORE_THAN_ONE_YEAR: {
+      if (areTwoDatesWithinOneYear(startDate, endDate)) {
+        return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
+      }
+      const endDateWithinOneYear = new DateTime(
+        jsStartDate.getFullYear(),
+        jsEndDate.getMonth(),
+        jsEndDate.getDate()
+      );
+      let days = getTimeDifferenceInWholeDays(jsStartDate, endDateWithinOneYear);
+      if (days < 0) {
+        endDateWithinOneYear.setFullYear(jsStartDate.getFullYear() + 1);
+        days = getTimeDifferenceInWholeDays(jsStartDate, endDateWithinOneYear);
+      }
+      return days;
+    }
+  }
+}
+
 export const DATEDIF = {
   description: _t("Calculates the number of days, months, or years between two dates."),
   args: [
@@ -135,63 +196,7 @@ export const DATEDIF = {
     }
     const _startDate = Math.trunc(toNumber(startDate, this.locale));
     const _endDate = Math.trunc(toNumber(endDate, this.locale));
-    const jsStartDate = numberToJsDate(_startDate);
-    const jsEndDate = numberToJsDate(_endDate);
-
-    if (_endDate < _startDate) {
-      return new EvaluationError(
-        _t(
-          "start_date (%s) should be on or before end_date (%s).",
-          jsStartDate.toLocaleDateString(),
-          jsEndDate.toLocaleDateString()
-        )
-      );
-    }
-    switch (_unit) {
-      case TIME_UNIT.WHOLE_YEARS:
-        return getTimeDifferenceInWholeYears(jsStartDate, jsEndDate);
-      case TIME_UNIT.WHOLE_MONTHS:
-        return getTimeDifferenceInWholeMonths(jsStartDate, jsEndDate);
-      case TIME_UNIT.WHOLE_DAYS: {
-        return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
-      }
-      case TIME_UNIT.MONTH_WITHOUT_WHOLE_YEARS: {
-        return (
-          getTimeDifferenceInWholeMonths(jsStartDate, jsEndDate) -
-          getTimeDifferenceInWholeYears(jsStartDate, jsEndDate) * 12
-        );
-      }
-      case TIME_UNIT.DAYS_WITHOUT_WHOLE_MONTHS:
-        // Using "MD" may get incorrect result in Excel
-        // See: https://support.microsoft.com/en-us/office/datedif-function-25dba1a4-2812-480b-84dd-8b32a451b35c
-        let days = jsEndDate.getDate() - jsStartDate.getDate();
-        if (days < 0) {
-          const monthBeforeEndMonth = new DateTime(
-            jsEndDate.getFullYear(),
-            jsEndDate.getMonth() - 1,
-            1
-          );
-          const daysInMonthBeforeEndMonth = getDaysInMonth(monthBeforeEndMonth);
-          days = daysInMonthBeforeEndMonth - Math.abs(days);
-        }
-        return days;
-      case TIME_UNIT.DAYS_BETWEEN_NO_MORE_THAN_ONE_YEAR: {
-        if (areTwoDatesWithinOneYear(_startDate, _endDate)) {
-          return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
-        }
-        const endDateWithinOneYear = new DateTime(
-          jsStartDate.getFullYear(),
-          jsEndDate.getMonth(),
-          jsEndDate.getDate()
-        );
-        let days = getTimeDifferenceInWholeDays(jsStartDate, endDateWithinOneYear);
-        if (days < 0) {
-          endDateWithinOneYear.setFullYear(jsStartDate.getFullYear() + 1);
-          days = getTimeDifferenceInWholeDays(jsStartDate, endDateWithinOneYear);
-        }
-        return days;
-      }
-    }
+    return { value: datedif(_startDate, _endDate, _unit) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -212,7 +217,7 @@ export const DATEVALUE = {
       );
     }
 
-    return Math.trunc(internalDate!.value);
+    return { value: Math.trunc(internalDate!.value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -223,8 +228,8 @@ export const DATEVALUE = {
 export const DAY = {
   description: _t("Day of the month that a specific date falls on."),
   args: [arg("date (string)", _t("The date from which to extract the day."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return toJsDate(date, this.locale).getDate();
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: toJsDate(date, this.locale).getDate() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -239,14 +244,11 @@ export const DAYS = {
     arg("end_date (date)", _t("The end of the date range.")),
     arg("start_date (date)", _t("The start of the date range.")),
   ],
-  compute: function (
-    endDate: Maybe<FunctionResultObject>,
-    startDate: Maybe<FunctionResultObject>
-  ): number {
+  compute: function (endDate: Maybe<FunctionResultObject>, startDate: Maybe<FunctionResultObject>) {
     const _endDate = toJsDate(endDate, this.locale);
     const _startDate = toJsDate(startDate, this.locale);
     const dateDif = _endDate.getTime() - _startDate.getTime();
-    return Math.round(dateDif / MS_PER_DAY);
+    return { value: Math.round(dateDif / MS_PER_DAY) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -273,13 +275,13 @@ export const DAYS360 = {
     startDate: Maybe<FunctionResultObject>,
     endDate: Maybe<FunctionResultObject>,
     method: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_METHOD }
-  ): number {
+  ) {
     const _startDate = Math.trunc(toNumber(startDate, this.locale));
     const _endDate = Math.trunc(toNumber(endDate, this.locale));
     const dayCountConvention = toBoolean(method) ? 4 : 0;
 
     const yearFrac = getYearFrac(_startDate, _endDate, dayCountConvention);
-    return Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360);
+    return { value: Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -296,10 +298,7 @@ export const EDATE = {
       _t("The number of months before (negative) or after (positive) 'start_date' to calculate.")
     ),
   ],
-  compute: function (
-    startDate: Maybe<FunctionResultObject>,
-    months: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (startDate: Maybe<FunctionResultObject>, months: Maybe<FunctionResultObject>) {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
 
@@ -324,10 +323,7 @@ export const EOMONTH = {
       _t("The number of months before (negative) or after (positive) 'start_date' to consider.")
     ),
   ],
-  compute: function (
-    startDate: Maybe<FunctionResultObject>,
-    months: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (startDate: Maybe<FunctionResultObject>, months: Maybe<FunctionResultObject>) {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
 
@@ -348,8 +344,8 @@ export const EOMONTH = {
 export const HOUR = {
   description: _t("Hour component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the hour component."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return toJsDate(date, this.locale).getHours();
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: toJsDate(date, this.locale).getHours() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -367,7 +363,7 @@ export const ISOWEEKNUM = {
       )
     ),
   ],
-  compute: function (date: Maybe<FunctionResultObject>): number {
+  compute: function (date: Maybe<FunctionResultObject>) {
     const _date = toJsDate(date, this.locale);
     const y = _date.getFullYear();
 
@@ -437,7 +433,7 @@ export const ISOWEEKNUM = {
     }
 
     const diff = (_date.getTime() - firstDay!.getTime()) / MS_PER_DAY;
-    return Math.floor(diff / 7) + 1;
+    return { value: Math.floor(diff / 7) + 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -448,8 +444,8 @@ export const ISOWEEKNUM = {
 export const MINUTE = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the minute component."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return toJsDate(date, this.locale).getMinutes();
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: toJsDate(date, this.locale).getMinutes() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -460,8 +456,8 @@ export const MINUTE = {
 export const MONTH = {
   description: _t("Month of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the month."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return toJsDate(date, this.locale).getMonth() + 1;
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: toJsDate(date, this.locale).getMonth() + 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -489,7 +485,7 @@ export const NETWORKDAYS = {
     startDate: Maybe<FunctionResultObject>,
     endDate: Maybe<FunctionResultObject>,
     holidays: Arg
-  ): number {
+  ) {
     return NETWORKDAYS_INTL.compute.bind(this)(startDate, endDate, { value: 1 }, holidays);
   },
   isExported: true,
@@ -612,7 +608,7 @@ export const NETWORKDAYS_INTL = {
     endDate: Maybe<FunctionResultObject>,
     weekend: Maybe<FunctionResultObject> = { value: DEFAULT_WEEKEND },
     holidays: Arg
-  ): number {
+  ) {
     const _startDate = toJsDate(startDate, this.locale);
     const _endDate = toJsDate(endDate, this.locale);
     const daysWeekend = weekendToDayNumber(weekend);
@@ -640,7 +636,7 @@ export const NETWORKDAYS_INTL = {
       timeStepDate = stepDate.getTime();
     }
 
-    return invertDate ? -netWorkingDay : netWorkingDay;
+    return { value: invertDate ? -netWorkingDay : netWorkingDay };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -652,7 +648,7 @@ export const NETWORKDAYS_INTL = {
 export const NOW = {
   description: _t("Current date and time as a date value."),
   args: [],
-  compute: function (): FunctionResultNumber {
+  compute: function () {
     const today = DateTime.now();
     const delta = today.getTime() - INITIAL_1900_DAY.getTime();
     const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
@@ -670,8 +666,8 @@ export const NOW = {
 export const SECOND = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the second component."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return toJsDate(date, this.locale).getSeconds();
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: toJsDate(date, this.locale).getSeconds() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -732,7 +728,7 @@ export const TIMEVALUE = {
     }
     const result = internalDate!.value - Math.trunc(internalDate!.value);
 
-    return result < 0 ? 1 + result : result;
+    return { value: result < 0 ? 1 + result : result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -743,7 +739,7 @@ export const TIMEVALUE = {
 export const TODAY = {
   description: _t("Current date as a date value."),
   args: [],
-  compute: function (): FunctionResultNumber {
+  compute: function () {
     const today = DateTime.now();
     const jsDate = new DateTime(today.getFullYear(), today.getMonth(), today.getDate());
     return {
@@ -757,6 +753,26 @@ export const TODAY = {
 // -----------------------------------------------------------------------------
 // WEEKDAY
 // -----------------------------------------------------------------------------
+function weekDayCalc(m: number, type: number): number {
+  if (!(1 <= type && type <= 3) && !(11 <= type && type <= 17)) {
+    throw new EvaluationError(
+      _t("The type (%s) must be between 1 and 3 or between 11 and 17.", type)
+    );
+  }
+  switch (type) {
+    case 1:
+      return m + 1;
+    case 2:
+      return m === 0 ? 7 : m;
+    case 3:
+      return m === 0 ? 6 : m - 1;
+  }
+
+  const delta = type - 10;
+  const result = (m + 1 - delta + 7) % 7; // +7 to avoid applying modulo on negative numbers
+  return result === 0 ? 7 : result;
+}
+
 export const WEEKDAY = {
   description: _t("Day of the week of the date provided (as number)."),
   args: [
@@ -792,24 +808,7 @@ export const WEEKDAY = {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     const m = _date.getDay(); // "getDay()+1" return 1 for Sunday, 2 for Monday, ..., 7 for Saturday
-
-    if (!(1 <= _type && _type <= 3) && !(11 <= _type && _type <= 17)) {
-      return new EvaluationError(
-        _t("The type (%s) must be between 1 and 3 or between 11 and 17.", _type)
-      );
-    }
-    switch (_type) {
-      case 1:
-        return m + 1;
-      case 2:
-        return m === 0 ? 7 : m;
-      case 3:
-        return m === 0 ? 6 : m - 1;
-    }
-
-    const delta = _type - 10;
-    const result = (m + 1 - delta + 7) % 7; // +7 to avoid applying modulo on negative numbers
-    return result === 0 ? 7 : result;
+    return { value: weekDayCalc(m, _type) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -817,6 +816,38 @@ export const WEEKDAY = {
 // -----------------------------------------------------------------------------
 // WEEKNUM
 // -----------------------------------------------------------------------------
+
+function weekNumCalc(date: DateTime, type: number): number {
+  if (![1, 2, 11, 12, 13, 14, 15, 16, 17].includes(type)) {
+    throw new EvaluationError(_t("The type (%s) is out of range.", type.toString()));
+  }
+
+  let startDayOfWeek: number;
+  if (type === 1 || type === 2) {
+    startDayOfWeek = type - 1;
+  } else {
+    // case 11 <= type <= 17
+    startDayOfWeek = type - 10 === 7 ? 0 : type - 10;
+  }
+
+  const y = date.getFullYear();
+
+  let dayStart = 1;
+  let startDayOfFirstWeek = new DateTime(y, 0, dayStart);
+
+  while (startDayOfFirstWeek.getDay() !== startDayOfWeek) {
+    dayStart += 1;
+    startDayOfFirstWeek = new DateTime(y, 0, dayStart);
+  }
+
+  const dif = (date.getTime() - startDayOfFirstWeek.getTime()) / MS_PER_DAY;
+
+  if (dif < 0) {
+    return 1;
+  }
+  return Math.floor(dif / 7) + (dayStart === 1 ? 1 : 2);
+}
+
 export const WEEKNUM = {
   description: _t("Week number of the year."),
   args: [
@@ -849,38 +880,10 @@ export const WEEKNUM = {
   ) {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
-    if (![1, 2, 11, 12, 13, 14, 15, 16, 17, 21].includes(_type)) {
-      return new EvaluationError(_t("The type (%s) is out of range.", _type.toString()));
-    }
-
     if (_type === 21) {
       return ISOWEEKNUM.compute.bind(this)(date);
     }
-
-    let startDayOfWeek: number;
-    if (_type === 1 || _type === 2) {
-      startDayOfWeek = _type - 1;
-    } else {
-      // case 11 <= _type <= 17
-      startDayOfWeek = _type - 10 === 7 ? 0 : _type - 10;
-    }
-
-    const y = _date.getFullYear();
-
-    let dayStart = 1;
-    let startDayOfFirstWeek = new DateTime(y, 0, dayStart);
-
-    while (startDayOfFirstWeek.getDay() !== startDayOfWeek) {
-      dayStart += 1;
-      startDayOfFirstWeek = new DateTime(y, 0, dayStart);
-    }
-
-    const dif = (_date.getTime() - startDayOfFirstWeek.getTime()) / MS_PER_DAY;
-
-    if (dif < 0) {
-      return 1;
-    }
-    return Math.floor(dif / 7) + (dayStart === 1 ? 1 : 2);
+    return { value: weekNumCalc(_date, _type) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -904,7 +907,7 @@ export const WORKDAY = {
   compute: function (
     startDate: Maybe<FunctionResultObject>,
     numDays: Maybe<FunctionResultObject>,
-    holidays: Arg = { value: null }
+    holidays: Arg = undefined
   ) {
     return WORKDAY_INTL.compute.bind(this)(startDate, numDays, { value: 1 }, holidays);
   },
@@ -984,8 +987,8 @@ export const WORKDAY_INTL = {
 export const YEAR = {
   description: _t("Year specified by a given date."),
   args: [arg("date (date)", _t("The date from which to extract the year."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return toJsDate(date, this.locale).getFullYear();
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: toJsDate(date, this.locale).getFullYear() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1036,7 +1039,7 @@ export const YEARFRAC = {
       );
     }
 
-    return getYearFrac(_startDate, _endDate, _dayCountConvention);
+    return { value: getYearFrac(_startDate, _endDate, _dayCountConvention) };
   },
 } satisfies AddFunctionDescription;
 
@@ -1046,7 +1049,7 @@ export const YEARFRAC = {
 export const MONTH_START = {
   description: _t("First day of the month preceding a date."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
-  compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (date: Maybe<FunctionResultObject>) {
     const _startDate = toJsDate(date, this.locale);
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
@@ -1064,7 +1067,7 @@ export const MONTH_START = {
 export const MONTH_END = {
   description: _t("Last day of the month following a date."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
-  compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (date: Maybe<FunctionResultObject>) {
     return EOMONTH.compute.bind(this)(date, { value: 0 });
   },
 } satisfies AddFunctionDescription;
@@ -1075,8 +1078,8 @@ export const MONTH_END = {
 export const QUARTER = {
   description: _t("Quarter of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the quarter."))],
-  compute: function (date: Maybe<FunctionResultObject>): number {
-    return Math.ceil((toJsDate(date, this.locale).getMonth() + 1) / 3);
+  compute: function (date: Maybe<FunctionResultObject>) {
+    return { value: Math.ceil((toJsDate(date, this.locale).getMonth() + 1) / 3) };
   },
 } satisfies AddFunctionDescription;
 
@@ -1086,10 +1089,10 @@ export const QUARTER = {
 export const QUARTER_START = {
   description: _t("First day of the quarter of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the start of quarter."))],
-  compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (date: Maybe<FunctionResultObject>) {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
-    const jsDate = new DateTime(year, (quarter - 1) * 3, 1);
+    const jsDate = new DateTime(year.value, (quarter.value - 1) * 3, 1);
     return {
       value: jsDateToRoundNumber(jsDate),
       format: this.locale.dateFormat,
@@ -1103,10 +1106,10 @@ export const QUARTER_START = {
 export const QUARTER_END = {
   description: _t("Last day of the quarter of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the end of quarter."))],
-  compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (date: Maybe<FunctionResultObject>) {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
-    const jsDate = new DateTime(year, quarter * 3, 0);
+    const jsDate = new DateTime(year.value, quarter.value * 3, 0);
     return {
       value: jsDateToRoundNumber(jsDate),
       format: this.locale.dateFormat,
@@ -1120,9 +1123,9 @@ export const QUARTER_END = {
 export const YEAR_START = {
   description: _t("First day of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the start of the year."))],
-  compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (date: Maybe<FunctionResultObject>) {
     const year = YEAR.compute.bind(this)(date);
-    const jsDate = new DateTime(year, 0, 1);
+    const jsDate = new DateTime(year.value, 0, 1);
     return {
       value: jsDateToRoundNumber(jsDate),
       format: this.locale.dateFormat,
@@ -1136,9 +1139,9 @@ export const YEAR_START = {
 export const YEAR_END = {
   description: _t("Last day of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the end of the year."))],
-  compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (date: Maybe<FunctionResultObject>) {
     const year = YEAR.compute.bind(this)(date);
-    const jsDate = new DateTime(year + 1, 0, 0);
+    const jsDate = new DateTime(year.value + 1, 0, 0);
     return {
       value: jsDateToRoundNumber(jsDate),
       format: this.locale.dateFormat,

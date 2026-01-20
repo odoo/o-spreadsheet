@@ -103,7 +103,7 @@ describe("Simple Spreadsheet Component", () => {
         description: "Get the name of the current sheet",
         compute: function () {
           env = this.env;
-          return "Sheet";
+          return { value: "Sheet" };
         },
         args: [],
       });
