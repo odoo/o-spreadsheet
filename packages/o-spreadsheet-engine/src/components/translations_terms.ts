@@ -3,6 +3,7 @@ import { _t } from "../translation";
 import { ChartColorScale } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { Locale } from "../types/locale";
+import { NEXT_VALUE, PREVIOUS_VALUE } from "../types/pivot";
 
 export const CfTerms = {
   Errors: {
@@ -207,13 +208,39 @@ export const measureDisplayTerms = {
     "%_of_grand_total": () => _t("Displayed as % of grand total"),
     "%_of_col_total": () => _t("Displayed as % of column total"),
     "%_of_row_total": () => _t("Displayed as % of row total"),
-    "%_of": (field: string) => _t('Displayed as % of "%s"', field),
-    "%_of_parent_row_total": (field: string) =>
-      _t('Displayed as % of parent row total of "%s"', field),
+    "%_of": (field: string, value: string) => {
+      switch (value) {
+        case NEXT_VALUE:
+          return _t('Displayed as % of next "%s"', field);
+        case PREVIOUS_VALUE:
+          return _t('Displayed as % of previous "%s"', field);
+        default:
+          return _t('Displayed as % of "%s" : %s', field, value);
+      }
+    },
+    "%_of_parent_row_total": () => _t("Displayed as % of parent row total"),
     "%_of_parent_col_total": () => _t("Displayed as % of parent column total"),
     "%_of_parent_total": (field: string) => _t('Displayed as % of parent "%s" total', field),
-    difference_from: (field: string) => _t('Displayed as difference from "%s"', field),
-    "%_difference_from": (field: string) => _t('Displayed as % difference from "%s"', field),
+    difference_from: (field: string, value: string) => {
+      switch (value) {
+        case NEXT_VALUE:
+          return _t('Displayed as difference from next "%s"', field);
+        case PREVIOUS_VALUE:
+          return _t('Displayed as difference from previous "%s"', field);
+        default:
+          return _t('Displayed as difference from "%s" : %s', field, value);
+      }
+    },
+    "%_difference_from": (field: string, value: string) => {
+      switch (value) {
+        case NEXT_VALUE:
+          return _t('Displayed as % difference from next "%s"', field);
+        case PREVIOUS_VALUE:
+          return _t('Displayed as % difference from previous "%s"', field);
+        default:
+          return _t('Displayed as % difference from "%s" : %s', field, value);
+      }
+    },
     running_total: (field: string) => _t('Displayed as running total based on "%s"', field),
     "%_running_total": (field: string) => _t('Displayed as % running total based on "%s"', field),
     rank_asc: (field: string) =>

@@ -40,6 +40,11 @@
           />
         </div>
       </div>
+      <div class="d-flex flex-row">
+        <div class="d-flex py-1 px-2 w-100 small text-muted o-measure-description">
+          <i t-esc="getMeasureDescription(measure)"/>
+        </div>
+      </div>
     </PivotDimension>
   </t>
 </templates>
