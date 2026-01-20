@@ -97,7 +97,7 @@ exports[`Chart title Can render a chart title component 1`] = `
             </span>
             
             <div
-              class="o-icon fa-small"
+              class="o-icon fa-small o-caret-down"
             >
               <i
                 class="fa fa-caret-down"
@@ -130,7 +130,7 @@ exports[`Chart title Can render a chart title component 1`] = `
             
             <span>
               <div
-                class="o-icon fa-small"
+                class="o-icon fa-small o-caret-down"
               >
                 <i
                   class="fa fa-caret-down"

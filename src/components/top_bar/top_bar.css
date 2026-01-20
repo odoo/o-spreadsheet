@@ -1,10 +1,4 @@
 .o-spreadsheet {
-  @media (max-width: 1200px) {
-    .o-topbar-responsive {
-      flex-direction: column !important;
-    }
-  }
-
   @media (max-width: 768px) {
     .topbar-banner span {
       overflow: auto;
@@ -20,8 +14,8 @@
 
   .o-topbar-divider {
     width: 0;
-    margin: 0 6px;
-    height: 30px;
+    margin: 0 4px;
+    height: 100%;
   }
 
   .o-toolbar-button {
@@ -90,11 +84,17 @@
 
     .o-toolbar-button {
       height: 35px;
-      width: 31px;
+      min-width: 31px;
       .o-toolbar-button.o-mobile-disabled * {
         color: var(--os-disabled-text-color);
         cursor: not-allowed;
       }
+    }
+  }
+
+  .o-topbar-tools-popover {
+    .o-topbar-divider {
+      height: 30px;
     }
   }
 }

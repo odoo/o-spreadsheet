@@ -1,7 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef, useState } from "@odoo/owl";
-import { Action, createAction } from "../../../actions/action";
-import { formatNumberMenuItemSpec } from "../../../registries/menus";
+import { Action, ActionSpec, createAction } from "../../../actions/action";
 import { Rect } from "../../../types";
 import { ActionButton } from "../../action_button/action_button";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
@@ -10,6 +9,7 @@ import { MenuPopover } from "../../menu_popover/menu_popover";
 
 interface Props {
   class: string;
+  action: ActionSpec;
 }
 
 interface State {
@@ -17,11 +17,10 @@ interface State {
   anchorRect: Rect;
 }
 
-export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-NumberFormatsTool";
+export class MenuButtonTool extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-MenuButtonTool";
   static components = { MenuPopover, ActionButton };
-  static props = { class: String };
-  formatNumberMenuItemSpec = formatNumberMenuItemSpec;
+  static props = { class: String, action: Object };
   topBarToolStore!: ToolBarDropdownStore;
 
   buttonRef = useRef("buttonRef");
@@ -38,7 +37,7 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
     if (this.isActive) {
       this.topBarToolStore.closeDropdowns();
     } else {
-      const menu = createAction(this.formatNumberMenuItemSpec);
+      const menu = createAction(this.props.action);
       this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
       this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef.el!);
       this.topBarToolStore.openDropdown();
@@ -47,5 +46,9 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
 
   get isActive() {
     return this.topBarToolStore.isActive;
+  }
+
+  onClose() {
+    this.topBarToolStore.closeDropdowns();
   }
 }

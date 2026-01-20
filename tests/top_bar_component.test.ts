@@ -70,7 +70,6 @@ beforeEach(() => {
   extendMockGetBoundingClientRect({
     "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight }),
     "o-popover": () => ({ width: 50, height: 50 }),
-    "o-topbar-responsive": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
     "o-toolbar-tools": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: topBarToolsHeight }),
     "tool-container": () => ({ x: 0, y: 0, width: toolWidth, height: topBarToolsHeight }),
     "more-tools-container": () => ({
@@ -581,6 +580,29 @@ describe("TopBar component", () => {
         expect(expectedButtonActive!.classList).toContain("active");
       }
     );
+  });
+
+  test("Can insert a chart with the toolbar", async () => {
+    const { model } = await mountParent();
+    await click(fixture, '.o-topbar-toolbar .o-menu-item-button[title="Insert chart"]');
+    expect(model.getters.getChartIds(model.getters.getActiveSheetId()).length).toBe(1);
+  });
+
+  test("Can insert a pivot with the toolbar", async () => {
+    const { model } = await mountParent();
+    await click(fixture, '.o-topbar-toolbar .o-menu-item-button[title="Insert pivot table"]');
+    expect(model.getters.getPivotIds().length).toBe(1);
+  });
+
+  test("Can insert a function with the toolbar", async () => {
+    const startCellEdition = jest.fn();
+    const { model } = await mountParent(new Model(), { startCellEdition });
+    setCellContent(model, "A1", "10");
+    selectCell(model, "B1");
+    await click(fixture, '.o-topbar-toolbar .o-menu-item-button[title="Insert function"]');
+    await click(fixture, '.o-popover .o-menu-item[data-name="insert_function_sum"]');
+    expect(startCellEdition).toHaveBeenCalledWith("=SUM(");
+    expect(".o-popover").toHaveCount(0);
   });
 
   test("opening, then closing same menu", async () => {
@@ -1111,20 +1133,15 @@ test("Clicking on a topbar button triggers two renders", async () => {
 describe("Responsive Top bar behaviour", () => {
   const categories = topBarToolBarRegistry.getCategories();
   describe("items are hidden when the screen is resized", () => {
-    const topbarToolsWidthThresholds = [750, 650];
-    const widthThresholds = topbarToolsWidthThresholds.map((threshold, index) => [
-      threshold,
-      index,
-    ]);
+    const widthThresholds = [750, 650];
 
-    test.each(widthThresholds)("Screen slightly smaller than %spx ", async (threshold, index) => {
+    test.each(widthThresholds)("Screen slightly smaller than %spx ", async (threshold) => {
       spreadsheetWidth = threshold - 1;
       await mountParent();
       await nextTick();
-      const tools = [...fixture.querySelectorAll(".o-toolbar-tools .tool-container")].filter(
-        (element) => !element.classList.contains("d-none")
-      );
-      expect(tools.length).toBe(categories.length - (index + 1));
+      const tools = [...fixture.querySelectorAll(".o-toolbar-tools .tool-container:not(.d-none)")];
+      expect(tools.length).toBeLessThan(categories.length);
+      expect(tools.length).toBe(Math.floor((spreadsheetWidth - moreToolsWidth) / toolWidth));
     });
 
     test("toolbar items hidden are available in a popover", async () => {

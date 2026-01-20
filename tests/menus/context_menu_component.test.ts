@@ -229,7 +229,6 @@ beforeEach(() => {
         width: MENU_WIDTH,
       };
     },
-    "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
     "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
     "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
   });
