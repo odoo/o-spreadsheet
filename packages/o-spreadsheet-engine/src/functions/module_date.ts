@@ -904,7 +904,7 @@ export const WORKDAY = {
   compute: function (
     startDate: Maybe<FunctionResultObject>,
     numDays: Maybe<FunctionResultObject>,
-    holidays: Arg = { value: null }
+    holidays: Arg = [[{ value: null }]]
   ) {
     return WORKDAY_INTL.compute.bind(this)(startDate, numDays, { value: 1 }, holidays);
   },

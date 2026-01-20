@@ -35,7 +35,6 @@ import {
   GetSymbolValue,
   isMatrix,
   Lazy,
-  Matrix,
   RangeCompiledFormula,
   UID,
   Zone,
@@ -229,7 +228,7 @@ export class Evaluator {
   evaluateFormulaResult(
     sheetId: UID,
     formulaString: string
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ): FunctionResultObject | FunctionResultObject[][] {
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
@@ -444,7 +443,7 @@ export class Evaluator {
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FunctionResultObject>
+    matrixResult: FunctionResultObject[][]
   ) {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -474,7 +473,7 @@ export class Evaluator {
 
   private assertNoMergedCellsInSpreadZone(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FunctionResultObject>
+    matrixResult: FunctionResultObject[][]
   ) {
     const mergedCells = this.getters.getMergesInZone(sheetId, {
       top: row,
@@ -516,7 +515,7 @@ export class Evaluator {
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FunctionResultObject>
+    matrixResult: FunctionResultObject[][]
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };

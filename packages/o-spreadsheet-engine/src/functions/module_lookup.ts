@@ -15,7 +15,7 @@ import {
   NotAvailableError,
 } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -230,8 +230,7 @@ export const HLOOKUP = {
       return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
     }
 
-    const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
-      range[index][0].value;
+    const getValueFromRange = (r: FunctionResultObject[][], index: number) => r[index][0].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
@@ -273,7 +272,7 @@ export const INDEX: AddFunctionDescription = {
     reference: Arg,
     row: Maybe<FunctionResultObject> = { value: 0 },
     column: Maybe<FunctionResultObject> = { value: 0 }
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ) {
     const _reference = toMatrix(reference);
     const _row = toNumber(row.value, this.locale);
     const _column = toNumber(column.value, this.locale);
@@ -317,7 +316,7 @@ export const INDIRECT: AddFunctionDescription = {
   compute: function (
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ) {
     const _reference = reference?.value?.toString();
     if (!_reference) {
       return new InvalidReferenceError(_t("Reference should be defined."));
@@ -371,11 +370,7 @@ export const LOOKUP = {
       )
     ),
   ],
-  compute: function (
-    searchKey: Maybe<FunctionResultObject>,
-    searchArray: Arg,
-    resultRange: Arg
-  ): FunctionResultObject {
+  compute: function (searchKey: Maybe<FunctionResultObject>, searchArray: Arg, resultRange: Arg) {
     const _searchArray = toMatrix(searchArray);
     const _resultRange = toMatrix(resultRange);
 
@@ -384,8 +379,8 @@ export const LOOKUP = {
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
-      ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
-      : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
+      ? (range: FunctionResultObject[][], index: number) => range[0][index].value
+      : (range: FunctionResultObject[][], index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
       _searchArray,
@@ -475,8 +470,8 @@ export const MATCH = {
 
     const getElement =
       nbCol === 1
-        ? (_range: Matrix<FunctionResultObject>, index: number) => _range[0][index].value
-        : (_range: Matrix<FunctionResultObject>, index: number) => _range[index][0].value;
+        ? (_range: FunctionResultObject[][], index: number) => _range[0][index].value
+        : (_range: FunctionResultObject[][], index: number) => _range[index][0].value;
 
     const rangeLen = nbCol === 1 ? _range[0].length : _range.length;
     _searchType = Math.sign(_searchType);
@@ -615,7 +610,7 @@ export const VLOOKUP = {
       return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
     }
 
-    const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
+    const getValueFromRange = (range: FunctionResultObject[][], index: number) =>
       range[0][index].value;
 
     const _isSorted = toBoolean(isSorted.value);
@@ -736,8 +731,8 @@ export const XLOOKUP = {
     }
     const getElement =
       lookupDirection === "col"
-        ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
-        : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
+        ? (range: FunctionResultObject[][], index: number) => range[0][index].value
+        : (range: FunctionResultObject[][], index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? _lookupRange[0].length : _lookupRange.length;
     const mode = MATCH_MODE[_matchMode];
@@ -956,7 +951,7 @@ export const PIVOT = {
       return [[{ value: pivotTitle }]];
     }
     const tableWidth = Math.min(1 + pivotStyle.numberOfColumns, cells.length);
-    const result: Matrix<FunctionResultObject> = [];
+    const result: Arg = [];
     for (const col of range(0, tableWidth)) {
       result[col] = [];
       for (const row of range(0, tableHeight)) {
@@ -1125,7 +1120,7 @@ export const DROP = {
     ),
   ],
   compute: function (
-    array: Matrix<{ value: string }>,
+    array: FunctionResultObject[][],
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
@@ -1176,7 +1171,7 @@ export const TAKE = {
     ),
   ],
   compute: function (
-    array: Matrix<{ value: string }>,
+    array: FunctionResultObject[][],
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {

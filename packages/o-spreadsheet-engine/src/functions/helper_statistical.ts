@@ -1,21 +1,13 @@
 import { Point } from "chart.js";
 import { DEFAULT_WINDOW_SIZE } from "../constants";
-import { isNumber } from "../helpers";
-import { parseDateTime } from "../helpers/dates";
 import { range } from "../helpers/misc";
 import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { Locale } from "../types/locale";
-import { Arg, isMatrix, Matrix } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix } from "../types/misc";
 import { assert, assertNotZero } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
-import {
-  isEvaluationError,
-  reduceAny,
-  reduceNumbers,
-  transposeMatrix,
-  visitNumbers,
-} from "./helpers";
+import { reduceAny, reduceNumbers, transposeMatrix, visitNumbers } from "./helpers";
 
 export function assertSameNumberOfElements(...args: any[][]) {
   const dims = args[0].length;
@@ -47,26 +39,26 @@ export function average(values: Arg[], locale: Locale) {
   return sum / count;
 }
 
-export function countNumbers(values: Arg[], locale: Locale) {
+export function countNumbers(values: FunctionResultObject[][][], locale: Locale) {
   let count = 0;
   for (const n of values) {
-    if (isMatrix(n)) {
-      for (const i of n) {
-        for (const j of i) {
-          if (typeof j.value === "number") {
-            count += 1;
-          }
+    // if (isMatrix(n)) {
+    for (const i of n) {
+      for (const j of i) {
+        if (typeof j.value === "number") {
+          count += 1;
         }
       }
-    } else {
-      const value = n?.value;
-      if (
-        !isEvaluationError(value) &&
-        (typeof value !== "string" || isNumber(value, locale) || parseDateTime(value, locale))
-      ) {
-        count += 1;
-      }
     }
+    // } else {
+    //   const value = n?.value;
+    //   if (
+    //     !isEvaluationError(value) &&
+    //     (typeof value !== "string" || isNumber(value, locale) || parseDateTime(value, locale))
+    //   ) {
+    //     count += 1;
+    //   }
+    // }
   }
   return count;
 }
@@ -103,7 +95,7 @@ export function min(values: Arg[], locale: Locale) {
   return min.value === Infinity ? { value: 0 } : min;
 }
 
-function prepareDataForRegression(X: Matrix<number>, Y: Matrix<number>, newX: Matrix<number>) {
+function prepareDataForRegression(X: number[][], Y: number[][], newX: number[][]) {
   const _X = X[0].length ? X : [range(1, Y.flat().length + 1)];
   const nVar = _X.length;
   let _newX = newX[0].length ? newX : _X;
@@ -124,8 +116,8 @@ function prepareDataForRegression(X: Matrix<number>, Y: Matrix<number>, newX: Ma
  */
 
 export function fullLinearRegression(
-  X: Matrix<number>,
-  Y: Matrix<number>,
+  X: number[][],
+  Y: number[][],
   computeIntercept = true,
   verbose: boolean = false
 ) {
@@ -137,7 +129,7 @@ export function fullLinearRegression(
   const nVar = _X.length;
   const nDeg = n - nVar - (computeIntercept ? 1 : 0);
   const yMatrix = [y];
-  const xMatrix: Matrix<number> = transposeMatrix(_X.reverse());
+  const xMatrix: number[][] = transposeMatrix(_X.reverse());
   const avgX: number[] = [];
   for (let i = 0; i < nVar; i++) {
     avgX.push(0);
@@ -155,7 +147,7 @@ export function fullLinearRegression(
     }
     avgY /= n;
   }
-  const redX: Matrix<number> = xMatrix.map((row) => row.map((value, i) => value - avgX[i]));
+  const redX: number[][] = xMatrix.map((row) => row.map((value, i) => value - avgX[i]));
   if (computeIntercept) {
     xMatrix.forEach((row) => row.push(1));
   }
@@ -224,7 +216,7 @@ export function polynomialRegression(
   flatX: number[],
   order: number,
   intercept: boolean
-): Matrix<number> {
+): number[][] {
   assertSameNumberOfElements(flatX, flatY);
   assert(
     order >= 1,
@@ -246,7 +238,7 @@ export function polynomialRegression(
   return coeffs;
 }
 
-function getLMSCoefficients(xMatrix: Matrix<number>, yMatrix: Matrix<number>): Matrix<number> {
+function getLMSCoefficients(xMatrix: number[][], yMatrix: number[][]): number[][] {
   const xMatrixT = transposeMatrix(xMatrix);
   const dot1 = multiplyMatrices(xMatrix, xMatrixT);
   const { inverted: dotInv } = invertMatrix(dot1);
@@ -261,20 +253,20 @@ export function evaluatePolynomial(coeffs: number[], x: number, order: number): 
   return coeffs.reduce((acc, coeff, i) => acc + coeff * Math.pow(x, order - i), 0);
 }
 
-export function expM(M: Matrix<number>): Matrix<number> {
+export function expM(M: number[][]): number[][] {
   return M.map((col) => col.map((cell) => Math.exp(cell)));
 }
 
-export function logM(M: Matrix<number>): Matrix<number> {
+export function logM(M: number[][]): number[][] {
   return M.map((col) => col.map((cell) => Math.log(cell)));
 }
 
 export function predictLinearValues(
-  Y: Matrix<number>,
-  X: Matrix<number>,
-  newX: Matrix<number>,
+  Y: number[][],
+  X: number[][],
+  newX: number[][],
   computeIntercept: boolean
-): Matrix<number> {
+): number[][] {
   const { _X, _newX } = prepareDataForRegression(X, Y, newX);
   const coeffs = fullLinearRegression(_X, Y, computeIntercept, false);
   const nVar = coeffs.length - 1;

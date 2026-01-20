@@ -643,7 +643,7 @@ export const TEXTSPLIT = {
     ),
   ],
   compute: function (
-    text: FunctionResultObject,
+    text: Maybe<FunctionResultObject>,
     colDelimiter: Arg,
     rowDelimiter: Arg,
     ignoreEmpty: Maybe<FunctionResultObject> = { value: TEXTSPLIT_DEFAULT_IGNORE_EMPTY },

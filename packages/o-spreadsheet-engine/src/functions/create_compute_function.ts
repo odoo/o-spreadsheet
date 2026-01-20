@@ -3,17 +3,23 @@ import { BadExpressionError, EvaluationError } from "../types/errors";
 
 import { _t } from "../translation";
 import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
+import { Arg, FunctionResultObject, isMatrix } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import {
+  applyVectorization,
+  isEvaluationError,
+  matrixForEach,
+  matrixMap,
+  toMatrix,
+} from "./helpers";
 
 export function createComputeFunction(
   descr: FunctionDescription
-): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
+): ComputeFunction<FunctionResultObject | FunctionResultObject[][]> {
   function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ): FunctionResultObject | FunctionResultObject[][] {
     const acceptToVectorize: boolean[] = [];
 
     const getArgToFocus = argTargeting(descr, args.length);
@@ -22,14 +28,19 @@ export function createComputeFunction(
       const argIndex = getArgToFocus(i).index ?? -1;
       const argDefinition = descr.args[argIndex];
       const arg = args[i];
-      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
-        throw new BadExpressionError(
-          _t(
-            "Function %s expects the parameter '%s' to be reference to a cell or range.",
-            descr.name,
-            (i + 1).toString()
-          )
-        );
+      if (!isMatrix(arg)) {
+        if (argDefinition.acceptMatrixOnly) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              descr.name,
+              (i + 1).toString()
+            )
+          );
+        }
+        if (args[i] !== undefined) {
+          args[i] = toMatrix(arg);
+        }
       }
       acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
@@ -40,7 +51,7 @@ export function createComputeFunction(
   function errorHandlingCompute(
     this: EvalContext,
     ...args: Arg[]
-  ): Matrix<FunctionResultObject> | FunctionResultObject {
+  ): FunctionResultObject | FunctionResultObject[][] {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       const getArgToFocus = argTargeting(descr, args.length);
@@ -63,7 +74,7 @@ export function createComputeFunction(
   function computeFunctionToObject(
     this: EvalContext,
     ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ): FunctionResultObject | FunctionResultObject[][] {
     if (this.debug) {
       // eslint-disable-next-line no-debugger
       debugger;
@@ -79,13 +90,13 @@ export function createComputeFunction(
     }
 
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FunctionResultObject>, (result) =>
+      matrixForEach(result as FunctionResultObject[][], (result) =>
         replaceFunctionNamePlaceholder(result, descr.name)
       );
-      return result as Matrix<FunctionResultObject>;
+      return result as FunctionResultObject[][];
     }
 
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+    return matrixMap(result as CellValue[][], (row) => ({ value: row }));
   }
 
   return vectorizedCompute;

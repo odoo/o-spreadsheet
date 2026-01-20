@@ -12,10 +12,10 @@ import { toScalar } from "./helper_matrices";
 import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
-  matrix: Matrix<FunctionResultObject>,
+  matrix: FunctionResultObject[][],
   locale: Locale,
   ...criteria: Arg[]
-): Matrix<FunctionResultObject> {
+): FunctionResultObject[][] {
   for (let i = 0; i < criteria.length; i++) {
     const param = i % 2 === 0 ? "sort_column" : "is_ascending";
     assert(
@@ -106,7 +106,7 @@ export const FILTER = {
       _t("Column or row containing true or false values corresponding to the range.")
     ),
   ],
-  compute: function (range: Arg, ...conditions: Arg[]) {
+  compute: function (range: Matrix<FunctionResultObject>, ...conditions: Arg[]) {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -170,10 +170,7 @@ export const SORT: AddFunctionDescription = {
       ]
     ),
   ],
-  compute: function (
-    range: Matrix<FunctionResultObject>,
-    ...sortingCriteria: Arg[]
-  ): Matrix<FunctionResultObject> {
+  compute: function (range: FunctionResultObject[][], ...sortingCriteria: Arg[]) {
     const _range = transposeMatrix(range);
     return transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria));
   },
@@ -210,7 +207,7 @@ export const SORTN: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    range: Matrix<FunctionResultObject>,
+    range: FunctionResultObject[][],
     n: Maybe<FunctionResultObject>,
     ...displayTiesMode_sortingCriteria: [Maybe<FunctionResultObject>, ...Array<Arg>]
   ): any {
@@ -316,14 +313,10 @@ export const UNIQUE = {
     ),
   ],
   compute: function (
-    range: Arg = { value: "" },
+    range: Matrix<FunctionResultObject> = [[]],
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>
   ) {
-    if (!isMatrix(range)) {
-      return [[range]];
-    }
-
     const _byColumn = toBoolean(byColumn?.value) || false;
     const _exactlyOnce = toBoolean(exactlyOnce?.value) || false;
     if (!_byColumn) {

@@ -1,6 +1,7 @@
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
-import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types/misc";
+import { Arg } from "../types/misc";
+import { toMatrix } from "./helpers";
 
 export function assert(condition: boolean, message: string): asserts condition {
   if (!condition) {
@@ -17,32 +18,23 @@ export function assertNotZero(
   }
 }
 
-export function isSingleColOrRow(arg: Matrix) {
+export function isSingleColOrRow(arg: any[][]) {
   return arg.length === 1 || arg[0].length === 1;
 }
 
 export function areSameDimensions(...args: Arg[]) {
-  if (args.every(isMatrix)) {
-    const cols = args[0].length;
-    const rows = args[0][0].length;
-    for (const arg of args) {
-      if (arg.length !== cols || arg[0].length !== rows) {
-        return false;
-      }
+  const cols = toMatrix(args[0]).length;
+  const rows = toMatrix(args[0])[0].length;
+  for (const arg of args) {
+    if (toMatrix(arg).length !== cols || toMatrix(arg)[0].length !== rows) {
+      return false;
     }
-    return true;
   }
-  return !args.some((arg) => Array.isArray(arg) && (arg.length !== 1 || arg[0].length !== 1));
+  return true;
 }
 
-export function isSquareMatrix(arg: Matrix) {
+export function isSquareMatrix(arg: any[][]): boolean {
   return arg.length === arg[0].length;
-}
-
-export function isNumberMatrix(
-  arg: Matrix<FunctionResultObject>
-): arg is Matrix<FunctionResultNumber> {
-  return arg.every((row) => row.every((data) => typeof data.value === "number"));
 }
 
 export const expectNumberGreaterThanOrEqualToOne = (value: number) =>

@@ -6,9 +6,9 @@ import {
   Arg,
   FunctionResultNumber,
   FunctionResultObject,
+  isMatrix,
   Matrix,
   Maybe,
-  isMatrix,
 } from "../types/misc";
 import { arg } from "./arguments";
 import { assertNotZero } from "./helper_assert";
@@ -517,7 +517,7 @@ export const COUNTUNIQUEIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range over which to evaluate criteria.")),
     arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
-  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
+  compute: function (range: FunctionResultObject[][], ...args: Arg[]): number {
     const uniqueValues = new Set();
     visitMatchingRanges(
       args,
@@ -1448,7 +1448,7 @@ export const SUMIF = {
     ),
   ],
   compute: function (
-    criteriaRange: Matrix<FunctionResultObject>,
+    criteriaRange: FunctionResultObject[][],
     criterion: Maybe<FunctionResultObject>,
     sumRange: Matrix<FunctionResultObject>
   ): number {
@@ -1482,7 +1482,7 @@ export const SUMIFS = {
     arg("criteria_range (any, range, repeating)", _t("Range to check.")),
     arg("criterion (string, repeating)", _t("Criteria to check.")),
   ],
-  compute: function (sumRange: Matrix<FunctionResultObject>, ...criters: Arg[]): number {
+  compute: function (sumRange: FunctionResultObject[][], ...criters: Arg[]): number {
     let sum = 0;
     visitMatchingRanges(
       criters,

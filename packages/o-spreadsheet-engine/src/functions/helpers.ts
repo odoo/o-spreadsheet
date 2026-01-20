@@ -113,7 +113,7 @@ export function tryToNumber(
   }
 }
 
-export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
+export function toNumberMatrix(data: Arg, argName: string): number[][] {
   return toMatrix(data).map((row) => {
     return row.map((cell) => {
       if (typeof cell.value !== "number") {
@@ -321,7 +321,7 @@ export function visitNumbers(
 // -----------------------------------------------------------------------------
 
 function reduceArgs<T, M>(
-  args: (T | Matrix<T>)[],
+  args: (T | T[][])[],
   cellCb: (acc: M, a: T) => M,
   dataCb: (acc: M, a: T) => M,
   initialValue: M,
@@ -429,7 +429,7 @@ export function generateMatrix<T>(
   nColumns: number,
   nRows: number,
   callback: (col: number, row: number) => T
-): Matrix<T> {
+): T[][] {
   const returned = Array(nColumns);
   for (let col = 0; col < nColumns; col++) {
     returned[col] = Array(nRows);
@@ -440,14 +440,14 @@ export function generateMatrix<T>(
   return returned;
 }
 
-export function matrixMap<T, M>(matrix: Matrix<T>, callback: (value: T) => M): Matrix<M> {
+export function matrixMap<T, M>(matrix: T[][], callback: (value: T) => M): M[][] {
   if (matrix.length === 0) {
     return [];
   }
   return generateMatrix(matrix.length, matrix[0].length, (col, row) => callback(matrix[col][row]));
 }
 
-export function matrixForEach<T>(matrix: Matrix<T>, fn: (value: T) => void): void {
+export function matrixForEach<T>(matrix: T[][], fn: (value: T) => void): void {
   const numberOfCols = matrix.length;
   const numberOfRows = matrix[0]?.length ?? 0;
   for (let col = 0; col < numberOfCols; col++) {
@@ -457,7 +457,7 @@ export function matrixForEach<T>(matrix: Matrix<T>, fn: (value: T) => void): voi
   }
 }
 
-export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
+export function transposeMatrix<T>(matrix: T[][]): T[][] {
   if (!matrix.length) {
     return [];
   }
@@ -503,10 +503,10 @@ type VectorArgType = "horizontal" | "vertical" | "matrix";
  *   as ranges and invoke this helper directly within your `compute` implementation.
  */
 export function applyVectorization(
-  formula: (...args: Arg[]) => Matrix<FunctionResultObject> | FunctionResultObject,
+  formula: (...args: Arg[]) => FunctionResultObject | FunctionResultObject[][],
   args: Arg[],
   acceptToVectorize: boolean[] | undefined = undefined
-): FunctionResultObject | Matrix<FunctionResultObject> {
+): FunctionResultObject | FunctionResultObject[][] {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
   let vectorizedColLimit = Infinity;
@@ -1114,7 +1114,7 @@ function compareCellValues(left: CellValue | undefined, right: CellValue | undef
   return typeOrder;
 }
 
-export function toMatrix<T>(data: T | Matrix<T> | undefined): Matrix<T> {
+export function toMatrix<T>(data: T | Matrix<T>): T[][] {
   if (data === undefined) {
     return [[]];
   }

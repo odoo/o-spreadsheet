@@ -184,7 +184,7 @@ export type FormulaToExecute = (
   range: EnsureRange,
   getSymbolValue: GetSymbolValue,
   ctx: object
-) => Matrix<FunctionResultObject> | FunctionResultObject;
+) => FunctionResultObject | FunctionResultObject[][];
 
 export interface CompiledFormula {
   execute: FormulaToExecute;
@@ -198,7 +198,7 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
   dependencies: Range[];
 }
 
-export type Matrix<T = unknown> = T[][];
+export type Matrix<T = unknown> = T[][] | undefined;
 
 export type FunctionResultObject = {
   value: CellValue;
@@ -229,7 +229,7 @@ export type FunctionResultNumber = { value: number; format?: string };
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
 export type Arg = Maybe<FunctionResultObject> | Matrix<FunctionResultObject>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
 
-export function isMatrix(x: any): x is Matrix<any> {
+export function isMatrix(x: any): x is any[][] {
   return Array.isArray(x) && Array.isArray(x[0]);
 }
 

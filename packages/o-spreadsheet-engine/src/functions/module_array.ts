@@ -22,7 +22,7 @@ import {
 function stackHorizontally(
   ranges: Arg[],
   options?: { requireSameRowCount?: boolean }
-): Matrix<FunctionResultObject> | EvaluationError {
+): FunctionResultObject[][] | EvaluationError {
   const matrices = ranges.map(toMatrix);
   const nbRowsArr = matrices.map((m) => m?.[0]?.length ?? 0);
   const nbRows = Math.max(...nbRowsArr);
@@ -39,7 +39,7 @@ function stackHorizontally(
     }
   }
 
-  const result: Matrix<FunctionResultObject> = [];
+  const result: FunctionResultObject[][] = [];
   for (const matrix of matrices) {
     for (let col = 0; col < matrix.length; col++) {
       // Fill with nulls if needed
@@ -56,7 +56,7 @@ function stackHorizontally(
 function stackVertically(
   ranges: Arg[],
   options?: { requireSameColCount?: boolean }
-): Matrix<FunctionResultObject> | EvaluationError {
+): FunctionResultObject[][] | EvaluationError {
   const matrices = ranges.map(toMatrix);
   const nbColsArr = matrices.map((m) => m?.length ?? 0);
   const nbCols = Math.max(...nbColsArr);
@@ -74,7 +74,7 @@ function stackVertically(
   }
 
   const nbRows = matrices.reduce((acc, m) => acc + (m?.[0]?.length ?? 0), 0);
-  const result: Matrix<FunctionResultObject> = generateMatrix(nbCols, nbRows, () => ({
+  const result: FunctionResultObject[][] = generateMatrix(nbCols, nbRows, () => ({
     value: null,
   }));
 
@@ -171,7 +171,7 @@ export const CHOOSECOLS = {
       _t("The column index of the column to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...columns: Arg[]) {
+  compute: function (array: Matrix<FunctionResultObject>, ...columns: Arg[]) {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
@@ -213,7 +213,7 @@ export const CHOOSEROWS = {
       _t("The row index of the row to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...rows: Arg[]) {
+  compute: function (array: Matrix<FunctionResultObject>, ...rows: Arg[]) {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
@@ -258,7 +258,7 @@ export const EXPAND = {
     arg("pad_with (any, default=0)", _t("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
   ],
   compute: function (
-    arg: Arg,
+    arg: Matrix<FunctionResultObject>,
     rows: Maybe<FunctionResultObject>,
     columns?: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
@@ -299,7 +299,7 @@ export const EXPAND = {
 export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to flatten."))],
-  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
+  compute: function (...ranges: Arg[]) {
     return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
   isExported: false,
@@ -314,10 +314,7 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  compute: function (
-    data: Matrix<FunctionResultObject>,
-    classes: Matrix<FunctionResultObject>
-  ): Matrix<number> {
+  compute: function (data: FunctionResultObject[][], classes: Matrix<FunctionResultObject>) {
     const _data = flattenRowFirst([data], (data) => data.value).filter(
       (val): val is number => typeof val === "number"
     );
@@ -390,7 +387,7 @@ export const MDETERM = {
       )
     ),
   ],
-  compute: function (matrix: Arg) {
+  compute: function (matrix: Matrix<FunctionResultObject>) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     if (!isSquareMatrix(_matrix)) {
       return new EvaluationError(
@@ -415,7 +412,7 @@ export const MINVERSE = {
       )
     ),
   ],
-  compute: function (matrix: Arg) {
+  compute: function (matrix: Matrix<FunctionResultObject>) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     if (!isSquareMatrix(_matrix)) {
       return new EvaluationError(
@@ -446,7 +443,7 @@ export const MMULT = {
       _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
-  compute: function (matrix1: Arg, matrix2: Arg) {
+  compute: function (matrix1: Matrix<FunctionResultObject>, matrix2: Matrix<FunctionResultObject>) {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
@@ -519,7 +516,11 @@ export const SUMPRODUCT = {
  *
  * Ignore the pairs X,Y where one of the value isn't a number. Throw an error if no pair of numbers is found.
  */
-function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => number) {
+function getSumXAndY(
+  arrayX: Matrix<FunctionResultObject>,
+  arrayY: Matrix<FunctionResultObject>,
+  cb: (x: number, y: number) => number
+) {
   if (!areSameDimensions(arrayX, arrayY)) {
     return new EvaluationError(
       _t("The arguments array_x and array_y must have the same dimensions.")
@@ -569,7 +570,7 @@ export const SUMX2MY2 = {
       )
     ),
   ],
-  compute: function (arrayX: Arg, arrayY: Arg) {
+  compute: function (arrayX: Matrix<FunctionResultObject>, arrayY: Matrix<FunctionResultObject>) {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
   },
   isExported: true,
@@ -594,7 +595,7 @@ export const SUMX2PY2 = {
       )
     ),
   ],
-  compute: function (arrayX: Arg, arrayY: Arg) {
+  compute: function (arrayX: Matrix<FunctionResultObject>, arrayY: Matrix<FunctionResultObject>) {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
   },
   isExported: true,
@@ -619,7 +620,7 @@ export const SUMXMY2 = {
       )
     ),
   ],
-  compute: function (arrayX: Arg, arrayY: Arg) {
+  compute: function (arrayX: Matrix<FunctionResultObject>, arrayY: Matrix<FunctionResultObject>) {
     return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
   },
   isExported: true,
@@ -673,7 +674,7 @@ export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
   compute: function (
-    array: Arg,
+    array: Matrix<FunctionResultObject>,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
@@ -699,7 +700,7 @@ export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
   compute: function (
-    array: Arg,
+    array: Matrix<FunctionResultObject>,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
@@ -725,7 +726,7 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  compute: function (arg: Arg): Matrix<FunctionResultObject> {
+  compute: function (arg: Matrix<FunctionResultObject>) {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
     const nbRows = _array.length;
@@ -766,7 +767,7 @@ export const WRAPCOLS = {
     ),
   ],
   compute: function (
-    range: Arg,
+    range: Matrix<FunctionResultObject>,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
   ) {
@@ -807,7 +808,7 @@ export const WRAPROWS = {
     ),
   ],
   compute: function (
-    range: Arg,
+    range: Matrix<FunctionResultObject>,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
   ) {
@@ -847,7 +848,7 @@ export const ARRAYTOTEXT = {
     arg("format (number, default=0)", _t("The format of the returned data."), FORMAT_OPTIONS),
   ],
   compute: function (
-    array: Matrix<{ value: string }>,
+    array: FunctionResultObject[][],
     format: Maybe<FunctionResultObject> = { value: 0 }
   ) {
     const _format = toNumber(format, this.locale);

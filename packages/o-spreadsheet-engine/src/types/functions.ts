@@ -1,7 +1,7 @@
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
+import { Arg, CellPosition, FunctionResultObject, UID } from "./misc";
 import { Range } from "./range";
 
 export type ArgType =
@@ -37,7 +37,7 @@ export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
   compute: ComputeFunction<
-    FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>
+    FunctionResultObject | FunctionResultObject[][] | CellValue | CellValue[][]
   >;
   description: string;
   category?: string;

@@ -9,7 +9,7 @@ import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, assert } from "./helper_assert";
 import {
@@ -1381,7 +1381,7 @@ export const IRR = {
     ),
   ],
   compute: function (
-    cashFlowAmounts: Matrix<FunctionResultObject>,
+    cashFlowAmounts: Arg,
     rateGuess: Maybe<FunctionResultObject> = { value: DEFAULT_RATE_GUESS }
   ) {
     const _rateGuess = toNumber(rateGuess, this.locale);
@@ -1556,7 +1556,7 @@ export const MIRR = {
     ),
   ],
   compute: function (
-    cashflowAmount: Matrix<FunctionResultObject>,
+    cashflowAmount: FunctionResultObject[][],
     financingRate: Maybe<FunctionResultObject>,
     reinvestmentRate: Maybe<FunctionResultObject>
   ) {
@@ -2812,8 +2812,8 @@ export const XIRR = {
     ),
   ],
   compute: function (
-    cashflowAmounts: Matrix<FunctionResultObject>,
-    cashflowDates: Matrix<FunctionResultObject>,
+    cashflowAmounts: FunctionResultObject[][],
+    cashflowDates: FunctionResultObject[][],
     rateGuess: Maybe<FunctionResultObject> = { value: RATE_GUESS_DEFAULT }
   ) {
     const guess = toNumber(rateGuess, this.locale);
