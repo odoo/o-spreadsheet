@@ -217,8 +217,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
-    const result = this.evaluateFormulaResult(sheetId, formulaString);
+  evaluateFormula(
+    sheetId: UID,
+    formulaString: string,
+    cellPosition?: CellPosition
+  ): CellValue | Matrix<CellValue> {
+    const result = this.evaluateFormulaResult(sheetId, formulaString, cellPosition);
     if (isMatrix(result)) {
       return matrixMap(result, (cell) => cell.value);
     }
@@ -227,9 +231,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   evaluateFormulaResult(
     sheetId: UID,
-    formulaString: string
+    formulaString: string,
+    cellPosition?: CellPosition
   ): Matrix<FunctionResultObject> | FunctionResultObject {
-    return this.evaluator.evaluateFormulaResult(sheetId, formulaString);
+    return this.evaluator.evaluateFormulaResult(sheetId, formulaString, cellPosition);
   }
 
   evaluateCompiledFormula(

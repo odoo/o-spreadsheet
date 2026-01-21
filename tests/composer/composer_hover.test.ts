@@ -1,16 +1,19 @@
 import { SpreadsheetChildEnv } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { getElStyle, keyDown, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { click, getElStyle, keyDown, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
+  editStandaloneComposer,
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
+  toRangeData,
   typeInComposerGrid,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
@@ -361,6 +364,48 @@ describe("Composer hover integration test", () => {
 
     await keyDown({ key: "Enter" });
     expect(".o-grid-composer .o-composer.active").toHaveCount(1);
+    expect(".o-speech-bubble").toHaveCount(0);
+  });
+
+  test("Can hover functions that require the cell position as context in grid composer", async () => {
+    setCellContent(model, "B2", "5");
+    await typeInComposerGrid("=ROW() + COLUMN() + B2");
+    await hoverComposerContent("ROW");
+    expect(".o-speech-bubble").toHaveText("1");
+    await hoverComposerContent("COLUMN");
+    expect(".o-speech-bubble").toHaveText("1");
+    await hoverComposerContent("=");
+    expect(".o-speech-bubble").toHaveText("7");
+  });
+
+  test("Hover is deactivated in a standalone composer", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          type: "CellIsRule",
+          operator: "Equal",
+          values: ["=ROW() + COLUMN() + B2"],
+          style: { fillColor: "#b6d7a8" },
+        },
+        id: "1",
+      },
+      ranges: [toRangeData(sheetId, "B1:D3")],
+      sheetId: sheetId,
+    });
+
+    env.openSidePanel("ConditionalFormatting", { selection: [toZone("B1")] });
+    await nextTick();
+
+    const composerSelector = ".o-sidePanel .o-composer";
+    await editStandaloneComposer(composerSelector, "=ROW() + COLUMN() + B2");
+    await click(fixture, composerSelector);
+
+    await hoverComposerContent("ROW");
+    expect(".o-speech-bubble").toHaveCount(0);
+    await hoverComposerContent("COLUMN");
+    expect(".o-speech-bubble").toHaveCount(0);
+    await hoverComposerContent("=");
     expect(".o-speech-bubble").toHaveCount(0);
   });
 });

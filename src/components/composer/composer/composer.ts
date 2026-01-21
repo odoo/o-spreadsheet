@@ -26,8 +26,7 @@ import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdow
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
 import { SpeechBubble } from "../speech_bubble/speech_bubble";
-import { DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
-import { CellComposerStore } from "./cell_composer_store";
+import { AbstractComposerStore, DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
 
 const functions = functionRegistry.content;
 
@@ -133,7 +132,7 @@ export interface CellComposerProps {
   onComposerCellFocused?: (content: String) => void;
   onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
-  composerStore: Store<CellComposerStore>;
+  composerStore: Store<AbstractComposerStore>;
   placeholder?: string;
 }
 
