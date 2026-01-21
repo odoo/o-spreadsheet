@@ -336,13 +336,17 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       hoveredFormula = `=${hoveredFormula}`;
     }
     const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
-    const result = this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula);
+    const result = this.evaluateCanonicalFormula(canonicalFormula);
     this.hoveredTokens = hoveredContextTokens;
     this.hoveredContentEvaluation = evaluationResultToDisplayString(
       result,
       "0",
       this.getters.getLocale()
     );
+  }
+
+  protected evaluateCanonicalFormula(canonicalFormula: string) {
+    return this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula);
   }
 
   private getRelatedTokens(tokens: EnrichedToken[], tokenIndex: number): EnrichedToken[] {
