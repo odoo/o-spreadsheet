@@ -6,7 +6,7 @@ import {
   toUnboundedZone,
   toZone,
 } from "../../src/helpers";
-import { CommandResult, isTargetDependent } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   addColumns,
@@ -34,7 +34,7 @@ import {
   unMerge,
   undo,
 } from "../test_helpers/commands_helpers";
-import { TEST_COMMANDS } from "../test_helpers/constants";
+import { TEST_COMMANDS_TARGET_DEPENDENT } from "../test_helpers/constants";
 import {
   getCell,
   getCellContent,
@@ -1202,18 +1202,15 @@ describe("sheets", () => {
     }
   );
 
-  test.each(Object.entries(TEST_COMMANDS).filter(([cmdName, cmd]) => isTargetDependent(cmd)))(
-    "Cannot dispatch %s with empty Target",
-    (cmdName, cmd) => {
-      if (!("target" in cmd)) {
-        return;
-      }
-      cmd.target = [];
-      const model = new Model();
-      const result = model.dispatch(cmd.type, cmd);
-      expect(result.reasons).toContain(CommandResult.EmptyTarget);
+  test.each(TEST_COMMANDS_TARGET_DEPENDENT)("Cannot dispatch %s with empty Target", (cmd) => {
+    if (!("target" in cmd)) {
+      return;
     }
-  );
+    cmd.target = [];
+    const model = new Model();
+    const result = model.dispatch(cmd.type, cmd);
+    expect(result.reasons).toContain(CommandResult.EmptyTarget);
+  });
 
   describe("Sheet color", () => {
     test("Can change a sheet color", () => {

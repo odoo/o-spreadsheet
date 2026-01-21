@@ -10,11 +10,11 @@ import {
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
 import {
-  OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
-  OT_TESTS_TARGET_DEPENDANT_COMMANDS,
-  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
+  TEST_COMMANDS_RANGE_DEPENDENT,
+  TEST_COMMANDS_TARGET_DEPENDENT,
+  TEST_COMMANDS_ZONE_DEPENDENT,
 } from "../../test_helpers/constants";
 import { toRangesData } from "../../test_helpers/helpers";
 import { getFormulaStringCommands } from "./ot_helper";
@@ -57,9 +57,9 @@ describe("OT with DELETE_SHEET", () => {
 
   describe.each([
     ...OT_TESTS_SINGLE_CELL_COMMANDS,
-    ...OT_TESTS_TARGET_DEPENDANT_COMMANDS,
-    ...OT_TESTS_RANGE_DEPENDANT_COMMANDS,
-    ...OT_TESTS_ZONE_DEPENDANT_COMMANDS,
+    ...TEST_COMMANDS_TARGET_DEPENDENT,
+    ...TEST_COMMANDS_RANGE_DEPENDENT,
+    ...TEST_COMMANDS_ZONE_DEPENDENT,
     addColumns,
     addRows,
     removeColumn,

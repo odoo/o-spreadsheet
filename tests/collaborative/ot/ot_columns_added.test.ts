@@ -13,11 +13,11 @@ import {
 } from "../../../src/types";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
-  OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
-  OT_TESTS_TARGET_DEPENDANT_COMMANDS,
-  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
+  TEST_COMMANDS_RANGE_DEPENDENT,
+  TEST_COMMANDS_TARGET_DEPENDENT,
+  TEST_COMMANDS_ZONE_DEPENDENT,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
 import { getFormulaStringCommands } from "./ot_helper";
@@ -79,7 +79,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     }
   );
 
-  describe.each(OT_TESTS_TARGET_DEPENDANT_COMMANDS)("target commands", (cmd) => {
+  describe.each(TEST_COMMANDS_TARGET_DEPENDENT)("target commands", (cmd) => {
     test(`add columns after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A1:A3")] };
       const result = transform(command, addColumnsAfter);
@@ -107,7 +107,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     });
   });
 
-  describe.each(OT_TESTS_ZONE_DEPENDANT_COMMANDS)("zone dependant commands", (cmd) => {
+  describe.each(TEST_COMMANDS_ZONE_DEPENDENT)("zone dependant commands", (cmd) => {
     test(`add columns after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, zone: toZone("A1:A3") };
       const result = transform(command, addColumnsAfter);
@@ -130,7 +130,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     });
   });
 
-  describe.each(OT_TESTS_RANGE_DEPENDANT_COMMANDS)("ranges dependant commands", (cmd) => {
+  describe.each(TEST_COMMANDS_RANGE_DEPENDENT)("ranges dependant commands", (cmd) => {
     test(`add columns after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A1:A3") };
       const result = transform(command, addColumnsAfter);
