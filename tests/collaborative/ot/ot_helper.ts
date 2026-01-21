@@ -1,3 +1,4 @@
+import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
@@ -19,6 +20,7 @@ export function getFormulaStringCommands(
     [getCFCommand(sheetId, formulaBefore), getCFCommand(sheetId, formulaAfter)],
     [getDVCommand(sheetId, formulaBefore), getDVCommand(sheetId, formulaAfter)],
     [getPivotCommand(sheetId, formulaBefore), getPivotCommand(sheetId, formulaAfter)],
+    [getGaugeCommand(sheetId, formulaBefore), getGaugeCommand(sheetId, formulaAfter)],
   ];
 }
 
@@ -58,5 +60,28 @@ function getPivotCommand(sheetId: UID, formula: string): AddPivotCommand {
       computedBy: { sheetId, formula },
     },
   ];
+  return cmd;
+}
+
+function getGaugeCommand(sheetId: UID, formula: string) {
+  const cmd = deepCopy(TEST_COMMANDS.CREATE_CHART);
+  const definition: GaugeChartDefinition = {
+    type: "gauge",
+    title: { text: "" },
+    dataRange: "Sheet1!B1:B4",
+    sectionRule: {
+      colors: {
+        lowerColor: "#111111",
+        middleColor: "#999999",
+        upperColor: "#dddddd",
+      },
+      rangeMin: formula,
+      rangeMax: formula,
+      lowerInflectionPoint: { operator: "<", type: "percentage", value: formula },
+      upperInflectionPoint: { operator: "<", type: "number", value: formula },
+    },
+  };
+  cmd.sheetId = sheetId;
+  cmd.definition = definition;
   return cmd;
 }
