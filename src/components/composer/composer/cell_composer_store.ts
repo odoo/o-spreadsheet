@@ -312,7 +312,11 @@ export class CellComposerStore extends AbstractComposerStore {
       return;
     }
 
-    const evaluated = this.getters.evaluateFormula(this.sheetId, content);
+    const evaluated = this.getters.evaluateFormula(this.sheetId, content, {
+      sheetId: this.sheetId,
+      col: this.col,
+      row: this.row,
+    });
     if (!isMatrix(evaluated)) {
       return;
     }
@@ -375,5 +379,13 @@ export class CellComposerStore extends AbstractComposerStore {
       return "NoStateChange";
     }
     return super.startEdition(text, selection);
+  }
+
+  protected evaluateCanonicalFormula(canonicalFormula: string) {
+    return this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula, {
+      sheetId: this.sheetId,
+      col: this.col,
+      row: this.row,
+    });
   }
 }
