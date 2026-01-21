@@ -1,5 +1,5 @@
 import { CoreCommand } from "../types/commands";
-import { RangeAdapter } from "../types/misc";
+import { RangeAdapterFunctions } from "../types/misc";
 import { Registry } from "./registry";
 
 /*
@@ -12,7 +12,10 @@ import { Registry } from "./registry";
  *
  */
 
-type CommandAdaptRangeFunction<C extends CoreCommand> = (cmd: C, applyChange: RangeAdapter) => C;
+type CommandAdaptRangeFunction<C extends CoreCommand> = (
+  cmd: C,
+  rangeAdapters: RangeAdapterFunctions
+) => C;
 
 class SpecificRangeTransformRegistry extends Registry<CommandAdaptRangeFunction<CoreCommand>> {
   add<C extends CoreCommand>(cmdType: C["type"], fn: CommandAdaptRangeFunction<C>): this {

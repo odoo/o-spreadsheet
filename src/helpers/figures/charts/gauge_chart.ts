@@ -21,10 +21,6 @@ import {
   adaptChartRange,
   duplicateLabelRangeInDuplicatedSheet,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import {
-  adaptFormulaStringRanges,
-  adaptStringRange,
-} from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -35,16 +31,7 @@ import {
   SectionThreshold,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  CellValueType,
-  Color,
-  CommandResult,
-  Format,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { CellValueType, Color, CommandResult, Format, Getters, Range, UID } from "../../../types";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
@@ -175,21 +162,20 @@ export class GaugeChart extends AbstractChart {
   static transformDefinition(
     chartSheetId: UID,
     definition: GaugeChartDefinition,
-    applyChange: RangeAdapter
+    { adaptRangeString, adaptFormulaString }: RangeAdapterFunctions
   ): GaugeChartDefinition {
     let dataRange: string | undefined;
     if (definition.dataRange) {
-      const { changeType, range: adaptedRange } = adaptStringRange(
+      const { changeType, range: adaptedRange } = adaptRangeString(
         chartSheetId,
-        definition.dataRange,
-        applyChange
+        definition.dataRange
       );
       if (changeType !== "REMOVE") {
         dataRange = adaptedRange;
       }
     }
     const adaptFormula = (formula: string) =>
-      adaptFormulaStringRanges(chartSheetId, formula, applyChange);
+      adaptFormulaString(chartSheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,

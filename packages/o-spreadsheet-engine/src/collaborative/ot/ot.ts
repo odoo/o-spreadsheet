@@ -1,3 +1,4 @@
+import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
 import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc";
 import { getRangeAdapter, rangeAdapterRegistry } from "../../helpers/range";
 import {
@@ -25,7 +26,7 @@ import {
   isTargetDependent,
   isZoneDependent,
 } from "../../types/commands";
-import { HeaderIndex, Zone } from "../../types/misc";
+import { HeaderIndex, RangeAdapterFunctions, UID, Zone } from "../../types/misc";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
 import "./srt_specific";
@@ -79,7 +80,14 @@ function adaptTransform(toTransform: CoreCommand, executed: CoreCommand): CoreCo
   }
   const rangeAdapter = getRangeAdapter(executed);
   if (rangeAdapter) {
-    return adaptFn(toTransform, rangeAdapter);
+    const adapterFunctions: RangeAdapterFunctions = {
+      applyChange: rangeAdapter.applyChange,
+      adaptRangeString: (defaultSheetId: UID, sheetXC: string) =>
+        adaptStringRange(defaultSheetId, sheetXC, rangeAdapter),
+      adaptFormulaString: (defaultSheetId: UID, formula: string) =>
+        adaptFormulaStringRanges(defaultSheetId, formula, rangeAdapter),
+    };
+    return adaptFn(toTransform, adapterFunctions);
   }
   return toTransform;
 }
