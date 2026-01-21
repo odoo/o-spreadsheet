@@ -3,7 +3,7 @@ import { ChartCreationContext, ChartDefinition, ChartRuntime, ChartType } from "
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
-import { RangeAdapter, UID } from "../types/misc";
+import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
@@ -19,7 +19,7 @@ export interface ChartBuilder<T extends ChartDefinition, D> {
   extractData: (definition: T, sheetId: UID, getters: Getters) => D;
   getChartRuntime: (getters: Getters, chart: AbstractChart, data: NoInfer<D>) => ChartRuntime;
   validateChartDefinition(validator: Validator, definition: T): CommandResult | CommandResult[];
-  transformDefinition(chartSheetId: UID, definition: T, applyRange: RangeAdapter): T;
+  transformDefinition(chartSheetId: UID, definition: T, rangeAdapters: RangeAdapterFunctions): T;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): T;
   postProcess?<T2 extends T>(getters: CoreGetters, sheetId: UID, definition: T2): T2;
   allowedDefinitionKeys: readonly string[];
