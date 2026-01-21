@@ -7,7 +7,7 @@
         composerFocusableElement="true"
         t-on-pointerdown="(ev) => this.onMouseDown(ev)"
         t-on-click="onClick"
-        t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
+        t-on-contextmenu="(ev) => this.onContextMenu(ev)"
         t-ref="sheetDiv"
         t-key="sheetName"
         t-att-style="props.style"

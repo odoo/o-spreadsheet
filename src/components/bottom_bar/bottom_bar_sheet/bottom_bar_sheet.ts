@@ -235,9 +235,13 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
+    if ((ev.target as HTMLElement).isContentEditable) {
+      return;
+    }
     if (!this.isSheetActive) {
       this.activateSheet();
     }
+    ev.preventDefault();
     this.props.openContextMenu(this.contextMenuRegistry, ev);
   }
 
