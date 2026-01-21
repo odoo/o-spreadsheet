@@ -1086,6 +1086,28 @@ describe("edition", () => {
     expect(getCellContent(model, cellOnLastCol)).toBe("0");
   });
 
+  describe("Row addition works with position dependant functions", () => {
+    test("Adding rows below with ROW function", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const numberOfRows = model.getters.getNumberRows(sheetId);
+
+      const cellOnLastRow = toXC(0, numberOfRows - 1);
+      editCell(model, cellOnLastRow, "=MUNIT(ROW())");
+      expect(model.getters.getNumberRows(sheetId)).toBe(numberOfRows * 2 + 50 - 1);
+      expect(getCellContent(model, cellOnLastRow)).toBe("1");
+    });
+
+    test("Adding rows below with ROW function", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const numberOfCols = model.getters.getNumberCols(sheetId);
+
+      const cellOnLastCols = toXC(numberOfCols - 1, 0);
+      editCell(model, cellOnLastCols, "=MUNIT(COLUMN())");
+      expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols * 2 + 20 - 1);
+      expect(getCellContent(model, cellOnLastCols)).toBe("1");
+    });
+  });
+
   test("Can undo/redo after adding a spreading formula at the end of the sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfCols = model.getters.getNumberCols(sheetId);
