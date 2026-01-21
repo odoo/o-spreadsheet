@@ -84,4 +84,12 @@ export class StandaloneComposerStore extends AbstractComposerStore {
     }
     return super.getTokenColor(token);
   }
+
+  hoverToken() {
+    /**
+     * Some functions can only be evaluated in the context of the grid, which is not feasible
+     * in the standalone composer.
+     */
+    return;
+  }
 }
