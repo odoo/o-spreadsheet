@@ -731,7 +731,10 @@ function evaluatePredicate(
   if (operator === "<>" || operator === "=") {
     let result: boolean;
     if (typeof value === typeof operand) {
-      if (typeof value === "string" && typeof operand === "string") {
+      if (value === "" && operand === "") {
+        // fast path to avoid regex evaluation
+        result = true;
+      } else if (typeof value === "string" && typeof operand === "string") {
         result = wildcardToRegExp(operand).test(value);
       } else {
         result = value === operand;
