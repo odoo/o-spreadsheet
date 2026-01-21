@@ -34,7 +34,10 @@ import {
   unMerge,
   undo,
 } from "../test_helpers/commands_helpers";
-import { TEST_COMMANDS_TARGET_DEPENDENT } from "../test_helpers/constants";
+import {
+  TEST_COMMANDS_RANGE_DEPENDENT,
+  TEST_COMMANDS_TARGET_DEPENDENT,
+} from "../test_helpers/constants";
 import {
   getCell,
   getCellContent,
@@ -1210,6 +1213,16 @@ describe("sheets", () => {
     const model = new Model();
     const result = model.dispatch(cmd.type, cmd);
     expect(result.reasons).toContain(CommandResult.EmptyTarget);
+  });
+
+  test.each(TEST_COMMANDS_RANGE_DEPENDENT)("Cannot dispatch %s with empty ranges", (cmd) => {
+    if (!("ranges" in cmd)) {
+      return;
+    }
+    cmd.ranges = [];
+    const model = new Model();
+    const result = model.dispatch(cmd.type, cmd);
+    expect(result.reasons).toContain(CommandResult.EmptyRange);
   });
 
   describe("Sheet color", () => {

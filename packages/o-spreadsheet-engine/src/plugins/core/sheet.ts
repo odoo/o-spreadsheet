@@ -26,6 +26,7 @@ import {
   CreateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  isRangeDependant,
   isTargetDependent,
   RenameSheetCommand,
   UpdateCellPositionCommand,
@@ -1048,6 +1049,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * not outside the sheet.
    */
   private checkZonesAreInSheet(cmd: CoreCommand): CommandResult {
+    if (isRangeDependant(cmd) && cmd.ranges.length === 0) {
+      return CommandResult.EmptyRange;
+    }
     if (!("sheetId" in cmd)) {
       return CommandResult.Success;
     }
