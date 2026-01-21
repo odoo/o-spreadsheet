@@ -1,5 +1,5 @@
 import { Component, onMounted, useExternalListener, useRef, useState } from "@odoo/owl";
-import { Action } from "../../../actions/action";
+import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
 import { topbarMenuRegistry } from "../../../registries/menus";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
@@ -65,7 +65,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
 
   get menuProps(): MenuProps {
     return {
-      menuItems: this.state.menuItems,
+      menuItems: getMenuItemsAndSeparators(this.env, this.state.menuItems),
       onClose: this.props.onClose,
       onClickMenu: this.onClickMenu.bind(this),
     };
