@@ -313,4 +313,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.props.colorScheme === "dark" ? "dark" : "",
     ].join(" ");
   }
+
+  onContextMenu(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (target.isContentEditable || ["INPUT", "TEXTAREA"].includes(target.tagName)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+  }
 }

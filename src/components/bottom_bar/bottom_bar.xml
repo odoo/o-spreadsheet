@@ -3,8 +3,7 @@
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
       t-on-click="props.onClick"
-      t-ref="bottomBar"
-      t-on-contextmenu.prevent="">
+      t-ref="bottomBar">
       <Ripple class="'add-sheet-container'">
         <div
           class="o-sheet-item o-add-sheet me-2 p-1"
