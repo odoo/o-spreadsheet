@@ -26,8 +26,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
 import { SpeechBubble } from "../speech_bubble/speech_bubble";
-import { ComposerSelection } from "./abstract_composer_store";
-import { CellComposerStore } from "./cell_composer_store";
+import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
 
 const functions = functionRegistry.content;
 
@@ -136,7 +135,7 @@ export interface CellComposerProps {
   onComposerCellFocused?: (content: string) => void;
   onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
-  composerStore: Store<CellComposerStore>;
+  composerStore: Store<AbstractComposerStore>;
   placeholder?: string;
   inputMode?: ElementContentEditable["inputMode"];
   showAssistant?: boolean;
