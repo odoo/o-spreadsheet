@@ -1,7 +1,7 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUnmount } from "@odoo/owl";
-import { Action } from "../../actions/action";
+import { Action, isRootMenu } from "../../actions/action";
 import { Pixel } from "../../types";
 
 //------------------------------------------------------------------------------
@@ -11,10 +11,10 @@ import { Pixel } from "../../types";
 type MenuItemOrSeparator = Action | "separator";
 
 export interface MenuProps {
-  menuItems: Action[];
+  menuItems: MenuItemOrSeparator[];
   onClose: () => void;
   onScroll?: (ev: CustomEvent) => void;
-  onClickMenu?: (menu: Action, ev: CustomEvent) => void;
+  onClickMenu?: (menu: Action, ev: PointerEvent) => void;
   onMouseEnter?: (menu: Action, ev: PointerEvent) => void;
   onMouseOver?: (menu: Action, ev: PointerEvent) => void;
   onMouseLeave?: (menu: Action, ev: PointerEvent) => void;
@@ -55,35 +55,10 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     });
   }
 
-  get menuItemsAndSeparators(): MenuItemOrSeparator[] {
-    const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
-    for (let i = 0; i < this.props.menuItems.length; i++) {
-      const menuItem = this.props.menuItems[i];
-      if (
-        menuItem.isVisible(this.env) &&
-        (!this.isRoot(menuItem) || this.hasVisibleChildren(menuItem))
-      ) {
-        menuItemsAndSeparators.push(menuItem);
-      }
-      if (
-        menuItem.separator &&
-        i !== this.props.menuItems.length - 1 && // no separator at the end
-        menuItemsAndSeparators[menuItemsAndSeparators.length - 1] !== "separator" // no double separator
-      ) {
-        menuItemsAndSeparators.push("separator");
-      }
-    }
-    if (menuItemsAndSeparators[menuItemsAndSeparators.length - 1] === "separator") {
-      menuItemsAndSeparators.pop();
-    }
-    if (menuItemsAndSeparators.length === 1 && menuItemsAndSeparators[0] === "separator") {
-      return [];
-    }
-    return menuItemsAndSeparators;
-  }
-
   get childrenHaveIcon(): boolean {
-    return this.props.menuItems.some((menuItem) => !!this.getIconName(menuItem));
+    return this.props.menuItems.some(
+      (menuItem) => menuItem !== "separator" && !!this.getIconName(menuItem)
+    );
   }
 
   getIconName(menu: Action) {
@@ -110,11 +85,7 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   }
 
   isRoot(menu: Action) {
-    return !menu.execute;
-  }
-
-  private hasVisibleChildren(menu: Action) {
-    return menu.children(this.env).some((child) => child.isVisible(this.env));
+    return isRootMenu(menu);
   }
 
   isEnabled(menu: Action) {
@@ -145,7 +116,7 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     this.props.onMouseLeave?.(menu, ev);
   }
 
-  onClickMenu(menu: Action, ev: CustomEvent) {
+  onClickMenu(menu: Action, ev: PointerEvent) {
     if (!this.isEnabled(menu)) {
       return;
     }
