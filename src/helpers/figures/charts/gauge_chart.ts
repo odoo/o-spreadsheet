@@ -21,7 +21,10 @@ import {
   adaptChartRange,
   duplicateLabelRangeInDuplicatedSheet,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { adaptStringRange } from "@odoo/o-spreadsheet-engine/helpers/formulas";
+import {
+  adaptFormulaStringRanges,
+  adaptStringRange,
+} from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -179,9 +182,13 @@ export class GaugeChart extends AbstractChart {
         dataRange = adaptedRange;
       }
     }
+    const adaptFormula = (formula: string) =>
+      adaptFormulaStringRanges(chartSheetId, formula, applyChange);
+    const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,
       dataRange,
+      sectionRule,
     };
   }
 
