@@ -162,7 +162,7 @@ export class GaugeChart extends AbstractChart {
   static transformDefinition(
     chartSheetId: UID,
     definition: GaugeChartDefinition,
-    { adaptRangeString }: RangeAdapterFunctions
+    { adaptRangeString, adaptFormulaString }: RangeAdapterFunctions
   ): GaugeChartDefinition {
     let dataRange: string | undefined;
     if (definition.dataRange) {
@@ -174,9 +174,12 @@ export class GaugeChart extends AbstractChart {
         dataRange = adaptedRange;
       }
     }
+    const adaptFormula = (formula: string) => adaptFormulaString(chartSheetId, formula);
+    const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,
       dataRange,
+      sectionRule,
     };
   }
 
