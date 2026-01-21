@@ -18,11 +18,10 @@ import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import { Color, RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
+import { Color, RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
-import { adaptStringRange } from "../../formulas";
 import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
@@ -218,25 +217,23 @@ export class ScorecardChart extends AbstractChart {
   static transformDefinition(
     chartSheetId: UID,
     definition: ScorecardChartDefinition,
-    applyChange: RangeAdapter
+    { adaptRangeString }: RangeAdapterFunctions
   ): ScorecardChartDefinition {
     let baseline: string | undefined;
     let keyValue: string | undefined;
     if (definition.baseline) {
-      const { changeType, range: adaptedRange } = adaptStringRange(
+      const { changeType, range: adaptedRange } = adaptRangeString(
         chartSheetId,
-        definition.baseline,
-        applyChange
+        definition.baseline
       );
       if (changeType !== "REMOVE") {
         baseline = adaptedRange;
       }
     }
     if (definition.keyValue) {
-      const { changeType, range: adaptedRange } = adaptStringRange(
+      const { changeType, range: adaptedRange } = adaptRangeString(
         chartSheetId,
-        definition.keyValue,
-        applyChange
+        definition.keyValue
       );
       if (changeType !== "REMOVE") {
         keyValue = adaptedRange;
