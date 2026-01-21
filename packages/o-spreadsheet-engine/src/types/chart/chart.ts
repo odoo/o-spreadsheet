@@ -114,8 +114,13 @@ export interface DatasetDesign {
   readonly label?: string;
 }
 
+export type AxisGridType = "major" | "minor" | "none" | "both";
+
 export interface AxisDesign {
   readonly title?: TitleDesign;
+  readonly min?: number;
+  readonly max?: number;
+  readonly gridLines?: AxisGridType;
 }
 
 export interface AxesDesign {

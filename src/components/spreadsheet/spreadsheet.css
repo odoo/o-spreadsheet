@@ -158,6 +158,7 @@
   }
 
   .o-input[type="number"],
+  .o-input[type="date"],
   .o-number-input {
     border-width: 0 0 1px 0;
     /* Remove number input arrows */
