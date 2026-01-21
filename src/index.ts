@@ -338,6 +338,7 @@ export const registries = {
   chartJsExtensionRegistry,
 };
 
+import "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_data_sources";
 import "./registries/chart_types";
 
 import { parseFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format_parser";

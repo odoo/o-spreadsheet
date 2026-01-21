@@ -1,12 +1,3 @@
-import {
-  checkDataset,
-  checkLabelRange,
-  copyChartDataSourceInSheetId,
-  createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
-  updateChartRangesWithDataSets,
-} from "../helpers/figures/charts/chart_common";
-import { createValidRange } from "../helpers/range";
 import { ChartCreationContext, ChartDataSource, ChartDataSourceType } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
@@ -39,38 +30,3 @@ interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<ChartD
 }
 
 export const chartDataSourceRegistry: ChartDataSourceRegistry = new Registry();
-
-chartDataSourceRegistry.add("range", {
-  validate: (validator, dataSource) =>
-    validator.checkValidations(dataSource, checkDataset, checkLabelRange),
-  adaptRanges: updateChartRangesWithDataSets,
-  duplicateInDuplicatedSheet: duplicateDataSourceInDuplicatedSheet,
-  copyInSheetId: copyChartDataSourceInSheetId,
-  getContextCreation: (dataSource) => {
-    return { auxiliaryRange: dataSource.labelRange };
-  },
-  fromContextCreation(context) {
-    return {
-      type: "range",
-      dataSets: [],
-      dataSetsHaveTitle: false,
-      labelRange: context.auxiliaryRange,
-      ...context.dataSource,
-    };
-  },
-  postProcess: (getters, sheetId, dataSource) => {
-    const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
-    const dataSets = createDataSets(getters, sheetId, dataSource);
-    return {
-      ...dataSource,
-      dataSets: dataSets.map((ds) => {
-        return {
-          dataSetId: ds.dataSetId,
-          dataRange: getters.getRangeString(ds.dataRange, sheetId),
-        };
-      }),
-      labelRange: labelRange && getters.getRangeString(labelRange, sheetId),
-    };
-  },
-  allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],
-});
