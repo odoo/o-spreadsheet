@@ -29,7 +29,7 @@ import {
 } from "../../../types/chart/gauge_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
-import { adaptStringRange } from "../../formulas";
+import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
@@ -171,9 +171,13 @@ export class GaugeChart extends AbstractChart {
         dataRange = adaptedRange;
       }
     }
+    const adaptFormula = (formula: string) =>
+      adaptFormulaStringRanges(chartSheetId, formula, applyChange);
+    const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,
       dataRange,
+      sectionRule,
     };
   }
 
