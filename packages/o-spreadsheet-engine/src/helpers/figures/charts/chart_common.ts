@@ -19,20 +19,12 @@ import { CellErrorType } from "../../../types/errors";
 import { LocaleFormat } from "../../../types/format";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import {
-  Color,
-  RangeAdapter,
-  RangeAdapterFunctions,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "../../../types/misc";
+import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { DOMCoordinates, DOMDimension } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
-import { adaptStringRange } from "../../formulas";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
@@ -63,7 +55,7 @@ export function updateChartRangesWithDataSets(
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
     .map((ds) => {
-      const {range: adaptedRangeStr, changeType} = adaptRangeString(sheetId, ds.dataRange);
+      const { range: adaptedRangeStr, changeType } = adaptRangeString(sheetId, ds.dataRange);
       if (changeType === "REMOVE") {
         return undefined;
       }
@@ -384,14 +376,13 @@ export function toExcelLabelRange(
 export function transformChartDefinitionWithDataSource<T extends ChartWithDataSetDefinition>(
   chartSheetId: UID,
   definition: T,
-  applyChange: RangeAdapter
+  { adaptRangeString }: RangeAdapterFunctions
 ): T {
   let labelRange: string | undefined;
   if (definition.dataSource.labelRange) {
-    const { changeType, range: adaptedRange } = adaptStringRange(
+    const { changeType, range: adaptedRange } = adaptRangeString(
       chartSheetId,
-      definition.dataSource.labelRange,
-      applyChange
+      definition.dataSource.labelRange
     );
     if (changeType !== "REMOVE") {
       labelRange = adaptedRange;
@@ -401,11 +392,7 @@ export function transformChartDefinitionWithDataSource<T extends ChartWithDataSe
   const dataSets: ChartRangeDataSource["dataSets"] = [];
   for (const dataSet of definition.dataSource.dataSets) {
     const newDataSet = { ...dataSet };
-    const { changeType, range: adaptedRange } = adaptStringRange(
-      chartSheetId,
-      dataSet.dataRange,
-      applyChange
-    );
+    const { changeType, range: adaptedRange } = adaptRangeString(chartSheetId, dataSet.dataRange);
 
     if (changeType !== "REMOVE") {
       newDataSet.dataRange = adaptedRange;
