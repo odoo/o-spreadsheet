@@ -13,11 +13,11 @@ import {
 } from "../../../src/types";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
-  OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
-  OT_TESTS_TARGET_DEPENDANT_COMMANDS,
-  OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
+  TEST_COMMANDS_RANGE_DEPENDENT,
+  TEST_COMMANDS_TARGET_DEPENDENT,
+  TEST_COMMANDS_ZONE_DEPENDENT,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
 import { getFormulaStringCommands } from "./ot_helper";
@@ -65,7 +65,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     });
   });
 
-  describe.each(OT_TESTS_TARGET_DEPENDANT_COMMANDS)("target commands", (cmd) => {
+  describe.each(TEST_COMMANDS_TARGET_DEPENDENT)("target commands", (cmd) => {
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A1:C1")] };
       const result = transform(command, removeRows);
@@ -103,7 +103,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     });
   });
 
-  describe.each(OT_TESTS_ZONE_DEPENDANT_COMMANDS)("zone dependant commands", (cmd) => {
+  describe.each(TEST_COMMANDS_ZONE_DEPENDENT)("zone dependant commands", (cmd) => {
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, zone: toZone("A1:C1") };
       const result = transform(command, removeRows);
@@ -131,7 +131,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     });
   });
 
-  describe.each(OT_TESTS_RANGE_DEPENDANT_COMMANDS)("Range dependant commands", (cmd) => {
+  describe.each(TEST_COMMANDS_RANGE_DEPENDENT)("Range dependant commands", (cmd) => {
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A1:C1") };
       const result = transform(command, removeRows);

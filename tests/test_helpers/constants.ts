@@ -3,7 +3,16 @@ import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_p
 import { PivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetPivotTable } from "../../src";
 import { toZone } from "../../src/helpers";
-import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
+import {
+  CoreCommand,
+  CoreCommandTypes,
+  DEFAULT_LOCALE,
+  isRangeDependant,
+  isTargetDependent,
+  isZoneDependent,
+  Locale,
+  TableStyle,
+} from "../../src/types";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
@@ -528,32 +537,23 @@ export const OT_TESTS_SINGLE_CELL_COMMANDS = [
   TEST_COMMANDS.SET_BORDER,
 ];
 
-export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
-  TEST_COMMANDS.DELETE_CONTENT,
-  TEST_COMMANDS.SET_FORMATTING,
-  TEST_COMMANDS.CLEAR_FORMATTING,
-  TEST_COMMANDS.REMOVE_TABLE,
-  TEST_COMMANDS.CLEAR_CELLS,
-  TEST_COMMANDS.SET_BORDERS_ON_TARGET,
-];
+export const TEST_COMMANDS_TARGET_DEPENDENT = Object.values(TEST_COMMANDS).filter((cmd) =>
+  isTargetDependent(cmd)
+);
 
-export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [
-  TEST_COMMANDS.UNFOLD_HEADER_GROUPS_IN_ZONE,
-  TEST_COMMANDS.FOLD_HEADER_GROUPS_IN_ZONE,
-  TEST_COMMANDS.UPDATE_TABLE,
-];
+export const TEST_COMMANDS_ZONE_DEPENDENT = Object.values(TEST_COMMANDS).filter((cmd) =>
+  isZoneDependent(cmd)
+);
+
+export const TEST_COMMANDS_RANGE_DEPENDENT = Object.values(TEST_COMMANDS).filter((cmd) =>
+  isRangeDependant(cmd)
+);
 
 export const OT_TESTS_HEADER_GROUP_COMMANDS = [
   TEST_COMMANDS.GROUP_HEADERS,
   TEST_COMMANDS.UNGROUP_HEADERS,
   TEST_COMMANDS.FOLD_HEADER_GROUP,
   TEST_COMMANDS.UNFOLD_HEADER_GROUP,
-];
-
-export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [
-  TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
-  TEST_COMMANDS.ADD_DATA_VALIDATION_RULE,
-  TEST_COMMANDS.CREATE_TABLE,
 ];
 
 export const EN_LOCALE = DEFAULT_LOCALE;
