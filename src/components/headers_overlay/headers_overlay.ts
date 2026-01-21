@@ -183,6 +183,9 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   onMouseDown(ev: MouseEvent) {
+    if (ev.button !== 0) {
+      return;
+    }
     this.state.isResizing = true;
     this.state.delta = 0;
     const zoomedMouseEvent = withZoom(this.env, ev);
