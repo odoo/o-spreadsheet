@@ -11,7 +11,7 @@ import {
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
-import { RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
+import { RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { getZoneArea } from "../../zones";
@@ -66,7 +66,7 @@ export abstract class AbstractChart {
   static transformDefinition(
     chartSheetId: UID,
     definition: ChartDefinition,
-    applyChange: RangeAdapter
+    rangeAdapters: RangeAdapterFunctions
   ): ChartDefinition {
     throw new Error("This method should be implemented by sub class");
   }
