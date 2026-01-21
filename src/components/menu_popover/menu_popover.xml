@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Menu-Popover">
-    <Popover t-if="props.menuItems" t-props="popoverProps">
+    <Popover t-if="menuItems.length" t-props="popoverProps">
       <div
         t-ref="menu"
         class="o-menu-wrapper bg-white"
