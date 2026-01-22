@@ -44,3 +44,5 @@ export * from "./types/misc";
 export * from "./types/rendering";
 export * from "./types/validator";
 export const __info__ = {};
+
+import "./canvas_mock"; // for node.js environment
