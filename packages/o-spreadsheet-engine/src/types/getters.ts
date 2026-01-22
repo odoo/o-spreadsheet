@@ -50,7 +50,6 @@ export type CustomGetters = {
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
   PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof AutomaticSumPlugin> &
-  PluginGetters<typeof GridSelectionPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
@@ -75,4 +74,6 @@ export type CustomGetters = {
   PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof CarouselUIPlugin>;
 
-export type Getters = CustomGetters & PluginGetters<typeof SheetViewPlugin>;
+export type Getters = CustomGetters &
+  PluginGetters<typeof SheetViewPlugin> &
+  PluginGetters<typeof GridSelectionPlugin>;
