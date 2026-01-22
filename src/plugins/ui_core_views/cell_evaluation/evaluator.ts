@@ -125,7 +125,21 @@ export class Evaluator {
     }
   }
 
-  private updateCompilationParameters() {
+  private updateCompilationParameters(originCellPosition?: CellPosition) {
+    this.compilationParams = buildCompilationParameters(
+      this.context,
+      this.getters,
+      this.computeAndSave.bind(this)
+    );
+    this.compilationParams.evalContext.__originCellPosition = originCellPosition;
+    this.compilationParams.evalContext.lookupCaches = this.compilationParams.evalContext
+      .lookupCaches || {
+      forwardSearch: new Map(),
+      reverseSearch: new Map(),
+    };
+  }
+
+  private updateCompilationParametersForGridEvaluation() {
     // rebuild the compilation parameters (with a clean cache)
     this.compilationParams = buildCompilationParameters(
       this.context,
@@ -217,14 +231,15 @@ export class Evaluator {
 
   evaluateFormulaResult(
     sheetId: UID,
-    formulaString: string
+    formulaString: string,
+    originCellPosition?: CellPosition
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
-    this.updateCompilationParameters();
+    this.updateCompilationParameters(originCellPosition);
     return this.evaluateCompiledFormula(sheetId, {
       ...compiledFormula,
       dependencies: ranges,
@@ -288,7 +303,7 @@ export class Evaluator {
 
     let currentIteration = 0;
     while (!this.nextPositionsToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
-      this.updateCompilationParameters();
+      this.updateCompilationParametersForGridEvaluation();
       const positions = this.nextPositionsToUpdate.clear();
       for (let i = 0; i < positions.length; ++i) {
         this.evaluatedCells.delete(positions[i]);
