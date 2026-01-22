@@ -339,4 +339,9 @@ describe("Pivot table style", () => {
 
     expect(getTables(model, sheetId)).toHaveLength(0);
   });
+
+  test("Pivot table style are not editable", () => {
+    expect(model.getters.isTableStyleEditable("TestStyle")).toBe(false);
+    expect(model.getters.isTableStyleEditable("PivotTableStyleLight1")).toBe(false);
+  });
 });
