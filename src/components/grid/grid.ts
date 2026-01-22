@@ -186,9 +186,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "paste", this.paste);
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
-    useGridDrawing("canvas", this.env.model, () =>
-      this.env.model.getters.getSheetViewDimensionWithHeaders()
-    );
+    useGridDrawing({ refName: "canvas", model: this.env.model });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();

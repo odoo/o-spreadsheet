@@ -48,11 +48,15 @@ describe("chart conversion", () => {
 
     const imageUrl = await chartToImageUrl(runtime, figure, "bar");
     expect(imageUrl).toBeUndefined();
-    expect(spy).toHaveBeenCalledWith("Chart.js library is not loaded");
+    expect(spy).toHaveBeenCalledWith(
+      "Error exporting chart to image URL: Chart.js library is not loaded"
+    );
 
     const imageFile = await chartToImageFile(runtime, figure, "bar");
     expect(imageFile).toBeNull();
-    expect(spy).toHaveBeenCalledWith("Chart.js library is not loaded");
+    expect(spy).toHaveBeenCalledWith(
+      "Error exporting chart to image URL: Chart.js library is not loaded"
+    );
   });
 
   test("export Chart.js chart check type from runtime config, not the given chart type", async () => {
@@ -99,13 +103,13 @@ describe("chart conversion", () => {
     const imageUrl = await chartToImageUrl(runtime, figure, "combo");
     expect(imageUrl).toBeUndefined();
     expect(spy).toHaveBeenCalledWith(
-      'Chart of type "combo" is not registered in Chart.js library.'
+      'Error exporting chart to image URL: Chart of type "combo" is not registered in Chart.js library.'
     );
 
     const imageFile = await chartToImageFile(runtime, figure, "combo");
     expect(imageFile).toBeNull();
     expect(spy).toHaveBeenCalledWith(
-      'Chart of type "combo" is not registered in Chart.js library.'
+      'Error exporting chart to image URL: Chart of type "combo" is not registered in Chart.js library.'
     );
   });
 });

@@ -47,6 +47,7 @@ describe("Grid component in dashboard mode", () => {
   test("simple dashboard rendering snapshot", async () => {
     model.updateMode("dashboard");
     await nextTick();
+    await nextTick(); // The resize observer triggers a second render
     expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
   });
 
