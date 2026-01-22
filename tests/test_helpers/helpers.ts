@@ -226,7 +226,7 @@ export function makeTestEnv(
   const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
   return {
     model,
-    isDashboard: mockEnv.isDashboard || (() => false),
+    isDashboard: mockEnv.isDashboard || (() => model.getters.isDashboard()),
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
     replaceSidePanel: mockEnv.replaceSidePanel || sidePanelStore.replace.bind(sidePanelStore),
     toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
@@ -252,6 +252,7 @@ export function makeTestEnv(
       return mockEnv.isSmall || false;
     },
     isMobile: mockEnv.isMobile || isMobileOS,
+    printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
   };

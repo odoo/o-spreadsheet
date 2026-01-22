@@ -1140,6 +1140,11 @@
       <i class="fa fa-unlock"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.PRINT">
+    <div class="o-icon">
+      <i class="fa fa-print"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.COLUMN_STATS">
     <svg width="18px" height="18px" viewBox="0 0 512 512">
       <path

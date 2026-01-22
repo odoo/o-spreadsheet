@@ -74,19 +74,15 @@ export class ViewportCollection {
   getters: RenderingGetters;
   viewports: Record<UID, SheetViewports | undefined> = {};
 
-  /**
-   * The viewport dimensions are usually set by one of the components
-   * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
-   * In the absence of a component (standalone model), is it mandatory to set reasonable default values
-   * to ensure the correct operation of this plugin.
-   */
-  private sheetViewWidth: Pixel = getDefaultSheetViewSize();
-  private sheetViewHeight: Pixel = getDefaultSheetViewSize();
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
-  private zoomLevel: number = 1;
 
-  constructor(getters: RenderingGetters) {
+  constructor(
+    getters: RenderingGetters,
+    private sheetViewWidth: Pixel = getDefaultSheetViewSize(),
+    private sheetViewHeight: Pixel = getDefaultSheetViewSize(),
+    private zoomLevel: number = 1
+  ) {
     this.getters = getters;
   }
 
