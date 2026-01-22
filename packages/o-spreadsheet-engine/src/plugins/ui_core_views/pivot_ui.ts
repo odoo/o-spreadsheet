@@ -67,7 +67,11 @@ export class PivotUIPlugin extends CoreViewPlugin {
   }
 
   handle(cmd: Command) {
-    if (invalidateEvaluationCommands.has(cmd.type)) {
+    // Only automatically recreate pivots if automatic evaluation is enabled
+    // or if it's an explicit evaluation command
+    const shouldRecreate =
+      cmd.type === "EVALUATE_CELLS" || this.getters.isAutomaticEvaluationEnabled();
+    if (invalidateEvaluationCommands.has(cmd.type) && shouldRecreate) {
       for (const pivotId of this.getters.getPivotIds()) {
         this.setupPivot(pivotId, { recreate: true });
       }

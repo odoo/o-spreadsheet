@@ -34,14 +34,19 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   ] as const;
 
   tables: Record<UID, Table[]> = {};
+  forceEvaluation = false;
 
   handle(cmd: Command) {
+    this.forceEvaluation = false;
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
       cmd.type === "EVALUATE_CELLS"
     ) {
       this.tables = {};
+      if (cmd.type === "EVALUATE_CELLS") {
+        this.forceEvaluation = true;
+      }
       return;
     }
     switch (cmd.type) {
@@ -55,9 +60,12 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   }
 
   finalize() {
-    for (const sheetId of this.getters.getSheetIds()) {
-      if (!this.tables[sheetId]) {
-        this.tables[sheetId] = this.computeTables(sheetId);
+    // Skip automatic evaluation if disabled (unless forced by EVALUATE_CELLS)
+    if (this.forceEvaluation || this.getters.isAutomaticEvaluationEnabled()) {
+      for (const sheetId of this.getters.getSheetIds()) {
+        if (!this.tables[sheetId]) {
+          this.tables[sheetId] = this.computeTables(sheetId);
+        }
       }
     }
   }

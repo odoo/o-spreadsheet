@@ -16,7 +16,13 @@ export class UIOptionsPlugin extends UIPlugin {
         this.showFormulas = cmd.show;
         break;
       case "SET_AUTOMATIC_EVALUATION":
+        const wasDisabled = !this.automaticEvaluation;
         this.automaticEvaluation = cmd.enabled;
+        // When re-enabling automatic evaluation, trigger a full evaluation
+        // to update all cells, charts, pivots, etc. that may have changed
+        if (wasDisabled && cmd.enabled) {
+          this.dispatch("EVALUATE_CELLS");
+        }
         break;
     }
   }
