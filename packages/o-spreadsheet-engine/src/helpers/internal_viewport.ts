@@ -1,8 +1,19 @@
 import { FOOTER_HEIGHT } from "../constants";
-import { Getters } from "../types/getters";
+import { MergePlugin } from "../plugins/core/merge";
+import { SheetPlugin } from "../plugins/core/sheet";
+import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
+import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
+import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
+import { PluginGetters } from "../types/core_getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
 import { intersection, isInside } from "./zones";
+
+type ViewportGetters = PluginGetters<typeof HeaderPositionsUIPlugin> &
+  PluginGetters<typeof HeaderSizeUIPlugin> &
+  PluginGetters<typeof HeaderVisibilityUIPlugin> &
+  PluginGetters<typeof SheetPlugin> &
+  PluginGetters<typeof MergePlugin> & { isReadonly: () => boolean };
 
 export class InternalViewport {
   top: HeaderIndex;
@@ -19,7 +30,7 @@ export class InternalViewport {
   offsetCorrectionY: Pixel;
 
   constructor(
-    private getters: Getters,
+    private getters: ViewportGetters,
     private sheetId: UID,
     private boundaries: Zone,
     sizeInGrid: DOMDimension,

@@ -1,3 +1,4 @@
+import { Model } from "@odoo/o-spreadsheet-engine";
 import { getPath2D } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
@@ -16,7 +17,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { ModelStore, SpreadsheetStore } from ".";
+import { ModelStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
@@ -40,7 +41,7 @@ import {
   zoneToXc,
 } from "../helpers/index";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
-import { Get, Store } from "../store_engine";
+import { DisposableStore, Get, Store } from "../store_engine";
 import {
   Align,
   BorderDescrWithOpacity,
@@ -48,6 +49,7 @@ import {
   CellPosition,
   CellValueType,
   Command,
+  Getters,
   GridRenderingContext,
   HeaderIndex,
   LayerName,
@@ -58,6 +60,7 @@ import {
   Zone,
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
+import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 export const CELL_ANIMATION_DURATION = 200;
@@ -69,7 +72,11 @@ interface Animation {
   animationTypes: string[];
 }
 
-export class GridRenderer extends SpreadsheetStore {
+// type CustomGetters = Exclude<Getters, PluginGetters<typeof SheetViewPlugin>>;
+// type CustomGetters = Omit<Getters, "isReadOnly">;
+
+// ADRM TODO: onDispose
+export class GridRenderer extends DisposableStore {
   private fingerprints: Store<FormulaFingerprintStore>;
   private hoveredTables: Store<HoveredTableStore>;
   private hoveredIcon: Store<HoveredIconStore>;
@@ -78,13 +85,27 @@ export class GridRenderer extends SpreadsheetStore {
   private preventNewAnimationsInNextFrame = false;
   private zonesWithPreventedAnimationsInNextFrame: Zone[] = [];
   private animations: Map<string, Animation> = new Map();
+  protected getters: Getters;
+
+  protected renderer = this.get(RendererStore);
 
   constructor(get: Get) {
     super(get);
-    this.getters = get(ModelStore).getters;
+    const model = get(ModelStore) as Model;
+    this.getters = model.getters;
     this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredTables = get(HoveredTableStore);
     this.hoveredIcon = get(HoveredIconStore);
+
+    model.on("command-dispatched", this, this.handle);
+    model.on("command-finalized", this, this.finalize);
+    this.renderer.register(this);
+
+    this.onDispose(() => {
+      model.off("command-dispatched", this);
+      model.off("command-finalized", this);
+      this.renderer.unRegister(this);
+    });
   }
 
   handle(cmd: Command) {

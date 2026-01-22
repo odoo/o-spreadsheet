@@ -36,7 +36,7 @@ import { SheetViewPlugin } from "../plugins/ui_stateful/sheetview";
 // Getters
 // -----------------------------------------------------------------------------
 
-export type Getters = {
+export type CustomGetters = {
   isReadonly: () => boolean;
   isDashboard: () => boolean;
 } & CoreGetters &
@@ -55,7 +55,6 @@ export type Getters = {
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
-  PluginGetters<typeof SheetViewPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &
   PluginGetters<typeof SplitToColumnsPlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
@@ -75,3 +74,5 @@ export type Getters = {
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof CarouselUIPlugin>;
+
+export type Getters = CustomGetters & PluginGetters<typeof SheetViewPlugin>;
