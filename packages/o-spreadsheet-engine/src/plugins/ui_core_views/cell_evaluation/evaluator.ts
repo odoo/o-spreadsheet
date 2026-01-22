@@ -178,6 +178,17 @@ export class Evaluator {
     console.debug("evaluate Cells", performance.now() - start, "ms");
   }
 
+  /**
+   * Evaluates the given cells without propagating to their dependents.
+   * Used when automatic evaluation is disabled, to show the result of a
+   * directly modified cell without triggering a potentially expensive cascade.
+   */
+  evaluateCellsWithoutCascade(positions: CellPosition[]) {
+    const rangesToCompute = new RangeSet();
+    rangesToCompute.addManyPositions(positions);
+    this.evaluate(rangesToCompute);
+  }
+
   private getArrayFormulasImpactedByChangesOf(positions: Iterable<CellPosition>): RangeSet {
     const impactedRanges = new RangeSet();
 

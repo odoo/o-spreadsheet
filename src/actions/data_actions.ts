@@ -89,3 +89,20 @@ export const reinsertStaticPivotMenu: ActionSpec = {
   isVisible: (env) =>
     env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
 };
+
+export const calculationMode: ActionSpec = {
+  name: _t("Calculation"),
+  icon: "o-spreadsheet-Icon.CALCULATOR",
+};
+
+export const automaticCalculation: ActionSpec = {
+  name: _t("Automatic"),
+  execute: (env) => env.model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true }),
+  isActive: (env) => env.model.getters.isAutomaticEvaluationEnabled(),
+};
+
+export const manualCalculation: ActionSpec = {
+  name: _t("Manual"),
+  execute: (env) => env.model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false }),
+  isActive: (env) => !env.model.getters.isAutomaticEvaluationEnabled(),
+};

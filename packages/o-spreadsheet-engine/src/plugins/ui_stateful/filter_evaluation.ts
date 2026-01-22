@@ -87,7 +87,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
   }
 
   finalize() {
-    if (this.isEvaluationDirty) {
+    // Skip automatic evaluation if disabled (unless forced by EVALUATE_CELLS)
+    if (this.isEvaluationDirty && this.getters.shouldPerformEvaluation()) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.updateHiddenRows(sheetId);
       }

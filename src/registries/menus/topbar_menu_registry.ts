@@ -482,6 +482,18 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
   })
+  .addChild("calculation_mode", ["data"], {
+    ...ACTION_DATA.calculationMode,
+    sequence: 35,
+  })
+  .addChild("automatic_calculation", ["data", "calculation_mode"], {
+    ...ACTION_DATA.automaticCalculation,
+    sequence: 10,
+  })
+  .addChild("manual_calculation", ["data", "calculation_mode"], {
+    ...ACTION_DATA.manualCalculation,
+    sequence: 20,
+  })
   .addChild("add_remove_data_filter", ["data"], {
     ...ACTION_DATA.createRemoveFilter,
     sequence: 40,
