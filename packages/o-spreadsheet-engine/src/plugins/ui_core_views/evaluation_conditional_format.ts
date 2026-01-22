@@ -37,7 +37,6 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     "getConditionalDataBar",
   ] as const;
   private isStale: boolean = true;
-  private forceEvaluation: boolean = false;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
   private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
@@ -48,22 +47,21 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   // ---------------------------------------------------------------------------
 
   handle(cmd: CoreViewCommand) {
-    this.forceEvaluation = false;
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
       this.isStale = true;
-      if (cmd.type === "EVALUATE_CELLS") {
-        this.forceEvaluation = true;
-      }
     }
   }
 
   finalize() {
     // Skip automatic evaluation if disabled (unless forced by EVALUATE_CELLS)
-    if (this.isStale && (this.forceEvaluation || this.getters.isAutomaticEvaluationEnabled())) {
+    if (
+      this.isStale &&
+      (this.getters.shouldForceEvaluation() || this.getters.isAutomaticEvaluationEnabled())
+    ) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
         this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));

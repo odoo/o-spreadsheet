@@ -29,7 +29,6 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
-  forceEvaluation = false;
 
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
@@ -43,7 +42,6 @@ export class FilterEvaluationPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    this.forceEvaluation = false;
     switch (cmd.type) {
       case "UNDO":
       case "REDO":
@@ -55,9 +53,6 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "REMOVE_COLUMNS_ROWS":
       case "UPDATE_TABLE":
         this.isEvaluationDirty = true;
-        if (cmd.type === "EVALUATE_CELLS") {
-          this.forceEvaluation = true;
-        }
         break;
       case "START":
         for (const sheetId of this.getters.getSheetIds()) {
@@ -95,7 +90,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
     // Skip automatic evaluation if disabled (unless forced by EVALUATE_CELLS)
     if (
       this.isEvaluationDirty &&
-      (this.forceEvaluation || this.getters.isAutomaticEvaluationEnabled())
+      (this.getters.shouldForceEvaluation() || this.getters.isAutomaticEvaluationEnabled())
     ) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.updateHiddenRows(sheetId);

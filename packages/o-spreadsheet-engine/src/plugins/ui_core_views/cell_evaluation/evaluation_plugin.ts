@@ -160,6 +160,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "shouldForceEvaluation",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -341,6 +342,13 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return positions(zone)
       .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
       .every((cell) => cell.type === CellValueType.empty);
+  }
+
+  /**
+   * Returns whether evaluation should be forced (set by EVALUATE_CELLS command)
+   */
+  shouldForceEvaluation(): boolean {
+    return this.forceEvaluation;
   }
 
   /**
