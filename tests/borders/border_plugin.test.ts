@@ -1278,7 +1278,7 @@ describe("Border continuity", () => {
   });
 });
 
-test("Cells that have undefined borders don't override borders of neighboring cells at import", () => {
+test("Cells that have undefined borders do not override borders of neighboring cells at import", () => {
   const data = {
     sheets: [
       {

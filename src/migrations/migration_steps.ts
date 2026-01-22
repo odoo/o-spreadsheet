@@ -1,5 +1,6 @@
 import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
 import { getItemId, getUniqueText, sanitizeSheetName } from "../helpers";
+import { mergeBorders } from "../helpers/borders";
 import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
@@ -546,6 +547,12 @@ migrationStepRegistry
           }
         }
       }
+      return data;
+    },
+  })
+  .add("19.0", {
+    migrate(data: WorkbookData): any {
+      mergeBorders(data);
       return data;
     },
   });
