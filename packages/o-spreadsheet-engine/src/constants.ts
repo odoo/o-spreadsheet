@@ -250,6 +250,12 @@ export const LOADING = "Loading...";
 
 let DEFAULT_SHEETVIEW_SIZE = 0;
 
+/**
+ * The viewport dimensions are usually set by one of the components
+ * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
+ * In the absence of a component (standalone model), is it mandatory to set reasonable default values
+ * to ensure the correct operation.
+ */
 export function getDefaultSheetViewSize() {
   return DEFAULT_SHEETVIEW_SIZE;
 }
