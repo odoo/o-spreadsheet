@@ -391,6 +391,68 @@ describe("PROPER formula", () => {
   });
 });
 
+describe("REGEXTEST function", () => {
+  test("REGEXTEST takes 2-3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=REGEXTEST()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo")' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 0)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 0, 0)' })).toBe("#BAD_EXPR");
+  });
+
+  test("Empty text/pattern", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("", "lo")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "")' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("", "")' })).toBe(true);
+  });
+
+  test("case_sensitivity is either 0 or 1", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", -1)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 0)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 1)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 2)' })).toBe("#ERROR");
+  });
+
+  test("various tests with true results", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "there", 0)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "hello", 1)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "o.*", 0)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "o(.*)", 0)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: String.raw`=REGEXTEST("Hello there", "\s.*", 0)` })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello 56 there 89", "[0-9]+", 0)' })).toBe(true);
+    expect(
+      evaluateCell("A1", { A1: String.raw`=REGEXTEST("Hello there my guy", "\s[a-z]+", 0)` })
+    ).toBe(true);
+    expect(evaluateCell("A1", { A1: String.raw`=REGEXTEST("word boundary", "\b[a-z]+", 0)` })).toBe(
+      true
+    );
+    expect(
+      evaluateCell("A1", { A1: String.raw`=REGEXTEST("Hello There My Guy", "(\s[a-z]+)+", 1)` })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", { A1: '=REGEXTEST("VAT:21% PRICE:200€", ".*:([0-9]+).*:([0-9]+)", 0)' })
+    ).toBe(true);
+    expect(
+      evaluateCell("A1", { A1: String.raw`=REGEXTEST("Hello \there\ ", "\\\w+\\ ", 0)` })
+    ).toBe(true);
+  });
+
+  test("various tests with false results", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "hi", 0)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "Hi", 1)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "i.", 0)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "i.*", 1)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "i.*", 0)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "i(.*)", 0)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "[0-9]+", 0)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "hello", 0)' })).toBe(false);
+  });
+
+  test("invalid regex raise an error", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "[0-9+", 0)' })).toBe("#ERROR");
+  });
+});
+
 describe("REGEXEXTRACT function", () => {
   test("REGEXEXTRACT takes 2-4 arguments", () => {
     expect(evaluateCell("A1", { A1: "=REGEXEXTRACT()" })).toBe("#BAD_EXPR");
@@ -475,6 +537,117 @@ describe("REGEXEXTRACT function", () => {
 
   test("invalid regex raise an error", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello there", "[a-z+")' })).toBe("#ERROR");
+  });
+});
+
+describe("REGEXREPLACE function", () => {
+  test("REGEXREPLACE takes 3-5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=REGEXREPLACE()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y")' })).toBe("Hey");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0)' })).toBe("Hey");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0, 0)' })).toBe("Hey");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0, 0, 0)' })).toBe(
+      "#BAD_EXPR"
+    );
+  });
+
+  test("Empty text/pattern", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "", "y")' })).toBe("yHyeylylyoy");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "")' })).toBe("He");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "", "")' })).toBe("Hello");
+  });
+
+  test("Invalid regex raise an error", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "[a-z", "y")' })).toBe("#ERROR");
+  });
+
+  test("occurences", () => {
+    expect(
+      evaluateCell("A1", { A1: String.raw`=REGEXREPLACE("Hello there my guy", "\s[a-z]+", "o")` })
+    ).toBe("Helloooo");
+    expect(
+      evaluateCell("A1", {
+        A1: String.raw`=REGEXREPLACE("Hello there my guy", "\s[a-z]+", "o", 0)`,
+      })
+    ).toBe("Helloooo");
+    expect(
+      evaluateCell("A1", {
+        A1: String.raw`=REGEXREPLACE("Hello there my guy", "\s[a-z]+", "o", 1)`,
+      })
+    ).toBe("Helloo my guy");
+    expect(
+      evaluateCell("A1", {
+        A1: String.raw`=REGEXREPLACE("Hello there my guy", "\s[a-z]+", "o", -1)`,
+      })
+    ).toBe("Hello there myo");
+    expect(
+      evaluateCell("A1", {
+        A1: String.raw`=REGEXREPLACE("Hello there my guy", "\s[a-z]+", "o", 4)`,
+      })
+    ).toBe("Hello there my guy");
+  });
+
+  test("case_sensitivity is either 0 or 1", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0, -1)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0, 0)' })).not.toBe(
+      "#ERROR"
+    );
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo","y", 0, 1)' })).not.toBe(
+      "#ERROR"
+    );
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo","y", 0, 2)' })).toBe("#ERROR");
+  });
+
+  test("Can be either case sensitive or insensitive", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("HellO", "[A-Z]+", "y", 0, 0)' })).toBe("yelly");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("HellO", "[A-Z]+", "y", 0, 1)' })).toBe("y");
+  });
+
+  test("various tests", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello there", "there", "World", 0, 0)' })).toBe(
+      "Hello World"
+    );
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello there", "o.*", "u", 0, 0)' })).toBe(
+      "Hellu"
+    );
+    expect(
+      evaluateCell("A1", { A1: String.raw`=REGEXREPLACE("Hello there", "\s.*", "World", 0, 0)` })
+    ).toBe("HelloWorld");
+    expect(
+      evaluateCell("A1", {
+        A1: String.raw`=REGEXREPLACE("Hello \there\ ", "\\\w+\\ ", "world", 0, 0)`,
+      })
+    ).toBe("Hello world");
+    expect(
+      evaluateCell("A1", { A1: '=REGEXREPLACE("Hello 56 there 89", "[0-9]+", "you", 0, 0)' })
+    ).toBe("Hello you there you");
+    expect(
+      evaluateCell("A1", { A1: '=REGEXREPLACE("Hello 56 there 89", "[0-9]+", "you", 1, 0)' })
+    ).toBe("Hello you there 89");
+    expect(
+      evaluateCell("A1", { A1: '=REGEXREPLACE("Hello 56 there 89", "[0-9]+", "you", 2, 0)' })
+    ).toBe("Hello 56 there you");
+    expect(
+      evaluateCell("A1", { A1: '=REGEXREPLACE("Hello 56 there 89", "[0-9]+", "you", 3, 0)' })
+    ).toBe("Hello 56 there 89");
+    expect(
+      evaluateCell("A1", { A1: String.raw`=REGEXREPLACE("Hello there", "\b[a-z]+", "word", 0, 1)` })
+    ).toBe("word word");
+    expect(evaluateCell("A1", { A1: '=REGEXREPLACE("ABC", "[A-Z]*", "123", 0, 0)' })).toBe(
+      "123123"
+    );
+  });
+
+  test("capturing groups", () => {
+    const grid = {
+      A1: "Maria Cruz",
+      B1: String.raw`(\w+)\s(\w+)`,
+      C1: "$2,$1",
+      D1: "=REGEXREPLACE(A1, B1, C1)",
+    };
+    expect(evaluateCell("D1", grid)).toBe("Cruz,Maria");
   });
 });
 
