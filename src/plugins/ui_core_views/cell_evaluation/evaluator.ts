@@ -617,13 +617,20 @@ export function updateEvalContextAndExecute(
   getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined
 ) {
-  compilationParams.evalContext.__originCellPosition = originCellPosition;
-  compilationParams.evalContext.__originSheetId = sheetId;
-  return compiledFormula.execute(
+  const evalContext = compilationParams.evalContext;
+  const currentCellPosition = evalContext.__originCellPosition;
+  const currentSheetId = evalContext.__originSheetId;
+
+  evalContext.__originCellPosition = originCellPosition;
+  evalContext.__originSheetId = sheetId;
+  const result = compiledFormula.execute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,
-    compilationParams.evalContext
+    evalContext
   );
+  evalContext.__originCellPosition = currentCellPosition;
+  evalContext.__originSheetId = currentSheetId;
+  return result;
 }
