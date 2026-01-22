@@ -1,3 +1,4 @@
+import { tokenize } from "../../formulas/tokenizer";
 import { Dimension, ExcelHeaderData, ExcelSheetData } from "../../types";
 
 /**
@@ -79,4 +80,13 @@ export function getSheetDataHeader(
     sheetData.rows[index] = {};
   }
   return sheetData.rows[index];
+}
+
+/** Prefix the string by "=" if the string looks like a formula */
+export function prefixFormulaWithEqual(formula: string): string {
+  if (formula[0] === "=") {
+    return formula;
+  }
+  const tokens = tokenize(formula);
+  return tokens.length === 1 && tokens[0].type !== "REFERENCE" ? formula : "=" + formula;
 }

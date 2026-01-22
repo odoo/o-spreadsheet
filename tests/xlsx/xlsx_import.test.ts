@@ -414,6 +414,18 @@ describe("Import xlsx data", () => {
     });
   });
 
+  test("Can import a data validation rule with a formula", () => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const dvRule = getDataValidationBeginningAt("J2", testSheet);
+    expect(dvRule).toMatchObject({
+      criterion: {
+        type: "isBetween",
+        values: ["=$A$2", "=2+10"],
+      },
+      ranges: ["J2:J6"],
+    });
+  });
+
   test.each([
     ["2 colors max", "H2"],
     ["3 colors max", "H3"],
