@@ -7,6 +7,7 @@ import {
   DateIsNotBetweenCriterion,
 } from "../../types";
 import { XLSXDataValidation } from "../../types/xlsx";
+import { prefixFormulaWithEqual } from "../helpers/misc";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import {
   XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,
@@ -65,9 +66,9 @@ export function convertDataValidationRules(
 }
 
 function convertDecimalRule(id: number, dv: XLSXDataValidation): DataValidationRuleData {
-  const values = [dv.formula1.toString()];
+  const values = [prefixFormulaWithEqual(dv.formula1.toString())];
   if (dv.formula2) {
-    values.push(dv.formula2.toString());
+    values.push(prefixFormulaWithEqual(dv.formula2.toString()));
   }
   return {
     id: id.toString(),
@@ -126,7 +127,7 @@ function convertCustomRule(id: number, dv: XLSXDataValidation): DataValidationRu
     isBlocking: dv.errorStyle !== "warning",
     criterion: {
       type: "customFormula",
-      values: [`=${dv.formula1.toString()}`],
+      values: [prefixFormulaWithEqual(dv.formula1.toString())],
     },
   };
 }
