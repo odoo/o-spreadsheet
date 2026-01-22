@@ -56,7 +56,9 @@ function getPanes() {
   const sheetViewPlugin = getPlugin(model, SheetViewPlugin);
   const sheetId = model.getters.getActiveSheetId();
   return Object.fromEntries(
-    Object.entries(sheetViewPlugin["viewports"][sheetId]!).filter((entry) => isDefined(entry[1]))
+    Object.entries(sheetViewPlugin["sheetView"]["viewports"][sheetId]!).filter((entry) =>
+      isDefined(entry[1])
+    )
   );
 }
 
