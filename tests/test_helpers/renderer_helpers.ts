@@ -24,8 +24,10 @@ export class MockGridRenderingContext implements GridRenderingContext {
   viewport: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
+  getters: RenderingGetters;
 
   constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
+    this.getters = model.getters;
     resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH, 0, 0);
     this.viewport = model.getters.getActiveMainViewport();
 
@@ -53,10 +55,6 @@ export class MockGridRenderingContext implements GridRenderingContext {
       },
     };
     this.ctx = new Proxy({}, handler);
-  }
-
-  get getters(): RenderingGetters {
-    return this.model.getters;
   }
 
   get sheetId(): UID {
