@@ -1524,3 +1524,81 @@ describe("evaluate formula getter", () => {
     expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
   });
 });
+
+describe("Automatic evaluation", () => {
+  test("Automatic evaluation is enabled by default", () => {
+    const model = new Model();
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+  });
+
+  test("Can disable automatic evaluation", () => {
+    const model = new Model();
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(false);
+  });
+
+  test("Can re-enable automatic evaluation", () => {
+    const model = new Model();
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true });
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+  });
+
+  test("Cells are not automatically re-evaluated when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    // Cell A2 should still show old value
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+  });
+
+  test("F9 (EVALUATE_CELLS) forces evaluation even when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // Force evaluation with F9
+    model.dispatch("EVALUATE_CELLS");
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+
+  test("Re-enabling automatic evaluation triggers evaluation", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // Re-enable automatic evaluation
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true });
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+
+  test("EVALUATE_CELLS with cellIds works when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    const cell = getCell(model, "A2");
+    const cellId = cell!.id;
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // Force evaluation of specific cell
+    model.dispatch("EVALUATE_CELLS", { cellIds: [cellId] });
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+});

@@ -89,3 +89,12 @@ export const reinsertStaticPivotMenu: ActionSpec = {
   isVisible: (env) =>
     env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
 };
+
+export const toggleAutomaticEvaluation: ActionSpec = {
+  name: _t("Automatic calculation"),
+  execute: (env) => {
+    const currentState = env.model.getters.isAutomaticEvaluationEnabled();
+    env.model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: !currentState });
+  },
+  isActive: (env) => env.model.getters.isAutomaticEvaluationEnabled(),
+};

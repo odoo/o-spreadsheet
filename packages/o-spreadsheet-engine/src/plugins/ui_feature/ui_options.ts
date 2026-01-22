@@ -2,8 +2,9 @@ import { Command } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
-  static getters = ["shouldShowFormulas"] as const;
+  static getters = ["shouldShowFormulas", "isAutomaticEvaluationEnabled"] as const;
   private showFormulas: boolean = false;
+  private automaticEvaluation: boolean = true;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -14,6 +15,9 @@ export class UIOptionsPlugin extends UIPlugin {
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
         break;
+      case "SET_AUTOMATIC_EVALUATION":
+        this.automaticEvaluation = cmd.enabled;
+        break;
     }
   }
 
@@ -23,5 +27,9 @@ export class UIOptionsPlugin extends UIPlugin {
 
   shouldShowFormulas(): boolean {
     return this.showFormulas;
+  }
+
+  isAutomaticEvaluationEnabled(): boolean {
+    return this.automaticEvaluation;
   }
 }

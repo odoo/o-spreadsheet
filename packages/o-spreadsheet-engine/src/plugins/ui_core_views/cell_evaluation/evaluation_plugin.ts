@@ -163,6 +163,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
+  private forceEvaluation = false;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
@@ -177,6 +178,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // ---------------------------------------------------------------------------
 
   beforeHandle(cmd: Command) {
+    this.forceEvaluation = false;
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateDependenciesCommands.has(cmd.type)
@@ -199,7 +201,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        if (cmd.cellIds) {
+        this.forceEvaluation = true;
+        if (!this.getters.isAutomaticEvaluationEnabled()) {
+          // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
+          // and evaluate all cells to ensure consistency
+          this.shouldRebuildDependenciesGraph = true;
+        } else if (cmd.cellIds) {
           for (let i = 0; i < cmd.cellIds.length; i++) {
             this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
           }
@@ -211,6 +218,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   finalize() {
+    if (!this.forceEvaluation && !this.getters.isAutomaticEvaluationEnabled()) {
+      // Skip automatic evaluation if disabled (unless forced by EVALUATE_CELLS)
+      this.positionsToUpdate = [];
+      return;
+    }
+
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();

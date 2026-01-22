@@ -480,6 +480,10 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
   })
+  .addChild("toggle_automatic_evaluation", ["data"], {
+    ...ACTION_DATA.toggleAutomaticEvaluation,
+    sequence: 35,
+  })
   .addChild("add_remove_data_filter", ["data"], {
     ...ACTION_DATA.createRemoveFilter,
     sequence: 40,
