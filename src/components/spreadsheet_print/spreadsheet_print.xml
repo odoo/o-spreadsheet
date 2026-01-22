@@ -1,0 +1,52 @@
+<templates>
+  <t t-name="o-spreadsheet-SpreadsheetPrint">
+    <div class="o-spreadsheet-print d-flex flex-column h-100 w-100">
+      <t t-set="pages" t-value="this.printPages"/>
+      <div class="o-print-header flex-shrink-0 d-flex align-items-center">
+        <h3 class="m-0 p-3 ps-4 text-white">Print Preview</h3>
+        <span class="text-white">
+          <t t-esc="pages.length"/>
+          pages
+        </span>
+        <button class="o-button ms-auto me-2 flex-grow-0" t-on-click="props.onExitPrintMode">
+          Cancel
+        </button>
+        <button class="o-button primary flex-grow-0 me-4" t-on-click="onPrint">Print</button>
+      </div>
+      <div class="o-print-container d-flex flex-shrink-1 overflow-hidden">
+        <div class="o-print-preview w-100 overflow-auto">
+          <div
+            t-foreach="pages"
+            t-as="page"
+            t-key="page_index"
+            class="o-print-page m-4 shadow"
+            t-att-style="pageStyle">
+            <GridCanvas sheetId="page.sheetId" zone="page.zone"/>
+          </div>
+        </div>
+        <div class="o-sidePanel flex-shrink-0 bg-white border-top border-start">
+          <div class="o-sidePanelBody">
+            <Section class="'mt-4'">
+              <span class="o-section-title">Print content</span>
+              <Select
+                selectedValue="state.printSelection"
+                values="printSelectionOptions"
+                class="'o-print-selection'"
+                onChange.bind="this.onPrintSelectionChange"
+              />
+            </Section>
+            <Section>
+              <span class="o-section-title">Paper size</span>
+              <Select
+                selectedValue="state.pageLayout"
+                values="layoutOptions"
+                class="'o-print-layout'"
+                onChange.bind="this.onLayoutChange"
+              />
+            </Section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

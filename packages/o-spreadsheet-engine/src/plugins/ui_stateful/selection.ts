@@ -48,6 +48,13 @@ interface SheetInfo {
   gridSelection: Selection;
 }
 
+export interface SelectionContext {
+  sheetId: UID;
+  selectedZones: Zone[];
+  activeCols: Set<number>;
+  activeRows: Set<number>;
+}
+
 /**
  * SelectionPlugin
  */
@@ -74,6 +81,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "isGridSelectionActive",
     "getSelectecUnboundedZone",
     "getSelectionRangeString",
+    "getSelectionContext",
   ] as const;
 
   private gridSelection: {
@@ -899,5 +907,14 @@ export class GridSelectionPlugin extends UIPlugin {
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }
+  }
+
+  getSelectionContext(): SelectionContext {
+    return {
+      sheetId: this.getters.getActiveSheetId(),
+      selectedZones: this.getters.getSelectedZones(),
+      activeCols: this.getters.getActiveCols(),
+      activeRows: this.getters.getActiveRows(),
+    };
   }
 }

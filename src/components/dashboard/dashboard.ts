@@ -49,7 +49,12 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       getPopoverContainerRect: () =>
         getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
     });
-    useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
+    useGridDrawing(
+      "canvas",
+      this.env.model,
+      () => this.env.model.getters.getSheetViewDimension(),
+      () => ({ hideHeaders: true })
+    );
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();

@@ -1,0 +1,54 @@
+.o-spreadsheet .o-spreadsheet-print {
+  .o-print-header {
+    background-color: var(--os-gray-600);
+
+    button {
+      width: 100px;
+    }
+  }
+
+  .o-print-preview {
+    background-color: var(--os-gray-200);
+
+    .o-print-page {
+      background-color: var(--os-white);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+  }
+
+  .o-sidePanel {
+    width: 350px;
+  }
+
+  @page {
+    margin: 20px;
+  }
+
+  @media print {
+    .o-sidePanel,
+    .o-print-header {
+      display: none !important ;
+    }
+
+    .o-print-container {
+      display: block !important;
+      overflow: visible !important;
+    }
+
+    .o-print-preview {
+      box-shadow: none !important;
+      padding: 0;
+      height: auto;
+      max-height: none;
+      overflow: visible !important;
+
+      .o-print-page {
+        box-shadow: none !important;
+        margin: 0;
+        page-break-after: always;
+        break-after: page;
+      }
+    }
+  }
+}

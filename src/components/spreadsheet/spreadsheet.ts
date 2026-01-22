@@ -14,6 +14,7 @@ import {
   useEffect,
   useExternalListener,
   useRef,
+  useState,
   useSubEnv,
 } from "@odoo/owl";
 import { batched } from "../../helpers";
@@ -29,12 +30,17 @@ import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
-import { isMobileOS, zoomCorrectedElementRect } from "../helpers/dom_helpers";
+import {
+  isMobileOS,
+  keyboardEventToShortcutString,
+  zoomCorrectedElementRect,
+} from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
+import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
@@ -72,11 +78,14 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SpreadsheetDashboard,
     HeaderGroupContainer,
     FullScreenFigure,
+    SpreadsheetPrint,
   };
 
   sidePanel!: Store<SidePanelStore>;
   spreadsheetRef = useRef("spreadsheet");
   spreadsheetRect = useSpreadsheetRect();
+
+  state = useState({ isPrintMode: false });
 
   private _focusGrid?: () => void;
 
@@ -91,17 +100,22 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   getStyle(): string {
     const properties: CSSProperties = {};
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
-    if (this.env.isDashboard()) {
-      properties["grid-template-rows"] = `auto`;
-    } else {
-      properties["grid-template-rows"] = `min-content auto min-content`;
-    }
-    const columnWidth = this.sidePanel.mainPanel
-      ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`
-      : "auto";
-    properties["grid-template-columns"] = `auto ${columnWidth}`;
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
     properties["color-scheme"] = this.props.colorScheme;
+
+    if (this.state.isPrintMode) {
+      properties["display"] = `block`;
+    } else {
+      if (this.env.isDashboard()) {
+        properties["grid-template-rows"] = `auto`;
+      } else {
+        properties["grid-template-rows"] = `min-content auto min-content`;
+      }
+      const columnWidth = this.sidePanel.mainPanel
+        ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`
+        : "auto";
+      properties["grid-template-columns"] = `auto ${columnWidth}`;
+    }
 
     return cssPropertiesToCss(properties);
   }
@@ -146,6 +160,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
         this.notificationStore.askConfirmation(text, confirm, cancel),
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
+      printSpreadsheet: () => (this.state.isPrintMode = true),
     } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
@@ -312,5 +327,18 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.env.isSmall ? "o-spreadsheet-mobile" : "",
       this.props.colorScheme === "dark" ? "dark" : "",
     ].join(" ");
+  }
+
+  exitPrintMode() {
+    this.state.isPrintMode = false;
+  }
+
+  onKeyDown(event: KeyboardEvent) {
+    const keyDownString = keyboardEventToShortcutString(event);
+    if (keyDownString === "Ctrl+P") {
+      this.state.isPrintMode = true;
+      event.stopPropagation();
+      event.preventDefault();
+    }
   }
 }

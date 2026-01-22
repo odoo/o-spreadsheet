@@ -1,5 +1,5 @@
 import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../../constants";
-import { clip, isDefined, range } from "../../helpers";
+import { clip, isDefined } from "../../helpers";
 import { scrollDelay } from "../../helpers/edge_scrolling";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { findCellInNewZone, isEqual, positionToZone } from "../../helpers/zones";
@@ -34,6 +34,16 @@ import {
   Viewport,
 } from "../../types/rendering";
 import { UIPlugin } from "../ui_plugin";
+import {
+  getMainViewportCoordinates,
+  getRect,
+  getSheetViewVisibleCols,
+  getSheetViewVisibleRows,
+  getVisibleRect,
+  getVisibleRectWithoutHeaders,
+  mapViewportsToRect,
+  SheetViewContext,
+} from "./sheetview_helpers";
 
 type SheetViewports = {
   topLeft: InternalViewport | undefined;
@@ -109,7 +119,6 @@ export class SheetViewPlugin extends UIPlugin {
     "isPixelPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
-    "getAllActiveViewportsZonesAndRect",
     "getRect",
     "getFigureUI",
     "getPositionAnchorOffset",
@@ -117,6 +126,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getViewportZoomLevel",
     "getScrollBarWidth",
     "getMaximumSheetOffset",
+    "getSheetViewCtx",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -365,21 +375,11 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   getSheetViewVisibleCols(): HeaderIndex[] {
-    const sheetId = this.getters.getActiveSheetId();
-    const viewports = this.getSubViewports(sheetId);
-
-    //TODO ake another commit to eimprove this
-    return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
-      (col) => col >= 0 && !this.getters.isHeaderHidden(sheetId, "COL", col)
-    );
+    return getSheetViewVisibleCols(this.getSheetViewCtx());
   }
 
   getSheetViewVisibleRows(): HeaderIndex[] {
-    const sheetId = this.getters.getActiveSheetId();
-    const viewports = this.getSubViewports(sheetId);
-    return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter(
-      (row) => row >= 0 && !this.getters.isHeaderHidden(sheetId, "ROW", row)
-    );
+    return getSheetViewVisibleRows(this.getSheetViewCtx());
   }
 
   /**
@@ -539,8 +539,7 @@ export class SheetViewPlugin extends UIPlugin {
    * Computes the coordinates and size to draw the zone on the canvas
    */
   getVisibleRect(zone: Zone): Rect {
-    const rect = this.getVisibleRectWithoutHeaders(zone);
-    return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+    return getVisibleRect(this.getSheetViewCtx(), zone);
   }
 
   /**
@@ -560,8 +559,7 @@ export class SheetViewPlugin extends UIPlugin {
    * Computes the coordinates and size to draw the zone without taking the grid offset into account
    */
   getVisibleRectWithoutHeaders(zone: Zone): Rect {
-    const sheetId = this.getters.getActiveSheetId();
-    return this.mapViewportsToRect(sheetId, (viewport) => viewport.getVisibleRect(zone));
+    return getVisibleRectWithoutHeaders(this.getSheetViewCtx(), zone);
   }
 
   /**
@@ -569,9 +567,7 @@ export class SheetViewPlugin extends UIPlugin {
    * regardless of the viewport dimensions.
    */
   getRect(zone: Zone): Rect {
-    const sheetId = this.getters.getActiveSheetId();
-    const rect = this.mapViewportsToRect(sheetId, (viewport) => viewport.getFullRect(zone));
-    return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+    return getRect(this.getSheetViewCtx(), zone);
   }
 
   /**
@@ -579,8 +575,7 @@ export class SheetViewPlugin extends UIPlugin {
    * regardless of the viewport dimensions.
    */
   getRectWithoutHeaders(zone: Zone): Rect {
-    const sheetId = this.getters.getActiveSheetId();
-    return this.mapViewportsToRect(sheetId, (viewport) => viewport.getFullRect(zone));
+    return mapViewportsToRect(this.getSheetViewCtx(), (viewport) => viewport.getFullRect(zone));
   }
 
   /**
@@ -589,11 +584,7 @@ export class SheetViewPlugin extends UIPlugin {
    * situated before the pane divisions.
    */
   getMainViewportCoordinates(): DOMCoordinates {
-    const sheetId = this.getters.getActiveSheetId();
-    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-    const x = this.getters.getColDimensions(sheetId, xSplit).start;
-    const y = this.getters.getRowDimensions(sheetId, ySplit).start;
-    return { x, y };
+    return getMainViewportCoordinates(this.getSheetViewCtx());
   }
 
   /**
@@ -628,20 +619,6 @@ export class SheetViewPlugin extends UIPlugin {
     const { y, height } = this.getVisibleRect(zone);
     const start = y - this.gridOffsetY;
     return { start, size: height, end: start + height };
-  }
-
-  getAllActiveViewportsZonesAndRect(): { zone: Zone; rect: Rect }[] {
-    const sheetId = this.getters.getActiveSheetId();
-    return this.getSubViewports(sheetId).map((viewport) => {
-      return {
-        zone: viewport,
-        rect: {
-          x: viewport.offsetCorrectionX + this.gridOffsetX,
-          y: viewport.offsetCorrectionY + this.gridOffsetY,
-          ...viewport.getMaxSize(),
-        },
-      };
-    });
   }
 
   getViewportZoomLevel(): number {
@@ -884,7 +861,8 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let col = this.getActiveMainViewport().left;
     let colStart =
-      -this.getActiveSheetScrollInfo().scrollX - this.getters.getColRowOffset("COL", col, 0);
+      -this.getActiveSheetScrollInfo().scrollX -
+      this.getters.getColRowOffset("COL", col, 0, sheetId);
     for (; x < colStart; col--) {
       colStart -= this.getters.getColSize(sheetId, col - 1);
     }
@@ -903,7 +881,8 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     let row = this.getActiveMainViewport().top;
     let rowStart =
-      -this.getActiveSheetScrollInfo().scrollY - this.getters.getColRowOffset("ROW", row, 0);
+      -this.getActiveSheetScrollInfo().scrollY -
+      this.getters.getColRowOffset("ROW", row, 0, sheetId);
     for (; y < rowStart; row--) {
       rowStart -= this.getters.getRowSize(sheetId, row - 1);
     }
@@ -991,28 +970,19 @@ export class SheetViewPlugin extends UIPlugin {
     return { xRatio: offsetCorrectionX / width, yRatio: offsetCorrectionY / height };
   }
 
-  mapViewportsToRect(
-    sheetId: UID,
-    rectCallBack: (viewport: InternalViewport) => Rect | undefined
-  ): Rect {
-    let x: Pixel = Infinity;
-    let y: Pixel = Infinity;
-    let width: Pixel = 0;
-    let height: Pixel = 0;
-    let hasViewports: boolean = false;
-    for (const viewport of this.getSubViewports(sheetId)) {
-      const rect = rectCallBack(viewport);
-      if (rect) {
-        hasViewports = true;
-        x = Math.min(x, rect.x);
-        y = Math.min(y, rect.y);
-        width = Math.max(width, rect.x + rect.width);
-        height = Math.max(height, rect.y + rect.height);
-      }
-    }
-    if (!hasViewports) {
-      return { x: 0, y: 0, width: 0, height: 0 };
-    }
-    return { x, y, width: width - x, height: height - y };
+  getSheetViewCtx(): SheetViewContext {
+    const sheetId = this.getters.getActiveSheetId();
+    const dimensions = this.getters.getSheetViewDimensionWithHeaders();
+    this.ensureMainViewportExist(sheetId);
+    return {
+      getters: this.getters,
+      sheetId,
+      viewports: this.viewports[sheetId]!,
+      sheetViewHeight: dimensions.height,
+      sheetViewWidth: dimensions.width,
+      gridOffsetX: this.gridOffsetX,
+      gridOffsetY: this.gridOffsetY,
+      zoomLevel: this.zoomLevel,
+    };
   }
 }

@@ -3,9 +3,13 @@
     <div
       class="o-spreadsheet h-100 w-100"
       t-att-class="getSpreadSheetClasses()"
+      t-on-keydown.capture="onKeyDown"
       t-ref="spreadsheet"
       t-att-style="getStyle()">
-      <t t-if="env.isDashboard()">
+      <t t-if="state.isPrintMode">
+        <SpreadsheetPrint onExitPrintMode.bind="exitPrintMode"/>
+      </t>
+      <t t-elif="env.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
         <FullScreenFigure/>
       </t>

@@ -4,9 +4,14 @@ import { useEffect, useRef } from "@odoo/owl";
 import { useStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { DOMDimension } from "../../types";
+import { DOMDimension, GridRenderingContext } from "../../types";
 
-export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
+export function useGridDrawing(
+  refName: string,
+  model: Model,
+  canvasSize: () => DOMDimension,
+  partialCtx?: () => Partial<GridRenderingContext>
+) {
   const canvasRef = useRef(refName);
   useEffect(drawGrid);
   const rendererStore = useStore(RendererStore);
@@ -18,10 +23,13 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const zoom = Math.max(model.getters.getViewportZoomLevel(), 1);
     const thinLineWidth = 0.4 * dpr;
-    const renderingContext = {
+    const renderingContext: GridRenderingContext = {
       ctx,
       dpr,
       thinLineWidth,
+      ...model.getters.getSheetViewCtx(),
+      ...model.getters.getSelectionContext(),
+      ...(partialCtx?.() || {}),
     };
     let { width, height } = canvasSize();
     width = zoom * width;

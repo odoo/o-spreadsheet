@@ -1,4 +1,6 @@
 import { memoize } from "../helpers/misc";
+import { SelectionContext } from "../plugins/ui_stateful/selection";
+import { SheetViewContext } from "../plugins/ui_stateful/sheetview_helpers";
 import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
 import { Alias, Align, BorderDescr, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
@@ -91,11 +93,13 @@ export interface SheetDOMScrollInfo {
   scrollY: Pixel;
 }
 
-export interface GridRenderingContext {
+export type GridRenderingContext = {
   ctx: CanvasRenderingContext2D;
   dpr: number;
   thinLineWidth: number;
-}
+  hideHeaders?: boolean;
+} & SheetViewContext &
+  SelectionContext;
 
 const LAYERS = {
   Background: 0,

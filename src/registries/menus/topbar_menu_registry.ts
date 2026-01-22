@@ -1,5 +1,11 @@
-import { ZOOM_VALUES } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+  ZOOM_VALUES,
+} from "@odoo/o-spreadsheet-engine/constants";
+import { centerFigurePosition } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
@@ -277,6 +283,30 @@ topbarMenuRegistry
   .addChild("insert_carousel", ["insert"], {
     ...ACTION_INSERT.insertCarousel,
     sequence: 51,
+  })
+  .addChild("insert_canvas_figure", ["insert"], {
+    name: _t("Figure Canvas"),
+    execute: (env: SpreadsheetChildEnv) => {
+      const getters = env.model.getters;
+      const figureId = env.model.uuidGenerator.smallUuid();
+      const sheetId = getters.getActiveSheetId();
+
+      const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
+      const { col, row, offset } = centerFigurePosition(getters, size);
+
+      env.model.dispatch("CREATE_FIGURE", {
+        sheetId,
+        figureId,
+        col,
+        row,
+        offset,
+        size,
+        tag: "canvas",
+      });
+    },
+    isEnabled: (env) => !env.isSmall,
+    icon: "o-spreadsheet-Icon.CAROUSEL",
+    sequence: 52,
   })
   .addChild("insert_pivot", ["insert"], {
     ...ACTION_INSERT.insertPivot,
