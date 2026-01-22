@@ -1316,3 +1316,30 @@ test("measure takes indirect dependency into account for recalculation", () => {
   expect(getEvaluatedCell(model, "A4").value).toEqual(43);
   expect(getEvaluatedCell(model, "A5").value).toEqual(43);
 });
+
+test("calculated measure do not break meta formula", () => {
+  const grid = {
+    A1: "Customer",
+    A2: "Alice",
+    A3: "42",
+    A4: '=INDIRECT("A3") & PIVOT.VALUE(1, "calculated") & INDIRECT("A3")',
+  };
+  const model = createModelFromGrid(grid);
+  createSheet(model, { sheetId: "sheet2" });
+  setCellContent(model, "A3", "1", "sheet2");
+  addPivot(model, "A1:A2", {
+    measures: [
+      {
+        id: "calculated",
+        fieldName: "calculated",
+        aggregator: "sum",
+        computedBy: {
+          // references A3 in sheet2
+          formula: '=INDIRECT("A3")',
+          sheetId: "sheet2",
+        },
+      },
+    ],
+  });
+  expect(getEvaluatedCell(model, "A4").value).toEqual("42142");
+});
