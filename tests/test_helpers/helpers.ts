@@ -252,6 +252,7 @@ export function makeTestEnv(
       return mockEnv.isSmall || false;
     },
     isMobile: mockEnv.isMobile || isMobileOS,
+    printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
   };
