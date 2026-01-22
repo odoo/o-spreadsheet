@@ -23,6 +23,13 @@ topbarMenuRegistry
     name: _t("File"),
     sequence: 10,
   })
+  .addChild("print", ["file"], {
+    name: _t("Print"),
+    sequence: 190,
+    execute: (env) => env.printSpreadsheet(),
+    isEnabled: (env) => !env.isSmall,
+    icon: "o-spreadsheet-Icon.PRINT",
+  })
   .addChild("settings", ["file"], {
     name: _t("Settings"),
     sequence: 200,
