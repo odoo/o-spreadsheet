@@ -23,8 +23,10 @@ export class MockGridRenderingContext implements GridRenderingContext {
   viewport: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
+  getters: RenderingGetters;
 
   constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
+    this.getters = model.getters;
     model.dispatch("RESIZE_SHEETVIEW", {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
@@ -57,10 +59,6 @@ export class MockGridRenderingContext implements GridRenderingContext {
       },
     };
     this.ctx = new Proxy({}, handler);
-  }
-
-  get getters(): RenderingGetters {
-    return this.model.getters;
   }
 
   get sheetId(): UID {
