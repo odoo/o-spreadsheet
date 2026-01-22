@@ -280,6 +280,56 @@ export const PROPER = {
 
 const REGEXEXTRACT_DEFAULT_MODE = 0;
 const REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY = 0;
+const REGEXEXTRACT_DEFAULT_OCCURRENCE = 0;
+
+// -----------------------------------------------------------------------------
+// REGEXTEST
+// -----------------------------------------------------------------------------
+export const REGEXTEST = {
+  description: _t("Checks whether a string matches the supplied regular expression."),
+  args: [
+    arg("text (string)", _t("The string to test.")),
+    arg("pattern (string)", _t("The regular expression pattern to match against the text.")),
+    arg(
+      `case_sensitivity (number, default=${REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY})`,
+      _t("Whether the match is case-sensitive."),
+      [
+        { value: 0, label: _t("Case-sensitive") },
+        { value: 1, label: _t("Case-insensitive") },
+      ]
+    ),
+  ],
+  compute: function (
+    text: Maybe<FunctionResultObject>,
+    pattern: Maybe<FunctionResultObject>,
+    newText: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY }
+  ) {
+    const _text = toString(text);
+    const _pattern = toString(pattern);
+    const _caseSensitivity = toNumber(newText, this.locale);
+
+    if (_pattern === "") {
+      return true;
+    }
+    if (_text === "") {
+      return false;
+    }
+    if (_caseSensitivity !== 0 && _caseSensitivity !== 1) {
+      return new EvaluationError(_t("The case_sensitivity (%s) must be 0 or 1.", _caseSensitivity));
+    }
+
+    const flags = _caseSensitivity === 1 ? "gi" : "g";
+    let regex: RegExp;
+    try {
+      regex = new RegExp(_pattern, flags);
+    } catch (e) {
+      return new EvaluationError(_t("Invalid regular expression"));
+    }
+
+    return regex.test(_text);
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // REGEXEXTRACT
@@ -348,6 +398,69 @@ export const REGEXEXTRACT = {
       }
       return matches[0].slice(1).map((s) => [s]);
     }
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// REGEXREPLACE
+// -----------------------------------------------------------------------------
+
+export const REGEXREPLACE = {
+  description: _t("Replace text in a string based on the supplied regular expression."),
+  args: [
+    arg("text (string)", _t("The string in which you want to replace text.")),
+    arg("pattern (string)", _t("The regular expression pattern to match against the text.")),
+    arg("replacement (string)", _t("The text to use as the replacement.")),
+    arg(
+      `occurrence (number, default=${REGEXEXTRACT_DEFAULT_OCCURRENCE})`,
+      _t("0 = replace all matches. A negative number counts from the end.")
+    ),
+    arg(
+      `case_sensitivity (number, default=${REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY})`,
+      _t("Whether the match is case-sensitive."),
+      [
+        { value: 0, label: _t("Case-sensitive") },
+        { value: 1, label: _t("Case-insensitive") },
+      ]
+    ),
+  ],
+  compute: function (
+    text: Maybe<FunctionResultObject>,
+    pattern: Maybe<FunctionResultObject>,
+    replacement: Maybe<FunctionResultObject>,
+    occurence: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_OCCURRENCE },
+    newText: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY }
+  ) {
+    const _text = toString(text);
+    const _pattern = toString(pattern);
+    const _replacement = toString(replacement);
+    const _occurence = toNumber(occurence, this.locale);
+    const _caseSensitivity = toNumber(newText, this.locale);
+
+    if (_caseSensitivity !== 0 && _caseSensitivity !== 1) {
+      return new EvaluationError(_t("The case_sensitivity (%s) must be 0 or 1.", _caseSensitivity));
+    }
+
+    const flags = _caseSensitivity === 1 ? "gi" : "g";
+    let regex: RegExp;
+    try {
+      regex = new RegExp(_pattern, flags);
+    } catch (e) {
+      return new EvaluationError(_t("Invalid regular expression"));
+    }
+
+    if (_occurence !== 0) {
+      const matches = [..._text.matchAll(regex)];
+      if (matches.length === 0 || Math.abs(_occurence) > matches.length) {
+        return _text;
+      }
+      const i = _occurence > 0 ? _occurence - 1 : matches.length + _occurence;
+      const length = matches[i][0].length;
+      const position = matches[i].index;
+      return _text.substring(0, position) + _replacement + _text.substring(position + length);
+    }
+    return _text.replace(regex, _replacement);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
