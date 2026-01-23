@@ -29,8 +29,8 @@ mockChart();
 
 const chartId = "chartId";
 
-function getCalendarChartDefinition(chartId: UID): CalendarChartDefinition {
-  return model.getters.getChartDefinition(chartId) as CalendarChartDefinition;
+function getCalendarChartDefinition(chartId: UID): CalendarChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as CalendarChartDefinition<string>;
 }
 
 describe("Calendar chart side panel", () => {

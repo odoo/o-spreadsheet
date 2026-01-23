@@ -246,11 +246,10 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChart {
+  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChartDefinition {
     const baseline = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.baseline);
     const keyValue = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.keyValue);
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
-    return new ScorecardChart(definition, newSheetId, this.getters);
+    return this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
   }
 
   copyInSheetId(sheetId: UID): ScorecardChart {
@@ -258,12 +257,16 @@ export class ScorecardChart extends AbstractChart {
     return new ScorecardChart(definition, sheetId, this.getters);
   }
 
-  getDefinition(): ScorecardChartDefinition {
+  getRangeDefinition(): ScorecardChartDefinition {
     return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue);
   }
 
+  getDefinition(): ScorecardChartDefinition {
+    return this.getRangeDefinition();
+  }
+
   getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
+    const definition = this.getRangeDefinition();
     return {
       ...definition,
       dataSource: {

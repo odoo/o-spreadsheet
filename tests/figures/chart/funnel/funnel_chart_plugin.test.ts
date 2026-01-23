@@ -1,8 +1,12 @@
 import { FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator } from "../../../../src/helpers";
-import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart";
-import { createFunnelChart, setCellContent, setFormat } from "../../../test_helpers";
+import {
+  createChartDefinitionFromContext,
+  createFunnelChart,
+  setCellContent,
+  setFormat,
+} from "../../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   toChartDataSource,
@@ -26,7 +30,7 @@ describe("Funnel chart", () => {
       }),
       funnelColors: ["#ff0000", "#00ff00"],
     };
-    const definition = FunnelChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("funnel", context);
     expect(definition).toEqual({
       type: "funnel",
       background: "#123456",

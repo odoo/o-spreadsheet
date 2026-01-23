@@ -1,6 +1,6 @@
 import { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
+import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { UuidGenerator } from "../helpers";
-import { AbstractChart, copyChartInOtherSheet } from "../helpers/figures/charts";
 import {
   ClipboardFigureData,
   ClipboardOptions,
@@ -14,7 +14,7 @@ import {
 type ClipboardContent = {
   figureId: UID;
   copiedFigure: Figure;
-  copiedChart: AbstractChart;
+  copiedChart: MyChart;
 };
 
 export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
@@ -58,7 +58,18 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
     const copy = clippedContent.copiedChart;
-    const copiedDefinition = copyChartInOtherSheet(this.getters, copy, sheetId);
+    let copiedDefinition = MyChart.fromDefinition(
+      this.getters,
+      sheetId,
+      copy.copyInSheetId(sheetId)
+    ).getDefinition();
+
+    // clean invalid ranges TODO improve this.
+    copiedDefinition = MyChart.fromStrDefinition(
+      this.getters,
+      sheetId,
+      copiedDefinition
+    ).getDefinition();
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
     const offset = { x: 0, y: 0 };

@@ -8,7 +8,7 @@ import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
 
 export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
-  ChartSidePanelProps<ComboChartDefinition>
+  ChartSidePanelProps<ComboChartDefinition<string>>
 > {
   static template = "o-spreadsheet-ComboChartDesignPanel";
   static components = {
