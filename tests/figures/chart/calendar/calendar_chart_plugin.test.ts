@@ -4,8 +4,13 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
-import { CalendarChart } from "../../../../src/helpers/figures/charts/calendar_chart";
-import { createCalendarChart, createSheet, setCellContent, setFormat } from "../../../test_helpers";
+import {
+  createCalendarChart,
+  createChartDefinitionFromContext,
+  createSheet,
+  setCellContent,
+  setFormat,
+} from "../../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   toChartDataSource,
@@ -172,7 +177,7 @@ describe("calendar chart", () => {
         dataSetsHaveTitle: true,
       }),
     };
-    const definition = CalendarChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("calendar", context);
     expect(definition).toEqual({
       type: "calendar",
       background: "#123456",

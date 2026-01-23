@@ -1,10 +1,8 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  getCreationContextFromDataSource,
-  getDataSourceFromContextCreation,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
   ChartData,
@@ -15,7 +13,7 @@ import {
   WaterfallChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import type { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -48,11 +46,17 @@ export class WaterfallChart extends AbstractChart {
     "showValues",
   ] as const;
 
-  constructor(private definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: WaterfallChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): WaterfallChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): WaterfallChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -72,16 +76,14 @@ export class WaterfallChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      dataSetStyles: definition.dataSetStyles,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: WaterfallChartDefinition<string>
+  ): ChartCreationContext {
+    return definition;
   }
 
-  getDefinition(): WaterfallChartDefinition {
+  getRangeDefinition(): WaterfallChartDefinition {
     return this.definition;
   }
 
@@ -96,7 +98,7 @@ export function createWaterfallChartRuntime(
   chart: WaterfallChart,
   data: ChartData
 ): WaterfallChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getBarChartData(definition, data, getters);
 
   const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
