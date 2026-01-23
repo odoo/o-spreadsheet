@@ -2,13 +2,13 @@ import { _t, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { ChartWithDataSetDefinition } from "../../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../../types";
 import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
 export class ChartLegend extends Component<
-  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  ChartSidePanelProps<ChartDefinitionWithDataSource<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-ChartLegend";

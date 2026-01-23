@@ -1,8 +1,8 @@
 import {
   BarChartDefinition,
   BarChartRuntime,
+  ChartDefinitionWithDataSource,
   ChartWithAxisDefinition,
-  ChartWithDataSetDefinition,
   LineChartDefinition,
   LineChartRuntime,
   PieChartRuntime,
@@ -279,7 +279,7 @@ describe("datasource tests", function () {
       "1"
     );
     expect(
-      (model.getters.getChartDefinition("1") as LineChartDefinition)?.dataSource.dataSets
+      (model.getters.getChartDefinition("1") as LineChartDefinition<string>)?.dataSource.dataSets
     ).toMatchObject([{ dataRange: "8:8" }, { dataRange: "A:A" }, { dataRange: "B:B" }]);
   });
 
@@ -559,7 +559,7 @@ describe("datasource tests", function () {
       "1"
     );
     addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("1") as LineChartDefinition;
+    const chart = model.getters.getChartDefinition("1");
     expect(chart).toMatchObject({
       ...toChartDataSource({
         dataSets: [{ dataRange: "D1:D4" }, { dataRange: "E1:E4" }],
@@ -702,7 +702,7 @@ describe("datasource tests", function () {
     );
     updateChartDataSource(model, "1", { labelRange: undefined });
     expect(
-      (model.getters.getChartDefinition("1") as LineChartDefinition).dataSource.labelRange
+      (model.getters.getChartDefinition("1") as LineChartDefinition<string>).dataSource.labelRange
     ).toBeUndefined();
   });
 
@@ -1300,7 +1300,7 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
-    const newChart = model.getters.getChartDefinition(duplicatedChartId) as BarChartDefinition;
+    const newChart = model.getters.getChartDefinition(duplicatedChartId);
     expect(newChart).toMatchObject(
       toChartDataSource({
         dataSets: dataSets,
@@ -1423,7 +1423,7 @@ describe("datasource tests", function () {
       "1"
     );
     deleteColumns(model, ["A", "B"]);
-    const def = model.getters.getChartDefinition("1") as LineChartDefinition;
+    const def = model.getters.getChartDefinition("1");
     expect(def).toMatchObject({
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A4", dataSetId: "1" }],
@@ -1990,7 +1990,7 @@ describe("undo/redo", () => {
 });
 
 describe("Chart without labels", () => {
-  const defaultChart: BarChartDefinition = {
+  const defaultChart: BarChartDefinition<string> = {
     background: "#FFFFFF",
     ...toChartDataSource({
       dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
@@ -2376,7 +2376,7 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each<ChartWithDataSetDefinition["type"]>(["bar", "line", "scatter", "combo"])(
+    test.each<ChartDefinitionWithDataSource["type"]>(["bar", "line", "scatter", "combo"])(
       "%s chart: both Y axis can have different formats, which are applied to the ticks and tooltips",
       (chartType) => {
         createChart(
@@ -2858,7 +2858,7 @@ describe("Chart design configuration", () => {
 });
 
 describe("Chart aggregate labels", () => {
-  let aggregatedChart: BarChartDefinition;
+  let aggregatedChart: BarChartDefinition<string>;
   let aggregatedModel: Model;
 
   beforeEach(() => {

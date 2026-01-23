@@ -1,6 +1,6 @@
 import { ChartDefinition, DispatchResult, UID } from "../../..";
 
-export interface ChartSidePanelProps<T extends ChartDefinition> {
+export interface ChartSidePanelProps<T extends ChartDefinition<string>> {
   chartId: UID;
   definition: T;
   canUpdateChart: (chartId: UID, definition: Partial<T>) => DispatchResult;
