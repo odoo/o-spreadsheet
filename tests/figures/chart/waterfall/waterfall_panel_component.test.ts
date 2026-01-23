@@ -21,8 +21,8 @@ let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition {
-  return model.getters.getChartDefinition(chartId) as WaterfallChartDefinition;
+function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as WaterfallChartDefinition<string>;
 }
 
 describe("Waterfall chart side panel", () => {

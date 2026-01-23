@@ -16,7 +16,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 export class PieChartDesignPanel extends Component<
-  ChartSidePanelProps<PieChartDefinition>,
+  ChartSidePanelProps<PieChartDefinition<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-PieChartDesignPanel";
@@ -41,7 +41,7 @@ export class PieChartDesignPanel extends Component<
   }
 
   get isLegendDisabled() {
-    return !this.props.definition.labelRange;
+    return !this.props.definition.dataSource.labelRange;
   }
 
   get labels(): string[] {

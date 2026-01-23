@@ -25,7 +25,7 @@ import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
 export class WaterfallChartDesignPanel extends Component<
-  ChartSidePanelProps<WaterfallChartDefinition>,
+  ChartSidePanelProps<WaterfallChartDefinition<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
@@ -70,21 +70,21 @@ export class WaterfallChartDesignPanel extends Component<
 
   get positiveValuesColor() {
     return (
-      (this.props.definition as WaterfallChartDefinition).positiveValuesColor ||
+      (this.props.definition as WaterfallChartDefinition<string>).positiveValuesColor ||
       CHART_WATERFALL_POSITIVE_COLOR
     );
   }
 
   get negativeValuesColor() {
     return (
-      (this.props.definition as WaterfallChartDefinition).negativeValuesColor ||
+      (this.props.definition as WaterfallChartDefinition<string>).negativeValuesColor ||
       CHART_WATERFALL_NEGATIVE_COLOR
     );
   }
 
   get subTotalValuesColor() {
     return (
-      (this.props.definition as WaterfallChartDefinition).subTotalValuesColor ||
+      (this.props.definition as WaterfallChartDefinition<string>).subTotalValuesColor ||
       CHART_WATERFALL_SUBTOTAL_COLOR
     );
   }

@@ -1,5 +1,4 @@
 import { ChartCreationContext, ChartJSRuntime, Model } from "../../../../src";
-import { PyramidChart } from "../../../../src/helpers/figures/charts/pyramid_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
@@ -8,6 +7,7 @@ import {
 } from "../../../test_helpers/chart_helpers";
 import {
   createChart,
+  createChartDefinitionFromContext,
   setCellContent,
   setFormat,
   updateChart,
@@ -24,7 +24,7 @@ describe("population pyramid chart", () => {
         labelRange: "Sheet1!A1:A4",
       }),
     };
-    const definition = PyramidChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("pyramid", context);
     expect(definition).toEqual({
       type: "pyramid",
       background: "#123456",

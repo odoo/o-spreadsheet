@@ -1,5 +1,4 @@
 import { ChartCreationContext, Model } from "../../../src";
-import { LineChart } from "../../../src/helpers/figures/charts";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
@@ -7,7 +6,12 @@ import {
   isChartAxisStacked,
   toChartDataSource,
 } from "../../test_helpers/chart_helpers";
-import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
+import {
+  createChart,
+  createChartDefinitionFromContext,
+  setCellContent,
+  updateChart,
+} from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("line chart", () => {
@@ -20,7 +24,7 @@ describe("line chart", () => {
         dataSetsHaveTitle: true,
       }),
     };
-    const definition = LineChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("line", context);
     expect(definition).toEqual({
       type: "line",
       background: "#123456",

@@ -1,6 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
-import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { CommandResult, Model } from "../../src";
 import { UID } from "../../src/types";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -242,7 +241,7 @@ describe("chart specific Clipboard test", () => {
       chartId,
       toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" })
     );
-    const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const chartDef = model.getters.getChartDefinition(chartId);
     selectFigure(model, model.getters.getFigureIdFromChartId(chartId));
     copy(model);
     createSheet(model, { sheetId: "42" });
