@@ -220,8 +220,8 @@ describe("Carousel figure", () => {
 
     createChart(model, { type: "radar" }, "chartId2", undefined, { figureId: "chartFigureId" });
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
-
-    const newModel = new Model(model.exportData());
+    const data = model.exportData();
+    const newModel = new Model(data);
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([

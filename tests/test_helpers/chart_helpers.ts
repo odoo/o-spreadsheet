@@ -60,12 +60,12 @@ interface CoucouInputWithTitle extends CoucouInput {
 }
 
 interface CoucouOutput {
-  dataSource: ChartRangeDataSource;
+  dataSource: ChartRangeDataSource<string>;
   dataSetStyles: Record<string, CustomizedDataSet>;
 }
 
 interface CoucouOutputWithTitle {
-  dataSource: ChartRangeDataSource;
+  dataSource: ChartRangeDataSource<string>;
   dataSetStyles: DataSetStyle | ComboChartDataSetStyle;
 }
 

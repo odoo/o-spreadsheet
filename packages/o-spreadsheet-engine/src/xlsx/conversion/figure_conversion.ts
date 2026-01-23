@@ -81,7 +81,7 @@ function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImag
   return "imageSrc" in data;
 }
 
-function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
+function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<string> | undefined {
   const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
   const dataSetsStyling: DataSetStyle = {};
   const labelRange = chartData.labelRange
@@ -108,7 +108,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    dataSource: { dataSets, dataSetsHaveTitle, labelRange },
+    dataSource: { dataSets, dataSetsHaveTitle, labelRange, type: "range" },
     dataSetStyles: dataSetsStyling,
     auxiliaryRange: labelRange,
     title: chartData.title ?? { text: "" },

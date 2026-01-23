@@ -709,7 +709,7 @@ describe("Collaborative Sheet manipulation", () => {
 
   describe("Chart creation & update", () => {
     const chartId = "42";
-    const chartDef: BarChartDefinition = {
+    const chartDef: BarChartDefinition<string> = {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "F1:F3" }],
         labelRange: "F3",

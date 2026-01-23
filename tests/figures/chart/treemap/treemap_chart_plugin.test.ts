@@ -1,8 +1,8 @@
 import { TreeMapChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator, lightenColor } from "../../../../src/helpers";
-import { TreeMapChart } from "../../../../src/helpers/figures/charts/tree_map_chart";
 import {
+  createChartDefinitionFromContext,
   createSunburstChart,
   createTreeMapChart,
   hideColumns,
@@ -79,19 +79,22 @@ describe("TreeMap chart", () => {
       }),
       auxiliaryRange: "Sheet1!A1:A4",
     };
-    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("treemap", context);
     expect(definition).toMatchObject({
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A4" }],
         labelRange: "Sheet1!B1:B4",
       }),
     });
-    const chart = new TreeMapChart(definition, "Sheet1", model.getters);
-    expect(chart.getContextCreation()).toMatchObject({
+    const chartId = createTreeMapChart(model, definition);
+    expect(model.getters.getChart(chartId)?.getContextCreation()).toMatchObject({
+      hierarchicalDataSource: {
+        dataSets: [{ dataRange: "A1:A4" }],
+      },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
       }),
-      auxiliaryRange: "Sheet1!A1:A4",
+      auxiliaryRange: "A1:A4",
     });
   });
 
@@ -104,7 +107,7 @@ describe("TreeMap chart", () => {
       }),
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
-    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("treemap", context);
     expect(definition).toMatchObject({
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],
@@ -132,7 +135,7 @@ describe("TreeMap chart", () => {
       valuesDesign: { italic: true },
       treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
     };
-    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("treemap", context);
     expect(definition).toEqual({
       type: "treemap",
       background: "#123456",
