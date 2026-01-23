@@ -3,7 +3,7 @@ import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/c
 
 export class FunnelChartConfigPanel extends GenericChartConfigPanel {
   getLabelRangeOptions() {
-    const definition = this.props.definition as FunnelChartDefinition;
+    const definition = this.props.definition as FunnelChartDefinition<string>;
     return [
       {
         name: "aggregated",

@@ -27,8 +27,8 @@ import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/run
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
   CHART_TYPES,
+  ChartDefinitionWithDataSource,
   ChartType,
-  ChartWithDataSetDefinition,
   CreateFigureCommand,
   UID,
 } from "../../../src/types";
@@ -324,7 +324,9 @@ describe("charts", () => {
       case "combo":
       case "basicChart":
         await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
-        const definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        const definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource;
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
           figureId: expect.any(String),
           chartId,
@@ -945,7 +947,7 @@ describe("charts", () => {
       await mountChartSidePanel();
 
       expect(
-        (model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition)?.dataSource
+        (model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource)?.dataSource
           .labelRange
       ).not.toBeUndefined();
 
@@ -953,7 +955,7 @@ describe("charts", () => {
       await setInputValueAndTrigger(".o-data-labels input", "");
       await simulateClick(".o-data-labels .o-selection-ok");
       expect(
-        (model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition)?.dataSource
+        (model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource)?.dataSource
           .labelRange
       ).toBeUndefined();
     }
@@ -2367,7 +2369,7 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets.length).toEqual(1);
 
         await simulateClick(checkbox);
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 1,
@@ -2377,7 +2379,7 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets.length).toEqual(2);
 
         await simulateClick(checkbox);
-        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 1,
@@ -2409,7 +2411,7 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(definition).toMatchObject(
           toChartDataSource({
             dataSets: [
@@ -2422,7 +2424,7 @@ describe("charts", () => {
 
         for (const trendType of ["exponential", "logarithmic", "linear", "trailingMovingAverage"]) {
           await editSelectComponent(".trend-type-selector", trendType);
-          definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+          definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
           if (trendType === "linear") {
             expect(Object.values(definition.dataSetStyles)[0].trend?.type).toEqual("polynomial");
             expect(Object.values(definition.dataSetStyles)[0].trend?.order).toEqual(1);
@@ -2454,7 +2456,7 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 3,
@@ -2462,7 +2464,7 @@ describe("charts", () => {
         });
 
         await editSelectComponent(".trend-order-input", "2");
-        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(Object.values(definition.dataSetStyles)[0].trend?.order).toEqual(2);
       }
     );
@@ -2491,7 +2493,7 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "trailingMovingAverage",
           window: 2,
@@ -2500,7 +2502,7 @@ describe("charts", () => {
 
         setInputValueAndTrigger(".trend-window-input", "3");
         await nextTick();
-        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        definition = model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource;
         expect(Object.values(definition.dataSetStyles)[0].trend?.window).toEqual(3);
       }
     );

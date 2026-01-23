@@ -1,8 +1,8 @@
 import {
   BarChartDefinition,
   BarChartRuntime,
+  ChartDefinitionWithDataSource,
   ChartWithAxisDefinition,
-  ChartWithDataSetDefinition,
   LineChartDefinition,
   LineChartRuntime,
   PieChartRuntime,
@@ -2376,7 +2376,7 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each<ChartWithDataSetDefinition["type"]>(["bar", "line", "scatter", "combo"])(
+    test.each<ChartDefinitionWithDataSource["type"]>(["bar", "line", "scatter", "combo"])(
       "%s chart: both Y axis can have different formats, which are applied to the ticks and tooltips",
       (chartType) => {
         createChart(

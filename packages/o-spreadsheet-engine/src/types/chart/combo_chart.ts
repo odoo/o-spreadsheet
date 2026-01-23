@@ -1,9 +1,11 @@
 import { ChartConfiguration } from "chart.js";
 import { Color, UID } from "../misc";
+import { Range } from "../range";
 import { CustomizedDataSet } from "./chart";
 import { CommonChartDefinition } from "./common_chart";
 
-export interface ComboChartDefinition extends CommonChartDefinition {
+export interface ComboChartDefinition<T extends string | Range = Range>
+  extends CommonChartDefinition<T> {
   readonly dataSetStyles: ComboChartDataSetStyle;
   readonly type: "combo";
   readonly hideDataMarkers?: boolean;

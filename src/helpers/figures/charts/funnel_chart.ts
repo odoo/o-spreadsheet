@@ -1,10 +1,7 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  getCreationContextFromDataSource,
-  getDataSourceFromContextCreation,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
@@ -13,7 +10,7 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -40,11 +37,17 @@ export class FunnelChart extends AbstractChart {
     "cumulative",
   ] as const;
 
-  constructor(private definition: FunnelChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: FunnelChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): FunnelChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): FunnelChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -62,12 +65,8 @@ export class FunnelChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: FunnelChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
   getDefinition(): FunnelChartDefinition {

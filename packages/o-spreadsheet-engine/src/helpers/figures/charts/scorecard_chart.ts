@@ -193,11 +193,8 @@ export class ScorecardChart extends AbstractChart {
     this.humanize = definition.humanize ?? true;
   }
 
-  static validateChartDefinition(
-    validator: Validator,
-    definition: ScorecardChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkKeyValue, checkBaseline);
+  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
+    return validator.checkValidations(this.getDefinition(), checkKeyValue, checkBaseline);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScorecardChartDefinition {
@@ -211,6 +208,7 @@ export class ScorecardChart extends AbstractChart {
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
       humanize: context.humanize,
+      dataSource: { type: "never" },
     };
   }
 
@@ -246,11 +244,10 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChart {
+  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChartDefinition {
     const baseline = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.baseline);
     const keyValue = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.keyValue);
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
-    return new ScorecardChart(definition, newSheetId, this.getters);
+    return this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
   }
 
   copyInSheetId(sheetId: UID): ScorecardChart {
@@ -260,6 +257,10 @@ export class ScorecardChart extends AbstractChart {
 
   getDefinition(): ScorecardChartDefinition {
     return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue);
+  }
+
+  getStrDefinition(): ScorecardChartDefinition {
+    return this.getDefinition();
   }
 
   getContextCreation(): ChartCreationContext {
@@ -294,6 +295,7 @@ export class ScorecardChart extends AbstractChart {
         : undefined,
       keyDescr: this.keyDescr,
       humanize: this.humanize,
+      dataSource: { type: "never" },
     };
   }
 

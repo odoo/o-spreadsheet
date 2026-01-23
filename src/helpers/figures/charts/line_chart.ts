@@ -3,7 +3,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -19,7 +18,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -50,11 +49,13 @@ export class LineChart extends AbstractChart {
     "zoomable",
   ] as const;
 
-  constructor(private definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: LineChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): LineChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -79,15 +80,11 @@ export class LineChart extends AbstractChart {
     return this.definition;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: LineChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {

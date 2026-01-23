@@ -19,7 +19,7 @@ import {
   BorderData,
   Carousel,
   ChartDefinition,
-  ChartWithDataSetDefinition,
+  ChartDefinitionWithDataSource,
   ClipboardPasteOptions,
   Color,
   ConditionalFormatRule,
@@ -224,7 +224,7 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: { type: ChartDefinition["type"] } & Partial<ChartWithDataSetDefinition>,
+  data: { type: ChartDefinition["type"] } & Partial<ChartDefinitionWithDataSource>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}

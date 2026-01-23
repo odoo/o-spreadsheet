@@ -1,8 +1,8 @@
 import {
   ChartCreationContext,
   ChartDefinition,
+  ChartDefinitionWithDataSource,
   ChartType,
-  ChartWithDataSetDefinition,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
@@ -12,15 +12,10 @@ import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
 import { RangeAdapterFunctions, UID } from "../../../types/misc";
+import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
 import { getZoneArea } from "../../zones";
-import {
-  createDataSets,
-  shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
-} from "./chart_common";
+import { shouldRemoveFirstLabel, toExcelDataset, toExcelLabelRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -39,9 +34,13 @@ export abstract class AbstractChart {
     "background",
     "humanize",
   ];
-  static dataSetKeys: readonly (keyof ChartWithDataSetDefinition)[] = ["dataSetStyles"];
+  static dataSetKeys: readonly (keyof ChartDefinitionWithDataSource)[] = ["dataSetStyles"];
 
-  constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    definition: Pick<ChartDefinition, "title" | "humanize">,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;
@@ -52,10 +51,7 @@ export abstract class AbstractChart {
    * Validate the chart definition given as arguments. This function will be
    * called from allowDispatch function
    */
-  static validateChartDefinition(
-    validator: Validator,
-    definition: ChartDefinition
-  ): CommandResult | CommandResult[] {
+  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
     throw new Error("This method should be implemented by sub class");
   }
 
@@ -74,14 +70,18 @@ export abstract class AbstractChart {
   /**
    * Get an empty definition based on the given context
    */
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition {
+  static getDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition<string> {
     throw new Error("This method should be implemented by sub class");
   }
 
   /**
    * Get the definition of the chart
    */
-  abstract getDefinition(): ChartDefinition;
+  abstract getDefinition(): ChartDefinition<Range>;
+
+  getStrDefinition(): Omit<ChartDefinition<string>, "dataSource"> {
+    return this.getDefinition();
+  }
 
   /**
    * Get the definition of the chart that will be used for excel export.
@@ -101,8 +101,8 @@ export abstract class AbstractChart {
    * Duplicate the chart when a sheet is duplicated.
    * The ranges that are in the same sheet as the chart are adapted to the new sheetId.
    */
-  duplicateInDuplicatedSheet(newSheetId: UID): AbstractChart {
-    return this;
+  duplicateInDuplicatedSheet(newSheetId: UID): ChartDefinition<Range> {
+    return this.getDefinition();
   }
 
   /**
@@ -116,15 +116,11 @@ export abstract class AbstractChart {
   /**
    * Extract the ChartCreationContext of the chart
    */
-  abstract getContextCreation(): ChartCreationContext;
+  abstract getContextCreation(definition: ChartDefinition<string>): ChartCreationContext;
 
-  protected getCommonDataSetAttributesForExcel(definition: ChartWithDataSetDefinition) {
-    const dataSets = createDataSets(this.getters, this.sheetId, definition.dataSource);
-    const labelRange = createValidRange(
-      this.getters,
-      this.sheetId,
-      definition.dataSource.labelRange
-    );
+  protected getCommonDataSetAttributesForExcel(definition: ChartDefinitionWithDataSource) {
+    const dataSets = definition.dataSource.dataSets;
+    const labelRange = definition.dataSource.labelRange;
     const excelDataSets: ExcelChartDataset[] = dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);

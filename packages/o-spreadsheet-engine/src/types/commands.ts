@@ -558,7 +558,7 @@ interface BaseFigureCommand extends PositionDependentCommand {
 export interface CreateChartCommand {
   type: "CREATE_CHART";
   chartId: UID;
-  definition: ChartDefinition;
+  definition: ChartDefinition<string>;
   sheetId: UID;
   figureId: UID;
   offset?: PixelPosition;
@@ -571,7 +571,7 @@ export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   figureId: UID;
   chartId: UID;
-  definition: ChartDefinition;
+  definition: ChartDefinition<string>;
 }
 
 export interface DeleteChartCommand extends SheetDependentCommand {

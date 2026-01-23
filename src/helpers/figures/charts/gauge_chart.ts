@@ -142,12 +142,9 @@ export class GaugeChart extends AbstractChart {
     this.background = definition.background;
   }
 
-  static validateChartDefinition(
-    validator: Validator,
-    definition: GaugeChartDefinition
-  ): CommandResult | CommandResult[] {
+  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
     return validator.checkValidations(
-      definition,
+      this.getDefinition(),
       isDataRangeValid,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
@@ -209,10 +206,11 @@ export class GaugeChart extends AbstractChart {
         },
       },
       humanize: context.humanize,
+      dataSource: { type: "never" },
     };
   }
 
-  duplicateInDuplicatedSheet(newSheetId: UID): GaugeChart {
+  duplicateInDuplicatedSheet(newSheetId: UID): GaugeChartDefinition {
     const dataRange = duplicateLabelRangeInDuplicatedSheet(
       this.sheetId,
       newSheetId,
@@ -224,8 +222,7 @@ export class GaugeChart extends AbstractChart {
 
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
 
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
-    return new GaugeChart(definition, newSheetId, this.getters);
+    return this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {
@@ -239,6 +236,10 @@ export class GaugeChart extends AbstractChart {
 
   getDefinition(): GaugeChartDefinition {
     return this.getDefinitionWithSpecificRanges(this.dataRange, this.sectionRule);
+  }
+
+  getStrDefinition(): GaugeChartDefinition {
+    return this.getDefinition();
   }
 
   private getDefinitionWithSpecificRanges(
@@ -255,6 +256,7 @@ export class GaugeChart extends AbstractChart {
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
       humanize: this.humanize,
+      dataSource: { type: "never" },
     };
   }
 
@@ -263,8 +265,7 @@ export class GaugeChart extends AbstractChart {
     return undefined;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
+  getContextCreation(definition: GaugeChartDefinition): ChartCreationContext {
     return {
       ...definition,
       dataSource: {

@@ -3,7 +3,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -19,6 +18,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import {
@@ -48,11 +48,13 @@ export class BarChart extends AbstractChart {
     "zoomable",
   ] as const;
 
-  constructor(private definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: BarChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): BarChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -70,19 +72,19 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: BarChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
   getDefinition(): BarChartDefinition {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+  getStrDefinition() {
+    return this.definition;
+  }
+
+  getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {

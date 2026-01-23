@@ -1,9 +1,11 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
+import { Range } from "../range";
 import { ChartColorScale, ChartRuntimeGenerationArgs } from "./chart";
 import { CommonChartDefinition } from "./common_chart";
 
-export interface GeoChartDefinition extends CommonChartDefinition {
+export interface GeoChartDefinition<T extends string | Range = Range>
+  extends CommonChartDefinition<T> {
   readonly type: "geo";
   readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;

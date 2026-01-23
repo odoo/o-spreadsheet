@@ -13,7 +13,7 @@ import {
   TreeMapChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -45,12 +45,18 @@ export class TreeMapChart extends AbstractChart {
     "showValues",
   ] as const;
 
-  constructor(private definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: TreeMapChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
-    let dataSource: ChartRangeDataSource = {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): TreeMapChartDefinition<string> {
+    let dataSource: ChartRangeDataSource<string> = {
       type: "range",
       dataSets: [],
       dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
@@ -81,8 +87,7 @@ export class TreeMapChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
+  getContextCreation(definition: TreeMapChartDefinition<string>): ChartCreationContext {
     const leafRange = definition.dataSource.dataSets.at(-1)?.dataRange;
     const dataSetsHaveTitle = definition.dataSource.dataSetsHaveTitle;
     return {

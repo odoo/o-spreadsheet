@@ -4,7 +4,6 @@ import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_eval
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -20,7 +19,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
@@ -48,11 +47,17 @@ export class PyramidChart extends AbstractChart {
     "horizontal",
   ] as const;
 
-  constructor(private definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: PyramidChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): PyramidChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): PyramidChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -69,12 +74,8 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: PyramidChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
   getDefinition(): PyramidChartDefinition {

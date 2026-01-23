@@ -3,7 +3,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -18,7 +17,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -43,11 +42,13 @@ export class PieChart extends AbstractChart {
     "showValues",
   ] as const;
 
-  constructor(private definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: PieChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): PieChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -67,15 +68,11 @@ export class PieChart extends AbstractChart {
     return this.definition;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: PieChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {

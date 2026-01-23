@@ -3,7 +3,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -19,7 +18,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -46,11 +45,17 @@ export class ScatterChart extends AbstractChart {
     "zoomable",
   ] as const;
 
-  constructor(private definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: ScatterChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ScatterChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): ScatterChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -71,12 +76,8 @@ export class ScatterChart extends AbstractChart {
     return this.definition;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: ScatterChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {

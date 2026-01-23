@@ -13,7 +13,7 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -39,16 +39,22 @@ export class SunburstChart extends AbstractChart {
     "pieHolePercentage",
   ] as const;
 
-  constructor(private definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: SunburstChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): SunburstChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): SunburstChartDefinition<string> {
     let labelRange = context.dataSource?.dataSets?.[0]?.dataRange;
     if (!labelRange) {
       labelRange = context.auxiliaryRange;
     }
-    let dataSource: ChartRangeDataSource = {
+    let dataSource: ChartRangeDataSource<string> = {
       type: "range",
       dataSetsHaveTitle: false,
       ...context.dataSource,
@@ -84,10 +90,9 @@ export class SunburstChart extends AbstractChart {
     return this.definition;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
+  getContextCreation(definition: SunburstChartDefinition<string>): ChartCreationContext {
     const leafRange = definition.dataSource.dataSets.at(-1)?.dataRange;
-    const dataSetsHaveTitle = this.definition.dataSource.dataSetsHaveTitle;
+    const dataSetsHaveTitle = definition.dataSource.dataSetsHaveTitle;
     return {
       ...definition,
       dataSource: definition.dataSource.labelRange

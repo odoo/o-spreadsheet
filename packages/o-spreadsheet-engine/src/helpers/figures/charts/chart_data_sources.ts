@@ -1,24 +1,32 @@
-import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
+import { CoreGetters, RangeAdapterFunctions, UID, Validator } from "../../..";
+import {
+  ChartDataSourceHandler,
+  chartDataSourceRegistry,
+} from "../../../registries/chart_data_source_registry";
+import { ChartCreationContext, ChartDataSource, ChartRangeDataSource } from "../../../types/chart";
 import { createValidRange } from "../../range";
 import {
   checkDataset,
   checkLabelRange,
-  copyChartDataSourceInSheetId,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 
-chartDataSourceRegistry.add("range", {
-  validate: (validator, dataSource) =>
-    validator.checkValidations(dataSource, checkDataset, checkLabelRange),
-  adaptRanges: updateChartRangesWithDataSets,
-  duplicateInDuplicatedSheet: duplicateDataSourceInDuplicatedSheet,
-  copyInSheetId: copyChartDataSourceInSheetId,
-  getContextCreation: (dataSource) => {
-    return { auxiliaryRange: dataSource.labelRange };
-  },
-  fromContextCreation(context) {
+export class ChartRangeDataSourceHandler implements ChartDataSourceHandler {
+  constructor(readonly dataSource: ChartRangeDataSource) {}
+
+  static fromRangeStr(
+    getters: CoreGetters,
+    defaultSheetId: UID,
+    dataSource: ChartRangeDataSource<string>
+  ): ChartRangeDataSourceHandler {
+    const dataSets = createDataSets(getters, defaultSheetId, dataSource);
+    const labelRange = createValidRange(getters, defaultSheetId, dataSource.labelRange);
+    return new ChartRangeDataSourceHandler({ ...dataSource, dataSets, labelRange });
+  }
+
+  static fromContextCreation(context: ChartCreationContext): ChartRangeDataSource<string> {
     return {
       type: "range",
       dataSets: [],
@@ -26,20 +34,42 @@ chartDataSourceRegistry.add("range", {
       labelRange: context.auxiliaryRange,
       ...context.dataSource,
     };
-  },
-  postProcess: (getters, sheetId, dataSource) => {
-    const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
-    const dataSets = createDataSets(getters, sheetId, dataSource);
+  }
+
+  validate(validator: Validator) {
+    return validator.checkValidations(this.dataSource, checkDataset, checkLabelRange);
+  }
+
+  adaptRanges(rangeAdapters: RangeAdapterFunctions) {
+    return updateChartRangesWithDataSets(rangeAdapters, this.dataSource);
+  }
+
+  getStrDefinition(getters: CoreGetters, defaultSheetId: UID): ChartDataSource<string> {
     return {
-      ...dataSource,
-      dataSets: dataSets.map((ds) => {
-        return {
-          dataSetId: ds.dataSetId,
-          dataRange: getters.getRangeString(ds.dataRange, sheetId),
-        };
-      }),
-      labelRange: labelRange && getters.getRangeString(labelRange, sheetId),
+      labelRange: this.dataSource.labelRange
+        ? getters.getRangeString(this.dataSource.labelRange, defaultSheetId)
+        : undefined,
+      type: "range",
+      dataSets: this.dataSource.dataSets.map((dataSet) => ({
+        dataSetId: dataSet.dataSetId,
+        dataRange: getters.getRangeString(dataSet.dataRange, defaultSheetId),
+      })),
+      dataSetsHaveTitle: this.dataSource.dataSetsHaveTitle,
     };
-  },
-  allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],
-});
+  }
+
+  duplicateInDuplicatedSheet(
+    getters: CoreGetters,
+    sheetIdFrom: UID,
+    sheetIdTo: UID
+  ): ChartRangeDataSource {
+    return duplicateDataSourceInDuplicatedSheet(getters, sheetIdFrom, sheetIdTo, this.dataSource);
+  }
+
+  getContextCreation(dataSource: ChartRangeDataSource<string>): ChartCreationContext {
+    return { auxiliaryRange: dataSource.labelRange };
+  }
+}
+
+chartDataSourceRegistry.add("range", ChartRangeDataSourceHandler);
+// allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],

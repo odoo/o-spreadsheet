@@ -5,7 +5,7 @@ import { Component } from "@odoo/owl";
 import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
-  ChartWithDataSetDefinition,
+  ChartDefinitionWithDataSource,
   Color,
   CustomisableSeriesChartRuntime,
   TrendConfiguration,
@@ -20,7 +20,7 @@ import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
-interface Props extends ChartSidePanelProps<ChartWithDataSetDefinition> {
+interface Props extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> {
   slots?: object;
 }
 

@@ -3,7 +3,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -20,6 +19,7 @@ import {
   ChartData,
   ExcelChartDefinition,
   Getters,
+  Range,
   UID,
 } from "../../../types";
 import {
@@ -48,16 +48,12 @@ export class ComboChart extends AbstractChart {
     "zoomable",
   ] as const;
 
-  constructor(private definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: ComboChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(definition: ComboChartDefinition<string>): ChartCreationContext {
+    return definition;
   }
 
   getDefinition(): ComboChartDefinition {
@@ -77,7 +73,9 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): ComboChartDefinition<string> {
     const dataSetStyles: ComboChartDataSetStyle = {};
     const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
     for (const dataSet of context.dataSource?.dataSets || []) {
