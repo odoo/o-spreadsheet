@@ -1,21 +1,19 @@
+import { rangeReference } from "../..";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
-import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
   ChartCreationContext,
-  ChartDataSource,
+  ChartDefinitionWithDataSource,
   ChartRangeDataSource,
-  ChartWithDataSetDefinition,
   DataSet,
+  DataSetStyle,
   DatasetValues,
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
-  GenericDefinition,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
-import { CellErrorType } from "../../../types/errors";
 import { LocaleFormat } from "../../../types/format";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
@@ -27,9 +25,7 @@ import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
-import { rangeReference } from "../../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
-import { AbstractChart } from "./abstract_chart";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -49,36 +45,46 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  * Adapt ranges of a chart which support DataSet (dataSets and LabelRange).
  */
 export function updateChartRangesWithDataSets(
-  { adaptRangeString }: RangeAdapterFunctions,
-  sheetId: UID,
+  { applyChange }: RangeAdapterFunctions,
   dataSource: ChartRangeDataSource
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
-    .map((ds) => {
-      const { range: adaptedRangeStr, changeType } = adaptRangeString(sheetId, ds.dataRange);
+    // FIXME: I'm cheating here. ds is not supposed to be a DataSet, but a dataSet from definition
+    .map((ds: DataSet) => {
+      const { range: adaptedRangeStr, changeType } = applyChange(ds.dataRange);
       if (changeType === "REMOVE") {
         return undefined;
+      }
+      let labelCell: Range | undefined = undefined;
+      if (ds.labelCell) {
+        const { range: adaptedLabelCellRange, changeType: labelCellChangeType } = applyChange(
+          ds.labelCell
+        );
+        if (labelCellChangeType !== "REMOVE") {
+          labelCell = adaptedLabelCellRange;
+        }
       }
       return {
         ...ds,
         dataRange: adaptedRangeStr,
+        labelCell,
       };
     })
     .filter(isDefined);
   let labelRange = dataSource.labelRange;
   if (labelRange) {
-    const { range: adaptedLabelRangeStr, changeType } = adaptRangeString(sheetId, labelRange);
+    const { range: adaptedLabelRange, changeType } = applyChange(labelRange);
     if (changeType === "REMOVE") {
       labelRange = undefined;
     } else {
-      labelRange = adaptedLabelRangeStr;
+      labelRange = adaptedLabelRange;
     }
   }
   const dataSets = dataSetsWithUndefined;
   return {
     ...dataSource,
     dataSets,
-    labelRange: labelRange === CellErrorType.InvalidReference ? undefined : labelRange,
+    labelRange: labelRange?.invalidSheetName || labelRange?.invalidXc ? undefined : labelRange,
   };
 }
 
@@ -94,14 +100,11 @@ export function duplicateDataSourceInDuplicatedSheet(
 ): ChartRangeDataSource {
   return {
     ...dataSource,
-    dataSets: dataSource.dataSets.map((ds) => {
-      const range = getters.getRangeFromSheetXC(sheetIdFrom, ds.dataRange);
-      const newRange = duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range);
-      return {
-        ...ds,
-        dataRange: getters.getRangeString(newRange, sheetIdTo),
-      };
-    }),
+    labelRange: duplicateLabelRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, dataSource.labelRange),
+    dataSets: dataSource.dataSets.map((ds) => ({
+      ...ds,
+      dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
+    })),
   };
 }
 
@@ -117,63 +120,10 @@ export function duplicateLabelRangeInDuplicatedSheet(
   return range ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range) : undefined;
 }
 
-export function copyChartInOtherSheet(getters: CoreGetters, chart: AbstractChart, sheetId: UID) {
-  const definition = chart.copyInSheetId(sheetId).getDefinition();
-  if ("dataSource" in definition) {
-    return {
-      ...definition,
-      dataSource: copyChartDataSourceInSheetId(
-        getters,
-        chart.sheetId,
-        sheetId,
-        definition.dataSource
-      ),
-    };
-  }
-  return definition;
-}
-
-export function copyChartDataSourceInSheetId(
-  getters: CoreGetters,
-  sourceSheetId: UID,
-  targetSheetId: UID,
-  dataSource: ChartRangeDataSource
-): ChartRangeDataSource {
-  const labelRange = dataSource.labelRange
-    ? getters.getRangeFromSheetXC(sourceSheetId, dataSource.labelRange)
-    : undefined;
-  return {
-    ...dataSource,
-    labelRange:
-      labelRange && !labelRange.invalidXc
-        ? getters.getRangeString(labelRange, targetSheetId)
-        : undefined,
-    dataSets: dataSource.dataSets
-      .map((ds) => {
-        const range = getters.getRangeFromSheetXC(sourceSheetId, ds.dataRange);
-        if (range.invalidXc) {
-          return undefined;
-        }
-        return {
-          ...ds,
-          dataRange: getters.getRangeString(range, targetSheetId),
-        };
-      })
-      .filter(isDefined),
-  };
-}
-
-export function getCreationContextFromDataSource(
-  dataSource: ChartDataSource
-): ChartCreationContext {
-  return chartDataSourceRegistry.get(dataSource.type)?.getContextCreation(dataSource) ?? {};
-}
-
 export function getDataSourceFromContextCreation(
   context: ChartCreationContext
-): ChartRangeDataSource {
-  const type = context.dataSource?.type ?? "range";
-  const dataSource = chartDataSourceRegistry.get(type)?.fromContextCreation(context) ?? {
+): ChartRangeDataSource<string> {
+  const dataSource = context.dataSource ?? {
     type: "range",
     dataSets: [],
     dataSetsHaveTitle: false,
@@ -207,7 +157,7 @@ export function adaptChartRange(
 export function createDataSets(
   getters: CoreGetters,
   sheetId: UID,
-  dataSource: ChartRangeDataSource
+  dataSource: ChartRangeDataSource<string>
 ): DataSet[] {
   const dataSets: DataSet[] = [];
   for (const dataSet of dataSource.dataSets) {
@@ -299,7 +249,7 @@ function createDataSet(
  */
 export function toExcelDataset(
   getters: CoreGetters,
-  definition: ChartWithDataSetDefinition,
+  dataSetStyles: DataSetStyle,
   ds: DataSet
 ): ExcelChartDataset {
   const labelZone = ds.labelCell?.zone;
@@ -312,7 +262,7 @@ export function toExcelDataset(
       dataZone = { ...dataZone, top: dataZone.top + 1 };
     }
   }
-  const dataSetStyle = definition.dataSetStyles[ds.dataSetId] ?? {};
+  const dataSetStyle = dataSetStyles[ds.dataSetId] ?? {};
 
   const dataRange = createRange({ ...ds.dataRange, zone: dataZone }, getters.getSheetSize);
   let label = {};
@@ -373,11 +323,9 @@ export function toExcelLabelRange(
  * Transform a chart definition which supports dataSets (dataSets and LabelRange)
  * with an executed command
  */
-export function transformChartDefinitionWithDataSource<T extends ChartWithDataSetDefinition>(
-  chartSheetId: UID,
-  definition: T,
-  { adaptRangeString }: RangeAdapterFunctions
-): T {
+export function transformChartDefinitionWithDataSource<
+  T extends ChartDefinitionWithDataSource<string>
+>(chartSheetId: UID, definition: T, { adaptRangeString }: RangeAdapterFunctions): T {
   let labelRange: string | undefined;
   if (definition.dataSource.labelRange) {
     const { changeType, range: adaptedRange } = adaptRangeString(
@@ -389,7 +337,7 @@ export function transformChartDefinitionWithDataSource<T extends ChartWithDataSe
     }
   }
 
-  const dataSets: ChartRangeDataSource["dataSets"] = [];
+  const dataSets: ChartRangeDataSource<string>["dataSets"] = [];
   for (const dataSet of definition.dataSource.dataSets) {
     const newDataSet = { ...dataSet };
     const { changeType, range: adaptedRange } = adaptRangeString(chartSheetId, dataSet.dataRange);
@@ -428,7 +376,7 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }
 
-export function checkDataset(dataSource: ChartRangeDataSource): CommandResult {
+export function checkDataset(dataSource: ChartRangeDataSource<string>): CommandResult {
   const invalidRanges =
     dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
   if (invalidRanges) {
@@ -441,7 +389,7 @@ export function checkDataset(dataSource: ChartRangeDataSource): CommandResult {
   return CommandResult.Success;
 }
 
-export function checkLabelRange(dataSource: ChartRangeDataSource): CommandResult {
+export function checkLabelRange(dataSource: ChartRangeDataSource<string>): CommandResult {
   if (dataSource.labelRange) {
     const invalidLabels = !rangeReference.test(dataSource.labelRange || "");
     if (invalidLabels) {
@@ -473,7 +421,9 @@ export function getChartPositionAtCenterOfViewport(
   }; // Position at the center of the scrollable viewport
 }
 
-export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDefinition>): {
+export function getDefinedAxis(
+  definition: Partial<ChartDefinitionWithDataSource<string | Range>>
+): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {

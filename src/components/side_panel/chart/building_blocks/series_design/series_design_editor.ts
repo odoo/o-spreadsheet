@@ -1,14 +1,18 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
-import { ChartWithDataSetDefinition, CustomisableSeriesChartRuntime, ValueAndLabel } from "../../../../../types";
+import {
+  ChartDefinitionWithDataSource,
+  CustomisableSeriesChartRuntime,
+  ValueAndLabel,
+} from "../../../../../types";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-interface Props extends ChartSidePanelProps<ChartWithDataSetDefinition> {
+interface Props extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> {
   slots?: object;
 }
 
@@ -42,7 +46,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateEditedSeries(index: string) {
-    this.state.dataSetId = this.selectOptions[index]
+    this.state.dataSetId = this.selectOptions[index];
   }
 
   updateDataSeriesColor(color: string) {
@@ -82,7 +86,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get selectOptions(): ValueAndLabel[] {
-    return this.getDataSeries().map(({label, dataSetId}) => ({
+    return this.getDataSeries().map(({ label, dataSetId }) => ({
       value: dataSetId,
       label,
     }));

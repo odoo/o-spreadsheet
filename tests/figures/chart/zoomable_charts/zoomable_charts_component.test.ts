@@ -22,7 +22,7 @@ extendMockGetBoundingClientRect({
 function createTestChart(
   newChartId: UID = chartId,
   partialFigure: Partial<CreateFigureCommand> = {},
-  partialDefinition: Partial<LineChartDefinition> = {}
+  partialDefinition: Partial<LineChartDefinition<string>> = {}
 ) {
   createChart(
     model,
@@ -100,16 +100,18 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeUndefined();
 
     await simulateClick("input[name='zoomable']");
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeTruthy();
 
     await simulateClick("input[name='zoomable']");
-    expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable).toBeFalsy();
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
+    ).toBeFalsy();
   });
 
   test("Allowing zoom changes the definition and shows the master chart", async () => {
@@ -118,12 +120,12 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeUndefined();
 
     await simulateClick("input[name='zoomable']");
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeTruthy();
     expect(fixture.querySelector(".o-master-chart-container")).not.toBeNull();
   });
@@ -134,11 +136,13 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeDefined();
 
     await simulateClick("input[name='zoomable']");
-    expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable).toBeFalsy();
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
+    ).toBeFalsy();
     expect(fixture.querySelector(".o-master-chart-container")).toBeNull();
   });
 

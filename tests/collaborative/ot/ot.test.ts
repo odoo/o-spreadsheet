@@ -26,7 +26,7 @@ describe("OT with figures commands", () => {
     sheetId: "42",
     chartId: "chartId",
     figureId: "42",
-    definition: {} as LineChartDefinition,
+    definition: {} as LineChartDefinition<string>,
   };
   const updateFigure: Omit<UpdateFigureCommand, "figureId"> = {
     type: "UPDATE_FIGURE",

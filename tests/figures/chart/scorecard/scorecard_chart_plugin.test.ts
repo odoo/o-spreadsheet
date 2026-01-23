@@ -217,7 +217,7 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
 
-    const newChart = model.getters.getChart(duplicatedChartId) as ScorecardChart;
+    const newChart = model.getters.getChart(duplicatedChartId)?.chartTypeHandler as ScorecardChart;
     expect(newChart.title.text).toEqual("test");
     expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
     expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");

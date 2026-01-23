@@ -1,26 +1,17 @@
+import { ChartDataSourceHandler } from "../../../registries/chart_data_source_registry";
 import {
   ChartCreationContext,
   ChartDefinition,
+  ChartDefinitionWithDataSource,
   ChartType,
-  ChartWithDataSetDefinition,
-  DataSet,
-  ExcelChartDataset,
   ExcelChartDefinition,
   TitleDesign,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
-import { CellErrorType } from "../../../types/errors";
 import { RangeAdapterFunctions, UID } from "../../../types/misc";
+import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
-import { getZoneArea } from "../../zones";
-import {
-  createDataSets,
-  shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
-} from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -39,9 +30,13 @@ export abstract class AbstractChart {
     "background",
     "humanize",
   ];
-  static dataSetKeys: readonly (keyof ChartWithDataSetDefinition)[] = ["dataSetStyles"];
+  static dataSetKeys: readonly (keyof ChartDefinitionWithDataSource)[] = ["dataSetStyles"];
 
-  constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    definition: Pick<ChartDefinition, "title" | "humanize">,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;
@@ -54,9 +49,9 @@ export abstract class AbstractChart {
    */
   static validateChartDefinition(
     validator: Validator,
-    definition: ChartDefinition
+    definition: ChartDefinition<string>
   ): CommandResult | CommandResult[] {
-    throw new Error("This method should be implemented by sub class");
+    return CommandResult.Success;
   }
 
   /**
@@ -74,20 +69,27 @@ export abstract class AbstractChart {
   /**
    * Get an empty definition based on the given context
    */
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition {
+  static getDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition<string> {
     throw new Error("This method should be implemented by sub class");
   }
 
   /**
    * Get the definition of the chart
    */
-  abstract getDefinition(): ChartDefinition;
+  abstract getRangeDefinition(): ChartDefinition<Range>;
+
+  getDefinition(): Omit<ChartDefinition<string>, "dataSource"> {
+    return this.getRangeDefinition();
+  }
 
   /**
    * Get the definition of the chart that will be used for excel export.
    * If the chart is not supported by Excel, this function returns undefined.
    */
-  abstract getDefinitionForExcel(getters: CoreGetters): ExcelChartDefinition | undefined;
+  abstract getDefinitionForExcel(
+    getters: CoreGetters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined;
 
   /**
    * This function should be used to update all the ranges of the chart after
@@ -101,8 +103,8 @@ export abstract class AbstractChart {
    * Duplicate the chart when a sheet is duplicated.
    * The ranges that are in the same sheet as the chart are adapted to the new sheetId.
    */
-  duplicateInDuplicatedSheet(newSheetId: UID): AbstractChart {
-    return this;
+  duplicateInDuplicatedSheet(newSheetId: UID): ChartDefinition<Range> {
+    return this.getRangeDefinition();
   }
 
   /**
@@ -116,29 +118,8 @@ export abstract class AbstractChart {
   /**
    * Extract the ChartCreationContext of the chart
    */
-  abstract getContextCreation(): ChartCreationContext;
-
-  protected getCommonDataSetAttributesForExcel(definition: ChartWithDataSetDefinition) {
-    const dataSets = createDataSets(this.getters, this.sheetId, definition.dataSource);
-    const labelRange = createValidRange(
-      this.getters,
-      this.sheetId,
-      definition.dataSource.labelRange
-    );
-    const excelDataSets: ExcelChartDataset[] = dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
-      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const datasetLength = dataSets[0] ? getZoneArea(dataSets[0].dataRange.zone) : undefined;
-    const labelLength = labelRange ? getZoneArea(labelRange.zone) : 0;
-    const _shouldRemoveFirstLabel = shouldRemoveFirstLabel(
-      labelLength,
-      datasetLength,
-      "dataSource" in definition ? definition.dataSource.dataSetsHaveTitle : false
-    );
-    const excelLabelRange = toExcelLabelRange(this.getters, labelRange, _shouldRemoveFirstLabel);
-    return {
-      dataSets: excelDataSets,
-      labelRange: excelLabelRange,
-    };
-  }
+  abstract getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: ChartDefinition<string>
+  ): ChartCreationContext;
 }

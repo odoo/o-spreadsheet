@@ -3,11 +3,11 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ComboChartDataSetStyle,
   ComboChartDefinition,
@@ -20,6 +20,7 @@ import {
   ChartData,
   ExcelChartDefinition,
   Getters,
+  Range,
   UID,
 } from "../../../types";
 import {
@@ -48,25 +49,26 @@ export class ComboChart extends AbstractChart {
     "zoomable",
   ] as const;
 
-  constructor(private definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: ComboChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: ComboChartDefinition<string>
+  ): ChartCreationContext {
+    return definition;
   }
 
-  getDefinition(): ComboChartDefinition {
+  getRangeDefinition(): ComboChartDefinition {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
-    const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
+  getDefinitionForExcel(
+    getters: Getters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
+    const definition = this.getRangeDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
@@ -77,7 +79,9 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): ComboChartDefinition<string> {
     const dataSetStyles: ComboChartDataSetStyle = {};
     const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
     for (const dataSet of context.dataSource?.dataSets || []) {
@@ -108,7 +112,7 @@ export function createComboChartRuntime(
   chart: ComboChart,
   data: ChartData
 ): ComboChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getBarChartData(definition, data, getters);
 
   const config: ChartConfiguration = {

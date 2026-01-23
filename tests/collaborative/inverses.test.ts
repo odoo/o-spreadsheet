@@ -348,7 +348,7 @@ describe("Inverses commands", () => {
     const updateChart: UpdateChartCommand = {
       type: "UPDATE_CHART",
       sheetId: "42",
-      definition: {} as LineChartDefinition,
+      definition: {} as LineChartDefinition<string>,
       figureId: "1",
       chartId: "1",
     };

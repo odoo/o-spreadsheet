@@ -13,7 +13,7 @@ interface GeneralDesignEditorState {
   activeTool: string;
 }
 
-interface Props extends ChartSidePanelProps<ChartDefinition> {
+interface Props extends ChartSidePanelProps<ChartDefinition<string>> {
   defaultChartTitleFontSize?: number;
   slots?: object;
 }

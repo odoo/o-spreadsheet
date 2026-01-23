@@ -5,8 +5,8 @@ import {
   CHART_PADDING_TOP,
 } from "@odoo/o-spreadsheet-engine/constants";
 import {
+  ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   GenericDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartOptions } from "chart.js";
@@ -14,7 +14,7 @@ import { ChartOptions } from "chart.js";
 type ChartLayout = ChartOptions["layout"];
 
 export function getChartLayout(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartDefinitionWithDataSource>,
   args: ChartRuntimeGenerationArgs
 ): ChartLayout {
   return {
@@ -28,7 +28,7 @@ export function getChartLayout(
 }
 
 export function getCalendarChartLayout(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartDefinitionWithDataSource>,
   args: ChartRuntimeGenerationArgs
 ): ChartLayout {
   const legendPosition = definition.legendPosition;

@@ -170,7 +170,7 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
     if (chart === undefined) {
       return [];
     }
-    const stringifiedChart = JSON.stringify(chart.getDefinition());
+    const stringifiedChart = JSON.stringify(chart.getRangeDefinition());
     const colors = stringifiedChart.matchAll(chartColorRegex);
     return [...colors].map((color) => color[1]); // color[1] is the first capturing group of the regex
   }

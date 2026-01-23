@@ -18,8 +18,8 @@ import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
 import {
   ChartDatasetOrientation,
+  ChartDefinitionWithDataSource,
   ChartRangeDataSource,
-  ChartWithDataSetDefinition,
   CommandResult,
   DataSetStyle,
   DispatchResult,
@@ -39,7 +39,9 @@ interface ChartPanelState {
 }
 
 export class GenericChartConfigPanel<
-  P extends ChartSidePanelProps<ChartWithDataSetDefinition> = ChartSidePanelProps<ChartWithDataSetDefinition>
+  P extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> = ChartSidePanelProps<
+    ChartDefinitionWithDataSource<string>
+  >
 > extends Component<P, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
@@ -56,7 +58,7 @@ export class GenericChartConfigPanel<
     labelsDispatchResult: undefined,
   });
 
-  protected dataSets: ChartRangeDataSource["dataSets"] = [];
+  protected dataSets: ChartRangeDataSource<string>["dataSets"] = [];
   private labelRange: string | undefined;
   private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
@@ -275,13 +277,15 @@ export class GenericChartConfigPanel<
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
       this.dataSets = (
-        this.env.model.getters.getChartDefinition(this.props.chartId) as ChartWithDataSetDefinition
+        this.env.model.getters.getChartDefinition(
+          this.props.chartId
+        ) as ChartDefinitionWithDataSource<string>
       ).dataSource.dataSets;
     }
   }
 
   splitRanges() {
-    const postProcessedRanges: ChartRangeDataSource["dataSets"] = [];
+    const postProcessedRanges: ChartRangeDataSource<string>["dataSets"] = [];
     const postProcessedStyles: DataSetStyle = {};
     const dataSetStyles = this.props.definition.dataSetStyles;
     for (const dataSet of this.dataSets) {
@@ -459,7 +463,7 @@ export class GenericChartConfigPanel<
         .map((dataRange) => ({ dataRange, dataSetId: smallUuid() }));
     }
     const zonesBySheetName = {};
-    const transposedDatasets: ChartRangeDataSource["dataSets"] = [];
+    const transposedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
     const figureId = getters.getFigureIdFromChartId(this.props.chartId);
     const figureSheetId = getters.getFigureSheetId(figureId);
     let name = getters.getActiveSheet().name;

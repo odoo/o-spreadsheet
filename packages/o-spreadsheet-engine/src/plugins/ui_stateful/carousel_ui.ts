@@ -1,6 +1,6 @@
 import { UuidGenerator } from "../../helpers";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
-import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
+import { MyChart } from "../../helpers/figures/chart";
 import { deepEquals, insertItemsAtIndex } from "../../helpers/misc";
 import {
   Command,
@@ -146,7 +146,7 @@ export class CarouselUIPlugin extends UIPlugin {
       : carousel.items[0];
   }
 
-  getChartFromFigureId(figureId: UID): AbstractChart | undefined {
+  getChartFromFigureId(figureId: UID): MyChart | undefined {
     const sheetId = this.getters.getFigureSheetId(figureId);
     if (!sheetId) {
       return undefined;

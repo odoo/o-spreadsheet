@@ -5,7 +5,7 @@ export class BarConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-BarConfigPanel";
 
   get stackedLabel(): string {
-    const definition = this.props.definition as BarChartDefinition;
+    const definition = this.props.definition as BarChartDefinition<string>;
     return definition.horizontal
       ? this.chartTerms.StackedBarChart
       : this.chartTerms.StackedColumnChart;

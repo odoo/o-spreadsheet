@@ -2,6 +2,7 @@ import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   SunburstChartDefinition,
   SunburstChartRuntime,
@@ -13,7 +14,7 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -39,16 +40,22 @@ export class SunburstChart extends AbstractChart {
     "pieHolePercentage",
   ] as const;
 
-  constructor(private definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: SunburstChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): SunburstChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): SunburstChartDefinition<string> {
     let labelRange = context.dataSource?.dataSets?.[0]?.dataRange;
     if (!labelRange) {
       labelRange = context.auxiliaryRange;
     }
-    let dataSource: ChartRangeDataSource = {
+    let dataSource: ChartRangeDataSource<string> = {
       type: "range",
       dataSetsHaveTitle: false,
       ...context.dataSource,
@@ -80,25 +87,19 @@ export class SunburstChart extends AbstractChart {
     };
   }
 
-  getDefinition(): SunburstChartDefinition {
+  getRangeDefinition(): SunburstChartDefinition {
     return this.definition;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    const leafRange = definition.dataSource.dataSets.at(-1)?.dataRange;
-    const dataSetsHaveTitle = this.definition.dataSource.dataSetsHaveTitle;
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: SunburstChartDefinition<string>
+  ): ChartCreationContext {
     return {
       ...definition,
-      dataSource: definition.dataSource.labelRange
-        ? {
-            type: "range",
-            dataSets: [{ dataRange: definition.dataSource.labelRange, dataSetId: "0" }],
-            dataSetsHaveTitle,
-          }
-        : { type: "range", dataSets: [], dataSetsHaveTitle },
-      auxiliaryRange: leafRange,
-      hierarchicalDataSource: definition.dataSource,
+      ...dataSource.getHierarchicalContextCreation(
+        dataSource.getDefinition(this.getters, this.sheetId)
+      ),
     };
   }
 
@@ -112,7 +113,7 @@ export function createSunburstChartRuntime(
   chart: SunburstChart,
   data: ChartData
 ): SunburstChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getHierarchalChartData(definition, data, getters);
 
   const config: ChartConfiguration<"doughnut"> = {

@@ -143,7 +143,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     }
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     if (this.shouldAnimate && this.animationStore) {
-      const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
+      const chartType = this.env.model.getters.getChartDefinition(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
         this.animationStore.disableAnimationForChart(this.animationChartId, chartType);
@@ -158,7 +158,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     if (this.shouldAnimate) {
-      const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
+      const chartType = this.env.model.getters.getChartDefinition(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
         this.animationStore.disableAnimationForChart(this.animationChartId, chartType);

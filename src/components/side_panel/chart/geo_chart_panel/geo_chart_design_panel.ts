@@ -8,7 +8,7 @@ import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 import { ChartSidePanelProps } from "../common";
 
 export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<
-  ChartSidePanelProps<GeoChartDefinition>
+  ChartSidePanelProps<GeoChartDefinition<string>>
 > {
   static template = "o-spreadsheet-GeoChartDesignPanel";
   static components = {

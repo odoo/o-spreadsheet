@@ -3,11 +3,11 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   BarChartDefinition,
   BarChartRuntime,
@@ -19,6 +19,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { UID } from "@odoo/o-spreadsheet-engine/types/misc";
+import { Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import {
@@ -48,11 +49,13 @@ export class BarChart extends AbstractChart {
     "zoomable",
   ] as const;
 
-  constructor(private definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: BarChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): BarChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): BarChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -70,21 +73,26 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: BarChartDefinition<string>
+  ): ChartCreationContext {
+    return definition;
   }
 
-  getDefinition(): BarChartDefinition {
+  getRangeDefinition(): BarChartDefinition {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
-    const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
+  getDefinition() {
+    return this.definition;
+  }
+
+  getDefinitionForExcel(
+    getters: CoreGetters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
+    const definition = this.getRangeDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
@@ -101,7 +109,7 @@ export function createBarChartRuntime(
   chart: BarChart,
   data: ChartData
 ): BarChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getBarChartData(definition, data, getters);
 
   const config: ChartConfiguration<"bar" | "line"> = {

@@ -9,6 +9,7 @@ export interface GaugeChartDefinition {
   readonly sectionRule: SectionRule;
   readonly background?: Color;
   readonly humanize?: boolean;
+  readonly dataSource?: { type: "never" };
 }
 
 export interface SectionRule {

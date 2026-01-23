@@ -10,12 +10,12 @@ import {
 } from "../../test_helpers/chart_helpers";
 import {
   createChart,
+  createChartDefinitionFromContext,
   setCellContent,
   setCellFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
-import { ComboChart } from "./../../../src/helpers/figures/charts/combo_chart";
 
 describe("combo chart", () => {
   test("create combo chart from creation context", () => {
@@ -27,7 +27,7 @@ describe("combo chart", () => {
         labelRange: "Sheet1!A1:A4",
       }),
     };
-    const definition = ComboChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("combo", context);
     expect(definition).toEqual({
       type: "combo",
       background: "#123456",

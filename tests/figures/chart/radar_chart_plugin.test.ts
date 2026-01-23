@@ -1,6 +1,5 @@
 import { RadarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { ChartCreationContext, Model } from "../../../src";
-import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
@@ -10,6 +9,7 @@ import {
 } from "../../test_helpers/chart_helpers";
 import {
   createChart,
+  createChartDefinitionFromContext,
   createRadarChart,
   setCellContent,
   setFormat,
@@ -29,7 +29,7 @@ describe("radar chart", () => {
       showValues: true,
       funnelColors: [],
     };
-    const definition = RadarChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("radar", context);
     expect(definition).toEqual({
       type: "radar",
       background: "#123456",

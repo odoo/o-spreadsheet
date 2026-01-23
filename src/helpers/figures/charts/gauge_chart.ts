@@ -22,6 +22,7 @@ import {
   duplicateLabelRangeInDuplicatedSheet,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
   GaugeChartDefinition,
@@ -174,8 +175,7 @@ export class GaugeChart extends AbstractChart {
         dataRange = adaptedRange;
       }
     }
-    const adaptFormula = (formula: string) =>
-      adaptFormulaString(chartSheetId, formula);
+    const adaptFormula = (formula: string) => adaptFormulaString(chartSheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,
@@ -213,7 +213,7 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  duplicateInDuplicatedSheet(newSheetId: UID): GaugeChart {
+  duplicateInDuplicatedSheet(newSheetId: UID): GaugeChartDefinition {
     const dataRange = duplicateLabelRangeInDuplicatedSheet(
       this.sheetId,
       newSheetId,
@@ -225,8 +225,7 @@ export class GaugeChart extends AbstractChart {
 
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
 
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
-    return new GaugeChart(definition, newSheetId, this.getters);
+    return this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {
@@ -238,8 +237,12 @@ export class GaugeChart extends AbstractChart {
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
-  getDefinition(): GaugeChartDefinition {
+  getRangeDefinition(): GaugeChartDefinition {
     return this.getDefinitionWithSpecificRanges(this.dataRange, this.sectionRule);
+  }
+
+  getDefinition(): GaugeChartDefinition {
+    return this.getRangeDefinition();
   }
 
   private getDefinitionWithSpecificRanges(
@@ -264,8 +267,10 @@ export class GaugeChart extends AbstractChart {
     return undefined;
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: GaugeChartDefinition
+  ): ChartCreationContext {
     return {
       ...definition,
       dataSource: {
