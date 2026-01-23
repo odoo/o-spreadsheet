@@ -949,17 +949,17 @@ describe("datasource tests", function () {
       },
       chartId
     );
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
     model.dispatch("SELECT_FIGURE", { figureId: chartId });
-    expect(model.getters.getSelectedFigureId()).toBe(chartId);
+    expect(model.getters.getSelectedFigureIds()).toEqual([chartId]);
     selectCell(model, "A1");
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
     updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }],
       labelRange: "A2:A4",
       title: { text: "updated chart" },
     });
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
   });
 
   test("create chart with invalid labels", () => {

@@ -496,11 +496,11 @@ describe("simple selection", () => {
       width: 100,
       height: 100,
     });
-    expect(model.getters.getSelectedFigureId()).toBe(null);
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
     undo(model);
-    expect(model.getters.getSelectedFigureId()).toBe(null);
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
   });
 });
 

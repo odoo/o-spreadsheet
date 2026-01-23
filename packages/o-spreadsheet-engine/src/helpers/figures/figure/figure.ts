@@ -1,3 +1,4 @@
+import { HeaderIndex, PixelPosition, UID } from "../../..";
 import { AnchorOffset, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
 import { deepCopy } from "../../misc";
@@ -27,4 +28,31 @@ export function getMaxFigureSize(getters: Getters, figureSize: FigureSize): Figu
     size.width = size.width * ratio;
   }
   return size;
+}
+
+export function getColRowOffset(
+  getters: Getters,
+  sheetId: UID,
+  col: HeaderIndex,
+  row: HeaderIndex,
+  offset: PixelPosition
+) {
+  offset = { ...offset };
+  for (
+    let colSize = getters.getColSize(sheetId, col);
+    offset.x > colSize;
+    colSize = getters.getColSize(sheetId, col)
+  ) {
+    col += 1;
+    offset.x -= colSize;
+  }
+  for (
+    let rowSize = getters.getRowSize(sheetId, row);
+    offset.y > rowSize;
+    rowSize = getters.getRowSize(sheetId, row)
+  ) {
+    row += 1;
+    offset.y -= rowSize;
+  }
+  return { col, row, offset };
 }
