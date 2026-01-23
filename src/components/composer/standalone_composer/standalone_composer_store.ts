@@ -1,9 +1,10 @@
-import { Token, rangeTokenize } from "../../../formulas";
+import { Token, rangeTokenize, tokenize } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { localizeContent } from "../../../helpers/locale";
 import { setXcToFixedReferenceType } from "../../../helpers/reference_type";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Get } from "../../../store_engine";
+import { _t } from "../../../translation";
 import { Color, UID, UnboundedZone, Zone } from "../../../types";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
@@ -83,5 +84,16 @@ export class StandaloneComposerStore extends AbstractComposerStore {
       }
     }
     return super.getTokenColor(token);
+  }
+
+  faisDesTrucs(canonicalFormula: string) {
+    const tokens = tokenize(canonicalFormula);
+    if (tokens.some((t) => t.type === "SYMBOL" && t.value.toUpperCase() === "ROW")) {
+      return { value: _t("(row)") };
+    }
+    if (tokens.some((t) => t.type === "SYMBOL" && t.value.toUpperCase() === "COLUMN")) {
+      return { value: _t("(column)") };
+    }
+    return super.faisDesTrucs(canonicalFormula);
   }
 }

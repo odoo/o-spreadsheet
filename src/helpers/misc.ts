@@ -2,7 +2,7 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
-import { ConsecutiveIndexes, Lazy, UID } from "../types";
+import { Cell, ConsecutiveIndexes, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
 import { Cloneable, DebouncedFunction } from "./../types/misc";
 
@@ -704,4 +704,13 @@ export function getUniqueText(
 
 export function isFormula(content: string): boolean {
   return content.startsWith("=") || content.startsWith("+");
+}
+
+export function doesCellContainFunction(cell: Cell, functionName: string): boolean {
+  return (
+    cell.isFormula &&
+    cell.compiledFormula.tokens.some(
+      (t) => t.type === "SYMBOL" && t.value.toUpperCase() === functionName
+    )
+  );
 }
