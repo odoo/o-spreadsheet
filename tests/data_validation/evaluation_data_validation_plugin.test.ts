@@ -7,6 +7,7 @@ import {
   setCellContent,
   setFormat,
 } from "../test_helpers/commands_helpers";
+import { toCellPosition } from "../test_helpers/helpers";
 
 describe("Data validation evaluation", () => {
   let model: Model;
@@ -220,5 +221,36 @@ describe("Data validation evaluation", () => {
 
     setFormat(model, "A2", "mm/dd/yyyy");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
+  });
+
+  test("DV evaluation can be based on position-related formulas", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "5");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "A4", "4");
+    setCellContent(model, "B3", "3");
+    setCellContent(model, "B4", "2");
+    setCellContent(model, "B5", "4");
+    setCellContent(model, "B6", "6");
+    addDataValidation(model, "A1:A4,B3:B6", "id", { type: "isEqual", values: ["=ROW()"] });
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A2"))).toEqual(true);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A3"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A4"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B3"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B4"))).toEqual(true);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B5"))).toEqual(true);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B6"))).toEqual(false);
+
+    addDataValidation(model, "A1:B6", "id", { type: "isEqual", values: ["=ROW()"] });
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A2"))).toEqual(true);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A3"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A4"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B3"))).toEqual(false);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B4"))).toEqual(true);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B5"))).toEqual(true);
+    expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "B6"))).toEqual(false);
   });
 });
