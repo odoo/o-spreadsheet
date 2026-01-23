@@ -2340,17 +2340,13 @@ describe("conditional formats types", () => {
       setCellContent(model, "B1", "2");
       setCellContent(model, "B2", "4");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        sheetId,
-        ranges: toRangesData(sheetId, "A1:B2"),
-        cf: {
-          id: "1",
-          rule: {
-            type: "CellIsRule",
-            operator: "isEqual",
-            values: ["=ROW()*COLUMN()"],
-            style: { fillColor: "#00FF00" },
-          },
+      addCf(model, "A1:B2", {
+        id: "1",
+        rule: {
+          type: "CellIsRule",
+          operator: "isEqual",
+          values: ["=ROW()*COLUMN()"],
+          style: { fillColor: "#00FF00" },
         },
       });
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#00FF00" });
@@ -2363,15 +2359,15 @@ describe("conditional formats types", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        sheetId,
-        ranges: toRangesData(sheetId, "A1:A2"),
-        cf: createColorScale(
+      addCf(
+        model,
+        "A1:B2",
+        createColorScale(
           "1",
           { type: "formula", color: 0xff0000, value: "=ROW()+1" },
           { type: "formula", color: 0x0000ff, value: "=ROW()+2" }
-        ),
-      });
+        )
+      );
       expect(getStyle(model, "A1")).toEqual({});
       expect(getStyle(model, "A2")).toEqual({});
     });
