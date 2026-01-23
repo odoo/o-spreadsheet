@@ -423,7 +423,8 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
-    const duplicatedChart = model.getters.getChart(duplicatedChartId) as GaugeChart;
+    const duplicatedChart = model.getters.getChart(duplicatedChartId)
+      ?.chartTypeHandler as GaugeChart;
 
     expect(duplicatedChart.title.text).toEqual("test");
     expect(zoneToXc(duplicatedChart.dataRange!.zone)).toEqual("B1:B4");

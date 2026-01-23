@@ -1,7 +1,6 @@
 import { PieChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartCreationContext, Model } from "../../../src";
-import { PieChart } from "../../../src/helpers/figures/charts";
-import { createChart } from "../../test_helpers";
+import { createChart, createChartDefinitionFromContext } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,
@@ -19,7 +18,7 @@ describe("pie chart", () => {
         dataSetsHaveTitle: true,
       }),
     };
-    const definition = PieChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("pie", context);
     expect(definition).toEqual({
       type: "pie",
       background: "#123456",

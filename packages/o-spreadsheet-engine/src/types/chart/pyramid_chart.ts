@@ -1,7 +1,9 @@
 import { ChartConfiguration } from "chart.js";
+import { Range } from "../range";
 import { BarChartDefinition } from "./bar_chart";
 
-export interface PyramidChartDefinition extends Omit<BarChartDefinition, "type" | "zoomable"> {
+export interface PyramidChartDefinition<T extends string | Range = Range>
+  extends Omit<BarChartDefinition<T>, "type" | "zoomable"> {
   readonly type: "pyramid";
 }
 

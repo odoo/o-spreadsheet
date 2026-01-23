@@ -555,7 +555,7 @@ describe("Smart chart type detection", () => {
     doAction(["insert", "insert_chart"], env);
 
     const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
-    const expectedDatasets: ChartRangeDataSource["dataSets"] = [];
+    const expectedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
     for (let i = 0; i < datasetLastCol; i++) {
       expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5), dataSetId: i.toString() });
     }
@@ -591,7 +591,7 @@ describe("Smart chart type detection", () => {
     createDatasetFromDescription(datasetPattern);
     doAction(["insert", "insert_chart"], env);
 
-    const expectedDatasets: ChartRangeDataSource["dataSets"] = [];
+    const expectedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
     for (let i = 1; i < datasetPattern.length; i++) {
       expectedDatasets.push({
         dataRange: toXC(i, 0) + ":" + toXC(i, 5),
