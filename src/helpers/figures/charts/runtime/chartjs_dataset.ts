@@ -30,7 +30,7 @@ import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
-  ChartWithDataSetDefinition,
+  ChartDefinitionWithDataSource,
   DatasetValues,
   FunnelChartColors,
   FunnelChartDefinition,
@@ -61,7 +61,7 @@ import {
   TreeMapGroupColor,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import { ChartRuntimeGenerationArgs, Color, GenericDefinition, Range } from "../../../../types";
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
@@ -746,7 +746,7 @@ function getFillingMode(index: number, stackedChart: boolean): string {
 }
 
 export function getChartColorsGenerator(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: Partial<ChartDefinitionWithDataSource<string | Range>>,
   dataSetsSize: number
 ) {
   const colors = definition.dataSource?.dataSets?.map(

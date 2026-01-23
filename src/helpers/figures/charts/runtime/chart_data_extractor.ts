@@ -14,10 +14,7 @@ import {
   isNumberCell,
   isTextCell,
 } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
-import {
-  createDataSets,
-  shouldRemoveFirstLabel,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import {
   DAYS,
   formatValue,
@@ -25,15 +22,14 @@ import {
   MONTHS,
 } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import {
   AxisType,
   BarChartDefinition,
   ChartData,
+  ChartDefinitionWithDataSource,
   ChartRangeDataSource,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   DataSet,
   DataSetStyle,
   DatasetValues,
@@ -656,7 +652,7 @@ function isLinearChart(
 export function canChartParseLabels(
   getters: Getters,
   sheetId: UID,
-  definition: ChartWithDataSetDefinition
+  definition: ChartDefinitionWithDataSource
 ): boolean {
   const data = getChartData(getters, sheetId, definition.dataSource);
   return canBeDateChart(data) || canBeLinearChart(data);
@@ -920,8 +916,8 @@ export function getChartData(
   sheetId: UID,
   dataSource: ChartRangeDataSource
 ): ChartData {
-  const dataSets = createDataSets(getters, sheetId, dataSource);
-  const labelRange = createValidRange(getters, sheetId, dataSource.labelRange);
+  const dataSets = dataSource.dataSets;
+  const labelRange = dataSource.labelRange;
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getChartDatasetValues(getters, dataSets);
   const data = { labelValues, dataSetsValues };
@@ -944,10 +940,10 @@ export function getChartData(
 export function getHierarchicalData(
   getters: Getters,
   sheetId: UID,
-  definition: ChartWithDataSetDefinition
+  definition: ChartDefinitionWithDataSource
 ): ChartData {
-  const dataSets = createDataSets(getters, sheetId, definition.dataSource);
-  const labelRange = createValidRange(getters, sheetId, definition.dataSource.labelRange);
+  const dataSets = definition.dataSource.dataSets;
+  const labelRange = definition.dataSource.labelRange;
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
   const data = { labelValues, dataSetsValues };

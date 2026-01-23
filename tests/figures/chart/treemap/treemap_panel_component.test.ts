@@ -26,8 +26,8 @@ let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-function getTreeMapChartDefinition(chartId: UID): TreeMapChartDefinition {
-  return model.getters.getChartDefinition(chartId) as TreeMapChartDefinition;
+function getTreeMapChartDefinition(chartId: UID): TreeMapChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as TreeMapChartDefinition<string>;
 }
 
 describe("TreeMap chart side panel", () => {

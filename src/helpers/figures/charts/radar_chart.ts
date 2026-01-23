@@ -3,10 +3,10 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
   ChartData,
@@ -18,7 +18,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -45,11 +45,13 @@ export class RadarChart extends AbstractChart {
     "hideDataMarkers",
   ] as const;
 
-  constructor(private definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: RadarChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): RadarChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): RadarChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -66,21 +68,22 @@ export class RadarChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: RadarChartDefinition<string>
+  ): ChartCreationContext {
+    return definition;
   }
 
-  getDefinition(): RadarChartDefinition {
+  getRangeDefinition(): RadarChartDefinition {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
-    const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
+  getDefinitionForExcel(
+    getters: Getters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
+    const definition = this.getRangeDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
@@ -96,7 +99,7 @@ export function createRadarChartRuntime(
   chart: RadarChart,
   data: ChartData
 ): RadarChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getRadarChartData(definition, data, getters);
 
   const config: ChartConfiguration = {

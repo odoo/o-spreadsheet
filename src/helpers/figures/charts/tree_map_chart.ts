@@ -2,6 +2,7 @@ import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
   ChartData,
@@ -13,7 +14,7 @@ import {
   TreeMapChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -45,12 +46,18 @@ export class TreeMapChart extends AbstractChart {
     "showValues",
   ] as const;
 
-  constructor(private definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: TreeMapChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
-    let dataSource: ChartRangeDataSource = {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): TreeMapChartDefinition<string> {
+    let dataSource: ChartRangeDataSource<string> = {
       type: "range",
       dataSets: [],
       dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
@@ -81,26 +88,20 @@ export class TreeMapChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    const leafRange = definition.dataSource.dataSets.at(-1)?.dataRange;
-    const dataSetsHaveTitle = definition.dataSource.dataSetsHaveTitle;
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: TreeMapChartDefinition<string>
+  ): ChartCreationContext {
     return {
       ...definition,
       treemapColoringOptions: definition.coloringOptions,
-      dataSource: definition.dataSource.labelRange
-        ? {
-            type: "range",
-            dataSets: [{ dataRange: definition.dataSource.labelRange, dataSetId: "0" }],
-            dataSetsHaveTitle,
-          }
-        : { type: "range", dataSets: [], dataSetsHaveTitle },
-      auxiliaryRange: leafRange,
-      hierarchicalDataSource: definition.dataSource,
+      ...dataSource.getHierarchicalContextCreation(
+        dataSource.getDefinition(this.getters, this.sheetId)
+      ),
     };
   }
 
-  getDefinition(): TreeMapChartDefinition {
+  getRangeDefinition(): TreeMapChartDefinition {
     return this.definition;
   }
 
@@ -114,7 +115,7 @@ export function createTreeMapChartRuntime(
   chart: TreeMapChart,
   data: ChartData
 ): TreeMapChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getHierarchalChartData(definition, data, getters);
 
   const config: ChartConfiguration = {

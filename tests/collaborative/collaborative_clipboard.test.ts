@@ -123,7 +123,7 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A2");
     paste(alice, "D4");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSource,
+      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition<string>).dataSource,
       {
         type: "range",
         dataSets: [{ dataRange: "D4", dataSetId: expect.any(String) }],

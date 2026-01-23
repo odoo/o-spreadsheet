@@ -34,7 +34,7 @@ const DEFAULT_SOLID_COLOR: TreeMapCategoryColorOptions = {
 };
 
 export class TreeMapChartDesignPanel extends Component<
-  ChartSidePanelProps<TreeMapChartDefinition>,
+  ChartSidePanelProps<TreeMapChartDefinition<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-TreeMapChartDesignPanel";
