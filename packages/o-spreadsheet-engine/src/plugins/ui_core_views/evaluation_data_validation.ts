@@ -241,7 +241,12 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     const evaluator = criterionEvaluatorRegistry.get(criterion.type);
 
     const offset = this.getCellOffsetInRule(cellPosition, rule);
-    const evaluatedCriterionValues = this.getEvaluatedCriterionValues(sheetId, offset, criterion);
+    const evaluatedCriterionValues = this.getEvaluatedCriterionValues(
+      sheetId,
+      cellPosition,
+      offset,
+      criterion
+    );
     if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
       return undefined;
     }
@@ -283,6 +288,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
 
   private getEvaluatedCriterionValues(
     sheetId: UID,
+    cellPosition: CellPosition,
     offset: Offset,
     criterion: DataValidationCriterion
   ): (CellValue | Matrix<CellValue>)[] {
@@ -299,7 +305,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
         formula
       );
 
-      return this.getters.evaluateFormula(sheetId, translatedFormula);
+      return this.getters.evaluateFormula(sheetId, translatedFormula, cellPosition);
     });
   }
 }
