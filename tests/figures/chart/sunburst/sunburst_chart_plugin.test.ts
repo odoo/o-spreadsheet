@@ -14,6 +14,7 @@ import {
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import {
+  createChartDefinitionFromContext,
   createSunburstChart,
   createTreeMapChart,
   setCellContent,
@@ -57,7 +58,8 @@ describe("Sunburst chart chart", () => {
       valuesDesign: { italic: true },
       groupColors: ["#123456", "#654321"],
     };
-    expect(SunburstChart.getDefinitionFromContextCreation(context)).toEqual({
+    const definition = createChartDefinitionFromContext("sunburst", context);
+    expect(definition).toEqual({
       type: "sunburst",
       background: "#123456",
       title: { text: "hello there" },
@@ -86,20 +88,20 @@ describe("Sunburst chart chart", () => {
       }),
       auxiliaryRange: "Sheet1!A1:A4",
     };
-    const definition = SunburstChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("sunburst", context);
     expect(definition).toMatchObject({
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A4" }],
         labelRange: "Sheet1!B1:B4",
       }),
     });
-    const chart = new SunburstChart(definition, "Sheet1", model.getters);
-    expect(chart.getContextCreation()).toMatchObject({
+    const chartId = createSunburstChart(model, definition);
+    expect(model.getters.getChart(chartId)?.getContextCreation()).toMatchObject({
       hierarchicalDataSource: {
-        dataSets: [{ dataRange: "Sheet1!A1:A4" }],
+        dataSets: [{ dataRange: "A1:A4" }],
       },
       dataSource: { dataSets: [{ dataRange: "Sheet1!B1:B4" }] },
-      auxiliaryRange: "Sheet1!A1:A4",
+      auxiliaryRange: "A1:A4",
     });
   });
 

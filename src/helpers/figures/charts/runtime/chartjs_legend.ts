@@ -13,8 +13,8 @@ import {
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
+  ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   GenericDefinition,
   LineChartDefinition,
   SunburstChartDefinition,
@@ -29,7 +29,7 @@ import { DeepPartial } from "chart.js/dist/types/utils";
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
 function getLegendDisplayOptions(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartDefinitionWithDataSource>,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   return {

@@ -1,6 +1,6 @@
 import { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
+import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { deepCopy, UuidGenerator } from "../helpers";
-import { AbstractChart, copyChartInOtherSheet } from "../helpers/figures/charts";
 import {
   Carousel,
   ClipboardFigureData,
@@ -17,7 +17,7 @@ type ClipboardContent = {
   copiedSheetId: UID;
   copiedFigure: Figure;
   copiedCarousel: Carousel;
-  copiedCharts: { [chartId: UID]: AbstractChart };
+  copiedCharts: { [chartId: UID]: MyChart };
 };
 
 export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
@@ -32,7 +32,7 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
     }
     const copiedFigure = { ...figure };
     const copiedCarousel = this.getters.getCarousel(data.figureId);
-    const copiedCharts: { [chartId: UID]: AbstractChart } = {};
+    const copiedCharts: { [chartId: UID]: MyChart } = {};
     for (const item of copiedCarousel.items) {
       if (item.type === "chart") {
         const chart = this.getters.getChart(item.chartId);
@@ -92,7 +92,11 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       }
       const chart = clippedContent.copiedCharts[item.chartId];
       const newId = uuidGenerator.smallUuid();
-      const definition = copyChartInOtherSheet(this.getters, chart, sheetId);
+      const definition = MyChart.fromDefinition(
+        this.getters,
+        sheetId,
+        chart.copyInSheetId(sheetId)
+      ).getDefinition();
       this.dispatch("CREATE_CHART", { figureId, chartId: newId, sheetId, definition });
       item.chartId = newId;
     }

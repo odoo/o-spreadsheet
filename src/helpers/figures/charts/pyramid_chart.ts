@@ -4,11 +4,11 @@ import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_eval
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getCreationContextFromDataSource,
   getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
   ChartData,
@@ -20,7 +20,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
@@ -48,11 +48,17 @@ export class PyramidChart extends AbstractChart {
     "horizontal",
   ] as const;
 
-  constructor(private definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: PyramidChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): PyramidChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): PyramidChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -69,21 +75,22 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: PyramidChartDefinition<string>
+  ): ChartCreationContext {
+    return definition;
   }
 
-  getDefinition(): PyramidChartDefinition {
+  getRangeDefinition(): PyramidChartDefinition {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
-    const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
+  getDefinitionForExcel(
+    getters: Getters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
+    const definition = this.getRangeDefinition();
     const data = getChartData(getters, this.sheetId, definition.dataSource);
     const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;
@@ -112,7 +119,7 @@ export function createPyramidChartRuntime(
   chart: PyramidChart,
   data: ChartData
 ): PyramidChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getPyramidChartData(definition, data, getters);
 
   const config: ChartConfiguration = {

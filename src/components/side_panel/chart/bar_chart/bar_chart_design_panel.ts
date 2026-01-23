@@ -4,9 +4,9 @@ import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel"
 
 interface Props {
   chartId: UID;
-  definition: BarChartDefinition;
-  canUpdateChart: (chartId: UID, definition: BarChartDefinition) => DispatchResult;
-  updateChart: (chartId: UID, definition: BarChartDefinition) => DispatchResult;
+  definition: BarChartDefinition<string>;
+  canUpdateChart: (chartId: UID, definition: BarChartDefinition<string>) => DispatchResult;
+  updateChart: (chartId: UID, definition: BarChartDefinition<string>) => DispatchResult;
 }
 
 export class BarChartDesignPanel extends GenericZoomableChartDesignPanel<Props> {
