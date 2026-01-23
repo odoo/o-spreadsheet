@@ -2552,6 +2552,50 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "A1")).toEqual({});
   });
 
+  describe("CF evaluation can be based on position-related formulas", () => {
+    test("With cell is rule", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "B2", "4");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        sheetId,
+        ranges: toRangesData(sheetId, "A1:B2"),
+        cf: {
+          id: "1",
+          rule: {
+            type: "CellIsRule",
+            operator: "isEqual",
+            values: ["=ROW()*COLUMN()"],
+            style: { fillColor: "#00FF00" },
+          },
+        },
+      });
+      expect(getStyle(model, "A1")).toEqual({ fillColor: "#00FF00" });
+      expect(getStyle(model, "A2")).toEqual({ fillColor: "#00FF00" });
+      expect(getStyle(model, "B1")).toEqual({ fillColor: "#00FF00" });
+      expect(getStyle(model, "B2")).toEqual({ fillColor: "#00FF00" });
+    });
+
+    test("does not work with color scale", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        sheetId,
+        ranges: toRangesData(sheetId, "A1:A2"),
+        cf: createColorScale(
+          "1",
+          { type: "formula", color: 0xff0000, value: "=ROW()+1" },
+          { type: "formula", color: 0x0000ff, value: "=ROW()+2" }
+        ),
+      });
+      expect(getStyle(model, "A1")).toEqual({});
+      expect(getStyle(model, "A2")).toEqual({});
+    });
+  });
+
   test("Can add a data bar rule with rangeValue having a differnet size than the cf range", () => {
     const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
