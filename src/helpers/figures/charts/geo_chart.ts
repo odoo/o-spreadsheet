@@ -1,11 +1,9 @@
 import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  getCreationContextFromDataSource,
-  getDataSourceFromContextCreation,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
   ChartData,
@@ -16,7 +14,7 @@ import {
   GeoChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { ChartConfiguration } from "chart.js";
-import { Getters, UID } from "../../../types";
+import { Getters, Range, UID } from "../../../types";
 import {
   getChartTitle,
   getGeoChartData,
@@ -39,11 +37,13 @@ export class GeoChart extends AbstractChart {
     "region",
   ] as const;
 
-  constructor(private definition: GeoChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(private definition: GeoChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): GeoChartDefinition {
+  static getDefinitionFromContextCreation(
+    context: ChartCreationContext
+  ): GeoChartDefinition<string> {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -55,15 +55,14 @@ export class GeoChart extends AbstractChart {
     };
   }
 
-  getContextCreation(): ChartCreationContext {
-    const definition = this.getDefinition();
-    return {
-      ...definition,
-      ...getCreationContextFromDataSource(definition.dataSource),
-    };
+  getContextCreation(
+    dataSource: ChartDataSourceHandler,
+    definition: GeoChartDefinition<string>
+  ): ChartCreationContext {
+    return definition;
   }
 
-  getDefinition(): GeoChartDefinition {
+  getRangeDefinition(): GeoChartDefinition {
     return this.definition;
   }
 
@@ -77,7 +76,7 @@ export function createGeoChartRuntime(
   chart: GeoChart,
   data: ChartData
 ): GeoChartRuntime {
-  const definition = chart.getDefinition();
+  const definition = chart.getRangeDefinition();
   const chartData = getGeoChartData(definition, data, getters);
 
   const config: ChartConfiguration = {

@@ -2,23 +2,6 @@ import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_regis
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
-  BarChartDefinition,
-  FunnelChartDefinition,
-  GaugeChartDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  PyramidChartDefinition,
-  ScatterChartDefinition,
-  ScorecardChartDefinition,
-  SunburstChartDefinition,
-  WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
-import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import {
   BarChart,
   createBarChartRuntime,
   createGaugeChartRuntime,
@@ -49,20 +32,17 @@ import {
   SunburstChart,
 } from "../helpers/figures/charts/sunburst_chart";
 import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
-import { CommandResult } from "../types";
 
 //------------------------------------------------------------------------------
 // Chart Registry
 //------------------------------------------------------------------------------
 
 chartRegistry.add("bar", {
+  ChartTypeHandler: BarChart,
   match: (type) => type === "bar",
-  createChart: (definition, sheetId, getters) =>
-    new BarChart(definition as BarChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createBarChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -73,102 +53,86 @@ chartRegistry.add("bar", {
   sequence: 10,
 });
 chartRegistry.add("combo", {
+  ChartTypeHandler: ComboChart,
   match: (type) => type === "combo",
-  createChart: (definition, sheetId, getters) =>
-    new ComboChart(definition as ComboChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createComboChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
   sequence: 15,
 });
 chartRegistry.add("line", {
+  ChartTypeHandler: LineChart,
   match: (type) => type === "line",
-  createChart: (definition, sheetId, getters) =>
-    new LineChart(definition as LineChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createLineChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
   sequence: 20,
 });
 chartRegistry.add("pie", {
+  ChartTypeHandler: PieChart,
   match: (type) => type === "pie",
-  createChart: (definition, sheetId, getters) =>
-    new PieChart(definition as PieChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createPieChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
   sequence: 30,
 });
 chartRegistry.add("scorecard", {
+  ChartTypeHandler: ScorecardChart,
   match: (type) => type === "scorecard",
-  createChart: (definition, sheetId, getters) =>
-    new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) => undefined, // totally custom. Handled in createScorecardChartRuntime
   getChartRuntime: createScorecardChartRuntime,
-  validateChartDefinition: ScorecardChart.validateChartDefinition,
   transformDefinition: ScorecardChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScorecardChart.allowedDefinitionKeys,
   sequence: 40,
 });
 chartRegistry.add("gauge", {
+  ChartTypeHandler: GaugeChart,
   match: (type) => type === "gauge",
-  createChart: (definition, sheetId, getters) =>
-    new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) => undefined, // totally custom. Handled in createScorecardChartRuntime
   getChartRuntime: createGaugeChartRuntime,
-  validateChartDefinition: GaugeChart.validateChartDefinition,
   transformDefinition: GaugeChart.transformDefinition,
   getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GaugeChart.allowedDefinitionKeys,
   sequence: 50,
 });
 chartRegistry.add("scatter", {
+  ChartTypeHandler: ScatterChart,
   match: (type) => type === "scatter",
-  createChart: (definition, sheetId, getters) =>
-    new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createScatterChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScatterChart.allowedDefinitionKeys,
   sequence: 60,
 });
 chartRegistry.add("waterfall", {
+  ChartTypeHandler: WaterfallChart,
   match: (type) => type === "waterfall",
-  createChart: (definition, sheetId, getters) =>
-    new WaterfallChart(definition as WaterfallChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createWaterfallChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: WaterfallChart.allowedDefinitionKeys,
   sequence: 70,
 });
 chartRegistry.add("pyramid", {
+  ChartTypeHandler: PyramidChart,
   match: (type) => type === "pyramid",
-  createChart: (definition, sheetId, getters) =>
-    new PyramidChart(definition as PyramidChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createPyramidChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -181,26 +145,22 @@ chartRegistry.add("pyramid", {
   dataSeriesLimit: 2,
 });
 chartRegistry.add("radar", {
+  ChartTypeHandler: RadarChart,
   match: (type) => type === "radar",
-  createChart: (definition, sheetId, getters) =>
-    new RadarChart(definition as RadarChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createRadarChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: RadarChart.allowedDefinitionKeys,
   sequence: 80,
 });
 chartRegistry.add("geo", {
+  ChartTypeHandler: GeoChart,
   match: (type) => type === "geo",
-  createChart: (definition, sheetId, getters) =>
-    new GeoChart(definition as GeoChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createGeoChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GeoChart.allowedDefinitionKeys,
@@ -208,13 +168,11 @@ chartRegistry.add("geo", {
   dataSeriesLimit: 1,
 });
 chartRegistry.add("funnel", {
+  ChartTypeHandler: FunnelChart,
   match: (type) => type === "funnel",
-  createChart: (definition, sheetId, getters) =>
-    new FunnelChart(definition as FunnelChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createFunnelChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: FunnelChart.allowedDefinitionKeys,
@@ -222,37 +180,31 @@ chartRegistry.add("funnel", {
   dataSeriesLimit: 1,
 });
 chartRegistry.add("sunburst", {
+  ChartTypeHandler: SunburstChart,
   match: (type) => type === "sunburst",
-  createChart: (definition, sheetId, getters) =>
-    new SunburstChart(definition as SunburstChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
   getChartRuntime: createSunburstChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: SunburstChart.allowedDefinitionKeys,
   sequence: 30,
 });
 chartRegistry.add("treemap", {
+  ChartTypeHandler: TreeMapChart,
   match: (type) => type === "treemap",
-  createChart: (definition, sheetId, getters) =>
-    new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
   getChartRuntime: createTreeMapChartRuntime,
-  validateChartDefinition: () => CommandResult.Success,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: TreeMapChart.allowedDefinitionKeys,
   sequence: 100,
 });
 chartRegistry.add("calendar", {
+  ChartTypeHandler: CalendarChart,
   match: (type) => type === "calendar",
-  createChart: (definition, sheetId, getters) =>
-    new CalendarChart(definition as CalendarChartDefinition, sheetId, getters),
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
   getChartRuntime: createCalendarChartRuntime,
-  validateChartDefinition: CalendarChart.validateChartDefinition,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: CalendarChart.allowedDefinitionKeys,

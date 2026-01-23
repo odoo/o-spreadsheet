@@ -1,14 +1,8 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
-import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
-import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
+import { MyChart } from "../../helpers/figures/chart";
+import { chartFactory } from "../../helpers/figures/charts/chart_factory";
 import { deepEquals } from "../../helpers/misc";
-import { chartDataSourceRegistry } from "../../registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ChartDefinition,
-  ChartRangeDataSource,
-  ChartType,
-} from "../../types/chart";
+import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart";
 import {
   Command,
   CommandResult,
@@ -24,7 +18,7 @@ import { CorePlugin } from "../core_plugin";
 
 interface FigureChart {
   figureId: UID;
-  chart: AbstractChart;
+  chart: MyChart;
 }
 
 interface ChartState {
@@ -45,27 +39,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   readonly charts: Record<UID, FigureChart | undefined> = {};
 
   private createChart = chartFactory(this.getters);
-  private validateChartDefinition = (cmd: CreateChartCommand | UpdateChartCommand) =>
-    validateChartDefinition(this, cmd.definition);
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
       if (!chart) {
         continue;
       }
-      let newChart = chart.chart.updateRanges(rangeAdapters);
-      let definition = newChart.getDefinition();
-      if ("dataSource" in definition) {
-        const dataSource = chartDataSourceRegistry
-          .get(definition.dataSource.type)
-          ?.adaptRanges(
-            rangeAdapters,
-            newChart.sheetId,
-            definition.dataSource
-          ) as ChartRangeDataSource;
-        definition = { ...definition, dataSource };
-        newChart = this.createChart(chart.figureId, definition, newChart.sheetId);
-      }
+      const newChart = MyChart.fromDefinition(
+        this.getters,
+        chart.chart.sheetId,
+        chart.chart.updateRanges(rangeAdapters)
+      );
       this.history.update(
         "charts",
         chartId,
@@ -85,7 +69,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           cmd,
           this.chainValidations(
             this.checkFigureArguments,
-            this.validateChartDefinition,
+            this.checkChartDefinition,
             this.checkChartDuplicate
           )
         );
@@ -93,7 +77,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         return this.checkValidations(
           cmd,
           this.chainValidations(
-            this.validateChartDefinition,
+            this.checkChartDefinition,
             this.checkChartExists,
             this.checkChartChanged
           )
@@ -138,31 +122,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
           const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
           const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-          const newChart = chart.duplicateInDuplicatedSheet(cmd.sheetIdTo);
-          let definition = newChart.getDefinition();
-          if ("dataSource" in definition) {
-            const dataSource = chartDataSourceRegistry
-              .get(definition.dataSource.type)
-              ?.duplicateInDuplicatedSheet(
-                this.getters,
-                cmd.sheetId,
-                cmd.sheetIdTo,
-                definition.dataSource
-              ) as ChartRangeDataSource;
-            definition = { ...definition, dataSource };
-          }
-          if (newChart) {
-            this.dispatch("CREATE_CHART", {
-              figureId: duplicatedFigureId,
-              chartId: duplicatedChartId,
-              col: fig.col,
-              row: fig.row,
-              offset: fig.offset,
-              size: { width: fig.width, height: fig.height },
-              definition,
-              sheetId: cmd.sheetIdTo,
-            });
-          }
+          const definition = chart.duplicateInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo);
+          this.dispatch("CREATE_CHART", {
+            figureId: duplicatedFigureId,
+            chartId: duplicatedChartId,
+            col: fig.col,
+            row: fig.row,
+            offset: fig.offset,
+            size: { width: fig.width, height: fig.height },
+            definition,
+            sheetId: cmd.sheetIdTo,
+          });
         }
         break;
       }
@@ -191,10 +161,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // ---------------------------------------------------------------------------
 
   getContextCreationChart(chartId: UID): ChartCreationContext | undefined {
+    const chart = this.charts[chartId]?.chart;
+    if (!chart) {
+      return undefined;
+    }
     return this.charts[chartId]?.chart.getContextCreation();
   }
 
-  getChart(chartId: UID): AbstractChart | undefined {
+  getChart(chartId: UID): MyChart | undefined {
     return this.charts[chartId]?.chart;
   }
 
@@ -206,7 +180,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   getChartType(chartId: UID): ChartType {
-    const type = this.charts[chartId]?.chart.type;
+    const type = this.charts[chartId]?.chart.getRangeDefinition().type;
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -223,7 +197,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       .map(([id]) => id);
   }
 
-  getChartDefinition(chartId: UID): ChartDefinition {
+  getChartDefinition(chartId: UID): ChartDefinition<string> {
     const definition = this.charts[chartId]?.chart.getDefinition();
     if (!definition) {
       throw new Error(`There is no chart with the given id: ${chartId}`);
@@ -341,6 +315,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.isChartDefined(cmd.chartId)
       ? CommandResult.DuplicatedChartId
       : CommandResult.Success;
+  }
+
+  private checkChartDefinition(cmd: UpdateChartCommand | CreateChartCommand) {
+    return MyChart.validate(this, cmd.definition);
   }
 
   private checkChartExists(

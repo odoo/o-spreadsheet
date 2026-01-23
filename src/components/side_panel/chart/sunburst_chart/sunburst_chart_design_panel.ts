@@ -20,7 +20,7 @@ import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 export class SunburstChartDesignPanel extends Component<
-  ChartSidePanelProps<SunburstChartDefinition>,
+  ChartSidePanelProps<SunburstChartDefinition<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-SunburstChartDesignPanel";

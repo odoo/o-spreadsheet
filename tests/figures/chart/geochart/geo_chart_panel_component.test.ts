@@ -31,8 +31,8 @@ mockChart();
 
 const chartId = "chartId";
 
-function getGeoChartDefinition(chartId: UID): GeoChartDefinition {
-  return model.getters.getChartDefinition(chartId) as GeoChartDefinition;
+function getGeoChartDefinition(chartId: UID): GeoChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as GeoChartDefinition<string>;
 }
 
 describe("Geo chart side panel", () => {

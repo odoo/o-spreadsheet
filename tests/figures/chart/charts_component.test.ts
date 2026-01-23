@@ -26,8 +26,8 @@ import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/run
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
   CHART_TYPES,
+  ChartDefinitionWithDataSource,
   ChartType,
-  ChartWithDataSetDefinition,
   CreateFigureCommand,
   UID,
 } from "../../../src/types";
@@ -320,7 +320,9 @@ describe("charts", () => {
       case "combo":
       case "basicChart":
         await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
-        const definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        const definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
           figureId: expect.any(String),
           chartId,
@@ -545,7 +547,7 @@ describe("charts", () => {
     await click(fixture, ".o-badge-selection button[data-id=y]");
     await setInputValueAndTrigger(fontSize, "25", "onlyChange");
 
-    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign).toEqual({
       x: { title: { fontSize: 20 } },
       y: { title: { fontSize: 25 } },
@@ -941,16 +943,16 @@ describe("charts", () => {
       await mountChartSidePanel();
 
       expect(
-        (model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition)?.dataSource
-          .labelRange
+        (model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource<string>)
+          ?.dataSource.labelRange
       ).not.toBeUndefined();
 
       await simulateClick(".o-data-labels input");
       await setInputValueAndTrigger(".o-data-labels input", "");
       await simulateClick(".o-data-labels .o-selection-ok");
       expect(
-        (model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition)?.dataSource
-          .labelRange
+        (model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource<string>)
+          ?.dataSource.labelRange
       ).toBeUndefined();
     }
   );
@@ -1024,7 +1026,7 @@ describe("charts", () => {
         undefined,
         true
       );
-      const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      const definition = model.getters.getChartDefinition(chartId);
       expect(definition).toMatchObject(
         toChartDataSource({
           dataSets: [
@@ -1089,7 +1091,7 @@ describe("charts", () => {
         undefined,
         true
       );
-      const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      const definition = model.getters.getChartDefinition(chartId);
       expect(definition).toMatchObject(
         toChartDataSource({
           dataSets: [
@@ -1131,7 +1133,7 @@ describe("charts", () => {
         },
         chartId
       );
-      let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
       const colorsGenerator = getChartColorsGenerator(definition, 2);
       const firstColor = colorsGenerator.next();
       const secondColor = colorsGenerator.next();
@@ -1142,7 +1144,7 @@ describe("charts", () => {
         undefined,
         true
       );
-      definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
       expect(definition).toMatchObject(
         toChartDataSource({
           dataSets: [
@@ -1343,7 +1345,7 @@ describe("charts", () => {
     await simulateClick(".o-data-series .o-selection-ok");
     const { dataSource, dataSetStyles } = model.getters.getChartDefinition(
       chartId
-    ) as BarChartDefinition;
+    ) as BarChartDefinition<string>;
     const dataSetIds = dataSource.dataSets.map((ds) => ds.dataSetId);
     expect(dataSource).toMatchObject({
       dataSets: [
@@ -1358,7 +1360,7 @@ describe("charts", () => {
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
     const { dataSource: updatedDataSource, dataSetStyles: updatedDataSetStyles } =
-      model.getters.getChartDefinition(chartId) as BarChartDefinition;
+      model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
     expect(updatedDataSource).toMatchObject({
       dataSets: [{ dataRange: "B1:B4", dataSetId: dataSetIds[0] }],
     });
@@ -1397,7 +1399,7 @@ describe("charts", () => {
     await mountSpreadsheet();
     await openChartConfigSidePanel(model, env, chartId);
     await simulateClick(".o-data-series .o-remove-selection");
-    expect(model.getters.getChartDefinition(chartId) as BarChartDefinition).toMatchObject(
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "C1", backgroundColor: "#EA6175", dataSetId: "1" }],
       })
@@ -1405,7 +1407,7 @@ describe("charts", () => {
     expect(errorMessages()).toEqual([]);
 
     undo(model);
-    expect(model.getters.getChartDefinition(chartId) as BarChartDefinition).toMatchObject(
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
           { dataRange: "B1", dataSetId: "0" },
@@ -1442,7 +1444,7 @@ describe("charts", () => {
     await mountChartSidePanel();
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[0];
     await simulateClick(remove);
-    expect(model.getters.getChartDefinition(chartId) as BarChartDefinition).toMatchObject(
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
           {
@@ -1466,7 +1468,7 @@ describe("charts", () => {
         ],
       }),
     });
-    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
     const colorsGenerator = getChartColorsGenerator(definition, 2);
     colorsGenerator.next(); // Skip the first color as it should be removed
     const secondColor = colorsGenerator.next();
@@ -1474,7 +1476,7 @@ describe("charts", () => {
     await mountChartSidePanel();
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[0];
     await simulateClick(remove);
-    expect(model.getters.getChartDefinition(chartId) as BarChartDefinition).toMatchObject(
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "C1:C4", backgroundColor: secondColor, dataSetId: "1" }],
       })
@@ -1489,9 +1491,9 @@ describe("charts", () => {
     const element = document.querySelectorAll(".o-data-series input")[1];
     await setInputValueAndTrigger(element, "C1:D4");
     await simulateClick(".o-data-series .o-selection-ok");
-    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
     const dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
-    expect(model.getters.getChartDefinition(chartId) as BarChartDefinition).toMatchObject(
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
           { dataRange: "B1:B4", yAxisId: "y", dataSetId: dataSetIds[0] },
@@ -1531,7 +1533,7 @@ describe("charts", () => {
     const element = document.querySelectorAll(".o-data-series input")[1];
     await setInputValueAndTrigger(element, "1:2");
     await simulateClick(".o-data-series .o-selection-ok");
-    expect(model.getters.getChartDefinition(chartId) as BarChartDefinition).toMatchObject(
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
           { dataRange: "1:1", dataSetId: expect.any(String) },
@@ -1560,7 +1562,7 @@ describe("charts", () => {
     const element = document.querySelectorAll(".o-data-series input")[1];
     await setInputValueAndTrigger(element, "A:B");
     await simulateClick(".o-data-series .o-selection-ok");
-    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
     const dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
     expect(definition).toMatchObject(
       toChartDataSource({
@@ -1749,7 +1751,7 @@ describe("charts", () => {
     await openChartConfigSidePanel(model, env, chartId);
     await setInputValueAndTrigger(".o-data-series input", "B2:C4");
     await simulateClick(".o-data-series .o-selection-ok");
-    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
     const dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
     expect(definition).toMatchObject(
       toChartDataSource({
@@ -1919,12 +1921,12 @@ describe("charts", () => {
       await mountChartSidePanel();
 
       expect(
-        (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
+        (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).labelsAsText
       ).toBeFalsy();
 
       await simulateClick("input[name='labelsAsText']");
       expect(
-        (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
+        (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).labelsAsText
       ).toBeTruthy();
     });
 
@@ -1992,7 +1994,7 @@ describe("charts", () => {
       expect(checkbox.checked).toBe(false);
 
       expect(checkbox.checked).toBe(false);
-      expect(model.getters.getChartDefinition(chartId) as LineChartDefinition).toMatchObject({
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
         }),
@@ -2000,7 +2002,7 @@ describe("charts", () => {
 
       await simulateClick(checkbox);
       expect(checkbox.checked).toBe(true);
-      expect(model.getters.getChartDefinition(chartId) as LineChartDefinition).toMatchObject({
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
         }),
@@ -2008,7 +2010,7 @@ describe("charts", () => {
 
       await simulateClick(checkbox);
       expect(checkbox.checked).toBe(false);
-      expect(model.getters.getChartDefinition(chartId) as LineChartDefinition).toMatchObject({
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
         }),
@@ -2037,7 +2039,7 @@ describe("charts", () => {
         { dataRange: "Sheet1!E2:E3" },
       ],
     }),
-  ])("Cannot flip non-contigous zone", async (definition: Partial<LineChartDefinition>) => {
+  ])("Cannot flip non-contigous zone", async (definition: Partial<LineChartDefinition<string>>) => {
     createTestChart("basicChart");
     updateChart(model, chartId, {
       type: "line",
@@ -2064,10 +2066,12 @@ describe("charts", () => {
     });
     await mountChartSidePanel();
 
-    const initialDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    const initialDefinition = model.getters.getChartDefinition(
+      chartId
+    ) as LineChartDefinition<string>;
 
     await simulateClick(".o-split-by-rows");
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition).toMatchObject(
       toChartDataSource({
         labelRange: "B2:F2",
@@ -2075,7 +2079,7 @@ describe("charts", () => {
       })
     );
     await simulateClick(".o-split-by-columns");
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     // compare only dataSets dataRange to avoid dataSetId mismatch
     expect(definition.dataSource.dataSets.map(({ dataRange }) => ({ dataRange }))).toEqual(
       initialDefinition.dataSource.dataSets.map(({ dataRange }) => ({ dataRange }))
@@ -2094,7 +2098,7 @@ describe("charts", () => {
     await mountChartSidePanel();
 
     await simulateClick(".o-split-by-rows");
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition).toMatchObject(
       toChartDataSource({
         labelRange: "C2",
@@ -2102,7 +2106,7 @@ describe("charts", () => {
       })
     );
     await simulateClick(".o-split-by-columns");
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition).toMatchObject(
       toChartDataSource({
         labelRange: undefined,
@@ -2123,7 +2127,7 @@ describe("charts", () => {
     await mountChartSidePanel();
 
     await simulateClick(".o-split-by-rows");
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     let dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
     expect(definition).toMatchObject(
       toChartDataSource({
@@ -2138,7 +2142,7 @@ describe("charts", () => {
     const element = document.querySelectorAll(".o-data-series input")[3];
     await setInputValueAndTrigger(element, "D2:E4");
     await simulateClick(".o-data-series .o-selection-ok");
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
     expect(definition).toMatchObject(
       toChartDataSource({
@@ -2363,7 +2367,9 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets.length).toEqual(1);
 
         await simulateClick(checkbox);
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 1,
@@ -2373,7 +2379,9 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets.length).toEqual(2);
 
         await simulateClick(checkbox);
-        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 1,
@@ -2405,7 +2413,9 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(definition).toMatchObject(
           toChartDataSource({
             dataSets: [
@@ -2418,7 +2428,9 @@ describe("charts", () => {
 
         for (const trendType of ["exponential", "logarithmic", "linear", "trailingMovingAverage"]) {
           await editSelectComponent(".trend-type-selector", trendType);
-          definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+          definition = model.getters.getChartDefinition(
+            chartId
+          ) as ChartDefinitionWithDataSource<string>;
           if (trendType === "linear") {
             expect(Object.values(definition.dataSetStyles)[0].trend?.type).toEqual("polynomial");
             expect(Object.values(definition.dataSetStyles)[0].trend?.order).toEqual(1);
@@ -2450,7 +2462,9 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "polynomial",
           order: 3,
@@ -2458,7 +2472,9 @@ describe("charts", () => {
         });
 
         await editSelectComponent(".trend-order-input", "2");
-        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(Object.values(definition.dataSetStyles)[0].trend?.order).toEqual(2);
       }
     );
@@ -2487,7 +2503,9 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        let definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(Object.values(definition.dataSetStyles)[0].trend).toEqual({
           type: "trailingMovingAverage",
           window: 2,
@@ -2496,7 +2514,9 @@ describe("charts", () => {
 
         setInputValueAndTrigger(".trend-window-input", "3");
         await nextTick();
-        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        definition = model.getters.getChartDefinition(
+          chartId
+        ) as ChartDefinitionWithDataSource<string>;
         expect(Object.values(definition.dataSetStyles)[0].trend?.window).toEqual(3);
       }
     );

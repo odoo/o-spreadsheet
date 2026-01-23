@@ -4,7 +4,7 @@ import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
 
 export class LineChartDesignPanel extends GenericZoomableChartDesignPanel<
-  ChartSidePanelProps<LineChartDefinition>
+  ChartSidePanelProps<LineChartDefinition<string>>
 > {
   static template = "o-spreadsheet-LineChartDesignPanel";
   static components = {

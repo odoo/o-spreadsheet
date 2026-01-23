@@ -1,8 +1,10 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
+import { Range } from "../range";
 import { CommonChartDefinition } from "./common_chart";
 
-export interface LineChartDefinition extends CommonChartDefinition {
+export interface LineChartDefinition<T extends string | Range = Range>
+  extends CommonChartDefinition<T> {
   readonly type: "line";
   readonly labelsAsText: boolean;
   readonly stacked: boolean;

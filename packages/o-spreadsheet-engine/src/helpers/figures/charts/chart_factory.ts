@@ -1,13 +1,10 @@
 import { ChartConfiguration } from "chart.js";
-import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
 import { chartRegistry } from "../../../registries/chart_registry";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart";
-import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { Getters } from "../../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../../types/misc";
-import { Validator } from "../../../types/validator";
-import { AbstractChart } from "./abstract_chart";
+import { MyChart } from "../chart";
 import { generateMasterChartConfig } from "./runtime/chart_zoom";
 
 /**
@@ -15,23 +12,17 @@ import { generateMasterChartConfig } from "./runtime/chart_zoom";
  */
 export function chartFactory(getters: CoreGetters) {
   const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
-  function createChart(figureId: UID, definition: ChartDefinition, sheetId: UID): AbstractChart {
-    const builder = builders.find((builder) => builder.match(definition.type));
+  function createChart(
+    figureId: UID,
+    definitionWithRangeStr: ChartDefinition<string>,
+    sheetId: UID
+  ): MyChart {
+    const builder = builders.find((builder) => builder.match(definitionWithRangeStr.type));
     if (!builder) {
-      throw new Error(`No builder for this chart: ${definition.type}`);
+      throw new Error(`No builder for this chart: ${definitionWithRangeStr.type}`);
     }
-    if ("dataSource" in definition) {
-      definition = {
-        ...definition,
-        dataSource: chartDataSourceRegistry
-          .get(definition.dataSource.type)
-          ?.postProcess(getters, sheetId, definition.dataSource),
-      };
-    }
-    definition = builder.postProcess?.(getters, sheetId, definition) ?? definition;
-    return builder.createChart(definition, sheetId, getters);
+    return MyChart.fromStrDefinition(getters, sheetId, definitionWithRangeStr);
   }
-
   return createChart;
 }
 
@@ -41,14 +32,14 @@ export function chartFactory(getters: CoreGetters) {
  */
 export function chartRuntimeFactory(getters: Getters) {
   const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
-  function createRuntimeChart(chart: AbstractChart): ChartRuntime {
-    const builder = builders.find((builder) => builder.match(chart.type));
+  function createRuntimeChart(chart: MyChart): ChartRuntime {
+    const definition = chart.getRangeDefinition();
+    const builder = builders.find((builder) => builder.match(definition.type));
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
-    const definition = chart.getDefinition();
     const data = builder.extractData(definition, chart.sheetId, getters);
-    const runtime = builder.getChartRuntime(getters, chart, data);
+    const runtime = builder.getChartRuntime(getters, chart.chartTypeHandler, data);
     if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
       const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
       runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);
@@ -56,32 +47,6 @@ export function chartRuntimeFactory(getters: Getters) {
     return runtime;
   }
   return createRuntimeChart;
-}
-
-/**
- * Validate the chart definition given in arguments
- */
-export function validateChartDefinition(
-  validator: Validator,
-  definition: ChartDefinition
-): CommandResult | CommandResult[] {
-  const validators = chartRegistry.getAll().find((validator) => validator.match(definition.type));
-  if (!validators) {
-    throw new Error("Unknown chart type.");
-  }
-  const allowedKeys = new Set(validators.allowedDefinitionKeys);
-  const hasExtraKeys = !new Set(Object.keys(definition)).isSubsetOf(allowedKeys);
-  if (hasExtraKeys) {
-    return CommandResult.InvalidChartDefinition;
-  }
-  if ("dataSource" in definition) {
-    const dataSourceValidator = chartDataSourceRegistry.get(definition.dataSource.type);
-    return validator.batchValidations(
-      () => validators.validateChartDefinition(validator, definition),
-      () => dataSourceValidator.validate(validator, definition.dataSource)
-    )(undefined); // Typescript requies a parameter but we don't use it (definition is captured by closure)
-  }
-  return validators.validateChartDefinition(validator, definition);
 }
 
 /**

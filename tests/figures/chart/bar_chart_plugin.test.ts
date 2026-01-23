@@ -2,7 +2,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
-import { BarChart } from "../../../src/helpers/figures/charts";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,
@@ -12,6 +11,7 @@ import {
 } from "../../test_helpers/chart_helpers";
 import {
   createChart,
+  createChartDefinitionFromContext,
   setCellContent,
   setFormat,
   updateChart,
@@ -29,7 +29,7 @@ describe("bar chart", () => {
         labelRange: "Sheet1!A1:A4",
       }),
     };
-    const definition = BarChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("bar", context);
     expect(definition).toEqual({
       type: "bar",
       background: "#123456",
