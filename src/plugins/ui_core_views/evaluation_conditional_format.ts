@@ -180,8 +180,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     functionName?: "min" | "max"
   ): null | number {
+    const zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
     const rangeValues = this.getters
-      .getEvaluatedCellsInZone(sheetId, this.getters.getRangeFromSheetXC(sheetId, range).zone)
+      .getEvaluatedCellsInZone(sheetId, zone)
       .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
       .map((cell) => cell.value);
     switch (threshold.type) {
@@ -197,7 +198,13 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       case "percentile":
         return percentile(rangeValues, Number(threshold.value) / 100, true);
       case "formula":
-        const value = threshold.value && this.getters.evaluateFormula(sheetId, threshold.value);
+        const value =
+          threshold.value &&
+          this.getters.evaluateFormula(sheetId, threshold.value, {
+            sheetId,
+            col: zone.left,
+            row: zone.top,
+          });
         return typeof value === "number" ? value : null;
       default:
         return null;
@@ -369,7 +376,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       if (!value.startsWith("=")) {
         return parseLiteral(value, DEFAULT_LOCALE);
       }
-      return this.getters.evaluateFormula(sheetId, value) ?? "";
+      return this.getters.evaluateFormula(sheetId, value, target) ?? "";
     });
 
     if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
