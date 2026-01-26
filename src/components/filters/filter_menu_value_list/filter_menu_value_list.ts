@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { deepEquals, positions, toLowerCase } from "../../../helpers";
+import { deepEquals, positions, toTrimmedLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Position } from "../../../types";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
@@ -76,12 +76,12 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
 
     const cellValues = cells.map((val) => val.cellValue);
     const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
-    const normalizedFilteredValues = new Set(filterValues.map(toLowerCase));
+    const normalizedFilteredValues = new Set(filterValues.map(toTrimmedLowerCase));
 
     const set = new Set<string>();
     const values: (Value & { normalizedValue: string })[] = [];
     const addValue = (value: string) => {
-      const normalizedValue = toLowerCase(value);
+      const normalizedValue = toTrimmedLowerCase(value);
       if (!set.has(normalizedValue)) {
         values.push({
           string: value || "",
