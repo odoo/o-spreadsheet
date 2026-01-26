@@ -194,7 +194,7 @@ describe("find and replace sidePanel component", () => {
       await changeSearchScope("specificRange");
       await nextTick();
       await nextTick();
-      (fixture.querySelector(selectors.searchRange) as HTMLInputElement).focus();
+      await simulateClick(selectors.searchRange);
       triggerMouseEvent(
         ".o-grid-overlay",
         "pointerdown",

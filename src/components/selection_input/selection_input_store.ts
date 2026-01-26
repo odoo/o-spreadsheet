@@ -12,6 +12,8 @@ export interface RangeInputValue {
   color: Color;
 }
 
+type SelectionRangeEditMode = "select-range" | "text-edit";
+
 /**
  * Selection input Plugin
  *
@@ -31,9 +33,11 @@ export class SelectionInputStore extends SpreadsheetStore {
     "confirm",
     "updateColors",
     "updateDisabledRanges",
+    "toggleEditMode",
   ] as const;
   private ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
+  mode: SelectionRangeEditMode = "text-edit";
   private inputSheetId: UID;
   private focusStore = this.get(FocusStore);
   protected highlightStore = this.get(HighlightStore);
@@ -91,6 +95,7 @@ export class SelectionInputStore extends SpreadsheetStore {
       const xc = this.getters.getSelectionRangeString(newRange, inputSheetId);
       this.setRange(this.focusedRangeIndex, [xc]);
     }
+    this.mode = "select-range";
   }
 
   handle(cmd: Command) {
@@ -266,7 +271,13 @@ export class SelectionInputStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   focusById(rangeId: number) {
-    this.focus(this.getIndex(rangeId));
+    const rangeIndex = this.getIndex(rangeId);
+    if (this.focusedRangeIndex !== rangeIndex || this.mode === "select-range") {
+      this.focus(rangeIndex);
+      this.mode = "text-edit";
+      return;
+    }
+    return "noStateChange";
   }
 
   /**
@@ -418,5 +429,9 @@ export class SelectionInputStore extends SpreadsheetStore {
   getIndex(rangeId: number | null): number | null {
     const index = this.ranges.findIndex((range) => range.id === rangeId);
     return index >= 0 ? index : null;
+  }
+
+  toggleEditMode() {
+    this.mode = this.mode === "select-range" ? "text-edit" : "select-range";
   }
 }

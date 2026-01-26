@@ -194,10 +194,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "F2") {
       ev.preventDefault();
       ev.stopPropagation();
-      this.state.mode = this.state.mode === "select-range" ? "text-edit" : "select-range";
+      this.store.toggleEditMode();
     } else if (ev.key.startsWith("Arrow")) {
       ev.stopPropagation();
-      if (this.state.mode === "select-range") {
+      if (this.store.mode === "select-range") {
         ev.preventDefault();
         updateSelectionWithArrowKeys(ev, this.env.model.selection);
       }
@@ -216,7 +216,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   focus(rangeId: number) {
     this.state.isMissing = false;
-    this.state.mode = "select-range";
     this.store.focusById(rangeId);
   }
 
