@@ -9,21 +9,22 @@
       t-on-pointerdown.prevent=""
       t-on-click.stop=""
       t-on-contextmenu.prevent="">
-      <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
+      <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem_index">
         <div t-if="menuItem === 'separator'" class="o-separator border-bottom"/>
         <t t-else="">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
           <div
+            tabIndex="-1"
             t-att-title="getName(menuItem)"
             t-att-data-name="menuItem.id"
             t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
             t-on-auxclick="(ev) => this.onClickMenu(menuItem, ev)"
-            t-on-mouseover="(ev) => this.props.onMouseOver?.(menuItem, ev)"
-            t-on-mouseenter="(ev) => this.onMouseEnter?.(menuItem, ev)"
-            t-on-mouseleave="(ev) => this.onMouseLeave?.(menuItem)"
+            t-on-mouseenter="(ev) => this.props.onMouseEnter?.(menuItem, ev)"
+            t-on-mouseleave="(ev) => this.props.onMouseLeave?.(menuItem)"
+            t-on-keydown="(ev) => props.onKeyDown?.(ev)"
             class="o-menu-item d-flex justify-content-between align-items-center"
-            t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': props.isActive?.(menuItem)}"
+            t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': menuItem.id === props.hoveredMenuId}"
             t-att-style="getColor(menuItem)">
             <div class="d-flex w-100">
               <div

@@ -1,25 +1,27 @@
+import { Rect } from "@odoo/o-spreadsheet-engine";
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUnmount } from "@odoo/owl";
-import { Action } from "../../actions/action";
+import { Component, useEffect, useRef } from "@odoo/owl";
+import { Action, isMenuItemEnabled, MenuItemOrSeparator } from "../../actions/action";
 import { Pixel } from "../../types";
 
 //------------------------------------------------------------------------------
 // Context Menu Component
 //------------------------------------------------------------------------------
 
-type MenuItemOrSeparator = Action | "separator";
+export type MenuItemRects = { [menuItemId: string]: Rect };
 
 export interface MenuProps {
-  menuItems: Action[];
+  menuItems: MenuItemOrSeparator[];
   onClose: () => void;
   onScroll?: (ev: CustomEvent) => void;
   onClickMenu?: (menu: Action, ev: CustomEvent) => void;
   onMouseEnter?: (menu: Action, ev: PointerEvent) => void;
-  onMouseOver?: (menu: Action, ev: PointerEvent) => void;
   onMouseLeave?: (menu: Action, ev: PointerEvent) => void;
-  isActive?: (menu: Action) => boolean;
+  hoveredMenuId?: string;
+  isHoveredMenuFocused?: boolean;
   width?: number;
+  onKeyDown?: (ev: KeyboardEvent) => void;
 }
 
 export interface MenuState {
@@ -37,53 +39,33 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     onClose: Function,
     onClickMenu: { type: Function, optional: true },
     onMouseEnter: { type: Function, optional: true },
-    onMouseOver: { type: Function, optional: true },
     onMouseLeave: { type: Function, optional: true },
     width: { type: Number, optional: true },
-    isActive: { type: Function, optional: true },
+    hoveredMenuId: { type: String, optional: true },
+    isHoveredMenuFocused: { type: Boolean, optional: true },
     onScroll: { type: Function, optional: true },
+    onKeyDown: { type: Function, optional: true },
   };
 
   static components = {};
   static defaultProps = {};
 
-  private hoveredMenu: Action | undefined = undefined;
+  private menuRef = useRef("menu");
 
-  setup() {
-    onWillUnmount(() => {
-      this.hoveredMenu?.onStopHover?.(this.env);
+  setup(): void {
+    useEffect(() => {
+      if (this.props.hoveredMenuId && this.props.isHoveredMenuFocused && this.menuRef.el) {
+        const selector = `[data-name='${this.props.hoveredMenuId}']`;
+        const menuItemElement = this.menuRef.el.querySelector(selector) as HTMLElement;
+        menuItemElement?.focus();
+      }
     });
   }
 
-  get menuItemsAndSeparators(): MenuItemOrSeparator[] {
-    const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
-    for (let i = 0; i < this.props.menuItems.length; i++) {
-      const menuItem = this.props.menuItems[i];
-      if (
-        menuItem.isVisible(this.env) &&
-        (!this.isRoot(menuItem) || this.hasVisibleChildren(menuItem))
-      ) {
-        menuItemsAndSeparators.push(menuItem);
-      }
-      if (
-        menuItem.separator &&
-        i !== this.props.menuItems.length - 1 && // no separator at the end
-        menuItemsAndSeparators[menuItemsAndSeparators.length - 1] !== "separator" // no double separator
-      ) {
-        menuItemsAndSeparators.push("separator");
-      }
-    }
-    if (menuItemsAndSeparators[menuItemsAndSeparators.length - 1] === "separator") {
-      menuItemsAndSeparators.pop();
-    }
-    if (menuItemsAndSeparators.length === 1 && menuItemsAndSeparators[0] === "separator") {
-      return [];
-    }
-    return menuItemsAndSeparators;
-  }
-
   get childrenHaveIcon(): boolean {
-    return this.props.menuItems.some((menuItem) => !!this.getIconName(menuItem));
+    return this.props.menuItems.some(
+      (menuItem) => menuItem !== "separator" && !!this.getIconName(menuItem)
+    );
   }
 
   getIconName(menu: Action) {
@@ -113,36 +95,12 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     return !menu.execute;
   }
 
-  private hasVisibleChildren(menu: Action) {
-    return menu.children(this.env).some((child) => child.isVisible(this.env));
-  }
-
   isEnabled(menu: Action) {
-    const children = menu.children?.(this.env);
-    if (children.length) {
-      return children.some((child) => this.isEnabled(child));
-    } else {
-      if (menu.isEnabled(this.env)) {
-        return this.env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
-      }
-      return false;
-    }
+    return isMenuItemEnabled(this.env, menu);
   }
 
   get menuStyle() {
     return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
-  }
-
-  onMouseEnter(menu: Action, ev: PointerEvent) {
-    this.hoveredMenu = menu;
-    menu.onStartHover?.(this.env);
-    this.props.onMouseEnter?.(menu, ev);
-  }
-
-  onMouseLeave(menu: Action, ev: PointerEvent) {
-    this.hoveredMenu = undefined;
-    menu.onStopHover?.(this.env);
-    this.props.onMouseLeave?.(menu, ev);
   }
 
   onClickMenu(menu: Action, ev: CustomEvent) {

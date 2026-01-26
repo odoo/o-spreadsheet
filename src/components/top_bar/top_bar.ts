@@ -1,14 +1,6 @@
 import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onWillStart,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
@@ -16,7 +8,7 @@ import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry"
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel } from "../../types/index";
+import { Color, Pixel, UID } from "../../types/index";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
@@ -74,6 +66,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toolBarContainerRef = useRef("toolBarContainer");
   toolbarRef = useRef("toolBar");
+  topBarTopRef = useRef("topBarTop");
 
   moreToolsContainerRef = useRef("moreToolsContainer");
   moreToolsButtonRef = useRef("moreToolsButton");
@@ -84,9 +77,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
     this.topBarToolStore = useStore(TopBarToolStore);
+
     useExternalListener(window, "click", this.onExternalClick);
-    onWillStart(() => this.updateCellState());
-    onWillUpdateProps(() => this.updateCellState());
+    this.menus = topbarMenuRegistry.getMenuItems();
 
     useEffect(
       () => {
@@ -164,7 +157,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   onMenuMouseOver(menu: Action, ev: MouseEvent) {
     if (this.isSelectingMenu && this.isntToolbarMenu) {
-      this.openMenu(menu, ev);
+      this.openMenu(menu, ev.currentTarget as HTMLElement);
     }
   }
 
@@ -172,24 +165,28 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     if (this.state.menuState.isOpen && this.isntToolbarMenu) {
       this.closeMenus();
     } else {
-      this.openMenu(menu, ev);
+      this.openMenu(menu, ev.currentTarget as HTMLElement);
       this.isntToolbarMenu = true;
     }
   }
 
-  private openMenu(menu: Action, ev: MouseEvent) {
+  private openMenu(menu: Action, target: HTMLElement | undefined, autoSelectFirstItem = false) {
+    if (!target) {
+      return;
+    }
     if (this.topBarToolStore.currentDropdown) {
       this.topBarToolStore.closeDropdowns();
     }
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = true;
-    this.state.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
+    this.state.menuState.anchorRect = getBoundingRectAsPOJO(target);
     this.state.menuState.menuItems = menu
       .children(this.env)
       .sort((a, b) => a.sequence - b.sequence);
     this.state.menuState.parentMenu = menu;
+    this.state.menuState.autoSelectFirstItem = autoSelectFirstItem;
     this.isSelectingMenu = true;
-    this.openedEl = ev.target as HTMLElement;
+    this.openedEl = target;
     this.composerFocusStore.activeComposer.stopEdition();
   }
 
@@ -202,10 +199,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.menuState.parentMenu = undefined;
     this.isSelectingMenu = false;
     this.openedEl = null;
-  }
-
-  updateCellState() {
-    this.menus = topbarMenuRegistry.getMenuItems();
   }
 
   getMenuName(menu: Action) {
@@ -245,6 +238,40 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     return (
       categoryIndex < this.toolsCategories.length - 1 ||
       this.state.invisibleToolsCategories.length > 0
+    );
+  }
+
+  onKeyboardNavigation(ev: KeyboardEvent) {
+    console.log("topBar navigate menu", ev.key);
+    const openedMenuIndex = this.menus.findIndex(
+      (action) => action.id === this.state.menuState.parentMenu?.id || ""
+    );
+    if (openedMenuIndex === -1) {
+      return;
+    }
+    switch (ev.key) {
+      case "ArrowLeft": {
+        const nextMenuIndex = (openedMenuIndex - 1 + this.menus.length) % this.menus.length;
+        const nextMenu = this.menus[nextMenuIndex];
+        this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id), true);
+        break;
+      }
+      case "ArrowRight": {
+        const nextMenuIndex = (openedMenuIndex + 1) % this.menus.length;
+        const nextMenu = this.menus[nextMenuIndex];
+        this.openMenu(nextMenu, this.getMenuItemEl(nextMenu.id), true);
+        break;
+      }
+      case "Escape": {
+        this.closeMenus();
+        break;
+      }
+    }
+  }
+
+  private getMenuItemEl(menuItemId: UID): HTMLElement | undefined {
+    return (
+      this.topBarTopRef.el?.querySelector<HTMLElement>(`[data-id="${menuItemId}"]`) || undefined
     );
   }
 }

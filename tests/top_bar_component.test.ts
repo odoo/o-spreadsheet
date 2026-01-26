@@ -9,6 +9,7 @@ import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_r
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
+import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
 import { ConditionalFormat, Currency, Pixel, Style } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
@@ -96,6 +97,7 @@ afterEach(() => {
 
 let fixture: HTMLElement;
 let parent: Parent;
+let env: SpreadsheetChildEnv;
 
 class Parent extends Component<any, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
@@ -130,13 +132,13 @@ async function mountParent(
   model: Model = new Model(),
   testEnv?: Partial<SpreadsheetChildEnv>
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
-  const env = {
+  const partialEnv = {
     ...testEnv,
     model,
     isDashboard: () => model.getters.isDashboard(),
   };
   let parent: Component;
-  ({ parent, fixture } = await mountComponent(Parent, { env }));
+  ({ parent, fixture, env } = await mountComponent(Parent, { env: partialEnv }));
   return { parent: parent as Parent, model, fixture };
 }
 
@@ -1247,5 +1249,169 @@ describe("Responsive Top bar behaviour", () => {
     await click(fixture, '.o-popover .o-menu-item-button[title="Vertical align"]');
     await click(fixture, '.o-popover .o-menu-item-button[title="Top"]');
     expect(getStyle(model, "A1").verticalAlign).toBe("top");
+  });
+});
+
+describe("Keyboard navigation in topbar", () => {
+  function getFocusedMenuItem() {
+    const activeElement = document.activeElement;
+    if (!activeElement) {
+      return undefined;
+    } else if (activeElement.classList.contains("o-menu-wrapper")) {
+      return "menuWrapper";
+    } else if (activeElement.classList.contains("o-menu-item")) {
+      return (activeElement as HTMLElement).dataset.name;
+    }
+    return undefined;
+  }
+
+  function getActiveMenu() {
+    let activeMenus = fixture.querySelector<HTMLElement>(".o-topbar-menu.active")?.dataset.id;
+
+    for (const menu of fixture.querySelectorAll<HTMLElement>(".o-menu")) {
+      activeMenus += " > " + menu.querySelector<HTMLElement>(".o-menu-item-active")?.dataset.name;
+    }
+
+    return activeMenus;
+  }
+
+  test("Can use the up/down arrow keys to navigate in the topbar", async () => {
+    await mountParent();
+    await simulateClick(".o-spreadsheet-topbar [data-id='view']");
+
+    expect(getFocusedMenuItem()).toBe("menuWrapper");
+
+    await keyDown({ key: "ArrowDown" });
+    expect(getActiveMenu()).toBe("view > show");
+
+    await keyDown({ key: "ArrowDown" });
+    expect(getActiveMenu()).toBe("view > zoom");
+
+    await keyDown({ key: "ArrowUp" });
+    expect(getActiveMenu()).toBe("view > show");
+  });
+
+  test("Can use the left/right arrows to navigate in the topbar", async () => {
+    await mountParent();
+    await simulateClick(".o-spreadsheet-topbar [data-id='view']");
+    expect(getFocusedMenuItem()).toBe("menuWrapper");
+    expect(getActiveMenu()).toBe("view > undefined"); // view menu is open but no item is active
+
+    await keyDown({ key: "ArrowRight" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+
+    await keyDown({ key: "ArrowRight" });
+    expect(getActiveMenu()).toBe("insert > insert_row > insert_row_before");
+
+    await keyDown({ key: "ArrowRight" });
+    expect(getActiveMenu()).toBe("format > format_number");
+
+    await keyDown({ key: "ArrowRight" });
+    expect(getActiveMenu()).toBe("format > format_number > format_number_automatic");
+
+    await keyDown({ key: "ArrowLeft" });
+    expect(getActiveMenu()).toBe("format > format_number");
+
+    await keyDown({ key: "ArrowLeft" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+  });
+
+  test("Can close the menus with escape", async () => {
+    await mountParent();
+    await simulateClick(".o-spreadsheet-topbar [data-id='insert']");
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowRight" });
+    expect(getActiveMenu()).toBe("insert > insert_row > insert_row_before");
+
+    await keyDown({ key: "Escape" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+
+    await keyDown({ key: "Escape" });
+    expect(getActiveMenu()).toBe(undefined);
+  });
+
+  test("Can open & execute menu items with enter", async () => {
+    const { model } = await mountParent();
+    expect(model.getters.getGridLinesVisibility(model.getters.getActiveSheetId())).toBe(true);
+
+    await simulateClick(".o-spreadsheet-topbar [data-id='view']");
+    await keyDown({ key: "ArrowDown" });
+    expect(getActiveMenu()).toBe("view > show");
+
+    await keyDown({ key: "Enter" });
+    expect(getActiveMenu()).toBe("view > show > view_gridlines");
+
+    await keyDown({ key: "Enter" });
+    expect(getActiveMenu()).toBe(undefined);
+    expect(model.getters.getGridLinesVisibility(model.getters.getActiveSheetId())).toBe(false);
+  });
+
+  test("Opening a sub menu with the keyboard focuses the first item, opening it with the mouse does not", async () => {
+    jest.useFakeTimers();
+    await mountParent();
+
+    await simulateClick(".o-spreadsheet-topbar [data-id='insert']");
+    expect(getFocusedMenuItem()).toBe("menuWrapper");
+    expect(getActiveMenu()).toBe("insert > undefined"); // main menu is open but no item is active
+
+    // Open with mouse
+    triggerMouseEvent(".o-menu-item[data-name='insert_row']", "mouseenter");
+    jest.runAllTimers();
+    await nextTick();
+    expect(getFocusedMenuItem()).toBe("menuWrapper");
+    expect(getActiveMenu()).toBe("insert > insert_row > undefined"); // sub menu is open but no item is active
+
+    // Close submenu
+    await keyDown({ key: "Escape" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+
+    // Open with keyboard
+    await keyDown({ key: "ArrowRight" });
+    expect(getFocusedMenuItem()).toBe("insert_row_before");
+    expect(getActiveMenu()).toBe("insert > insert_row > insert_row_before");
+
+    jest.useRealTimers();
+  });
+
+  test("Can go back to keyboard navigation after using the mouse", async () => {
+    jest.useFakeTimers();
+    await mountParent();
+
+    await simulateClick(".o-spreadsheet-topbar [data-id='insert']");
+    await keyDown({ key: "ArrowDown" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+
+    // Open & close menu with mouse
+    triggerMouseEvent(".o-menu-item[data-name='insert_chart']", "mouseenter");
+    jest.runAllTimers();
+    await nextTick();
+    expect(getActiveMenu()).toBe("insert > insert_chart");
+
+    triggerMouseEvent(".o-menu-item[data-name='insert_chart']", "mouseleave");
+    jest.runAllTimers();
+    await nextTick();
+    expect(getActiveMenu()).toBe("insert > undefined"); // insert menu still open, but no active item
+
+    // Back to keyboard navigation
+    await keyDown({ key: "ArrowDown" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+    jest.useRealTimers();
+  });
+
+  test("Focus go back to default element after navigating in the topbar", async () => {
+    await mountParent();
+    const domFocusableElementStore = env.getStore(DOMFocusableElementStore);
+    const defaultEl = fixture.querySelector<HTMLElement>(".o-composer")!;
+    domFocusableElementStore.setFocusableElement(defaultEl);
+
+    await simulateClick(".o-spreadsheet-topbar [data-id='insert']");
+    await keyDown({ key: "ArrowDown" });
+    expect(getActiveMenu()).toBe("insert > insert_row");
+    expect(document.activeElement?.classList).toContain("o-menu-item");
+
+    await keyDown({ key: "Escape" });
+    await nextTick();
+    expect(getActiveMenu()).toBe(undefined);
+    expect(document.activeElement).toBe(defaultEl);
   });
 });

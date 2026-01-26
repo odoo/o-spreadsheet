@@ -1313,6 +1313,23 @@ describe("Grid component", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
+  test("can use keyboard to navigate the context menu", async () => {
+    await rightClickCell(model, "B2");
+    expect(document.activeElement).toHaveClass("o-menu-wrapper");
+
+    await keyDown({ key: "ArrowDown" });
+    expect(".o-menu-item-active").toHaveAttribute("data-name", "cut");
+    expect(document.activeElement).toHaveAttribute("data-name", "cut");
+
+    await keyDown({ key: "ArrowDown" });
+    expect(".o-menu-item-active").toHaveAttribute("data-name", "copy");
+    expect(document.activeElement).toHaveAttribute("data-name", "copy");
+
+    await keyDown({ key: "Escape" });
+    expect(".o-menu").toHaveCount(0);
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
+  });
+
   test("Duplicating sheet in the bottom bar focus the grid afterward", async () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
 
