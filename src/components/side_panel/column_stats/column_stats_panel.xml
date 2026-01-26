@@ -48,9 +48,9 @@
         </SidePanelCollapsible>
         <SidePanelCollapsible title.translate="Global statistics" isInitiallyCollapsed="false">
           <t t-set-slot="content">
-            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+            <div class="o-column-global-stats d-flex flex-column mb-2 mx-4">
               <t t-foreach="statItems" t-as="stat" t-key="stat.name">
-                <div class="o-column-stats-row d-flex justify-content-between">
+                <div class="o-column-stats-row d-flex justify-content-between px-3 py-2">
                   <span class="text-muted" t-esc="stat.name"/>
                   <span class="o-fw-bold" t-att-data-test-id="stat.name" t-esc="stat.value"/>
                 </div>
@@ -67,9 +67,9 @@
                 selectedValue="state.currentFrequencyOrder"
               />
             </div>
-            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+            <div class="o-column-global-stats d-flex flex-column mb-2 mx-4">
               <t t-foreach="valueFrequencies" t-as="value" t-key="value.value">
-                <div class="o-column-stats-row d-flex justify-content-between">
+                <div class="o-column-stats-row d-flex justify-content-between px-3 py-2">
                   <span class="frequency_label text-muted" t-esc="value.value"/>
                   <span class="frequency_value o-fw-bold" t-esc="value.count"/>
                 </div>

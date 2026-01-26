@@ -1154,6 +1154,7 @@
     <svg width="20px" height="16px" viewBox="0 0 20 16">
       <path
         d="M.747 1.05h2.24v9.707H.747zM4.48 5.53h2.24v5.227H4.48zm7.467-1.493h2.24v6.72h-2.24zM8.213 2.543h2.24v8.214h-2.24zM0 11.503h14.933v1.494H0z"
+        fill="currentColor"
       />
     </svg>
   </t>
