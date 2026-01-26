@@ -22,7 +22,6 @@ import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_cha
 import { SunburstChartDesignPanel } from "./sunburst_chart/sunburst_chart_design_panel";
 import { TreeMapChartDesignPanel } from "./treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_design_panel";
-import { GenericZoomableChartDesignPanel } from "./zoomable_chart/design_panel";
 
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 export { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
@@ -47,7 +46,7 @@ chartSidePanelComponentRegistry
   })
   .add("scatter", {
     configuration: ScatterConfigPanel,
-    design: GenericZoomableChartDesignPanel,
+    design: ChartWithAxisDesignPanel,
   })
   .add("bar", {
     configuration: BarConfigPanel,
