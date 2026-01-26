@@ -106,6 +106,12 @@ describe("find and replace sidePanel component", () => {
         (document.querySelector(selectors.replaceAllButton) as HTMLButtonElement).disabled
       ).toBe(true);
     });
+
+    test("pressing Escape closes the sidepanel", async () => {
+      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+      await focusAndKeyDown(selectors.inputSearch, { key: "Escape" });
+      expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+    });
   });
 
   describe("basic search", () => {
