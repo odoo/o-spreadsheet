@@ -108,7 +108,7 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   let first: number;
   let last: number;
   const activesRows = env.model.getters.getActiveRows();
-  if (activesRows.size !== 0) {
+  if (activesRows.length !== 0) {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
@@ -140,7 +140,7 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   let first: number;
   let last: number;
   const activeCols = env.model.getters.getActiveCols();
-  if (activeCols.size !== 0) {
+  if (activeCols.length !== 0) {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
@@ -172,7 +172,7 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   let first: number;
   let last: number;
   const activesRows = env.model.getters.getActiveRows();
-  if (activesRows.size !== 0) {
+  if (activesRows.length !== 0) {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
@@ -207,8 +207,8 @@ export const CAN_REMOVE_COLUMNS_ROWS = (
   env: SpreadsheetChildEnv
 ): boolean => {
   if (
-    (dimension === "COL" && env.model.getters.getActiveRows().size > 0) ||
-    (dimension === "ROW" && env.model.getters.getActiveCols().size > 0)
+    (dimension === "COL" && env.model.getters.getActiveRows().length > 0) ||
+    (dimension === "ROW" && env.model.getters.getActiveCols().length > 0)
   ) {
     return false;
   }
@@ -236,7 +236,7 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   let first: number;
   let last: number;
   const activeCols = env.model.getters.getActiveCols();
-  if (activeCols.size !== 0) {
+  if (activeCols.length !== 0) {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
@@ -279,12 +279,12 @@ export const NOT_ALL_VISIBLE_COLS_SELECTED = (env: SpreadsheetChildEnv) => {
 };
 
 export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
-  const activeRows = env.model.getters.getActiveRows();
+  const activeRows = [...env.model.getters.getActiveRows()];
   let row: number;
   let quantity: number;
-  if (activeRows.size) {
-    row = largeMin([...activeRows]);
-    quantity = activeRows.size;
+  if (activeRows.length) {
+    row = largeMin(activeRows);
+    quantity = activeRows.length;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     row = zone.top;
@@ -301,12 +301,12 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
-  const activeRows = env.model.getters.getActiveRows();
+  const activeRows = [...env.model.getters.getActiveRows()];
   let row: number;
   let quantity: number;
-  if (activeRows.size) {
-    row = largeMax([...activeRows]);
-    quantity = activeRows.size;
+  if (activeRows.length) {
+    row = largeMax(activeRows);
+    quantity = activeRows.length;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     row = zone.bottom;
@@ -326,9 +326,9 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
   const activeCols = env.model.getters.getActiveCols();
   let column: number;
   let quantity: number;
-  if (activeCols.size) {
+  if (activeCols.length !== 0) {
     column = largeMin([...activeCols]);
-    quantity = activeCols.size;
+    quantity = activeCols.length;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     column = zone.left;
@@ -348,9 +348,9 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
   const activeCols = env.model.getters.getActiveCols();
   let column: number;
   let quantity: number;
-  if (activeCols.size) {
+  if (activeCols.length !== 0) {
     column = largeMax([...activeCols]);
-    quantity = activeCols.size;
+    quantity = activeCols.length;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     column = zone.right;
@@ -668,7 +668,7 @@ export const CAN_INSERT_HEADER = (env: SpreadsheetChildEnv, dimension: Dimension
   const sheetId = env.model.getters.getActiveSheetId();
   const zone = env.model.getters.getSelectedZone();
   const allSheetSelected = isEqual(zone, env.model.getters.getSheetZone(sheetId));
-  return isConsecutive(activeHeaders) && (ortogonalActiveHeaders.size === 0 || allSheetSelected);
+  return isConsecutive(activeHeaders) && (ortogonalActiveHeaders.length === 0 || allSheetSelected);
 };
 
 export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {

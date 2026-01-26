@@ -7,7 +7,7 @@ import {
   min,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { lazy, memoize, recomputeZones } from "../../../helpers";
+import { intersection, isDefined, lazy, memoize, recomputeZones } from "../../../helpers";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import {
@@ -16,7 +16,7 @@ import {
   EvaluatedCell,
   Lazy,
   Locale,
-  invalidateEvaluationCommands,
+  doesInvalidateEvalution,
 } from "../../../types";
 
 export interface StatisticFnResults {
@@ -77,10 +77,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
   }
 
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (doesInvalidateEvalution(cmd)) {
       this.isDirty = true;
     }
     switch (cmd.type) {
@@ -116,21 +113,27 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const sheetId = getters.getActiveSheetId();
     const cells: EvaluatedCell[] = [];
 
-    const recomputedZones = recomputeZones(getters.getSelectedZones(), []);
-    const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
-    const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
+    const evaluatedZone = this.getters.getSheetEvaluatedZone(sheetId);
+    const recomputedZones = recomputeZones(
+      getters
+        .getSelectedZones()
+        .map((zone) => intersection(zone, evaluatedZone))
+        .filter(isDefined),
+      []
+    );
 
     for (const zone of recomputedZones) {
-      for (let col = zone.left; col <= (zone.right ?? widthMax); col++) {
-        for (let row = zone.top; row <= (zone.bottom ?? heightMax); row++) {
-          if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
-            continue; // Skip hidden cells
-          }
+      for (const position of this.getters.getEvaluatedCellsPositionInZone(sheetId, zone)) {
+        if (
+          getters.isRowHidden(sheetId, position.row) ||
+          getters.isColHidden(sheetId, position.col)
+        ) {
+          continue; // Skip hidden cells
+        }
 
-          const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
-          if (evaluatedCell.type !== CellValueType.empty) {
-            cells.push(evaluatedCell);
-          }
+        const evaluatedCell = getters.getEvaluatedCell(position);
+        if (evaluatedCell.type !== CellValueType.empty) {
+          cells.push(evaluatedCell);
         }
       }
     }

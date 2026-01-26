@@ -612,6 +612,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   private getEndOfCluster(startPosition: Position, dim: "cols" | "rows", dir: -1 | 1): HeaderIndex {
     const sheetId = this.getters.getActiveSheetId();
     let currentPosition = startPosition;
+    const usedZone = this.getters.getSheetEvaluatedZone(sheetId);
 
     // If both the current cell and the next cell are not empty, we want to go to the end of the cluster
     const nextCellPosition = this.getNextCellPosition(startPosition, dim, dir);
@@ -639,6 +640,17 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
         break;
       }
       currentPosition = nextCellPosition;
+      if (
+        mode === "nextCluster" &&
+        dir > 0 &&
+        (currentPosition.row > usedZone.bottom || currentPosition.col > usedZone.right)
+      ) {
+        if (dim === "rows" && currentPosition.row > startPosition.row + 999) {
+          break;
+        } else if (dim === "cols" && currentPosition.col > startPosition.col + 999) {
+          break;
+        }
+      }
     }
     return dim === "cols" ? currentPosition.col : currentPosition.row;
   }

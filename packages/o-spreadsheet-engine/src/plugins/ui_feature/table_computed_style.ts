@@ -1,7 +1,7 @@
 import { PositionMap } from "../../helpers/cells/position_map";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
+import { Command, CommandTypes, doesInvalidateEvalution } from "../../types/commands";
 import { Border, CellPosition, Lazy, Style, TableId, UID, Zone } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
 import { UIPlugin } from "../ui_plugin";
@@ -28,11 +28,7 @@ export class TableComputedStylePlugin extends UIPlugin {
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
   handle(cmd: Command) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
+    if (doesInvalidateEvalution(cmd) || cmd.type === "EVALUATE_CELLS") {
       this.tableStyles = {};
       return;
     }
@@ -76,6 +72,7 @@ export class TableComputedStylePlugin extends UIPlugin {
       for (const colIdx of Object.keys(tableStyles)) {
         const colStyle = tableStyles[colIdx];
         const col = parseInt(colIdx);
+        if (col < zone.left || col > zone.right) continue;
         for (const rowIdx of Object.keys(colStyle)) {
           const cellStyle = colStyle[rowIdx];
           if (cellStyle) {
@@ -102,6 +99,7 @@ export class TableComputedStylePlugin extends UIPlugin {
       for (const colIdx of Object.keys(tableBorders)) {
         const colStyle = tableBorders[colIdx];
         const col = parseInt(colIdx);
+        if (col < zone.left || col > zone.right) continue;
         for (const rowIdx of Object.keys(colStyle)) {
           const cellBorder = colStyle[rowIdx];
           if (cellBorder) {

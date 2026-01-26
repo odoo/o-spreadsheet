@@ -9,8 +9,9 @@
  */
 
 import { Cell } from "./cells";
+import { Format } from "./format";
 import { Getters } from "./getters";
-import { Border, DIRECTION, Style, UID, UpdateCellData } from "./misc";
+import { Border, DIRECTION, RangeCompiledFormula, Style, UID, UpdateCellData } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
@@ -63,12 +64,15 @@ export interface AutofillCellData extends UpdateCellData {
 }
 
 export interface AutofillData {
+  formula?: RangeCompiledFormula;
+  content?: string;
   cell?: Cell;
   col: number;
   row: number;
   sheetId: UID;
   border?: Border;
   style?: Style;
+  format?: Format;
 }
 
 export interface AutofillResult {

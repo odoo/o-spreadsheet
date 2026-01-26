@@ -1,6 +1,7 @@
 import {
   AdjacentEdge,
   CellPosition,
+  HeaderIndex,
   Position,
   UID,
   UnboundedZone,
@@ -339,6 +340,18 @@ export function union(...zones: Zone[]): Zone {
 }
 
 /**
+ * Compute the union of multiple cell positions.
+ */
+export function positionsUnion(positions: CellPosition[]): Zone {
+  return {
+    top: Math.min(...positions.map((pos) => pos.row)),
+    left: Math.min(...positions.map((pos) => pos.col)),
+    bottom: Math.max(...positions.map((pos) => pos.row)),
+    right: Math.max(...positions.map((pos) => pos.col)),
+  };
+}
+
+/**
  * Compute the union of multiple unbounded zones.
  */
 export function unionUnboundedZones(...zones: UnboundedZone[]): UnboundedZone {
@@ -469,12 +482,12 @@ export function isInside(col: number, row: number, zone: UnboundedZone): boolean
 /**
  * Check if a zone is inside another
  */
-export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
+export function isZoneInside(smallZone: Zone, biggerZone: UnboundedZone): boolean {
   return (
     smallZone.left >= biggerZone.left &&
-    smallZone.right <= biggerZone.right &&
+    (biggerZone.right === undefined || smallZone.right <= biggerZone.right) &&
     smallZone.top >= biggerZone.top &&
-    smallZone.bottom <= biggerZone.bottom
+    (biggerZone.bottom === undefined || smallZone.bottom <= biggerZone.bottom)
   );
 }
 
@@ -693,6 +706,10 @@ export function isFullCol(zone: UnboundedZone): boolean {
   return zone.bottom === undefined;
 }
 
+export function isBound(zone: UnboundedZone): zone is Zone {
+  return zone.bottom !== undefined && zone.right !== undefined;
+}
+
 /** Returns the area of a zone */
 export function getZoneArea(zone: Zone): number {
   return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
@@ -740,15 +757,11 @@ export function areZonesContinuous(zones: Zone[]): boolean {
   return recomputeZones(zones).length === 1;
 }
 
-/** Return all the columns in the given list of zones */
-export function getZonesCols(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function zonesHasCol(zones: Zone[], col: HeaderIndex): boolean {
   for (const zone of recomputeZones(zones)) {
-    for (const col of range(zone.left, zone.right + 1)) {
-      set.add(col);
-    }
+    if (zone.left <= col && col <= zone.right) return true;
   }
-  return set;
+  return false;
 }
 
 /**
@@ -780,6 +793,13 @@ export function getZonesRows(zones: Zone[]): Set<number> {
     }
   }
   return set;
+}
+
+export function zonesHasRow(zones: Zone[], row: HeaderIndex): boolean {
+  for (const zone of recomputeZones(zones)) {
+    if (zone.top <= row && row <= zone.bottom) return true;
+  }
+  return false;
 }
 
 export function unionPositionsToZone(positions: Position[]): Zone {

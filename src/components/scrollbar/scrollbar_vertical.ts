@@ -30,7 +30,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get height() {
-    return this.env.model.getters.getMainViewportRect().height;
+    return this.env.model.getters.getScrollbarSize("vertical");
   }
 
   get isDisplayed() {

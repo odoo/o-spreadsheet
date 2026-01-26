@@ -142,8 +142,8 @@ export const insertCell: ActionSpec = {
   name: _t("Insert cells"),
   isVisible: (env) =>
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0 &&
-    env.model.getters.getActiveRows().size === 0,
+    env.model.getters.getActiveCols().length === 0 &&
+    env.model.getters.getActiveRows().length === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
@@ -155,7 +155,8 @@ export const insertCellShiftDown: ActionSpec = {
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+    env.model.getters.getActiveRows().length === 0 &&
+    env.model.getters.getActiveCols().length === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_DOWN",
 };
 
@@ -167,7 +168,8 @@ export const insertCellShiftRight: ActionSpec = {
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+    env.model.getters.getActiveRows().length === 0 &&
+    env.model.getters.getActiveCols().length === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_RIGHT",
 };
 
@@ -364,8 +366,8 @@ function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
 
 function getRowsNumber(env): number {
   const activeRows = env.model.getters.getActiveRows();
-  if (activeRows.size) {
-    return activeRows.size;
+  if (activeRows.length !== 0) {
+    return activeRows.length;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     return zone.bottom - zone.top + 1;
@@ -374,8 +376,8 @@ function getRowsNumber(env): number {
 
 function getColumnsNumber(env): number {
   const activeCols = env.model.getters.getActiveCols();
-  if (activeCols.size) {
-    return activeCols.size;
+  if (activeCols.length !== 0) {
+    return activeCols.length;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     return zone.right - zone.left + 1;

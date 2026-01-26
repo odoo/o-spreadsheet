@@ -1,30 +1,29 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import {
-  deepCopy,
-  getAddHeaderStartIndex,
-  insertItemsAtIndex,
-  range,
-  removeIndexesFromArray,
-} from "../../helpers/misc";
+import { deepCopy, groupConsecutive, mapShift, range } from "../../helpers/misc";
 import { Command } from "../../types/commands";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 interface HeaderSizeState {
-  sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>>;
+  sizes: Record<UID, Record<Dimension, Map<HeaderIndex, Pixel>>>;
 }
 export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements HeaderSizeState {
-  static getters = ["getUserRowSize", "getColSize"] as const;
+  static getters = [
+    "getUserRowSize",
+    "getColSize",
+    "getCustomColSizes",
+    "getUserCustomRowSizes",
+  ] as const;
 
-  readonly sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>> = {};
+  readonly sizes: Record<UID, Record<Dimension, Map<HeaderIndex, Pixel>>> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET": {
         this.history.update("sizes", cmd.sheetId, {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
+          COL: new Map<HeaderIndex, Pixel>(),
+          ROW: new Map<HeaderIndex, Pixel>(),
         });
         break;
       }
@@ -37,59 +36,81 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         this.history.update("sizes", sizes);
         break;
       case "REMOVE_COLUMNS_ROWS": {
-        const arr = this.sizes[cmd.sheetId][cmd.dimension];
-        const sizes = removeIndexesFromArray(arr, cmd.elements);
+        const elements = cmd.elements.sort((a, b) => b - a);
+        const sizes = deepCopy(this.sizes[cmd.sheetId][cmd.dimension]);
+        for (const els of groupConsecutive(elements)) {
+          for (let i = 0; i < els.length; i++) {
+            sizes.delete(els[i]);
+          }
+          mapShift(sizes, els[0], -els.length);
+        }
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        const sizes = this.sizes[cmd.sheetId][cmd.dimension];
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const baseSize = sizes[cmd.base];
-        const newSizes = insertItemsAtIndex(sizes, Array(cmd.quantity).fill(baseSize), addIndex);
-        this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
+        const sizes = deepCopy(this.sizes[cmd.sheetId][cmd.dimension]);
+        const size = sizes.get(cmd.base);
+        const newColRowStart = cmd.position === "before" ? cmd.base : cmd.base + 1;
+        mapShift(sizes, newColRowStart, cmd.quantity);
+        if (size) {
+          for (let i = 0; i < cmd.quantity; i++) {
+            sizes.set(newColRowStart + i, size);
+          }
+        }
+        this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
-      case "RESIZE_COLUMNS_ROWS":
-        if (cmd.dimension === "ROW") {
+      case "RESIZE_COLUMNS_ROWS": {
+        const sizes = deepCopy(this.sizes[cmd.sheetId][cmd.dimension]);
+        if (cmd.size) {
+          const size = Math.round(cmd.size);
           for (const el of cmd.elements) {
-            this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
+            sizes.set(el, size);
           }
         } else {
           for (const el of cmd.elements) {
-            this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
+            sizes.delete(el);
           }
         }
-
+        this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
+      }
     }
     return;
   }
 
   getColSize(sheetId: UID, index: HeaderIndex): Pixel {
-    return Math.round(this.sizes[sheetId]?.["COL"][index] || DEFAULT_CELL_WIDTH);
+    return this.sizes[sheetId]?.["COL"].get(index) || DEFAULT_CELL_WIDTH;
+  }
+
+  getCustomColSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
+    return this.sizes[sheetId]?.COL;
+  }
+
+  getUserCustomRowSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
+    return this.sizes[sheetId]?.ROW;
   }
 
   getUserRowSize(sheetId: UID, index: HeaderIndex): Pixel | undefined {
-    const rowSize = this.sizes[sheetId]?.["ROW"][index];
-    return rowSize ? Math.round(rowSize) : undefined;
+    const rowSize = this.sizes[sheetId]?.["ROW"].get(index);
+    return rowSize ? rowSize : undefined;
   }
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const sizes: Record<Dimension, Array<Pixel | undefined>> = {
-        COL: Array(sheet.colNumber).fill(undefined),
-        ROW: Array(sheet.rowNumber).fill(undefined),
+      const sizes: Record<Dimension, Map<HeaderIndex, Pixel>> = {
+        COL: new Map<HeaderIndex, Pixel>(),
+        ROW: new Map<HeaderIndex, Pixel>(),
       };
       for (const [rowIndex, row] of Object.entries(sheet.rows)) {
         if (row.size) {
-          sizes["ROW"][rowIndex] = row.size;
+          sizes["ROW"].set(parseInt(rowIndex), row.size);
         }
       }
 
       for (const [colIndex, col] of Object.entries(sheet.cols)) {
         if (col.size) {
-          sizes["COL"][colIndex] = col.size;
+          sizes["COL"].set(parseInt(colIndex), col.size);
         }
       }
 
@@ -118,7 +139,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         sheet.rows = {};
       }
       for (const row of range(0, this.getters.getNumberRows(sheet.id))) {
-        if (exportDefaults || this.sizes[sheet.id]["ROW"][row]) {
+        if (exportDefaults || this.sizes[sheet.id]["ROW"].get(row)) {
           sheet.rows[row] = {
             ...sheet.rows[row],
             size: this.getUserRowSize(sheet.id, row) ?? DEFAULT_CELL_HEIGHT,
@@ -131,7 +152,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         sheet.cols = {};
       }
       for (const col of range(0, this.getters.getNumberCols(sheet.id))) {
-        if (exportDefaults || this.sizes[sheet.id]["COL"][col]) {
+        if (exportDefaults || this.sizes[sheet.id]["COL"].get(col)) {
           sheet.cols[col] = { ...sheet.cols[col], size: this.getColSize(sheet.id, col) };
         }
       }

@@ -33,16 +33,13 @@ export class FormatPlugin extends UIPlugin {
     const measurePositions: CellPosition[] = [];
     const measuresByPivotId: Record<string, Set<string>> = {};
     for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const position = { sheetId, col, row };
-          const pivotCell = this.getters.getPivotCellFromPosition(position);
-          if (this.isSpilledPivotValueFormula(position, pivotCell)) {
-            measurePositions.push(position);
-            const pivotId = this.getters.getPivotIdFromPosition(position) || "";
-            measuresByPivotId[pivotId] ??= new Set();
-            measuresByPivotId[pivotId].add(pivotCell.measure);
-          }
+      for (const position of this.getters.getEvaluatedCellsPositionInZone(sheetId, zone)) {
+        const pivotCell = this.getters.getPivotCellFromPosition(position);
+        if (this.isSpilledPivotValueFormula(position, pivotCell)) {
+          measurePositions.push(position);
+          const pivotId = this.getters.getPivotIdFromPosition(position) || "";
+          measuresByPivotId[pivotId] ??= new Set();
+          measuresByPivotId[pivotId].add(pivotCell.measure);
         }
       }
     }

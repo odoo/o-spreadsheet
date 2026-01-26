@@ -7,7 +7,7 @@ import {
 } from "../../constants";
 import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
-import { groupConsecutive, largeMax, range } from "../../helpers/misc";
+import { groupConsecutive, isDefined, largeMax, range } from "../../helpers/misc";
 import {
   computeMultilineTextSize,
   computeTextLinesHeight,
@@ -16,7 +16,7 @@ import {
   getCellContentHeight,
   splitTextToWidth,
 } from "../../helpers/text_helper";
-import { isEqual, positions } from "../../helpers/zones";
+import { cellPositions, intersection, isEqual } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
 import { Command, CommandResult, LocalCommand } from "../../types/commands";
 import {
@@ -247,8 +247,16 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
-    const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
-    const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
+    const colZone = this.getters.getColsZone(sheetId, index, index);
+    const evaluatedPos = this.getters.getEvaluatedCellsPositionInZone(sheetId, colZone);
+    // Autoresize include table filter icon
+    const tables = this.getters.getTablesOverlappingZones(sheetId, [colZone]);
+    const tablePosition = tables
+      .map((table) => intersection(table.range.zone, colZone))
+      .filter(isDefined)
+      .flatMap((zone) => cellPositions(sheetId, zone));
+
+    const sizes = evaluatedPos.concat(tablePosition).map((position) => this.getCellWidth(position));
     return Math.max(0, largeMax(sizes));
   }
 
@@ -290,13 +298,11 @@ export class SheetUIPlugin extends UIPlugin {
     for (const row of rows) {
       let evaluatedRowSize = 0;
       let tallestCell: CellPosition | undefined = undefined;
-      for (const [position, evaluatedCell] of this.getters.getEvaluatedCellsPositionInZone(
+      for (const position of this.getters.getEvaluatedCellsPositionInZone(
         sheetId,
         this.getters.getRowsZone(sheetId, row, row)
       )) {
-        if (evaluatedCell.value === undefined) {
-          continue;
-        }
+        const evaluatedCell = this.getters.getEvaluatedCell(position);
         const colSize = this.getters.getColSize(sheetId, position.col);
         const style = this.getters.getCellStyle(position);
 

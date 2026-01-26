@@ -199,6 +199,12 @@ export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial";
 
+// Scrollbar
+export const SCROLLBAR_MIN_WIDTH = 52;
+export const SCROLLBAR_MIN_ADDITIONAL_WIDTH = 13;
+export const SCROLLBAR_MIN_HEIGHT = 200;
+export const SCROLLBAR_MIN_ADDITIONAL_HEIGHT = 50;
+
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };
 export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = { style: "thin", color: FILTERS_COLOR };

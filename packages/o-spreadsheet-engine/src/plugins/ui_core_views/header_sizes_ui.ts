@@ -32,7 +32,12 @@ interface CellWithSize {
 }
 
 export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implements HeaderSizeState {
-  static getters = ["getRowSize", "getHeaderSize", "getMaxAnchorOffset"] as const;
+  static getters = [
+    "getRowSize",
+    "getHeaderSize",
+    "getMaxAnchorOffset",
+    "getCustomRowSizes",
+  ] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
@@ -102,7 +107,8 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
             }
           } else {
             // Recompute row heights on col size change, they might have changed because of wrapped text
-            for (const row of range(0, this.getters.getNumberRows(sheetId))) {
+            const evaluatedZone = this.getters.getSheetEvaluatedZone(sheetId);
+            for (const row of range(evaluatedZone.top, evaluatedZone.bottom + 1)) {
               for (const col of cmd.elements) {
                 this.updateRowSizeForCellChange(sheetId, row, col);
               }
@@ -112,8 +118,12 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         break;
       case "SET_FORMATTING":
         if (
-          cmd.style &&
-          ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
+          "format" in cmd ||
+          ("style" in cmd &&
+            (!cmd.style ||
+              "fontSize" in cmd.style ||
+              "wrapping" in cmd.style ||
+              "rotation" in cmd.style))
         ) {
           for (const zone of cmd.target) {
             // TODO FLDA use rangeSet
@@ -141,6 +151,17 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         this.tallestCellInRow[sheetId][row]?.size ??
         DEFAULT_CELL_HEIGHT
     );
+  }
+
+  getCustomRowSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
+    const customRowMap = deepCopy(this.getters.getUserCustomRowSizes(sheetId));
+    const activeZone = this.getters.getSheetEvaluatedZone(sheetId);
+    for (let row = activeZone.top; row <= activeZone.bottom; row++) {
+      if (customRowMap.get(row)) continue;
+      const size = this.tallestCellInRow[sheetId][row]?.size;
+      if (size) customRowMap.set(row, size);
+    }
+    return customRowMap;
   }
 
   getMaxAnchorOffset(sheetId: UID, height: Pixel, width: Pixel): AnchorOffset {
@@ -217,8 +238,9 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
 
     const cell = this.getters.getCell(position);
     const style = this.getters.getCellStyle(position);
+    const format = this.getters.getCellFormat(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, style, this.getters.getLocale(), colSize);
+    return getDefaultCellHeight(this.ctx, cell, style, format, this.getters.getLocale(), colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {
@@ -235,14 +257,10 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
       return undefined;
     }
 
-    const cellIds = this.getters.getRowCellIds(sheetId, row);
+    const cells = this.getters.getRowCells(sheetId, row);
     let maxHeight = 0;
     let tallestCell: CellWithSize | undefined = undefined;
-    for (let i = 0; i < cellIds.length; i++) {
-      const cell = this.getters.getCellById(cellIds[i]);
-      if (!cell) {
-        continue;
-      }
+    for (const cell of cells) {
       const position = this.getters.getCellPosition(cell.id);
       const cellHeight = this.getCellHeight(position);
 

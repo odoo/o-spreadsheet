@@ -1,39 +1,49 @@
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { isDefined } from "../helpers";
+import { columnRowIndexesToZones } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import {
-  CellPosition,
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
   HeaderIndex,
-  Maybe,
   Merge,
   UID,
+  Zone,
 } from "../types";
 
 interface ClipboardContent {
   sheetId: UID;
-  merges: Maybe<Merge>[][];
+  cellContent: { width: number; height: number };
+  merges: Merge[];
+  newMerges: Zone[];
 }
 
-export class MergeClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Maybe<Merge>
-> {
+export class MergeClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const sheetId = this.getters.getActiveSheetId();
-    const { rowsIndexes, columnsIndexes } = data;
-    const merges: Maybe<Merge>[][] = [];
+    const newMerges: Zone[] = [];
+    const merges: Merge[] = [];
 
-    for (const row of rowsIndexes) {
-      const mergesInRow: Maybe<Merge>[] = [];
-      for (const col of columnsIndexes) {
-        const position = { col, row, sheetId };
-        mergesInRow.push(this.getters.getMerge(position));
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      for (const merge of this.getters.getMergesInZone(sheetId, zone)) {
+        newMerges.push({
+          left: merge.left - zone.left + colsBefore,
+          right: merge.right && merge.right - zone.left + colsBefore,
+          top: merge.top - zone.top + rowsBefore,
+          bottom: merge.bottom && merge.bottom - zone.top + rowsBefore,
+        });
+        merges.push(merge);
       }
-      merges.push(mergesInRow);
     }
-    return { merges, sheetId };
+
+    return {
+      sheetId,
+      newMerges,
+      merges,
+      cellContent: { width: data.columnsIndexes.length, height: data.rowsIndexes.length },
+    };
   }
 
   /**
@@ -41,42 +51,25 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     if (options.isCutOperation) {
-      const copiedMerges = content.merges.flat().filter(isDefined);
-      this.dispatch("REMOVE_MERGE", { sheetId: content.sheetId, target: copiedMerges });
+      this.dispatch("REMOVE_MERGE", { sheetId: content.sheetId, target: content.merges });
     }
-    this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);
+    this.pasteFromCopy(target.sheetId, target.zones, content, options);
   }
 
-  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, merges: Maybe<Merge>[][]) {
-    for (const [r, rowMerges] of merges.entries()) {
-      for (const [c, originMerge] of rowMerges.entries()) {
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteMerge(originMerge, position);
+  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, content: ClipboardContent) {
+    const newMerges: Zone[] = [];
+    for (const merge of content.newMerges) {
+      const position = { col: col + merge.left, row: row + merge.top, sheetId };
+      if (this.getters.isInMerge(position)) {
+        return;
       }
+      newMerges.push({
+        left: col + merge.left,
+        right: col + merge.right,
+        top: row + merge.top,
+        bottom: row + merge.bottom,
+      });
     }
-  }
-
-  private pasteMerge(originMerge: Maybe<Merge>, target: CellPosition) {
-    if (!originMerge) {
-      return;
-    }
-
-    if (this.getters.isInMerge(target)) {
-      return;
-    }
-
-    const { sheetId, col, row } = target;
-    this.dispatch("ADD_MERGE", {
-      sheetId,
-      force: true,
-      target: [
-        {
-          left: col,
-          top: row,
-          right: col + originMerge.right - originMerge.left,
-          bottom: row + originMerge.bottom - originMerge.top,
-        },
-      ],
-    });
+    this.dispatch("ADD_MERGE", { sheetId, force: true, target: newMerges });
   }
 }

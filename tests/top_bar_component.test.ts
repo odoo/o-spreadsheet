@@ -37,6 +37,7 @@ import {
 import {
   getBorder,
   getCell,
+  getCellFormat,
   getCellStyle,
   getStyle,
   getTable,
@@ -437,7 +438,7 @@ describe("TopBar component", () => {
     const formatTool = fixture.querySelector('.o-menu-item-button[title="More formats"]')!;
     await click(formatTool);
     await click(fixture, `.o-menu-item[title="Percent"]`);
-    expect(getCell(model, "A1")!.format).toEqual("0.00%");
+    expect(getCellFormat(model, "A1")).toEqual("0.00%");
   });
 
   test("can set font size", async () => {

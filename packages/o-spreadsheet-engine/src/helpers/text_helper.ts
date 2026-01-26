@@ -10,6 +10,7 @@ import {
 import { Canvas2DContext } from "../types/canvas";
 import { Cell } from "../types/cells";
 import { CellErrorType } from "../types/errors";
+import { Format } from "../types/format";
 import { Locale } from "../types/locale";
 import { Pixel, PixelPosition, Style } from "../types/misc";
 import { parseLiteral } from "./cells/cell_evaluation";
@@ -31,6 +32,7 @@ export function getDefaultCellHeight(
   ctx: Canvas2DContext,
   cell: Cell | undefined,
   style: Style | undefined,
+  format: Format | undefined,
   locale: Locale,
   colSize: number
 ) {
@@ -41,7 +43,7 @@ export function getDefaultCellHeight(
 
   try {
     if (!cell.isFormula) {
-      const localeFormat = { format: cell.format, locale };
+      const localeFormat = { format: format, locale };
       content = formatValue(parseLiteral(cell.content, locale), localeFormat);
     }
   } catch {

@@ -101,19 +101,18 @@ export function getCustomNumberFormats(
 
   const customFormats = new Map<Format, ACTION_FORMAT.NumberFormatActionSpec>();
   for (const sheetId of env.model.getters.getSheetIds()) {
-    const cells = env.model.getters.getEvaluatedCells(sheetId);
-    for (const cellId in cells) {
-      const cell = cells[cellId];
-
-      if (cell.format && !customFormats.has(cell.format) && !defaultFormats.has(cell.format)) {
-        const formatType = getNumberFormatType(cell.format);
+    const zoneFormats = env.model.getters.getZoneFormats(sheetId);
+    for (const zoneFormat of zoneFormats) {
+      const format = zoneFormat.format;
+      if (format && !customFormats.has(format) && !defaultFormats.has(format)) {
+        const formatType = getNumberFormatType(format);
         if (formatType === "date" || formatType === "currency") {
           customFormats.set(
-            cell.format,
+            format,
             ACTION_FORMAT.createFormatActionSpec({
               descriptionValue: formatType === "currency" ? 1000 : ACTION_FORMAT.EXAMPLE_DATE,
-              format: cell.format,
-              name: cell.format,
+              format: format,
+              name: format,
             })
           );
         }

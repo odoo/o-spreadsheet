@@ -163,6 +163,7 @@ describe("core", () => {
         test("with a reference to an empty cell", () => {
           const model = new Model();
           setCellFormat(model, "A1", "#,##0[$$]");
+          setCellContent(model, "A1", "a1");
           setCellContent(model, "A2", "=A1");
           expect(getEvaluatedCell(model, "A2")?.format).toBe("#,##0[$$]");
         });

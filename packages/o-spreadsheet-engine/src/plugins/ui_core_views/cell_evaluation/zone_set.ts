@@ -49,6 +49,26 @@ export class ZoneSet {
     return result;
   }
 
+  size() {
+    let size = 0;
+    for (const profile of this.profiles.values()) {
+      size += profile.length;
+    }
+    return size / 2;
+  }
+
+  positionSize() {
+    let size = 0;
+    for (const profile of this.profiles.values()) {
+      let alt = -1;
+      for (const value of profile) {
+        size += alt * value;
+        alt = -1 * alt;
+      }
+    }
+    return size;
+  }
+
   /**
    * iterator of all the zones in the ZoneSet
    */

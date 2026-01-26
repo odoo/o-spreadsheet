@@ -1,8 +1,9 @@
 import { compile } from "../../formulas/compiler";
 import { deepEquals } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
-import { isInside, toUnboundedZone } from "../../helpers/zones";
+import { intersection, isInside, toUnboundedZone } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { Map2D } from "../../types/clipboard";
 import {
   AddConditionalFormatCommand,
   CancelledReason,
@@ -53,6 +54,7 @@ export class ConditionalFormatPlugin
     "getRulesSelection",
     "getRulesByCell",
     "getAdaptedCfRanges",
+    "getConditionalFormatRulesInZone",
   ] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
@@ -304,6 +306,27 @@ export class ConditionalFormatPlugin
       }
     }
     return ruleIds;
+  }
+
+  getConditionalFormatRulesInZone(sheetId: UID, zone: Zone): Map2D<ConditionalFormat[]> {
+    const map = new Map2D<ConditionalFormat[]>(zone.right, zone.bottom);
+
+    for (const cf of this.cfRules[sheetId]) {
+      const cfO = this.mapToConditionalFormat(sheetId, cf);
+      for (const cfZone of cf.ranges.map((range) => range.zone)) {
+        const inter = intersection(zone, cfZone);
+        if (!inter) continue;
+        for (let col = inter.left; col <= inter.right; col++) {
+          for (let row = inter.top; row <= inter.bottom; row++) {
+            const val = map.get(col, row) || [];
+            val.push(cfO);
+            map.set(col, row, val);
+          }
+        }
+      }
+    }
+
+    return map;
   }
 
   getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): Set<ConditionalFormat> {

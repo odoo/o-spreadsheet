@@ -145,6 +145,14 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "DUPLICATE_PIVOT",
 ]);
 
+export function doesInvalidateEvalution(cmd: Command): boolean {
+  return (
+    invalidateEvaluationCommands.has(cmd.type) ||
+    (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
+    (cmd.type === "SET_FORMATTING" && "format" in cmd)
+  );
+}
+
 export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
   "EVALUATE_CHARTS",
@@ -690,7 +698,7 @@ export interface UpdateFilterCommand extends PositionDependentCommand {
 
 export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
-  style?: Style;
+  style?: Style | null;
   format?: Format;
 }
 

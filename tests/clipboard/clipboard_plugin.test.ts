@@ -1,6 +1,7 @@
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   getClipboardDataPositions,
+  mapReplacer,
   parseOSClipboardContent,
 } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
@@ -71,6 +72,7 @@ import {
   getCell,
   getCellContent,
   getCellError,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getClipboardVisibleZones,
@@ -578,32 +580,43 @@ describe("clipboard", () => {
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const cbPlugin = getPlugin(model, ClipboardPlugin);
-      const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
+      const clipboardData = JSON.stringify(cbPlugin["getSheetData"](), mapReplacer);
       const expectedHtmlContent = `<div data-osheet-clipboard='${xmlEscape(
         clipboardData
-      )}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
+      )}'><table border="1" style="border-collapse:collapse"><tr><td>1</td><td>2</td></tr><tr><td>3</td></tr></table></div>`;
       expect(htmlContent).toBe(expectedHtmlContent);
     });
 
     test("Copied group of cells are represented as a valid HTML table in the clipboard", async () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "3");
-      copy(model, "A1:B2");
+      setCellContent(model, "C1", "3");
+      setCellContent(model, "A2", "4");
+      setCellContent(model, "B2", "5");
+      setCellContent(model, "A3", "6");
+      setCellContent(model, "C3", "7");
+
+      copy(model, "A1:C3");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const parsedHTML = parseXML(new XMLString(htmlContent), "text/html");
 
       expect(parsedHTML.body.firstElementChild?.tagName).toBe("DIV");
       const tableRows = parsedHTML.querySelectorAll("tr");
-      expect(tableRows).toHaveLength(2);
-      expect(tableRows[0].querySelectorAll("td")).toHaveLength(2);
+      expect(tableRows).toHaveLength(3);
+      expect(tableRows[0].querySelectorAll("td")).toHaveLength(3);
       expect(tableRows[0].querySelectorAll("td")[0].innerHTML).toEqual("1");
       expect(tableRows[0].querySelectorAll("td")[1].innerHTML).toEqual("2");
+      expect(tableRows[0].querySelectorAll("td")[2].innerHTML).toEqual("3");
 
       expect(tableRows[1].querySelectorAll("td")).toHaveLength(2);
-      expect(tableRows[1].querySelectorAll("td")[0].innerHTML).toEqual("3");
-      expect(tableRows[1].querySelectorAll("td")[1].innerHTML).toEqual("");
+      expect(tableRows[1].querySelectorAll("td")[0].innerHTML).toEqual("4");
+      expect(tableRows[1].querySelectorAll("td")[1].innerHTML).toEqual("5");
+
+      expect(tableRows[2].querySelectorAll("td")).toHaveLength(3);
+      expect(tableRows[2].querySelectorAll("td")[0].innerHTML).toEqual("6");
+      expect(tableRows[2].querySelectorAll("td")[1].innerHTML).toEqual("");
+      expect(tableRows[2].querySelectorAll("td")[2].innerHTML).toEqual("7");
     });
 
     test("Copied HTML table style", async () => {
@@ -654,7 +667,7 @@ describe("clipboard", () => {
       setCellContent(model, "A1", "1");
       copy(model, "A1");
       const cbPlugin = getPlugin(model, ClipboardPlugin);
-      const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
+      const clipboardData = JSON.stringify(cbPlugin["getSheetData"](), mapReplacer);
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       expect(osClipboardContent[ClipboardMIMEType.Html]).toBe(
         `<div data-osheet-clipboard='${xmlEscape(clipboardData)}'>1</div>`
@@ -1302,14 +1315,16 @@ describe("clipboard", () => {
 
     copy(model, "D4");
     paste(model, "E4", "asValue");
-    expect(getCell(model, "E4")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+    expect(getCell(model, "E4")?.content).toBe("45448");
+    expect(getCellFormat(model, "E4")).toBe("m/d/yyyy");
 
     setFormat(model, "D4", ""); // An empty string format is equivalent to no format
     expect(getCellContent(model, "D4")).toBe("6/5/2024");
 
     copy(model, "D4");
     paste(model, "E5", "asValue");
-    expect(getCell(model, "E5")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+    expect(getCell(model, "E5")?.content).toBe("45448");
+    expect(getCellFormat(model, "E5")).toBe("m/d/yyyy");
   });
 
   test("can copy a formula and paste as value", () => {
@@ -2239,12 +2254,12 @@ describe("clipboard", () => {
 
     // automatic format on G4
     expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
-    expect(getCell(model, "G4")?.format).toBeUndefined();
+    expect(getCellFormat(model, "G4")).toBeUndefined();
     expect(getEvaluatedCell(model, "G4").format).toBe("#,##0[$$]");
 
     // forced format copied from D5
     expect(getCell(model, "G5")?.content).toBe('=PIVOT.VALUE(1,"Price:sum")');
-    expect(getCell(model, "G5")?.format).toBe("#,##0.0");
+    expect(getCellFormat(model, "G5")).toBe("#,##0.0");
     expect(getEvaluatedCell(model, "G5").format).toBe("#,##0.0");
   });
 
@@ -3180,19 +3195,20 @@ test("Can use clipboard handlers to paste in a sheet other than the active sheet
   model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, ranges: toRangesData(sheetId, "A1"), sheetId });
   createTable(model, "A1");
 
-  const handlers = clipboardHandlersRegistries.cellHandlers
-    .getAll()
-    .map((handler) => new handler(model.getters, model.dispatch));
+  const handlers = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
+    const handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
+    return { handlerName, handler: new handler(model.getters, model.dispatch) };
+  });
 
-  let copiedData = {};
+  const copiedData = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);
-  for (const handler of handlers) {
-    copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
+  for (const { handlerName, handler } of handlers) {
+    copiedData[handlerName] = handler.copy(clipboardData, false);
   }
 
   const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("A1") };
-  for (const handler of handlers) {
-    handler.paste(pasteTarget, copiedData, { isCutOperation: false });
+  for (const { handlerName, handler } of handlers) {
+    handler.paste(pasteTarget, copiedData[handlerName], { isCutOperation: false });
   }
 
   expect(getCellContent(model, "A1", "sh2")).toBe("1");

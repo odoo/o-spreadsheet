@@ -28,7 +28,12 @@ import {
   undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellStyle } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellFormat,
+  getCellStyle,
+} from "../test_helpers/getters_helpers";
 
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(
@@ -39,7 +44,8 @@ function getDefaultCellHeight(
 ) {
   const cell = getCell(model, xc);
   const style = getCellStyle(model, xc);
-  return Math.round(getDefaultCellHeightHelper(ctx, cell, style, locale, colSize));
+  const format = getCellFormat(model, xc);
+  return Math.round(getDefaultCellHeightHelper(ctx, cell, style, format, locale, colSize));
 }
 
 describe("Model resizer", () => {

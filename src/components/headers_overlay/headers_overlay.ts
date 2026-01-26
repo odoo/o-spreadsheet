@@ -4,6 +4,7 @@ import {
   TableHeaderMoveErrorMessage,
 } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
+import { SequenceSet } from "@odoo/o-spreadsheet-engine/helpers/cells/sequence_set";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef, useState } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
@@ -106,7 +107,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   abstract _getType(): ContextMenuType;
 
-  abstract _getActiveElements(): Set<HeaderIndex>;
+  abstract _getActiveElements(): SequenceSet;
 
   abstract _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex;
 
@@ -463,7 +464,7 @@ export class ColResizer extends AbstractResizer {
     return "COL";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
+  _getActiveElements(): SequenceSet {
     return this.env.model.getters.getActiveCols();
   }
 
@@ -641,7 +642,7 @@ export class RowResizer extends AbstractResizer {
     return "ROW";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
+  _getActiveElements(): SequenceSet {
     return this.env.model.getters.getActiveRows();
   }
 

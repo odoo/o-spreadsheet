@@ -249,13 +249,14 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private findMatchesInSheet(sheetId: string) {
     const matches: CellPosition[] = [];
 
-    const { left, right, top, bottom } = this.getters.getSheetZone(sheetId);
+    const { left, right, top, bottom } = this.getters.getSheetEvaluatedZone(sheetId);
 
     for (let row = top; row <= bottom; row++) {
+      const isRowHidden = this.getters.isRowHidden(sheetId, row);
+      if (isRowHidden) continue;
       for (let col = left; col <= right; col++) {
         const isColHidden = this.getters.isColHidden(sheetId, col);
-        const isRowHidden = this.getters.isRowHidden(sheetId, row);
-        if (isColHidden || isRowHidden) {
+        if (isColHidden) {
           continue;
         }
         const cellPosition: CellPosition = { sheetId, col, row };

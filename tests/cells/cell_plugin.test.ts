@@ -28,6 +28,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getEvaluatedCell,
@@ -60,9 +61,9 @@ describe("getCellText", () => {
       content: "=DATE(2021,1,1)",
       format: "bla",
     });
-    expect(getCell(model, "A1")?.format).toBe("bla");
-    expect(getCell(model, "B2")?.format).toBe("bla");
-    expect(getCell(model, "C3")?.format).toBe("bla");
+    expect(getCellFormat(model, "A1")).toBe("bla");
+    expect(getCellFormat(model, "B2")).toBe("bla");
+    expect(getCellFormat(model, "C3")).toBe("bla");
   });
 
   test("update cell outside of sheet", () => {
@@ -577,7 +578,8 @@ test.each([
   (literal, value, format) => {
     const model = new Model();
     setCellContent(model, "A1", literal);
-    expect(getCell(model, "A1")).toMatchObject({ content: value, format: format });
+    expect(getCell(model, "A1")).toMatchObject({ content: value });
+    expect(getCellFormat(model, "A1")).toBe(format);
     const exportedData = model.exportData();
     expect(exportedData.sheets[0].cells.A1).toBe(value);
     expect(exportedData.sheets[0].formats.A1).toBe(1);

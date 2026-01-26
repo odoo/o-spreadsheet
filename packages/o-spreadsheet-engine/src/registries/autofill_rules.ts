@@ -7,11 +7,11 @@ import {
   getTimeDifferenceInWholeYears,
 } from "../helpers/dates";
 import { isDateTimeFormat } from "../helpers/format/format";
-import { AutofillModifier } from "../types/autofill";
-import { Cell, CellValueType, EvaluatedCell, LiteralCell } from "../types/cells";
+import { AutofillData, AutofillModifier } from "../types/autofill";
+import { CellValueType, EvaluatedCell } from "../types/cells";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { DIRECTION } from "../types/misc";
-import { Registry } from "./registry";
+import { OrderedRegistry } from "./registry";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill
@@ -20,11 +20,11 @@ import { Registry } from "./registry";
  * When we generate the rules to autofill, we take the first matching rule
  * (ordered by sequence), and we generate the AutofillModifier with generateRule
  */
-export interface AutofillRule {
-  condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => AutofillModifier;
-  sequence: number;
-}
+export type AutofillRule = (
+  cell: AutofillData,
+  cells: AutofillData[],
+  direction: DIRECTION
+) => AutofillModifier | undefined;
 
 export interface CalendarDateInterval {
   years: number;
@@ -32,7 +32,7 @@ export interface CalendarDateInterval {
   days: number;
 }
 
-export const autofillRulesRegistry = new Registry<AutofillRule>();
+export const autofillRulesRegistry = new OrderedRegistry<AutofillRule>();
 
 const numberPostfixRegExp = /(\d+)$/;
 const stringPrefixRegExp = /^(.*\D+)/;
@@ -44,8 +44,8 @@ const leadingZerosRegex = /^0*/;
  * Return the one which contains the given cell
  */
 function getGroup(
-  cell: Cell,
-  cells: (Cell | undefined)[],
+  cell: AutofillData,
+  cells: AutofillData[],
   filter: (evaluatedCell: EvaluatedCell) => boolean
 ) {
   let group: EvaluatedCell[] = [];
@@ -55,9 +55,9 @@ function getGroup(
       found = true;
     }
     const cellValue =
-      x === undefined || x.isFormula
+      !x.cell || x.cell.isFormula
         ? undefined
-        : evaluateLiteral(x, { locale: DEFAULT_LOCALE, format: x.format });
+        : evaluateLiteral(x.cell, { locale: DEFAULT_LOCALE, format: x.format });
     if (cellValue && filter(cellValue)) {
       group.push(cellValue);
     } else {
@@ -174,29 +174,42 @@ function calculateDateIncrementBasedOnGroup(group: number[]) {
   };
 }
 
+function is(cellData: AutofillData, type: CellValueType) {
+  return (
+    cellData.cell &&
+    !cellData.cell.isFormula &&
+    evaluateLiteral(cellData.cell, { locale: DEFAULT_LOCALE }).type === type
+  );
+}
+
 autofillRulesRegistry
-  .add("simple_value_copy", {
-    condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return (
-        cells.length === 1 && !cell.isFormula && !(cell.format && isDateTimeFormat(cell.format))
-      );
+  .add(
+    "simple_value_copy",
+    (cellData: AutofillData, cellsData: AutofillData[], direction: DIRECTION) => {
+      if (
+        cellsData.length === 1 &&
+        !cellData.formula &&
+        !(cellData.format && isDateTimeFormat(cellData.format))
+      ) {
+        return { type: "COPY_MODIFIER" };
+      }
+      return;
     },
-    generateRule: () => {
-      return { type: "COPY_MODIFIER" };
-    },
-    sequence: 10,
-  })
-  .add("increment_alphanumeric_value", {
-    condition: (cell: Cell) =>
-      !cell.isFormula &&
-      evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
-      alphaNumericValueRegExp.test(cell.content),
-    generateRule: (cell: Cell, cells: Cell[], direction: DIRECTION) => {
+    10
+  )
+  .add(
+    "increment_alphanumeric_value",
+    (cellData: AutofillData, cellsData: AutofillData[], direction: DIRECTION) => {
+      if (!cellData.cell) return;
+      if (cellData.cell?.isFormula) return;
+      if (!is(cellData, CellValueType.text)) return;
+      if (!cellData.content || !alphaNumericValueRegExp.test(cellData.content)) return;
+      const cell = cellData.cell;
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
       const prefix = cell.content.match(stringPrefixRegExp)![0];
       const group = getGroup(
-        cell,
-        cells,
+        cellData,
+        cellsData,
         (evaluatedCell) =>
           evaluatedCell.type === CellValueType.text &&
           alphaNumericValueRegExp.test(evaluatedCell.value)
@@ -226,90 +239,99 @@ autofillRulesRegistry
         numberPostfixLength,
       };
     },
-    sequence: 15,
-  })
-  .add("copy_text", {
-    condition: (cell: Cell) =>
-      !cell.isFormula &&
-      evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text,
-    generateRule: () => {
-      return { type: "COPY_MODIFIER" };
-    },
-    sequence: 20,
-  })
-  .add("update_formula", {
-    condition: (cell: Cell) => cell.isFormula,
-    generateRule: (_, cells: (Cell | undefined)[]) => {
-      return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
-    },
-    sequence: 30,
-  })
-  .add("increment_dates", {
-    condition: (cell: Cell, cells: (Cell | undefined)[]) => {
-      return (
-        !cell.isFormula &&
-        evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number &&
-        !!cell.format &&
-        isDateTimeFormat(cell.format)
-      );
-    },
-    generateRule: (cell: LiteralCell, cells: (Cell | undefined)[]) => {
-      const group = getGroup(
-        cell,
-        cells,
-        (evaluatedCell) =>
-          evaluatedCell.type === CellValueType.number &&
-          !!evaluatedCell.format &&
-          isDateTimeFormat(evaluatedCell.format)
-      ).map((cell) => Number(cell.value));
-      const increment = calculateDateIncrementBasedOnGroup(group);
-      if (increment === undefined) {
+    15
+  )
+  .add(
+    "copy_text",
+    (cellData: AutofillData, cellsData: AutofillData[], direction: DIRECTION) => {
+      if (!cellData.formula && is(cellData, CellValueType.text)) {
         return { type: "COPY_MODIFIER" };
       }
-      /**  requires to detect the current date (requires to be an integer value  with the right format)
-       * detect  if year  or if month or if day then extrapolate increment required (+1 month, +1 year + 1 day)
-       */
-      const evaluation = evaluateLiteral(cell, { locale: DEFAULT_LOCALE });
-      if (typeof increment === "object") {
+      return;
+    },
+    20
+  )
+  .add(
+    "increment_dates",
+    (cellData: AutofillData, cellsData: AutofillData[], direction: DIRECTION) => {
+      const cell = cellData.cell;
+      if (
+        cell &&
+        !cell.isFormula &&
+        is(cellData, CellValueType.number) &&
+        !!cellData.format &&
+        isDateTimeFormat(cellData.format)
+      ) {
+        const group = getGroup(
+          cellData,
+          cellsData,
+          (evaluatedCell) =>
+            evaluatedCell.type === CellValueType.number &&
+            !!evaluatedCell.format &&
+            isDateTimeFormat(evaluatedCell.format)
+        ).map((cell) => Number(cell.value));
+        const increment = calculateDateIncrementBasedOnGroup(group);
+        if (increment === undefined) {
+          return { type: "COPY_MODIFIER" };
+        }
+        /**  requires to detect the current date (requires to be an integer value  with the right format)
+         * detect  if year  or if month or if day then extrapolate increment required (+1 month, +1 year + 1 day)
+         */
+        const evaluation = evaluateLiteral(cell, { locale: DEFAULT_LOCALE });
+        if (typeof increment === "object") {
+          return {
+            type: "DATE_INCREMENT_MODIFIER",
+            increment,
+            current: evaluation.type === CellValueType.number ? evaluation.value : 0,
+          };
+        }
         return {
-          type: "DATE_INCREMENT_MODIFIER",
+          type: "INCREMENT_MODIFIER",
           increment,
           current: evaluation.type === CellValueType.number ? evaluation.value : 0,
         };
       }
-      return {
-        type: "INCREMENT_MODIFIER",
-        increment,
-        current: evaluation.type === CellValueType.number ? evaluation.value : 0,
-      };
+      return;
     },
-    sequence: 25,
-  })
-  .add("increment_number", {
-    condition: (cell: Cell) =>
-      !cell.isFormula &&
-      evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.number,
-    generateRule: (cell: LiteralCell, cells: (Cell | undefined)[], direction: DIRECTION) => {
-      const group = getGroup(
-        cell,
-        cells,
-        (evaluatedCell) =>
-          evaluatedCell.type === CellValueType.number &&
-          !isDateTimeFormat(evaluatedCell.format || "")
-      ).map((cell) => Number(cell.value));
-      let increment = calculateIncrementBasedOnGroup(group);
-      if (["up", "left"].includes(direction) && group.length === 1) {
-        increment = -increment;
+    25
+  )
+  .add(
+    "update_formula",
+    (cellData: AutofillData, cellsData: AutofillData[], direction: DIRECTION) => {
+      if (cellData.cell?.isFormula) {
+        return { type: "FORMULA_MODIFIER", increment: cellsData.length, current: 0 };
       }
-      const evaluation = evaluateLiteral(cell, { locale: DEFAULT_LOCALE });
-      return {
-        type: "INCREMENT_MODIFIER",
-        increment,
-        current: evaluation.type === CellValueType.number ? evaluation.value : 0,
-      };
+      return;
     },
-    sequence: 40,
-  });
+    30
+  )
+  .add(
+    "increment_number",
+    (cellData: AutofillData, cellsData: AutofillData[], direction: DIRECTION) => {
+      const cell = cellData.cell;
+      if (cell && !cell.isFormula && is(cellData, CellValueType.number)) {
+        const group = getGroup(
+          cellData,
+          cellsData,
+          (evaluatedCell) =>
+            evaluatedCell.type === CellValueType.number &&
+            !isDateTimeFormat(evaluatedCell.format || "")
+        ).map((cell) => Number(cell.value));
+        let increment = calculateIncrementBasedOnGroup(group);
+        if (["up", "left"].includes(direction) && group.length === 1) {
+          increment = -increment;
+        }
+        const evaluation = evaluateLiteral(cell, { locale: DEFAULT_LOCALE });
+        return {
+          type: "INCREMENT_MODIFIER",
+          increment,
+          current: evaluation.type === CellValueType.number ? evaluation.value : 0,
+        };
+      }
+      return;
+    },
+    40
+  );
 
 /**
  * Returns the date intervals between consecutive dates of an array

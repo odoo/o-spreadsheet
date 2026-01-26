@@ -7,6 +7,7 @@ import {
   applyClipboardHandlersPaste,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
+  mapReplacer,
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
@@ -19,6 +20,7 @@ import {
   ClipboardData,
   ClipboardMIMEType,
   ClipboardOptions,
+  Map2D,
   MinimalClipboardData,
   OSClipboardContent,
   SpreadsheetClipboardData,
@@ -50,6 +52,7 @@ export class ClipboardPlugin extends UIPlugin {
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
+    "adaptClipboardContentFromJSON",
   ] as const;
 
   private status: "visible" | "invisible" = "invisible";
@@ -345,8 +348,9 @@ export class ClipboardPlugin extends UIPlugin {
     const copiedData = {};
     for (const { handlerName, handler } of handlers) {
       const data = handler.convertTextToClipboardData(clipboardData);
-      copiedData[handlerName] = data;
-      const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
+      if (data) copiedData[handlerName] = data;
+      if (handlerName === "cell" && data) copiedData["cellContent"] = data.cellContent;
+      const minimalKeys = ["sheetId", "zones", "figureId"];
       for (const key of minimalKeys) {
         if (data && key in data) {
           copiedData[key] = data[key];
@@ -414,8 +418,9 @@ export class ClipboardPlugin extends UIPlugin {
     const clipboardData = this.getClipboardData(zones);
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
       const data = handler.copy(clipboardData, this._isCutOperation, mode);
-      copiedData[handlerName] = data;
-      const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
+      if (data) copiedData[handlerName] = data;
+      if (handlerName === "cell" && data) copiedData["cellContent"] = data.cellContent;
+      const minimalKeys = ["sheetId", "zones", "figureId"];
       for (const key of minimalKeys) {
         if (data && key in data) {
           copiedData[key] = data[key];
@@ -529,6 +534,20 @@ export class ClipboardPlugin extends UIPlugin {
     return content;
   }
 
+  adaptClipboardContentFromJSON(data: SpreadsheetClipboardData): SpreadsheetClipboardData {
+    const handlers = clipboardHandlersRegistries.cellHandlers.getKeys();
+    for (const handler of handlers) {
+      //@ts-ignore
+      if (handler in data.data && "cellContent" in data.data[handler]) {
+        //@ts-ignore
+        const content = data.data[handler].cellContent;
+        //@ts-ignore
+        data.data[handler].cellContent = new Map2D(content.width, content.height, content.map);
+      }
+    }
+    return data;
+  }
+
   private getSheetData(): SpreadsheetClipboardData {
     const data = {
       version: getCurrentVersion(),
@@ -544,17 +563,18 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private getPlainTextContent(): string {
-    if (!this.copiedData?.cells) {
+    if (!this.copiedData?.cellContent) {
       return "\t";
     }
     return (
-      this.copiedData.cells
+      this.copiedData.cellContent
+        .toMatrix()
         .map((cells) => {
           return cells
             .map((c) =>
               this.getters.shouldShowFormulas() && c?.tokens?.length
                 ? c?.content || ""
-                : c.evaluatedCell?.formattedValue || ""
+                : c?.evaluatedCell?.formattedValue || ""
             )
             .join("\t");
         })
@@ -564,7 +584,7 @@ export class ClipboardPlugin extends UIPlugin {
 
   private async getHTMLContent(): Promise<string> {
     let innerHTML: string = "";
-    const cells = this.copiedData?.cells;
+    const cells = this.copiedData?.cellContent?.toMatrix();
     if (!cells) {
       if (this.copiedData?.figureId) {
         const figureId = this.copiedData.figureId;
@@ -579,29 +599,35 @@ export class ClipboardPlugin extends UIPlugin {
         innerHTML = "\t";
       }
     } else if (cells.length === 1 && cells[0].length === 1) {
-      innerHTML = `${this.getters.getCellText(cells[0][0].position)}`;
-    } else if (!cells[0][0]) {
-      return "";
+      const position = cells[0][0]?.position;
+      innerHTML = position ? `${this.getters.getCellText(position)}` : "";
     } else {
       let htmlTable = `<table border="1" style="border-collapse:collapse">`;
       for (const row of cells) {
         htmlTable += "<tr>";
+        let skipped = 0;
         for (const cell of row) {
           if (!cell) {
+            skipped++;
             continue;
+          }
+          if (skipped) {
+            htmlTable += `<td/>`.repeat(skipped);
+            skipped = 0;
           }
           const cssStyle = cssPropertiesToCss(
             cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
           );
+          const styleStr = cssStyle ? ` style="${cssStyle}"` : "";
           const cellText = this.getters.getCellText(cell.position);
-          htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
+          htmlTable += `<td${styleStr}>` + xmlEscape(cellText) + "</td>";
         }
         htmlTable += "</tr>";
       }
       htmlTable += "</table>";
       innerHTML = htmlTable;
     }
-    const serializedData = JSON.stringify(this.getSheetData());
+    const serializedData = JSON.stringify(this.getSheetData(), mapReplacer);
     return `<div data-osheet-clipboard='${xmlEscape(serializedData)}'>${innerHTML}</div>`;
   }
 
@@ -727,7 +753,11 @@ export class ClipboardPlugin extends UIPlugin {
     }
     const data = getClipboardDataPositions(sheetId, zones);
     if (!this._isCutOperation) {
-      data.rowsIndexes = data.rowsIndexes.filter((r) => !this.getters.isRowFiltered(sheetId, r));
+      [...data.rowsIndexes].forEach((r) => {
+        if (this.getters.isRowFiltered(sheetId, r)) {
+          data.rowsIndexes.remove(r);
+        }
+      });
     }
     return data;
   }

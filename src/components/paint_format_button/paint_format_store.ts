@@ -10,10 +10,10 @@ import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registri
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";
-import { ClipboardCell, ClipboardOptions, Command, Highlight, UID, Zone } from "../../types";
+import { ClipboardCell, ClipboardOptions, Command, Highlight, Map2D, UID, Zone } from "../../types";
 
 interface ClipboardContent {
-  cells: ClipboardCell[][];
+  cells: Map2D<ClipboardCell>;
   zones: Zone[];
   sheetId: UID;
   [key: string]: unknown;

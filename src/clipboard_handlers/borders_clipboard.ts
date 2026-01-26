@@ -1,6 +1,9 @@
-import { deepEquals, groupConsecutive } from "@odoo/o-spreadsheet-engine";
+import { deepEquals } from "@odoo/o-spreadsheet-engine";
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { splitZoneForPaste } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  columnRowIndexesToZones,
+  splitZoneForPaste,
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { ZoneBorder, ZoneBorderData } from "@odoo/o-spreadsheet-engine/plugins/core/borders";
 import {
   BorderDescr,
@@ -14,48 +17,37 @@ import {
 
 type ClipboardContent = {
   borders: ZoneBorder[];
-  width: number;
-  height: number;
+  cellContent: { width: number; height: number };
 };
 
-export class BorderClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  ZoneBorder
-> {
+export class BorderClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
     }
     const borders: ZoneBorder[] = [];
-    let colsBefore = 0;
-    for (const cols of groupConsecutive(data.columnsIndexes)) {
-      let rowsBefore = 0;
-      for (const rows of groupConsecutive(data.rowsIndexes)) {
-        const zone = {
-          left: cols[0],
-          right: cols[cols.length - 1],
-          top: rows[0],
-          bottom: rows[rows.length - 1],
-        };
-        borders.push(
-          ...this.getters.getBorders(sheetId, zone).map(({ zone: borderZone, style }) => {
-            return {
-              zone: {
-                left: borderZone.left - zone.left + colsBefore,
-                right: borderZone.right && borderZone.right - zone.left + colsBefore,
-                top: borderZone.top - zone.top + rowsBefore,
-                bottom: borderZone.bottom && borderZone.bottom - zone.top + rowsBefore,
-              },
-              style,
-            };
-          })
-        );
-        rowsBefore += rows.length;
-      }
-      colsBefore += cols.length;
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      borders.push(
+        ...this.getters.getBorders(data.sheetId, zone).map(({ zone: borderZone, style }) => {
+          return {
+            zone: {
+              left: borderZone.left - zone.left + colsBefore,
+              right: borderZone.right && borderZone.right - zone.left + colsBefore,
+              top: borderZone.top - zone.top + rowsBefore,
+              bottom: borderZone.bottom && borderZone.bottom - zone.top + rowsBefore,
+            },
+            style,
+          };
+        })
+      );
     }
-    return { borders, width: data.columnsIndexes.length, height: data.rowsIndexes.length };
+    return {
+      borders,
+      cellContent: { width: data.columnsIndexes.length, height: data.rowsIndexes.length },
+    };
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -66,7 +58,11 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        for (const pasteZone of splitZoneForPaste(
+          zone,
+          content.cellContent.width,
+          content.cellContent.height
+        )) {
           this.pasteBorderZone(sheetId, pasteZone.left, pasteZone.top, content.borders);
         }
       }

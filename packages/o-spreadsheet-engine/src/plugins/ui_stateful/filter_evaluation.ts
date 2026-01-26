@@ -8,7 +8,7 @@ import { criterionEvaluatorRegistry } from "../../registries/criterion_registry"
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import { CellPosition, FilterId, UID } from "../../types/misc";
+import { CellPosition, FilterId, HeaderIndex, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue, Table } from "../../types/table";
 import { ExcelFilterData, ExcelWorkbookData } from "../../types/workbook_data";
 import { UIPlugin } from "../ui_plugin";
@@ -23,6 +23,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
     "getFirstTableInSelection",
     "isRowFiltered",
     "isFilterActive",
+    "getFilteredRows",
   ] as const;
 
   private filterValues: Record<UID, Record<FilterId, DataFilterValue>> = {};
@@ -46,6 +47,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "UNDO":
       case "REDO":
       case "UPDATE_CELL":
+      case "SET_FORMATTING":
       case "EVALUATE_CELLS":
       case "ACTIVATE_SHEET":
       case "REMOVE_TABLE":
@@ -97,6 +99,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   isRowFiltered(sheetId: UID, row: number): boolean {
     return !!this.hiddenRows[sheetId]?.has(row);
+  }
+
+  getFilteredRows(sheetId: UID): HeaderIndex[] {
+    if (!this.hiddenRows[sheetId]) return [];
+    return [...this.hiddenRows[sheetId].values()];
   }
 
   getFilterValue(position: CellPosition): DataFilterValue | undefined {

@@ -140,15 +140,18 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   private onColRemove(sheetId: UID) {
+    const figures = this.getFigures(sheetId);
+    const maxFigureWidth = Math.max(...figures.map((f) => f.width));
     const numHeader = this.getters.getNumberCols(sheetId);
-    const remainingSize: number[] = new Array(numHeader + 1);
+    const remainingSize = {};
     remainingSize[numHeader] = 0;
     for (let i = numHeader - 1; i >= 0; i--) {
       remainingSize[i] = remainingSize[i + 1] + this.getters.getColSize(sheetId, i);
+      if (remainingSize[i] > maxFigureWidth) break;
     }
 
-    for (const figure of this.getFigures(sheetId)) {
-      if (figure.offset.x + figure.width > remainingSize[figure.col]) {
+    for (const figure of figures) {
+      if (remainingSize[figure.col] && figure.offset.x + figure.width > remainingSize[figure.col]) {
         let x = figure.offset.x;
         let col = figure.col;
 
@@ -172,18 +175,24 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   private onRowRemove(sheetId: UID) {
+    const figures = this.getFigures(sheetId);
+    const maxFigureHeight = Math.max(...figures.map((f) => f.height));
     const numHeader = this.getters.getNumberRows(sheetId);
-    const remainingSize: number[] = new Array(numHeader + 1);
+    const remainingSize = {};
     remainingSize[numHeader] = 0;
     for (let i = numHeader - 1; i >= 0; i--) {
       // TODO : since the row size is an UI value now, this doesn't work anymore. Using the default cell height is
       // a temporary solution at best, but is broken.
       remainingSize[i] =
         remainingSize[i + 1] + (this.getters.getUserRowSize(sheetId, i) ?? DEFAULT_CELL_HEIGHT);
+      if (remainingSize[i] > maxFigureHeight) break;
     }
 
-    for (const figure of this.getFigures(sheetId)) {
-      if (figure.offset.y + figure.height > remainingSize[figure.row]) {
+    for (const figure of figures) {
+      if (
+        remainingSize[figure.row] &&
+        figure.offset.y + figure.height > remainingSize[figure.row]
+      ) {
         let y = figure.offset.y;
         let row = figure.row;
         for (

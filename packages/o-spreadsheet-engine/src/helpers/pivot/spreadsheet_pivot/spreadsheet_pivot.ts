@@ -483,7 +483,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   private extractDataEntriesFromRange(range: Range): DataEntries {
     const dataEntries: DataEntries = [];
-
+    const formats = this.getters.getCellFormatInZone(range.sheetId, range.zone);
     for (let row = range.zone.top + 1; row <= range.zone.bottom; row++) {
       const zone = { top: row, bottom: row, left: range.zone.left, right: range.zone.right };
       const cells = this.getters.getEvaluatedCellsInZone(range.sheetId, zone);
@@ -494,8 +494,17 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         if (!field) {
           throw new Error(`Field ${this.metaData.fieldKeys[index]} does not exist`);
         }
-        if (cell.value === "") {
-          entry[field.name] = { value: null, type: CellValueType.empty, formattedValue: "" };
+        if (cell.value === "" || cell.value === null || cell.value === undefined) {
+          entry[field.name] = {
+            value: null,
+            type: CellValueType.empty,
+            format: formats.get({
+              sheetId: range.sheetId,
+              row,
+              col: range.zone.left + parseInt(index),
+            }),
+            formattedValue: "",
+          };
         } else {
           entry[field.name] = cell;
         }
