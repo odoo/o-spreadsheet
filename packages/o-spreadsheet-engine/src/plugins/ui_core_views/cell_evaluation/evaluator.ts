@@ -1,6 +1,10 @@
 import { compile } from "../../../formulas/compiler";
 
-import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
+import {
+  createEvaluatedCell,
+  emptyCell,
+  evaluateLiteral,
+} from "../../../helpers/cells/cell_evaluation";
 
 import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
@@ -28,6 +32,7 @@ import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
+import { Format } from "../../../types/format";
 import { Getters } from "../../../types/getters";
 import {
   CellPosition,
@@ -56,6 +61,7 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  private formatCache: PositionMap<Format> = new PositionMap();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -160,6 +166,8 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(rangesToCompute));
     rangesToCompute.addMany(arrayFormulasPositions);
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
+    this.formatCache = new PositionMap<Format>();
+    this.getters.addCellFormatInRanges(rangesToCompute, this.formatCache);
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
   }
@@ -221,6 +229,8 @@ export class Evaluator {
       const zone = this.getters.getSheetZone(sheetId);
       ranges.push({ sheetId, zone });
     }
+    this.formatCache = new PositionMap<Format>();
+    this.getters.addCellFormatInRanges(ranges, this.formatCache);
     this.evaluate(ranges);
     console.debug("evaluate all cells", performance.now() - start, "ms");
   }
@@ -345,19 +355,19 @@ export class Evaluator {
 
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
-      return EMPTY_CELL;
+      return emptyCell(this.formatCache.get(position));
     }
 
     const cellId = cell.id;
-    const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
+    const format = this.formatCache.get(position);
     try {
       if (this.cellsBeingComputed.has(cellId)) {
         return ERROR_CYCLE_CELL;
       }
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
-        ? this.computeFormulaCell(position, cell)
-        : evaluateLiteral(cell, localeFormat, position);
+        ? this.computeFormulaCell(position, cell, format)
+        : evaluateLiteral(cell, { format, locale: this.getters.getLocale() }, position);
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
@@ -376,7 +386,11 @@ export class Evaluator {
     return evaluatedCell;
   }
 
-  private computeFormulaCell(formulaPosition: CellPosition, cellData: FormulaCell): EvaluatedCell {
+  private computeFormulaCell(
+    formulaPosition: CellPosition,
+    cellData: FormulaCell,
+    format?: Format
+  ): EvaluatedCell {
     const formulaReturn = updateEvalContextAndExecute(
       cellData.compiledFormula,
       this.compilationParams,
@@ -387,8 +401,7 @@ export class Evaluator {
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(formulaReturn),
-        this.getters.getLocale(),
-        cellData,
+        this.getters.getLocaleFormat(format),
         formulaPosition
       );
       if (evaluatedCell.type === CellValueType.error) {
@@ -403,14 +416,13 @@ export class Evaluator {
     const nbRows = formulaReturn[0].length;
     if (nbRows === 0) {
       // empty matrix
-      return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), cellData);
+      return createEvaluatedCell({ value: 0 }, this.getters.getLocaleFormat(format));
     }
     if (nbRows === 1 && nbColumns === 1) {
       // single value matrix
       return createEvaluatedCell(
         validateNumberValue(formulaReturn[0][0]),
-        this.getters.getLocale(),
-        cellData
+        this.getters.getLocaleFormat(format)
       );
     }
 
@@ -420,6 +432,10 @@ export class Evaluator {
       left: formulaPosition.col,
       right: formulaPosition.col + nbColumns - 1,
     };
+    this.getters.addCellFormatInRanges(
+      [{ sheetId: formulaPosition.sheetId, zone: resultZone }],
+      this.formatCache
+    );
     this.spreadingRelations.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
@@ -432,8 +448,7 @@ export class Evaluator {
     this.invalidatePositionsDependingOnSpread(formulaPosition.sheetId, resultZone);
     return createEvaluatedCell(
       validateNumberValue(formulaReturn[0][0]),
-      this.getters.getLocale(),
-      cellData
+      this.getters.getLocaleFormat(format)
     );
   }
 
@@ -524,11 +539,9 @@ export class Evaluator {
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const cell = this.getters.getCell(position);
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(matrixResult[i][j]),
-        this.getters.getLocale(),
-        cell,
+        this.getters.getLocaleFormat(this.formatCache.get(position)),
         position
       );
       if (evaluatedCell.type === CellValueType.error) {

@@ -151,13 +151,16 @@ export class SortPlugin extends UIPlugin {
     const sortedIndex: number[] = sortedIndexOfSortTypeCells.map((x) => x.index);
 
     const [width, height]: [number, number] = [cellPositions.length, cellPositions[0].length];
+    const styles = this.getters.getCellStyleInZone(sheetId, zone);
+    const formats = this.getters.getCellFormatInZone(sheetId, zone);
 
     const updateCellCommands: Omit<UpdateCellCommand, "type">[] = [];
     for (let c: HeaderIndex = 0; c < width; c++) {
       for (let r: HeaderIndex = 0; r < height; r++) {
         const position = cellPositions[c][sortedIndex[r]];
         const cell = this.getters.getCell(position);
-        const style = this.getters.getCellStyle(position);
+        const style = styles.get(position);
+        const format = formats.get(position);
         const newCol: HeaderIndex = sortZone.left + c * stepX;
         const newRow: HeaderIndex = sortZone.top + r * stepY;
         const newCellValues: Omit<UpdateCellCommand, "type"> = {
@@ -180,7 +183,7 @@ export class SortPlugin extends UIPlugin {
           }
           newCellValues.style = style;
           newCellValues.content = content;
-          newCellValues.format = cell.format;
+          newCellValues.format = format;
         }
         updateCellCommands.push(newCellValues);
       }

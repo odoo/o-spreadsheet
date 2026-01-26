@@ -16,7 +16,7 @@ import {
   setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellStyle, getStyle } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getCellFormat, getCellStyle, getStyle } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("styles", () => {
@@ -123,7 +123,7 @@ describe("styles", () => {
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
     expect(getCellStyle(model, "B1")).toBeDefined();
-    expect(getCell(model, "B1")!.format).toBeDefined();
+    expect(getCellFormat(model, "B1")).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
@@ -137,7 +137,7 @@ describe("styles", () => {
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
     expect(getCellStyle(model, "B1")).toBeDefined();
-    expect(getCell(model, "B1")!.format).toBeDefined();
+    expect(getCellFormat(model, "B1")).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
@@ -145,7 +145,7 @@ describe("styles", () => {
     expect(getCellStyle(model, "B1")).not.toBeDefined();
     undo(model);
     expect(getCellStyle(model, "B1")).toBeDefined();
-    expect(getCell(model, "B1")!.format).toBeDefined();
+    expect(getCellFormat(model, "B1")).toBeDefined();
   });
 
   test("clear formatting should remove format", () => {
@@ -156,7 +156,7 @@ describe("styles", () => {
       sheetId,
       target: target("A1"),
     });
-    expect(getCell(model, "A1")?.format).toBeUndefined();
+    expect(getCellFormat(model, "A1")).toBeUndefined();
   });
 
   test("Can set a format in another than the active one", () => {

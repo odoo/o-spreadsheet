@@ -420,9 +420,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
    * @private
    */
   private _startEdition(str?: string, selection?: ComposerSelection) {
-    const evaluatedCell = this.getters.getActiveCell();
+    const format = this.getters.getCellFormat(this.getters.getActivePosition());
     const locale = this.getters.getLocale();
-    if (str && evaluatedCell.format?.includes("%") && isNumber(str, locale)) {
+    if (str && format?.includes("%") && isNumber(str, locale)) {
       selection = selection || { start: str.length, end: str.length };
       str = `${str}%`;
     }

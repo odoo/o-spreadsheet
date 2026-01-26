@@ -1,8 +1,10 @@
 import { deepEquals, range, trimContent } from "@odoo/o-spreadsheet-engine";
+import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
 import { getClipboardDataPositions } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions, zoneToDimension } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
+import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   Command,
@@ -10,7 +12,6 @@ import {
   RemoveDuplicatesCommand,
 } from "@odoo/o-spreadsheet-engine/types/commands";
 import { HeaderIndex, UID, Zone } from "@odoo/o-spreadsheet-engine/types/misc";
-import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 
 export class DataCleanupPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
@@ -76,10 +77,16 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: rowIndex,
     }));
 
-    const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep), false);
-    if (!data) {
-      return;
+    const clipboardData = getClipboardDataPositions(sheetId, rowsToKeep);
+    const handlers: [string, AbstractCellClipboardHandler<unknown, unknown>][] =
+      clipboardHandlersRegistries.cellHandlers.getKeys().map((name) => {
+        const Handler = clipboardHandlersRegistries.cellHandlers.get(name);
+        return [name, new Handler(this.getters, this.dispatch)];
+      });
+    const data: Record<string, unknown> = {};
+
+    for (const [handlerName, handler] of handlers) {
+      data[handlerName] = handler.copy(clipboardData, false);
     }
 
     this.dispatch("CLEAR_CELLS", { target: [zone], sheetId });
@@ -91,7 +98,12 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: zone.top,
     };
 
-    handler.paste({ zones: [zonePasted], sheetId }, data, { isCutOperation: false });
+    for (const [handlerName, handler] of handlers) {
+      if (!data[handlerName]) {
+        continue;
+      }
+      handler.paste({ zones: [zonePasted], sheetId }, data[handlerName], { isCutOperation: false });
+    }
 
     const remainingZone = {
       left: zone.left,

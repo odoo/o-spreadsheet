@@ -71,6 +71,7 @@ import {
   getCell,
   getCellContent,
   getCellError,
+  getCellFormat,
   getCellStyle,
   getCellText,
   getClipboardVisibleZones,
@@ -1302,14 +1303,16 @@ describe("clipboard", () => {
 
     copy(model, "D4");
     paste(model, "E4", "asValue");
-    expect(getCell(model, "E4")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+    expect(getCell(model, "E4")?.content).toBe("45448");
+    expect(getCellFormat(model, "E4")).toBe("m/d/yyyy");
 
     setFormat(model, "D4", ""); // An empty string format is equivalent to no format
     expect(getCellContent(model, "D4")).toBe("6/5/2024");
 
     copy(model, "D4");
     paste(model, "E5", "asValue");
-    expect(getCell(model, "E5")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+    expect(getCell(model, "E5")?.content).toBe("45448");
+    expect(getCellFormat(model, "E5")).toBe("m/d/yyyy");
   });
 
   test("can copy a formula and paste as value", () => {
@@ -2239,12 +2242,12 @@ describe("clipboard", () => {
 
     // automatic format on G4
     expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
-    expect(getCell(model, "G4")?.format).toBeUndefined();
+    expect(getCellFormat(model, "G4")).toBeUndefined();
     expect(getEvaluatedCell(model, "G4").format).toBe("#,##0[$$]");
 
     // forced format copied from D5
     expect(getCell(model, "G5")?.content).toBe('=PIVOT.VALUE(1,"Price:sum")');
-    expect(getCell(model, "G5")?.format).toBe("#,##0.0");
+    expect(getCellFormat(model, "G5")).toBe("#,##0.0");
     expect(getEvaluatedCell(model, "G5").format).toBe("#,##0.0");
   });
 
