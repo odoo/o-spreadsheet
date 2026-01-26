@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { Action } from "../../actions/action";
+import { Action, getMenuItemsAndSeparators } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
@@ -103,9 +103,8 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
   get menuProps(): MenuProps {
     return {
-      menuItems: this.props.menuItems,
+      menuItems: this.menuItems,
       onClose: this.close.bind(this),
-      // @ts-ignore
       onClickMenu: this.onClickMenu.bind(this),
       onMouseOver: this.onMouseOver.bind(this),
       onMouseLeave: this.onMouseLeave.bind(this),
@@ -182,6 +181,10 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     this.close();
   }
 
+  get menuItems() {
+    return getMenuItemsAndSeparators(this.env, this.props.menuItems);
+  }
+
   getName(menu: Action) {
     return menu.name(this.env);
   }
@@ -238,7 +241,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
-  onClickMenu(menu: Action, ev: MouseEvent) {
+  onClickMenu(menu: Action, ev: PointerEvent) {
     if (this.isRoot(menu)) {
       this.openSubMenu(menu, ev.currentTarget as HTMLElement);
     } else {
