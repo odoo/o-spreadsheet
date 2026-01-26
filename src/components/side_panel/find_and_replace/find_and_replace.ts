@@ -112,6 +112,11 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       ev.stopPropagation();
       ev.shiftKey ? this.store.selectPreviousMatch() : this.store.selectNextMatch();
     }
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.props.onCloseSidePanel();
+    }
   }
 
   onKeydownReplace(ev: KeyboardEvent) {
