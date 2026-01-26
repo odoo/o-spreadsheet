@@ -106,6 +106,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.updateSearchContent((ev.target as HTMLInputElement).value);
   }
 
+  onKeydownPanel(ev: KeyboardEvent) {
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.props.onCloseSidePanel();
+    }
+  }
+
   onKeydownSearch(ev: KeyboardEvent) {
     if (ev.key === "Enter") {
       ev.preventDefault();
