@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel">
-    <div class="o-find-and-replace">
+    <div class="o-find-and-replace" t-on-keydown="onKeydownPanel">
       <Section title.translate="Search">
         <div class="o-input-search-container">
           <input

@@ -106,6 +106,24 @@ describe("find and replace sidePanel component", () => {
         (document.querySelector(selectors.replaceAllButton) as HTMLButtonElement).disabled
       ).toBe(true);
     });
+
+    test("pressing Escape closes the sidepanel", async () => {
+      const panelSelectors = [
+        selectors.inputSearch,
+        selectors.inputReplace,
+        selectors.checkBoxMatchingCase,
+        selectors.checkBoxExactMatch,
+        selectors.checkBoxSearchFormulas,
+      ];
+      for (const selector of panelSelectors) {
+        // reopen the side panel for each selector test
+        parent.env.openSidePanel("FindAndReplace");
+        await nextTick();
+        expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+        await focusAndKeyDown(selector, { key: "Escape" });
+        expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+      }
+    });
   });
 
   describe("basic search", () => {
