@@ -21,7 +21,7 @@
             spellcheck="false"
             placeholder="e.g. A1:A2"
             t-on-input="(ev) => this.onInputChanged(range.id, ev)"
-            t-on-focus="() => this.focus(range.id)"
+            t-on-click="() => this.focus(range.id)"
             t-on-keydown="onKeydown"
             t-att-value="range.xc"
             t-att-style="getColor(range)"
@@ -30,7 +30,7 @@
               'o-disabled-ranges' : range.disabled and !range.isFocused,
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and store.mode === 'select-range'
             }"
             t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />
