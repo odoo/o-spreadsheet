@@ -4,6 +4,7 @@ import { DEFAULT_LOCALES } from "../../../src/types/locale";
 import {
   addRows,
   createSheet,
+  deleteColumns,
   deleteContent,
   deleteSheet,
   redo,
@@ -2311,5 +2312,23 @@ describe("Spreadsheet arguments parsing", () => {
       ["",            "Price",  "Price", "Price"],
       ["Total",       "10",     "20",    "30"],
     ]);
+  });
+
+  test("Pivot is reevaluated even if there is no pivot cell (it could have a sidepanel)", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Amount", C1: 'Price',
+      A2: "Alice",    B2: "10",     C2: '10',
+      A3: "Bob",      B3: "30",     C3: '30',
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:C3", {
+      columns: [{ fieldName: "Customer" }],
+      rows: [{ fieldName: "Price" }],
+      measures: [{ id: "amount:sum", fieldName: "Amount", aggregator: "sum" }],
+    });
+    expect(model.getters.getPivot("1").getMeasure("amount:sum").isValid).toBe(true);
+    deleteColumns(model, ["B"]);
+    expect(model.getters.getPivot("1").getMeasure("amount:sum").isValid).toBe(false);
   });
 });
