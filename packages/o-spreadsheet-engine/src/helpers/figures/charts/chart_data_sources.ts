@@ -4,6 +4,7 @@ import {
   chartDataSourceRegistry,
 } from "../../../registries/chart_data_source_registry";
 import { ChartCreationContext, ChartDataSource, ChartRangeDataSource } from "../../../types/chart";
+import { Range } from "../../../types/range";
 import { createValidRange } from "../../range";
 import {
   checkDataset,
@@ -14,7 +15,7 @@ import {
 } from "./chart_common";
 
 export class ChartRangeDataSourceHandler implements ChartDataSourceHandler {
-  constructor(readonly dataSource: ChartRangeDataSource) {}
+  constructor(readonly dataSource: ChartRangeDataSource<Range>) {}
 
   static fromRangeStr(
     getters: CoreGetters,
@@ -72,4 +73,5 @@ export class ChartRangeDataSourceHandler implements ChartDataSourceHandler {
 }
 
 chartDataSourceRegistry.add("range", ChartRangeDataSourceHandler);
+chartDataSourceRegistry.add("never", ChartRangeDataSourceHandler);
 // allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],

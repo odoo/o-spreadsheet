@@ -13,7 +13,6 @@ interface ChartDataSourceHandlerContructor {
     defaultSheetId: UID,
     dataSource: ChartDataSource<string>
   ) => ChartDataSourceHandler;
-  // fromContextCreation: (context: ChartCreationContext) => ChartDataSourceHandler;
 }
 
 export interface ChartDataSourceHandler {

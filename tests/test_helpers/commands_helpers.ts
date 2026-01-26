@@ -224,7 +224,7 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: { type: ChartDefinition["type"] } & Partial<ChartDefinitionWithDataSource>,
+  data: { type: ChartDefinition["type"] } & Partial<ChartDefinitionWithDataSource<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -279,7 +279,7 @@ export function createChart(
 
 export function createComboChart(
   model: Model,
-  data: Partial<ComboChartDefinition>,
+  data: Partial<ComboChartDefinition<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -315,7 +315,7 @@ export function createComboChart(
 
 export function createRadarChart(
   model: Model,
-  data: Partial<RadarChartDefinition>,
+  data: Partial<RadarChartDefinition<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -356,7 +356,7 @@ export function createRadarChart(
 
 export function createCalendarChart(
   model: Model,
-  data: Partial<CalendarChartDefinition>,
+  data: Partial<CalendarChartDefinition<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -394,24 +394,33 @@ export function createCalendarChart(
   });
 }
 
-export function createWaterfallChart(model: Model, def?: Partial<WaterfallChartDefinition>): UID {
+export function createWaterfallChart(
+  model: Model,
+  def?: Partial<WaterfallChartDefinition<string>>
+): UID {
   createChart(model, { ...def, type: "waterfall" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition>): UID {
+export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition<string>>): UID {
   createChart(model, { ...def, type: "funnel" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>): UID {
+export function createSunburstChart(
+  model: Model,
+  def?: Partial<SunburstChartDefinition<string>>
+): UID {
   createChart(model, { ...def, type: "sunburst" });
   return model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 }
 
-export function createTreeMapChart(model: Model, def?: Partial<TreeMapChartDefinition>): UID {
+export function createTreeMapChart(
+  model: Model,
+  def?: Partial<TreeMapChartDefinition<string>>
+): UID {
   createChart(model, { ...def, type: "treemap" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
@@ -502,7 +511,7 @@ export function createGaugeChart(
 
 export function createGeoChart(
   model: Model,
-  data: Partial<GeoChartDefinition>,
+  data: Partial<GeoChartDefinition<string>>,
   chartId: UID = "chartId",
   sheetId: UID = model.getters.getActiveSheetId(),
   figureData: Partial<CreateFigureCommand> = {}
@@ -574,7 +583,7 @@ export function updateChart(
 export function updateChartDataSource(
   model: Model,
   chartId: UID,
-  dataSource: Partial<ChartRangeDataSource>,
+  dataSource: Partial<ChartRangeDataSource<string>>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const currentDefinition = model.getters.getChartDefinition(chartId);

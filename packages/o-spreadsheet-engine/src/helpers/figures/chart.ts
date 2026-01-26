@@ -23,22 +23,22 @@ export class MyChart {
     sheetId: UID,
     definition: ChartDefinition<string>
   ) {
-    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource.type);
+    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const ChartTypeHandler = chartRegistry.get(definition.type).ChartTypeHandler;
     const chartTypeHandler = new ChartTypeHandler(definition, sheetId, getters);
     const dataSourceHandler = DataSourceHandler.fromRangeStr(
       getters,
       sheetId,
-      definition.dataSource
+      definition.dataSource ?? { type: "never" }
     );
     return new MyChart(getters, sheetId, chartTypeHandler, dataSourceHandler);
   }
 
   static fromDefinition(getters: CoreGetters, sheetId: UID, definition: ChartDefinition<Range>) {
-    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource.type);
+    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const ChartTypeHandler = chartRegistry.get(definition.type).ChartTypeHandler;
     const chartTypeHandler = new ChartTypeHandler(definition, sheetId, getters);
-    const dataSourceHandler = new DataSourceHandler(definition.dataSource);
+    const dataSourceHandler = new DataSourceHandler(definition.dataSource ?? { type: "never" });
     return new MyChart(getters, sheetId, chartTypeHandler, dataSourceHandler);
   }
 
@@ -97,7 +97,7 @@ export class MyChart {
     const definition = this.getStrDefinition();
     return {
       ...this.chartTypeHandler.getContextCreation(definition),
-      ...this.dataSourceHandler.getContextCreation(definition.dataSource),
+      ...this.dataSourceHandler.getContextCreation(definition.dataSource ?? { type: "never" }),
     };
   }
 
