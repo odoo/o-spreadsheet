@@ -244,12 +244,31 @@ export const insertFunctionMin: ActionSpec = {
 export const categorieFunctionAll: ActionSpec = {
   name: _t("All"),
   children: [allFunctionListMenuBuilder],
+  icon: "o-spreadsheet-Icon.FORMULA",
 };
 
 function allFunctionListMenuBuilder(): ActionSpec[] {
   const fnNames = functionRegistry.getKeys().filter((key) => !functionRegistry.get(key).hidden);
   return createFormulaFunctions(fnNames);
 }
+
+const FORMULA_ICONS = {
+  Statistical: "o-spreadsheet-Icon.FORMULA_STATS",
+  Math: "o-spreadsheet-Icon.FORMULA_MATH",
+  Lookup: "o-spreadsheet-Icon.FORMULA_LOOKUP",
+  Financial: "o-spreadsheet-Icon.FORMULA_FINANCIAL",
+  Logical: "o-spreadsheet-Icon.FORMULA_LOGICAL",
+  Text: "o-spreadsheet-Icon.FORMULA_TEXT",
+  Date: "o-spreadsheet-Icon.FORMULA_DATE",
+  Info: "o-spreadsheet-Icon.FORMULA_INFO",
+  Array: "o-spreadsheet-Icon.FORMULA_ARRAY",
+  Database: "o-spreadsheet-Icon.FORMULA_DATABASE",
+  Engineering: "o-spreadsheet-Icon.FORMULA_ENGINEER",
+  Filter: "o-spreadsheet-Icon.FORMULA_FILTER",
+  Operator: "o-spreadsheet-Icon.FORMULA_OPERATORS",
+  Parser: "o-spreadsheet-Icon.FORMULA_PARSER",
+  Web: "o-spreadsheet-Icon.FORMULA_WEB",
+};
 
 export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
   const functions = functionRegistry.content;
@@ -268,6 +287,7 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
     );
     return {
       name: category,
+      icon: FORMULA_ICONS[category],
       children: createFormulaFunctions(functionsInCategory),
     };
   });
