@@ -1002,16 +1002,11 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
   for (const cell of model.getters.getCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cell.id);
     cells[toXC(col, row)] = {
+      style: cell.style,
       format: cell.format,
       value: model.getters.getEvaluatedCell({ sheetId, col, row }).value ?? "",
       content: cell.content,
     };
-  }
-  for (const [position, style] of model.getters
-    .getCellStyleInZone(sheetId, model.getters.getSheetZone(sheetId))
-    .entries()) {
-    const xc = toXC(position.col, position.row);
-    cells[xc] = { ...cells[xc], style };
   }
   return cells;
 }

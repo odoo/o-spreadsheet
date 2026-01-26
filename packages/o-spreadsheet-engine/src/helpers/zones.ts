@@ -456,14 +456,9 @@ export function hasOverlappingZones(zones: UnboundedZone[]): boolean {
   return false;
 }
 
-export function isInside(col: number, row: number, zone: UnboundedZone): boolean {
+export function isInside(col: number, row: number, zone: Zone): boolean {
   const { left, right, top, bottom } = zone;
-  return (
-    col >= left &&
-    (right === undefined || col <= right) &&
-    row >= top &&
-    (bottom === undefined || row <= bottom)
-  );
+  return col >= left && col <= right && row >= top && row <= bottom;
 }
 
 /**

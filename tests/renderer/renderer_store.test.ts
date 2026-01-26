@@ -55,7 +55,7 @@ import {
   setStyle,
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellStyle } from "../test_helpers/getters_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
 import { createEqualCF, getFingerprint, target, toRangesData } from "../test_helpers/helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
@@ -1111,9 +1111,8 @@ describe("renderer", () => {
 
     const centeredBox = getBoxFromText(gridRendererStore, overflowingContent);
     const cell = getCell(model, "C1")!;
-    const style = getCellStyle(model, "C1");
     const contentWidth =
-      model.getters.getTextWidth(cell.content, style || {}) + MIN_CELL_TEXT_MARGIN;
+      model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
     expect(centeredBox.clipRect).toEqual({
       x: expectedClipX,
@@ -1483,8 +1482,8 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
     const box = getBoxFromText(gridRendererStore, cellContent);
     const cell = getCell(model, "B2")!;
-    const style = getCellStyle(model, "B2");
-    const textWidth = model.getters.getTextWidth(cell.content, style || {}) + MIN_CELL_TEXT_MARGIN;
+    const textWidth =
+      model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipRect = model.getters.getVisibleRect({
       left: 0,
       right: 1,

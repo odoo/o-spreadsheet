@@ -28199,9 +28199,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
-        <xf numFmtId="0" fillId="0" fontId="3" borderId="0" applyAlignment="1">
-            <alignment horizontal="left"/>
-        </xf>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="4"/>
         <xf numFmtId="0" fillId="2" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="4" borderId="0"/>

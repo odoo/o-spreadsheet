@@ -34,13 +34,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "./test_helpers/dom_helper";
-import {
-  getBorder,
-  getCell,
-  getCellStyle,
-  getStyle,
-  getTable,
-} from "./test_helpers/getters_helpers";
+import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_helpers";
 import {
   addToRegistry,
   getFigureIds,
@@ -292,7 +286,7 @@ describe("TopBar component", () => {
     await nextTick();
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
-    expect(getCellStyle(model, "A1")).toBeDefined();
+    expect(getCell(model, "A1")!.style).toBeDefined();
 
     await click(undoTool);
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
@@ -521,8 +515,8 @@ describe("TopBar component", () => {
     test.each([
       ["Top", { verticalAlign: "top" }],
       ["Middle", { verticalAlign: "middle" }],
-      ["Bottom", {}],
-    ])("can set vertical alignment '%s' with the toolbar", async (iconTitle, expectedStyle) => {
+      ["Bottom", { verticalAlign: "bottom" }],
+    ])("can set vertical alignmen '%s't with the toolbar", async (iconTitle, expectedStyle) => {
       const { model } = await mountParent();
       await click(fixture, '.o-menu-item-button[title="Vertical align"]');
       await click(fixture, `.o-menu-item-button[title="${iconTitle}"]`);
@@ -552,7 +546,7 @@ describe("TopBar component", () => {
 
   describe("text wrapping", () => {
     test.each([
-      ["Overflow", {}],
+      ["Overflow", { wrapping: "overflow" }],
       ["Wrap", { wrapping: "wrap" }],
       ["Clip", { wrapping: "clip" }],
     ])("can set the wrapping state '%s' with the toolbar", async (iconTitle, expectedStyle) => {
@@ -823,14 +817,14 @@ describe("Format", () => {
     selectCell(model, "A1");
     addCellToSelection(model, "B2");
     setAnchorCorner(model, "B3");
-    expect(getCellStyle(model, "A1")).toEqual({ fillColor: "#000000" });
-    expect(getCellStyle(model, "B2")).toEqual({ fillColor: "#000000" });
-    expect(getCellStyle(model, "B3")).toEqual({ fillColor: "#000000" });
+    expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
+    expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
+    expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_clearFormat']");
-    expect(getCellStyle(model, "A1")).toBeUndefined();
-    expect(getCellStyle(model, "B2")).toBeUndefined();
-    expect(getCellStyle(model, "B3")).toBeUndefined();
+    expect(getCell(model, "A1")?.style).toBeUndefined();
+    expect(getCell(model, "B2")?.style).toBeUndefined();
+    expect(getCell(model, "B3")?.style).toBeUndefined();
   });
 });
 

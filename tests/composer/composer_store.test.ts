@@ -38,7 +38,6 @@ import {
   getActivePosition,
   getCell,
   getCellContent,
-  getCellStyle,
   getCellText,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
@@ -87,7 +86,7 @@ describe("edition", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
-    expect(getCellStyle(model, "A2")).toBeTruthy();
+    expect(getCell(model, "A2")).toBeTruthy();
     expect(getCellContent(model, "A2")).toBe("");
   });
 

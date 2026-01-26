@@ -250,14 +250,8 @@ export class SheetViewPlugin extends UIPlugin {
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
         break;
       case "UPDATE_CELL":
-      case "SET_FORMATTING":
         // update cell content or format can change hidden rows because of data filters
-        if (
-          "content" in cmd ||
-          "format" in cmd ||
-          cmd.style?.fontSize !== undefined ||
-          cmd.style?.wrapping !== undefined
-        ) {
+        if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
           for (const sheetId of this.getters.getSheetIds()) {
             this.sheetsWithDirtyViewports.add(sheetId);
           }

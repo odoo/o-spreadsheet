@@ -152,8 +152,6 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "UNHIDE_COLUMNS_ROWS",
   "HIDE_COLUMNS_ROWS",
   "GROUP_HEADERS",
-  "SET_FORMATTING",
-  "CLEAR_FORMATTING",
   "UNGROUP_HEADERS",
   "FOLD_ALL_HEADER_GROUPS",
   "FOLD_HEADER_GROUP",

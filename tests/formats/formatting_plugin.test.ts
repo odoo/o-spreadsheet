@@ -777,7 +777,7 @@ describe("Autoresize", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toBe(expectedHeight);
   });
 
-  test("Evaluated multi-line content have impact on autoresize if it's taller than non-evaluated content", () => {
+  test("Evaluated multi-line content have no impact on autoresize if it's not taller than non-evaluated content", () => {
     setCellContent(model, "A1", '="Hello\nThere"');
 
     setCellContent(model, "B1", "Hello\nThere\nGeneral");
@@ -786,7 +786,7 @@ describe("Autoresize", () => {
 
     setCellContent(model, "B1", "Hello\nThere");
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
-    expect(model.getters.getUserRowSize(sheetId, 0)).toBe(36);
+    expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
     setCellContent(model, "B1", "Hello");
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });

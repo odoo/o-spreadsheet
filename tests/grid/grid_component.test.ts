@@ -85,7 +85,6 @@ import {
   getCell,
   getCellContent,
   getCellIcons,
-  getCellStyle,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -485,22 +484,22 @@ describe("Grid component", () => {
       { key: "Y", ctrlKey: true },
     ])("can undo/redo with keyboard CTRL+Z/%s", async (redoKey) => {
       setStyle(model, "A1", { fillColor: "red" });
-      expect(getCellStyle(model, "A1")).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
       keyDown({ key: "z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
       keyDown({ ...redoKey, bubbles: true });
-      expect(getCellStyle(model, "A1")).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
       setStyle(model, "A1", { fillColor: "red" });
-      expect(getCellStyle(model, "A1")).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
       keyDown({ key: "Z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
       keyDown({ key: "Y", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
     test("can loop through the selection with CTRL+A", async () => {
@@ -527,23 +526,23 @@ describe("Grid component", () => {
 
     test("toggle bold with Ctrl+B", async () => {
       setCellContent(model, "A1", "hello");
-      expect(getCellStyle(model, "A1")).not.toBeDefined();
+      expect(getCell(model, "A1")!.style).not.toBeDefined();
       await keyDown({ key: "B", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).toEqual({ bold: true });
+      expect(getCell(model, "A1")!.style).toEqual({ bold: true });
       expect(getStyle(model, "A1")).toEqual({ bold: true });
       await keyDown({ key: "B", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).not.toBeDefined();
+      expect(getCell(model, "A1")!.style).toEqual({ bold: false });
       expect(getStyle(model, "A1")).toEqual({});
     });
 
     test("toggle Italic with Ctrl+I", async () => {
       setCellContent(model, "A1", "hello");
-      expect(getCellStyle(model, "A1")).toBeUndefined();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
       await keyDown({ key: "I", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).toEqual({ italic: true });
+      expect(getCell(model, "A1")!.style).toEqual({ italic: true });
       expect(getStyle(model, "A1")).toEqual({ italic: true });
       await keyDown({ key: "I", ctrlKey: true });
-      expect(getCellStyle(model, "A1")).not.toBeDefined();
+      expect(getCell(model, "A1")!.style).toEqual({ italic: false });
       expect(getStyle(model, "A1")).toEqual({});
     });
 
@@ -566,56 +565,56 @@ describe("Grid component", () => {
 
     test("set left align with Ctrl+SHIFT+L", async () => {
       setCellContent(model, "A1", "hello");
-      expect(getCellStyle(model, "A1")).toBeUndefined();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "L", ctrlKey: true, shiftKey: true, bubbles: true })
       );
       await nextTick();
-      expect(getCellStyle(model, "A1")).toEqual({ align: "left" });
+      expect(getCell(model, "A1")!.style).toEqual({ align: "left" });
     });
 
     test("set center align with Ctrl+SHIFT+E", async () => {
       setCellContent(model, "A1", "hello");
-      expect(getCellStyle(model, "A1")).toBeUndefined();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "E", ctrlKey: true, shiftKey: true, bubbles: true })
       );
       await nextTick();
-      expect(getCellStyle(model, "A1")).toEqual({ align: "center" });
+      expect(getCell(model, "A1")!.style).toEqual({ align: "center" });
     });
 
     test("set right align with Ctrl+SHIFT+R", async () => {
       setCellContent(model, "A1", "hello");
-      expect(getCellStyle(model, "A1")).toBeUndefined();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "R", ctrlKey: true, shiftKey: true, bubbles: true })
       );
       await nextTick();
-      expect(getCellStyle(model, "A1")).toEqual({ align: "right" });
+      expect(getCell(model, "A1")!.style).toEqual({ align: "right" });
     });
 
     test("clean formatting with CTRL+SHIFT+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
       setCellContent(model, "A1", "hello");
       setStyle(model, "A1", style);
-      expect(getCellStyle(model, "A1")).toEqual(style);
+      expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, shiftKey: true, bubbles: true })
       );
       await nextTick();
-      expect(getCellStyle(model, "A1")).toBeUndefined();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
     });
 
     test("clean formatting with CTRL+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
       setCellContent(model, "A1", "hello");
       setStyle(model, "A1", style);
-      expect(getCellStyle(model, "A1")).toEqual(style);
+      expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, bubbles: true })
       );
       await nextTick();
-      expect(getCellStyle(model, "A1")).toBeUndefined();
+      expect(getCell(model, "A1")!.style).toBeUndefined();
     });
 
     test("open a web link with ALT+ENTER", async () => {
@@ -1099,7 +1098,7 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "C8");
-      expect(getCellStyle(model, "C8")).toEqual({ bold: true });
+      expect(getCell(model, "C8")!.style).toEqual({ bold: true });
       expect(getBorder(model, "C8")).toEqual({ top: DEFAULT_BORDER_DESC });
 
       gridMouseEvent(model, "pointerdown", "D8");
@@ -1115,7 +1114,7 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "C8");
       gridMouseEvent(model, "pointerup", "C8");
 
-      expect(getCellStyle(model, "C8")).toMatchObject({ fillColor: "#748747" });
+      expect(getCell(model, "C8")?.style).toMatchObject({ fillColor: "#748747" });
     });
 
     test("Paste format works with conditional format", () => {
@@ -1158,12 +1157,12 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "C8");
-      expect(getCellStyle(model, "C8")).toEqual({ bold: true });
+      expect(getCell(model, "C8")!.style).toEqual({ bold: true });
 
       gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "D8");
-      expect(getCellStyle(model, "D8")).toEqual({ bold: true });
+      expect(getCell(model, "D8")!.style).toEqual({ bold: true });
     });
 
     test("can paste format with key", async () => {
@@ -1173,7 +1172,7 @@ describe("Grid component", () => {
       paintFormatStore.activate({ persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       keyDown({ key: "ArrowRight" });
-      expect(getCellStyle(model, "C2")).toEqual({ bold: true });
+      expect(getCell(model, "C2")!.style).toEqual({ bold: true });
     });
 
     test("can exit the paint format mode via ESC key", async () => {
@@ -1198,7 +1197,7 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "D8");
-      expect(getCellStyle(model, "D8")).toEqual({ bold: true });
+      expect(getCell(model, "D8")!.style).toEqual({ bold: true });
     });
 
     test("zone to paint is highlighted", async () => {
@@ -1232,7 +1231,7 @@ describe("Grid component", () => {
 
       gridMouseEvent(model, "pointerdown", "D8");
       gridMouseEvent(model, "pointerup", "D8");
-      expect(getCellStyle(model, "D8")).toEqual({ bold: true });
+      expect(getCell(model, "D8")?.style).toEqual({ bold: true });
     });
 
     test("Paint format does a single history step", async () => {
@@ -1988,7 +1987,7 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
 
     expect(getCellContent(model, "A2")).toEqual(content);
-    expect(getCellStyle(model, "A2")).toBeUndefined();
+    expect(getCell(model, "A2")!.style).toBeUndefined();
   });
 
   test("can copy and paste above cell(s) using CTRL+D", async () => {

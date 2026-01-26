@@ -190,6 +190,8 @@ export const DEFAULT_STYLE = {
 } satisfies Required<Style>;
 
 export const ROTATION_EPSILON = 0.001;
+export const DEFAULT_NUMBER_STYLE = { ...DEFAULT_STYLE, align: "right" } satisfies Required<Style>;
+
 export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;
 export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
 

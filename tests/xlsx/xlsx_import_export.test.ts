@@ -24,12 +24,7 @@ import {
   setFormat,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import {
-  getBorder,
-  getCell,
-  getCellStyle,
-  getEvaluatedCell,
-} from "../test_helpers/getters_helpers";
+import { getBorder, getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { toRangesData } from "../test_helpers/helpers";
 
 /**
@@ -127,7 +122,7 @@ describe("Export data to xlsx then import it", () => {
   ])("Cell style %s", async (style: Style) => {
     setStyle(model, "A1", style);
     const importedModel = await exportToXlsxThenImport(model);
-    expect(getCellStyle(importedModel, "A1")).toMatchObject(style);
+    expect(getCell(importedModel, "A1")!.style).toMatchObject(style);
   });
 
   test("Cell border", async () => {
