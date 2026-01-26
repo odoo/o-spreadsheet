@@ -1,7 +1,12 @@
 import { Model } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { click, deleteColumns, setInputValueAndTrigger } from "../../../test_helpers";
+import {
+  click,
+  deleteColumns,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../../../test_helpers";
 import { mountComponentWithPortalTarget, nextTick, setGrid } from "../../../test_helpers/helpers";
 import { addPivot } from "../../../test_helpers/pivot_helpers";
 
@@ -81,7 +86,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("the list of values is correct", async () => {
-    await click(fixture.querySelector(".fa-filter")!);
+    await click(fixture.querySelector(".o-pivot-filter-icon")!);
     expect(".o-popover").toHaveCount(1);
     expect(".o-filter-menu-item").toHaveCount(2);
     const firstValue = fixture.querySelectorAll(".o-filter-menu-item")[0].textContent;
@@ -89,9 +94,10 @@ describe("Spreadsheet pivot side panel", () => {
     expect([firstValue, secondValue]).toEqual(["10", "20"]);
   });
 
-  test("can update the hidden values of a values filter", async () => {
+  test("can update the hidden values of a values filter (caption and icon are updated as well)", async () => {
     expect(".o-pivot-filter-caption").toHaveText("showing all items");
-    await click(fixture.querySelector(".fa-filter")!);
+    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon")!).toBeDefined();
+    await click(fixture.querySelector(".o-pivot-filter-icon")!);
     await click(fixture.querySelectorAll(".o-filter-menu-item .o-checkbox")[0]);
     await click(fixture, ".o-filter-menu-confirm");
     expect(".o-popover").toHaveCount(0);
@@ -103,12 +109,13 @@ describe("Spreadsheet pivot side panel", () => {
       },
     ]);
     expect(".o-pivot-filter-caption").toHaveText("showing 1 item");
+    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon-active")!).toBeDefined();
   });
 
   test("can update the criterion of a criterion filter", async () => {
-    await click(fixture.querySelector(".fa-filter")!);
-    await click(fixture, ".o-filter-criterion-type");
-    await click(fixture.querySelectorAll(".o-menu-item-name")[1]);
+    await click(fixture.querySelector(".o-pivot-filter-icon")!);
+    await simulateClick(".o-filter-criterion-type");
+    await simulateClick(fixture.querySelectorAll(".o-select-option")[1]);
     await setInputValueAndTrigger(".o-dv-input .o-input ", "10");
     await click(fixture, ".o-filter-menu-confirm");
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([
@@ -121,14 +128,15 @@ describe("Spreadsheet pivot side panel", () => {
       },
     ]);
     expect(".o-pivot-filter-caption").toHaveText("Value is equal to 10");
+    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon-active")!).toBeDefined();
   });
 
   test("can update the criterion of a criterion filter with date type", async () => {
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
-    await click(fixture.querySelectorAll(".fa-filter")[1]);
-    await click(fixture, ".o-filter-criterion-type");
-    await click(fixture.querySelectorAll(".o-menu-item-name")[1]);
+    await click(fixture.querySelectorAll(".o-pivot-filter-icon")[1]);
+    await simulateClick(".o-filter-criterion-type");
+    await simulateClick(fixture.querySelectorAll(".o-select-option")[1]);
     await setInputValueAndTrigger(".o-dv-input .o-input ", "1/1/2001");
     await click(fixture, ".o-filter-menu-confirm");
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([

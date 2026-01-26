@@ -13,6 +13,7 @@ import { DataFilterValue } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
 import { GenericCriterion } from "../../../..";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
+import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover } from "../../../popover";
 import { PivotDimension } from "../pivot_layout_configurator/pivot_dimension/pivot_dimension";
 
@@ -54,7 +55,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonFilter.el) {
+      if (!isChildEvent(this.buttonFilter.el, ev)) {
         this.popover.isOpen = false;
       }
     });
@@ -145,6 +146,15 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
 
   closeMenuFilter() {
     this.popover.isOpen = false;
+  }
+
+  isActive() {
+    const filter = this.props.filter;
+    if (filter.filterType === "values") {
+      return filter.hiddenValues.length !== 0;
+    } else {
+      return filter.values.length !== 0;
+    }
   }
 
   updateFilterData(updatedCriterionValue: DataFilterValue) {
