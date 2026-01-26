@@ -237,6 +237,10 @@ export function parseSheetUrl(sheetLink: string) {
   throw new Error(`${sheetLink} is not a valid sheet link`);
 }
 
+export function hasHyperlinkContent(content: string): boolean {
+  return isMarkdownLink(content) || isWebLink(content) || content.startsWith("=HYPERLINK(");
+}
+
 /**
  * This helper function can be used as a type guard when filtering arrays.
  * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)

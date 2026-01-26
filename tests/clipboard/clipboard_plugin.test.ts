@@ -1,4 +1,4 @@
-import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import {
   getClipboardDataPositions,
   parseOSClipboardContent,
@@ -3054,7 +3054,6 @@ describe("cross spreadsheet copy/paste", () => {
     expect(cell.link?.url).toBe(url);
     expect(urlRepresentation(cell.link!, modelB.getters)).toBe(url);
     expect(getCell(modelB, "D1")?.content).toBe("[Odoo Website](https://www.odoo.com)");
-    expect(getStyle(modelB, "D1")).toEqual({ textColor: LINK_COLOR });
     expect(getCellText(modelB, "D1")).toBe("Odoo Website");
   });
 

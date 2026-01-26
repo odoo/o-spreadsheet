@@ -1,3 +1,4 @@
+import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { CellValueType } from "@odoo/o-spreadsheet-engine/types/cells";
 import { Model } from "../../src";
 import { buildSheetLink } from "../../src/helpers";
@@ -16,7 +17,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCell, getEvaluatedCell, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -135,6 +136,7 @@ describe("link editor component", () => {
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("my label");
     expect(link?.url).toBe("https://url.com");
+    expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
   });
 
   test("insert link with only an url and no label", async () => {
@@ -144,6 +146,7 @@ describe("link editor component", () => {
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("https://url.com");
     expect(link?.url).toBe("https://url.com");
+    expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
   });
 
   test("insert sheet link", async () => {
@@ -189,6 +192,7 @@ describe("link editor component", () => {
         url: "https://url.com",
       },
     });
+    expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
   });
 
   test("clicking the main popover closes the special link menus", async () => {

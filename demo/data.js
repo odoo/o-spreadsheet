@@ -116,6 +116,7 @@ export const demoData = {
         F2: 5,
         F3: 6,
         F4: 7,
+        A21: 30,
       },
       formats: {
         C22: 1,
@@ -3557,6 +3558,11 @@ export const demoData = {
     },
     11: {
       bold: true,
+    },
+    30: {
+      bold: true,
+      fontSize: 18,
+      fillColor: "#FFFF00",
     },
   },
   formats: {
