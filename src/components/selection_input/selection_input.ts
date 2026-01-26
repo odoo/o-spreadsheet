@@ -2,7 +2,8 @@ import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helper
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
-import { Store, useLocalStore } from "../../store_engine";
+import { Store, useLocalStore, useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
@@ -69,6 +70,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private dragAndDrop = useDragAndDropListItems();
   private focusedInput = useRef("focusedInput");
   private selectionRef = useRef("o-selection");
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private store!: Store<SelectionInputStore>;
 
   private isRangeFocused: boolean = false;
@@ -119,6 +121,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     if (this.props.autofocus) {
       this.store.focusById(this.store.selectionInputs[0]?.id);
     }
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
         this.triggerChange();
@@ -219,6 +222,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       if (this.isConfirmable) {
         this.confirm();
       }
+    } else if (ev.key === "Escape") {
+      this.reset();
+      this.DOMFocusableElementStore.focus();
     }
   }
 
