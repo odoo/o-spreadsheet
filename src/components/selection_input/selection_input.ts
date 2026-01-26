@@ -71,6 +71,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private selectionRef = useRef("o-selection");
   private store!: Store<SelectionInputStore>;
 
+  private isRangeFocused: boolean = false;
+
   get ranges(): SelectionRange[] {
     return this.store.selectionInputs;
   }
@@ -190,6 +192,16 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.props.onSelectionChanged?.(ranges);
   }
 
+  onPointerDown(isRangeFocused: boolean) {
+    this.isRangeFocused = isRangeFocused;
+  }
+
+  onClick() {
+    if (this.isRangeFocused === true && this.state.mode === "select-range") {
+      this.state.mode = "text-edit";
+    }
+  }
+
   onKeydown(ev: KeyboardEvent) {
     if (ev.key === "F2") {
       ev.preventDefault();
@@ -214,7 +226,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     return this.props.hasSingleRange ? value.split(",")[0] : value;
   }
 
-  focus(rangeId: number) {
+  focus(rangeId: number, ev: FocusEvent) {
     this.state.isMissing = false;
     this.state.mode = "select-range";
     this.store.focusById(rangeId);
