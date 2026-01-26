@@ -36,13 +36,12 @@ import {
 let model: Model;
 let fixture: HTMLElement;
 
-function focus(index = 0) {
-  fixture.querySelectorAll("input")[index].focus();
+async function focus(index = 0) {
+  await simulateClick(fixture.querySelectorAll("input")[index]);
 }
 
 async function writeInput(index: number, text: string) {
-  focus(index);
-  await nextTick();
+  await focus(index);
   const input = fixture.querySelectorAll("input")[index];
   input.value = text;
   input.dispatchEvent(new Event("input"));
@@ -242,15 +241,21 @@ describe("Selection Input", () => {
     expect(fixture.querySelector("input")!.value).toBe("B4");
     const colorGenerator = new ColorGenerator(2);
     const color = colorGenerator.next();
-    expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color:${color}; `);
+    expect(fixture.querySelector("input")!.getAttribute("style")).toBe(
+      `color:${color}; caret-color:transparent; `
+    );
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
     const color2 = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color:${color}; `);
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(
+      `color:${color}; caret-color:transparent; `
+    );
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
-    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color:${color2}; `);
+    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(
+      `color:${color2}; caret-color:transparent; `
+    );
   });
 
   test("colors passed as props are taken into account and completed by a color", async () => {
@@ -258,7 +263,9 @@ describe("Selection Input", () => {
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    expect(fixture.querySelector("input")!.getAttribute("style")).toBe("color:#FF0000; ");
+    expect(fixture.querySelector("input")!.getAttribute("style")).toBe(
+      "color:#FF0000; caret-color:transparent; "
+    );
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
@@ -266,10 +273,12 @@ describe("Selection Input", () => {
     colorGenerator.next(); //the first generated color is skipped in favor of the props color
     const secondColor = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#FF0000; ");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(
+      "color:#FF0000; caret-color:transparent; "
+    );
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(
-      `color:${secondColor}; `
+      `color:${secondColor}; caret-color:transparent; `
     );
   });
 
@@ -426,20 +435,38 @@ describe("Selection Input", () => {
   test("F2 alters edition mode", async () => {
     await createSelectionInput({ initialRanges: ["C2"] });
     const selectionInputEl: HTMLInputElement = fixture.querySelector(".o-selection-input input")!;
-    focus(0);
-    await nextTick();
+    await focus(0);
     expect(document.activeElement).toBe(selectionInputEl);
     await keyDown({ key: "ArrowLeft" });
     expect(document.activeElement).toBe(selectionInputEl);
-    expect(selectionInputEl?.value).toEqual("B2");
+    expect(selectionInputEl?.value).toEqual("C2");
     keyDown({ key: "F2" });
     await keyDown({ key: "ArrowLeft" });
     expect(document.activeElement).toBe(selectionInputEl);
     expect(selectionInputEl?.value).toEqual("B2");
   });
 
+  test("Input is in text-edit by default and switched to range-select when selecting on grid", async () => {
+    const { env, model, fixture } = await mountSpreadsheet();
+    OPEN_CF_SIDEPANEL_ACTION(env);
+    await nextTick();
+    await simulateClick(".o-cf-add");
+    await nextTick();
+    const input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    await simulateClick(input);
+    expect(input?.value).toEqual("A1");
+    await keyDown({ key: "ArrowRight" });
+    expect(document.activeElement).toBe(input);
+    expect(input?.value).toEqual("A1");
+
+    await clickCell(model, "B4");
+    expect(input?.value).toEqual("B4");
+    await keyDown({ key: "ArrowRight" });
+    expect(input?.value).toEqual("C4");
+  });
+
   test("changed event is triggered when input changed", async () => {
-    let newRanges;
+    let newRanges: string[] = [];
     const onChanged = jest.fn((ranges) => {
       newRanges = ranges;
     });
@@ -587,8 +614,7 @@ describe("Selection Input", () => {
     });
     test("highlights change handle unbounded ranges ", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B2"] });
-      focus(0);
-      await nextTick();
+      await focus(0);
       model.dispatch("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B1:B100"),
       });

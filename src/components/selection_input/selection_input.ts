@@ -24,11 +24,8 @@ interface Props {
   disabledRangeTitle?: string;
 }
 
-type SelectionRangeEditMode = "select-range" | "text-edit";
-
 interface State {
   isMissing: boolean;
-  mode: SelectionRangeEditMode;
 }
 
 interface SelectionRange extends Omit<RangeInputValue, "color"> {
@@ -64,7 +61,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   };
   private state: State = useState({
     isMissing: false,
-    mode: "select-range",
   });
   private dragAndDrop = useDragAndDropListItems();
   private focusedInput = useRef("focusedInput");
@@ -194,10 +190,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "F2") {
       ev.preventDefault();
       ev.stopPropagation();
-      this.state.mode = this.state.mode === "select-range" ? "text-edit" : "select-range";
+      this.store.toggleEditMode();
     } else if (ev.key.startsWith("Arrow")) {
       ev.stopPropagation();
-      if (this.state.mode === "select-range") {
+      if (this.store.mode === "select-range") {
         ev.preventDefault();
         updateSelectionWithArrowKeys(ev, this.env.model.selection);
       }
@@ -216,7 +212,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   focus(rangeId: number) {
     this.state.isMissing = false;
-    this.state.mode = "select-range";
     this.store.focusById(rangeId);
   }
 
