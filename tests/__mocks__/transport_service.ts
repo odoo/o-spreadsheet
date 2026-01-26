@@ -1,5 +1,4 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { deepCopy } from "../../src/helpers";
 import { UID, WorkbookData } from "../../src/types";
 import {
   CollaborationMessage,
@@ -19,7 +18,9 @@ export class MockTransportService implements TransportService<CollaborationMessa
   }
 
   async sendMessage(message: CollaborationMessage) {
-    const msg: CollaborationMessage = deepCopy(message);
+    // simulates network serialization, which removes undefined values of an object,
+    // contrary to deepCopy
+    const msg: CollaborationMessage = JSON.parse(JSON.stringify(message));
     switch (msg.type) {
       case "REMOTE_REVISION":
       case "REVISION_UNDONE":
@@ -63,7 +64,9 @@ export class MockTransportService implements TransportService<CollaborationMessa
 
   notifyListeners(message: CollaborationMessage) {
     for (const { callback } of this.listeners) {
-      callback(deepCopy(message));
+      // simulates network serialization, which removes undefined values of an object,
+      // contrary to deepCopy
+      callback(JSON.parse(JSON.stringify(message)));
     }
   }
 
