@@ -11,6 +11,7 @@ import {
   SplillBlockedError,
 } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
+import { EntityDependencyRegistry } from "./entity_dependency_registry";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeItem } from "./r_tree";
@@ -57,8 +58,19 @@ export class Evaluator {
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
 
-  constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
+  /**
+   * Registry for non-formula entities (charts, pivots, conditional formats, etc.)
+   * that need to be notified when cells they depend on change.
+   */
+  readonly entityDependencyRegistry: EntityDependencyRegistry;
+
+  constructor(
+    private readonly context: ModelConfig["custom"],
+    getters: Getters,
+    entityDependencyRegistry?: EntityDependencyRegistry
+  ) {
     this.getters = getters;
+    this.entityDependencyRegistry = entityDependencyRegistry || new EntityDependencyRegistry();
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
@@ -161,6 +173,9 @@ export class Evaluator {
     rangesToCompute.addMany(arrayFormulasPositions);
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(rangesToCompute);
+
+    this.entityDependencyRegistry.invalidateEntitiesDependingOn(rangesToCompute);
+
     console.debug("evaluate Cells", performance.now() - start, "ms");
   }
 
@@ -222,6 +237,9 @@ export class Evaluator {
       ranges.push({ sheetId, zone });
     }
     this.evaluate(ranges);
+
+    this.entityDependencyRegistry.invalidateAllEntities();
+
     console.debug("evaluate all cells", performance.now() - start, "ms");
   }
 
