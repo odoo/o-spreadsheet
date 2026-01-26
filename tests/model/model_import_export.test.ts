@@ -8,7 +8,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { CellIsRule, Model } from "../../src";
 import { toCartesian, toZone } from "../../src/helpers";
@@ -1321,13 +1320,13 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
     ],
   };
   const model = new Model(data, {}, initialMessages);
-  const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
+  const definition1 = model.getters.getChartDefinition("fig1");
   expect(definition1).toMatchObject(
     toChartDataSource({
       dataSets: [{ dataRange: "A1:A3" }],
     })
   );
-  const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
+  const definition2 = model.getters.getChartDefinition("fig2");
   expect(definition2).toMatchObject(
     toChartDataSource({
       dataSets: [{ dataRange: "B1:B3" }],
