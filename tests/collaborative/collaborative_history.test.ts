@@ -28,7 +28,6 @@ import {
 import {
   getCell,
   getCellContent,
-  getCellStyle,
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
@@ -899,11 +898,11 @@ describe("Collaborative local history", () => {
       undo(charlie);
       setStyle(bob, "A1", { bold: true });
     });
-    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), { bold: true });
-    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "B1"), undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
     redo(charlie);
-    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), { bold: true });
-    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "B1"), undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
     expect(all).toHaveSynchronizedExportedData();
   });
 

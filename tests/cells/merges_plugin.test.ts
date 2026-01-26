@@ -23,7 +23,6 @@ import {
   getBorder,
   getCell,
   getCellContent,
-  getCellStyle,
   getEvaluatedCell,
   getMerges,
   getSelectionAnchorCellXc,
@@ -155,21 +154,12 @@ describe("merges", () => {
     selectCell(model, "C3");
     expect(getSelectionAnchorCellXc(model)).toBe("C3");
     expect(getCellsXC(model)).toEqual(["B2"]);
-    expect(getCellStyle(model, "B2")).not.toBeDefined();
+    expect(getCell(model, "B2")!.style).not.toBeDefined();
 
-    setStyle(model, "B2", { fillColor: "#333" });
+    setStyle(model, "B2:C3", { fillColor: "#333" });
 
-    expect(getCellStyle(model, "B2")).toBeDefined();
-    expect(getCellStyle(model, "B3")).toBeDefined();
-    expect(getCellStyle(model, "C2")).toBeDefined();
-    expect(getCellStyle(model, "C3")).toBeDefined();
-
-    unMerge(model, "B2:C3");
-
-    expect(getCellStyle(model, "B2")).toBeDefined();
-    expect(getCellStyle(model, "B3")).toBeDefined();
-    expect(getCellStyle(model, "C2")).toBeDefined();
-    expect(getCellStyle(model, "C3")).toBeDefined();
+    expect(getCellsXC(model)).toEqual(["B2", "B3", "C2", "C3"]);
+    expect(getCell(model, "B2")!.style).toBeDefined();
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
@@ -597,11 +587,11 @@ describe("merges", () => {
     expect(model.getters.getMerge({ sheetId, col, row })).toBeTruthy();
     ({ col, row } = toCartesian("C4"));
     expect(model.getters.getMerge({ sheetId, col, row })).toBeTruthy();
-    expect(getCellStyle(model, "B4")).toEqual({ textColor: "#fe0000" });
+    expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: { style: "medium", color: "#ff0000" } });
     unMerge(model, "B4:C5");
-    expect(getCellStyle(model, "B4")).toEqual({ textColor: "#fe0000" });
-    expect(getCellStyle(model, "C4")).toEqual({ textColor: "#fe0000" });
+    expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
+    expect(getCell(model, "C4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: { style: "medium", color: "#ff0000" } });
     expect(getBorder(model, "C4")).toEqual({ top: { style: "medium", color: "#ff0000" } });
     expect(getBorder(model, "C5")).toBeNull();

@@ -9,7 +9,6 @@ import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { ReferenceClipboardHandler } from "./references_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
-import { StyleClipboardHandler } from "./style_clipboard";
 import { TableClipboardHandler } from "./tables_clipboard";
 
 clipboardHandlersRegistries.figureHandlers
@@ -25,5 +24,4 @@ clipboardHandlersRegistries.cellHandlers
   .add("table", TableClipboardHandler)
   .add("conditionalFormat", ConditionalFormatClipboardHandler)
   .add("references", ReferenceClipboardHandler)
-  .add("border", BorderClipboardHandler)
-  .add("style", StyleClipboardHandler);
+  .add("border", BorderClipboardHandler);

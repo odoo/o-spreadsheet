@@ -30,7 +30,6 @@ export function getCanvas(width: number = 100, height: number = 100): Canvas2DCo
 export function getDefaultCellHeight(
   ctx: Canvas2DContext,
   cell: Cell | undefined,
-  style: Style | undefined,
   locale: Locale,
   colSize: number
 ) {
@@ -47,7 +46,7 @@ export function getDefaultCellHeight(
   } catch {
     content = CellErrorType.GenericError;
   }
-  return getCellContentHeight(ctx, content, style, colSize);
+  return getCellContentHeight(ctx, content, cell.style, colSize);
 }
 
 export function getCellContentHeight(

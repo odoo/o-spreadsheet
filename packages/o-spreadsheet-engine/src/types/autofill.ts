@@ -10,7 +10,7 @@
 
 import { Cell } from "./cells";
 import { Getters } from "./getters";
-import { Border, DIRECTION, Style, UID, UpdateCellData } from "./misc";
+import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
@@ -68,7 +68,6 @@ export interface AutofillData {
   row: number;
   sheetId: UID;
   border?: Border;
-  style?: Style;
 }
 
 export interface AutofillResult {

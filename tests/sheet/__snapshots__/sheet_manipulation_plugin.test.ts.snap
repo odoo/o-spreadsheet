@@ -5,51 +5,61 @@ exports[`Columns Correctly update references On addition 1`] = `
   "A1": {
     "content": "=D1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A2": {
     "content": "=Sheet1!D1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A3": {
     "content": "=Sheet2!B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A5": {
     "content": "=SUM(A1:F1)",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A6": {
     "content": "=SUM(E1:F1)",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A7": {
     "content": "=SUM(D1:D2)",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "F1": {
     "content": "=A1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "F2": {
     "content": "=D1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "F3": {
     "content": "=$G1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "F4": {
     "content": "=F3",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -60,16 +70,19 @@ exports[`Columns Correctly update references On addition 2`] = `
   "A1": {
     "content": "=B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A2": {
     "content": "=Sheet1!D1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A3": {
     "content": "=Sheet2!B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -80,51 +93,61 @@ exports[`Columns Correctly update references On deletion 1`] = `
   "A1": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "A2": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "A3": {
     "content": "=Sheet2!B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A5": {
     "content": "=SUM(A1:B1)",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "A6": {
     "content": "=SUM(B1)",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "A7": {
     "content": "=SUM(#REF)",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "B1": {
     "content": "=A1",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "B2": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "B3": {
     "content": "=$C1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "B4": {
     "content": "=B3",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -135,16 +158,19 @@ exports[`Columns Correctly update references On deletion 2`] = `
   "A1": {
     "content": "=B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A2": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "A3": {
     "content": "=Sheet2!B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -155,51 +181,61 @@ exports[`Rows Correctly update references On addition 1`] = `
   "A1": {
     "content": "=A4",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "A6": {
     "content": "=A1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "B1": {
     "content": "=Sheet1!A4",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "B6": {
     "content": "=B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "C1": {
     "content": "=Sheet2!A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "C6": {
     "content": "=A$7",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "D6": {
     "content": "=C6",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "E1": {
     "content": "=SUM(A1:A6)",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "F1": {
     "content": "=SUM(A5:A6)",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "G1": {
     "content": "=SUM(B4:C4)",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -210,16 +246,19 @@ exports[`Rows Correctly update references On addition 2`] = `
   "A1": {
     "content": "=A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "B1": {
     "content": "=Sheet1!A4",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "C1": {
     "content": "=Sheet2!A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -230,51 +269,61 @@ exports[`Rows Correctly update references On deletion 1`] = `
   "A1": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "A2": {
     "content": "=A1",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "B1": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "B2": {
     "content": "=B1",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "C1": {
     "content": "=Sheet2!A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "C2": {
     "content": "=A$3",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "D2": {
     "content": "=C2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "E1": {
     "content": "=SUM(A1:A2)",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "F1": {
     "content": "=SUM(A2)",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "G1": {
     "content": "=SUM(#REF)",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
 }
@@ -285,16 +334,19 @@ exports[`Rows Correctly update references On deletion 2`] = `
   "A1": {
     "content": "=A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "B1": {
     "content": "=#REF",
     "format": undefined,
+    "style": undefined,
     "value": "#REF",
   },
   "C1": {
     "content": "=Sheet2!A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -305,11 +357,13 @@ exports[`Rows Correctly update references delete row on inactive sheet 1`] = `
   "B2": {
     "content": "=Sheet1!A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "C1": {
     "content": "=Sheet2!A1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }
@@ -320,16 +374,19 @@ exports[`Rows Correctly update references delete row on inactive sheet 2`] = `
   "A1": {
     "content": "=B1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "B1": {
     "content": "=Sheet1!A2",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
   "C1": {
     "content": "=Sheet2!A1",
     "format": undefined,
+    "style": undefined,
     "value": 0,
   },
 }

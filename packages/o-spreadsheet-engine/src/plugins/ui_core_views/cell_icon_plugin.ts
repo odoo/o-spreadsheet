@@ -36,10 +36,10 @@ export class CellIconPlugin extends CoreViewPlugin {
 
   getCellIconRect(icon: GridIcon, cellRect: Rect): Rect {
     const cellPosition = icon.position;
-    const verticalAlign = this.getters.getCellStyle(cellPosition)?.verticalAlign;
+    const cell = this.getters.getCell(cellPosition);
 
     const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
-    const y = this.getters.computeTextYCoordinate(cellRect, icon.size, verticalAlign);
+    const y = this.getters.computeTextYCoordinate(cellRect, icon.size, cell?.style?.verticalAlign);
 
     return { x: x, y: y, width: icon.size, height: icon.size };
   }

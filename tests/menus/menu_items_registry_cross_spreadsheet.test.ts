@@ -1,5 +1,5 @@
 import { selectCell, setCellContent, setStyle } from "../test_helpers/commands_helpers";
-import { getCell, getCellStyle } from "../test_helpers/getters_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
 import { doAction, makeTestEnv } from "../test_helpers/helpers";
 
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -16,8 +16,10 @@ describe("cross spreadsheet copy/paste", () => {
 
     setCellContent(modelA, "A1", "a1");
     setStyle(modelA, "A1", cellStyle);
-    expect(getCell(modelA, "A1")).toMatchObject({ content: "a1" });
-    expect(getCellStyle(modelA, "A1")).toEqual(cellStyle);
+    expect(getCell(modelA, "A1")).toMatchObject({
+      content: "a1",
+      style: cellStyle,
+    });
 
     selectCell(modelA, "A1");
     await doAction(["edit", "copy"], envA);
@@ -35,6 +37,6 @@ describe("cross spreadsheet copy/paste", () => {
     await doAction(["edit", "paste"], envB);
 
     expect(getCell(modelB, "B1")?.content).toEqual("a1");
-    expect(getCellStyle(modelB, "B1")).toMatchObject(cellStyle);
+    expect(getCell(modelB, "B1")?.style).toMatchObject(cellStyle);
   });
 });

@@ -155,13 +155,12 @@ export class SortPlugin extends UIPlugin {
     const updateCellCommands: Omit<UpdateCellCommand, "type">[] = [];
     for (let c: HeaderIndex = 0; c < width; c++) {
       for (let r: HeaderIndex = 0; r < height; r++) {
-        const position = cellPositions[c][sortedIndex[r]];
-        const cell = this.getters.getCell(position);
-        const style = this.getters.getCellStyle(position);
+        const { col, row, sheetId } = cellPositions[c][sortedIndex[r]];
+        const cell = this.getters.getCell({ sheetId, col, row });
         const newCol: HeaderIndex = sortZone.left + c * stepX;
         const newRow: HeaderIndex = sortZone.top + r * stepY;
         const newCellValues: Omit<UpdateCellCommand, "type"> = {
-          sheetId: position.sheetId,
+          sheetId: sheetId,
           col: newCol,
           row: newRow,
           content: "",
@@ -178,7 +177,7 @@ export class SortPlugin extends UIPlugin {
               cell.compiledFormula.tokens
             );
           }
-          newCellValues.style = style;
+          newCellValues.style = cell.style;
           newCellValues.content = content;
           newCellValues.format = cell.format;
         }

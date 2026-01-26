@@ -51,7 +51,6 @@ import {
   getBorder,
   getCell,
   getCellContent,
-  getCellStyle,
   getEvaluatedCell,
   getMerges,
   getStyle,
@@ -274,10 +273,10 @@ describe("Multi users synchronisation", () => {
     });
     copy(alice, "A1");
     paste(alice, "A2");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), {
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
       fillColor: "#fefefe",
     });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellStyle(user, "A2"), {
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A2")!.style, {
       fillColor: "#fefefe",
     });
   });
@@ -293,7 +292,7 @@ describe("Multi users synchronisation", () => {
     copy(alice, "A1");
     paste(alice, "B2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellStyle(user, "B2"),
+      (user) => getCell(user, "B2")!.style,
       undefined
     );
   });
@@ -307,7 +306,7 @@ describe("Multi users synchronisation", () => {
       row: 0,
       style: undefined,
     });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), {
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, {
       fillColor: "#fefefe",
     });
   });
@@ -318,10 +317,10 @@ describe("Multi users synchronisation", () => {
       sheetId: alice.getters.getActiveSheetId(),
       col: 0,
       row: 0,
-      style: { underline: undefined },
+      style: null,
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellStyle(user, "A1"),
+      (user) => getCell(user, "A1")?.style,
       undefined
     );
   });
@@ -672,7 +671,7 @@ describe("Multi users synchronisation", () => {
       bob.dispatch("AUTOFILL");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellStyle(user, "A2"),
+      (user) => getCell(user, "A2")?.style,
       undefined
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -976,13 +975,7 @@ describe("Multi users synchronisation", () => {
     const ctx = document.createElement("canvas").getContext("2d")!;
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
-      getDefaultCellHeight(
-        ctx,
-        getCell(alice, "A1"),
-        getCellStyle(alice, "A1", "sheet2"),
-        DEFAULT_LOCALE,
-        colSize
-      )
+      getDefaultCellHeight(ctx, getCell(alice, "A1"), DEFAULT_LOCALE, colSize)
     );
   });
 

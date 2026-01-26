@@ -8,7 +8,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../test_helpers/dom_helper";
-import { getCell, getCellStyle, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 describe("link display component", () => {
@@ -164,7 +164,7 @@ describe("link display component", () => {
       style: { bold: true },
     });
     await simulateClick(".o-unlink");
-    expect(getCellStyle(model, "A1")).toEqual({
+    expect(getCell(model, "A1")?.style).toEqual({
       bold: true,
       textColor: undefined,
       underline: undefined,
@@ -181,7 +181,7 @@ describe("link display component", () => {
     });
     await hoverCell(model, "A1", 400);
     await simulateClick(".o-unlink");
-    expect(getCellStyle(model, "A1")).toEqual({
+    expect(getCell(model, "A1")?.style).toEqual({
       bold: true,
       textColor: "#555",
       underline: undefined,

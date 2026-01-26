@@ -27,7 +27,6 @@ import {
   getBorder,
   getCell,
   getCellContent,
-  getCellStyle,
   getCellText,
   getMerges,
 } from "../test_helpers/getters_helpers";
@@ -135,13 +134,13 @@ describe("Clear columns", () => {
     clearColumns(["B", "C"]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(model.getters.getCells(model.getters.getActiveSheetId())).toHaveLength(3);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
-    expect(getCellStyle(model, "B1")).toMatchObject(style);
+    expect(getCell(model, "B1")).toMatchObject({ style });
     expect(getBorder(model, "B1")).toEqual(border);
-    expect(getCellStyle(model, "C1")).toMatchObject(style);
+    expect(getCell(model, "C1")).toMatchObject({ style });
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
@@ -186,14 +185,14 @@ describe("Clear rows", () => {
     clearRows([1, 2]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(model.getters.getCells(model.getters.getActiveSheetId())).toHaveLength(3);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
-    expect(getCellStyle(model, "A2")).toMatchObject(style);
+    expect(getCell(model, "A2")).toMatchObject({ style });
     expect(getBorder(model, "A2")).toEqual(border);
     expect(getBorder(model, "A3")).toEqual(border);
     expect(getCell(model, "B1")).toMatchObject({ content: "B1" });
     expect(getCell(model, "C1")).toMatchObject({ content: "C1" });
-    expect(getCellStyle(model, "C2")).toMatchObject(style);
+    expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
     model = new Model();
@@ -920,20 +919,23 @@ describe("Rows", () => {
     });
     test("On deletion", () => {
       const style = { textColor: "#fe0000" };
+      const sheetId = model.getters.getActiveSheetId();
+      expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(8); // 7 NumberCells + 1 emptyCell in merge with style
       deleteRows(model, [1]);
       expect(getCell(model, "A2")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "C2")).toBeUndefined();
-      expect(getCellStyle(model, "A1")).toMatchObject(style);
-      expect(getCellStyle(model, "A3")).toMatchObject(style);
-      expect(getCellStyle(model, "C1")).toMatchObject(style);
-      expect(getCellStyle(model, "C3")).toMatchObject(style);
-      expect(getCellStyle(model, "D2")).toMatchObject(style);
+      expect(Object.values(model.getters.getCells(sheetId))).toHaveLength(5); // 4 NumberCells +1 emptyCell with no merge, but with style
+      expect(getCell(model, "A1")).toMatchObject({ style });
+      expect(getCell(model, "A3")).toMatchObject({ style });
+      expect(getCell(model, "C1")).toMatchObject({ style });
+      expect(getCell(model, "C3")).toMatchObject({ style });
+      expect(getCell(model, "D2")).toMatchObject({ style });
     });
 
     test("On addition", () => {
-      const style = { textColor: "#fe0000" };
       addRows(model, "before", 1, 1);
+      const style = { textColor: "#fe0000" };
       addRows(model, "after", 2, 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style },

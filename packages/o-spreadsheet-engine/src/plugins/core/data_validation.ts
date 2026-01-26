@@ -253,13 +253,13 @@ export class DataValidationPlugin
 
   private setCenterStyleToBooleanCells(rule: DataValidationRule) {
     for (const position of getCellPositionsInRanges(rule.ranges)) {
-      const style = this.getters.getCellStyle(position);
-      const newStyle: Style = {
-        ...style,
-        align: style?.align ?? "center",
-        verticalAlign: style?.verticalAlign ?? "middle",
+      const cell = this.getters.getCell(position);
+      const style: Style = {
+        ...cell?.style,
+        align: cell?.style?.align ?? "center",
+        verticalAlign: cell?.style?.verticalAlign ?? "middle",
       };
-      this.dispatch("UPDATE_CELL", { ...position, style: newStyle });
+      this.dispatch("UPDATE_CELL", { ...position, style });
     }
   }
 

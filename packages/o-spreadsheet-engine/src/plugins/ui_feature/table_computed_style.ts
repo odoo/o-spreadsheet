@@ -69,6 +69,14 @@ export class TableComputedStylePlugin extends UIPlugin {
     return this.tableStyles[position.sheetId][table.id]().styles[position.col]?.[position.row];
   }
 
+  getCellTableBorder(position: CellPosition): Border | undefined {
+    const table = this.getters.getTable(position);
+    if (!table) {
+      return undefined;
+    }
+    return this.tableStyles[position.sheetId][table.id]().borders[position.col]?.[position.row];
+  }
+
   getCellTableStyleZone(sheetId: UID, zone: Zone): PositionMap<Style> {
     const map = new PositionMap<Style>();
     for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
@@ -87,23 +95,13 @@ export class TableComputedStylePlugin extends UIPlugin {
     return map;
   }
 
-  getCellTableBorder(position: CellPosition): Border | undefined {
-    const table = this.getters.getTable(position);
-    if (!table) {
-      return undefined;
-    }
-    return this.tableStyles[position.sheetId][table.id]().borders[position.col]?.[position.row];
-  }
-
   getCellTableBorderZone(sheetId: UID, zone: Zone): PositionMap<Border> {
     const map = new PositionMap<Border>();
     for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
       const tableBorders = this.tableStyles[sheetId][table.id]().borders;
-      for (const colIdx of Object.keys(tableBorders)) {
-        const colStyle = tableBorders[colIdx];
+      for (const [colIdx, colBorder] of Object.entries(tableBorders)) {
         const col = parseInt(colIdx);
-        for (const rowIdx of Object.keys(colStyle)) {
-          const cellBorder = colStyle[rowIdx];
+        for (const [rowIdx, cellBorder] of Object.entries(colBorder)) {
           if (cellBorder) {
             map.set({ sheetId, col, row: parseInt(rowIdx) }, cellBorder);
           }
