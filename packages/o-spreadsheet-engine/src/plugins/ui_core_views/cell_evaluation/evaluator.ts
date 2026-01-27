@@ -59,6 +59,12 @@ export class Evaluator {
   private spreadingRelations = new SpreadingRelation();
 
   /**
+   * Tracks spread zones that were invalidated during evaluation.
+   * These need to be included when notifying entity dependencies.
+   */
+  private invalidatedSpreadZones: BoundedRange[] = [];
+
+  /**
    * Registry for non-formula entities (charts, pivots, conditional formats, etc.)
    * that need to be notified when cells they depend on change.
    */
@@ -166,6 +172,8 @@ export class Evaluator {
 
   evaluateCells(positions: CellPosition[]) {
     const start = performance.now();
+    this.invalidatedSpreadZones = [];
+
     const rangesToCompute = new RangeSet();
     rangesToCompute.addManyPositions(positions);
     const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
@@ -174,6 +182,8 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(rangesToCompute);
 
+    // Include spread zones that were invalidated during evaluation
+    rangesToCompute.addMany(this.invalidatedSpreadZones);
     this.entityDependencyRegistry.invalidateEntitiesDependingOn(rangesToCompute);
 
     console.debug("evaluate Cells", performance.now() - start, "ms");
@@ -562,6 +572,9 @@ export class Evaluator {
     if (!zone) {
       return;
     }
+    // Track this spread zone for entity dependency invalidation
+    this.invalidatedSpreadZones.push({ sheetId: position.sheetId, zone });
+
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const resultPosition = { sheetId: position.sheetId, col, row };
