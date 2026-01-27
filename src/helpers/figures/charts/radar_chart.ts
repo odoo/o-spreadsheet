@@ -183,6 +183,8 @@ export class RadarChart extends AbstractChart {
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 
