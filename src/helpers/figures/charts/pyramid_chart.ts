@@ -104,6 +104,8 @@ export class PyramidChart extends AbstractChart {
       stacked: true,
       showValues: context.showValues,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -176,6 +178,8 @@ export class PyramidChart extends AbstractChart {
       stacked: true,
       showValues: this.showValues,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

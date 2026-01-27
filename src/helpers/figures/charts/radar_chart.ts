@@ -111,6 +111,8 @@ export class RadarChart extends AbstractChart {
       showValues: context.showValues ?? false,
       hideDataMarkers: context.hideDataMarkers,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -183,6 +185,8 @@ export class RadarChart extends AbstractChart {
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

@@ -1,0 +1,28 @@
+<templates>
+  <t t-name="o-spreadsheet.ChartAnnotation">
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Annotation">
+      <t t-set-slot="content">
+        <Section class="'pt-0 px-4'" title.translate="Text">
+          <div
+            class="o-input o-input-infotext"
+            t-ref="annotationTextarea"
+            data-placeholder="Add a description text"
+            data-test-id="annotation-text"
+            t-att-contenteditable="'plaintext-only'"
+            t-on-input="(ev) => this.updateAnnotationText(ev)"
+          />
+        </Section>
+        <Section class="'pt-0 px-4'" title.translate="See more link">
+          <div data-test-id="annotation-link">
+            <TextInput
+              class="'o-input'"
+              value="props.definition.annotationLink ?? ''"
+              onChange="(label) => this.updateAnnotationLink(label)"
+              placeholder.translate="Add a redirection link"
+            />
+          </div>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

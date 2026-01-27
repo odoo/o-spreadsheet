@@ -74,9 +74,9 @@
             t-key="selectedItem.chartId"
           />
         </div>
-        <ChartDashboardMenu
-          t-if="env.isDashboard()"
+        <ChartMenu
           chartId="selectedItem.chartId"
+          displayEllipsis="env.isDashboard()"
           hasFullScreenButton="false"
           t-key="selectedItem.chartId"
         />

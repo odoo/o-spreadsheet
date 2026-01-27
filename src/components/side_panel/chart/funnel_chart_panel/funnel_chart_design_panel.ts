@@ -7,6 +7,7 @@ import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
@@ -20,6 +21,7 @@ export class FunnelChartDesignPanel extends Component<
   static components = {
     ChartShowValues,
     GeneralDesignEditor,
+    ChartAnnotation,
     SidePanelCollapsible,
     RoundColorPicker,
     Section,
