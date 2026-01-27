@@ -26,6 +26,7 @@ import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Range } from "../range";
+import { BubbleChartDefinition, BubbleChartRuntime, BubbleColorMode } from "./bubble_chart";
 export const CHART_TYPES = [
   "line",
   "bar",
@@ -33,6 +34,7 @@ export const CHART_TYPES = [
   "scorecard",
   "gauge",
   "scatter",
+  "bubble",
   "combo",
   "waterfall",
   "pyramid",
@@ -52,6 +54,7 @@ export type ChartDefinition =
   | ScorecardChartDefinition
   | GaugeChartDefinition
   | ScatterChartDefinition
+  | BubbleChartDefinition
   | ComboChartDefinition
   | WaterfallChartDefinition
   | PyramidChartDefinition
@@ -87,6 +90,7 @@ export type ChartJSRuntime =
   | BarChartRuntime
   | ComboChartRuntime
   | ScatterChartRuntime
+  | BubbleChartRuntime
   | WaterfallChartRuntime
   | PyramidChartRuntime
   | RadarChartRuntime
@@ -236,6 +240,9 @@ export interface ChartCreationContext {
   readonly treemapColoringOptions?: TreeMapColoringOptions;
   readonly zoomable?: boolean;
   readonly humanize?: boolean;
+  readonly bubbleLabelRange?: string;
+  readonly bubbleSizeRange?: string;
+  readonly bubbleColorMode?: BubbleColorMode;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
