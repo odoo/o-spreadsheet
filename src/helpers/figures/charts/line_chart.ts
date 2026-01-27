@@ -155,6 +155,8 @@ export class LineChart extends AbstractChart {
       hideDataMarkers: this.hideDataMarkers,
       zoomable: this.zoomable,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

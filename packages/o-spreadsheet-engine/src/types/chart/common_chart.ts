@@ -15,4 +15,6 @@ export interface CommonChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
   readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
