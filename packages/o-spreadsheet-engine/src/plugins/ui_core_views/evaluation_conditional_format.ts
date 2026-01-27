@@ -3,7 +3,7 @@ import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matric
 import { percentile } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { colorNumberToHex, getColorScale } from "../../helpers/color";
-import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
+import { clip, isDefined, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
@@ -26,9 +26,11 @@ import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
-type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
-type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
-type ComputedDataBars = { [col: HeaderIndex]: (DataBarFill | undefined)[] };
+type Brol<T> = { [col: HeaderIndex]: Record<UID, T | undefined>[] };
+
+type ComputedStyles = Brol<Style>;
+type ComputedIcons = Brol<string>;
+type ComputedDataBars = Brol<DataBarFill>;
 
 export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   static getters = [
@@ -37,10 +39,13 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     "getConditionalDataBar",
   ] as const;
   private isStale: boolean = true;
-  // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
-  private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
-  private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
-  private computedDataBars: { [sheet: string]: Lazy<ComputedDataBars> } = {};
+  private computedBrols: {
+    [sheet: UID]: Lazy<{
+      styles: ComputedStyles;
+      icons: ComputedIcons;
+      dataBars: ComputedDataBars;
+    }>;
+  } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -59,9 +64,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   finalize() {
     if (this.isStale) {
       for (const sheetId of this.getters.getSheetIds()) {
-        this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
-        this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
-        this.computedDataBars[sheetId] = lazy(() => this.getComputedDataBars(sheetId));
+        this.computedBrols[sheetId] = lazy(() => this.getComputedStyles(sheetId));
       }
       this.isStale = false;
     }
@@ -73,18 +76,54 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   getCellConditionalFormatStyle(position: CellPosition): Style | undefined {
     const { sheetId, col, row } = position;
-    const styles = this.computedStyles[sheetId]();
-    return styles && styles[col]?.[row];
+    const styles = this.computedBrols[sheetId]().styles;
+    const allStyles = styles && styles[col]?.[row];
+    if (!allStyles) {
+      return undefined;
+    }
+    const cfIds = this.getters
+      .getConditionalFormats(sheetId)
+      .map((cf) => cf.id)
+      .reverse();
+    const values = cfIds
+      .filter((cfId) => cfId in allStyles)
+      .map((cfId) => allStyles[cfId])
+      .filter(isDefined);
+    return Object.assign({}, ...values);
   }
 
   getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {
-    const icons = this.computedIcons[sheetId]();
-    return icons && icons[col]?.[row];
+    const icons = this.computedBrols[sheetId]().icons;
+    const allIcons = icons && icons[col]?.[row];
+    if (!allIcons) {
+      return undefined;
+    }
+    const cfIds = this.getters
+      .getConditionalFormats(sheetId)
+      .map((cf) => cf.id)
+      .reverse();
+    const values = cfIds
+      .filter((cfId) => cfId in allIcons)
+      .map((cfId) => allIcons[cfId])
+      .filter(isDefined);
+    return values.at(-1);
   }
 
   getConditionalDataBar({ sheetId, col, row }: CellPosition): DataBarFill | undefined {
-    const dataBars = this.computedDataBars[sheetId]();
-    return dataBars && dataBars[col]?.[row];
+    const dataBars = this.computedBrols[sheetId]().dataBars;
+    const allDataBars = dataBars && dataBars[col]?.[row];
+    if (!allDataBars) {
+      return undefined;
+    }
+    const cfIds = this.getters
+      .getConditionalFormats(sheetId)
+      .map((cf) => cf.id)
+      .reverse();
+    const values = cfIds
+      .filter((cfId) => cfId in allDataBars)
+      .map((cfId) => allDataBars[cfId])
+      .filter(isDefined);
+    return Object.assign({}, ...values);
   }
 
   // ---------------------------------------------------------------------------
@@ -101,13 +140,15 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
    * the resulting style will have the combination of all those values.
    * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
    */
-  private getComputedStyles(sheetId: UID): ComputedStyles {
+  private getComputedStyles(sheetId: UID) {
     const computedStyle: ComputedStyles = {};
+    const computedIcons: ComputedIcons = {};
+    const computedDataBars: ComputedDataBars = {};
     for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
       switch (cf.rule.type) {
         case "ColorScaleRule":
           for (const range of cf.ranges) {
-            this.applyColorScale(sheetId, range, cf.rule, computedStyle);
+            this.applyColorScale(sheetId, range, cf.rule, computedStyle, cf.id);
           }
           break;
         case "CellIsRule":
@@ -145,47 +186,32 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                   if (!computedStyle[col]) {
                     computedStyle[col] = [];
                   }
-                  // we must combine all the properties of all the CF rules applied to the given cell
-                  computedStyle[col][row] = Object.assign(
-                    computedStyle[col]?.[row] || {},
-                    cf.rule.style
-                  );
+                  if (!computedStyle[col][row]) {
+                    computedStyle[col][row] = {};
+                  }
+                  computedStyle[col][row][cf.id] = cf.rule.style;
                 }
               }
             }
           }
           break;
+        case "IconSetRule":
+          for (const range of cf.ranges) {
+            this.applyIcon(sheetId, range, cf.rule, computedIcons, cf.id);
+          }
+          break;
+        case "DataBarRule":
+          for (const range of cf.ranges) {
+            this.applyDataBar(sheetId, range, cf.rule, computedDataBars, cf.id);
+          }
+          break;
       }
     }
-    return computedStyle;
-  }
-
-  private getComputedIcons(sheetId: UID): ComputedIcons {
-    const computedIcons = {};
-    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      if (cf.rule.type !== "IconSetRule") {
-        continue;
-      }
-
-      for (const range of cf.ranges) {
-        this.applyIcon(sheetId, range, cf.rule, computedIcons);
-      }
-    }
-    return computedIcons;
-  }
-
-  private getComputedDataBars(sheetId: UID): ComputedDataBars {
-    const computedDataBars: ComputedDataBars = {};
-    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      if (cf.rule.type !== "DataBarRule") {
-        continue;
-      }
-
-      for (const range of cf.ranges) {
-        this.applyDataBar(sheetId, range, cf.rule, computedDataBars);
-      }
-    }
-    return computedDataBars;
+    return {
+      styles: computedStyle,
+      icons: computedIcons,
+      dataBars: computedDataBars,
+    };
   }
 
   private parsePoint(
@@ -223,7 +249,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     sheetId: UID,
     range: string,
     rule: IconSetRule,
-    computedIcons: ComputedIcons
+    computedIcons: ComputedIcons,
+    cfId: UID
   ): void {
     const lowerInflectionPoint: number | null = this.parsePoint(
       sheetId,
@@ -261,7 +288,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         if (!computedIcons[col]) {
           computedIcons[col] = [];
         }
-        computedIcons[col][row] = icon;
+        if (!computedIcons[col][row]) {
+          computedIcons[col][row] = {};
+        }
+        computedIcons[col][row][cfId] = icon;
       }
     }
   }
@@ -292,7 +322,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     sheetId: UID,
     range: string,
     rule: DataBarRule,
-    computedDataBars: ComputedDataBars
+    computedDataBars: ComputedDataBars,
+    cfId: UID
   ): void {
     const rangeValues = this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues || range);
     const allValues = this.getters
@@ -324,7 +355,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         if (!computedDataBars[col]) {
           computedDataBars[col] = [];
         }
-        computedDataBars[col][row] = {
+        if (!computedDataBars[col][row]) {
+          computedDataBars[col][row] = {};
+        }
+        computedDataBars[col][row][cfId] = {
           color: colorNumberToHex(color),
           percentage: (cell.value * 100) / max,
         };
@@ -337,7 +371,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     sheetId: UID,
     range: string,
     rule: ColorScaleRule,
-    computedStyle: ComputedStyles
+    computedStyle: ComputedStyles,
+    cfId: UID
   ): void {
     const minValue: number | null = this.parsePoint(sheetId, range, rule.minimum, "min");
     const midValue: number | null = rule.midpoint
@@ -367,8 +402,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           if (!computedStyle[col]) {
             computedStyle[col] = [];
           }
-          computedStyle[col][row] = computedStyle[col]?.[row] || {};
-          computedStyle[col][row]!.fillColor = colorScale(value);
+          if (!computedStyle[col][row]) {
+            computedStyle[col][row] = {};
+          }
+          computedStyle[col][row][cfId] = { fillColor: colorScale(value) };
         }
       }
     }
