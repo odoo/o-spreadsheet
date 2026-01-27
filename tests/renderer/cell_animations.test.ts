@@ -145,7 +145,7 @@ describe("Grid renderer animations", () => {
     expect(gridRenderer["animations"].size).toEqual(0);
   });
 
-  test("Animations are not run the on copy/paste zone ", () => {
+  test("Animations are not run when copy/pasting ", () => {
     const sheetId = model.getters.getActiveSheetId();
     const style = { fillColor: "#ff0f0f" };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -160,10 +160,7 @@ describe("Grid renderer animations", () => {
     copy(model, "A1:A3");
     paste(model, "B1");
     drawGrid();
-    animationFrameCallback(0);
-
-    expect(gridRenderer["animations"].size).toEqual(1);
-    expect(getBoxFromXc("D8-text-slide-in")).toBeDefined();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
   });
 
   test("Animations are not canceled on unrelated model update", () => {
