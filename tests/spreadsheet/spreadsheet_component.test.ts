@@ -27,9 +27,11 @@ import {
   clickAndDrag,
   clickCell,
   clickGridIcon,
+  doubleClick,
   hoverCell,
   keyDown,
   simulateClick,
+  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
@@ -208,6 +210,45 @@ describe("Simple Spreadsheet Component", () => {
     expect(composerStore.currentContent).toBe("=SUM(");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(composerStore.currentContent).toBe("=SUM(");
+  });
+
+  test("Context menus events are blocked by the spreadsheet when not used on an editable element", async () => {
+    // isContentEditable is not implemented in JSDOM
+    Object.defineProperty(HTMLElement.prototype, "isContentEditable", {
+      get: function (this: HTMLElement) {
+        return this.getAttribute("contenteditable") === "plaintext-only";
+      },
+    });
+    // ev.defaultPrevented doesn't seem to work is JSDOM, we'll mock it with a custom property
+    jest.spyOn(MouseEvent.prototype, "preventDefault").mockImplementation(function (this: any) {
+      this.hasBeenDefaultPrevented = true;
+    });
+
+    ({ model, parent, fixture, env } = await mountSpreadsheet());
+    const bodyContextMenuSpy = jest.fn();
+    document.body.addEventListener("contextmenu", bodyContextMenuSpy);
+
+    // Context menu on non-editable elements
+    let ev = triggerMouseEvent(".o-topbar-top", "contextmenu");
+    expect(ev["hasBeenDefaultPrevented"]).toBeTruthy();
+    expect(bodyContextMenuSpy).not.toHaveBeenCalled();
+
+    ev = triggerMouseEvent(".o-spreadsheet-bottom-bar", "contextmenu");
+    expect(ev["hasBeenDefaultPrevented"]).toBeTruthy();
+    expect(bodyContextMenuSpy).not.toHaveBeenCalled();
+
+    // Context menu on input element
+    env.openSidePanel("FindAndReplace");
+    await nextTick();
+    ev = triggerMouseEvent(".o-find-and-replace input", "contextmenu");
+    expect(ev["hasBeenDefaultPrevented"]).toBeFalsy();
+    expect(bodyContextMenuSpy).toHaveBeenCalledTimes(1);
+
+    // Context menu on editable sheet name
+    await doubleClick(fixture, ".o-sheet-name");
+    ev = triggerMouseEvent(".o-sheet-name", "contextmenu");
+    expect(ev["hasBeenDefaultPrevented"]).toBeFalsy();
+    expect(bodyContextMenuSpy).toHaveBeenCalledTimes(2);
   });
 });
 
