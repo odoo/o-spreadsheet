@@ -65,6 +65,7 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
       { canScrollHorizontally: false, canScrollVertically: false },
       { x: firstColStart, y: firstRowStart }
     );
+    // new ViewportCollection()
 
     partialCtx.viewports = {
       bottomRight: testViewport,
