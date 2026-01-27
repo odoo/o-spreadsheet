@@ -94,6 +94,8 @@ describe("datasource tests", function () {
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

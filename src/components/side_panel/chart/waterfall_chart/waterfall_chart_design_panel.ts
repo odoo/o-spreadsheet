@@ -13,6 +13,7 @@ import { SidePanelCollapsible } from "../../components/collapsible/side_panel_co
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import {
   AxisDefinition,
   AxisDesignEditor,
@@ -31,6 +32,7 @@ export class WaterfallChartDesignPanel extends Component<
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
   static components = {
     GeneralDesignEditor,
+    ChartAnnotation,
     ChartShowValues,
     Checkbox,
     SidePanelCollapsible,

@@ -136,4 +136,6 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showHeaders: true,
   zoomable: false,
   humanize: false,
+  annotationLink: "https://www.odoo.com",
+  annotationText: "This is an annotation text",
 };

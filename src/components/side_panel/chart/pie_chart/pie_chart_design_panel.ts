@@ -4,6 +4,7 @@ import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "@odoo/o-spreadsheet-engine/xls
 import { Component } from "@odoo/owl";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
@@ -18,6 +19,7 @@ export class PieChartDesignPanel extends Component<
   static template = "o-spreadsheet-PieChartDesignPanel";
   static components = {
     GeneralDesignEditor,
+    ChartAnnotation,
     Section,
     ChartLegend,
     ChartShowValues,

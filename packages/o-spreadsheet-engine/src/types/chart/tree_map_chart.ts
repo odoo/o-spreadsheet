@@ -19,6 +19,8 @@ export interface TreeMapChartDefinition {
   readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
   readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type TreeMapCategoryColorOptions = {

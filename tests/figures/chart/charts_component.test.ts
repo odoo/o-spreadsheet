@@ -94,6 +94,9 @@ function createTestChart(
     case "scorecard":
       createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId, undefined, partialFigure);
       break;
+    case "combo":
+      createChart(model, TEST_CHART_DATA.combo, newChartId, undefined, partialFigure);
+      break;
     case "gauge":
       createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId, undefined, partialFigure);
       break;
@@ -222,6 +225,25 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)(
+    "%s have an info button if there is an annotation text or link",
+    async (chartType) => {
+      await mountSpreadsheet();
+      createTestChart(chartType);
+      await nextTick();
+      expect(fixture.querySelector(".o-figure")).not.toBeNull();
+      expect(fixture.querySelector(".o-figure-info-icon")).not.toBeNull();
+    }
+  );
+
+  test("charts does not have an info button if there is no annotation text or link", async () => {
+    await mountSpreadsheet();
+    createTestChart("calendar");
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    expect(fixture.querySelector(".o-figure-info-icon")).toBeNull();
+  });
+
+  test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in dashboard mode",
     async (chartType) => {
       await mountSpreadsheet();
@@ -232,6 +254,15 @@ describe("charts", () => {
       expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
     }
   );
+
+  test.each(TEST_CHART_TYPES)("%s have an info button in dashboard mode", async (chartType) => {
+    await mountSpreadsheet();
+    createTestChart(chartType);
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    expect(fixture.querySelector(".o-figure-info-icon")).not.toBeNull();
+  });
 
   test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in readonly mode",
@@ -244,6 +275,66 @@ describe("charts", () => {
       expect(fixture.querySelector(".o-chart-menu-item")).toBeNull();
     }
   );
+
+  test.each(TEST_CHART_TYPES)("%s have an info button in readonly mode", async (chartType) => {
+    await mountSpreadsheet();
+    createTestChart(chartType);
+    model.updateMode("readonly");
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    expect(fixture.querySelector(".o-figure-info-icon")).not.toBeNull();
+  });
+
+  describe("annotation text and/or link are displayed when clicking on info button", () => {
+    test.each(["normal", "readonly", "dashboard"] as const)(
+      "basicChart: text and link are displayed",
+      async (mode) => {
+        await mountSpreadsheet();
+        createTestChart("basicChart");
+        model.updateMode(mode);
+        await nextTick();
+        await click(fixture.querySelector(".o-figure-info-icon")!);
+        expect(fixture.querySelector("[data-test-id='annotation-text']")).toHaveText(
+          "This is an annotation text"
+        );
+        expect(fixture.querySelector(".o-link-info")).toHaveText("See more");
+        expect(fixture.querySelector(".o-link-info")).toHaveAttribute(
+          "href",
+          "https://www.odoo.com"
+        );
+      }
+    );
+    test.each(["normal", "readonly", "dashboard"] as const)(
+      "scorecard: only link is displayed",
+      async (mode) => {
+        await mountSpreadsheet();
+        createTestChart("scorecard");
+        model.updateMode(mode);
+        await nextTick();
+        await click(fixture.querySelector(".o-figure-info-icon")!);
+        expect(fixture.querySelector("[data-test-id='annotation-text']")).toBeNull();
+        expect(fixture.querySelector(".o-link-info")).toHaveText("See more");
+        expect(fixture.querySelector(".o-link-info")).toHaveAttribute(
+          "href",
+          "https://www.odoo.com"
+        );
+      }
+    );
+    test.each(["normal", "readonly", "dashboard"] as const)(
+      "combo: only text is displayed",
+      async (mode) => {
+        await mountSpreadsheet();
+        createTestChart("combo");
+        model.updateMode(mode);
+        await nextTick();
+        await click(fixture.querySelector(".o-figure-info-icon")!);
+        expect(fixture.querySelector("[data-test-id='annotation-text']")).toHaveText(
+          "This is an annotation text"
+        );
+        expect(fixture.querySelector(".o-link-info")).toBeNull();
+      }
+    );
+  });
 
   test.each(TEST_CHART_TYPES)("Click on Edit button will prefill sidepanel", async (chartType) => {
     createTestChart(chartType);
@@ -772,6 +863,26 @@ describe("charts", () => {
         label: "coucou",
       },
     ]);
+  });
+
+  test("can edit annotation text and link", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    setInputValueAndTrigger("[data-test-id='annotation-text']", "coucou");
+    setInputValueAndTrigger("[data-test-id='annotation-link']", "https://www.google.com");
+
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(chartId).annotationText).toBe("coucou");
+    expect(model.getters.getChartDefinition(chartId).annotationLink).toBe("https://www.google.com");
   });
 
   test("can open design panel of chart with duplicated dataset", async () => {

@@ -131,6 +131,8 @@ describe("TreeMap chart", () => {
       valuesDesign: { italic: true },
       coloringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

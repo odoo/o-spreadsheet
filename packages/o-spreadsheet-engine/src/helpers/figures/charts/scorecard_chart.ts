@@ -167,7 +167,6 @@ export class ScorecardChart extends AbstractChart {
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
   readonly fontColor?: Color;
-  readonly humanize: boolean;
   readonly type = "scorecard";
 
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -180,7 +179,6 @@ export class ScorecardChart extends AbstractChart {
     this.background = definition.background;
     this.baselineColorUp = definition.baselineColorUp ?? DEFAULT_SCORECARD_BASELINE_COLOR_UP;
     this.baselineColorDown = definition.baselineColorDown ?? DEFAULT_SCORECARD_BASELINE_COLOR_DOWN;
-    this.humanize = definition.humanize ?? true;
   }
 
   static validateChartDefinition(
@@ -201,6 +199,8 @@ export class ScorecardChart extends AbstractChart {
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -287,6 +287,8 @@ export class ScorecardChart extends AbstractChart {
         : undefined,
       keyDescr: this.keyDescr,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

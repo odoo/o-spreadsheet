@@ -114,6 +114,8 @@ describe("datasource tests", function () {
       dataRange: "Sheet1!B1:B4",
       sectionRule: expect.any(Object),
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

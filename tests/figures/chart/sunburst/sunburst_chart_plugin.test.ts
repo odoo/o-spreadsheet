@@ -67,6 +67,8 @@ describe("Sunburst chart chart", () => {
       valuesDesign: { italic: true },
       groupColors: ["#123456", "#654321"],
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

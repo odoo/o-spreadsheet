@@ -11,6 +11,7 @@ import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
@@ -26,6 +27,7 @@ export class SunburstChartDesignPanel extends Component<
   static template = "o-spreadsheet-SunburstChartDesignPanel";
   static components = {
     GeneralDesignEditor,
+    ChartAnnotation,
     Section,
     SidePanelCollapsible,
     ChartShowValues,
