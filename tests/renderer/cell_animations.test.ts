@@ -119,6 +119,15 @@ describe("Grid renderer animations", () => {
     expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
   });
 
+  test("Animations are not prevented if a cell of another sheet is updated", () => {
+    createSheet(model, { sheetId: "sh2", name: "sh2" });
+    setCellContent(model, "A1", "=sh2!A1");
+    drawGrid();
+    setCellContent(model, "A1", "58", "sh2");
+    drawGrid();
+    expect(spyRequestAnimationFrame).toHaveBeenCalled();
+  });
+
   test("When changing sheet, animations are cancelled and no new animations are run for the new sheet", () => {
     const spyCancelAnimationFrame = jest.spyOn(window, "cancelAnimationFrame");
     createSheet(model, { sheetId: "sh2" });
