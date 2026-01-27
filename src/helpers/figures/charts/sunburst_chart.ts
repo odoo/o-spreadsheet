@@ -147,6 +147,8 @@ export class SunburstChart extends AbstractChart {
       groupColors: this.groupColors,
       pieHolePercentage: this.pieHolePercentage,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

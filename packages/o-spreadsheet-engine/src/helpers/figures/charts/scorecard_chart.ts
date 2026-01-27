@@ -287,6 +287,8 @@ export class ScorecardChart extends AbstractChart {
         : undefined,
       keyDescr: this.keyDescr,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

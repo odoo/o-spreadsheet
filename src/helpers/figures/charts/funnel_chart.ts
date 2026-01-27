@@ -178,6 +178,8 @@ export class FunnelChart extends AbstractChart {
       funnelColors: this.funnelColors,
       cumulative: this.cumulative,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 
