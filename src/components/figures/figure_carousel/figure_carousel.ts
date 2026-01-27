@@ -20,7 +20,7 @@ import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
-import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 interface Props {
   figureUI: FigureUI;
@@ -37,7 +37,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },
   };
-  static components = { ChartDashboardMenu, MenuPopover };
+  static components = { ChartMenu, MenuPopover };
 
   private carouselTabsRef = useRef("carouselTabs");
   private carouselTabsDropdownRef = useRef("carouselTabsDropdown");

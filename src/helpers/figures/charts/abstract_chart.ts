@@ -6,5 +6,7 @@ export abstract class AbstractChart {
     "title",
     "background",
     "humanize",
+    "annotationText",
+    "annotationLink",
   ];
 }

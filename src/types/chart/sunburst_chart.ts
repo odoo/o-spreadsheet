@@ -17,6 +17,8 @@ export interface SunburstChartDefinition<T extends string | Range = Range> {
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
   readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type SunburstChartRuntime = {

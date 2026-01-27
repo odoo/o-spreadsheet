@@ -62,6 +62,8 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
       showValues: context.showValues ?? false,
       hideDataMarkers: context.hideDataMarkers,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

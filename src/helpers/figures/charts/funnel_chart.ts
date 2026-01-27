@@ -61,6 +61,8 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
       horizontal: true,
       cumulative: context.cumulative ?? true,
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   },
 

@@ -348,6 +348,8 @@ describe("Waterfall chart", () => {
       showValues: false,
       zoomable: true,
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

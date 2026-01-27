@@ -15,4 +15,6 @@ export interface CommonChartDefinition<T extends string | Range = Range> {
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
   readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }

@@ -84,6 +84,8 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
       legendPosition,
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

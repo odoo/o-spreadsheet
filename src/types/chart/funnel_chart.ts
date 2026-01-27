@@ -18,6 +18,8 @@ export interface FunnelChartDefinition<T extends string | Range = Range> {
   readonly funnelColors?: FunnelChartColors;
   readonly cumulative?: boolean;
   readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type FunnelChartRuntime = {

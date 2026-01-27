@@ -200,6 +200,8 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
         },
       },
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   },
 

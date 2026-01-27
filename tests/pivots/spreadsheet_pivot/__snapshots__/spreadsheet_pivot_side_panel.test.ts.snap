@@ -130,6 +130,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                     >
                       <input
                         class="os-pivot-title w-100 os-input"
+                        maxlength="this.props.maxLength"
                         type="text"
                       />
                       
@@ -1100,6 +1101,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                     >
                       <input
                         class="os-pivot-title w-100 os-input"
+                        maxlength="this.props.maxLength"
                         type="text"
                       />
                       

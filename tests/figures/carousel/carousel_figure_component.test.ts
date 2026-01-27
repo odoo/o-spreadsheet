@@ -190,9 +190,9 @@ describe("Carousel figure component", () => {
     addNewChartToCarousel(model, "carouselId", { type: "bar" });
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
-    expect(".o-chart-dashboard-item").toHaveCount(0); // nothing for the data view
+    expect(".o-chart-menu-item").toHaveCount(0); // nothing for the data view
     await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(".o-chart-dashboard-item").toHaveCount(1); // ellipsis, no full screen
+    expect(".o-chart-menu-item").toHaveCount(1); // ellipsis, no full screen
   });
 
   test("Chart animation is played at each carousel tab change", async () => {
