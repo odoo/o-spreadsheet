@@ -414,6 +414,8 @@ export function createScorecardChart(
       baselineColorUp: data.baselineColorUp || DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       background: data.background,
       humanize: data.humanize || false,
+      annotationLink: data.annotationLink,
+      annotationText: data.annotationText,
     },
   });
 }
@@ -462,6 +464,8 @@ export function createGaugeChart(
         },
       },
       humanize: data.humanize || false,
+      annotationLink: data.annotationLink,
+      annotationText: data.annotationText,
     },
   });
 }

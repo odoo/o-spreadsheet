@@ -6,11 +6,12 @@ import { LegendPosition } from "./common_chart";
 
 export interface TreeMapChartDefinition {
   readonly type: "treemap";
+  readonly title: TitleDesign;
+  readonly background?: Color;
+  readonly humanize?: boolean;
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
-  readonly title: TitleDesign;
-  readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
@@ -18,7 +19,8 @@ export interface TreeMapChartDefinition {
   readonly showLabels?: boolean;
   readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
-  readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type TreeMapCategoryColorOptions = {
