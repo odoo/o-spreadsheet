@@ -116,7 +116,7 @@ export class GridRenderer extends SpreadsheetStore {
         }
         break;
       case "PASTE":
-        this.zonesWithPreventedAnimationsInNextFrame.push(...this.getters.getSelectedZones());
+        this.preventNewAnimationsInNextFrame = true;
         break;
       case "UPDATE_CELL":
         if (cmd.sheetId === this.getters.getActiveSheetId()) {
