@@ -1,7 +1,9 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
+import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { compile } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
+import { getFieldDisplayName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 import { Component } from "@odoo/owl";
 import { unquote } from "../../../../../helpers";
@@ -121,5 +123,19 @@ export class PivotMeasureEditor extends Component<Props> {
       return [...options, { value: "", label: _t("Compute from totals") }];
     }
     return options;
+  }
+
+  getMeasureDescription(measure: PivotMeasure) {
+    const measureDisplay = measure.display;
+    if (!measureDisplay || measureDisplay.type === "no_calculations") {
+      return "";
+    }
+    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const field = [...pivot.definition.columns, ...pivot.definition.rows].find(
+      (f) => f.nameWithGranularity === measureDisplay.fieldNameWithGranularity
+    );
+    const fieldName = field ? getFieldDisplayName(field) : "";
+    const value = measureDisplay.value?.toString() || "";
+    return measureDisplayTerms.descriptions[measureDisplay.type](fieldName, value);
   }
 }
