@@ -119,8 +119,10 @@ export class GridRenderer extends SpreadsheetStore {
         this.zonesWithPreventedAnimationsInNextFrame.push(...this.getters.getSelectedZones());
         break;
       case "UPDATE_CELL":
-        const zones = this.getters.getCommandZones(cmd);
-        this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
+        if (cmd.sheetId === this.getters.getActiveSheetId()) {
+          const zones = this.getters.getCommandZones(cmd);
+          this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
+        }
         break;
     }
   }
