@@ -58,6 +58,8 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
       showValues: context.showValues,
       humanize: context.humanize,
       slicesColors: context.slicesColors,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

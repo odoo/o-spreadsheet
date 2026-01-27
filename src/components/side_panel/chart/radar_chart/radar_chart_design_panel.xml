@@ -13,5 +13,6 @@
       </t>
     </GeneralDesignEditor>
     <SeriesDesignEditor t-props="this.props"/>
+    <ChartAnnotation t-props="this.props"/>
   </t>
 </templates>

@@ -14,6 +14,7 @@
         t-on-focus="this.onFocus"
         t-on-input="this.onInput"
         t-on-keydown="this.onKeyDown"
+        t-att-maxlength="this.props.maxLength"
       />
       <span
         t-if="this.props.errorMessage"

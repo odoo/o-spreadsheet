@@ -18,11 +18,11 @@ import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_help
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
-import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselFigure";
-  static components = { ChartDashboardMenu, MenuPopover };
+  static components = { ChartMenu, MenuPopover };
 
   protected props = props({
     figureUI: types.FigureUI(),

@@ -4,6 +4,7 @@ import { ChartDefinitionWithDataSource } from "../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import {
   AxisDefinition,
   AxisDesignEditor,
@@ -23,6 +24,7 @@ export class ChartWithAxisDesignPanel<
   static template = "o-spreadsheet-ChartWithAxisDesignPanel";
   static components = {
     GeneralDesignEditor,
+    ChartAnnotation,
     SidePanelCollapsible,
     Section,
     AxisDesignEditor,

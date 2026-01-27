@@ -80,6 +80,8 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   },
 
