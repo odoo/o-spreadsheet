@@ -195,6 +195,8 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

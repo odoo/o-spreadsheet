@@ -54,6 +54,8 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
       groupColors: context.groupColors,
       humanize: context.humanize,
       pieHolePercentage: context.pieHolePercentage,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

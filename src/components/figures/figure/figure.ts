@@ -7,11 +7,7 @@ import { CSSProperties, Pixel } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
-import {
-  getElBoundingRect,
-  isCtrlKey,
-  keyboardEventToShortcutString,
-} from "../../helpers/dom_helpers";
+import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
@@ -51,7 +47,6 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
 
   private figureRef = signal<HTMLElement | null>(null);
   private figureWrapperRef = signal<HTMLElement | null>(null);
-  private menuButtonRef = signal<HTMLElement | null>(null);
 
   private borderWidth!: number;
 
@@ -259,16 +254,6 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       width: 0,
       height: 0,
     });
-  }
-
-  showMenu(ev: MouseEvent) {
-    if (!this.isSelected) {
-      this.env.model.dispatch("SELECT_FIGURE", {
-        figureId: this.props.figureUI.id,
-        selectMultiple: ev.shiftKey || isCtrlKey(ev),
-      });
-    }
-    this.openContextMenu(getElBoundingRect(this.menuButtonRef()));
   }
 
   openContextMenu(anchorRect: Rect) {

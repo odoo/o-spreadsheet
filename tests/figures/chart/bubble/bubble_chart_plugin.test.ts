@@ -36,6 +36,8 @@ describe("bubble chart", () => {
       dataSetsHaveTitle: true,
       verticalAxisPosition: undefined,
       labelsAsText: true,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

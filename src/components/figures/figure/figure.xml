@@ -24,24 +24,14 @@
           editFigureStyle.bind="this.editWrapperStyle"
           openContextMenu.bind="this.openContextMenu"
         />
-        <div
-          class="o-figure-menu position-absolute m-2"
-          t-if="!this.env.model.getters.isDashboard()">
-          <div
-            class="o-figure-menu-item d-flex-align-items-center"
-            t-if="!this.env.model.getters.isReadonly() and this.props.figureUI.tag !== 'carousel'"
-            t-on-click="this.showMenu"
-            t-ref="this.menuButtonRef"
-            t-on-contextmenu.prevent.stop="this.showMenu">
-            <t t-call="o-spreadsheet-Icon.LIST"/>
-          </div>
-          <MenuPopover
-            t-if="this.menuState.isOpen"
-            anchorRect="this.menuState.anchorRect"
-            menuItems="this.menuState.menuItems"
-            onClose="() => this.menuState.isOpen=false"
-          />
-        </div>
+        <MenuPopover
+          t-if="this.menuState.isOpen"
+          menuId="'figure-context-menu'"
+          anchorRect="this.menuState.anchorRect"
+          menuItems="this.menuState.menuItems"
+          onClose="() => this.menuState.isOpen=false"
+          popoverPositioning="'bottom-left'"
+        />
         <div
           t-if="!this.env.model.getters.isDashboard()"
           class="position-absolute top-0 start-0 pe-none w-100 h-100">

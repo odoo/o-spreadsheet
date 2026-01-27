@@ -51,5 +51,6 @@
         />
       </t>
     </SidePanelCollapsible>
+    <ChartAnnotation t-props="this.props"/>
   </t>
 </templates>

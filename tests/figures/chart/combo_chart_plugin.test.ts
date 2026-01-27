@@ -45,6 +45,8 @@ describe("combo chart", () => {
       hideDataMarkers: false,
       zoomable: true,
       humanize: false,
+      annotationLink: "https://www.odoo.com",
+      annotationText: "This is an annotation text",
     });
   });
 

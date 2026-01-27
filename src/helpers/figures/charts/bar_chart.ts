@@ -66,6 +66,8 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       horizontal: context.horizontal,
       zoomable: context.zoomable,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

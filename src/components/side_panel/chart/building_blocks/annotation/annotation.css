@@ -1,0 +1,13 @@
+.o-spreadsheet {
+  .o-input-infotext {
+    height: fit-content;
+    max-height: 200px;
+    min-height: 1.2em;
+  }
+
+  .o-input-infotext:empty:before {
+    content: attr(data-placeholder);
+    color: #adb5bd;
+    pointer-events: none;
+  }
+}

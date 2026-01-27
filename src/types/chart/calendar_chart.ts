@@ -3,7 +3,7 @@ import { Color } from "../misc";
 import { Granularity } from "../pivot";
 import { Range } from "../range";
 import { ChartColorScale } from "./chart";
-import { CommonChartDefinition } from "./common_chart";
+import { DataSourceChartDefinition } from "./common_chart";
 
 export const CALENDAR_CHART_GRANULARITIES = [
   "year",
@@ -20,7 +20,7 @@ export const CALENDAR_CHART_GRANULARITIES = [
 export type CalendarChartGranularity = (typeof CALENDAR_CHART_GRANULARITIES)[number];
 
 export interface CalendarChartDefinition<T extends string | Range = Range>
-  extends CommonChartDefinition<T> {
+  extends DataSourceChartDefinition<T> {
   readonly type: "calendar";
   readonly horizontalGroupBy: CalendarChartGranularity;
   readonly verticalGroupBy: CalendarChartGranularity;

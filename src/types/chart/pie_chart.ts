@@ -1,10 +1,10 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { Range } from "../range";
-import { CommonChartDefinition } from "./common_chart";
+import { DataSourceChartDefinition } from "./common_chart";
 
 export interface PieChartDefinition<T extends string | Range = Range>
-  extends CommonChartDefinition<T> {
+  extends DataSourceChartDefinition<T> {
   readonly type: "pie";
   readonly slicesColors?: Color[];
   readonly aggregated?: boolean;
