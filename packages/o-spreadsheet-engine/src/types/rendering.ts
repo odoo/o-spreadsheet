@@ -1,6 +1,6 @@
 import { memoize } from "../helpers/misc";
 import { SelectionContext } from "../plugins/ui_stateful/selection";
-import { SheetViewContext } from "../plugins/ui_stateful/sheetview_helpers";
+import { ViewportCollection } from "../plugins/ui_stateful/sheetview_class";
 import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
 import { Alias, Align, BorderDescr, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
@@ -98,8 +98,8 @@ export type GridRenderingContext = {
   dpr: number;
   thinLineWidth: number;
   hideHeaders?: boolean;
-} & SheetViewContext &
-  SelectionContext;
+  sheetView: ViewportCollection;
+} & SelectionContext;
 
 const LAYERS = {
   Background: 0,

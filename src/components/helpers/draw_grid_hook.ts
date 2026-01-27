@@ -27,7 +27,7 @@ export function useGridDrawing(
       ctx,
       dpr,
       thinLineWidth,
-      ...model.getters.getSheetViewCtx(),
+      sheetView: model.getters.getSheetView(),
       ...model.getters.getSelectionContext(),
       ...(partialCtx?.() || {}),
     };

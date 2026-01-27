@@ -1,6 +1,6 @@
 import { GridRenderingContext, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { CANVAS_SHIFT } from "@odoo/o-spreadsheet-engine/constants";
-import { InternalViewport } from "@odoo/o-spreadsheet-engine/helpers/internal_viewport";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/sheetview_class";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { Store, useLocalStore } from "../../store_engine";
@@ -46,33 +46,25 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
     const lastColEnd = this.env.model.getters.getColDimensions(sheetId, zone.right).end;
 
     const partialCtx: Partial<GridRenderingContext> = {
-      getters: this.env.model.getters,
-      hideHeaders: true,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
       selectedZones: [],
-      sheetViewWidth: lastColEnd - firstColStart,
-      sheetViewHeight: lastRowEnd - firstRowStart,
       sheetId,
-      zoomLevel: 1,
+      hideHeaders: true,
     };
 
-    const testViewport = new InternalViewport(
-      this.env.model.getters,
-      sheetId,
-      this.env.model.getters.getSheetZone(sheetId),
-      { width: lastColEnd - firstColStart, height: lastRowEnd - firstRowStart },
-      { canScrollHorizontally: false, canScrollVertically: false },
-      { x: firstColStart, y: firstRowStart }
-    );
-    // new ViewportCollection()
+    // const testViewport = new InternalViewport(
+    //   this.env.model.getters,
+    //   sheetId,
+    //   this.env.model.getters.getSheetZone(sheetId),
+    //   { width: lastColEnd - firstColStart, height: lastRowEnd - firstRowStart },
+    //   { canScrollHorizontally: false, canScrollVertically: false },
+    //   { x: firstColStart, y: firstRowStart }
+    // );
+    const sheetView = new ViewportCollection(this.env.model.getters);
+    sheetView.sheetViewWidth = lastColEnd - firstColStart;
+    sheetView.sheetViewHeight = lastRowEnd - firstRowStart;
+    sheetView.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
 
-    partialCtx.viewports = {
-      bottomRight: testViewport,
-      topLeft: undefined,
-      topRight: undefined,
-      bottomLeft: undefined,
-    };
+    partialCtx.sheetView = sheetView;
     return partialCtx;
   }
 
@@ -80,19 +72,19 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
     const canvas = this.canvasRef.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext("2d", { alpha: false })!;
-    const thinLineWidth = 0.4 * dpr; // ADRM TODO: zoom
+    const thinLineWidth = 0.4 * dpr;
+    // @ts-ignore ADRM TODO
     const renderingContext: GridRenderingContext = {
       ctx,
       dpr,
       thinLineWidth,
-      ...this.env.model.getters.getSheetViewCtx(),
       ...this.env.model.getters.getSelectionContext(),
       ...this.renderingContext,
     };
-    const zoom = renderingContext.zoomLevel;
+    const zoom = renderingContext.sheetView.zoomLevel;
     let { width, height } = this.dimensions;
-    width = Math.min(width, renderingContext.sheetViewWidth);
-    height = Math.min(height, renderingContext.sheetViewHeight);
+    width = Math.min(width, renderingContext.sheetView.sheetViewWidth);
+    height = Math.min(height, renderingContext.sheetView.sheetViewHeight);
     width = zoom * width;
     height = zoom * height;
     // canvas.style.width = `${zoom * width}px`;

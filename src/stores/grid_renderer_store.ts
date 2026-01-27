@@ -17,14 +17,6 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
-import {
-  getAllActiveViewportsZonesAndRect,
-  getMainViewportCoordinates,
-  getRect,
-  getSheetViewVisibleCols,
-  getSheetViewVisibleRows,
-  getVisibleRect,
-} from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/sheetview_helpers";
 import { ModelStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
@@ -181,7 +173,8 @@ export class GridRenderer extends DisposableStore {
         const oldBoxes = this.lastRenderBoxes;
         this.lastRenderBoxes = new Map();
 
-        for (const { zone, rect } of getAllActiveViewportsZonesAndRect(renderingContext)) {
+        const { sheetId, sheetView } = renderingContext;
+        for (const { zone, rect } of sheetView.getAllActiveViewportsZonesAndRect(sheetId)) {
           const { ctx } = renderingContext;
           ctx.save();
           ctx.beginPath();
@@ -211,9 +204,8 @@ export class GridRenderer extends DisposableStore {
   }
 
   private drawGlobalBackground(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
-    const width = renderingContext.sheetViewWidth;
-    const height = renderingContext.sheetViewHeight;
+    const { ctx, sheetView } = renderingContext;
+    const { width, height } = sheetView.getSheetViewDimensionWithHeaders();
 
     // white background
     ctx.fillStyle = "#ffffff";
@@ -506,17 +498,15 @@ export class GridRenderer extends DisposableStore {
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
-    const visibleCols = getSheetViewVisibleCols(renderingContext);
+    const { ctx, thinLineWidth, sheetView, sheetId } = renderingContext;
+    const visibleCols = sheetView.getSheetViewVisibleCols(sheetId);
     const left = visibleCols[0];
-    const visibleRows = getSheetViewVisibleRows(renderingContext);
+    const visibleRows = sheetView.getSheetViewVisibleRows(sheetId);
     const top = visibleRows[0];
-    const width = renderingContext.sheetViewWidth;
-    const height = renderingContext.sheetViewHeight;
+    const { width, height } = sheetView.getSheetViewDimensionWithHeaders();
     const selection = renderingContext.selectedZones;
     const selectedCols = getZonesCols(selection);
     const selectedRows = getZonesRows(selection);
-    const sheetId = renderingContext.sheetId;
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
     const activeCols = renderingContext.activeCols;
@@ -531,7 +521,7 @@ export class GridRenderer extends DisposableStore {
     // Columns headers background
     for (const col of visibleCols) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
-      const { x, width } = getVisibleRect(renderingContext, colZone);
+      const { x, width } = sheetView.getVisibleRect(sheetId, colZone);
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
       if (isColActive) {
@@ -547,7 +537,7 @@ export class GridRenderer extends DisposableStore {
     // Rows headers background
     for (const row of visibleRows) {
       const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
-      const { y, height } = getVisibleRect(renderingContext, rowZone);
+      const { y, height } = sheetView.getVisibleRect(sheetId, rowZone);
 
       const isRowActive = activeRows.has(row);
       const isRowSelected = selectedRows.has(row);
@@ -575,8 +565,8 @@ export class GridRenderer extends DisposableStore {
       const colName = numberToLetters(col);
       ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
       const zone = { left: col, right: col, top: top, bottom: top };
-      const { x: colStart, width: colSize } = getRect(renderingContext, zone);
-      const { x, width } = getVisibleRect(renderingContext, zone);
+      const { x: colStart, width: colSize } = sheetView.getRect(sheetId, zone);
+      const { x, width } = sheetView.getVisibleRect(sheetId, zone);
       ctx.save();
       ctx.beginPath();
       ctx.rect(x, 0, width, HEADER_HEIGHT);
@@ -593,8 +583,8 @@ export class GridRenderer extends DisposableStore {
     for (const row of visibleRows) {
       ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
       const zone = { top: row, bottom: row, left: left, right: left };
-      const { y: rowStart, height: rowSize } = getRect(renderingContext, zone);
-      const { y, height } = getVisibleRect(renderingContext, zone);
+      const { y: rowStart, height: rowSize } = sheetView.getRect(sheetId, zone);
+      const { y, height } = sheetView.getVisibleRect(sheetId, zone);
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, y, HEADER_WIDTH, height);
@@ -609,10 +599,10 @@ export class GridRenderer extends DisposableStore {
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth, sheetId, sheetView } = renderingContext;
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      getMainViewportCoordinates(renderingContext);
+      sheetView.getMainViewportCoordinates(sheetId);
     const widthCorrection = renderingContext.hideHeaders ? 0 : HEADER_WIDTH;
     const heightCorrection = renderingContext.hideHeaders ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
@@ -630,20 +620,20 @@ export class GridRenderer extends DisposableStore {
   }
 
   private drawFrozenPanes(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth, sheetId, sheetView } = renderingContext;
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      getMainViewportCoordinates(renderingContext);
+      sheetView.getMainViewportCoordinates(sheetId);
 
-    const visibleCols = getSheetViewVisibleCols(renderingContext);
+    const visibleCols = sheetView.getSheetViewVisibleCols(sheetId);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = getSheetViewVisibleRows(renderingContext);
+    const visibleRows = sheetView.getSheetViewVisibleRows(sheetId);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
 
-    const rect = getVisibleRect(renderingContext, viewport);
+    const rect = renderingContext.sheetView.getVisibleRect(renderingContext.sheetId, viewport);
     const widthCorrection = renderingContext.hideHeaders ? 0 : HEADER_WIDTH;
     const heightCorrection = renderingContext.hideHeaders ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
@@ -734,13 +724,14 @@ export class GridRenderer extends DisposableStore {
     zone: Zone,
     viewport: Viewport
   ): Box {
+    const { sheetView } = ctx;
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = getRect(ctx, zone);
+    const { x, y, width, height } = sheetView.getRect(sheetId, zone);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
     const border = this.getters.getCellComputedBorder(position, viewport);
 
@@ -873,7 +864,10 @@ export class GridRenderer extends DisposableStore {
       switch (align) {
         case "left": {
           const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row });
-          const { x, y, width, height } = getVisibleRect(ctx, union(zone, emptyZoneOnTheLeft));
+          const { x, y, width, height } = sheetView.getVisibleRect(
+            sheetId,
+            union(zone, emptyZoneOnTheLeft)
+          );
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
@@ -881,7 +875,10 @@ export class GridRenderer extends DisposableStore {
         }
         case "right": {
           const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row });
-          const { x, y, width, height } = getVisibleRect(ctx, union(zone, emptyZoneOnTheRight));
+          const { x, y, width, height } = sheetView.getVisibleRect(
+            sheetId,
+            union(zone, emptyZoneOnTheRight)
+          );
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
@@ -893,7 +890,7 @@ export class GridRenderer extends DisposableStore {
             left: previousColIndex,
             right: nextColIndex,
           };
-          const { x, y, height, width } = getVisibleRect(ctx, emptyZone);
+          const { x, y, height, width } = sheetView.getVisibleRect(sheetId, emptyZone);
           const halfContentWidth = contentWidth / 2;
           const boxMiddle = box.x + box.width / 2;
           if (
@@ -922,20 +919,20 @@ export class GridRenderer extends DisposableStore {
   }
 
   private getGridBoxes(ctx: GridRenderingContext, zone: Zone): Box[] {
+    const { sheetView, sheetId } = ctx;
     const boxes: Box[] = [];
 
-    const visibleCols = getSheetViewVisibleCols(ctx).filter(
-      (col) => col >= zone.left && col <= zone.right
-    );
+    const visibleCols = sheetView
+      .getSheetViewVisibleCols(sheetId)
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = getSheetViewVisibleRows(ctx).filter(
-      (row) => row >= zone.top && row <= zone.bottom
-    );
+    const visibleRows = sheetView
+      .getSheetViewVisibleRows(sheetId)
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
-    const sheetId = ctx.sheetId;
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {

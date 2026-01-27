@@ -28,11 +28,6 @@ import {
 } from "../../types/rendering";
 import { UIPlugin } from "../ui_plugin";
 import { ViewportCollection } from "./sheetview_class";
-import {
-  getSheetViewVisibleCols,
-  getSheetViewVisibleRows,
-  SheetViewContext,
-} from "./sheetview_helpers";
 
 /**
  *   EdgeScrollCases Schema
@@ -108,7 +103,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getViewportZoomLevel",
     "getScrollBarWidth",
     "getMaximumSheetOffset",
-    "getSheetViewCtx",
+    "getSheetView",
   ] as const;
 
   private sheetView: ViewportCollection = new ViewportCollection(this.getters);
@@ -345,11 +340,11 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   getSheetViewVisibleCols(): HeaderIndex[] {
-    return getSheetViewVisibleCols(this.getSheetViewCtx());
+    return this.sheetView.getSheetViewVisibleCols(this.getters.getActiveSheetId());
   }
 
   getSheetViewVisibleRows(): HeaderIndex[] {
-    return getSheetViewVisibleRows(this.getSheetViewCtx());
+    return this.sheetView.getSheetViewVisibleRows(this.getters.getActiveSheetId());
   }
 
   /**
@@ -516,7 +511,7 @@ export class SheetViewPlugin extends UIPlugin {
     return this.sheetView.getFrozenSheetViewRatio(sheetId);
   }
 
-  getSheetViewCtx(): SheetViewContext {
-    return this.sheetView.getSheetViewCtx(this.getters.getActiveSheetId());
+  getSheetView(): ViewportCollection {
+    return this.sheetView;
   }
 }

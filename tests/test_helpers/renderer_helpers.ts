@@ -3,9 +3,8 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { SheetViewports } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/sheetview_helpers";
 import { Model } from "../../src";
-import { CustomGetters, GridRenderingContext, Pixel, UID, Viewport, Zone } from "../../src/types";
+import { CustomGetters, GridRenderingContext, UID, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
@@ -66,31 +65,11 @@ export class MockGridRenderingContext implements GridRenderingContext {
   }
 
   get sheetId(): UID {
-    return this.model.getters.getSheetViewCtx().sheetId;
+    return this.model.getters.getActiveSheetId();
   }
 
-  get viewports(): SheetViewports {
-    return this.model.getters.getSheetViewCtx().viewports;
-  }
-
-  get sheetViewWidth(): Pixel {
-    return this.model.getters.getSheetViewCtx().sheetViewWidth;
-  }
-
-  get sheetViewHeight(): Pixel {
-    return this.model.getters.getSheetViewCtx().sheetViewHeight;
-  }
-
-  get gridOffsetX(): Pixel {
-    return this.model.getters.getSheetViewCtx().gridOffsetX;
-  }
-
-  get gridOffsetY(): Pixel {
-    return this.model.getters.getSheetViewCtx().gridOffsetY;
-  }
-
-  get zoomLevel(): number {
-    return this.model.getters.getSheetViewCtx().zoomLevel;
+  get sheetView() {
+    return this.model.getters.getSheetView();
   }
 
   get selectedZones(): Zone[] {

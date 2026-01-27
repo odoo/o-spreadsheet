@@ -30,7 +30,6 @@ import {
   SheetDOMScrollInfo,
   Viewport,
 } from "../../types/rendering";
-import { SheetViewContext } from "./sheetview_helpers";
 
 type SheetViewports = {
   topLeft: InternalViewport | undefined;
@@ -768,20 +767,5 @@ export class ViewportCollection {
       return { x: 0, y: 0, width: 0, height: 0 };
     }
     return { x, y, width: width - x, height: height - y };
-  }
-
-  getSheetViewCtx(sheetId: UID): SheetViewContext {
-    const dimensions = this.getSheetViewDimensionWithHeaders();
-    this.ensureMainViewportExist(sheetId);
-    return {
-      getters: this.getters,
-      sheetId,
-      viewports: this.viewports[sheetId]!,
-      sheetViewHeight: dimensions.height,
-      sheetViewWidth: dimensions.width,
-      gridOffsetX: this.gridOffsetX,
-      gridOffsetY: this.gridOffsetY,
-      zoomLevel: this.zoomLevel,
-    };
   }
 }
