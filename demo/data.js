@@ -527,6 +527,8 @@ export const demoData = {
               text: "Pie",
             },
             humanize: true,
+            annotationText: "This is an annotation text for the demo pie chart.",
+            annotationLink: "https://odoo.com",
             chartId: "3",
           },
           offset: {
@@ -718,6 +720,7 @@ export const demoData = {
             },
             region: "world",
             humanize: true,
+            annotationLink: "https://odoo.com",
             chartId: "10",
           },
           offset: {
@@ -884,6 +887,7 @@ export const demoData = {
                 },
                 stacked: false,
                 humanize: true,
+                annotationText: "This is an annotation text for the demo line chart.",
               },
               2: {
                 type: "bar",

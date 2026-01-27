@@ -8,8 +8,8 @@
         isFullScreen="this.props.isFullScreen"
       />
     </div>
-    <div t-if="this.env.model.getters.isDashboard()" class="position-absolute top-0 end-0">
-      <ChartDashboardMenu chartId="this.chartId"/>
+    <div class="position-absolute top-0 end-0">
+      <ChartMenu chartId="this.chartId" hasFullScreenButton="this.env.model.getters.isDashboard()"/>
     </div>
   </t>
 </templates>

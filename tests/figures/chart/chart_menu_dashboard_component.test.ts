@@ -47,8 +47,8 @@ describe("chart menu for dashboard", () => {
     expect(".o-menu-item").toHaveCount(0);
 
     await click(fixture, ".o-figure .fa-ellipsis-v");
-    expect(getElStyle(".o-popover", "top")).toBe("100px");
-    expect(getElStyle(".o-popover", "left")).toBe("120px");
+    expect(getElStyle(".o-popover", "top")).toBe("120px");
+    expect(getElStyle(".o-popover", "left")).toBe("100px");
     const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")].map(
       (item) => item.dataset.name
     );

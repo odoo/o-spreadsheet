@@ -4,7 +4,7 @@
     background-color: rgba(0, 0, 0, 0.4);
     padding: 60px;
 
-    .o-figure:not(:hover) .o-dashboard-chart-select {
+    .o-figure:not(:hover) .o-chart-menu {
       display: block !important;
     }
   }

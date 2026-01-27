@@ -41,6 +41,7 @@ export const TEST_CHART_DATA = {
       dataSets: [
         {
           dataRange: "B1:B4",
+          yAxisId: "y",
         },
       ],
       labelRange: "A2:A4",
@@ -59,6 +60,14 @@ export const TEST_CHART_DATA = {
     baselineDescr: { text: "description" },
     baselineMode: "difference" as const,
     humanize: true,
+  },
+  funnel: {
+    type: "funnel" as const,
+    keyValue: "B1:B4",
+    baseline: "A2:A4",
+    title: { text: "hello" },
+    baselineDescr: { text: "description" },
+    baselineMode: "difference" as const,
   },
   gauge: {
     type: "gauge" as const,

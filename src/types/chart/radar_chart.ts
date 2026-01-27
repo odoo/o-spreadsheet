@@ -1,9 +1,9 @@
 import { ChartConfiguration } from "chart.js";
 import { Range } from "../range";
-import { CommonChartDefinition } from "./common_chart";
+import { DataSourceChartDefinition } from "./common_chart";
 
 export interface RadarChartDefinition<T extends string | Range = Range>
-  extends CommonChartDefinition<T> {
+  extends DataSourceChartDefinition<T> {
   readonly type: "radar";
   readonly aggregated?: boolean;
   readonly stacked: boolean;

@@ -128,6 +128,8 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
       bubbleColor: context.bubbleColorMode || { color: "multiple" },
     };
   },

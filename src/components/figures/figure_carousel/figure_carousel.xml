@@ -80,10 +80,10 @@
             t-key="selectedItem.chartId"
           />
         </div>
-        <ChartDashboardMenu
-          t-if="this.env.model.getters.isDashboard()"
+        <ChartMenu
           chartId="selectedItem.chartId"
           hasFullScreenButton="false"
+          displayEllipsisButton="this.env.model.getters.isDashboard()"
           t-key="selectedItem.chartId"
         />
       </div>

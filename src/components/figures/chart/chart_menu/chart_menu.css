@@ -1,20 +1,29 @@
 .o-spreadsheet .o-figure {
-  &:not(:hover):not(:focus-within) .o-dashboard-chart-select {
+  &:not(:hover):not(:focus-within) .o-chart-menu {
     visibility: hidden;
   }
 
-  .o-dashboard-chart-select {
+  .o-chart-menu {
     cursor: default;
     > div {
       height: 28px;
     }
 
-    .o-chart-dashboard-item {
+    .o-chart-menu-item {
+      color: var(--os-gray-900) !important;
+      height: 20px;
+      width: 20px;
       &.active,
       &:hover,
       &:target {
-        color: var(--os-gray-900) !important;
+        cursor: pointer;
         background-color: var(--os-background-gray-color-hover);
+      }
+
+      .o-icon {
+        width: 14px;
+        height: 14px;
+        font-size: 14px !important;
       }
 
       .o-chart-preview {
@@ -29,7 +38,7 @@
 
 .o-spreadsheet {
   &.o-spreadsheet-mobile .o-figure {
-    .o-dashboard-chart-select {
+    .o-chart-menu {
       display: block !important;
     }
   }

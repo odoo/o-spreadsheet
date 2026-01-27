@@ -68,6 +68,8 @@ export const LineChart: ChartTypeBuilder<"line"> = {
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

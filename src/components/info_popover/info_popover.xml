@@ -1,0 +1,23 @@
+<templates>
+  <t t-name="o-spreadsheet-Info-Popover">
+    <Popover t-props="this.popoverProps">
+      <div class="bg-white overflow-auto p-2" t-ref="this.infoRef">
+        <div class="m-1" data-test-id="annotation-text" t-if="this.props.annotationText">
+          <t t-foreach="this.props.annotationText.split('\n')" t-as="line" t-key="line_index">
+            <t t-out="line"/>
+            <br/>
+          </t>
+        </div>
+        <div class="m-1" t-if="this.props.annotationLink">
+          <a
+            class="o-button-link"
+            t-att-title="this.props.annotationLink"
+            t-att-href="this.getAnnotationLinkWithHttps()"
+            target="_blank">
+            See more
+          </a>
+        </div>
+      </div>
+    </Popover>
+  </t>
+</templates>
