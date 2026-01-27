@@ -209,6 +209,8 @@ export class GaugeChart extends AbstractChart {
         },
       },
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   }
 
@@ -255,6 +257,8 @@ export class GaugeChart extends AbstractChart {
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

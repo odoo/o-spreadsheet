@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ChartDashboardMenu">
+  <t t-name="o-spreadsheet-ChartMenu">
     <div class="o-dashboard-chart-select position-absolute top-0 end-0" t-on-click.stop="">
       <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="backgroundColor">
         <t t-if="regionOptions.length > 1">
@@ -13,24 +13,32 @@
         </t>
         <t t-foreach="getMenuItems()" t-as="item" t-key="item.id">
           <div
-            t-attf-class=" {{item.class}}"
-            class="o-chart-dashboard-item btn border-0 lh-1 p-1 d-flex align-items-center justify-content-center"
+            class="o-chart-item border-0 lh-1 p-1 d-flex align-items-center justify-content-center rounded"
             t-att-title="item.label"
             t-on-click="item.onClick"
             t-att-data-id="item.id">
-            <t t-if="item.preview" t-call="{{item.preview}}"/>
+            <t t-call="{{item.icon}}"/>
           </div>
         </t>
-        <button
-          class="o-chart-dashboard-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
-          t-on-click="openContextMenu"
-        />
+        <t t-if="isMenuAvailable()">
+          <button
+            class="o-chart-menu-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
+            t-on-click="openContextMenu"
+          />
+        </t>
       </div>
+      <InfoPopover
+        t-if="state.openedPopover === 'info'"
+        anchorRect="state.anchorRect"
+        onClose.bind="onClose"
+        annotationText="getAnnotationText()"
+        annotationLink="getAnnotationLink()"
+      />
       <MenuPopover
-        t-if="menuState.isOpen"
-        anchorRect="menuState.anchorRect"
-        menuItems="menuState.menuItems"
-        onClose="() => this.menuState.isOpen=false"
+        t-if="state.openedPopover === 'menu'"
+        anchorRect="state.anchorRect"
+        menuItems="state.menuItems"
+        onClose.bind="onClose"
       />
     </div>
   </t>

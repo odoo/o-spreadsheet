@@ -88,6 +88,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 >
                   <input
                     class="w-100 os-input"
+                    maxlength="this.props.maxLength"
                     type="text"
                   />
                   
@@ -1177,6 +1178,7 @@ exports[`components take the small screen into account 1`] = `
                 >
                   <input
                     class="w-100 os-input"
+                    maxlength="this.props.maxLength"
                     type="text"
                   />
                   

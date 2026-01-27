@@ -128,6 +128,8 @@ export class CalendarChart extends AbstractChart {
       legendPosition,
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -192,6 +194,8 @@ export class CalendarChart extends AbstractChart {
       verticalGroupBy: this.verticalGroupBy,
       legendPosition: this.legendPosition,
       missingValueColor: this.missingValueColor,
+      annotationLink: this.annotationLink,
+      annotationText: this.annotationText,
     };
   }
 

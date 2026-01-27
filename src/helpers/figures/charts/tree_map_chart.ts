@@ -122,6 +122,8 @@ export class TreeMapChart extends AbstractChart {
       valuesDesign: context.valuesDesign,
       coloringOptions: context.treemapColoringOptions,
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   }
 
@@ -187,6 +189,8 @@ export class TreeMapChart extends AbstractChart {
       valuesDesign: this.valuesDesign,
       coloringOptions: this.coloringOptions,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

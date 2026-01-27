@@ -4,15 +4,17 @@ import { TitleDesign } from "./chart";
 export interface ScorecardChartDefinition {
   readonly type: "scorecard";
   readonly title: TitleDesign;
+  readonly background?: Color;
+  readonly humanize?: boolean;
   readonly keyValue?: string;
   readonly keyDescr?: TitleDesign;
   readonly baseline?: string;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: TitleDesign;
-  readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
-  readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage" | "progress";

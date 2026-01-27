@@ -29,6 +29,8 @@ describe("pie chart", () => {
       showValues: false,
       humanize: false,
       slicesColors: [],
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

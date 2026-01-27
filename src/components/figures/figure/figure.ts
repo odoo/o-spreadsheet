@@ -280,4 +280,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       !this.env.model.getters.isCurrentSheetLocked()
     );
   }
+
+  get shouldShowMenuButton(): boolean {
+    return (
+      !this.env.model.getters.isReadonly() &&
+      this.props.figureUI.tag !== "carousel" &&
+      this.props.figureUI.tag !== "chart"
+    );
+  }
 }
