@@ -147,7 +147,7 @@ describe("Grid renderer animations", () => {
     expect(gridRenderer["animations"].size).toEqual(0);
   });
 
-  test("Animations are not run the on copy/paste zone ", () => {
+  test("Animations are not run when copy/pasting ", () => {
     const style = { fillColor: "#ff0f0f" };
     const rule: CellIsRule = { type: "CellIsRule", operator: "isEmpty", values: [], style };
     addCfRule(model, "A1:A3", rule, "11");
@@ -158,10 +158,7 @@ describe("Grid renderer animations", () => {
     copy(model, "A1:A3");
     paste(model, "B1");
     drawGrid();
-    animationFrameCallback(0);
-
-    expect(gridRenderer["animations"].size).toEqual(1);
-    expect(getBoxFromXc("D8-text-slide-in")).toBeDefined();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
   });
 
   test("Animations are not canceled on unrelated model update", () => {
