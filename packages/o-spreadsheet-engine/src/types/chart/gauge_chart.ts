@@ -1,14 +1,12 @@
 import type { ChartOptions } from "chart.js";
 import { Color } from "../misc";
 import { TitleDesign } from "./chart";
+import { MinimalChartDefinition } from "./common_chart";
 
-export interface GaugeChartDefinition {
+export interface GaugeChartDefinition extends MinimalChartDefinition {
   readonly type: "gauge";
-  readonly title: TitleDesign;
   readonly dataRange?: string;
   readonly sectionRule: SectionRule;
-  readonly background?: Color;
-  readonly humanize?: boolean;
 }
 
 export interface SectionRule {

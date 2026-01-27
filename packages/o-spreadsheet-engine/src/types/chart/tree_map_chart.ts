@@ -2,15 +2,13 @@ import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { CustomizedDataSet, TitleDesign } from "./chart";
 import { TreemapDataPoint } from "./chartjs_tree_map_type";
-import { LegendPosition } from "./common_chart";
+import { LegendPosition, MinimalChartDefinition } from "./common_chart";
 
-export interface TreeMapChartDefinition {
+export interface TreeMapChartDefinition extends MinimalChartDefinition {
   readonly type: "treemap";
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
-  readonly title: TitleDesign;
-  readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
@@ -18,7 +16,6 @@ export interface TreeMapChartDefinition {
   readonly showLabels?: boolean;
   readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
-  readonly humanize?: boolean;
 }
 
 export type TreeMapCategoryColorOptions = {

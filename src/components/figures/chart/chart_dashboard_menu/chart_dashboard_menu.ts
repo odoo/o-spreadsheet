@@ -2,13 +2,15 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
+import { Action } from "../../../../actions/action";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { UID } from "../../../../types";
+import { Rect, UID } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
-import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
+import { InfoPopover } from "../../../info_popover/info_popover";
+import { MenuPopover } from "../../../menu_popover/menu_popover";
 
 interface Props {
   chartId: UID;
@@ -23,15 +25,28 @@ interface MenuItem {
   preview?: string;
 }
 
+interface ChartMenuState {
+  isOpen: boolean;
+  openedPopover?: "menu" | "info";
+  anchorRect: null | Rect;
+  menuItems: Action[];
+}
+
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
-  static components = { MenuPopover };
+  static components = { MenuPopover, InfoPopover };
   static props = { chartId: String, hasFullScreenButton: { type: Boolean, optional: true } };
   static defaultProps = { hasFullScreenButton: true };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private state: ChartMenuState = useState({
+    isOpen: false,
+    openedPopover: undefined,
+    anchorRect: null,
+    menuItems: [],
+  });
+
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
@@ -41,25 +56,43 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     return [this.fullScreenMenuItem].filter(isDefined);
   }
 
+  get chartDefinition() {
+    return this.env.model.getters.getChartDefinition(this.props.chartId);
+  }
+
   get backgroundColor() {
-    const color = this.env.model.getters.getChartDefinition(this.props.chartId).background;
+    const color = this.chartDefinition.background;
     return "background-color: " + (color || BACKGROUND_CHART_COLOR);
   }
 
   openContextMenu(ev: MouseEvent) {
-    this.menuState.isOpen = true;
-    this.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
+    this.state.isOpen = true;
+    this.state.openedPopover = "menu";
+    this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
-    this.menuState.menuItems = getChartMenuActions(figureId, this.env);
+    this.state.menuItems = getChartMenuActions(figureId, this.env);
+  }
+
+  showInfo(ev: MouseEvent) {
+    this.state.isOpen = true;
+    this.state.openedPopover = "info";
+    this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
+  }
+
+  getAnnotationText() {
+    return this.chartDefinition.annotationText;
+  }
+
+  getAnnotationLink() {
+    return this.chartDefinition.annotationLink;
   }
 
   get fullScreenMenuItem(): MenuItem | undefined {
     if (!this.props.hasFullScreenButton) {
       return undefined;
     }
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
-    if (definition.type === "scorecard") {
+    if (this.chartDefinition.type === "scorecard") {
       return undefined;
     }
     const isFullScreen = figureId === this.fullScreenFigureStore.fullScreenFigure?.id;

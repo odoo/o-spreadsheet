@@ -12,16 +12,30 @@
             <t t-if="item.preview" t-call="{{item.preview}}"/>
           </div>
         </t>
+        <div
+          class="o-figure-info-icon d-flex flex-row align-items-center align-middle me-2"
+          t-if="getAnnotationText() or getAnnotationLink()"
+          t-on-click="showInfo"
+          t-ref="infoButton">
+          <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+        </div>
         <button
           class="o-chart-dashboard-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
           t-on-click="openContextMenu"
         />
       </div>
+      <InfoPopover
+        t-if="state.isOpen and state.openedPopover === 'info'"
+        anchorRect="state.anchorRect"
+        onClose="() => this.state.isOpen=false"
+        annotationText="getAnnotationText()"
+        annotationLink="getAnnotationLink()"
+      />
       <MenuPopover
-        t-if="menuState.isOpen"
-        anchorRect="menuState.anchorRect"
-        menuItems="menuState.menuItems"
-        onClose="() => this.menuState.isOpen=false"
+        t-if="state.isOpen and state.openedPopover === 'menu'"
+        anchorRect="state.anchorRect"
+        menuItems="state.menuItems"
+        onClose="() => this.state.isOpen=false"
       />
     </div>
   </t>

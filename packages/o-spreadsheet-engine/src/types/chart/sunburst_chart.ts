@@ -1,22 +1,19 @@
 import type { ChartConfiguration, ChartDataset } from "chart.js";
 import { Color } from "../misc";
-import { ChartStyle, CustomizedDataSet, TitleDesign } from "./chart";
-import { LegendPosition } from "./common_chart";
+import { ChartStyle, CustomizedDataSet } from "./chart";
+import { LegendPosition, MinimalChartDefinition } from "./common_chart";
 
-export interface SunburstChartDefinition {
+export interface SunburstChartDefinition extends MinimalChartDefinition {
   readonly type: "sunburst";
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
-  readonly title: TitleDesign;
-  readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly showValues?: boolean;
   readonly showLabels?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
-  readonly humanize?: boolean;
 }
 
 export type SunburstChartRuntime = {
