@@ -50,6 +50,10 @@ export default (commandLineArgs) => {
           find: "@odoo/o-spreadsheet-engine/*",
           replacement: path.resolve(__dirname, "./packages/o-spreadsheet-engine/src/*"),
         },
+        {
+          find: /.*canvas_mock$/,
+          replacement: path.resolve(__dirname, "./tools/empty-module.js"),
+        },
       ],
     }),
     nodeResolve(),
@@ -89,6 +93,10 @@ export default (commandLineArgs) => {
                 __dirname,
                 "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
               ),
+            },
+            {
+              find: /.*canvas_mock$/,
+              replacement: path.resolve(__dirname, "./tools/empty-module.js"),
             },
           ],
         }),
