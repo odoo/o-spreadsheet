@@ -2,7 +2,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { UuidGenerator } from "./helpers";
+import { deepEquals, UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, lazy } from "./helpers/misc";
 import { buildRevisionLog } from "./history/factory";
@@ -630,10 +630,32 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * export data out of the model.
    */
   exportData(): WorkbookData {
+    const squished = true;
+    const unsquished = false;
+    const exportSquished = this._exportData(squished);
+    const exportUnsquished = this._exportData(unsquished);
+    const verificationConfig = {
+      ...this.config,
+      client: { id: "exporter", name: "exporter" },
+      snapshotRequested: false,
+      transportService: new LocalTransportService(),
+    };
+    const exportVerificationModel = new Model(exportSquished, verificationConfig)._exportData(
+      unsquished
+    );
+    if (!deepEquals(exportUnsquished, exportVerificationModel)) {
+      exportUnsquished.isNotSquishable = true;
+      return exportUnsquished;
+    } else {
+      return exportSquished;
+    }
+  }
+
+  _exportData(shouldSquish: boolean): WorkbookData {
     let data = createEmptyWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof CorePlugin) {
-        handler.export(data);
+        handler.export(data, shouldSquish);
       }
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;

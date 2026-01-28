@@ -15,7 +15,6 @@ import {
   PIVOT_STATIC_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { getFunctionsFromTokens } from "@odoo/o-spreadsheet-engine/formulas/helpers";
 import {
   isEvaluationError,
   toBoolean,
@@ -235,11 +234,7 @@ export { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/
 export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
 export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
 export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
-export {
-  compile,
-  compileTokens,
-  functionCache,
-} from "@odoo/o-spreadsheet-engine/formulas/compiler";
+export { CompiledFormula, functionCache } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 export { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 export {
   convertAstNodes,
@@ -392,7 +387,6 @@ export const helpers = {
   reduceZoneOnDeletion,
   unquote,
   getMaxObjectId,
-  getFunctionsFromTokens,
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
   parseDimension,
@@ -551,7 +545,6 @@ export { SpreadsheetPivotTable } from "@odoo/o-spreadsheet-engine/helpers/pivot/
 
 export type { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "@odoo/o-spreadsheet-engine/formulas/parser";
-export type { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 export type * from "./types";
 export { DEFAULT_LOCALE, DEFAULT_LOCALES } from "./types";
 

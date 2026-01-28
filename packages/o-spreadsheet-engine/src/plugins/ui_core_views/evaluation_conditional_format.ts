@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { percentile } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
@@ -111,9 +111,13 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           }
           break;
         case "CellIsRule":
-          const formulas = cf.rule.values.map((value) =>
-            value.startsWith("=") ? compile(value) : undefined
-          );
+          const formulas = cf.rule.values.map((value) => {
+            if (value.startsWith("=")) {
+              return CompiledFormula.CompileFormula(value, sheetId, this.getters);
+            } else {
+              return undefined;
+            }
+          });
           const evaluator = criterionEvaluatorRegistry.get(cf.rule.operator);
           const criterion = { ...cf.rule, type: cf.rule.operator };
           const ranges = cf.ranges.map((xc) => this.getters.getRangeFromSheetXC(sheetId, xc));
@@ -134,7 +138,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                       sheetId,
                       col - zone.left,
                       row - zone.top,
-                      compiledFormula.tokens
+                      compiledFormula
                     );
                   }
                   return value;

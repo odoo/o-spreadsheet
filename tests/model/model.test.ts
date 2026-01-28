@@ -364,7 +364,7 @@ describe("Model", () => {
         {
           cells: {
             A1: "=SUM(A3:3)",
-            A2: "=SUM(A3:A)",
+            A2: { R: "A3:A" },
           },
         },
       ],

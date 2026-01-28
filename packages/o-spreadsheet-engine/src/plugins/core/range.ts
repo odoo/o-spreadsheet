@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { rangeReference, splitReference } from "../../helpers";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
 import {
@@ -211,7 +211,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   /**
    * Gets the string that represents the range as it is at the moment of the call.
    * The string will be prefixed with the sheet name if the call specified a sheet id in `forSheetId`
-   * different than the sheet on which the range has been created.
+   * different from the sheet on which the range has been created.
    *
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
@@ -313,6 +313,9 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   /**
    * Copy a formula string to another sheet.
    *
+   * @param sheetIdFrom
+   * @param sheetIdTo
+   * @param formula
    * @param mode
    * `keepSameReference` will make the formula reference the exact same ranges,
    * `moveReference` will change all the references to `sheetIdFrom` into references to `sheetIdTo`.
@@ -327,13 +330,16 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
       return formula;
     }
 
-    const compiledFormula = compile(formula);
-    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
-      const range = this.getters.getRangeFromSheetXC(sheetIdFrom, dep);
+    const compiledFormula = CompiledFormula.CompileFormula(formula, sheetIdFrom, this.getters);
+    const updatedDependencies = compiledFormula.rangeDependencies.map((range) => {
       return mode === "keepSameReference"
         ? range
         : duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range);
     });
-    return this.getters.getFormulaString(sheetIdTo, compiledFormula.tokens, updatedDependencies);
+    return CompiledFormula.CopyWithDependencies(
+      compiledFormula,
+      sheetIdTo,
+      updatedDependencies
+    ).toFormulaString(this.getters);
   }
 }
