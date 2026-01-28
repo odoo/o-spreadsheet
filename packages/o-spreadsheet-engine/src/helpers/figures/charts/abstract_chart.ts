@@ -51,7 +51,10 @@ export abstract class AbstractChart {
    * Validate the chart definition given as arguments. This function will be
    * called from allowDispatch function
    */
-  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
+  static validateChartDefinition(
+    validator: Validator,
+    definition: ChartDefinition<string>
+  ): CommandResult | CommandResult[] {
     return CommandResult.Success;
   }
 

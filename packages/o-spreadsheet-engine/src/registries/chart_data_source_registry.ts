@@ -13,12 +13,18 @@ interface ChartDataSourceHandlerContructor {
     defaultSheetId: UID,
     dataSource: ChartDataSource<string>
   ) => ChartDataSourceHandler;
+  validate: (
+    validator: Validator,
+    dataSource: ChartDataSource<string>
+  ) => CommandResult | CommandResult[];
+  // fromContextCreation: (
+  //   context: ChartCreationContext
+  // ) => ChartDataSource<string>;
 }
 
 export interface ChartDataSourceHandler {
   dataSource: ChartDataSource<Range>;
   // extractData: (definition: T, sheetId: UID, getters: Getters) => D;
-  validate(validator: Validator): CommandResult | CommandResult[];
   adaptRanges(rangeAdapters: RangeAdapterFunctions): ChartDataSource;
   duplicateInDuplicatedSheet(
     getters: CoreGetters,

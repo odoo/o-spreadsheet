@@ -1,10 +1,12 @@
 import { MyChart } from "../helpers/figures/chart";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { ChartCreationContext, ChartRuntime, ChartType, ChartTypeDefinition } from "../types/chart";
+import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Range } from "../types/range";
+import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
 /**
@@ -15,7 +17,13 @@ export interface ChartBuilder<T extends ChartType, D> {
    * Check if this factory should be used
    */
   match: (type: T) => boolean;
-  ChartTypeHandler: new (...args: any[]) => AbstractChart;
+  ChartTypeHandler: {
+    new (...args: any[]): AbstractChart;
+    validateChartDefinition: (
+      validator: Validator,
+      definition: ChartTypeDefinition<NoInfer<T>, string>
+    ) => CommandResult | CommandResult[];
+  };
   extractData: (definition: ChartTypeDefinition<T, Range>, sheetId: UID, getters: Getters) => D;
   getChartRuntime: (
     getters: Getters,

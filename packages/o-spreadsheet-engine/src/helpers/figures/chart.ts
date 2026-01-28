@@ -42,10 +42,12 @@ export class MyChart {
     return new MyChart(getters, sheetId, chartTypeHandler, dataSourceHandler);
   }
 
-  validate(validator: Validator) {
+  static validate(validator: Validator, definition: ChartDefinition<string>) {
+    const ChartTypeHandler = chartRegistry.get(definition.type).ChartTypeHandler;
+    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     return validator.batchValidations(
-      () => this.chartTypeHandler.validateChartDefinition(validator),
-      () => this.dataSourceHandler.validate(validator)
+      () => ChartTypeHandler.validateChartDefinition(validator, definition),
+      () => DataSourceHandler.validate(validator, definition.dataSource ?? { type: "never" })
     )(undefined); // Typescript requires a parameter but we don't use it (`this` is captured by closure)
   }
 

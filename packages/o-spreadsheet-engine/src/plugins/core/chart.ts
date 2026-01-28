@@ -318,7 +318,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   private checkChartDefinition(cmd: UpdateChartCommand | CreateChartCommand) {
-    return this.createChart(cmd.figureId, cmd.definition, cmd.sheetId).validate(this);
+    return MyChart.validate(this, cmd.definition);
   }
 
   private checkChartExists(

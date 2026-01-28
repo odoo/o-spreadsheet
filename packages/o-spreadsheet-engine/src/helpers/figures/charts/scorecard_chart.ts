@@ -193,8 +193,11 @@ export class ScorecardChart extends AbstractChart {
     this.humanize = definition.humanize ?? true;
   }
 
-  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
-    return validator.checkValidations(this.getDefinition(), checkKeyValue, checkBaseline);
+  static validateChartDefinition(
+    validator: Validator,
+    definition: ScorecardChartDefinition
+  ): CommandResult | CommandResult[] {
+    return validator.checkValidations(definition, checkKeyValue, checkBaseline);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScorecardChartDefinition {

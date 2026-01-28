@@ -27,7 +27,7 @@ import {
   getChartTitle,
 } from "./runtime";
 
-function checkDateGranularity(definition: CalendarChartDefinition): CommandResult {
+function checkDateGranularity(definition: CalendarChartDefinition<string>): CommandResult {
   if (!CALENDAR_CHART_GRANULARITIES.includes(definition.horizontalGroupBy)) {
     return CommandResult.InvalidChartDefinition;
   }
@@ -61,8 +61,11 @@ export class CalendarChart extends AbstractChart {
     super(definition, sheetId, getters);
   }
 
-  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
-    return validator.checkValidations(this.getDefinition(), checkDateGranularity);
+  static validateChartDefinition(
+    validator: Validator,
+    definition: CalendarChartDefinition<string>
+  ): CommandResult | CommandResult[] {
+    return validator.checkValidations(definition, checkDateGranularity);
   }
 
   static getDefinitionFromContextCreation(

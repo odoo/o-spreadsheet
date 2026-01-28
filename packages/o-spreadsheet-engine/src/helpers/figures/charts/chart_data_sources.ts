@@ -37,8 +37,8 @@ export class ChartRangeDataSourceHandler implements ChartDataSourceHandler {
     };
   }
 
-  validate(validator: Validator) {
-    return validator.checkValidations(this.dataSource, checkDataset, checkLabelRange);
+  static validate(validator: Validator, dataSource: ChartRangeDataSource<string>) {
+    return validator.checkValidations(dataSource, checkDataset, checkLabelRange);
   }
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {

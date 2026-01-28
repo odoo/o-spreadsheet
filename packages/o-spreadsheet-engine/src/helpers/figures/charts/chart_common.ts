@@ -1,3 +1,4 @@
+import { rangeReference } from "../..";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
@@ -23,7 +24,7 @@ import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
-import { isFullRow, zoneToDimension, zoneToXc } from "../../zones";
+import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -368,23 +369,22 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }
 
-export function checkDataset(dataSource: ChartRangeDataSource<Range>): CommandResult {
-  const invalidRanges = dataSource.dataSets.find(
-    ({ dataRange }) => dataRange.invalidXc || dataRange.invalidSheetName
-  );
+export function checkDataset(dataSource: ChartRangeDataSource<string>): CommandResult {
+  const invalidRanges =
+    dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
   if (invalidRanges) {
     return CommandResult.InvalidDataSet;
   }
-  const zones = dataSource.dataSets.map((ds) => ds.dataRange.unboundedZone);
+  const zones = dataSource.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
   if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
     return CommandResult.InvalidDataSet;
   }
   return CommandResult.Success;
 }
 
-export function checkLabelRange(dataSource: ChartRangeDataSource<Range>): CommandResult {
+export function checkLabelRange(dataSource: ChartRangeDataSource<string>): CommandResult {
   if (dataSource.labelRange) {
-    const invalidLabels = dataSource.labelRange.invalidXc || dataSource.labelRange.invalidSheetName;
+    const invalidLabels = !rangeReference.test(dataSource.labelRange || "");
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }
