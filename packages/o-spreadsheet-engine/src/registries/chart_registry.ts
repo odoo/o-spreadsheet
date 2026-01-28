@@ -41,8 +41,8 @@ export interface ChartBuilder<T extends ChartType, D> {
   postProcess?(
     getters: CoreGetters,
     sheetId: UID,
-    definition: ChartTypeDefinition<T, Range>
-  ): ChartTypeDefinition<T, Range>;
+    definition: ChartTypeDefinition<T, string>
+  ): ChartTypeDefinition<T, string>;
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
