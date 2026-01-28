@@ -132,6 +132,15 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
           });
         }
         break;
+      case "DELETE_SHEET":
+        if (
+          this.searchOptions.searchScope === "specificRange" &&
+          this.searchOptions.specificRange?.sheetId === cmd.sheetId
+        ) {
+          this.searchOptions = { ...this.searchOptions, specificRange: undefined };
+        }
+        this.isSearchDirty = true;
+        break;
       case "REPLACE_SEARCH":
         for (const match of cmd.matches) {
           this.replaceMatch(match, cmd.searchString, cmd.replaceWith, cmd.searchOptions);
