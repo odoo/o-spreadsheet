@@ -94,7 +94,7 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
   }
 
   isTableStyleEditable(styleId: string): boolean {
-    return !TABLE_PRESETS[styleId];
+    return !TABLE_PRESETS[styleId] && !PIVOT_TABLE_PRESETS[styleId];
   }
 
   import(data: WorkbookData) {

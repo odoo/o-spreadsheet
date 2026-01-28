@@ -107,7 +107,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isStyleEditable(): boolean {
-    if (!this.props.styleId || this.props.type !== "table") {
+    if (!this.props.styleId) {
       return false;
     }
     return this.env.model.getters.isTableStyleEditable(this.props.styleId);
