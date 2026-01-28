@@ -586,7 +586,9 @@ export function updateChartDataSource(
   dataSource: Partial<ChartRangeDataSource<string>>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const currentDefinition = model.getters.getChartDefinition(chartId);
+  const currentDefinition = model.getters.getChartDefinition(
+    chartId
+  ) as ChartDefinitionWithDataSource<string>;
   if (!("dataSource" in currentDefinition)) {
     throw new Error("Chart has no data source");
   }
