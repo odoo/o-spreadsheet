@@ -26,8 +26,8 @@ let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-function getSunburstDefinition(chartId: UID): SunburstChartDefinition {
-  return model.getters.getChartDefinition(chartId) as SunburstChartDefinition;
+function getSunburstDefinition(chartId: UID): SunburstChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as SunburstChartDefinition<string>;
 }
 
 describe("Sunburst chart side panel", () => {

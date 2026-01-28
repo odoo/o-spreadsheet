@@ -49,7 +49,10 @@ import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 // import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
+  ChartCreationContext,
   ChartRangeDataSource,
+  ChartType,
+  ChartTypeDefinition,
   SunburstChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
@@ -547,6 +550,15 @@ export function createGeoChart(
       humanize: data.humanize || false,
     },
   });
+}
+
+export function createChartDefinitionFromContext<TType extends ChartType>(
+  type: TType,
+  context: ChartCreationContext
+): ChartTypeDefinition<TType, string> {
+  return chartRegistry
+    .get(type)
+    ?.getChartDefinitionFromContextCreation(context) as ChartTypeDefinition<TType, string>;
 }
 
 /**

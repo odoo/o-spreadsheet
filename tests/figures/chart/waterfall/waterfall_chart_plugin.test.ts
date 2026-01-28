@@ -6,8 +6,8 @@ import {
 import { WaterfallChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import { ChartMeta } from "chart.js";
 import { ChartCreationContext, Model, UID } from "../../../../src";
-import { WaterfallChart } from "../../../../src/helpers/figures/charts";
 import {
+  createChartDefinitionFromContext,
   createWaterfallChart,
   setCellContent,
   setFormat,
@@ -328,7 +328,7 @@ describe("Waterfall chart", () => {
         labelRange: "Sheet1!A1:A4",
       }),
     };
-    const definition = WaterfallChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("waterfall", context);
     expect(definition).toEqual({
       type: "waterfall",
       background: "#123456",

@@ -598,7 +598,7 @@ describe("Transform adapt string formulas on row deletion", () => {
 describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
   const sheetId = "sheet1";
   const sheetName = "Sheet1";
-  const definition: BarChartDefinition = {
+  const definition: BarChartDefinition<string> = {
     type: "bar",
     ...toChartDataSource({
       dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A10" }],
