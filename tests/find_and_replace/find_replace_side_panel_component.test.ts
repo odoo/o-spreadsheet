@@ -1,7 +1,7 @@
 import { Model, Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { SearchOptions } from "../../src/types/find_and_replace";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { createSheet, deleteSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,
   focusAndKeyDown,
@@ -188,6 +188,38 @@ describe("find and replace sidePanel component", () => {
 
       await click(fixture, selectors.confirmSearchRange);
       expect(getMatchesCount()).toMatchObject({ specificRange: 1 });
+    });
+
+    test("clears specific range when its sheet is deleted", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      changeSearchScope("specificRange");
+      await nextTick();
+      await nextTick();
+
+      await setInputValueAndTrigger(selectors.searchRange, `A1:B2`, "onlyInput");
+      await click(fixture, selectors.confirmSearchRange);
+
+      deleteSheet(model, model.getters.getActiveSheetId());
+      await nextTick();
+
+      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+      expect((document.querySelector(selectors.searchRange) as HTMLInputElement).value).toBe("");
+    });
+
+    test("reset search results when active sheet is deleted", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      const activeSheetId = model.getters.getActiveSheetId();
+
+      setCellContent(model, "A1", "1", activeSheetId);
+      await inputSearchValue("1");
+      expect(getMatchesCount()).toMatchObject({ currentSheet: 1 });
+
+      deleteSheet(model, activeSheetId);
+      await nextTick();
+
+      expect(getMatchesCount()).toMatchObject({ allSheets: 0, currentSheet: 0 });
+      expect(fixture.querySelector(selectors.nextButton)).toBeNull();
+      expect(fixture.querySelector(selectors.previousButton)).toBeNull();
     });
 
     test("Ranges are properly updated by with several grid selections", async () => {
