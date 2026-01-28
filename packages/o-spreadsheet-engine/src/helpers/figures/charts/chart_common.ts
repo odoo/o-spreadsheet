@@ -49,14 +49,25 @@ export function updateChartRangesWithDataSets(
   dataSource: ChartRangeDataSource
 ) {
   const dataSetsWithUndefined = dataSource.dataSets
-    .map((ds) => {
+    // FIXME: I'm cheating here. ds is not supposed to be a DataSet, but a dataSet from definition
+    .map((ds: DataSet) => {
       const { range: adaptedRangeStr, changeType } = applyChange(ds.dataRange);
       if (changeType === "REMOVE") {
         return undefined;
       }
+      let labelCell: Range | undefined = undefined;
+      if (ds.labelCell) {
+        const { range: adaptedLabelCellRange, changeType: labelCellChangeType } = applyChange(
+          ds.labelCell
+        );
+        if (labelCellChangeType !== "REMOVE") {
+          labelCell = adaptedLabelCellRange;
+        }
+      }
       return {
         ...ds,
         dataRange: adaptedRangeStr,
+        labelCell,
       };
     })
     .filter(isDefined);
