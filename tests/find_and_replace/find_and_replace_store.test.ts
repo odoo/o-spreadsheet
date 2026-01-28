@@ -12,6 +12,7 @@ import {
   createSheet,
   createTableWithFilter,
   deleteRows,
+  deleteSheet,
   deleteTable,
   hideRows,
   lockSheet,
@@ -190,6 +191,32 @@ describe("basic search", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheetId2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId2, "A2")]);
+  });
+
+  test("search is refreshed when active sheet is deleted", () => {
+    setCellContent(model, "A1", "test");
+    createSheet(model, { sheetId: sheetId2 });
+
+    updateSearch(model, "test", { searchScope: "activeSheet" });
+    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(store.selectedMatchIndex).toStrictEqual(0);
+
+    deleteSheet(model, sheetId1);
+    expect(store.searchMatches).toStrictEqual([]);
+    expect(store.selectedMatchIndex).toStrictEqual(null);
+  });
+
+  test("specific range is cleared when its sheet is deleted", () => {
+    createSheet(model, { sheetId: sheetId2 });
+    updateSearch(model, "test", {
+      searchScope: "specificRange",
+      specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B2"),
+    });
+
+    expect(store.searchOptions.specificRange?.sheetId).toBe(sheetId1);
+    deleteSheet(model, sheetId1);
+
+    expect(store.searchOptions.specificRange).toBeUndefined();
   });
 
   test("refresh search when cell is updated", async () => {
