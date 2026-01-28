@@ -52,7 +52,7 @@ export abstract class AbstractChart {
    * called from allowDispatch function
    */
   validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
-    throw new Error("This method should be implemented by sub class");
+    return CommandResult.Success;
   }
 
   /**

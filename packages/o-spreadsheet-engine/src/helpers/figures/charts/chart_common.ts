@@ -115,6 +115,11 @@ export function getDataSourceFromContextCreation(
   //   dataSets: [],
   //   dataSetsHaveTitle: false,
   // };
+  const dataSource = context.dataSource ?? {
+    type: "range",
+    dataSets: [],
+    dataSetsHaveTitle: false,
+  };
   // @ts-ignore TODO remove when definitions accept ChartDataSource
   return dataSource;
 }
