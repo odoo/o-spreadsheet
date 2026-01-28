@@ -7,16 +7,13 @@ import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
-import {
-  CoreViewCommand,
-  invalidateCFEvaluationCommands,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
+import { Command, CoreViewCommand } from "../../types/commands";
 import {
   CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
+  ConditionalFormat,
   DataBarRule,
   IconSetRule,
   IconThreshold,
@@ -24,11 +21,20 @@ import {
 import { EvaluatedCriterion, EvaluatedDateCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
+import { BoundedRange } from "../../types/range";
 import { CoreViewPlugin } from "../core_view_plugin";
 
-type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
-type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
-type ComputedDataBars = { [col: HeaderIndex]: (DataBarFill | undefined)[] };
+type CFResult<T> = { [col: HeaderIndex]: Record<UID, T | undefined>[] };
+
+type ComputedStyles = CFResult<Style>;
+type ComputedIcons = CFResult<string>;
+type ComputedDataBars = CFResult<DataBarFill>;
+
+interface ComputedCF {
+  styles: ComputedStyles;
+  icons: ComputedIcons;
+  dataBars: ComputedDataBars;
+}
 
 export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   static getters = [
@@ -36,35 +42,175 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     "getCellConditionalFormatStyle",
     "getConditionalDataBar",
   ] as const;
-  private isStale: boolean = true;
-  // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
-  private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
-  private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
-  private computedDataBars: { [sheet: string]: Lazy<ComputedDataBars> } = {};
+
+  /**
+   * Lazy computed CF results per sheet, per CF id.
+   * The lazy ensures computation only happens when the CF result is accessed.
+   */
+  private computedCFs: Record<UID, Record<UID, Lazy<ComputedCF>>> = {};
+
+  /**
+   * Set of CF ids that need their lazy to be recreated
+   */
+  private staleCFs: Set<UID> = new Set();
+
+  /**
+   * When true, all CFs need their lazy recreated (e.g., after structural changes)
+   */
+  private allStale: boolean = true;
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  beforeHandle(cmd: Command) {
+    switch (cmd.type) {
+      case "START":
+        // Register the invalidation callback for conditional formats
+        this.getters
+          .getEntityDependencyRegistry()
+          .registerInvalidationCallback("conditionalFormat", (cfId) => this.invalidateCF(cfId));
+
+        // Register dependencies for all existing CFs
+        for (const sheetId of this.getters.getSheetIds()) {
+          for (const cf of this.getters.getConditionalFormats(sheetId)) {
+            this.registerCFDependencies(sheetId, cf);
+          }
+        }
+        break;
+    }
+  }
+
   handle(cmd: CoreViewCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
-      this.isStale = true;
+    // if (
+    //   invalidateEvaluationCommands.has(cmd.type) ||
+    //   invalidateCFEvaluationCommands.has(cmd.type)
+    // ) {
+    //   this.allStale = true;
+    // }
+
+    switch (cmd.type) {
+      case "ADD_CONDITIONAL_FORMAT":
+        this.allStale = true; // New CF, need to recompute to register it
+        break;
+      case "REMOVE_CONDITIONAL_FORMAT":
+        this.getters.getEntityDependencyRegistry().unregisterEntity(cmd.id);
+        // Remove from computed results
+        for (const sheetId in this.computedCFs) {
+          delete this.computedCFs[sheetId][cmd.id];
+        }
+        break;
+      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
+        // Priority change doesn't require recomputation, just reordering in getters
+        break;
+      case "CREATE_SHEET":
+        this.computedCFs[cmd.sheetId] = {};
+        break;
+      case "DELETE_SHEET":
+        delete this.computedCFs[cmd.sheetId];
+        // Unregister all CFs from the deleted sheet
+        for (const cf of this.getters.getConditionalFormats(cmd.sheetId)) {
+          this.getters.getEntityDependencyRegistry().unregisterEntity(cf.id);
+        }
+        break;
+      case "DUPLICATE_SHEET":
+        this.allStale = true;
+        break;
     }
   }
 
   finalize() {
-    if (this.isStale) {
+    if (this.allStale) {
+      // Recreate lazy for all CFs
       for (const sheetId of this.getters.getSheetIds()) {
-        this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
-        this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
-        this.computedDataBars[sheetId] = lazy(() => this.getComputedDataBars(sheetId));
+        if (!this.computedCFs[sheetId]) {
+          this.computedCFs[sheetId] = {};
+        }
+        for (const cf of this.getters.getConditionalFormats(sheetId)) {
+          this.computedCFs[sheetId][cf.id] = lazy(() => this.computeCF(sheetId, cf));
+          this.registerCFDependencies(sheetId, cf);
+        }
       }
-      this.isStale = false;
+      this.allStale = false;
+      this.staleCFs.clear();
+    } else if (this.staleCFs.size > 0) {
+      // Recreate lazy only for stale CFs
+      for (const sheetId of this.getters.getSheetIds()) {
+        if (!this.computedCFs[sheetId]) {
+          this.computedCFs[sheetId] = {};
+        }
+        for (const cf of this.getters.getConditionalFormats(sheetId)) {
+          if (this.staleCFs.has(cf.id)) {
+            this.computedCFs[sheetId][cf.id] = lazy(() => this.computeCF(sheetId, cf));
+          }
+        }
+      }
+      this.staleCFs.clear();
     }
+  }
+
+  private invalidateCF(cfId: UID): void {
+    this.staleCFs.add(cfId);
+  }
+
+  private registerCFDependencies(sheetId: UID, cf: ConditionalFormat): void {
+    const dependencies: BoundedRange[] = [];
+
+    // Add the CF's ranges as dependencies
+    for (const rangeXc of cf.ranges) {
+      const range = this.getters.getRangeFromSheetXC(sheetId, rangeXc);
+      if (!range.invalidXc && !range.invalidSheetName) {
+        dependencies.push({ sheetId: range.sheetId, zone: range.zone });
+      }
+    }
+
+    // For CellIsRule, also add dependencies from formula values
+    // The formula is translated for each cell in the CF range, so we need to expand
+    // the dependency zone accordingly. E.g., if the CF range is B1:B3 and the formula
+    // references A1, then A1, A2, A3 are all dependencies.
+    if (cf.rule.type === "CellIsRule") {
+      // Calculate the maximum expansion needed based on all CF ranges
+      let maxRowExpansion = 0;
+      let maxColExpansion = 0;
+      for (const rangeXc of cf.ranges) {
+        const range = this.getters.getRangeFromSheetXC(sheetId, rangeXc);
+        if (!range.invalidXc && !range.invalidSheetName) {
+          const height = range.zone.bottom - range.zone.top;
+          const width = range.zone.right - range.zone.left;
+          maxRowExpansion = Math.max(maxRowExpansion, height);
+          maxColExpansion = Math.max(maxColExpansion, width);
+        }
+      }
+
+      for (const value of cf.rule.values) {
+        if (value.startsWith("=")) {
+          const compiledFormula = compile(value);
+          for (const depXc of compiledFormula.dependencies) {
+            const range = this.getters.getRangeFromSheetXC(sheetId, depXc);
+            if (!range.invalidXc && !range.invalidSheetName) {
+              // Expand the dependency zone to account for formula translation
+              const expandedZone: Zone = {
+                top: range.zone.top,
+                left: range.zone.left,
+                bottom: range.zone.bottom + maxRowExpansion,
+                right: range.zone.right + maxColExpansion,
+              };
+              dependencies.push({ sheetId: range.sheetId, zone: expandedZone });
+            }
+          }
+        }
+      }
+    }
+
+    if (dependencies.length === 0) {
+      return;
+    }
+
+    this.getters.getEntityDependencyRegistry().registerEntity({
+      id: cf.id,
+      type: "conditionalFormat",
+      dependencies,
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -73,18 +219,55 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   getCellConditionalFormatStyle(position: CellPosition): Style | undefined {
     const { sheetId, col, row } = position;
-    const styles = this.computedStyles[sheetId]();
-    return styles && styles[col]?.[row];
+    const sheetCFs = this.computedCFs[sheetId];
+    if (!sheetCFs) {
+      return undefined;
+    }
+
+    const styles: Style[] = [];
+    // Apply in reverse order (last CF has priority)
+    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+      const cfLazy = sheetCFs[cf.id];
+      const style = cfLazy?.().styles[col]?.[row]?.[cf.id];
+      if (style) {
+        styles.push(style);
+      }
+    }
+    return styles.length > 0 ? Object.assign({}, ...styles) : undefined;
   }
 
   getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {
-    const icons = this.computedIcons[sheetId]();
-    return icons && icons[col]?.[row];
+    const sheetCFs = this.computedCFs[sheetId];
+    if (!sheetCFs) {
+      return undefined;
+    }
+
+    // Return the first matching icon (highest priority CF)
+    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+      const cfLazy = sheetCFs[cf.id];
+      const icon = cfLazy?.().icons[col]?.[row]?.[cf.id];
+      if (icon) {
+        return icon;
+      }
+    }
+    return undefined;
   }
 
   getConditionalDataBar({ sheetId, col, row }: CellPosition): DataBarFill | undefined {
-    const dataBars = this.computedDataBars[sheetId]();
-    return dataBars && dataBars[col]?.[row];
+    const sheetCFs = this.computedCFs[sheetId];
+    if (!sheetCFs) {
+      return undefined;
+    }
+
+    // Return the first matching data bar (highest priority CF)
+    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+      const cfLazy = sheetCFs[cf.id];
+      const dataBar = cfLazy?.().dataBars[col]?.[row]?.[cf.id];
+      if (dataBar) {
+        return dataBar;
+      }
+    }
+    return undefined;
   }
 
   // ---------------------------------------------------------------------------
@@ -92,100 +275,80 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   // ---------------------------------------------------------------------------
 
   /**
-   * Compute the styles according to the conditional formatting.
-   * This computation must happen after the cell values are computed if they change
-   *
-   * This result of the computation will be in the state.cell[XC].conditionalStyle and will be the union of all the style
-   * properties of the rules applied (in order).
-   * So if a cell has multiple conditional formatting applied to it, and each affect a different value of the style,
-   * the resulting style will have the combination of all those values.
-   * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
+   * Compute the result for a single conditional format.
    */
-  private getComputedStyles(sheetId: UID): ComputedStyles {
+  private computeCF(sheetId: UID, cf: ConditionalFormat): ComputedCF {
     const computedStyle: ComputedStyles = {};
-    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      switch (cf.rule.type) {
-        case "ColorScaleRule":
-          for (const range of cf.ranges) {
-            this.applyColorScale(sheetId, range, cf.rule, computedStyle);
-          }
-          break;
-        case "CellIsRule":
-          const formulas = cf.rule.values.map((value) =>
-            value.startsWith("=") ? compile(value) : undefined
-          );
-          const evaluator = criterionEvaluatorRegistry.get(cf.rule.operator);
-          const criterion = { ...cf.rule, type: cf.rule.operator };
-          const ranges = cf.ranges.map((xc) => this.getters.getRangeFromSheetXC(sheetId, xc));
-          const preComputedCriterion = evaluator.preComputeCriterion?.(
-            criterion,
-            ranges,
-            this.getters
-          );
-          for (const ref of cf.ranges) {
-            const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
-            for (let row = zone.top; row <= zone.bottom; row++) {
-              for (let col = zone.left; col <= zone.right; col++) {
-                const target = { sheetId, col, row };
-                const values = cf.rule.values.map((value, i) => {
-                  const compiledFormula = formulas[i];
-                  if (compiledFormula) {
-                    return this.getters.getTranslatedCellFormula(
-                      sheetId,
-                      col - zone.left,
-                      row - zone.top,
-                      compiledFormula.tokens
-                    );
-                  }
-                  return value;
-                });
-                if (
-                  this.getRuleResultForTarget(target, { ...cf.rule, values }, preComputedCriterion)
-                ) {
-                  if (!computedStyle[col]) {
-                    computedStyle[col] = [];
-                  }
-                  // we must combine all the properties of all the CF rules applied to the given cell
-                  computedStyle[col][row] = Object.assign(
-                    computedStyle[col]?.[row] || {},
-                    cf.rule.style
+    const computedIcons: ComputedIcons = {};
+    const computedDataBars: ComputedDataBars = {};
+
+    switch (cf.rule.type) {
+      case "ColorScaleRule":
+        for (const range of cf.ranges) {
+          this.applyColorScale(sheetId, range, cf.rule, computedStyle, cf.id);
+        }
+        break;
+      case "CellIsRule":
+        const formulas = cf.rule.values.map((value) =>
+          value.startsWith("=") ? compile(value) : undefined
+        );
+        const evaluator = criterionEvaluatorRegistry.get(cf.rule.operator);
+        const criterion = { ...cf.rule, type: cf.rule.operator };
+        const ranges = cf.ranges.map((xc) => this.getters.getRangeFromSheetXC(sheetId, xc));
+        const preComputedCriterion = evaluator.preComputeCriterion?.(
+          criterion,
+          ranges,
+          this.getters
+        );
+        for (const ref of cf.ranges) {
+          const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              const target = { sheetId, col, row };
+              const values = cf.rule.values.map((value, i) => {
+                const compiledFormula = formulas[i];
+                if (compiledFormula) {
+                  return this.getters.getTranslatedCellFormula(
+                    sheetId,
+                    col - zone.left,
+                    row - zone.top,
+                    compiledFormula.tokens
                   );
                 }
+                return value;
+              });
+              if (
+                this.getRuleResultForTarget(target, { ...cf.rule, values }, preComputedCriterion)
+              ) {
+                if (!computedStyle[col]) {
+                  computedStyle[col] = [];
+                }
+                if (!computedStyle[col][row]) {
+                  computedStyle[col][row] = {};
+                }
+                computedStyle[col][row][cf.id] = cf.rule.style;
               }
             }
           }
-          break;
-      }
+        }
+        break;
+      case "IconSetRule":
+        for (const range of cf.ranges) {
+          this.applyIcon(sheetId, range, cf.rule, computedIcons, cf.id);
+        }
+        break;
+      case "DataBarRule":
+        for (const range of cf.ranges) {
+          this.applyDataBar(sheetId, range, cf.rule, computedDataBars, cf.id);
+        }
+        break;
     }
-    return computedStyle;
-  }
 
-  private getComputedIcons(sheetId: UID): ComputedIcons {
-    const computedIcons = {};
-    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      if (cf.rule.type !== "IconSetRule") {
-        continue;
-      }
-
-      for (const range of cf.ranges) {
-        this.applyIcon(sheetId, range, cf.rule, computedIcons);
-      }
-    }
-    return computedIcons;
-  }
-
-  private getComputedDataBars(sheetId: UID): ComputedDataBars {
-    const computedDataBars: ComputedDataBars = {};
-    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      if (cf.rule.type !== "DataBarRule") {
-        continue;
-      }
-
-      for (const range of cf.ranges) {
-        this.applyDataBar(sheetId, range, cf.rule, computedDataBars);
-      }
-    }
-    return computedDataBars;
+    return {
+      styles: computedStyle,
+      icons: computedIcons,
+      dataBars: computedDataBars,
+    };
   }
 
   private parsePoint(
@@ -223,7 +386,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     sheetId: UID,
     range: string,
     rule: IconSetRule,
-    computedIcons: ComputedIcons
+    computedIcons: ComputedIcons,
+    cfId: UID
   ): void {
     const lowerInflectionPoint: number | null = this.parsePoint(
       sheetId,
@@ -261,7 +425,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         if (!computedIcons[col]) {
           computedIcons[col] = [];
         }
-        computedIcons[col][row] = icon;
+        if (!computedIcons[col][row]) {
+          computedIcons[col][row] = {};
+        }
+        computedIcons[col][row][cfId] = icon;
       }
     }
   }
@@ -292,7 +459,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     sheetId: UID,
     range: string,
     rule: DataBarRule,
-    computedDataBars: ComputedDataBars
+    computedDataBars: ComputedDataBars,
+    cfId: UID
   ): void {
     const rangeValues = this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues || range);
     const allValues = this.getters
@@ -324,7 +492,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         if (!computedDataBars[col]) {
           computedDataBars[col] = [];
         }
-        computedDataBars[col][row] = {
+        if (!computedDataBars[col][row]) {
+          computedDataBars[col][row] = {};
+        }
+        computedDataBars[col][row][cfId] = {
           color: colorNumberToHex(color),
           percentage: (cell.value * 100) / max,
         };
@@ -337,7 +508,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     sheetId: UID,
     range: string,
     rule: ColorScaleRule,
-    computedStyle: ComputedStyles
+    computedStyle: ComputedStyles,
+    cfId: UID
   ): void {
     const minValue: number | null = this.parsePoint(sheetId, range, rule.minimum, "min");
     const midValue: number | null = rule.midpoint
@@ -367,8 +539,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           if (!computedStyle[col]) {
             computedStyle[col] = [];
           }
-          computedStyle[col][row] = computedStyle[col]?.[row] || {};
-          computedStyle[col][row]!.fillColor = colorScale(value);
+          if (!computedStyle[col][row]) {
+            computedStyle[col][row] = {};
+          }
+          computedStyle[col][row][cfId] = { fillColor: colorScale(value) };
         }
       }
     }
