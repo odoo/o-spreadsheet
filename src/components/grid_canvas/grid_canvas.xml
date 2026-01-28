@@ -1,7 +1,16 @@
 <templates>
   <t t-name="o-spreadsheet-GridCanvas">
-    <div class="o-canvas-container h-100 w-100" t-ref="canvasContainer">
+    <div
+      class="o-canvas-container position-relative overflow-hidden pe-none"
+      t-ref="canvasContainer"
+      t-att-style="containerStyle">
       <canvas t-ref="canvas"/>
+
+      <div class="o-figure-container position-absolute" t-att-style="figureContainerStyle">
+        <t t-foreach="visibleFigures" t-as="figureUI" t-key="figureUI.id">
+          <FigureComponent figureUI="figureUI"/>
+        </t>
+      </div>
     </div>
   </t>
 </templates>

@@ -6,6 +6,8 @@ import { Component, useEffect, useRef } from "@odoo/owl";
 import { Store, useLocalStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
+import { FigureComponent } from "../figures/figure/figure";
+import { cssPropertiesToCss } from "../helpers";
 import { getRefBoundingRect } from "../helpers/dom_helpers";
 
 interface Props {
@@ -19,6 +21,7 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
     sheetId: String,
     zone: Object,
   };
+  static components = { FigureComponent };
 
   canvasContainerRef = useRef("canvasContainer");
   canvasRef = useRef("canvas");
@@ -36,6 +39,14 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
     return getRefBoundingRect(this.canvasContainerRef);
   }
 
+  get containerStyle() {
+    const sheetView = this.renderingContext.sheetView!; // ADRM TODO
+    return cssPropertiesToCss({
+      width: `${sheetView.sheetViewWidth}px`,
+      height: `${sheetView.sheetViewHeight}px`,
+    });
+  }
+
   get renderingContext(): Partial<GridRenderingContext> {
     const sheetId = this.props.sheetId;
     const zone = this.props.zone;
@@ -51,14 +62,6 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
       hideHeaders: true,
     };
 
-    // const testViewport = new InternalViewport(
-    //   this.env.model.getters,
-    //   sheetId,
-    //   this.env.model.getters.getSheetZone(sheetId),
-    //   { width: lastColEnd - firstColStart, height: lastRowEnd - firstRowStart },
-    //   { canScrollHorizontally: false, canScrollVertically: false },
-    //   { x: firstColStart, y: firstRowStart }
-    // );
     const sheetView = new ViewportCollection(this.env.model.getters);
     sheetView.sheetViewWidth = lastColEnd - firstColStart;
     sheetView.sheetViewHeight = lastRowEnd - firstRowStart;
@@ -66,6 +69,20 @@ export class GridCanvas extends Component<Props, SpreadsheetChildEnv> {
 
     partialCtx.sheetView = sheetView;
     return partialCtx;
+  }
+
+  get visibleFigures() {
+    const sheetView = this.renderingContext.sheetView!; // ADRM TODO
+    return sheetView.getVisibleFigures(this.props.sheetId);
+  }
+
+  get figureContainerStyle() {
+    const sheetView = this.renderingContext.sheetView!; // ADRM TODO
+    const offset = sheetView.getViewportOffset(this.props.sheetId);
+    return cssPropertiesToCss({
+      left: `${-offset.x}px`,
+      top: `${-offset.y}px`,
+    });
   }
 
   drawGrid() {

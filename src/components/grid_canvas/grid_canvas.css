@@ -1,0 +1,7 @@
+.o-spreadsheet {
+  .o-canvas-container {
+    .o-figure-wrapper {
+      /* pointer-events: none;  ADRM TODO*/
+    }
+  }
+}

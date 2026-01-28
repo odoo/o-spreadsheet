@@ -1,8 +1,8 @@
 import { _t, DOMDimension, UID, ValueAndLabel, Zone } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
-import { zoneToXc } from "../../helpers";
-import { CellValueType } from "../../types";
+import { Component, onMounted, useState } from "@odoo/owl";
+import { intersection } from "../../helpers";
+import { CellValueType, FigureUI } from "../../types";
 import { GridCanvas } from "../grid_canvas/grid_canvas";
 import { cssPropertiesToCss } from "../helpers";
 import { Select } from "../select/select";
@@ -53,6 +53,11 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
     for (const sheetId of this.env.model.getters.getSheetIds()) {
       this.showGridLinesAtInit[sheetId] = this.env.model.getters.getGridLinesVisibility(sheetId);
     }
+    onMounted(() => {
+      if (this.env.model.getters.getSelectedFigureId()) {
+        this.env.model.dispatch("SELECT_FIGURE", { figureId: null });
+      }
+    });
   }
 
   get printPages(): PagePrintInfo[] {
@@ -65,15 +70,11 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
       this.state.printSelection === "entireWorkbook"
         ? this.env.model.getters.getSheetIds()
         : [this.env.model.getters.getActiveSheetId()];
-    const p1 = sheetIds.map((sheetId) => {
+    return sheetIds.flatMap((sheetId) => {
       const { lastUsedCol, lastUsedRow } = this.getLastUsedHeaders(sheetId);
       const zone = { left: 0, top: 0, right: lastUsedCol, bottom: lastUsedRow };
       return this.splitZoneToPrintPages(sheetId, zone);
     });
-    const pages = p1.flat();
-    // ADRM TODO
-    console.log(pages.map((p) => p.sheetId + "!" + zoneToXc(p.zone)));
-    return pages;
   }
 
   get pageStyle(): string {
@@ -109,8 +110,8 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
 
   splitZoneToPrintPages(sheetId: UID, printZone: Zone): PagePrintInfo[] {
     const { width: pageWidth, height: pageHeight } = this.pageDimensionsInPixels;
-    const printWidth = pageWidth - 40; // Subtracting print margins
-    const printHeight = pageHeight - 40;
+    const printWidth = pageWidth - 140; // Subtracting some print margins
+    const printHeight = pageHeight - 140;
 
     const xPages: number[] = [];
     let currentX = 0;
@@ -153,12 +154,14 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
+    // return pages;
+
     // ADRM TODO: handle all pages empty
     const nonEmptyPages = pages.filter((page) => this.pageHasContent(page));
-    console.log(
-      "split",
-      nonEmptyPages.map((p) => p.sheetId + "!" + zoneToXc(p.zone))
-    );
+    // console.log(
+    //   "split",
+    //   nonEmptyPages.map((p) => p.sheetId + "!" + zoneToXc(p.zone))
+    // );
     return nonEmptyPages;
   }
 
@@ -190,6 +193,13 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
       lastUsedRow = Math.max(lastUsedRow, table.range.zone.bottom);
     }
 
+    for (const figure of this.env.model.getters.getFigures(sheetId)) {
+      const figureUI = this.env.model.getters.getFigureUI(sheetId, figure);
+      const figureZone = this.getZoneContainingFigure(sheetId, figureUI);
+      lastUsedCol = Math.max(lastUsedCol, figureZone.right);
+      lastUsedRow = Math.max(lastUsedRow, figureZone.bottom);
+    }
+
     return { lastUsedCol, lastUsedRow };
   }
 
@@ -198,6 +208,7 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
     return (
       this.env.model.getters.getZoneStyles(sheetId, zone).length > 0 ||
       this.env.model.getters.getTablesOverlappingZones(sheetId, [zone]).length > 0 ||
+      this.areThereFiguresInZone(sheetId, zone) ||
       this.env.model.getters
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
@@ -208,6 +219,42 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
     const layout = PRINT_PAGES_LAYOUTS[this.state.pageLayout];
     const widthInPixels = Math.floor(layout.width * 3.78);
     const heightInPixels = Math.floor(layout.height * 3.78);
-    return { width: widthInPixels, height: heightInPixels }; // Subtracting print margins
+    return { width: widthInPixels, height: heightInPixels };
+  }
+
+  private areThereFiguresInZone(sheetId: UID, zone: Zone): boolean {
+    const figures = this.env.model.getters.getFigures(sheetId);
+    return figures
+      .map((figure) => this.env.model.getters.getFigureUI(sheetId, figure))
+      .some((figureUI) => {
+        const figureZone = this.getZoneContainingFigure(sheetId, figureUI);
+        return !!intersection(zone, figureZone);
+      });
+  }
+
+  private getZoneContainingFigure(sheetId: UID, figureUI: FigureUI): Zone {
+    const startCol = figureUI.col;
+    const startX = figureUI.x;
+    const endX = startX + figureUI.width;
+    let endCol = startCol;
+    while (
+      endCol < this.env.model.getters.getNumberCols(sheetId) - 1 &&
+      this.env.model.getters.getColDimensions(sheetId, endCol).end < endX
+    ) {
+      endCol++;
+    }
+
+    const startRow = figureUI.row;
+    const startY = figureUI.y;
+    const endY = startY + figureUI.height;
+    let endRow = startRow;
+    while (
+      endRow < this.env.model.getters.getNumberRows(sheetId) - 1 &&
+      this.env.model.getters.getRowDimensions(sheetId, endRow).end < endY
+    ) {
+      endRow++;
+    }
+
+    return { left: startCol, right: endCol, top: startRow, bottom: endRow };
   }
 }

@@ -19,7 +19,7 @@
             t-foreach="pages"
             t-as="page"
             t-key="page_index"
-            class="o-print-page m-4 shadow"
+            class="o-print-page m-4 shadow d-flex justify-content-center align-items-center"
             t-att-style="pageStyle">
             <GridCanvas sheetId="page.sheetId" zone="page.zone"/>
           </div>

@@ -6,7 +6,6 @@ import {
   getChartMenuActions,
   getImageMenuActions,
 } from "../actions/figure_menu_actions";
-import { FigureCanvas } from "../components/figures/figure_canvas/figure_canvas";
 import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
@@ -48,8 +47,4 @@ figureRegistry.add("image", {
 figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
-});
-figureRegistry.add("canvas", {
-  Component: FigureCanvas,
-  menuBuilder: () => [],
 });
