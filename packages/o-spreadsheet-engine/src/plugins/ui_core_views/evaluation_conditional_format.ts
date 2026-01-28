@@ -92,6 +92,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     switch (cmd.type) {
       case "ADD_CONDITIONAL_FORMAT":
         this.allStale = true; // New CF, need to recompute to register it
+        //TODOPRO Not sure we have to recompute everything
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
         this.getters.getEntityDependencyRegistry().unregisterEntity(cmd.id);
