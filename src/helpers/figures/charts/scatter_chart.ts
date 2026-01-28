@@ -80,9 +80,11 @@ export class ScatterChart extends AbstractChart {
     return definition;
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(
+    getters: CoreGetters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),

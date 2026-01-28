@@ -3,19 +3,14 @@ import {
   ChartDefinition,
   ChartDefinitionWithDataSource,
   ChartType,
-  DataSet,
-  ExcelChartDataset,
   ExcelChartDefinition,
   TitleDesign,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
-import { CellErrorType } from "../../../types/errors";
 import { RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
-import { getZoneArea } from "../../zones";
-import { shouldRemoveFirstLabel, toExcelDataset, toExcelLabelRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -90,7 +85,10 @@ export abstract class AbstractChart {
    * Get the definition of the chart that will be used for excel export.
    * If the chart is not supported by Excel, this function returns undefined.
    */
-  abstract getDefinitionForExcel(getters: CoreGetters): ExcelChartDefinition | undefined;
+  abstract getDefinitionForExcel(
+    getters: CoreGetters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined;
 
   /**
    * This function should be used to update all the ranges of the chart after
@@ -120,24 +118,4 @@ export abstract class AbstractChart {
    * Extract the ChartCreationContext of the chart
    */
   abstract getContextCreation(definition: ChartDefinition<string>): ChartCreationContext;
-
-  protected getCommonDataSetAttributesForExcel(definition: ChartDefinitionWithDataSource) {
-    const dataSets = definition.dataSource.dataSets;
-    const labelRange = definition.dataSource.labelRange;
-    const excelDataSets: ExcelChartDataset[] = dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, definition, ds))
-      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const datasetLength = dataSets[0] ? getZoneArea(dataSets[0].dataRange.zone) : undefined;
-    const labelLength = labelRange ? getZoneArea(labelRange.zone) : 0;
-    const _shouldRemoveFirstLabel = shouldRemoveFirstLabel(
-      labelLength,
-      datasetLength,
-      "dataSource" in definition ? definition.dataSource.dataSetsHaveTitle : false
-    );
-    const excelLabelRange = toExcelLabelRange(this.getters, labelRange, _shouldRemoveFirstLabel);
-    return {
-      dataSets: excelDataSets,
-      labelRange: excelLabelRange,
-    };
-  }
 }

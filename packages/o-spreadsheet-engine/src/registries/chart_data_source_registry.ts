@@ -1,4 +1,10 @@
-import { ChartCreationContext, ChartDataSource, ChartDataSourceType } from "../types/chart";
+import {
+  ChartCreationContext,
+  ChartDataSource,
+  ChartDataSourceType,
+  DataSetStyle,
+  ExcelChartDefinition,
+} from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
@@ -33,6 +39,10 @@ export interface ChartDataSourceHandler {
   ): ChartDataSource<Range>;
   getStrDefinition(getters: CoreGetters, defaultSheetId: UID): ChartDataSource<string>;
   getContextCreation(dataSource: ChartDataSource<string>): ChartCreationContext;
+  toExcelDataSets(
+    getters: CoreGetters,
+    dataSetStyles: DataSetStyle
+  ): Pick<ExcelChartDefinition, "dataSets" | "labelRange">;
 }
 
 interface ChartDataSourceRegistry extends Registry<ChartDataSourceHandlerContructor> {

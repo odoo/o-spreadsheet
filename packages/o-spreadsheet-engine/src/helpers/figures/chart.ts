@@ -104,6 +104,13 @@ export class MyChart {
   }
 
   getDefinitionForExcel(getters: Getters) {
-    return this.chartTypeHandler.getDefinitionForExcel(getters);
+    const definition = this.getDefinition();
+    if (!("dataSetStyles" in definition)) {
+      return undefined;
+    }
+    return this.chartTypeHandler.getDefinitionForExcel(
+      getters,
+      this.dataSourceHandler.toExcelDataSets(getters, definition.dataSetStyles)
+    );
   }
 }

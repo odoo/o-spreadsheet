@@ -7,6 +7,7 @@ import {
   ChartDefinitionWithDataSource,
   ChartRangeDataSource,
   DataSet,
+  DataSetStyle,
   DatasetValues,
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
@@ -242,7 +243,7 @@ function createDataSet(
  */
 export function toExcelDataset(
   getters: CoreGetters,
-  definition: ChartDefinitionWithDataSource,
+  dataSetStyles: DataSetStyle,
   ds: DataSet
 ): ExcelChartDataset {
   const labelZone = ds.labelCell?.zone;
@@ -255,7 +256,7 @@ export function toExcelDataset(
       dataZone = { ...dataZone, top: dataZone.top + 1 };
     }
   }
-  const dataSetStyle = definition.dataSetStyles[ds.dataSetId] ?? {};
+  const dataSetStyle = dataSetStyles[ds.dataSetId] ?? {};
 
   const dataRange = createRange({ ...ds.dataRange, zone: dataZone }, getters.getSheetSize);
   let label = {};

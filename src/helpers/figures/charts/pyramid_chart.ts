@@ -82,9 +82,11 @@ export class PyramidChart extends AbstractChart {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(
+    getters: Getters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     const data = getChartData(getters, this.sheetId, definition.dataSource);
     const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;

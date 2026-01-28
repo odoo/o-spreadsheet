@@ -1,16 +1,28 @@
-import { CoreGetters, RangeAdapterFunctions, UID, Validator } from "../../..";
+import { CellErrorType, CoreGetters, RangeAdapterFunctions, UID, Validator } from "../../..";
 import {
   ChartDataSourceHandler,
   chartDataSourceRegistry,
 } from "../../../registries/chart_data_source_registry";
-import { ChartCreationContext, ChartDataSource, ChartRangeDataSource } from "../../../types/chart";
+import {
+  ChartCreationContext,
+  ChartDataSource,
+  ChartRangeDataSource,
+  DataSet,
+  DataSetStyle,
+  ExcelChartDataset,
+} from "../../../types/chart";
+import { CommandResult } from "../../../types/commands";
 import { Range } from "../../../types/range";
 import { createValidRange } from "../../range";
+import { getZoneArea } from "../../zones";
 import {
   checkDataset,
   checkLabelRange,
   createDataSets,
   duplicateDataSourceInDuplicatedSheet,
+  shouldRemoveFirstLabel,
+  toExcelDataset,
+  toExcelLabelRange,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 
@@ -70,8 +82,60 @@ export class ChartRangeDataSourceHandler implements ChartDataSourceHandler {
   getContextCreation(dataSource: ChartRangeDataSource<string>): ChartCreationContext {
     return { auxiliaryRange: dataSource.labelRange };
   }
+
+  toExcelDataSets(getters: CoreGetters, dataSetStyles: DataSetStyle) {
+    const dataSets = this.dataSource.dataSets;
+    const labelRange = this.dataSource.labelRange;
+    const excelDataSets: ExcelChartDataset[] = dataSets
+      .map((ds: DataSet) => toExcelDataset(getters, dataSetStyles, ds))
+      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
+    const datasetLength = dataSets[0] ? getZoneArea(dataSets[0].dataRange.zone) : undefined;
+    const labelLength = labelRange ? getZoneArea(labelRange.zone) : 0;
+    const _shouldRemoveFirstLabel = shouldRemoveFirstLabel(
+      labelLength,
+      datasetLength,
+      this.dataSource.dataSetsHaveTitle
+    );
+    const excelLabelRange = toExcelLabelRange(getters, labelRange, _shouldRemoveFirstLabel);
+    return {
+      dataSets: excelDataSets,
+      labelRange: excelLabelRange,
+    };
+  }
+}
+
+class ChartNeverDataSourceHandler implements ChartDataSourceHandler {
+  constructor(readonly dataSource: { type: "never" }) {}
+
+  static fromRangeStr(): ChartNeverDataSourceHandler {
+    return new ChartNeverDataSourceHandler({ type: "never" });
+  }
+
+  static validate() {
+    return CommandResult.Success;
+  }
+
+  adaptRanges() {
+    return this.dataSource;
+  }
+
+  getStrDefinition(): ChartDataSource<string> {
+    return { type: "never" };
+  }
+
+  duplicateInDuplicatedSheet(): ChartDataSource<Range> {
+    return this.dataSource;
+  }
+
+  getContextCreation(): ChartCreationContext {
+    return {};
+  }
+
+  toExcelDataSets() {
+    return { dataSets: [], labelRange: "" };
+  }
 }
 
 chartDataSourceRegistry.add("range", ChartRangeDataSourceHandler);
-chartDataSourceRegistry.add("never", ChartRangeDataSourceHandler);
+chartDataSourceRegistry.add("never", ChartNeverDataSourceHandler);
 // allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],

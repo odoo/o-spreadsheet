@@ -75,9 +75,11 @@ export class RadarChart extends AbstractChart {
     return this.definition;
   }
 
-  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+  getDefinitionForExcel(
+    getters: Getters,
+    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined {
     const definition = this.getDefinition();
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(this.definition);
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
