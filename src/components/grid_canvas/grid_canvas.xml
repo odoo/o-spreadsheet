@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-GridCanvas">
-    <div class="h-100 w-100" t-ref="canvasContainer">
+    <div class="o-canvas-container h-100 w-100" t-ref="canvasContainer">
       <canvas t-ref="canvas"/>
     </div>
   </t>

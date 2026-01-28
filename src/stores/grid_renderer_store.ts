@@ -80,6 +80,7 @@ export class GridRenderer extends DisposableStore {
   private hoveredTables: Store<HoveredTableStore>;
   private hoveredIcon: Store<HoveredIconStore>;
 
+  private lastRenderSheetId: UID | undefined = undefined;
   private lastRenderBoxes: Map<string, Box> = new Map();
   private preventNewAnimationsInNextFrame = false;
   private zonesWithPreventedAnimationsInNextFrame: Record<UID, Zone[]> = {};
@@ -170,7 +171,9 @@ export class GridRenderer extends DisposableStore {
     switch (layer) {
       case "Background":
         this.drawGlobalBackground(renderingContext);
-        const oldBoxes = this.lastRenderBoxes;
+        const oldBoxes =
+          renderingContext.sheetId === this.lastRenderSheetId ? this.lastRenderBoxes : new Map();
+        this.lastRenderSheetId = renderingContext.sheetId;
         this.lastRenderBoxes = new Map();
 
         const { sheetId, sheetView } = renderingContext;

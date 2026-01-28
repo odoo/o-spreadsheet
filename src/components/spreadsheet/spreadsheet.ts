@@ -85,7 +85,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   spreadsheetRef = useRef("spreadsheet");
   spreadsheetRect = useSpreadsheetRect();
 
-  state = useState({ isPrintMode: true });
+  state = useState({ isPrintMode: false });
 
   private _focusGrid?: () => void;
 

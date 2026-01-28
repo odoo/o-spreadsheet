@@ -1,6 +1,7 @@
 import { _t, DOMDimension, UID, ValueAndLabel, Zone } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
+import { zoneToXc } from "../../helpers";
 import { CellValueType } from "../../types";
 import { GridCanvas } from "../grid_canvas/grid_canvas";
 import { cssPropertiesToCss } from "../helpers";
@@ -64,11 +65,15 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
       this.state.printSelection === "entireWorkbook"
         ? this.env.model.getters.getSheetIds()
         : [this.env.model.getters.getActiveSheetId()];
-    return sheetIds.flatMap((sheetId) => {
+    const p1 = sheetIds.map((sheetId) => {
       const { lastUsedCol, lastUsedRow } = this.getLastUsedHeaders(sheetId);
       const zone = { left: 0, top: 0, right: lastUsedCol, bottom: lastUsedRow };
       return this.splitZoneToPrintPages(sheetId, zone);
     });
+    const pages = p1.flat();
+    // ADRM TODO
+    console.log(pages.map((p) => p.sheetId + "!" + zoneToXc(p.zone)));
+    return pages;
   }
 
   get pageStyle(): string {
@@ -149,7 +154,12 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
     }
 
     // ADRM TODO: handle all pages empty
-    return pages.filter((page) => this.pageHasContent(page));
+    const nonEmptyPages = pages.filter((page) => this.pageHasContent(page));
+    console.log(
+      "split",
+      nonEmptyPages.map((p) => p.sheetId + "!" + zoneToXc(p.zone))
+    );
+    return nonEmptyPages;
   }
 
   onPrint() {
