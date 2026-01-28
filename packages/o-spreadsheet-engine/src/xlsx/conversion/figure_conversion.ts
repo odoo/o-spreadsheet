@@ -108,7 +108,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<stri
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    dataSource: { dataSets, dataSetsHaveTitle, labelRange },
+    dataSource: { dataSets, dataSetsHaveTitle, labelRange, type: "range" },
     dataSetStyles: dataSetsStyling,
     auxiliaryRange: labelRange,
     title: chartData.title ?? { text: "" },

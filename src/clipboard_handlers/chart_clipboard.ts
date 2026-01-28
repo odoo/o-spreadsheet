@@ -58,10 +58,17 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
     const copy = clippedContent.copiedChart;
-    const copiedDefinition = MyChart.fromDefinition(
+    let copiedDefinition = MyChart.fromDefinition(
       this.getters,
       sheetId,
       copy.copyInSheetId(sheetId)
+    ).getStrDefinition();
+
+    // clean invalid ranges TODO improve this.
+    copiedDefinition = MyChart.fromStrDefinition(
+      this.getters,
+      sheetId,
+      copiedDefinition
     ).getStrDefinition();
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
