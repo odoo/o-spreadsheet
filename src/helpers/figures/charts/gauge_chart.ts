@@ -142,9 +142,12 @@ export class GaugeChart extends AbstractChart {
     this.background = definition.background;
   }
 
-  validateChartDefinition(validator: Validator): CommandResult | CommandResult[] {
+  static validateChartDefinition(
+    validator: Validator,
+    definition: GaugeChartDefinition
+  ): CommandResult | CommandResult[] {
     return validator.checkValidations(
-      this.getDefinition(),
+      definition,
       isDataRangeValid,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
@@ -206,7 +209,6 @@ export class GaugeChart extends AbstractChart {
         },
       },
       humanize: context.humanize,
-      dataSource: { type: "never" },
     };
   }
 
@@ -256,7 +258,6 @@ export class GaugeChart extends AbstractChart {
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
       humanize: this.humanize,
-      dataSource: { type: "never" },
     };
   }
 

@@ -368,7 +368,6 @@ function buildScorecard(zone: Zone, getters: Getters): ChartDefinition {
     baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
     baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
     baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-    dataSource: { type: "never" },
   };
 }
 

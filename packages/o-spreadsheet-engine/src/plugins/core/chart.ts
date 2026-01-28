@@ -246,7 +246,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
           );
           if (figure && figure.tag === "chart" && chartId) {
-            const data = this.charts[chartId]?.chart.getDefinition();
+            const data = this.charts[chartId]?.chart.getStrDefinition();
             if (data) {
               figure.data = { ...data, chartId };
               figures.push(figure);

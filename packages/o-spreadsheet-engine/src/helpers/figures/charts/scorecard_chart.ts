@@ -211,7 +211,6 @@ export class ScorecardChart extends AbstractChart {
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
       humanize: context.humanize,
-      dataSource: { type: "never" },
     };
   }
 
@@ -298,7 +297,6 @@ export class ScorecardChart extends AbstractChart {
         : undefined,
       keyDescr: this.keyDescr,
       humanize: this.humanize,
-      dataSource: { type: "never" },
     };
   }
 
