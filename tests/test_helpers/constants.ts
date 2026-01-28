@@ -100,6 +100,7 @@ const PIVOT: PivotCoreDefinition = {
       fieldName: "computed",
     },
   ],
+  filters: [],
   name: "pivot",
   type: "SPREADSHEET",
 };
