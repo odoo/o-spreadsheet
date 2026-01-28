@@ -17,6 +17,7 @@ import {
   ChartWithDataSetDefinition,
   GenericDefinition,
   LineChartDefinition,
+  PieChartDefinition,
   SunburstChartDefinition,
   SunburstChartJSDataset,
   WaterfallChartDefinition,
@@ -70,12 +71,15 @@ export function getLineChartLegend(
 }
 
 export function getPieChartLegend(
-  definition: GenericDefinition<LineChartDefinition>,
+  definition: GenericDefinition<PieChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   const { dataSetsValues } = args;
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
-  const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  const colors = getPieColors(
+    new ColorGenerator(dataSetsLength, definition.slicesColors),
+    dataSetsValues
+  );
   const fontColor = chartFontColor(definition.background);
   return {
     ...getLegendDisplayOptions(definition, args),
