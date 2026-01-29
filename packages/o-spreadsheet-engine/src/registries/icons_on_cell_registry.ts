@@ -4,9 +4,7 @@ import {
   CHECKBOX_UNCHECKED_HOVERED,
   getCaretDownSvg,
   getCaretUpSvg,
-  getChipSvg,
   getHoveredCaretDownSvg,
-  getHoveredChipSvg,
   getPivotIconSvg,
   ICONS,
 } from "../components/icons/icons";
@@ -75,50 +73,32 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   return undefined;
 });
 
-iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
+iconsOnCellRegistry.add("data_validation_list_chip_icon", (getters, position) => {
+  if (getters.isReadonly()) {
+    return;
+  }
   const chipStyle = getters.getDataValidationChipStyle(position);
-  if (chipStyle) {
-    const cellStyle = getters.getCellComputedStyle(position);
-    return {
-      svg: getChipSvg(chipStyle),
-      hoverSvg: getHoveredChipSvg(chipStyle),
-      priority: 10,
-      horizontalAlign: "right",
-      size: computeTextFontSizeInPixels(cellStyle),
-      margin: 4,
-      position,
-      onClick: (position, env) => {
-        const { col, row } = position;
-        env.model.selection.selectCell(col, row);
-        env.startCellEdition();
-      },
-      type: "data_validation_chip_icon",
-    };
+  const listIcon = getters.cellHasListDataValidationIcon(position);
+  if (!listIcon && !chipStyle) {
+    return;
   }
-  return undefined;
-});
-
-iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
-  const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
-  if (hasIcon) {
-    const cellStyle = getters.getCellComputedStyle(position);
-    return {
-      svg: getCaretDownSvg(cellStyle),
-      hoverSvg: getHoveredCaretDownSvg(cellStyle),
-      priority: 2,
-      horizontalAlign: "right",
-      size: GRID_ICON_EDGE_LENGTH,
-      margin: GRID_ICON_MARGIN,
-      position,
-      onClick: (position, env) => {
-        const { col, row } = position;
-        env.model.selection.selectCell(col, row);
-        env.startCellEdition();
-      },
-      type: "data_validation_list_icon",
-    };
-  }
-  return undefined;
+  const cellStyle = getters.getCellComputedStyle(position);
+  const iconStyle = chipStyle ? chipStyle : cellStyle;
+  return {
+    svg: getCaretDownSvg(iconStyle),
+    hoverSvg: getHoveredCaretDownSvg(iconStyle),
+    priority: 2,
+    horizontalAlign: "right",
+    size: computeTextFontSizeInPixels(cellStyle),
+    margin: 4,
+    position,
+    onClick: (position, env) => {
+      const { col, row } = position;
+      env.model.selection.selectCell(col, row);
+      env.startCellEdition();
+    },
+    type: "data_validation_list_chip_icon",
+  };
 });
 
 iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
@@ -191,8 +171,8 @@ iconsOnCellRegistry.add("pivot_dashboard_sorting", (getters, position) => {
     type: `pivot_dashboard_sorting_${sortDirection}`,
     priority: 5,
     horizontalAlign: "right",
-    size: GRID_ICON_EDGE_LENGTH,
-    margin: GRID_ICON_MARGIN,
+    size: computeTextFontSizeInPixels(cellStyle),
+    margin: 0,
     svg: sortDirection === "asc" ? getCaretUpSvg(cellStyle) : getCaretDownSvg(cellStyle),
     position,
     onClick: undefined, // click is managed by ClickableCellSortIcon

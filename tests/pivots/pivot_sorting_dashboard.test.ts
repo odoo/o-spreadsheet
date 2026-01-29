@@ -38,12 +38,12 @@ describe("Dashboard Pivot Sorting", () => {
       { position: toCellPosition(sheetId, "B5") },
     ]);
     expect(".o-dashboard-clickable-cell").toHaveCount(1);
-    expect(".o-dashboard-clickable-cell .fa-sort").toHaveCount(1);
+    expect(".o-dashboard-clickable-cell .sorting-icon .o-icon").toHaveCount(1);
     expect(getCellIcons(model, "B5")).toHaveLength(0);
 
     await click(fixture, ".o-dashboard-clickable-cell");
     expect(getCellIcons(model, "B5")).toMatchObject([{ type: "pivot_dashboard_sorting_asc" }]);
-    expect(".o-dashboard-clickable-cell .o-icon").toHaveCount(0);
+    expect(".o-dashboard-clickable-cell .sorting-icon .o-icon").toHaveCount(0);
     expect(model.getters.getPivotCoreDefinition(pivotId).sortedColumn).toEqual({
       measure: "Price:sum",
       order: "asc",
@@ -52,7 +52,7 @@ describe("Dashboard Pivot Sorting", () => {
 
     await click(fixture, ".o-dashboard-clickable-cell");
     expect(getCellIcons(model, "B5")).toMatchObject([{ type: "pivot_dashboard_sorting_desc" }]);
-    expect(".o-dashboard-clickable-cell .o-icon").toHaveCount(0);
+    expect(".o-dashboard-clickable-cell .sorting-icon .o-icon").toHaveCount(0);
     expect(model.getters.getPivotCoreDefinition(pivotId).sortedColumn).toEqual({
       measure: "Price:sum",
       order: "desc",
@@ -60,7 +60,7 @@ describe("Dashboard Pivot Sorting", () => {
     });
 
     await click(fixture, ".o-dashboard-clickable-cell");
-    expect(".o-dashboard-clickable-cell .fa-sort").toHaveCount(1);
+    expect(".o-dashboard-clickable-cell .sorting-icon .o-icon").toHaveCount(1);
     expect(getCellIcons(model, "B5")).toHaveLength(0);
     expect(model.getters.getPivotCoreDefinition(pivotId).sortedColumn).toBe(undefined);
   });

@@ -706,6 +706,11 @@
       <circle fill="currentColor" cx="14" cy="9" r="4"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.CARET_SORT">
+    <svg class="o-icon" viewBox="0 0 512 512">
+      <path fill="currentColor" d="M40 240 h320 l-160 -160 M40 280 h320 l-160 160"/>
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-Icon.SORT_RANGE">
     <svg class="o-icon">
       <path

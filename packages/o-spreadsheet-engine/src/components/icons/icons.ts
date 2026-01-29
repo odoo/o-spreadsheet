@@ -103,12 +103,16 @@ const RED_DOT: ImageSVG = {
   paths: [{ fillColor: "#E06666", path: DOT_PATH }],
 };
 
+const CARET_UP_PATH = "M40 320 h320 l-160 -160";
+const CARET_DOWN_PATH = "M40 160 h320 l-160 160";
+const HOVERED_CARET_DOWN_PATH = "M200 32a200 200 0 1 1 0 400 200 200 0 1 1 0-400";
+
 export function getCaretDownSvg(color: Style): ImageSVG {
   return {
     name: "CARET_DOWN",
     width: 512,
     height: 512,
-    paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: "M120 195 h270 l-135 130" }],
+    paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: CARET_DOWN_PATH }],
   };
 }
 
@@ -117,7 +121,7 @@ export function getCaretUpSvg(color: Style): ImageSVG {
     name: "CARET_UP",
     width: 512,
     height: 512,
-    paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: "M120 325 h270 l-135 -130" }],
+    paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: CARET_UP_PATH }],
   };
 }
 
@@ -127,34 +131,8 @@ export function getHoveredCaretDownSvg(color: Style): ImageSVG {
     width: 512,
     height: 512,
     paths: [
-      { fillColor: color.textColor || TEXT_BODY_MUTED, path: "M15 15 h482 v482 h-482" },
-      { fillColor: color.fillColor || "#fff", path: "M120 195 h270 l-135 130" },
-    ],
-  };
-}
-
-const CHIP_CARET_DOWN_PATH = "M40 185 h270 l-135 128";
-
-export function getChipSvg(chipStyle: Style): ImageSVG {
-  return {
-    name: "CHIP",
-    width: 512,
-    height: 512,
-    paths: [{ fillColor: chipStyle.textColor || TEXT_BODY_MUTED, path: CHIP_CARET_DOWN_PATH }],
-  };
-}
-
-export function getHoveredChipSvg(chipStyle: Style): ImageSVG {
-  return {
-    name: "CHIP",
-    width: 512,
-    height: 512,
-    paths: [
-      {
-        fillColor: chipStyle.textColor || TEXT_BODY_MUTED,
-        path: "M0,225 A175,175 0 1,0 350,225 A175,175 0 1,0 0,225",
-      },
-      { fillColor: chipStyle.fillColor || TEXT_BODY_MUTED, path: CHIP_CARET_DOWN_PATH },
+      { fillColor: color.textColor || TEXT_BODY_MUTED, path: HOVERED_CARET_DOWN_PATH },
+      { fillColor: color.fillColor || "#fff", path: CARET_DOWN_PATH },
     ],
   };
 }
