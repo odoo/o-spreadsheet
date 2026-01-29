@@ -2,7 +2,7 @@ import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matric
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { toXC } from "../../helpers/coordinates";
 import { deepCopy, getUniqueText, range } from "../../helpers/misc";
-import { toLowerCase } from "../../helpers/text_helper";
+import { toTrimmedLowerCase } from "../../helpers/text_helper";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
@@ -176,7 +176,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         continue;
       }
       if (filterValue.filterType === "values") {
-        const filteredValues = filterValue.hiddenValues?.map(toLowerCase);
+        const filteredValues = filterValue.hiddenValues?.map(toTrimmedLowerCase);
         if (!filteredValues) {
           continue;
         }
@@ -227,7 +227,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   private getCellValueAsString(sheetId: UID, col: number, row: number): string {
     const value = this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue;
-    return value.toLowerCase();
+    return toTrimmedLowerCase(value);
   }
 
   exportForExcel(data: ExcelWorkbookData) {

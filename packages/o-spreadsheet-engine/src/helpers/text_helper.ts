@@ -315,9 +315,9 @@ export function getFontSizeMatchingWidth(
   return fontSize;
 }
 
-/** Transform a string to lower case. If the string is undefined, return an empty string */
-export function toLowerCase(str: string | undefined): string {
-  return str ? str.toLowerCase() : "";
+/** Transform a string to lowercase and removes whitespace from both ends of the string*/
+export function toTrimmedLowerCase(str: string | undefined): string {
+  return str ? str.toLowerCase().trim() : "";
 }
 
 /**

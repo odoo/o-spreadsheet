@@ -123,6 +123,7 @@ describe("Data validation registry", () => {
       ["hello there", "hello", false],
       ["hell", "hello", false],
       ["hello", "hello", true],
+      ["   hello", "hello", false],
       ["HeLlO", "hello", true],
       ["1125", "1125", true],
       ["TRUE", "true", true],
