@@ -13,6 +13,7 @@ import {
   createSheet,
   createTable,
   deleteRows,
+  deleteSheet,
   deleteTable,
   hideRows,
   redo,
@@ -189,6 +190,19 @@ describe("basic search", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheetId2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId2, "A2")]);
+  });
+
+  test("search is refreshed when active sheet is deleted", () => {
+    setCellContent(model, "A1", "test");
+    createSheet(model, { sheetId: sheetId2 });
+
+    updateSearch(model, "test", { searchScope: "activeSheet" });
+    expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
+    expect(store.selectedMatchIndex).toStrictEqual(0);
+
+    deleteSheet(model, sheetId1);
+    expect(store.searchMatches).toStrictEqual([]);
+    expect(store.selectedMatchIndex).toStrictEqual(null);
   });
 
   test("refresh search when cell is updated", async () => {
