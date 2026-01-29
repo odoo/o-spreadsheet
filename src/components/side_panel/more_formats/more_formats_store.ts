@@ -35,6 +35,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
   ] as const;
 
   invalidFormat = false;
+  isApplyingFormatFromPanel = false;
   currentFormat = this.formatInSelection;
   category: CustomFormatCategory = this.detectFormatCategory(this.formatInSelection);
 
@@ -61,20 +62,22 @@ export class MoreFormatsStore extends SpreadsheetStore {
   }
 
   handle() {
-    const selectedFormat = this.formatInSelection;
-    if (selectedFormat && this.lastFormatInSelection !== selectedFormat) {
-      this.setActiveFormat(selectedFormat);
-      this.lastFormatInSelection = selectedFormat;
+    if (!this.isApplyingFormatFromPanel) {
+      this.syncActiveFormat();
     }
   }
 
   handleSelectionEvent() {
     if (this.getters.isGridSelectionActive()) {
-      const selectedFormat = this.formatInSelection;
-      if (selectedFormat && selectedFormat !== this.lastFormatInSelection) {
-        this.setActiveFormat(selectedFormat);
-        this.lastFormatInSelection = selectedFormat;
-      }
+      this.syncActiveFormat();
+    }
+  }
+
+  private syncActiveFormat() {
+    const selectedFormat = this.formatInSelection;
+    if (selectedFormat !== this.lastFormatInSelection) {
+      this.setActiveFormat(selectedFormat);
+      this.lastFormatInSelection = selectedFormat;
     }
   }
 
@@ -253,11 +256,13 @@ export class MoreFormatsStore extends SpreadsheetStore {
 
     if (!this.invalidFormat) {
       this.lastFormatInSelection = format;
+      this.isApplyingFormatFromPanel = true;
       this.model.dispatch("SET_FORMATTING_WITH_PIVOT", {
         sheetId: this.getters.getActiveSheetId(),
         target: this.getters.getSelectedZones(),
         format: format || "",
       });
+      this.isApplyingFormatFromPanel = false;
     }
   }
 
