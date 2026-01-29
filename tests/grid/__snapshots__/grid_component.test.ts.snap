@@ -103,7 +103,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <canvas
     height="1011"
-    style="width:1033px;height:1011px;zoom:1"
+    style="width:1033px;height:1011px;zoom:1;"
     width="1033"
   />
   
