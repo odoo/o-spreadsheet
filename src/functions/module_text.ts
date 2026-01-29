@@ -335,7 +335,12 @@ export const REGEXEXTRACT = {
     }
 
     const flags = _caseSensitivity === 1 ? "gi" : "g";
-    const regex = new RegExp(_pattern, flags);
+    let regex: RegExp;
+    try {
+      regex = new RegExp(_pattern, flags);
+    } catch (e) {
+      return new EvaluationError(_t("Invalid regular expression"));
+    }
     const matches = [..._text.matchAll(regex)];
 
     if (matches.length === 0) {
