@@ -97,6 +97,14 @@ export abstract class AbstractChart {
    */
   abstract getContextCreation(): ChartCreationContext;
 
+  /**
+   * Get the ranges whose computed style affects the chart's appearance.
+   * Override this method in subclasses that use cell styles (e.g., for background color).
+   */
+  getStyleRanges(): Range[] {
+    return [];
+  }
+
   protected getCommonDataSetAttributesForExcel(
     labelRange: Range | undefined,
     dataSets: DataSet[],

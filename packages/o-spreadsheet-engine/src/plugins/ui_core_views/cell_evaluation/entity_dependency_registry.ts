@@ -6,10 +6,25 @@ import { RTreeItem, SpreadsheetRTree } from "./r_tree";
 
 export type DependentEntityType = "chart" | "pivot" | "conditionalFormat";
 
+/**
+ * The kind of dependency an entity has on a cell range.
+ * - "value": the entity depends on the cell values (default)
+ * - "style": the entity depends on the computed style of the cells
+ */
+export type DependencyKind = "value" | "style";
+
+export interface EntityDependency {
+  range: BoundedRange;
+  kind: DependencyKind;
+}
+
 export interface DependentEntity {
   id: UID;
   type: DependentEntityType;
-  dependencies: BoundedRange[];
+  /** @deprecated Use `rangeDependencies` instead */
+  dependencies?: BoundedRange[];
+  /** Dependencies with their kind (value or style) */
+  rangeDependencies?: EntityDependency[];
 }
 
 /**
@@ -22,13 +37,22 @@ interface EntityRTreeData {
   entityType: DependentEntityType;
 }
 
+interface StoredEntityDependencies {
+  valueItems: RTreeItem<EntityRTreeData>[];
+  styleItems: RTreeItem<EntityRTreeData>[];
+  entityType: DependentEntityType;
+}
+
 /**
  * Centralized registry to track dependencies of non-formula entities
  * (charts, pivots, conditional formats, etc.)
  */
 export class EntityDependencyRegistry {
-  private readonly rTree: SpreadsheetRTree<EntityRTreeData> = new SpreadsheetRTree();
-  private readonly entitiesDependencies: Map<UID, RTreeItem<EntityRTreeData>[]> = new Map();
+  /** R-Tree for value dependencies (cell values) */
+  private readonly valueRTree: SpreadsheetRTree<EntityRTreeData> = new SpreadsheetRTree();
+  /** R-Tree for style dependencies (computed cell styles) */
+  private readonly styleRTree: SpreadsheetRTree<EntityRTreeData> = new SpreadsheetRTree();
+  private readonly entitiesDependencies: Map<UID, StoredEntityDependencies> = new Map();
   private readonly invalidationCallbacks: Map<DependentEntityType, InvalidationCallback> =
     new Map();
 
@@ -51,29 +75,59 @@ export class EntityDependencyRegistry {
     // Remove old dependencies if the entity already exists
     this.unregisterEntity(entity.id);
 
-    const items: RTreeItem<EntityRTreeData>[] = [];
+    const valueItems: RTreeItem<EntityRTreeData>[] = [];
+    const styleItems: RTreeItem<EntityRTreeData>[] = [];
 
-    for (const dep of entity.dependencies) {
-      const item: RTreeItem<EntityRTreeData> = {
-        boundingBox: {
-          sheetId: dep.sheetId,
-          zone: dep.zone,
-        },
-        data: {
-          entityId: entity.id,
-          entityType: entity.type,
-        },
-      };
-      this.rTree.insert(item);
-      items.push(item);
+    // Handle new format with rangeDependencies
+    if (entity.rangeDependencies) {
+      for (const dep of entity.rangeDependencies) {
+        const item: RTreeItem<EntityRTreeData> = {
+          boundingBox: {
+            sheetId: dep.range.sheetId,
+            zone: dep.range.zone,
+          },
+          data: {
+            entityId: entity.id,
+            entityType: entity.type,
+          },
+        };
+        if (dep.kind === "style") {
+          this.styleRTree.insert(item);
+          styleItems.push(item);
+        } else {
+          this.valueRTree.insert(item);
+          valueItems.push(item);
+        }
+      }
+    }
+    // Handle legacy format with dependencies (all treated as value dependencies)
+    else if (entity.dependencies) {
+      for (const dep of entity.dependencies) {
+        const item: RTreeItem<EntityRTreeData> = {
+          boundingBox: {
+            sheetId: dep.sheetId,
+            zone: dep.zone,
+          },
+          data: {
+            entityId: entity.id,
+            entityType: entity.type,
+          },
+        };
+        this.valueRTree.insert(item);
+        valueItems.push(item);
+      }
     }
 
-    this.entitiesDependencies.set(entity.id, items);
+    this.entitiesDependencies.set(entity.id, {
+      valueItems,
+      styleItems,
+      entityType: entity.type,
+    });
   }
 
   unregisterAllEntitiesOfType(type: DependentEntityType): void {
-    for (const [entityId, items] of this.entitiesDependencies) {
-      if (items.length > 0 && items[0].data.entityType === type) {
+    for (const [entityId, stored] of this.entitiesDependencies) {
+      if (stored.entityType === type) {
         this.unregisterEntity(entityId);
       }
     }
@@ -83,42 +137,59 @@ export class EntityDependencyRegistry {
    * Remove an entity from the registry
    */
   unregisterEntity(entityId: UID): void {
-    const items = this.entitiesDependencies.get(entityId);
-    if (!items) {
+    const stored = this.entitiesDependencies.get(entityId);
+    if (!stored) {
       return;
     }
 
-    for (const item of items) {
-      this.rTree.remove(item);
+    for (const item of stored.valueItems) {
+      this.valueRTree.remove(item);
+    }
+    for (const item of stored.styleItems) {
+      this.styleRTree.remove(item);
     }
 
     this.entitiesDependencies.delete(entityId);
   }
 
   updateEntityDependencies(entityId: UID, newDependencies: BoundedRange[]): void {
-    const items = this.entitiesDependencies.get(entityId);
-    if (!items || items.length === 0) {
+    const stored = this.entitiesDependencies.get(entityId);
+    if (!stored) {
       return;
     }
 
-    const entityType = items[0].data.entityType;
-
     this.registerEntity({
       id: entityId,
-      type: entityType,
+      type: stored.entityType,
       dependencies: newDependencies,
     });
   }
 
   /**
-   * Find all entities that depend on the given ranges
+   * Find all entities that depend on the given ranges (value dependencies)
    * and notify them via their invalidation callbacks.
    */
   invalidateEntitiesDependingOn(changedRanges: Iterable<BoundedRange>) {
+    this.invalidateEntitiesInRTree(this.valueRTree, changedRanges);
+  }
+
+  /**
+   * Find all entities that depend on the style of the given ranges
+   * and notify them via their invalidation callbacks.
+   * This should be called when the computed style of cells changes (e.g., after CF evaluation).
+   */
+  invalidateStyleDependencies(changedRanges: Iterable<BoundedRange>) {
+    this.invalidateEntitiesInRTree(this.styleRTree, changedRanges);
+  }
+
+  private invalidateEntitiesInRTree(
+    rTree: SpreadsheetRTree<EntityRTreeData>,
+    changedRanges: Iterable<BoundedRange>
+  ) {
     const invalidatedEntities = new Set<UID>();
 
     for (const range of changedRanges) {
-      const matchingItems = this.rTree.search({
+      const matchingItems = rTree.search({
         sheetId: range.sheetId,
         zone: range.zone,
       });
@@ -139,18 +210,15 @@ export class EntityDependencyRegistry {
   }
 
   invalidateAllEntities(): void {
-    for (const [entityId, items] of this.entitiesDependencies) {
-      if (items.length > 0) {
-        const entityType = items[0].data.entityType;
-        this.invalidationCallbacks.get(entityType)?.(entityId, entityType);
-      }
+    for (const [entityId, stored] of this.entitiesDependencies) {
+      this.invalidationCallbacks.get(stored.entityType)?.(entityId, stored.entityType);
     }
   }
 
   getEntitiesOfType(entityType: DependentEntityType): UID[] {
     const result: UID[] = [];
-    for (const [entityId, items] of this.entitiesDependencies) {
-      if (items.length > 0 && items[0].data.entityType === entityType) {
+    for (const [entityId, stored] of this.entitiesDependencies) {
+      if (stored.entityType === entityType) {
         result.push(entityId);
       }
     }
@@ -162,12 +230,13 @@ export class EntityDependencyRegistry {
   }
 
   getEntityDependencies(entityId: UID): BoundedRange[] {
-    const items = this.entitiesDependencies.get(entityId);
-    if (!items) {
+    const stored = this.entitiesDependencies.get(entityId);
+    if (!stored) {
       return [];
     }
 
-    return items.map((item) => ({
+    const allItems = [...stored.valueItems, ...stored.styleItems];
+    return allItems.map((item) => ({
       sheetId: item.boundingBox.sheetId,
       zone: item.boundingBox.zone,
     }));
@@ -179,19 +248,19 @@ export class EntityDependencyRegistry {
 
   print(getters: Getters): void {
     console.log("=== Entity Dependency Graph ===");
-    for (const [entityId, items] of this.entitiesDependencies) {
-      if (items.length === 0) {
-        continue;
-      }
-      const entityType = items[0].data.entityType;
-      for (const item of items) {
-        const { sheetId, zone } = item.boundingBox;
-        const sheetName = getters.getSheetName(sheetId);
-        const rangeStr = `${sheetName}!${numberToLetters(zone.left)}${
-          zone.top + 1
-        }:${numberToLetters(zone.right)}${zone.bottom + 1}`;
-        console.log(`[${rangeStr}] => (${entityType}, ${entityId})`);
-      }
+    for (const [entityId, stored] of this.entitiesDependencies) {
+      const printItems = (items: RTreeItem<EntityRTreeData>[], kind: string) => {
+        for (const item of items) {
+          const { sheetId, zone } = item.boundingBox;
+          const sheetName = getters.getSheetName(sheetId);
+          const rangeStr = `${sheetName}!${numberToLetters(zone.left)}${
+            zone.top + 1
+          }:${numberToLetters(zone.right)}${zone.bottom + 1}`;
+          console.log(`[${rangeStr}] => (${stored.entityType}, ${entityId}, ${kind})`);
+        }
+      };
+      printItems(stored.valueItems, "value");
+      printItems(stored.styleItems, "style");
     }
     console.log("=== End ===");
   }

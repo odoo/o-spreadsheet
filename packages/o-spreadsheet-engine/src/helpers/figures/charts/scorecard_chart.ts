@@ -295,6 +295,11 @@ export class ScorecardChart extends AbstractChart {
     return undefined;
   }
 
+  override getStyleRanges(): Range[] {
+    // The scorecard chart uses the keyValue range to determine its background color
+    return this.keyValue ? [this.keyValue] : [];
+  }
+
   updateRanges({ applyChange }: RangeAdapterFunctions): ScorecardChart {
     const baseline = adaptChartRange(this.baseline, applyChange);
     const keyValue = adaptChartRange(this.keyValue, applyChange);

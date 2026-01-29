@@ -123,6 +123,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   finalize() {
     if (this.dirtyCFs.size > 0) {
+      // Collect affected ranges from dirty CFs to notify style dependencies
+      const affectedRanges: BoundedRange[] = [];
+
       // Recreate lazy only for stale CFs
       for (const sheetId of this.getters.getSheetIds()) {
         if (!this.computedCFs[sheetId]) {
@@ -131,9 +134,22 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         for (const cf of this.getters.getConditionalFormats(sheetId)) {
           if (this.dirtyCFs.has(cf.id)) {
             this.computedCFs[sheetId][cf.id] = lazy(() => this.computeCF(sheetId, cf));
+            // Collect the ranges affected by this CF
+            for (const rangeXc of cf.ranges) {
+              const range = this.getters.getRangeFromSheetXC(sheetId, rangeXc);
+              if (!range.invalidXc && !range.invalidSheetName) {
+                affectedRanges.push({ sheetId: range.sheetId, zone: range.zone });
+              }
+            }
           }
         }
       }
+
+      // Notify entities that depend on the style of the affected cells
+      if (affectedRanges.length > 0) {
+        this.getters.getEntityDependencyRegistry().invalidateStyleDependencies(affectedRanges);
+      }
+
       this.dirtyCFs.clear();
     }
   }
