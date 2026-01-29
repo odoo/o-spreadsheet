@@ -438,8 +438,24 @@ describe("Selection Input", () => {
     expect(selectionInputEl?.value).toEqual("B2");
   });
 
+  test("Clicking a focused input sets it to text-edit mode", async () => {
+    await createSelectionInput({ initialRanges: ["C2"] });
+
+    const selectionInputEl: HTMLInputElement = fixture.querySelector(".o-selection-input input")!;
+    await simulateClick(selectionInputEl);
+    expect(document.activeElement).toBe(selectionInputEl);
+    await keyDown({ key: "ArrowLeft" });
+    expect(document.activeElement).toBe(selectionInputEl);
+    expect(selectionInputEl?.value).toEqual("B2");
+
+    await simulateClick(selectionInputEl);
+    await keyDown({ key: "ArrowLeft" });
+    expect(document.activeElement).toBe(selectionInputEl);
+    expect(selectionInputEl?.value).toEqual("B2");
+  });
+
   test("changed event is triggered when input changed", async () => {
-    let newRanges;
+    let newRanges: string[] = [];
     const onChanged = jest.fn((ranges) => {
       newRanges = ranges;
     });
@@ -841,6 +857,19 @@ describe("Selection Input", () => {
     expect(input.value).toBe("C5:D9");
 
     await simulateClick(".o-selection-ko");
+    expect(input.value).toBe("C4");
+
+    expect(model.getters.isGridSelectionActive()).toBeTruthy();
+  });
+
+  test("Pressing Escape resets the changes of the input", async () => {
+    const { model } = await createSelectionInput({ initialRanges: ["C4", "A1"] });
+    const input = fixture.querySelector("input")!;
+    await simulateClick(input);
+    setInputValueAndTrigger(input, "C5:D9");
+    await nextTick();
+    expect(input.value).toBe("C5:D9");
+    await keyDown({ key: "Escape" });
     expect(input.value).toBe("C4");
 
     expect(model.getters.isGridSelectionActive()).toBeTruthy();
