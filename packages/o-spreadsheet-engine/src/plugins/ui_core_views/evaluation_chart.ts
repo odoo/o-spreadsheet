@@ -4,8 +4,7 @@ import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory"
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
 import {
-  CoreViewCommand,
-  invalidateCFEvaluationCommands,
+  Command,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
@@ -13,6 +12,7 @@ import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
+import { EntityDependency } from "./cell_evaluation/entity_dependency_registry";
 
 interface EvaluationChartStyle {
   background: Color;
@@ -30,10 +30,9 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
-  handle(cmd: CoreViewCommand) {
+  handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
       invalidateChartEvaluationCommands.has(cmd.type)
     ) {
       for (const chartId in this.charts) {
@@ -42,21 +41,83 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     }
 
     switch (cmd.type) {
+      case "START":
+        this.getters
+          .getEntityDependencyRegistry()
+          .registerInvalidationCallback("chart", (chartId) => this.invalidateChart(chartId));
+        this.registerAllCharts();
+        break;
       case "UPDATE_CHART":
+        this.charts[cmd.chartId] = undefined;
+        this.registerChartDependencies(cmd.chartId);
+        break;
       case "CREATE_CHART":
         this.charts[cmd.chartId] = undefined;
+        this.registerChartDependencies(cmd.chartId);
         break;
       case "DELETE_CHART":
         this.charts[cmd.chartId] = undefined;
+        this.getters.getEntityDependencyRegistry().unregisterEntity(cmd.chartId);
         break;
       case "DELETE_SHEET":
         for (const chartId in this.charts) {
           if (!this.getters.isChartDefined(chartId)) {
             this.charts[chartId] = undefined;
+            this.getters.getEntityDependencyRegistry().unregisterEntity(chartId);
           }
         }
         break;
+      case "DUPLICATE_SHEET":
+        for (const chartId of this.getters.getChartIds(cmd.sheetIdTo)) {
+          this.registerChartDependencies(chartId);
+        }
+        break;
+      case "UNDO":
+      case "REDO":
+        this.getters.getEntityDependencyRegistry().unregisterAllEntitiesOfType("chart");
+        this.registerAllCharts();
+        break;
     }
+  }
+
+  private invalidateChart(chartId: UID): void {
+    this.charts[chartId] = undefined;
+  }
+
+  private registerAllCharts(): void {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const chartId of this.getters.getChartIds(sheetId)) {
+        this.registerChartDependencies(chartId);
+      }
+    }
+  }
+
+  private registerChartDependencies(chartId: UID): void {
+    const chart = this.getters.getChart(chartId);
+    if (!chart) {
+      return;
+    }
+
+    const rangeDependencies: EntityDependency[] = [];
+
+    // Register style dependencies (for charts that use cell styles for their appearance)
+    const styleRanges = chart.getStyleRanges();
+    for (const range of styleRanges) {
+      rangeDependencies.push({
+        range: { sheetId: range.sheetId, zone: range.zone },
+        kind: "style",
+      });
+    }
+
+    if (rangeDependencies.length === 0) {
+      return;
+    }
+
+    this.getters.getEntityDependencyRegistry().registerEntity({
+      id: chartId,
+      type: "chart",
+      rangeDependencies,
+    });
   }
 
   getChartRuntime(chartId: UID): ChartRuntime {

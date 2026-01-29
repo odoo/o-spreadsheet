@@ -265,6 +265,11 @@ export class GaugeChart extends AbstractChart {
     return undefined;
   }
 
+  override getStyleRanges(): Range[] {
+    // The gauge chart uses the dataRange to determine its background color
+    return this.dataRange ? [this.dataRange] : [];
+  }
+
   getContextCreation(): ChartCreationContext {
     return {
       ...this,
