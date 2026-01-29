@@ -11,6 +11,7 @@ import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { MimicMatrix, toMimicMatrix } from "./helper_arg";
 import { areSameDimensions, assert } from "./helper_assert";
 import {
   DAY_COUNT_CONVENTION_OPTIONS,
@@ -75,9 +76,7 @@ import {
   strictToNumber,
   toBoolean,
   toJsDate,
-  toMatrix,
   toNumber,
-  transposeMatrix,
   visitNumbers,
 } from "./helpers";
 import { DAYS } from "./module_date";
@@ -215,7 +214,7 @@ export const ACCRINTM = {
     }
 
     const yearFrac = getYearFrac(start, end, _dayCountConvention);
-    return _redemption * _rate * yearFrac;
+    return { value: _redemption * _rate * yearFrac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -310,9 +309,9 @@ export const AMORLINC = {
     const valueAtPeriod = _cost - firstDeprec - deprec * roundedPeriod;
 
     if (valueAtPeriod >= _salvage) {
-      return roundedPeriod === 0 ? firstDeprec : deprec;
+      return { value: roundedPeriod === 0 ? firstDeprec : deprec };
     }
-    return _salvage - valueAtPeriod < deprec ? deprec - (_salvage - valueAtPeriod) : 0;
+    return { value: _salvage - valueAtPeriod < deprec ? deprec - (_salvage - valueAtPeriod) : 0 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -359,11 +358,11 @@ export const COUPDAYS = {
         frequency,
         dayCountConvention
       ).value;
-      return toNumber(after, this.locale) - toNumber(before, this.locale);
+      return { value: toNumber(after, this.locale) - toNumber(before, this.locale) };
     }
 
     const daysInYear = _dayCountConvention === 3 ? 365 : 360;
-    return daysInYear / _frequency;
+    return { value: daysInYear / _frequency };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -404,12 +403,12 @@ export const COUPDAYBS = {
     ).value;
     const _couponBeforeStart = toNumber(couponBeforeStart, this.locale);
     if ([1, 2, 3].includes(_dayCountConvention)) {
-      return start - _couponBeforeStart;
+      return { value: start - _couponBeforeStart };
     }
 
     if (_dayCountConvention === 4) {
       const yearFrac = getYearFrac(_couponBeforeStart, start, _dayCountConvention);
-      return Math.round(yearFrac * 360);
+      return { value: Math.round(yearFrac * 360) };
     }
 
     const startDate = toJsDate(start, this.locale);
@@ -446,7 +445,7 @@ export const COUPDAYBS = {
       d1 = 30;
     }
 
-    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
+    return { value: (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -487,12 +486,12 @@ export const COUPDAYSNC = {
     ).value;
     const _couponAfterStart = toNumber(couponAfterStart, this.locale);
     if ([1, 2, 3].includes(_dayCountConvention)) {
-      return _couponAfterStart - start;
+      return { value: _couponAfterStart - start };
     }
 
     if (_dayCountConvention === 4) {
       const yearFrac = getYearFrac(start, _couponAfterStart, _dayCountConvention);
-      return Math.round(yearFrac * 360);
+      return { value: Math.round(yearFrac * 360) };
     }
 
     const coupDayBs = COUPDAYBS.compute.bind(this)(
@@ -507,7 +506,7 @@ export const COUPDAYSNC = {
       frequency,
       dayCountConvention
     );
-    return toNumber(coupDays, this.locale) - toNumber(coupDayBs, this.locale);
+    return { value: toNumber(coupDays, this.locale) - toNumber(coupDayBs, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -594,7 +593,7 @@ export const COUPNUM = {
       );
       num++;
     }
-    return num - 1;
+    return { value: num - 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -704,7 +703,7 @@ export const CUMIPMT = {
       cumSum += impt(r, i, n, pv, 0, type);
     }
 
-    return cumSum;
+    return { value: cumSum };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -774,7 +773,7 @@ export const CUMPRINC = {
       cumSum += ppmt(r, i, n, pv, 0, type);
     }
 
-    return cumSum;
+    return { value: cumSum };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -997,7 +996,7 @@ export const DISC = {
      *            redemption             DSM
      */
     const yearsFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
-    return (_redemption - _price) / _redemption / yearsFrac;
+    return { value: (_redemption - _price) / _redemption / yearsFrac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1030,7 +1029,7 @@ export const DOLLARDE = {
 
     const frac = 10 ** Math.ceil(Math.log10(_unit)) / _unit;
 
-    return truncatedPrice + priceFractionalPart * frac;
+    return { value: truncatedPrice + priceFractionalPart * frac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1060,7 +1059,7 @@ export const DOLLARFR = {
 
     const frac = _unit / 10 ** Math.ceil(Math.log10(_unit));
 
-    return truncatedPrice + priceFractionalPart * frac;
+    return { value: truncatedPrice + priceFractionalPart * frac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1145,7 +1144,7 @@ export const DURATION = {
       count += presentValuePerPeriod;
     }
 
-    return count === 0 ? 0 : sum / count;
+    return { value: count === 0 ? 0 : sum / count };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1174,7 +1173,7 @@ export const EFFECT = {
     }
 
     // https://en.wikipedia.org/wiki/Nominal_interest_rate#Nominal_versus_effective_interest_rate
-    return Math.pow(1 + nominal / periods, periods) - 1;
+    return { value: Math.pow(1 + nominal / periods, periods) - 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1244,11 +1243,13 @@ export const FVSCHEDULE = {
   ],
   compute: function (principalAmount: Maybe<FunctionResultObject>, rateSchedule: Arg) {
     const principal = toNumber(principalAmount, this.locale);
-    return reduceAny(
-      [rateSchedule],
-      (acc, rate) => acc * (1 + toNumber(rate, this.locale)),
-      principal
-    );
+    return {
+      value: reduceAny(
+        [rateSchedule],
+        (acc, rate) => acc * (1 + toNumber(rate, this.locale)),
+        principal
+      ),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1313,7 +1314,7 @@ export const INTRATE = {
      *              YEARFRAC(settlement, maturity, basis)
      */
     const yearFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
-    return (_redemption - _investment) / _investment / yearFrac;
+    return { value: (_redemption - _investment) / _investment / yearFrac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1479,7 +1480,7 @@ export const ISPMT = {
     }
 
     const currentInvestment = investment - investment * (period / nOfPeriods);
-    return -1 * currentInvestment * interestRate;
+    return { value: -1 * currentInvestment * interestRate };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1530,7 +1531,7 @@ export const MDURATION = {
     );
     const y = toNumber(securityYield, this.locale);
     const k = Math.trunc(toNumber(frequency, this.locale));
-    return toNumber(duration, this.locale) / (1 + y / k);
+    return { value: toNumber(duration, this.locale) / (1 + y / k) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1556,14 +1557,15 @@ export const MIRR = {
     ),
   ],
   compute: function (
-    cashflowAmount: FunctionResultObject[][],
+    cashflowAmount: MimicMatrix,
     financingRate: Maybe<FunctionResultObject>,
     reinvestmentRate: Maybe<FunctionResultObject>
   ) {
     const fRate = toNumber(financingRate, this.locale);
     const rRate = toNumber(reinvestmentRate, this.locale);
-    const cashFlow = transposeMatrix(cashflowAmount)
-      .flat()
+    const cashFlow = cashflowAmount
+      .transpose()
+      .flatten("rowFirst")
       .filter((t) => t.value !== null)
       .map((val) => toNumber(val, this.locale));
     const n = cashFlow.length;
@@ -1602,7 +1604,7 @@ export const MIRR = {
     }
     const exponent = 1 / (n - 1);
 
-    return (-fv / pv) ** exponent - 1;
+    return { value: (-fv / pv) ** exponent - 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1631,7 +1633,7 @@ export const NOMINAL = {
     }
 
     // https://en.wikipedia.org/wiki/Nominal_interest_rate#Nominal_versus_effective_interest_rate
-    return (Math.pow(effective + 1, 1 / periods) - 1) * periods;
+    return { value: (Math.pow(effective + 1, 1 / periods) - 1) * periods };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1685,10 +1687,10 @@ export const NPER = {
      * <=> log[(C - fv) / (pv + C)] = N * log(R)
      */
     if (r === 0) {
-      return -(fv + pv) / p;
+      return { value: -(fv + pv) / p };
     }
     const c = (p * (1 + r * t)) / r;
-    return Math.log((c - fv) / (pv + c)) / Math.log(1 + r);
+    return { value: Math.log((c - fv) / (pv + c)) / Math.log(1 + r) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1763,7 +1765,7 @@ export const PDURATION = {
       return new EvaluationError(expectFutureValueStrictlyPositive(_futureValue));
     }
 
-    return (Math.log(_futureValue) - Math.log(_presentValue)) / Math.log(1 + _rate);
+    return { value: (Math.log(_futureValue) - Math.log(_presentValue)) / Math.log(1 + _rate) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2013,10 +2015,11 @@ export const PRICE = {
     const cashFlowFromCoupon = (100 * _rate) / _frequency;
 
     if (nbrFullCoupons === 1) {
-      return (
-        (cashFlowFromCoupon + _redemption) / ((timeFirstCoupon * _yield) / _frequency + 1) -
-        cashFlowFromCoupon * (1 - timeFirstCoupon)
-      );
+      return {
+        value:
+          (cashFlowFromCoupon + _redemption) / ((timeFirstCoupon * _yield) / _frequency + 1) -
+          cashFlowFromCoupon * (1 - timeFirstCoupon),
+      };
     }
 
     let cashFlowsPresentValue = 0;
@@ -2028,9 +2031,10 @@ export const PRICE = {
     const redemptionPresentValue =
       _redemption / yieldFactorPerPeriod ** (nbrFullCoupons - 1 + timeFirstCoupon);
 
-    return (
-      redemptionPresentValue + cashFlowsPresentValue - cashFlowFromCoupon * (1 - timeFirstCoupon)
-    );
+    return {
+      value:
+        redemptionPresentValue + cashFlowsPresentValue - cashFlowFromCoupon * (1 - timeFirstCoupon),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2098,7 +2102,7 @@ export const PRICEDISC = {
      * PRICEDISC = redemption - discount * redemption * (DSM/B)
      */
     const yearsFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
-    return _redemption - _discount * _redemption * yearsFrac;
+    return { value: _redemption - _discount * _redemption * yearsFrac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2197,7 +2201,7 @@ export const PRICEMAT = {
     const numerator = 100 + issueToMaturity * _rate * 100;
     const denominator = 1 + settlementToMaturity * _yield;
     const term2 = issueToSettlement * _rate * 100;
-    return numerator / denominator - term2;
+    return { value: numerator / denominator - term2 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2349,7 +2353,7 @@ export const RECEIVED = {
      * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
      */
     const yearsFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
-    return _investment / (1 - _discount * yearsFrac);
+    return { value: _investment / (1 - _discount * yearsFrac) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2384,7 +2388,7 @@ export const RRI = {
      *
      * RRI = (future value / present value) ^ (1 / number of periods) - 1
      */
-    return (fv / pv) ** (1 / n) - 1;
+    return { value: (fv / pv) ** (1 / n) - 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2529,7 +2533,7 @@ export const TBILLPRICE = {
       return new EvaluationError(expectDiscountStrictlySmallerThanOne(disc));
     }
 
-    return tBillPrice(start, end, disc);
+    return { value: tBillPrice(start, end, disc) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2602,18 +2606,18 @@ export const TBILLEQ = {
      */
 
     const nDays = DAYS.compute.bind(this)({ value: end }, { value: start });
-    if (nDays <= 182) {
-      return (365 * disc) / (360 - disc * nDays);
+    if (nDays.value <= 182) {
+      return { value: (365 * disc) / (360 - disc * nDays.value) };
     }
 
     const p = tBillPrice(start, end, disc) / 100;
 
-    const daysInYear = nDays === 366 ? 366 : 365;
-    const x = nDays / daysInYear;
+    const daysInYear = nDays.value === 366 ? 366 : 365;
+    const x = nDays.value / daysInYear;
     const num = -2 * x + 2 * Math.sqrt(x ** 2 - (2 * x - 1) * (1 - 1 / p));
     const denom = 2 * x - 1;
 
-    return num / denom;
+    return { value: num / denom };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2669,7 +2673,7 @@ export const TBILLYIELD = {
      */
 
     const yearFrac = getYearFrac(start, end, 2);
-    return ((100 - p) / p) * (1 / yearFrac);
+    return { value: ((100 - p) / p) * (1 / yearFrac) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2750,14 +2754,14 @@ export const VDB = {
       return new EvaluationError(expectDeprecationFactorStrictlyPositive(_factor));
     }
 
-    if (_cost === 0) return 0;
+    if (_cost === 0) return { value: 0 };
     if (_salvage >= _cost) {
-      return _startPeriod < 1 ? _cost - _salvage : 0;
+      return { value: _startPeriod < 1 ? _cost - _salvage : 0 };
     }
 
     const doubleDeprecFactor = _factor / _life;
     if (doubleDeprecFactor >= 1) {
-      return _startPeriod < 1 ? _cost - _salvage : 0;
+      return { value: _startPeriod < 1 ? _cost - _salvage : 0 };
     }
 
     let previousCost = _cost;
@@ -2787,7 +2791,7 @@ export const VDB = {
       previousCost = nextCost;
     }
 
-    return resultDeprec;
+    return { value: resultDeprec };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2812,8 +2816,8 @@ export const XIRR = {
     ),
   ],
   compute: function (
-    cashflowAmounts: FunctionResultObject[][],
-    cashflowDates: FunctionResultObject[][],
+    cashflowAmounts: MimicMatrix,
+    cashflowDates: MimicMatrix,
     rateGuess: Maybe<FunctionResultObject> = { value: RATE_GUESS_DEFAULT }
   ) {
     const guess = toNumber(rateGuess, this.locale);
@@ -2822,8 +2826,8 @@ export const XIRR = {
       return new EvaluationError(expectCashFlowsAndDatesHaveSameDimension);
     }
 
-    const _cashFlows = cashflowAmounts.flat().map((val) => toNumber(val, this.locale));
-    const _dates = cashflowDates.flat().map((val) => toNumber(val, this.locale));
+    const _cashFlows = cashflowAmounts.flatten("rowFirst", (obj) => toNumber(obj, this.locale));
+    const _dates = cashflowDates.flatten("rowFirst", (obj) => toNumber(obj, this.locale));
 
     if (!havePositiveAndNegativeValues(_cashFlows)) {
       return new EvaluationError(expectCashFlowsHavePositiveAndNegativesValues);
@@ -2882,7 +2886,7 @@ export const XIRR = {
       return previousFallback / 10 - 0.9;
     };
 
-    return newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback);
+    return { value: newtonMethod(func, derivFunc, guess, 40, 1e-5, nanFallback) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2914,12 +2918,12 @@ export const XNPV = {
       return new EvaluationError(expectCashFlowsAndDatesHaveSameDimension);
     }
 
-    const _cashFlows = toMatrix(cashflowAmounts)
-      .flat()
-      .map((val) => strictToNumber(val, this.locale));
-    const _dates = toMatrix(cashflowDates)
-      .flat()
-      .map((val) => strictToNumber(val, this.locale));
+    const _cashFlows = toMimicMatrix(cashflowAmounts).flatten("rowFirst", (obj) =>
+      strictToNumber(obj, this.locale)
+    );
+    const _dates = toMimicMatrix(cashflowDates).flatten("rowFirst", (obj) =>
+      strictToNumber(obj, this.locale)
+    );
 
     if (_dates.some((date) => date < _dates[0])) {
       return new EvaluationError(expectEveryDateGreaterThanFirstDateOfCashFlowDates(_dates[0]));
@@ -2928,7 +2932,7 @@ export const XNPV = {
       return new EvaluationError(expectRateStrictlyPositive(rate));
     }
 
-    if (_cashFlows.length === 1) return _cashFlows[0];
+    if (_cashFlows.length === 1) return { value: _cashFlows[0] };
 
     // aggregate values of the same date
     const map = new Map<number, number>();
@@ -2959,7 +2963,7 @@ export const XNPV = {
       const dateDiff = (dates[0] - dates[i]) / 365;
       pv += values[i] * (1 + rate) ** dateDiff;
     }
-    return pv;
+    return { value: pv };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -3043,10 +3047,11 @@ export const YIELD = {
 
     if (nbrFullCoupons === 1) {
       const subPart = _price + cashFlowFromCoupon * (1 - timeFirstCoupon);
-      return (
-        ((_redemption + cashFlowFromCoupon - subPart) * _frequency * (1 / timeFirstCoupon)) /
-        subPart
-      );
+      return {
+        value:
+          ((_redemption + cashFlowFromCoupon - subPart) * _frequency * (1 / timeFirstCoupon)) /
+          subPart,
+      };
     }
 
     // The result of YIELD function is the yield at which the PRICE function will return the given price.
@@ -3111,7 +3116,7 @@ export const YIELD = {
     const initYieldFactorPerPeriod = 1 + initYield / _frequency;
 
     const methodResult = newtonMethod(func, derivFunc, initYieldFactorPerPeriod, 100, 1e-5);
-    return (methodResult - 1) * _frequency;
+    return { value: (methodResult - 1) * _frequency };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -3177,7 +3182,7 @@ export const YIELDDISC = {
      *             YEARFRAC(settlement, maturity, basis)
      */
     const yearFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
-    return (_redemption / _price - 1) / yearFrac;
+    return { value: (_redemption / _price - 1) / yearFrac };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -3249,7 +3254,7 @@ export const YIELDMAT = {
     const numerator =
       (100 * (1 + _rate * issueToMaturity)) / (_price + 100 * _rate * issueToSettlement) - 1;
 
-    return numerator / settlementToMaturity;
+    return { value: numerator / settlementToMaturity };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

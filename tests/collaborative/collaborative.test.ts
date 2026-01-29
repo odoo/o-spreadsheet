@@ -746,7 +746,9 @@ describe("Multi users synchronisation", () => {
       let value: string | number = "LOADING...";
       addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
-        compute: () => value,
+        compute: () => {
+          return { value };
+        },
         args: [],
       });
       const firstSheetId = alice.getters.getActiveSheetId();
@@ -770,7 +772,9 @@ describe("Multi users synchronisation", () => {
       let value: string | number = "LOADING...";
       addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
-        compute: () => value,
+        compute: () => {
+          return { value };
+        },
         args: [],
       });
       const firstSheetId = alice.getters.getActiveSheetId();

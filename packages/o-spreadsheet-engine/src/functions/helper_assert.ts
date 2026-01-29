@@ -1,7 +1,7 @@
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError } from "../types/errors";
-import { Arg } from "../types/misc";
-import { toMatrix } from "./helpers";
+import { Arg, Matrix } from "../types/misc";
+import { toMimicMatrix } from "./helper_arg";
 
 export function assert(condition: boolean, message: string): asserts condition {
   if (!condition) {
@@ -18,22 +18,18 @@ export function assertNotZero(
   }
 }
 
-export function isSingleColOrRow(arg: any[][]) {
-  return arg.length === 1 || arg[0].length === 1;
-}
-
 export function areSameDimensions(...args: Arg[]) {
-  const cols = toMatrix(args[0]).length;
-  const rows = toMatrix(args[0])[0].length;
+  const width = toMimicMatrix(args[0]).width;
+  const height = toMimicMatrix(args[0]).height;
   for (const arg of args) {
-    if (toMatrix(arg).length !== cols || toMatrix(arg)[0].length !== rows) {
+    if (toMimicMatrix(arg).width !== width || toMimicMatrix(arg).height !== height) {
       return false;
     }
   }
   return true;
 }
 
-export function isSquareMatrix(arg: any[][]): boolean {
+export function isSquareMatrix(arg: Matrix<any>): boolean {
   return arg.length === arg[0].length;
 }
 

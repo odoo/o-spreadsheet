@@ -21,6 +21,7 @@ import {
   handleError,
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
+import { isMimicMatrix } from "../../../functions/helper_arg";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
@@ -35,6 +36,7 @@ import {
   GetSymbolValue,
   isMatrix,
   Lazy,
+  Matrix,
   RangeCompiledFormula,
   UID,
   Zone,
@@ -228,7 +230,7 @@ export class Evaluator {
   evaluateFormulaResult(
     sheetId: UID,
     formulaString: string
-  ): FunctionResultObject | FunctionResultObject[][] {
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
@@ -443,7 +445,7 @@ export class Evaluator {
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
-    matrixResult: FunctionResultObject[][]
+    matrixResult: Matrix<FunctionResultObject>
   ) {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -473,7 +475,7 @@ export class Evaluator {
 
   private assertNoMergedCellsInSpreadZone(
     { sheetId, col, row }: CellPosition,
-    matrixResult: FunctionResultObject[][]
+    matrixResult: Matrix<FunctionResultObject>
   ) {
     const mergedCells = this.getters.getMergesInZone(sheetId, {
       top: row,
@@ -515,7 +517,7 @@ export class Evaluator {
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
-    matrixResult: FunctionResultObject[][]
+    matrixResult: Matrix<FunctionResultObject>
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
@@ -631,17 +633,21 @@ export function updateEvalContextAndExecute(
   getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined,
   formulaDependencies: Lazy<FormulaDependencyGraph>
-) {
+): FunctionResultObject | Matrix<FunctionResultObject> {
   compilationParams.evalContext.__originCellPosition = originCellPosition;
   compilationParams.evalContext.__originSheetId = sheetId;
   compilationParams.evalContext.currentFormulaDependencies = [];
-  const result = compiledFormula.execute(
+  const compiledFormulaResult = compiledFormula.execute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,
     compilationParams.evalContext
   );
+
+  const result = isMimicMatrix(compiledFormulaResult)
+    ? compiledFormulaResult.getAll() // getAll will allow us to store on evalContext.currentFormulaDependencies all dependencies really used in the matrix
+    : compiledFormulaResult;
 
   if (originCellPosition) {
     formulaDependencies().addDependencies(

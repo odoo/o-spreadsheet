@@ -1,3 +1,4 @@
+import { MimicMatrix } from "../functions/helper_arg";
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
@@ -36,9 +37,7 @@ export type ArgProposal = { value: CellValue; label?: string };
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
-  compute: ComputeFunction<
-    FunctionResultObject | FunctionResultObject[][] | CellValue | CellValue[][]
-  >;
+  compute: ComputeFunction<FunctionResultObject | MimicMatrix>;
   description: string;
   category?: string;
   args: ArgDefinition[];

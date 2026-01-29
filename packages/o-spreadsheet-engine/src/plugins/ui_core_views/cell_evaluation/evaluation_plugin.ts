@@ -16,6 +16,7 @@ import {
   FunctionResultObject,
   GetSymbolValue,
   isMatrix,
+  Matrix,
   RangeCompiledFormula,
   UID,
   Zone,
@@ -224,7 +225,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(sheetId: UID, formulaString: string): CellValue | CellValue[][] {
+  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
     const result = this.evaluateFormulaResult(sheetId, formulaString);
     if (isMatrix(result)) {
       return matrixMap(result, (cell) => cell.value);
@@ -235,7 +236,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   evaluateFormulaResult(
     sheetId: UID,
     formulaString: string
-  ): FunctionResultObject | FunctionResultObject[][] {
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateFormulaResult(sheetId, formulaString);
   }
 
@@ -243,7 +244,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     sheetId: UID,
     compiledFormula: RangeCompiledFormula,
     getSymbolValue: GetSymbolValue
-  ): FunctionResultObject | FunctionResultObject[][] {
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
   }
 

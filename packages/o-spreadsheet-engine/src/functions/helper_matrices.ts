@@ -1,7 +1,7 @@
 import { Matrix, isMatrix } from "../types/misc";
 
-export function getUnitMatrix(n: number): number[][] {
-  const matrix: number[][] = Array(n);
+export function getUnitMatrix(n: number): Matrix<number> {
+  const matrix: Matrix<number> = Array(n);
   for (let i = 0; i < n; i++) {
     matrix[i] = Array(n).fill(0);
     matrix[i][i] = 1;
@@ -15,8 +15,8 @@ export function getUnitMatrix(n: number): number[][] {
  * The Matrix should be a square matrix, and should be indexed [col][row] instead of the
  * standard mathematical indexing [row][col].
  */
-export function invertMatrix(M: number[][]): {
-  inverted?: number[][];
+export function invertMatrix(M: Matrix<number>): {
+  inverted?: Matrix<number>;
   determinant: number;
 } {
   // Use Gaussian Elimination to calculate the inverse:
@@ -39,8 +39,8 @@ export function invertMatrix(M: number[][]): {
 
   let determinant = 1;
   const dim = M.length;
-  const I: number[][] = getUnitMatrix(dim);
-  const C: number[][] = M.map((row) => row.slice());
+  const I: Matrix<number> = getUnitMatrix(dim);
+  const C: Matrix<number> = M.map((row) => row.slice());
 
   // Perform elementary row operations
   for (let pivot = 0; pivot < dim; pivot++) {
@@ -99,7 +99,7 @@ export function invertMatrix(M: number[][]): {
   return { inverted: I, determinant };
 }
 
-function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
+function swapMatrixRows(matrix: Matrix<number>, row1: number, row2: number) {
   for (let i = 0; i < matrix.length; i++) {
     const tmp = matrix[i][row1];
     matrix[i][row1] = matrix[i][row2];
@@ -113,7 +113,7 @@ function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
  *
  * Note: we use indexing [col][row] instead of the standard mathematical notation [row][col]
  */
-export function multiplyMatrices(matrix1: number[][], matrix2: number[][]): number[][] {
+export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number>): Matrix<number> {
   if (matrix1.length < 1 || matrix2.length < 1) {
     throw new Error("multiplyMatrices: empty matrices cannot be multiplied.");
   }
@@ -142,7 +142,7 @@ export function multiplyMatrices(matrix1: number[][], matrix2: number[][]): numb
 /**
  * Return the input if it's a scalar or the first element of the input if it's a matrix.
  */
-export function toScalar<T>(arg: T[][] | T): T {
+export function toScalar<T>(arg: Matrix<T> | T): T {
   if (!isMatrix(arg)) {
     return arg;
   }
@@ -152,7 +152,7 @@ export function toScalar<T>(arg: T[][] | T): T {
   return arg[0][0];
 }
 
-function isSingleElementMatrix<T>(matrix: T[][]) {
+function isSingleElementMatrix<T>(matrix: Matrix<T>): boolean {
   return matrix.length === 1 && matrix[0].length === 1;
 }
 
