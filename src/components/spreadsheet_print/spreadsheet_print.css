@@ -46,6 +46,8 @@
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
       }
     }
   }

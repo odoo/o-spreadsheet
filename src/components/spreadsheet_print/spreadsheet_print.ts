@@ -57,6 +57,9 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
       if (this.env.model.getters.getSelectedFigureId()) {
         this.env.model.dispatch("SELECT_FIGURE", { figureId: null });
       }
+      // setTimeout(() => {
+      //   this.printPageWithIframe();
+      // }, 60);
     });
   }
 
@@ -256,5 +259,67 @@ export class SpreadsheetPrint extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return { left: startCol, right: endCol, top: startRow, bottom: endRow };
+  }
+
+  /**
+   * Print the page by spawning an iframe with all of the canvas of the page
+   * and printing the iframe
+   */
+  printPageWithIframe() {
+    // ADRM TODO: delete this
+    // Create hidden iframe
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "absolute";
+    iframe.style.top = "0";
+    iframe.style.left = "0";
+    // iframe.style.right = "0";
+    // iframe.style.bottom = "0";
+    // iframe.style.width = this.pageDimensionsInPixels.width + "px";
+    // iframe.style.height = this.pageDimensionsInPixels.height + "px";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument;
+    if (!iframeDoc) {
+      return;
+    }
+
+    const head = iframeDoc.head;
+
+    // Optional title
+    const title = iframeDoc.createElement("title");
+    title.textContent = "Print";
+    head.appendChild(title);
+
+    // Optional styles
+    const style = iframeDoc.createElement("style");
+    style.textContent = `
+      body { margin: 0; display: flex; flex-direction: column; align-items: center; }
+      canvas { display: block; }
+    `;
+    head.appendChild(style);
+
+    // Copy all canvases into the iframe
+    const originalCanvases = document.querySelectorAll("canvas");
+
+    originalCanvases.forEach((canvas) => {
+      const clonedCanvas = iframeDoc.createElement("canvas");
+      clonedCanvas.width = canvas.width;
+      clonedCanvas.height = canvas.height;
+
+      const ctx = clonedCanvas.getContext("2d")!;
+      ctx.drawImage(canvas, 0, 0);
+
+      iframeDoc.body.appendChild(clonedCanvas);
+    });
+
+    // Wait for rendering, then print
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+
+    // // Cleanup after printing
+    // setTimeout(() => {
+    //   document.body.removeChild(iframe);
+    // }, 1000);
   }
 }
