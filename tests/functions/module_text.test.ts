@@ -472,6 +472,10 @@ describe("REGEXEXTRACT function", () => {
       ).toEqual(expectedResult);
     }
   );
+
+  test("invalid regex raise an error", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello there", "[a-z+")' })).toBe("#ERROR");
+  });
 });
 
 describe("REPLACE formula", () => {
