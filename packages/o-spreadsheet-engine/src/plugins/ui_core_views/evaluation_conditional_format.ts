@@ -7,7 +7,7 @@ import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
-import { Command, CoreViewCommand } from "../../types/commands";
+import { Command } from "../../types/commands";
 import {
   CellIsRule,
   ColorScaleMidPointThreshold,
@@ -36,6 +36,13 @@ interface ComputedCF {
   dataBars: ComputedDataBars;
 }
 
+const SEPARATOR = "||||||";
+
+function computeId(cfId: UID, sheetId: UID) {
+  //TODOPRO Replace by a real UID on cf
+  return cfId + SEPARATOR + sheetId;
+}
+
 export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   static getters = [
     "getConditionalIcon",
@@ -52,12 +59,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   /**
    * Set of CF ids that need their lazy to be recreated
    */
-  private staleCFs: Set<UID> = new Set();
-
-  /**
-   * When true, all CFs need their lazy recreated (e.g., after structural changes)
-   */
-  private allStale: boolean = true;
+  private dirtyCFs: Set<UID> = new Set();
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -65,93 +67,90 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
-      case "START":
-        // Register the invalidation callback for conditional formats
-        this.getters
-          .getEntityDependencyRegistry()
-          .registerInvalidationCallback("conditionalFormat", (cfId) => this.invalidateCF(cfId));
-
-        // Register dependencies for all existing CFs
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const cf of this.getters.getConditionalFormats(sheetId)) {
-            this.registerCFDependencies(sheetId, cf);
-          }
+      case "DELETE_SHEET":
+        //TODOPRO Add a test
+        delete this.computedCFs[cmd.sheetId];
+        for (const cf of this.getters.getConditionalFormats(cmd.sheetId)) {
+          this.getters
+            .getEntityDependencyRegistry()
+            .unregisterEntity(computeId(cf.id, cmd.sheetId));
         }
         break;
     }
   }
 
-  handle(cmd: CoreViewCommand) {
-    // if (
-    //   invalidateEvaluationCommands.has(cmd.type) ||
-    //   invalidateCFEvaluationCommands.has(cmd.type)
-    // ) {
-    //   this.allStale = true;
-    // }
-
+  handle(cmd: Command) {
+    //TODOPRO Add a test for undo/redo. And check how it works
     switch (cmd.type) {
+      case "START":
+        this.getters
+          .getEntityDependencyRegistry()
+          .registerInvalidationCallback("conditionalFormat", (fullId) => this.invalidateCF(fullId));
+        this.registerAllCFs();
+        break;
+      // CHANGE_CONDITIONAL_FORMAT_PRIORITY doesn't require computation, //TODOPRO Add a test
+      // reordering is done in getters
       case "ADD_CONDITIONAL_FORMAT":
-        this.allStale = true; // New CF, need to recompute to register it
-        //TODOPRO Not sure we have to recompute everything
+        const cf = this.getters
+          .getConditionalFormats(cmd.sheetId)
+          .find((cf) => cf.id === cmd.cf.id);
+        if (!cf) {
+          throw new Error("Should be defined at this point");
+        }
+        this.registerCFDependencies(cmd.sheetId, cf);
+        this.invalidateCF(computeId(cf.id, cmd.sheetId));
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
-        this.getters.getEntityDependencyRegistry().unregisterEntity(cmd.id);
-        // Remove from computed results
+        this.getters.getEntityDependencyRegistry().unregisterEntity(computeId(cmd.id, cmd.sheetId));
         for (const sheetId in this.computedCFs) {
           delete this.computedCFs[sheetId][cmd.id];
         }
         break;
-      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
-        // Priority change doesn't require recomputation, just reordering in getters
-        break;
-      case "CREATE_SHEET":
-        this.computedCFs[cmd.sheetId] = {};
-        break;
-      case "DELETE_SHEET":
-        delete this.computedCFs[cmd.sheetId];
-        // Unregister all CFs from the deleted sheet
-        for (const cf of this.getters.getConditionalFormats(cmd.sheetId)) {
-          this.getters.getEntityDependencyRegistry().unregisterEntity(cf.id);
+      case "DUPLICATE_SHEET":
+        //TODOPRO Add a test
+        for (const cf of this.getters.getConditionalFormats(cmd.sheetIdTo)) {
+          this.registerCFDependencies(cmd.sheetIdTo, cf);
+          this.invalidateCF(computeId(cf.id, cmd.sheetIdTo));
         }
         break;
-      case "DUPLICATE_SHEET":
-        this.allStale = true;
-        break;
+      case "UNDO":
+      case "REDO":
+        //TODOPRO We should be more restrictive, like checking the command in undo/redo ?
+        this.getters.getEntityDependencyRegistry().unregisterAllEntitiesOfType("conditionalFormat");
+        this.registerAllCFs();
     }
   }
 
   finalize() {
-    if (this.allStale) {
-      // Recreate lazy for all CFs
-      for (const sheetId of this.getters.getSheetIds()) {
-        if (!this.computedCFs[sheetId]) {
-          this.computedCFs[sheetId] = {};
-        }
-        for (const cf of this.getters.getConditionalFormats(sheetId)) {
-          this.computedCFs[sheetId][cf.id] = lazy(() => this.computeCF(sheetId, cf));
-          this.registerCFDependencies(sheetId, cf);
-        }
-      }
-      this.allStale = false;
-      this.staleCFs.clear();
-    } else if (this.staleCFs.size > 0) {
+    if (this.dirtyCFs.size > 0) {
       // Recreate lazy only for stale CFs
       for (const sheetId of this.getters.getSheetIds()) {
         if (!this.computedCFs[sheetId]) {
           this.computedCFs[sheetId] = {};
         }
         for (const cf of this.getters.getConditionalFormats(sheetId)) {
-          if (this.staleCFs.has(cf.id)) {
+          if (this.dirtyCFs.has(cf.id)) {
             this.computedCFs[sheetId][cf.id] = lazy(() => this.computeCF(sheetId, cf));
           }
         }
       }
-      this.staleCFs.clear();
+      this.dirtyCFs.clear();
     }
   }
 
-  private invalidateCF(cfId: UID): void {
-    this.staleCFs.add(cfId);
+  private registerAllCFs() {
+    // Register dependencies for all existing CFs
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const cf of this.getters.getConditionalFormats(sheetId)) {
+        this.registerCFDependencies(sheetId, cf);
+        this.invalidateCF(computeId(cf.id, sheetId));
+      }
+    }
+  }
+
+  private invalidateCF(fullId: UID): void {
+    const cfId = fullId.split(SEPARATOR)[0];
+    this.dirtyCFs.add(cfId);
   }
 
   private registerCFDependencies(sheetId: UID, cf: ConditionalFormat): void {
@@ -208,7 +207,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     }
 
     this.getters.getEntityDependencyRegistry().registerEntity({
-      id: cf.id,
+      id: computeId(cf.id, sheetId),
       type: "conditionalFormat",
       dependencies,
     });
@@ -279,6 +278,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
    * Compute the result for a single conditional format.
    */
   private computeCF(sheetId: UID, cf: ConditionalFormat): ComputedCF {
+    console.log(`I'm currently compute CF for ${this.getters.getSheetName(sheetId)} - ${cf.id}`);
     const computedStyle: ComputedStyles = {};
     const computedIcons: ComputedIcons = {};
     const computedDataBars: ComputedDataBars = {};

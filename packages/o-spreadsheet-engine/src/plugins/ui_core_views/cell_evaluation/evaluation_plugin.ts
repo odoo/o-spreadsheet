@@ -172,6 +172,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
   constructor(config: CoreViewPluginConfig) {
     super(config);
     this.entityDependencyRegistry = new EntityDependencyRegistry();
+    //@ts-ignore
+    globalThis.pro = this.entityDependencyRegistry;
+    //@ts-ignore
+    globalThis.getters = this.getters;
     this.evaluator = new Evaluator(config.custom, this.getters, this.entityDependencyRegistry);
   }
 

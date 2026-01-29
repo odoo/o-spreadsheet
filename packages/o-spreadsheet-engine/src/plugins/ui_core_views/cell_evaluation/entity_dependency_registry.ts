@@ -1,3 +1,5 @@
+import { numberToLetters } from "../../../helpers/coordinates";
+import { Getters } from "../../../types/getters";
 import { UID } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
 import { RTreeItem, SpreadsheetRTree } from "./r_tree";
@@ -67,6 +69,14 @@ export class EntityDependencyRegistry {
     }
 
     this.entitiesDependencies.set(entity.id, items);
+  }
+
+  unregisterAllEntitiesOfType(type: DependentEntityType): void {
+    for (const [entityId, items] of this.entitiesDependencies) {
+      if (items.length > 0 && items[0].data.entityType === type) {
+        this.unregisterEntity(entityId);
+      }
+    }
   }
 
   /**
@@ -165,5 +175,24 @@ export class EntityDependencyRegistry {
 
   clear(): void {
     this.entitiesDependencies.clear();
+  }
+
+  print(getters: Getters): void {
+    console.log("=== Entity Dependency Graph ===");
+    for (const [entityId, items] of this.entitiesDependencies) {
+      if (items.length === 0) {
+        continue;
+      }
+      const entityType = items[0].data.entityType;
+      for (const item of items) {
+        const { sheetId, zone } = item.boundingBox;
+        const sheetName = getters.getSheetName(sheetId);
+        const rangeStr = `${sheetName}!${numberToLetters(zone.left)}${
+          zone.top + 1
+        }:${numberToLetters(zone.right)}${zone.bottom + 1}`;
+        console.log(`[${rangeStr}] => (${entityType}, ${entityId})`);
+      }
+    }
+    console.log("=== End ===");
   }
 }

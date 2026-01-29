@@ -531,9 +531,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.dispatchToHandlers(this.handlers, command);
           this.finalize();
           const time = performance.now() - start;
-          // if (time > 5) {
-          console.debug(type, time, "ms");
-          // }
+          if (time > 5) {
+            console.debug(type, time, "ms");
+          }
         });
         this.session.save(command, commands, changes);
         this.status = Status.Ready;
