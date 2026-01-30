@@ -65,6 +65,7 @@ export class InsertPivotPlugin extends UIPlugin {
         columns: [],
         rows: [],
         measures: [],
+        filters: [],
         name: _t("New pivot"),
         type: "SPREADSHEET",
         style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
