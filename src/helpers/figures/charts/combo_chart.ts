@@ -105,41 +105,37 @@ export class ComboChart extends AbstractChart {
       humanize: context.humanize,
     };
   }
-}
 
-export function createComboChartRuntime(
-  getters: Getters,
-  chart: ComboChart,
-  data: ChartData
-): ComboChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getBarChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): ComboChartRuntime {
+    const definition = this.definition;
+    const chartData = getBarChartData(definition, data, getters);
 
-  const config: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels: chartData.labels,
-      datasets: getComboChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getBarChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getComboChartLegend(definition, chartData),
-        tooltip: getBarChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+    const config: ChartConfiguration = {
+      type: "bar",
+      data: {
+        labels: chartData.labels,
+        datasets: getComboChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getBarChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getComboChartLegend(definition, chartData),
+          tooltip: getBarChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return {
-    chartJsConfig: config,
-    background: definition.background || BACKGROUND_CHART_COLOR,
-    customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
-      dataSetId,
-      label,
-    })),
-  };
+    return {
+      chartJsConfig: config,
+      background: definition.background || BACKGROUND_CHART_COLOR,
+      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+        dataSetId,
+        label,
+      })),
+    };
+  }
 }
