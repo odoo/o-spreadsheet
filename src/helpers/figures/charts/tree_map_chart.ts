@@ -108,33 +108,29 @@ export class TreeMapChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
   }
-}
 
-export function createTreeMapChartRuntime(
-  getters: Getters,
-  chart: TreeMapChart,
-  data: ChartData
-): TreeMapChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getHierarchalChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): TreeMapChartRuntime {
+    const definition = this.definition;
+    const chartData = getHierarchalChartData(definition, data, getters);
 
-  const config: ChartConfiguration = {
-    type: "treemap",
-    data: {
-      labels: chartData.labels,
-      datasets: getTreeMapChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: { display: false },
-        tooltip: getTreeMapChartTooltip(definition, chartData),
-        background: { color: definition.background },
+    const config: ChartConfiguration = {
+      type: "treemap",
+      data: {
+        labels: chartData.labels,
+        datasets: getTreeMapChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: { display: false },
+          tooltip: getTreeMapChartTooltip(definition, chartData),
+          background: { color: definition.background },
+        },
+      },
+    };
 
-  return { chartJsConfig: config };
+    return { chartJsConfig: config };
+  }
 }
