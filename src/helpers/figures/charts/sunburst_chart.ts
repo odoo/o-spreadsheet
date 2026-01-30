@@ -106,35 +106,31 @@ export class SunburstChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
   }
-}
 
-export function createSunburstChartRuntime(
-  getters: Getters,
-  chart: SunburstChart,
-  data: ChartData
-): SunburstChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getHierarchalChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): SunburstChartRuntime {
+    const definition = this.definition;
+    const chartData = getHierarchalChartData(definition, data, getters);
 
-  const config: ChartConfiguration<"doughnut"> = {
-    type: "doughnut",
-    data: {
-      datasets: getSunburstChartDatasets(definition, chartData),
-    },
-    options: {
-      cutout:
-        definition.pieHolePercentage === undefined ? "25%" : `${definition.pieHolePercentage}%`,
-      ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
-      layout: getChartLayout(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getSunburstChartLegend(definition, chartData),
-        tooltip: getSunburstChartTooltip(definition, chartData),
-        sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
-        sunburstHoverPlugin: { enabled: true },
+    const config: ChartConfiguration<"doughnut"> = {
+      type: "doughnut",
+      data: {
+        datasets: getSunburstChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        cutout:
+          definition.pieHolePercentage === undefined ? "25%" : `${definition.pieHolePercentage}%`,
+        ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
+        layout: getChartLayout(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getSunburstChartLegend(definition, chartData),
+          tooltip: getSunburstChartTooltip(definition, chartData),
+          sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
+          sunburstHoverPlugin: { enabled: true },
+        },
+      },
+    };
 
-  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+    return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+  }
 }

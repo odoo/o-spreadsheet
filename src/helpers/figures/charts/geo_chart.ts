@@ -69,32 +69,28 @@ export class GeoChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
   }
-}
 
-export function createGeoChartRuntime(
-  getters: Getters,
-  chart: GeoChart,
-  data: ChartData
-): GeoChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getGeoChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): GeoChartRuntime {
+    const definition = this.definition;
+    const chartData = getGeoChartData(definition, data, getters);
 
-  const config: ChartConfiguration = {
-    type: "choropleth",
-    data: {
-      datasets: getGeoChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getGeoChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        tooltip: getGeoChartTooltip(definition, chartData),
-        legend: { display: false },
+    const config: ChartConfiguration = {
+      type: "choropleth",
+      data: {
+        datasets: getGeoChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getGeoChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          tooltip: getGeoChartTooltip(definition, chartData),
+          legend: { display: false },
+        },
+      },
+    };
 
-  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+    return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+  }
 }

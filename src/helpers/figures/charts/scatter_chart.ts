@@ -98,43 +98,39 @@ export class ScatterChart extends AbstractChart {
       verticalAxis: getDefinedAxis(definition),
     };
   }
-}
 
-export function createScatterChartRuntime(
-  getters: Getters,
-  chart: ScatterChart,
-  data: ChartData
-): ScatterChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getLineChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): ScatterChartRuntime {
+    const definition = this.definition;
+    const chartData = getLineChartData(definition, data, getters);
 
-  const config: ChartConfiguration<"line"> = {
-    // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart
-    // have less options than the line chart (it only works with linear labels)
-    type: "line",
-    data: {
-      labels: chartData.labels,
-      datasets: getScatterChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getScatterChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getScatterChartLegend(definition, chartData),
-        tooltip: getLineChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+    const config: ChartConfiguration<"line"> = {
+      // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart
+      // have less options than the line chart (it only works with linear labels)
+      type: "line",
+      data: {
+        labels: chartData.labels,
+        datasets: getScatterChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getScatterChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getScatterChartLegend(definition, chartData),
+          tooltip: getLineChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return {
-    chartJsConfig: config,
-    background: definition.background || BACKGROUND_CHART_COLOR,
-    customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
-      dataSetId,
-      label,
-    })),
-  };
+    return {
+      chartJsConfig: config,
+      background: definition.background || BACKGROUND_CHART_COLOR,
+      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+        dataSetId,
+        label,
+      })),
+    };
+  }
 }

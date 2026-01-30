@@ -92,39 +92,35 @@ export class WaterfallChart extends AbstractChart {
     // TODO: implement export excel
     return undefined;
   }
-}
 
-export function createWaterfallChartRuntime(
-  getters: Getters,
-  chart: WaterfallChart,
-  data: ChartData
-): WaterfallChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getBarChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): WaterfallChartRuntime {
+    const definition = this.definition;
+    const chartData = getBarChartData(definition, data, getters);
 
-  const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
-  const config: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels,
-      datasets,
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getWaterfallChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getWaterfallChartLegend(definition, chartData),
-        tooltip: getWaterfallChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
-        waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
+    const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
+    const config: ChartConfiguration = {
+      type: "bar",
+      data: {
+        labels,
+        datasets,
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getWaterfallChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getWaterfallChartLegend(definition, chartData),
+          tooltip: getWaterfallChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
+          waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
+        },
+      },
+    };
 
-  return {
-    chartJsConfig: config,
-    background: definition.background || BACKGROUND_CHART_COLOR,
-  };
+    return {
+      chartJsConfig: config,
+      background: definition.background || BACKGROUND_CHART_COLOR,
+    };
+  }
 }

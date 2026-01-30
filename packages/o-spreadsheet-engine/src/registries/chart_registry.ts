@@ -1,6 +1,5 @@
-import { MyChart } from "../helpers/figures/chart";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
-import { ChartCreationContext, ChartRuntime, ChartType, ChartTypeDefinition } from "../types/chart";
+import { ChartCreationContext, ChartType, ChartTypeDefinition } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
@@ -25,11 +24,6 @@ export interface ChartBuilder<T extends ChartType, D> {
     ) => CommandResult | CommandResult[];
   };
   extractData: (definition: ChartTypeDefinition<T, Range>, sheetId: UID, getters: Getters) => D;
-  getChartRuntime: (
-    getters: Getters,
-    chart: MyChart["chartTypeHandler"],
-    data: NoInfer<D>
-  ) => ChartRuntime;
   transformDefinition(
     chartSheetId: UID,
     definition: ChartTypeDefinition<T, string>,

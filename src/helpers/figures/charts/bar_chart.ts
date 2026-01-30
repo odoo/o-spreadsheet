@@ -102,42 +102,38 @@ export class BarChart extends AbstractChart {
       verticalAxis: getDefinedAxis(definition),
     };
   }
-}
 
-export function createBarChartRuntime(
-  getters: Getters,
-  chart: BarChart,
-  data: ChartData
-): BarChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getBarChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): BarChartRuntime {
+    const definition = this.definition;
+    const chartData = getBarChartData(definition, data, getters);
 
-  const config: ChartConfiguration<"bar" | "line"> = {
-    type: "bar",
-    data: {
-      labels: chartData.labels,
-      datasets: getBarChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      indexAxis: definition.horizontal ? "y" : "x",
-      layout: getChartLayout(definition, chartData),
-      scales: getBarChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getBarChartLegend(definition, chartData),
-        tooltip: getBarChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+    const config: ChartConfiguration<"bar" | "line"> = {
+      type: "bar",
+      data: {
+        labels: chartData.labels,
+        datasets: getBarChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        indexAxis: definition.horizontal ? "y" : "x",
+        layout: getChartLayout(definition, chartData),
+        scales: getBarChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getBarChartLegend(definition, chartData),
+          tooltip: getBarChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return {
-    chartJsConfig: config,
-    background: definition.background || BACKGROUND_CHART_COLOR,
-    customisableSeries: chartData.dataSetsValues.map(({ label, dataSetId }) => ({
-      dataSetId,
-      label,
-    })),
-  };
+    return {
+      chartJsConfig: config,
+      background: definition.background || BACKGROUND_CHART_COLOR,
+      customisableSeries: chartData.dataSetsValues.map(({ label, dataSetId }) => ({
+        dataSetId,
+        label,
+      })),
+    };
+  }
 }

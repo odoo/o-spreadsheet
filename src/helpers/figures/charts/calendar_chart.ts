@@ -108,38 +108,34 @@ export class CalendarChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
   }
-}
 
-export function createCalendarChartRuntime(
-  getters: Getters,
-  chart: CalendarChart,
-  data: ChartData
-): CalendarChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getCalendarChartData(definition, data, getters);
-  const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
+  getRuntime(getters: Getters, data: ChartData): CalendarChartRuntime {
+    const definition = this.definition;
+    const chartData = getCalendarChartData(definition, data, getters);
+    const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
-  const config: ChartConfiguration<"calendar"> = {
-    type: "calendar",
-    data: {
-      labels,
-      datasets,
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      indexAxis: "x",
-      layout: getCalendarChartLayout(definition, chartData),
-      scales: getCalendarChartScales(definition, datasets),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: { display: false },
-        tooltip: getCalendarChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
-        chartColorScalePlugin: getCalendarColorScale(definition, chartData),
+    const config: ChartConfiguration<"calendar"> = {
+      type: "calendar",
+      data: {
+        labels,
+        datasets,
       },
-      chartBackground: definition.background || BACKGROUND_CHART_COLOR,
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        indexAxis: "x",
+        layout: getCalendarChartLayout(definition, chartData),
+        scales: getCalendarChartScales(definition, datasets),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: { display: false },
+          tooltip: getCalendarChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
+          chartColorScalePlugin: getCalendarColorScale(definition, chartData),
+        },
+        chartBackground: definition.background || BACKGROUND_CHART_COLOR,
+      },
+    };
 
-  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+    return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+  }
 }

@@ -102,41 +102,37 @@ export class LineChart extends AbstractChart {
       verticalAxis: getDefinedAxis(definition),
     };
   }
-}
 
-export function createLineChartRuntime(
-  getters: Getters,
-  chart: LineChart,
-  data: ChartData
-): LineChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getLineChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): LineChartRuntime {
+    const definition = this.definition;
+    const chartData = getLineChartData(definition, data, getters);
 
-  const config: ChartConfiguration<"line"> = {
-    type: "line",
-    data: {
-      labels: chartData.labels,
-      datasets: getLineChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getLineChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getLineChartLegend(definition, chartData),
-        tooltip: getLineChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+    const config: ChartConfiguration<"line"> = {
+      type: "line",
+      data: {
+        labels: chartData.labels,
+        datasets: getLineChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getLineChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getLineChartLegend(definition, chartData),
+          tooltip: getLineChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return {
-    chartJsConfig: config,
-    background: definition.background || BACKGROUND_CHART_COLOR,
-    customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
-      dataSetId,
-      label,
-    })),
-  };
+    return {
+      chartJsConfig: config,
+      background: definition.background || BACKGROUND_CHART_COLOR,
+      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+        dataSetId,
+        label,
+      })),
+    };
+  }
 }
