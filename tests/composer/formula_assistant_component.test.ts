@@ -63,7 +63,9 @@ describe("formula assistant", () => {
     addToRegistry(functionRegistry, "FUNC0", {
       description: "func without args",
       args: [],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     setTranslationMethod(
       (str, ...values) => str,
@@ -72,18 +74,24 @@ describe("formula assistant", () => {
     addToRegistry(functionRegistry, "FUNC1", {
       description: "func1 def",
       args: [arg("f1ArgA (any)", "f1 ArgA def"), arg("f1ArgB (any)", _t("f1 ArgB def"))],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     setTranslationMethod((str, ...values) => str);
     addToRegistry(functionRegistry, "FUNC2", {
       description: "func2 def",
       args: [arg("f2ArgA (any)", "f2 ArgA def"), arg("f2ArgB (any, default=TRUE)", "f2 ArgB def")],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     addToRegistry(functionRegistry, "FUNC3", {
       description: "func3 def",
       args: [arg("f3ArgA (any)", "f3 ArgA def"), arg("f3ArgB (any, repeating)", "f3 ArgB def")],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     addToRegistry(functionRegistry, "FUNC3BIS", {
       description: "func3bis def",
@@ -91,7 +99,9 @@ describe("formula assistant", () => {
         arg("f3bisArgA (any)", "f3bis ArgA def"),
         arg("f3bisArgB (any, repeating, optional)", "f3bis ArgB def"),
       ],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     addToRegistry(functionRegistry, "UPTOWNFUNC", {
       description: "a Bruno Mars song ?",
@@ -100,7 +110,9 @@ describe("formula assistant", () => {
         arg("f4ArgB (any, repeating)", "f4 ArgB def"),
         arg("f4ArgC (any, repeating)", "f4 ArgC def"),
       ],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     addToRegistry(functionRegistry, "FUNC5", {
       description: "a function with one optional argument defined after two repeating argument",
@@ -110,7 +122,9 @@ describe("formula assistant", () => {
         arg("f5ArgC (any, repeating)", "f5 ArgC def"),
         arg("f5ArgD (any, optional)", "f5 ArgD def"),
       ],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     addToRegistry(functionRegistry, "FUNC6", {
       description: "a function with one optional argument defined after three repeating arguments",
@@ -121,7 +135,9 @@ describe("formula assistant", () => {
         arg("f6ArgD (any, repeating)", "f6 ArgD def"),
         arg("f6ArgE (any, optional)", "f6 ArgE def"),
       ],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
     addToRegistry(functionRegistry, "FUNC7", {
       description: "a function with two optional arguments defined after three repeating arguments",
@@ -133,7 +149,9 @@ describe("formula assistant", () => {
         arg("f7ArgE (any, optional)", "f7 ArgE def"),
         arg("f7ArgF (any, optional)", "f7 ArgF def"),
       ],
-      compute: () => 1,
+      compute: () => {
+        return { value: 1 };
+      },
     });
   });
 
@@ -677,12 +695,16 @@ describe("formula assistant for boolean functions", () => {
     addToRegistry(functionRegistry, "TRUE", {
       description: "TRUE",
       args: [],
-      compute: () => true,
+      compute: () => {
+        return { value: true };
+      },
     });
     addToRegistry(functionRegistry, "FALSE", {
       description: "FALSE",
       args: [],
-      compute: () => false,
+      compute: () => {
+        return { value: false };
+      },
     });
   });
 

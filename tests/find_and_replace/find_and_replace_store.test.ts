@@ -192,7 +192,7 @@ describe("basic search", () => {
     let value = "3";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => ({ value }),
       args: [],
     });
     setCellContent(model, "A1", "hello");

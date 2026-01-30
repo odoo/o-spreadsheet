@@ -3,8 +3,8 @@ import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { isMultipleElementMimicMatrix, toScalarMimicMatrix } from "./helper_arg";
 import { boolAnd, boolOr } from "./helper_logical";
-import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
 import {
   applyVectorization,
   conditionalVisitBoolean,
@@ -32,7 +32,7 @@ export const AND = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -43,8 +43,8 @@ export const AND = {
 export const FALSE: AddFunctionDescription = {
   description: _t("Logical value `false`."),
   args: [],
-  compute: function (): boolean {
-    return false;
+  compute: function () {
+    return { value: false };
   },
   isExported: true,
 };
@@ -71,10 +71,10 @@ export const IF = {
     ),
   ],
   compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
-    if (isMultipleElementMatrix(logicalExpression)) {
+    if (isMultipleElementMimicMatrix(logicalExpression)) {
       return applyVectorization(IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
     }
-    const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
+    const result = toBoolean(toScalarMimicMatrix(logicalExpression)) ? valueIfTrue : valueIfFalse;
     return result ?? { value: 0 };
   },
   isExported: true,
@@ -93,10 +93,10 @@ export const IFERROR = {
     ),
   ],
   compute: function (value: Arg, valueIfError: Arg) {
-    if (isMultipleElementMatrix(value)) {
+    if (isMultipleElementMimicMatrix(value)) {
       return applyVectorization(IFERROR.compute, [value, valueIfError]);
     }
-    const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
+    const result = isEvaluationError(toScalarMimicMatrix(value)?.value) ? valueIfError : value;
     return result ?? { value: 0 };
   },
   isExported: true,
@@ -115,10 +115,11 @@ export const IFNA = {
     ),
   ],
   compute: function (value: Arg, valueIfError: Arg) {
-    if (isMultipleElementMatrix(value)) {
+    if (isMultipleElementMimicMatrix(value)) {
       return applyVectorization(IFNA.compute, [value, valueIfError]);
     }
-    const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
+    const result =
+      toScalarMimicMatrix(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
     return result ?? { value: 0 };
   },
   isExported: true,
@@ -148,10 +149,10 @@ export const IFS = {
       );
     }
     while (values.length > 0) {
-      if (isMultipleElementMatrix(values[0])) {
+      if (isMultipleElementMimicMatrix(values[0])) {
         return applyVectorization(IFS.compute, values);
       }
-      const condition = toBoolean(toScalar(values.shift()));
+      const condition = toBoolean(toScalarMimicMatrix(values.shift()));
       const valueIfTrue = values.shift();
       if (condition) {
         return valueIfTrue ?? { value: 0 };
@@ -175,8 +176,8 @@ export const NOT = {
       )
     ),
   ],
-  compute: function (logicalExpression: Maybe<FunctionResultObject>): boolean {
-    return !toBoolean(logicalExpression);
+  compute: function (logicalExpression: Maybe<FunctionResultObject>) {
+    return { value: !toBoolean(logicalExpression) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -199,7 +200,7 @@ export const OR = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -252,8 +253,8 @@ export const SWITCH = {
 export const TRUE: AddFunctionDescription = {
   description: _t("Logical value `true`."),
   args: [],
-  compute: function (): boolean {
-    return true;
+  compute: function () {
+    return { value: true };
   },
   isExported: true,
 };
@@ -282,7 +283,7 @@ export const XOR = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return acc;
+    return { value: acc };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

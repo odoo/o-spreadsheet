@@ -1,19 +1,19 @@
-import { CellValue } from "../types/cells";
 import { BadExpressionError, EvaluationError } from "../types/errors";
 
 import { _t } from "../translation";
 import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
+import { Arg, FunctionResultObject } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import { isMimicMatrix, MimicMatrix } from "./helper_arg";
+import { applyVectorization, isEvaluationError } from "./helpers";
 
 export function createComputeFunction(
   descr: FunctionDescription
-): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
+): ComputeFunction<FunctionResultObject | MimicMatrix> {
   function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ): FunctionResultObject | MimicMatrix {
     const acceptToVectorize: boolean[] = [];
 
     const getArgToFocus = argTargeting(descr, args.length);
@@ -22,14 +22,16 @@ export function createComputeFunction(
       const argIndex = getArgToFocus(i).index ?? -1;
       const argDefinition = descr.args[argIndex];
       const arg = args[i];
-      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
-        throw new BadExpressionError(
-          _t(
-            "Function %s expects the parameter '%s' to be reference to a cell or range.",
-            descr.name,
-            (i + 1).toString()
-          )
-        );
+      if (!isMimicMatrix(arg)) {
+        if (argDefinition.acceptMatrixOnly) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              descr.name,
+              (i + 1).toString()
+            )
+          );
+        }
       }
       acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
@@ -40,7 +42,7 @@ export function createComputeFunction(
   function errorHandlingCompute(
     this: EvalContext,
     ...args: Arg[]
-  ): Matrix<FunctionResultObject> | FunctionResultObject {
+  ): FunctionResultObject | MimicMatrix {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       const getArgToFocus = argTargeting(descr, args.length);
@@ -49,7 +51,7 @@ export function createComputeFunction(
       // Early exit if the argument is an error and the function does not accept errors
       // We only check scalar arguments, not matrix arguments for performance reasons.
       // Casting helpers are responsible for handling errors in matrix arguments.
-      if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+      if (!argDefinition.acceptErrors && !isMimicMatrix(arg) && isEvaluationError(arg?.value)) {
         return arg;
       }
     }
@@ -63,29 +65,22 @@ export function createComputeFunction(
   function computeFunctionToObject(
     this: EvalContext,
     ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ): FunctionResultObject | MimicMatrix {
     if (this.debug) {
       // eslint-disable-next-line no-debugger
       debugger;
     }
     const result = descr.compute.apply(this, args);
 
-    if (!isMatrix(result)) {
-      if (typeof result === "object" && result !== null && "value" in result) {
-        replaceFunctionNamePlaceholder(result, descr.name);
-        return result;
-      }
-      return { value: result };
+    if (!isMimicMatrix(result)) {
+      replaceFunctionNamePlaceholder(result, descr.name);
+      return result;
     }
 
-    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FunctionResultObject>, (result) =>
-        replaceFunctionNamePlaceholder(result, descr.name)
-      );
-      return result as Matrix<FunctionResultObject>;
-    }
-
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+    return result.forEach((obj) => {
+      replaceFunctionNamePlaceholder(obj, descr.name);
+      return obj;
+    });
   }
 
   return vectorizedCompute;

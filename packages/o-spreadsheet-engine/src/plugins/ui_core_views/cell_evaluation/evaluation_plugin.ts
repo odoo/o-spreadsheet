@@ -236,7 +236,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   evaluateFormulaResult(
     sheetId: UID,
     formulaString: string
-  ): Matrix<FunctionResultObject> | FunctionResultObject {
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateFormulaResult(sheetId, formulaString);
   }
 

@@ -1,7 +1,7 @@
 import { _t } from "../translation";
 import { DivisionByZeroError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -15,10 +15,7 @@ export const ADD = {
     arg("value1 (number)", _t("The first addend.")),
     arg("value2 (number)", _t("The second addend.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return {
       value: toNumber(value1, this.locale) + toNumber(value2, this.locale),
       format: value1?.format || value2?.format,
@@ -38,8 +35,8 @@ export const CONCAT = {
   compute: function (
     value1: Maybe<FunctionResultObject>,
     value2: Maybe<FunctionResultObject>
-  ): string {
-    return toString(value1) + toString(value2);
+  ): { value: string } {
+    return { value: toString(value1) + toString(value2) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -225,10 +222,7 @@ export const MINUS = {
     arg("value1 (number)", _t("The minuend, or number to be subtracted from.")),
     arg("value2 (number)", _t("The subtrahend, or number to subtract from value1.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return {
       value: toNumber(value1, this.locale) - toNumber(value2, this.locale),
       format: value1?.format || value2?.format,
@@ -245,10 +239,7 @@ export const MULTIPLY = {
     arg("factor1 (number)", _t("The first multiplicand.")),
     arg("factor2 (number)", _t("The second multiplicand.")),
   ],
-  compute: function (
-    factor1: Maybe<FunctionResultObject>,
-    factor2: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (factor1: Maybe<FunctionResultObject>, factor2: Maybe<FunctionResultObject>) {
     return {
       value: toNumber(factor1, this.locale) * toNumber(factor2, this.locale),
       format: factor1?.format || factor2?.format,
@@ -299,7 +290,7 @@ export const UMINUS = {
       _t("The number to have its sign reversed. Equivalently, the number to multiply by -1.")
     ),
   ],
-  compute: function (value: Maybe<FunctionResultObject>): FunctionResultNumber {
+  compute: function (value: Maybe<FunctionResultObject>) {
     return {
       value: -toNumber(value, this.locale),
       format: value?.format,
@@ -313,8 +304,8 @@ export const UMINUS = {
 export const UNARY_PERCENT = {
   description: _t("Value interpreted as a percentage."),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
-  compute: function (percentage: Maybe<FunctionResultObject>): number {
-    return toNumber(percentage, this.locale) / 100;
+  compute: function (percentage: Maybe<FunctionResultObject>) {
+    return { value: toNumber(percentage, this.locale) / 100 };
   },
 } satisfies AddFunctionDescription;
 
@@ -324,7 +315,7 @@ export const UNARY_PERCENT = {
 export const UPLUS = {
   description: _t("A specified number, unchanged."),
   args: [arg("value (any)", _t("The number to return."))],
-  compute: function (value: Maybe<FunctionResultObject> = { value: null }): FunctionResultObject {
+  compute: function (value: Maybe<FunctionResultObject> = { value: null }) {
     return value;
   },
 } satisfies AddFunctionDescription;

@@ -21,6 +21,7 @@ import {
   handleError,
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
+import { isMimicMatrix } from "../../../functions/helper_arg";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
@@ -34,6 +35,7 @@ import {
   FunctionResultObject,
   GetSymbolValue,
   isMatrix,
+  Lazy,
   Matrix,
   RangeCompiledFormula,
   UID,
@@ -114,8 +116,6 @@ export class Evaluator {
     // to traverse the entire r-tree.
     // The data structure is optimized for searches the other way around
     this.formulaDependencies().removeAllDependencies(position);
-    const dependencies = this.getDirectDependencies(position);
-    this.formulaDependencies().addDependencies(position, dependencies);
   }
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
@@ -254,7 +254,8 @@ export class Evaluator {
         this.compilationParams,
         sheetId,
         this.buildSafeGetSymbolValue(getContextualSymbolValue),
-        this.compilationParams.evalContext.__originCellPosition
+        this.compilationParams.evalContext.__originCellPosition,
+        this.formulaDependencies
       );
       if (isMatrix(result)) {
         return matrixMap(result, nullValueToZeroValue);
@@ -384,7 +385,8 @@ export class Evaluator {
       this.compilationParams,
       formulaPosition.sheetId,
       this.buildSafeGetSymbolValue(),
-      formulaPosition
+      formulaPosition,
+      this.formulaDependencies
     );
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
@@ -583,14 +585,6 @@ export class Evaluator {
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
 
-  private getDirectDependencies(position: CellPosition): Range[] {
-    const cell = this.getters.getCell(position);
-    if (!cell?.isFormula) {
-      return [];
-    }
-    return cell.compiledFormula.dependencies;
-  }
-
   private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
     return this.formulaDependencies().getCellsDependingOn(ranges, this.nextRangesToUpdate);
   }
@@ -637,15 +631,30 @@ export function updateEvalContextAndExecute(
   compilationParams: CompilationParameters,
   sheetId: UID,
   getSymbolValue: GetSymbolValue,
-  originCellPosition: CellPosition | undefined
-) {
+  originCellPosition: CellPosition | undefined,
+  formulaDependencies: Lazy<FormulaDependencyGraph>
+): FunctionResultObject | Matrix<FunctionResultObject> {
   compilationParams.evalContext.__originCellPosition = originCellPosition;
   compilationParams.evalContext.__originSheetId = sheetId;
-  return compiledFormula.execute(
+  compilationParams.evalContext.currentFormulaDependencies = [];
+  const compiledFormulaResult = compiledFormula.execute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,
     compilationParams.evalContext
   );
+
+  const result = isMimicMatrix(compiledFormulaResult)
+    ? compiledFormulaResult.getAll() // getAll will allow us to store on evalContext.currentFormulaDependencies all dependencies really used in the matrix
+    : compiledFormulaResult;
+
+  if (originCellPosition) {
+    formulaDependencies().addDependencies(
+      originCellPosition,
+      compilationParams.evalContext.currentFormulaDependencies
+    );
+  }
+
+  return result;
 }

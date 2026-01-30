@@ -99,7 +99,7 @@ export function invertMatrix(M: Matrix<number>): {
   return { inverted: I, determinant };
 }
 
-function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
+function swapMatrixRows(matrix: Matrix<number>, row1: number, row2: number) {
   for (let i = 0; i < matrix.length; i++) {
     const tmp = matrix[i][row1];
     matrix[i][row1] = matrix[i][row2];
@@ -152,7 +152,7 @@ export function toScalar<T>(arg: Matrix<T> | T): T {
   return arg[0][0];
 }
 
-function isSingleElementMatrix<T>(matrix: Matrix<T>) {
+function isSingleElementMatrix<T>(matrix: Matrix<T>): boolean {
   return matrix.length === 1 && matrix[0].length === 1;
 }
 
