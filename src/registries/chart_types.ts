@@ -3,12 +3,6 @@ import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/char
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChart,
-  createBarChartRuntime,
-  createGaugeChartRuntime,
-  createLineChartRuntime,
-  createPieChartRuntime,
-  createScorecardChartRuntime,
-  createWaterfallChartRuntime,
   GaugeChart,
   LineChart,
   PieChart,
@@ -16,22 +10,16 @@ import {
   transformChartDefinitionWithDataSource,
   WaterfallChart,
 } from "../helpers/figures/charts";
-import {
-  CalendarChart,
-  createCalendarChartRuntime,
-} from "../helpers/figures/charts/calendar_chart";
-import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
-import { createFunnelChartRuntime, FunnelChart } from "../helpers/figures/charts/funnel_chart";
-import { createGeoChartRuntime, GeoChart } from "../helpers/figures/charts/geo_chart";
-import { createPyramidChartRuntime, PyramidChart } from "../helpers/figures/charts/pyramid_chart";
-import { createRadarChartRuntime, RadarChart } from "../helpers/figures/charts/radar_chart";
+import { CalendarChart } from "../helpers/figures/charts/calendar_chart";
+import { ComboChart } from "../helpers/figures/charts/combo_chart";
+import { FunnelChart } from "../helpers/figures/charts/funnel_chart";
+import { GeoChart } from "../helpers/figures/charts/geo_chart";
+import { PyramidChart } from "../helpers/figures/charts/pyramid_chart";
+import { RadarChart } from "../helpers/figures/charts/radar_chart";
 import { getChartData, getHierarchicalData } from "../helpers/figures/charts/runtime";
-import { createScatterChartRuntime, ScatterChart } from "../helpers/figures/charts/scatter_chart";
-import {
-  createSunburstChartRuntime,
-  SunburstChart,
-} from "../helpers/figures/charts/sunburst_chart";
-import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
+import { ScatterChart } from "../helpers/figures/charts/scatter_chart";
+import { SunburstChart } from "../helpers/figures/charts/sunburst_chart";
+import { TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
 
 //------------------------------------------------------------------------------
 // Chart Registry
@@ -42,7 +30,6 @@ chartRegistry.add("bar", {
   match: (type) => type === "bar",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createBarChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -57,7 +44,6 @@ chartRegistry.add("combo", {
   match: (type) => type === "combo",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createComboChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
@@ -68,7 +54,6 @@ chartRegistry.add("line", {
   match: (type) => type === "line",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createLineChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
@@ -79,7 +64,6 @@ chartRegistry.add("pie", {
   match: (type) => type === "pie",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createPieChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
@@ -89,7 +73,6 @@ chartRegistry.add("scorecard", {
   ChartTypeHandler: ScorecardChart,
   match: (type) => type === "scorecard",
   extractData: (definition, sheetId, getters) => undefined, // totally custom. Handled in createScorecardChartRuntime
-  getChartRuntime: createScorecardChartRuntime,
   transformDefinition: ScorecardChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScorecardChart.allowedDefinitionKeys,
@@ -99,7 +82,6 @@ chartRegistry.add("gauge", {
   ChartTypeHandler: GaugeChart,
   match: (type) => type === "gauge",
   extractData: (definition, sheetId, getters) => undefined, // totally custom. Handled in createScorecardChartRuntime
-  getChartRuntime: createGaugeChartRuntime,
   transformDefinition: GaugeChart.transformDefinition,
   getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GaugeChart.allowedDefinitionKeys,
@@ -110,7 +92,6 @@ chartRegistry.add("scatter", {
   match: (type) => type === "scatter",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createScatterChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScatterChart.allowedDefinitionKeys,
@@ -121,7 +102,6 @@ chartRegistry.add("waterfall", {
   match: (type) => type === "waterfall",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createWaterfallChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: WaterfallChart.allowedDefinitionKeys,
@@ -132,7 +112,6 @@ chartRegistry.add("pyramid", {
   match: (type) => type === "pyramid",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createPyramidChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -149,7 +128,6 @@ chartRegistry.add("radar", {
   match: (type) => type === "radar",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createRadarChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: RadarChart.allowedDefinitionKeys,
@@ -160,7 +138,6 @@ chartRegistry.add("geo", {
   match: (type) => type === "geo",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createGeoChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GeoChart.allowedDefinitionKeys,
@@ -172,7 +149,6 @@ chartRegistry.add("funnel", {
   match: (type) => type === "funnel",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createFunnelChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: FunnelChart.allowedDefinitionKeys,
@@ -183,7 +159,6 @@ chartRegistry.add("sunburst", {
   ChartTypeHandler: SunburstChart,
   match: (type) => type === "sunburst",
   extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
-  getChartRuntime: createSunburstChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: SunburstChart.allowedDefinitionKeys,
@@ -193,7 +168,6 @@ chartRegistry.add("treemap", {
   ChartTypeHandler: TreeMapChart,
   match: (type) => type === "treemap",
   extractData: (definition, sheetId, getters) => getHierarchicalData(getters, sheetId, definition),
-  getChartRuntime: createTreeMapChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: TreeMapChart.allowedDefinitionKeys,
@@ -204,7 +178,6 @@ chartRegistry.add("calendar", {
   match: (type) => type === "calendar",
   extractData: (definition, sheetId, getters) =>
     getChartData(getters, sheetId, definition.dataSource),
-  getChartRuntime: createCalendarChartRuntime,
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: CalendarChart.allowedDefinitionKeys,
