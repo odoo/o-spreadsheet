@@ -13,6 +13,7 @@ import {
 } from "../../../types/index";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
+import { InfoPopover, InfoState } from "../../info_popover/info_popover";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 
 type ResizeAnchor =
@@ -49,17 +50,19 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
   };
-  static components = { MenuPopover };
+  static components = { MenuPopover, InfoPopover };
   static defaultProps = {
     onMouseDown: () => {},
     onClickAnchor: () => {},
   };
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private infoState: InfoState = useState({ isOpen: false, anchorRect: null });
 
   private figureRef = useRef("figure");
   private figureWrapperRef = useRef("figureWrapper");
   private menuButtonRef = useRef("menuButton");
+  private infoButtonRef = useRef("infoButton");
 
   private borderWidth!: number;
 
@@ -279,5 +282,20 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       !this.env.isDashboard() &&
       !this.env.model.getters.isCurrentSheetLocked()
     );
+  }
+
+  showInfo() {
+    this.infoState.isOpen = true;
+    this.infoState.anchorRect = getRefBoundingRect(this.infoButtonRef);
+  }
+
+  getAnnotationText() {
+    const chart = this.env.model.getters.getChartFromFigureId(this.props.figureUI.id);
+    return chart?.annotationText;
+  }
+
+  getAnnotationLink() {
+    const chart = this.env.model.getters.getChartFromFigureId(this.props.figureUI.id);
+    return chart?.annotationLink;
   }
 }

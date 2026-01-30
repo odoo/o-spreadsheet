@@ -1,0 +1,14 @@
+<templates>
+  <t t-name="o-spreadsheet-Info-Popover">
+    <Popover t-props="popoverProps">
+      <div class="bg-white" t-att-style="infoStyle">
+        <div class="m-2" t-if="props.infoText">
+          <t t-esc="props.infoText"/>
+        </div>
+        <div class="m-2" t-if="props.infoLink">
+          <a class="o-link-info" t-att-href="props.infoLink">See more</a>
+        </div>
+      </div>
+    </Popover>
+  </t>
+</templates>

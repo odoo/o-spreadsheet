@@ -16,5 +16,6 @@
         />
       </t>
     </GeneralDesignEditor>
+    <ChartAnnotation t-props="this.props"/>
   </t>
 </templates>
