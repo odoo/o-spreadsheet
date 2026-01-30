@@ -10,6 +10,7 @@ import {
   BaselineArrowDirection,
   BaselineMode,
   ChartCreationContext,
+  ChartData,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
   TitleDesign,
@@ -314,6 +315,101 @@ export class ScorecardChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
     return new ScorecardChart(definition, this.sheetId, this.getters);
   }
+
+  getRuntime(getters: Getters, data: ChartData): ScorecardChartRuntime {
+    let formattedKeyValue = "";
+    let keyValueCell: EvaluatedCell | undefined;
+    const locale = getters.getLocale();
+    if (this.keyValue) {
+      const keyValuePosition = {
+        sheetId: this.keyValue.sheetId,
+        col: this.keyValue.zone.left,
+        row: this.keyValue.zone.top,
+      };
+      keyValueCell = getters.getEvaluatedCell(keyValuePosition);
+      formattedKeyValue = getKeyValueText(keyValueCell, this.humanize ?? true, locale);
+    }
+    let baselineCell: EvaluatedCell | undefined;
+    const baseline = this.baseline;
+    if (baseline) {
+      const baselinePosition = {
+        sheetId: baseline.sheetId,
+        col: baseline.zone.left,
+        row: baseline.zone.top,
+      };
+      baselineCell = getters.getEvaluatedCell(baselinePosition);
+    }
+    const { background, fontColor } = getters.getStyleOfSingleCellChart(
+      this.background,
+      this.keyValue
+    );
+
+    const baselineDisplay = getBaselineText(
+      baselineCell,
+      keyValueCell,
+      this.baselineMode,
+      this.humanize ?? true,
+      locale
+    );
+    const baselineValue =
+      this.baselineMode === "progress" && isNumber(baselineDisplay, locale)
+        ? toNumber(baselineDisplay, locale)
+        : 0;
+    return {
+      title: {
+        ...this.title,
+        text: this.title.text ? getters.dynamicTranslate(this.title.text) : "",
+      },
+      keyValue: formattedKeyValue,
+      keyDescr: this.keyDescr?.text ? getters.dynamicTranslate(this.keyDescr.text) : "",
+      baselineDisplay,
+      baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, this.baselineMode),
+      baselineColor: getBaselineColor(
+        baselineCell,
+        this.baselineMode,
+        keyValueCell,
+        this.baselineColorUp,
+        this.baselineColorDown
+      ),
+      baselineDescr:
+        this.baselineMode !== "progress" && this.baselineDescr?.text
+          ? getters.dynamicTranslate(this.baselineDescr.text)
+          : "",
+      fontColor,
+      background,
+      baselineStyle: {
+        ...(this.baselineMode !== "percentage" && this.baselineMode !== "progress" && baseline
+          ? getters.getCellComputedStyle({
+              sheetId: baseline.sheetId,
+              col: baseline.zone.left,
+              row: baseline.zone.top,
+            })
+          : undefined),
+        fontSize: this.baselineDescr?.fontSize,
+        align: this.baselineDescr?.align,
+      },
+      baselineDescrStyle: { textColor: this.baselineDescr?.color, ...this.baselineDescr },
+      keyValueStyle: {
+        ...(this.keyValue
+          ? getters.getCellComputedStyle({
+              sheetId: this.keyValue.sheetId,
+              col: this.keyValue.zone.left,
+              row: this.keyValue.zone.top,
+            })
+          : undefined),
+        fontSize: this.keyDescr?.fontSize,
+        align: this.keyDescr?.align,
+      },
+      keyValueDescrStyle: { textColor: this.keyDescr?.color, ...this.keyDescr },
+      progressBar:
+        this.baselineMode === "progress"
+          ? {
+              value: baselineValue,
+              color: baselineValue > 0 ? this.baselineColorUp : this.baselineColorDown,
+            }
+          : undefined,
+    };
+  }
 }
 
 type Canvas2DContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
@@ -451,102 +547,4 @@ export function drawScoreChart(
     }
     ctx.fill();
   }
-}
-
-export function createScorecardChartRuntime(
-  getters: Getters,
-  chart: ScorecardChart
-): ScorecardChartRuntime {
-  let formattedKeyValue = "";
-  let keyValueCell: EvaluatedCell | undefined;
-  const locale = getters.getLocale();
-  if (chart.keyValue) {
-    const keyValuePosition = {
-      sheetId: chart.keyValue.sheetId,
-      col: chart.keyValue.zone.left,
-      row: chart.keyValue.zone.top,
-    };
-    keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-    formattedKeyValue = getKeyValueText(keyValueCell, chart.humanize ?? true, locale);
-  }
-  let baselineCell: EvaluatedCell | undefined;
-  const baseline = chart.baseline;
-  if (baseline) {
-    const baselinePosition = {
-      sheetId: baseline.sheetId,
-      col: baseline.zone.left,
-      row: baseline.zone.top,
-    };
-    baselineCell = getters.getEvaluatedCell(baselinePosition);
-  }
-  const { background, fontColor } = getters.getStyleOfSingleCellChart(
-    chart.background,
-    chart.keyValue
-  );
-
-  const baselineDisplay = getBaselineText(
-    baselineCell,
-    keyValueCell,
-    chart.baselineMode,
-    chart.humanize ?? true,
-    locale
-  );
-  const baselineValue =
-    chart.baselineMode === "progress" && isNumber(baselineDisplay, locale)
-      ? toNumber(baselineDisplay, locale)
-      : 0;
-  return {
-    title: {
-      ...chart.title,
-      text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
-    },
-    keyValue: formattedKeyValue,
-    keyDescr: chart.keyDescr?.text ? getters.dynamicTranslate(chart.keyDescr.text) : "",
-    baselineDisplay,
-    baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),
-    baselineColor: getBaselineColor(
-      baselineCell,
-      chart.baselineMode,
-      keyValueCell,
-      chart.baselineColorUp,
-      chart.baselineColorDown
-    ),
-    baselineDescr:
-      chart.baselineMode !== "progress" && chart.baselineDescr?.text
-        ? getters.dynamicTranslate(chart.baselineDescr.text)
-        : "",
-    fontColor,
-    background,
-    baselineStyle: {
-      ...(chart.baselineMode !== "percentage" && chart.baselineMode !== "progress" && baseline
-        ? getters.getCellComputedStyle({
-            sheetId: baseline.sheetId,
-            col: baseline.zone.left,
-            row: baseline.zone.top,
-          })
-        : undefined),
-      fontSize: chart.baselineDescr?.fontSize,
-      align: chart.baselineDescr?.align,
-    },
-    baselineDescrStyle: { textColor: chart.baselineDescr?.color, ...chart.baselineDescr },
-    keyValueStyle: {
-      ...(chart.keyValue
-        ? getters.getCellComputedStyle({
-            sheetId: chart.keyValue.sheetId,
-            col: chart.keyValue.zone.left,
-            row: chart.keyValue.zone.top,
-          })
-        : undefined),
-      fontSize: chart.keyDescr?.fontSize,
-      align: chart.keyDescr?.align,
-    },
-    keyValueDescrStyle: { textColor: chart.keyDescr?.color, ...chart.keyDescr },
-    progressBar:
-      chart.baselineMode === "progress"
-        ? {
-            value: baselineValue,
-            color: baselineValue > 0 ? chart.baselineColorUp : chart.baselineColorDown,
-          }
-        : undefined,
-  };
 }
