@@ -4,7 +4,7 @@ import {
   SectionRule,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType, CommandResult, Model } from "../../../../src";
-import { deepCopy, zoneToXc } from "../../../../src/helpers";
+import { deepCopy } from "../../../../src/helpers";
 import { GaugeChart } from "../../../../src/helpers/figures/charts";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
@@ -423,12 +423,12 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
-    const duplicatedChart = model.getters.getChart(duplicatedChartId)
-      ?.chartTypeHandler as GaugeChart;
+    const duplicatedChart = model.getters
+      .getChart(duplicatedChartId)
+      ?.getDefinition() as GaugeChartDefinition;
 
     expect(duplicatedChart.title.text).toEqual("test");
-    expect(zoneToXc(duplicatedChart.dataRange!.zone)).toEqual("B1:B4");
-    expect(duplicatedChart.dataRange?.sheetId).toEqual(secondSheetId);
+    expect(duplicatedChart.dataRange).toEqual("B1:B4");
 
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);

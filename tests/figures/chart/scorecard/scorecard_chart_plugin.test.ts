@@ -8,7 +8,6 @@ import {
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { CommandResult, Model } from "../../../../src";
-import { zoneToXc } from "../../../../src/helpers";
 import { ScorecardChart } from "../../../../src/helpers/figures/charts";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
@@ -217,12 +216,12 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
 
-    const newChart = model.getters.getChart(duplicatedChartId)?.chartTypeHandler as ScorecardChart;
+    const newChart = model.getters
+      .getChart(duplicatedChartId)
+      ?.getDefinition() as ScorecardChartDefinition;
     expect(newChart.title.text).toEqual("test");
-    expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
-    expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");
-    expect(newChart.baseline?.sheetId).toEqual(secondSheetId);
-    expect(zoneToXc(newChart.baseline!.zone)).toEqual("A1");
+    expect(newChart.keyValue).toEqual("B1:B4");
+    expect(newChart.baseline).toEqual("A1");
 
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);

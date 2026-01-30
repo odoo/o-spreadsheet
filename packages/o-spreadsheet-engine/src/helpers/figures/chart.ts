@@ -4,7 +4,7 @@ import {
   chartDataSourceRegistry,
 } from "../../registries/chart_data_source_registry";
 import { chartRegistry } from "../../registries/chart_registry";
-import { ChartCreationContext, ChartDefinition } from "../../types/chart";
+import { ChartCreationContext, ChartData, ChartDefinition } from "../../types/chart";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { Range } from "../../types/range";
@@ -14,7 +14,7 @@ export class MyChart {
   private constructor(
     private readonly getters: CoreGetters,
     readonly sheetId: UID,
-    readonly chartTypeHandler: AbstractChart, // e.g., BarChart
+    private readonly chartTypeHandler: AbstractChart, // e.g., BarChart
     private readonly dataSourceHandler: ChartDataSourceHandler // from registry
   ) {}
 
@@ -115,5 +115,9 @@ export class MyChart {
       getters,
       this.dataSourceHandler.toExcelDataSets(getters, definition.dataSetStyles)
     );
+  }
+
+  getRuntime(getters: Getters, data: ChartData) {
+    return this.chartTypeHandler.getRuntime(getters, data);
   }
 }

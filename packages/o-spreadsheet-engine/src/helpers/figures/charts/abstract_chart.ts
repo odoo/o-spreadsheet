@@ -1,14 +1,17 @@
 import { ChartDataSourceHandler } from "../../../registries/chart_data_source_registry";
 import {
   ChartCreationContext,
+  ChartData,
   ChartDefinition,
   ChartDefinitionWithDataSource,
+  ChartRuntime,
   ChartType,
   ExcelChartDefinition,
   TitleDesign,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
+import { Getters } from "../../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
@@ -77,6 +80,8 @@ export abstract class AbstractChart {
    * Get the definition of the chart
    */
   abstract getRangeDefinition(): ChartDefinition<Range>;
+
+  abstract getRuntime(getters: Getters, data: ChartData): ChartRuntime;
 
   getDefinition(): Omit<ChartDefinition<string>, "dataSource"> {
     return this.getRangeDefinition();
