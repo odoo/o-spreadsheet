@@ -89,37 +89,33 @@ export class PieChart extends AbstractChart {
       labelRange,
     };
   }
-}
 
-export function createPieChartRuntime(
-  getters: Getters,
-  chart: PieChart,
-  data: ChartData
-): PieChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getPieChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): PieChartRuntime {
+    const definition = this.definition;
+    const chartData = getPieChartData(definition, data, getters);
 
-  const config: ChartConfiguration<"doughnut" | "pie"> = {
-    type: definition.isDoughnut ? "doughnut" : "pie",
-    data: {
-      labels: chartData.labels,
-      datasets: getPieChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      cutout:
-        definition.isDoughnut && definition.pieHolePercentage !== undefined
-          ? definition.pieHolePercentage + "%"
-          : undefined,
-      layout: getChartLayout(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getPieChartLegend(definition, chartData),
-        tooltip: getPieChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+    const config: ChartConfiguration<"doughnut" | "pie"> = {
+      type: definition.isDoughnut ? "doughnut" : "pie",
+      data: {
+        labels: chartData.labels,
+        datasets: getPieChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        cutout:
+          definition.isDoughnut && definition.pieHolePercentage !== undefined
+            ? definition.pieHolePercentage + "%"
+            : undefined,
+        layout: getChartLayout(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getPieChartLegend(definition, chartData),
+          tooltip: getPieChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+    return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+  }
 }

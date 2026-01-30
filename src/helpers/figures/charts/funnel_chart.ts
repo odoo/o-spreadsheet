@@ -80,35 +80,31 @@ export class FunnelChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
   }
-}
 
-export function createFunnelChartRuntime(
-  getters: Getters,
-  chart: FunnelChart,
-  data: ChartData
-): FunnelChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getFunnelChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): FunnelChartRuntime {
+    const definition = this.getRangeDefinition();
+    const chartData = getFunnelChartData(definition, data, getters);
 
-  const config: ChartConfiguration = {
-    type: "funnel",
-    data: {
-      labels: chartData.labels,
-      datasets: getFunnelChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      indexAxis: "y",
-      layout: getChartLayout(definition, chartData),
-      scales: getFunnelChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: { display: false },
-        tooltip: getFunnelChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+    const config: ChartConfiguration = {
+      type: "funnel",
+      data: {
+        labels: chartData.labels,
+        datasets: getFunnelChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        indexAxis: "y",
+        layout: getChartLayout(definition, chartData),
+        scales: getFunnelChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: { display: false },
+          tooltip: getFunnelChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+    return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
+  }
 }

@@ -288,114 +288,114 @@ export class GaugeChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
     return new GaugeChart(definition, this.sheetId, this.getters);
   }
-}
 
-export function createGaugeChartRuntime(getters: Getters, chart: GaugeChart): GaugeChartRuntime {
-  const locale = getters.getLocale();
-  const chartColors = chart.sectionRule.colors;
+  getRuntime(getters: Getters): GaugeChartRuntime {
+    const locale = getters.getLocale();
+    const chartColors = this.sectionRule.colors;
 
-  let gaugeValue: number | undefined = undefined;
-  let formattedValue: string | undefined = undefined;
-  let format: Format | undefined = undefined;
+    let gaugeValue: number | undefined = undefined;
+    let formattedValue: string | undefined = undefined;
+    let format: Format | undefined = undefined;
 
-  const dataRange = chart.dataRange;
-  if (dataRange !== undefined) {
-    const cell = getters.getEvaluatedCell({
-      sheetId: dataRange.sheetId,
-      col: dataRange.zone.left,
-      row: dataRange.zone.top,
-    });
-    if (cell.type === CellValueType.number) {
-      gaugeValue = cell.value;
-      formattedValue = cell.formattedValue;
-      format = cell.format;
+    const dataRange = this.dataRange;
+    if (dataRange !== undefined) {
+      const cell = getters.getEvaluatedCell({
+        sheetId: dataRange.sheetId,
+        col: dataRange.zone.left,
+        row: dataRange.zone.top,
+      });
+      if (cell.type === CellValueType.number) {
+        gaugeValue = cell.value;
+        formattedValue = cell.formattedValue;
+        format = cell.format;
+      }
     }
+
+    let minValue = getFormulaNumberValue(this.sheetId, this.sectionRule.rangeMin, getters);
+    let maxValue = getFormulaNumberValue(this.sheetId, this.sectionRule.rangeMax, getters);
+    if (minValue === undefined || maxValue === undefined) {
+      return getInvalidGaugeRuntime(this, getters);
+    }
+    if (maxValue < minValue) {
+      [minValue, maxValue] = [maxValue, minValue];
+    }
+
+    const lowerPoint = this.sectionRule.lowerInflectionPoint;
+    const upperPoint = this.sectionRule.upperInflectionPoint;
+    const lowerPointValue = getSectionThresholdValue(
+      this.sheetId,
+      this.sectionRule.lowerInflectionPoint,
+      minValue,
+      maxValue,
+      getters
+    );
+    const upperPointValue = getSectionThresholdValue(
+      this.sheetId,
+      this.sectionRule.upperInflectionPoint,
+      minValue,
+      maxValue,
+      getters
+    );
+
+    const inflectionValues: GaugeInflectionValue[] = [];
+    const colors: Color[] = [];
+
+    if (lowerPointValue !== undefined) {
+      inflectionValues.push({
+        value: lowerPointValue,
+        label: formatOrHumanizeValue(lowerPointValue, format, locale, this.humanize),
+        operator: lowerPoint.operator,
+      });
+      colors.push(chartColors.lowerColor);
+    }
+
+    if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
+      inflectionValues.push({
+        value: upperPointValue,
+        label: formatOrHumanizeValue(upperPointValue, format, locale, this.humanize),
+        operator: upperPoint.operator,
+      });
+      colors.push(chartColors.middleColor);
+    }
+
+    if (
+      upperPointValue !== undefined &&
+      lowerPointValue !== undefined &&
+      lowerPointValue > upperPointValue
+    ) {
+      inflectionValues.reverse();
+      colors.reverse();
+    }
+
+    colors.push(chartColors.upperColor);
+
+    return {
+      background: getters.getStyleOfSingleCellChart(this.background, dataRange).background,
+      title: {
+        ...this.title,
+        text: this.title.text ? getters.dynamicTranslate(this.title.text) : "",
+      },
+      minValue: {
+        value: minValue,
+        label: formatOrHumanizeValue(minValue, format, locale, this.humanize),
+      },
+      maxValue: {
+        value: maxValue,
+        label: formatOrHumanizeValue(maxValue, format, locale, this.humanize),
+      },
+      gaugeValue:
+        gaugeValue !== undefined && formattedValue
+          ? {
+              value: gaugeValue,
+              label: this.humanize
+                ? humanizeNumber({ value: gaugeValue, format }, locale)
+                : formattedValue,
+            }
+          : undefined,
+      inflectionValues,
+      colors,
+    };
   }
-
-  let minValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMin, getters);
-  let maxValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMax, getters);
-  if (minValue === undefined || maxValue === undefined) {
-    return getInvalidGaugeRuntime(chart, getters);
-  }
-  if (maxValue < minValue) {
-    [minValue, maxValue] = [maxValue, minValue];
-  }
-
-  const lowerPoint = chart.sectionRule.lowerInflectionPoint;
-  const upperPoint = chart.sectionRule.upperInflectionPoint;
-  const lowerPointValue = getSectionThresholdValue(
-    chart.sheetId,
-    chart.sectionRule.lowerInflectionPoint,
-    minValue,
-    maxValue,
-    getters
-  );
-  const upperPointValue = getSectionThresholdValue(
-    chart.sheetId,
-    chart.sectionRule.upperInflectionPoint,
-    minValue,
-    maxValue,
-    getters
-  );
-
-  const inflectionValues: GaugeInflectionValue[] = [];
-  const colors: Color[] = [];
-
-  if (lowerPointValue !== undefined) {
-    inflectionValues.push({
-      value: lowerPointValue,
-      label: formatOrHumanizeValue(lowerPointValue, format, locale, chart.humanize),
-      operator: lowerPoint.operator,
-    });
-    colors.push(chartColors.lowerColor);
-  }
-
-  if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
-    inflectionValues.push({
-      value: upperPointValue,
-      label: formatOrHumanizeValue(upperPointValue, format, locale, chart.humanize),
-      operator: upperPoint.operator,
-    });
-    colors.push(chartColors.middleColor);
-  }
-
-  if (
-    upperPointValue !== undefined &&
-    lowerPointValue !== undefined &&
-    lowerPointValue > upperPointValue
-  ) {
-    inflectionValues.reverse();
-    colors.reverse();
-  }
-
-  colors.push(chartColors.upperColor);
-
-  return {
-    background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
-    title: {
-      ...chart.title,
-      text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
-    },
-    minValue: {
-      value: minValue,
-      label: formatOrHumanizeValue(minValue, format, locale, chart.humanize),
-    },
-    maxValue: {
-      value: maxValue,
-      label: formatOrHumanizeValue(maxValue, format, locale, chart.humanize),
-    },
-    gaugeValue:
-      gaugeValue !== undefined && formattedValue
-        ? {
-            value: gaugeValue,
-            label: chart.humanize
-              ? humanizeNumber({ value: gaugeValue, format }, locale)
-              : formattedValue,
-          }
-        : undefined,
-    inflectionValues,
-    colors,
-  };
 }
 
 function getSectionThresholdValue(

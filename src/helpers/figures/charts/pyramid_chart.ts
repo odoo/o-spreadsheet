@@ -112,42 +112,38 @@ export class PyramidChart extends AbstractChart {
       maxValue,
     };
   }
-}
 
-export function createPyramidChartRuntime(
-  getters: Getters,
-  chart: PyramidChart,
-  data: ChartData
-): PyramidChartRuntime {
-  const definition = chart.getRangeDefinition();
-  const chartData = getPyramidChartData(definition, data, getters);
+  getRuntime(getters: Getters, data: ChartData): PyramidChartRuntime {
+    const definition = this.definition;
+    const chartData = getPyramidChartData(definition, data, getters);
 
-  const config: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels: chartData.labels,
-      datasets: getBarChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      indexAxis: "y",
-      layout: getChartLayout(definition, chartData),
-      scales: getPyramidChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getBarChartLegend(definition, chartData),
-        tooltip: getPyramidChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
+    const config: ChartConfiguration = {
+      type: "bar",
+      data: {
+        labels: chartData.labels,
+        datasets: getBarChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        indexAxis: "y",
+        layout: getChartLayout(definition, chartData),
+        scales: getPyramidChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getBarChartLegend(definition, chartData),
+          tooltip: getPyramidChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
+        },
+      },
+    };
 
-  return {
-    chartJsConfig: config,
-    background: definition.background || BACKGROUND_CHART_COLOR,
-    customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
-      dataSetId,
-      label,
-    })),
-  };
+    return {
+      chartJsConfig: config,
+      background: definition.background || BACKGROUND_CHART_COLOR,
+      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+        dataSetId,
+        label,
+      })),
+    };
+  }
 }
