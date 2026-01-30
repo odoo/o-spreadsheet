@@ -13,7 +13,6 @@ import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
 interface ChartDataSourceHandlerContructor {
-  // new (dataSource: ChartDataSource): ChartDataSourceHandler;
   fromRangeStr: (
     getters: CoreGetters,
     defaultSheetId: UID,
