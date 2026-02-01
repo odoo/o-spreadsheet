@@ -4,7 +4,8 @@
       class="o-spreadsheet h-100 w-100"
       t-att-class="getSpreadSheetClasses()"
       t-ref="spreadsheet"
-      t-att-style="getStyle()">
+      t-att-style="getStyle()"
+      t-on-contextmenu="onContextMenu">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
         <FullScreenFigure/>

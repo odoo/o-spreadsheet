@@ -7,8 +7,7 @@
       t-on-scroll="props.onScroll"
       t-on-wheel.stop=""
       t-on-pointerdown.prevent=""
-      t-on-click.stop=""
-      t-on-contextmenu.prevent="">
+      t-on-click.stop="">
       <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
         <div t-if="menuItem === 'separator'" class="o-separator border-bottom"/>
         <t t-else="">
