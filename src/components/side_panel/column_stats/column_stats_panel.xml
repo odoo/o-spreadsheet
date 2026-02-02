@@ -50,7 +50,7 @@
         </SidePanelCollapsible>
         <SidePanelCollapsible title.translate="Global statistics" isInitiallyCollapsed="false">
           <t t-set-slot="content">
-            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+            <div class="o-column-global-stats d-flex flex-column mx-4 mb-2">
               <t t-foreach="statItems" t-as="stat" t-key="stat.name">
                 <div class="o-column-stats-row d-flex justify-content-between">
                   <span class="text-muted" t-esc="stat.name"/>
@@ -69,10 +69,10 @@
                 selectedValue="state.currentFrequencyOrder"
               />
             </div>
-            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+            <div class="o-column-global-stats d-flex flex-column mx-4 mb-2">
               <t t-foreach="valueFrequencies" t-as="value" t-key="value.value">
                 <div
-                  class="o-column-stats-row d-flex justify-content-between"
+                  class="o-column-stats-row o-column-frequencies-row d-flex justify-content-between"
                   t-on-mouseenter="() => this.highlightFrequencyPositions(value.positions)"
                   t-on-mouseleave="() => this.clearHighlights()">
                   <span class="frequency-label text-muted" t-esc="value.value"/>
