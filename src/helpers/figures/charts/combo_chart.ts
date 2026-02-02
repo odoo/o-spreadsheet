@@ -50,7 +50,7 @@ export class ComboChart extends AbstractChart {
   ] as const;
 
   constructor(private definition: ComboChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
+    super(sheetId, getters);
   }
 
   getContextCreation(

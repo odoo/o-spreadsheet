@@ -50,7 +50,7 @@ export class BarChart extends AbstractChart {
   ] as const;
 
   constructor(private definition: BarChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
+    super(sheetId, getters);
   }
 
   static getDefinitionFromContextCreation(
