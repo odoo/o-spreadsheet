@@ -5,7 +5,6 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
-  ChartData,
   ExcelChartDefinition,
   LegendPosition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
@@ -108,8 +107,9 @@ export class CalendarChart extends AbstractChart {
     return undefined;
   }
 
-  getRuntime(getters: Getters, data: ChartData): CalendarChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): CalendarChartRuntime {
     const definition = this.definition;
+    const data = dataSource.extractData(getters);
     const chartData = getCalendarChartData(definition, data, getters);
     const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
