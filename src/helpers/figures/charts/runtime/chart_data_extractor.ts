@@ -1,5 +1,11 @@
-import { _t, deepCopy, findNextDefinedValue, range, UID } from "@odoo/o-spreadsheet-engine";
-import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import {
+  _t,
+  deepCopy,
+  findNextDefinedValue,
+  getChartData,
+  range,
+  UID,
+} from "@odoo/o-spreadsheet-engine";
 import {
   evaluatePolynomial,
   expM,
@@ -9,12 +15,7 @@ import {
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import {
-  isErrorCell,
-  isNumberCell,
-  isTextCell,
-} from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
-import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   DAYS,
   formatValue,
@@ -22,15 +23,12 @@ import {
   MONTHS,
 } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import {
   AxisType,
   BarChartDefinition,
   ChartData,
   ChartDefinitionWithDataSource,
-  ChartRangeDataSource,
   ChartRuntimeGenerationArgs,
-  DataSet,
   DataSetStyle,
   DatasetValues,
   FunnelChartDefinition,
@@ -59,13 +57,11 @@ import {
   GenericDefinition,
   Getters,
   Locale,
-  Range,
 } from "../../../../types";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 
 const EMPTY = Object.freeze({ value: null });
 const ZERO = Object.freeze({ value: 0 });
-const ONE = Object.freeze({ value: 1 });
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -654,7 +650,7 @@ export function canChartParseLabels(
   sheetId: UID,
   definition: ChartDefinitionWithDataSource
 ): boolean {
-  const data = getChartData(getters, sheetId, definition.dataSource);
+  const data = getChartData(getters, definition.dataSource);
   return canBeDateChart(data) || canBeLinearChart(data);
 }
 
@@ -737,22 +733,6 @@ function fixEmptyLabelsForDateCharts(
     }
   }
   return { labels: newLabels, dataSetsValues: newDatasets };
-}
-
-/**
- * Get the data from a dataSet
- */
-export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
-  if (ds.dataRange) {
-    const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
-    const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
-    if (dataZone === undefined) {
-      return [];
-    }
-    const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
-    return getters.getRangeValues(dataRange).map((cell) => (cell.value === "" ? EMPTY : cell));
-  }
-  return [];
 }
 
 /**
@@ -911,86 +891,6 @@ export function getChartLabelFormat(labelValues: LabelValues): Format | undefine
   return labelValues.find(({ format }) => format !== undefined)?.format;
 }
 
-export function getChartData(
-  getters: Getters,
-  sheetId: UID,
-  dataSource: ChartRangeDataSource
-): ChartData {
-  const dataSets = dataSource.dataSets;
-  const labelRange = dataSource.labelRange;
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  const dataSetsValues = getChartDatasetValues(getters, dataSets);
-  const data = { labelValues, dataSetsValues };
-  // FIXME nested ternary
-  const numberOfDataPoints = dataSetsValues.length
-    ? dataSetsValues[0]?.data.length + (dataSetsValues[0]?.label !== undefined ? 1 : 0)
-    : 0;
-  if (
-    shouldRemoveFirstLabel(
-      labelValues.length,
-      numberOfDataPoints,
-      dataSource.dataSetsHaveTitle || false
-    )
-  ) {
-    labelValues.shift();
-  }
-  return data;
-}
-
-export function getHierarchicalData(
-  getters: Getters,
-  sheetId: UID,
-  definition: ChartDefinitionWithDataSource
-): ChartData {
-  const dataSets = definition.dataSource.dataSets;
-  const labelRange = definition.dataSource.labelRange;
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
-  const data = { labelValues, dataSetsValues };
-  if (
-    shouldRemoveFirstLabel(
-      labelValues.length,
-      dataSetsValues[0]?.data.length + (dataSetsValues[0]?.label !== undefined ? 1 : 0),
-      definition.dataSource.dataSetsHaveTitle || false
-    )
-  ) {
-    labelValues.shift();
-  }
-  return data;
-}
-
-function getChartLabelValues(
-  getters: Getters,
-  dataSets: DataSet[],
-  labelRange?: Range
-): LabelValues {
-  let labels: LabelValues = [];
-  if (labelRange) {
-    const { left } = labelRange.zone;
-    if (
-      !labelRange.invalidXc &&
-      !labelRange.invalidSheetName &&
-      !getters.isColHidden(labelRange.sheetId, left)
-    ) {
-      labels = getters.getRangeValues(labelRange);
-    } else if (dataSets[0]) {
-      const ranges = getData(getters, dataSets[0]);
-      labels = range(0, ranges.length).map((r) => ({ value: r.toString() }));
-    }
-  } else if (dataSets.length === 1) {
-    const dataLength = getData(getters, dataSets[0]).length;
-    for (let i = 0; i < dataLength; i++) {
-      labels.push({ value: "" });
-    }
-  } else {
-    if (dataSets[0]) {
-      const ranges = getData(getters, dataSets[0]);
-      labels = range(0, ranges.length).map((r) => ({ value: r.toString() }));
-    }
-  }
-  return labels;
-}
-
 /**
  * Get the format to apply to the the dataset values. This format is defined as the first format
  * found in the dataset ranges that isn't a date format.
@@ -1010,82 +910,6 @@ function getChartDatasetFormat(
     }
   }
   return undefined;
-}
-
-function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
-  const datasetValues: DatasetValues[] = [];
-  for (const [dsIndex, ds] of Object.entries(dataSets)) {
-    let label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
-    let hidden = getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left);
-    if (ds.labelCell) {
-      const { sheetId, zone } = ds.labelCell;
-      const cell = getters.getEvaluatedCell({ sheetId, col: zone.left, row: zone.top });
-      if (cell) {
-        label = cell.formattedValue;
-      }
-    }
-
-    let data = ds.dataRange ? getData(getters, ds) : [];
-    if (
-      data.every((cell) => !cell.value || isTextCell(cell)) &&
-      data.filter(isTextCell).length > 1
-    ) {
-      // Convert categorical data into counts
-      data = data.map((cell) => (!isErrorCell(cell) ? ONE : EMPTY));
-    } else if (data.every((cell) => !isNumberCell(cell))) {
-      hidden = true;
-    }
-    datasetValues.push({ data, label, hidden, dataSetId: ds.dataSetId });
-  }
-  return datasetValues;
-}
-
-/**
- * Get the values for a hierarchical dataset. The values can be defined in a tree-like structure
- * in the sheet, and this function will fill up the blanks.
- *
- * @example the following dataset:
- *
- * 2024    Q1    W1    100
- *               W2    200
- *
- * will have the same value as the dataset:
- * 2024    Q1    W1    100
- * 2024    Q1    W2    200
- */
-function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
-  dataSets = dataSets.filter(
-    (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
-  );
-  const datasetValues: DatasetValues[] = dataSets.map((ds) => ({
-    data: [],
-    label: "",
-    dataSetId: ds.dataSetId,
-  }));
-  const dataSetsData = dataSets.map((ds) => getData(getters, ds));
-  if (!dataSetsData.length) {
-    return datasetValues;
-  }
-  const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
-
-  let currentValues: FunctionResultObject[] = [];
-  const leafDatasetIndex = dataSets.length - 1;
-
-  for (let i = 0; i < minLength; i++) {
-    for (let dsIndex = 0; dsIndex < dataSetsData.length; dsIndex++) {
-      let cell = dataSetsData[dsIndex][i];
-      if ((cell === undefined || cell.value === null) && dsIndex !== leafDatasetIndex) {
-        cell = currentValues[dsIndex];
-      }
-      if (cell?.value !== currentValues[dsIndex]?.value) {
-        currentValues = currentValues.slice(0, dsIndex);
-        currentValues[dsIndex] = cell;
-      }
-      datasetValues[dsIndex].data.push(cell ?? EMPTY);
-    }
-  }
-
-  return datasetValues.filter((ds) => ds.data.some((d) => d.value !== null));
 }
 
 export function makeDatasetsCumulative(

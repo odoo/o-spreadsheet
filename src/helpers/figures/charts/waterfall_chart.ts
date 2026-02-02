@@ -6,7 +6,6 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
-  ChartData,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -93,8 +92,9 @@ export class WaterfallChart extends AbstractChart {
     return undefined;
   }
 
-  getRuntime(getters: Getters, data: ChartData): WaterfallChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): WaterfallChartRuntime {
     const definition = this.definition;
+    const data = dataSource.extractData(getters);
     const chartData = getBarChartData(definition, data, getters);
 
     const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
