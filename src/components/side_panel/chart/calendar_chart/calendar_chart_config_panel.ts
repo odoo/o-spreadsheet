@@ -1,3 +1,4 @@
+import { getChartData } from "@odoo/o-spreadsheet-engine";
 import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { isDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
@@ -7,7 +8,7 @@ import {
   CalendarChartDefinition,
   CalendarChartGranularity,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { getBarChartData, getChartData } from "../../../../helpers/figures/charts/runtime";
+import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
 import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
 import { Select } from "../../../select/select";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
@@ -46,7 +47,7 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     ).getRangeDefinition() as CalendarChartDefinition;
     const data = getBarChartData(
       definition,
-      getChartData(this.env.model.getters, sheetId, definition.dataSource),
+      getChartData(this.env.model.getters, definition.dataSource),
       this.env.model.getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));
