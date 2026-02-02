@@ -871,4 +871,17 @@ describe("Selection Input", () => {
 
     expect(model.getters.isGridSelectionActive()).toBeTruthy();
   });
+
+  test("Pressing Escape resets the changes of the input", async () => {
+    const { model } = await createSelectionInput({ initialRanges: ["C4", "A1"] });
+    const input = fixture.querySelector("input")!;
+    await simulateClick(input);
+    setInputValueAndTrigger(input, "C5:D9");
+    await nextTick();
+    expect(input.value).toBe("C5:D9");
+    await keyDown({ key: "Escape" });
+    expect(input.value).toBe("C4");
+
+    expect(model.getters.isGridSelectionActive()).toBeTruthy();
+  });
 });
