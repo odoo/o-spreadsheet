@@ -4,7 +4,7 @@ import {
   chartDataSourceRegistry,
 } from "../../registries/chart_data_source_registry";
 import { chartRegistry } from "../../registries/chart_registry";
-import { ChartCreationContext, ChartData, ChartDefinition } from "../../types/chart";
+import { ChartCreationContext, ChartDefinition } from "../../types/chart";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { Range } from "../../types/range";
@@ -51,7 +51,7 @@ export class MyChart {
     return validator.batchValidations(
       () => ChartTypeHandler.validateChartDefinition(validator, definition),
       () => DataSourceHandler.validate(validator, definition.dataSource ?? { type: "never" })
-    )(undefined); // Typescript requires a parameter but we don't use it (`this` is captured by closure)
+    )(undefined); // Typescript requires a parameter but we don't use it (`definition` is captured by closure)
   }
 
   getRangeDefinition(): ChartDefinition<Range> {
@@ -117,7 +117,7 @@ export class MyChart {
     );
   }
 
-  getRuntime(getters: Getters, data: ChartData) {
-    return this.chartTypeHandler.getRuntime(getters, data);
+  getRuntime(getters: Getters) {
+    return this.chartTypeHandler.getRuntime(getters, this.dataSourceHandler);
   }
 }
