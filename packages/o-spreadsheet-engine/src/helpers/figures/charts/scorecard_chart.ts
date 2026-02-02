@@ -10,7 +10,6 @@ import {
   BaselineArrowDirection,
   BaselineMode,
   ChartCreationContext,
-  ChartData,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
   TitleDesign,
@@ -316,7 +315,7 @@ export class ScorecardChart extends AbstractChart {
     return new ScorecardChart(definition, this.sheetId, this.getters);
   }
 
-  getRuntime(getters: Getters, data: ChartData): ScorecardChartRuntime {
+  getRuntime(getters: Getters): ScorecardChartRuntime {
     let formattedKeyValue = "";
     let keyValueCell: EvaluatedCell | undefined;
     const locale = getters.getLocale();

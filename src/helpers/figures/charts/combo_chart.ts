@@ -15,14 +15,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import {
-  ChartCreationContext,
-  ChartData,
-  ExcelChartDefinition,
-  Getters,
-  Range,
-  UID,
-} from "../../../types";
+import { ChartCreationContext, ExcelChartDefinition, Getters, Range, UID } from "../../../types";
 import {
   getBarChartData,
   getBarChartScales,
@@ -106,8 +99,9 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  getRuntime(getters: Getters, data: ChartData): ComboChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): ComboChartRuntime {
     const definition = this.definition;
+    const data = dataSource.extractData(getters);
     const chartData = getBarChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

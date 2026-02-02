@@ -1,6 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { chartRegistry } from "../../../registries/chart_registry";
-import { ChartData, ChartDefinition, ChartRuntime } from "../../../types/chart";
+import { ChartDefinition, ChartRuntime } from "../../../types/chart";
 import { CoreGetters } from "../../../types/core_getters";
 import { Getters } from "../../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../../types/misc";
@@ -38,8 +38,7 @@ export function chartRuntimeFactory(getters: Getters) {
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
-    const data = builder.extractData(definition, chart.sheetId, getters);
-    const runtime = chart.getRuntime(getters, data as ChartData);
+    const runtime = chart.getRuntime(getters);
     if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
       const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
       runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);
