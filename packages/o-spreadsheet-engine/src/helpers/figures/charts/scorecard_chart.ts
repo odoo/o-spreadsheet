@@ -181,8 +181,8 @@ export class ScorecardChart extends AbstractChart {
     "baselineColorDown",
   ] as const;
 
-  constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
+  constructor(private definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(sheetId, getters);
     this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
     this.keyDescr = definition.keyDescr;
     this.baseline = createValidRange(getters, sheetId, definition.baseline);
@@ -286,9 +286,9 @@ export class ScorecardChart extends AbstractChart {
       baselineColorDown: this.baselineColorDown,
       baselineColorUp: this.baselineColorUp,
       baselineMode: this.baselineMode,
-      title: this.title,
+      title: this.definition.title,
       type: "scorecard",
-      background: this.background,
+      background: this.definition.background,
       baseline: baseline
         ? this.getters.getRangeString(baseline, targetSheetId || this.sheetId)
         : undefined,
@@ -355,10 +355,11 @@ export class ScorecardChart extends AbstractChart {
       this.baselineMode === "progress" && isNumber(baselineDisplay, locale)
         ? toNumber(baselineDisplay, locale)
         : 0;
+    const title = this.definition.title;
     return {
       title: {
-        ...this.title,
-        text: this.title.text ? getters.dynamicTranslate(this.title.text) : "",
+        ...title,
+        text: title.text ? getters.dynamicTranslate(title.text) : "",
       },
       keyValue: formattedKeyValue,
       keyDescr: this.keyDescr?.text ? getters.dynamicTranslate(this.keyDescr.text) : "",

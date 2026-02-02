@@ -38,7 +38,7 @@ export class GeoChart extends AbstractChart {
   ] as const;
 
   constructor(private definition: GeoChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
+    super(sheetId, getters);
   }
 
   static getDefinitionFromContextCreation(
