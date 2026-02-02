@@ -83,6 +83,7 @@ autofillModifiersRegistry
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
       const content = data.cell?.content || "";
       const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
+      const position = { sheetId: data.sheetId, col: data.col, row: data.row };
       return {
         cellData: {
           border: data.border,
@@ -94,7 +95,7 @@ autofillModifiersRegistry
           ? {
               props: {
                 content: data.cell
-                  ? evaluateLiteral(data.cell as LiteralCell, localeFormat).formattedValue
+                  ? evaluateLiteral(data.cell as LiteralCell, localeFormat, position).formattedValue
                   : "",
               },
             }
