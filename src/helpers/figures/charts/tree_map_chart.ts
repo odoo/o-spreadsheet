@@ -5,7 +5,6 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
-  ChartData,
   ChartRangeDataSource,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
@@ -109,8 +108,9 @@ export class TreeMapChart extends AbstractChart {
     return undefined;
   }
 
-  getRuntime(getters: Getters, data: ChartData): TreeMapChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): TreeMapChartRuntime {
     const definition = this.definition;
+    const data = dataSource.extractHierarchicalData(getters);
     const chartData = getHierarchalChartData(definition, data, getters);
 
     const config: ChartConfiguration = {
