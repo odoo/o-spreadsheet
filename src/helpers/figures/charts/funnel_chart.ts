@@ -42,7 +42,7 @@ export class FunnelChart extends AbstractChart {
     sheetId: UID,
     getters: CoreGetters
   ) {
-    super(definition, sheetId, getters);
+    super(sheetId, getters);
   }
 
   static getDefinitionFromContextCreation(
