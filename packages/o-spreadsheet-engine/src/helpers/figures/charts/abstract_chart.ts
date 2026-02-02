@@ -7,7 +7,6 @@ import {
   ChartRuntime,
   ChartType,
   ExcelChartDefinition,
-  TitleDesign,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
@@ -22,10 +21,8 @@ import { Validator } from "../../../types/validator";
  */
 export abstract class AbstractChart {
   readonly sheetId: UID;
-  readonly title: TitleDesign;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
-  readonly humanize: boolean | undefined;
 
   static commonKeys: readonly (keyof ChartDefinition)[] = [
     "type",
@@ -35,15 +32,9 @@ export abstract class AbstractChart {
   ];
   static dataSetKeys: readonly (keyof ChartDefinitionWithDataSource)[] = ["dataSetStyles"];
 
-  constructor(
-    definition: Pick<ChartDefinition, "title" | "humanize">,
-    sheetId: UID,
-    getters: CoreGetters
-  ) {
-    this.title = definition.title;
+  constructor(sheetId: UID, getters: CoreGetters) {
     this.sheetId = sheetId;
     this.getters = getters;
-    this.humanize = definition.humanize;
   }
 
   /**
