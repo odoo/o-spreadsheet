@@ -1,4 +1,4 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
+import { CoreGetters, getChartData } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
@@ -11,7 +11,6 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import {
   ChartCreationContext,
-  ChartData,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
@@ -24,7 +23,6 @@ import { Getters, Range, UID } from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
-  getChartData,
   getChartTitle,
   getPyramidChartData,
   getPyramidChartScales,
@@ -91,7 +89,7 @@ export class PyramidChart extends AbstractChart {
     { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
   ): ExcelChartDefinition | undefined {
     const definition = this.getRangeDefinition();
-    const data = getChartData(getters, this.sheetId, definition.dataSource);
+    const data = getChartData(getters, definition.dataSource);
     const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
@@ -113,8 +111,9 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  getRuntime(getters: Getters, data: ChartData): PyramidChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): PyramidChartRuntime {
     const definition = this.definition;
+    const data = dataSource.extractData(getters);
     const chartData = getPyramidChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

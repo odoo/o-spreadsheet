@@ -14,7 +14,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
 import {
   ChartCreationContext,
-  ChartData,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
@@ -103,8 +102,9 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  getRuntime(getters: Getters, data: ChartData): BarChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): BarChartRuntime {
     const definition = this.definition;
+    const data = dataSource.extractData(getters);
     const chartData = getBarChartData(definition, data, getters);
 
     const config: ChartConfiguration<"bar" | "line"> = {
