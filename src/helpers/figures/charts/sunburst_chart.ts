@@ -44,7 +44,7 @@ export class SunburstChart extends AbstractChart {
     sheetId: UID,
     getters: CoreGetters
   ) {
-    super(definition, sheetId, getters);
+    super(sheetId, getters);
   }
 
   static getDefinitionFromContextCreation(
