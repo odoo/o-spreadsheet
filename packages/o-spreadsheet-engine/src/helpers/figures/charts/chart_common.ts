@@ -1,4 +1,3 @@
-import { rangeReference } from "../..";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
@@ -25,6 +24,7 @@ import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
+import { rangeReference } from "../../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";

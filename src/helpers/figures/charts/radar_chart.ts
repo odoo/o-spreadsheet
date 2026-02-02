@@ -7,11 +7,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ChartData,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartCreationContext, ExcelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   RadarChartDefinition,
   RadarChartRuntime,
@@ -93,8 +89,9 @@ export class RadarChart extends AbstractChart {
     };
   }
 
-  getRuntime(getters: Getters, data: ChartData): RadarChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): RadarChartRuntime {
     const definition = this.getRangeDefinition();
+    const data = dataSource.extractData(getters);
     const chartData = getRadarChartData(definition, data, getters);
 
     const config: ChartConfiguration = {
