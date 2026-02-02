@@ -493,7 +493,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
-          const operand = compileAST(ast.operand, ast.value === "#").assignResultToVariable();
+          const operand = compileAST(ast.operand, ast.value === "#").assignResultToVariable(); // hasRange is true to avoid vectorization of SPILLED.RANGE
           code.append(operand);
           return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
