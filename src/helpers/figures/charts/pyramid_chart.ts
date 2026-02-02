@@ -53,7 +53,7 @@ export class PyramidChart extends AbstractChart {
     sheetId: UID,
     getters: CoreGetters
   ) {
-    super(definition, sheetId, getters);
+    super(sheetId, getters);
   }
 
   static getDefinitionFromContextCreation(

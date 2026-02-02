@@ -127,7 +127,6 @@ function checkValueIsNumberOrFormula(value: string, valueName: string) {
 export class GaugeChart extends AbstractChart {
   readonly dataRange?: Range;
   readonly sectionRule: SectionRule;
-  readonly background?: Color;
   readonly type = "gauge";
 
   static allowedDefinitionKeys: readonly (keyof GaugeChartDefinition)[] = [
@@ -136,11 +135,10 @@ export class GaugeChart extends AbstractChart {
     "sectionRule",
   ] as const;
 
-  constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
+  constructor(private definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
+    super(sheetId, getters);
     this.dataRange = createValidRange(this.getters, this.sheetId, definition.dataRange);
     this.sectionRule = definition.sectionRule;
-    this.background = definition.background;
   }
 
   static validateChartDefinition(
@@ -251,14 +249,11 @@ export class GaugeChart extends AbstractChart {
     targetSheetId?: UID
   ): GaugeChartDefinition {
     return {
-      background: this.background,
-      sectionRule: sectionRule,
-      title: this.title,
-      type: "gauge",
+      ...this.definition,
+      sectionRule,
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
-      humanize: this.humanize,
     };
   }
 
@@ -339,11 +334,14 @@ export class GaugeChart extends AbstractChart {
 
     const inflectionValues: GaugeInflectionValue[] = [];
     const colors: Color[] = [];
+    const definition = this.getDefinition();
+    const humanize = definition.humanize;
+    const title = definition.title;
 
     if (lowerPointValue !== undefined) {
       inflectionValues.push({
         value: lowerPointValue,
-        label: formatOrHumanizeValue(lowerPointValue, format, locale, this.humanize),
+        label: formatOrHumanizeValue(lowerPointValue, format, locale, humanize),
         operator: lowerPoint.operator,
       });
       colors.push(chartColors.lowerColor);
@@ -352,7 +350,7 @@ export class GaugeChart extends AbstractChart {
     if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
       inflectionValues.push({
         value: upperPointValue,
-        label: formatOrHumanizeValue(upperPointValue, format, locale, this.humanize),
+        label: formatOrHumanizeValue(upperPointValue, format, locale, humanize),
         operator: upperPoint.operator,
       });
       colors.push(chartColors.middleColor);
@@ -370,24 +368,24 @@ export class GaugeChart extends AbstractChart {
     colors.push(chartColors.upperColor);
 
     return {
-      background: getters.getStyleOfSingleCellChart(this.background, dataRange).background,
+      background: getters.getStyleOfSingleCellChart(definition.background, dataRange).background,
       title: {
-        ...this.title,
-        text: this.title.text ? getters.dynamicTranslate(this.title.text) : "",
+        ...title,
+        text: title.text ? getters.dynamicTranslate(title.text) : "",
       },
       minValue: {
         value: minValue,
-        label: formatOrHumanizeValue(minValue, format, locale, this.humanize),
+        label: formatOrHumanizeValue(minValue, format, locale, humanize),
       },
       maxValue: {
         value: maxValue,
-        label: formatOrHumanizeValue(maxValue, format, locale, this.humanize),
+        label: formatOrHumanizeValue(maxValue, format, locale, humanize),
       },
       gaugeValue:
         gaugeValue !== undefined && formattedValue
           ? {
               value: gaugeValue,
-              label: this.humanize
+              label: humanize
                 ? humanizeNumber({ value: gaugeValue, format }, locale)
                 : formattedValue,
             }
@@ -424,9 +422,11 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
 }
 
 function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
+  const definition = chart.getDefinition();
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, chart.dataRange).background,
-    title: chart.title ?? { text: "" },
+    background: getters.getStyleOfSingleCellChart(definition.background, chart.dataRange)
+      .background,
+    title: definition.title ?? { text: "" },
     minValue: { value: 0, label: "" },
     maxValue: { value: 100, label: "" },
     gaugeValue: { value: 0, label: CellErrorType.GenericError },

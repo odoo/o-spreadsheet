@@ -21,7 +21,6 @@ import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { toHex, toZone } from "../../../src/helpers";
-import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
@@ -345,7 +344,7 @@ describe("charts", () => {
         setInputValueAndTrigger(dataSeriesValues, "B2:B4");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
-        const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
+        const definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
         expect(definition.keyValue).toEqual("B2:B4");
         break;
       }
@@ -353,7 +352,7 @@ describe("charts", () => {
         setInputValueAndTrigger(dataSeriesValues, "B9");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
-        const definition = model.getters.getChartDefinition(chartId) as GaugeChart;
+        const definition = model.getters.getChartDefinition(chartId) as GaugeChartDefinition;
         expect(definition.dataRange).toEqual("B9");
         break;
       }
