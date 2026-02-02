@@ -6,7 +6,6 @@ import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/ch
 import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   ChartCreationContext,
-  ChartData,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { ChartConfiguration } from "chart.js";
@@ -80,8 +79,9 @@ export class FunnelChart extends AbstractChart {
     return undefined;
   }
 
-  getRuntime(getters: Getters, data: ChartData): FunnelChartRuntime {
+  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): FunnelChartRuntime {
     const definition = this.getRangeDefinition();
+    const data = dataSource.extractData(getters);
     const chartData = getFunnelChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

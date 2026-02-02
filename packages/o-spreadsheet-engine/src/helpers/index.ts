@@ -1,3 +1,4 @@
+export * from "./figures/charts/chart_data_sources";
 export * from "./misc";
 export * from "./numbers";
 export * from "./references";

@@ -1,7 +1,6 @@
 import { ChartDataSourceHandler } from "../../../registries/chart_data_source_registry";
 import {
   ChartCreationContext,
-  ChartData,
   ChartDefinition,
   ChartDefinitionWithDataSource,
   ChartRuntime,
@@ -72,7 +71,7 @@ export abstract class AbstractChart {
    */
   abstract getRangeDefinition(): ChartDefinition<Range>;
 
-  abstract getRuntime(getters: Getters, data: ChartData): ChartRuntime;
+  abstract getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): ChartRuntime;
 
   getDefinition(): Omit<ChartDefinition<string>, "dataSource"> {
     return this.getRangeDefinition();
