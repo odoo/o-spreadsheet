@@ -1,6 +1,6 @@
 import { CompiledFormula } from "../formulas/compiler";
 import { Format, FormattedValue } from "./format";
-import { FunctionResultObject, Link, Style } from "./misc";
+import { CellPosition, FunctionResultObject, Link, Style } from "./misc";
 
 interface CellAttributes {
   readonly id: number;
@@ -36,6 +36,7 @@ interface EvaluatedCellProperties extends FunctionResultObject {
    */
   readonly isAutoSummable: boolean;
   readonly link?: Link;
+  readonly position?: CellPosition;
 }
 
 export type CellValue = string | number | boolean | null; // We use null to represent an empty cell. This choice is preferred over using undefined because when passing values to a JavaScript function, undefined may be replaced by a default value.
