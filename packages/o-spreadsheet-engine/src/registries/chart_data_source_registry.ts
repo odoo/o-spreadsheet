@@ -1,5 +1,6 @@
 import {
   ChartCreationContext,
+  ChartData,
   ChartDataSource,
   ChartDataSourceType,
   DataSetStyle,
@@ -7,6 +8,7 @@ import {
 } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
+import { Getters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { Validator } from "../types/validator";
@@ -30,7 +32,8 @@ interface ChartDataSourceHandlerContructor {
 
 export interface ChartDataSourceHandler {
   dataSource: ChartDataSource<Range>;
-  // extractData: (definition: T, sheetId: UID, getters: Getters) => D;
+  extractData(getters: Getters): ChartData;
+  extractHierarchicalData(getters: Getters): ChartData;
   adaptRanges(rangeAdapters: RangeAdapterFunctions): ChartDataSource;
   duplicateInDuplicatedSheet(
     getters: CoreGetters,
