@@ -74,7 +74,11 @@ class CompilationParametersBuilder {
     }
     // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-    return { ...this.computeCell(position), position };
+    const result = this.computeCell(position);
+    if (!result.position) {
+      return { ...result, position };
+    }
+    return result;
   }
 
   /**
@@ -125,7 +129,11 @@ class CompilationParametersBuilder {
   }
 
   private getRef(position: CellPosition): FunctionResultObject {
-    return { ...this.computeCell(position), position };
+    const result = this.computeCell(position);
+    if (!result.position) {
+      return { ...result, position };
+    }
+    return result;
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {
