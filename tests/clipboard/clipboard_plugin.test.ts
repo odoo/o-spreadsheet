@@ -1556,7 +1556,7 @@ describe("clipboard", () => {
     activateSheet(model, "sh2");
     paste(model, "A1");
     expect(getCellText(model, "A1")).toBe("=SUM(Sheet1!C1:C2)");
-    expect(getCellText(model, "B1")).toBe("=A1 + Sheet1!A2");
+    expect(getCellText(model, "B1")).toBe("=A1+Sheet1!A2");
   });
 
   test("copy/paste a zone present in formulas references does not update references", () => {
@@ -2623,7 +2623,7 @@ describe("clipboard: pasting outside of sheet", () => {
       thousandsSeparator: " ",
     });
     pasteFromOSClipboard(model, "A1", { text: "=SUM(5 ; 3,14)" });
-    expect(getCellRawContent(model, "A1")).toBe("=SUM(5 , 3.14)");
+    expect(getCellRawContent(model, "A1")).toBe("=SUM(5,3.14)");
     expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
   });
 
