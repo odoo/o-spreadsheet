@@ -4,7 +4,7 @@ import { UID } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
 import { RTreeItem, SpreadsheetRTree } from "./r_tree";
 
-export type DependentEntityType = "chart" | "pivot" | "conditionalFormat";
+export type DependentEntityType = "chart" | "pivot" | "conditionalFormat" | "filter";
 
 export interface DependentEntity {
   id: UID;
