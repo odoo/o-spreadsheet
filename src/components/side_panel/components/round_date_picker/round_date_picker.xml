@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet.RoundDatePicker">
+    <div
+      class="o-round-date-picker-button d-flex justify-content-center align-items-center"
+      t-ref="datePickerButton"
+      t-on-click.stop="togglePicker"
+      t-att-title="props.title"
+      style="width: 24px; height: 24px;">
+      <t t-call="o-spreadsheet-Icon.CALENDAR"/>
+    </div>
+    <DatePicker
+      t-if="state.pickerOpened"
+      anchorRect="datePickerAnchorRect"
+      onDatePicked.bind="onDatePicked"
+      initialDate="initialDate"
+    />
+  </t>
+</templates>

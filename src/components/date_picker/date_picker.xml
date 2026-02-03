@@ -1,0 +1,45 @@
+<templates>
+  <t t-name="o-spreadsheet-DatePicker">
+    <Popover t-props="popoverProps">
+    <div class="o-date-picker bg-white border p-2 rounded">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="o-date-picker-header font-weight-bold">
+          <t t-esc="state.viewDate.toFormat('MMMM yyyy')"/>
+        </div>
+        <div class="o-date-picker-navigation d-flex">
+          <span class="p-1 cursor-pointer" t-on-click="prevMonth">
+            <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
+          </span>
+          <span class="p-1 cursor-pointer" t-on-click="nextMonth">
+            <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
+          </span>
+        </div>
+      </div>
+      <div class="o-date-picker-grid">
+        <div class="o-date-picker-weekdays d-flex mb-1">
+          <t t-foreach="weekDays" t-as="day" t-key="day_index">
+            <div class="o-date-picker-cell text-center text-muted small" style="width: 24px;">
+              <t t-esc="day"/>
+            </div>
+          </t>
+        </div>
+        <div class="o-date-picker-dates d-flex flex-wrap" style="width: 168px;">
+          <t t-foreach="days" t-as="date" t-key="date.ts">
+            <div
+              class="o-date-picker-cell text-center p-1 rounded-circle"
+              style="width: 24px; height: 24px; line-height: 16px; font-size: 12px;"
+              t-att-class="{
+                'text-muted': !isCurrentMonth(date),
+                'bg-primary text-white': isSameDay(date, state.selectedDate),
+                'o-date-picker-today fw-bold': isSameDay(date, today)
+              }"
+              t-on-click="() => this.selectDate(date)">
+              <t t-esc="date.day"/>
+            </div>
+          </t>
+        </div>
+      </div>
+    </div>
+    </Popover>
+  </t>
+</templates>

@@ -115,6 +115,10 @@ export class DateTime {
     return Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
 
+  getJsDate() {
+    return this.jsDate;
+  }
+
   setFullYear(year: number) {
     return this.jsDate.setUTCFullYear(year);
   }

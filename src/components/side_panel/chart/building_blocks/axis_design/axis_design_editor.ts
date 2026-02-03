@@ -17,10 +17,10 @@ import {
   TitleDesign,
   UID,
 } from "../../../../../types";
-import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../../components/checkbox/checkbox";
+import { RoundDatePicker } from "../../../components/round_date_picker/round_date_picker";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../chart_title/chart_title";
 
@@ -38,7 +38,14 @@ interface Props {
 
 export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
-  static components = { Section, ChartTitle, BadgeSelection, Checkbox, NumberInput, DateInput };
+  static components = {
+    Section,
+    ChartTitle,
+    BadgeSelection,
+    Checkbox,
+    NumberInput,
+    RoundDatePicker,
+  };
   static props = { chartId: String, definition: Object, updateChart: Function, axesList: Array };
 
   state: { currentAxis: AxisId } = useState({ currentAxis: "x" });
@@ -266,5 +273,23 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   private getXAxisType(): AxisType | undefined {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as LineChartRuntime;
     return runtime?.chartJsConfig.options?.scales?.x?.type as AxisType | undefined;
+  }
+
+  updateTimeAxisMinDate(date: number) {
+    const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
+    axesDesign[this.state.currentAxis] = {
+      ...axesDesign[this.state.currentAxis],
+      min: date,
+    };
+    this.props.updateChart(this.props.chartId, { axesDesign });
+  }
+
+  updateTimeAxisMaxDate(date: number) {
+    const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
+    axesDesign[this.state.currentAxis] = {
+      ...axesDesign[this.state.currentAxis],
+      max: date,
+    };
+    this.props.updateChart(this.props.chartId, { axesDesign });
   }
 }
