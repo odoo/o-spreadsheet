@@ -7,6 +7,15 @@ import { DEFAULT_LOCALE } from "../../types/locale";
 import { Granularity, PivotTimeAdapter, PivotTimeAdapterNotNull } from "../../types/pivot";
 import { DAYS, formatValue, MONTHS } from "../format/format";
 
+/**
+ * Converts "period/year" (e.g. "48/2026", "03/2025", "1/2020")
+ * into a numeric value that preserves chronological ordering.
+ */
+export function periodYearToComparable(value: string): number {
+  const [periodString, yearString] = value.split("/");
+  return Number(yearString) * 100 + Number(periodString);
+}
+
 export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 
 export function pivotTimeAdapter(granularity: Granularity): PivotTimeAdapter<CellValue> {
@@ -186,6 +195,9 @@ const monthAdapter: PivotTimeAdapterNotNull<string> = {
     const jsDate = toJsDate(normalizedValue, DEFAULT_LOCALE);
     return `DATE(${jsDate.getFullYear()},${jsDate.getMonth() + 1},1)`;
   },
+  toComparableValue(normalizedValue) {
+    return periodYearToComparable(normalizedValue);
+  },
 };
 
 /**
@@ -327,6 +339,12 @@ function nullHandlerDecorator<T>(adapter: PivotTimeAdapterNotNull<T>): PivotTime
         return "false"; //TODO Return NA ?
       }
       return adapter.toFunctionValue(normalizedValue);
+    },
+    toComparableValue(normalizedValue) {
+      if (normalizedValue === null) {
+        return undefined;
+      }
+      return adapter.toComparableValue?.(normalizedValue);
     },
   };
 }

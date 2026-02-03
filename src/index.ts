@@ -138,6 +138,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
 import {
+  periodYearToComparable,
   pivotTimeAdapter,
   pivotTimeAdapterRegistry,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
@@ -399,6 +400,7 @@ export const helpers = {
   parseDimension,
   isDateOrDatetimeField,
   makeFieldProposal,
+  periodYearToComparable,
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   mergeContiguousZones,

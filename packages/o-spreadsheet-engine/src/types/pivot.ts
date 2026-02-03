@@ -180,12 +180,14 @@ export interface PivotTimeAdapterNotNull<T> {
   normalizeFunctionValue: (value: Exclude<CellValue, null>) => T;
   toValueAndFormat: (normalizedValue: T, locale?: Locale) => FunctionResultObject;
   toFunctionValue: (normalizedValue: T) => string;
+  toComparableValue?: (normalizedValue: T) => number;
 }
 
 export interface PivotTimeAdapter<T> {
   normalizeFunctionValue: (value: CellValue) => T | null;
   toValueAndFormat: (normalizedValue: T, locale?: Locale) => FunctionResultObject;
   toFunctionValue: (normalizedValue: T) => string;
+  toComparableValue?: (normalizedValue: T | null) => number | undefined;
 }
 
 export interface PivotNode {
