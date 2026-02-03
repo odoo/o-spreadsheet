@@ -2,7 +2,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { UuidGenerator } from "./helpers";
+import { deepEquals, UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, lazy } from "./helpers/misc";
 import { buildRevisionLog } from "./history/factory";
@@ -69,7 +69,7 @@ const enum Status {
  * State changes are then performed through commands.  Commands are dispatched
  * to the model, which will then relay them to each plugins (and the history
  * handler). Then, the model will trigger an 'update' event to notify whoever
- * is concerned that the command was applied (if it was not cancelled).
+ * is concerned that the command was applied (if it was not canceled).
  *
  * Also, the model has an unconventional responsibility: it actually renders the
  * visible viewport on a canvas. This is because each plugins actually manage a
@@ -225,24 +225,26 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.uiHandlers.push(plugin);
     }
 
-    // starting plugins
-    this.dispatch("START");
-    // Model should be the last permanent subscriber in the list since he should render
-    // after all changes have been applied to the other subscribers (plugins)
-    this.selection.observe(this, {
-      handleEvent: () => this.trigger("update"),
-    });
-    // This should be done after construction of LocalHistory due to order of
-    // events
-    this.setupSessionEvents();
+    if (this.config.mode !== "export_verification") {
+      // starting plugins
+      this.dispatch("START");
+      // Model should be the last permanent subscriber in the list since he should render
+      // after all changes have been applied to the other subscribers (plugins)
+      this.selection.observe(this, {
+        handleEvent: () => this.trigger("update"),
+      });
+      // This should be done after construction of LocalHistory due to order of
+      // events
+      this.setupSessionEvents();
 
-    this.joinSession();
+      this.joinSession();
 
-    if (config.snapshotRequested || (data["[Content_Types].xml"] && !this.getters.isReadonly())) {
-      const startSnapshot = performance.now();
-      console.debug("Snapshot requested");
-      this.session.snapshot(this.exportData());
-      console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
+      if (config.snapshotRequested || (data["[Content_Types].xml"] && !this.getters.isReadonly())) {
+        const startSnapshot = performance.now();
+        console.debug("Snapshot requested");
+        this.session.snapshot(this.exportData());
+        console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
+      }
     }
     console.debug("Model created in", performance.now() - start, "ms");
     console.debug("######");
@@ -373,7 +375,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();
-    const isReadonly = config.mode === "readonly" || config.mode === "dashboard";
+    const isReadonly =
+      config.mode === "readonly" ||
+      config.mode === "dashboard" ||
+      config.mode === "export_verification";
     return {
       ...config,
       mode: config.mode || "normal",
@@ -630,10 +635,35 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * export data out of the model.
    */
   exportData(): WorkbookData {
+    const squished = true;
+    const unsquished = false;
+    const exportSquished = this._exportData(squished);
+    const exportUnsquished = this._exportData(unsquished);
+    const verificationConfig = {
+      ...this.config,
+      mode: "export_verification" as Mode, // will not trigger evaluation or join the session
+      client: { id: "exporter", name: "exporter" },
+      snapshotRequested: false, // guarantee that no extra snapshot is requested
+      transportService: new LocalTransportService(),
+    };
+
+    const exportVerificationModel = new Model(
+      deepCopy(exportSquished), // the import itself modifies the data, so we need to deep copy it to keep the original one for comparison
+      verificationConfig
+    )._exportData(unsquished);
+    if (!deepEquals(exportUnsquished, exportVerificationModel)) {
+      exportUnsquished.isNotSquishable = true;
+      return exportUnsquished;
+    } else {
+      return exportSquished;
+    }
+  }
+
+  _exportData(shouldSquish: boolean): WorkbookData {
     let data = createEmptyWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof CorePlugin) {
-        handler.export(data);
+        handler.export(data, shouldSquish);
       }
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;
