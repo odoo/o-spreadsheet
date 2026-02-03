@@ -22,6 +22,7 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
+import { DebouncedFunction } from "../types/misc";
 import { Command } from "./../types/commands";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
@@ -38,7 +39,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Id of the server revision
    */
-  private debouncedMove: Session["move"];
+  private debouncedMove: DebouncedFunction<Session["move"]>;
   private pendingMessages: StateUpdateMessage[] = [];
 
   private waitingAck: boolean = false;
@@ -79,7 +80,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   ) {
     super();
 
-    this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME) as Session["move"];
+    this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME);
   }
 
   canApplyOptimisticUpdate() {
@@ -175,6 +176,7 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Notify the server that the user client left the collaborative session
    */
   async leave(data?: Lazy<WorkbookData>) {
+    this.debouncedMove.stopDebounce();
     if (
       data &&
       Object.keys(this.clients).length === 1 &&
