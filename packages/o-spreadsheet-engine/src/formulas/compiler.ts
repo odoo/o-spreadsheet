@@ -72,7 +72,7 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
   ) {
     this.hasDependencies = dependencies?.length > 0;
     this.tokens.forEach((t) => {
-      if (["REFERENCE", "NUMBER", "STRING"].includes(t.type)) {
+      if (["REFERENCE", "NUMBER", "STRING", "INVALID_REFERENCE"].includes(t.type)) {
         t.value = NO_REAL_VALUE;
       }
     });
@@ -89,6 +89,7 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     this.tokens.forEach((token: Token) => {
       switch (token.type) {
         case "REFERENCE":
+        case "INVALID_REFERENCE":
           token.value = getters.getRangeString(
             this.rangeDependencies[referenceIndex++],
             this.sheetId,
