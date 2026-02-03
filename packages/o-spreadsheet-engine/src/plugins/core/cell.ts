@@ -8,7 +8,7 @@ import {
 } from "../../helpers/data_normalization";
 import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
-import { toCartesian, toXC } from "../../helpers/coordinates";
+import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
 import { isInside } from "../../helpers/zones";
@@ -39,6 +39,8 @@ import { DEFAULT_LOCALE } from "../../types/locale";
 import { AdaptSheetName, Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { SquishedCell, Squisher } from "./squisher";
+import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -236,6 +238,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    const start = performance.now();
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{
@@ -245,11 +248,19 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         format?: number;
       }>();
       // cells content
-      for (const xc in sheet.cells) {
-        if (sheet.cells[xc]) {
-          const { col, row } = toCartesian(xc);
-          const position = { sheetId: sheet.id, col, row };
-          cellsData.set(position, { content: sheet.cells[xc] });
+      const unsquisher = new Unsquisher();
+      for (const unsquishedItem of unsquisher.unsquishSheet(sheet.cells, sheet.id, this.getters)) {
+        if (unsquishedItem.content || unsquishedItem.compiled) {
+          const position = {
+            sheetId: sheet.id,
+            col: unsquishedItem.position.col,
+            row: unsquishedItem.position.row,
+          };
+          if (unsquishedItem.compiled) {
+            cellsData.set(position, { compiledFormula: unsquishedItem.compiled });
+          } else {
+            cellsData.set(position, { content: unsquishedItem.content });
+          }
         }
       }
       // cells style and format
@@ -284,22 +295,22 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
+    console.debug("cells imported in ", performance.now() - start);
   }
 
-  export(data: WorkbookData) {
+  export(data: WorkbookData, shouldSquish: boolean) {
     const styles: { [styleId: number]: Style } = {};
     const formats: { [formatId: number]: string } = {};
-
     for (const _sheet of data.sheets) {
+      const squisher = new Squisher(this.getters);
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: string } = {};
+      const cells: { [key: string]: SquishedCell } = {};
       const positions = Object.values(this.cells[_sheet.id] || {})
         .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
-        const xc = toXC(position.col, position.row);
         const style = this.extractCustomStyle(cell);
         if (Object.keys(style).length) {
           const styleId = getItemId<Style>(style, styles);
@@ -311,15 +322,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
+        const xc = toXC(position.col, position.row);
         if (cell.isFormula) {
-          cells[xc] = cell.compiledFormula.toFormulaString(this.getters);
+          cells[xc] = shouldSquish
+            ? squisher.squish(cell, _sheet.id)
+            : cell.compiledFormula.toFormulaString(this.getters);
         } else if (cell.content) {
-          cells[xc] = cell.content;
+          cells[xc] = shouldSquish ? squisher.squish(cell, _sheet.id) : cell.content;
         }
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
-      _sheet.cells = cells;
+      _sheet.cells = shouldSquish ? squisher.squishSheet(cells) : cells;
     }
     data.styles = styles;
     data.formats = formats;
@@ -340,7 +354,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    this.export(data, false);
     const incompatibleIds: number[] = [];
     for (const formatId in data.formats || []) {
       if (!isExcelCompatible(data.formats[formatId])) {
@@ -409,7 +423,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return newFormula.toFormulaString(this.getters, { useBoundedReference });
   }
 
-  /*
+  /**
    * Constructs a formula string based on an initial formula and a translation vector
    */
   getTranslatedCellFormula(

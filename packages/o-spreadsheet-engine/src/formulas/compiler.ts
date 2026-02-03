@@ -56,23 +56,29 @@ const NO_REAL_VALUE = "__NO_REAL_VALUE__";
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
+/**
+ * A compiled formula is the result of the compilation of a formula string.
+ * It contains all the information needed to execute the formula, as well as some metadata
+ * about the formula (dependencies, literal values, symbols...) that can be used to rebuild a slightly different formula
+ * without recompiling it (for example when the formula is copied to another cell, or when we want to replace literal values but keep the same structure).
+ * */
 export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "dependencies"> {
   public readonly rangeDependencies: Range[];
   public hasDependencies: boolean;
 
   private constructor(
-    public sheetId: UID,
+    public readonly sheetId: UID,
     private readonly tokens: Token[],
-    public literalValues: LiteralValues,
-    public symbols: string[],
+    public readonly literalValues: LiteralValues,
+    public readonly symbols: string[],
     dependencies: Range[],
-    public isBadExpression: boolean,
-    public normalizedFormula: string,
-    public execute: FormulaToExecute
+    public readonly isBadExpression: boolean,
+    public readonly normalizedFormula: string,
+    public readonly execute: FormulaToExecute
   ) {
     this.hasDependencies = dependencies?.length > 0;
     this.tokens.forEach((t) => {
-      if (["REFERENCE", "NUMBER", "STRING"].includes(t.type)) {
+      if (["REFERENCE", "NUMBER", "STRING", "INVALID_REFERENCE"].includes(t.type)) {
         t.value = NO_REAL_VALUE;
       }
     });
@@ -89,6 +95,7 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     this.tokens.forEach((token: Token) => {
       switch (token.type) {
         case "REFERENCE":
+        case "INVALID_REFERENCE":
           token.value = getters.getRangeString(
             this.rangeDependencies[referenceIndex++],
             this.sheetId,
@@ -110,6 +117,10 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     return parseTokens(this.getTokens(getters));
   }
 
+  /**
+   * Return the string representation of the formula, with the current dependencies and literal values.
+   * This is a heavy operation as it converts the rangeDependencies to string on each call.
+   * */
   toFormulaString(getters: CoreGetters, referenceOption?: RangeStringOptions): string {
     if (this.isBadExpression) {
       return this.normalizedFormula;
@@ -169,6 +180,9 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     return compiledFormula.isBadExpression;
   }
 
+  /**
+   * Recreates a CompiledFormula based on `base` with adapted dependencies.
+   * */
   static CopyWithDependencies(
     base: CompiledFormula,
     sheetId: UID,
@@ -186,6 +200,9 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     );
   }
 
+  /**
+   * Recreates a CompiledFormula based on `base` with adapted dependencies and/or different literal values.
+   * */
   static CopyWithDependenciesAndLiteral(
     base: CompiledFormula,
     sheetId: UID,
@@ -205,6 +222,10 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     );
   }
 
+  /**
+   * When copy/pasting a formula across sheets, the formula is serialized (all it's serializable properties are kept) and deserialized on the new sheet.
+   * This function allows to recompile the formula based on the serializable properties.
+   * */
   static CompileForSerializedFormula(
     sheetId: UID,
     base: SerializedCompiledFormula
@@ -222,6 +243,9 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
     );
   }
 
+  /**
+   * Make a new instance of CompiledFormula by compiling the formula string as input by the user.
+   * */
   static CompileFormula(formula: string, sheetId: UID, getters: CoreGetters): CompiledFormula {
     const tokens = rangeTokenize(formula);
     const params = compileTokens(tokens);
@@ -239,6 +263,9 @@ export class CompiledFormula implements Omit<Omit<ICompiledFormula, "tokens">, "
   }
 }
 
+/**
+ * A compiled formula serialized
+ * */
 export type SerializedCompiledFormula = {
   sheetId: UID;
   tokens: Token[];

@@ -25,10 +25,9 @@ export class DataValidationInsertionPlugin extends UIPlugin {
             ) {
               let value: string | undefined;
               if (cell.isFormula) {
-                // TODO: it's ridiculous to recompile the already compiled formula here, but I want this to work for now
-                const result = this.getters.evaluateFormula(
+                const result = this.getters.evaluateCompiledFormula(
                   position.sheetId,
-                  cell.compiledFormula.toFormulaString(this.getters)
+                  cell.compiledFormula
                 );
                 value = (isMatrix(result) ? result[0][0] : result)?.toString();
               } else {
