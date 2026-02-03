@@ -469,11 +469,6 @@ export function createScorecardChartRuntime(
     };
     baselineCell = getters.getEvaluatedCell(baselinePosition);
   }
-  const { background, fontColor } = getters.getStyleOfSingleCellChart(
-    chart.background,
-    chart.keyValue
-  );
-
   const baselineDisplay = getBaselineText(
     baselineCell,
     keyValueCell,
@@ -505,8 +500,6 @@ export function createScorecardChartRuntime(
       chart.baselineMode !== "progress" && chart.baselineDescr?.text
         ? getters.dynamicTranslate(chart.baselineDescr.text)
         : "",
-    fontColor,
-    background,
     baselineStyle: {
       ...(chart.baselineMode !== "percentage" && chart.baselineMode !== "progress" && baseline
         ? getters.getCellComputedStyle({

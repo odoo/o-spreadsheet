@@ -2425,20 +2425,26 @@ describe("Default background on runtime tests", () => {
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime(chartId).background).toBe(BACKGROUND_CHART_COLOR);
+    expect((model.getters.getChartRuntime(chartId) as BarChartRuntime).background).toBe(
+      BACKGROUND_CHART_COLOR
+    );
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     updateChart(model, chartId, { type: "line" }, sheetId);
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime(chartId).background).toBe(BACKGROUND_CHART_COLOR);
+    expect((model.getters.getChartRuntime(chartId) as BarChartRuntime).background).toBe(
+      BACKGROUND_CHART_COLOR
+    );
   });
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime(chartId).background).toBe("#FA0000");
+    const chart = model.getters.getChart(chartId) as ScorecardChart;
+    const style = model.getters.getStyleOfSingleCellChart(chart.background, chart.keyValue);
+    expect(style.background).toBe("#FA0000");
   });
 });
 

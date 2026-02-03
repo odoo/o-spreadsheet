@@ -1,12 +1,16 @@
 import { ChartConfiguration, ChartOptions } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   ChartRuntime,
   ChartType,
   GaugeChartRuntime,
+  GaugeChartStyle,
   ScorecardChartRuntime,
+  ScorecardChartStyle,
 } from "../../../types/chart";
 import { Figure } from "../../../types/figure";
 import { deepCopy } from "../../misc";
+import { chartFontColor } from "./chart_common";
 import {
   areChartJSExtensionsLoaded,
   registerChartJSExtensions,
@@ -15,6 +19,15 @@ import {
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
+
+const DEFAULT_SCORECARD_STYLE: ScorecardChartStyle = {
+  background: BACKGROUND_CHART_COLOR,
+  fontColor: chartFontColor(BACKGROUND_CHART_COLOR),
+};
+
+const DEFAULT_GAUGE_STYLE: GaugeChartStyle = {
+  background: BACKGROUND_CHART_COLOR,
+};
 
 export const CHART_COMMON_OPTIONS = {
   // https://www.chartjs.org/docs/latest/general/responsive.html
@@ -80,11 +93,15 @@ export async function chartToImageUrl(
       );
     }
     if (type === "scorecard") {
-      const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
+      const design = getScorecardConfiguration(
+        figure,
+        runtime as ScorecardChartRuntime,
+        DEFAULT_SCORECARD_STYLE
+      );
       drawScoreChart(design, canvas);
       imageUrl = await canvasToObjectUrl(canvas);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, figure);
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, DEFAULT_GAUGE_STYLE, figure);
       imageUrl = await canvasToObjectUrl(canvas);
     }
   }
@@ -137,11 +154,15 @@ export async function chartToImageFile(
       );
     }
     if (type === "scorecard") {
-      const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
+      const design = getScorecardConfiguration(
+        figure,
+        runtime as ScorecardChartRuntime,
+        DEFAULT_SCORECARD_STYLE
+      );
       drawScoreChart(design, canvas);
       chartBlob = await canvasToBlob(canvas);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, figure);
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, DEFAULT_GAUGE_STYLE, figure);
       chartBlob = await canvasToBlob(canvas);
     }
   }

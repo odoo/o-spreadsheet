@@ -5,7 +5,7 @@ import {
   DEFAULT_FONT,
 } from "../../../constants";
 import { Canvas2DContext, CanvasSurface } from "../../../types/canvas";
-import { GaugeAnimatedRuntime } from "../../../types/chart";
+import { GaugeAnimatedRuntime, GaugeChartStyle } from "../../../types/chart";
 import { Color, PixelPosition } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";
 import { clip } from "../../misc";
@@ -75,6 +75,7 @@ interface Segment {
 export function drawGaugeChart(
   canvas: CanvasSurface,
   runtime: GaugeAnimatedRuntime,
+  style: GaugeChartStyle,
   dimensions?: DOMDimension // TODO VSC: this doesn't look used, consider removing this param
 ) {
   const size = dimensions ?? getCanvasSize(canvas);
@@ -90,6 +91,7 @@ export function drawGaugeChart(
   const config = getGaugeRenderingConfig(
     { ...size, x: 0, y: 0 },
     runtime,
+    style,
     ctx as CanvasRenderingContext2D
   );
   drawBackground(ctx as CanvasRenderingContext2D, config);
@@ -190,6 +192,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, config: RenderingParams) {
 export function getGaugeRenderingConfig(
   boundingRect: Rect,
   runtime: GaugeAnimatedRuntime,
+  style: GaugeChartStyle,
   ctx: CanvasRenderingContext2D
 ): RenderingParams {
   const maxValue = runtime.maxValue;
@@ -235,7 +238,7 @@ export function getGaugeRenderingConfig(
     y: gaugeRect.y + gaugeRect.height + GAUGE_LABELS_FONT_SIZE,
   };
 
-  const textColor = chartMutedFontColor(runtime.background);
+  const textColor = chartMutedFontColor(style.background);
 
   const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx);
 
@@ -277,7 +280,7 @@ export function getGaugeRenderingConfig(
       bold: runtime.title.bold,
       italic: runtime.title.italic,
     },
-    backgroundColor: runtime.background,
+    backgroundColor: style.background,
     gauge: {
       rect: gaugeRect,
       arcWidth: gaugeArcWidth,
