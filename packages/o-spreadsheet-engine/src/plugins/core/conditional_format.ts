@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { deepEquals } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, toUnboundedZone } from "../../helpers/zones";
@@ -542,8 +542,8 @@ export class ConditionalFormatPlugin
     if (threshold.type !== "formula") {
       return CommandResult.Success;
     }
-    const compiledFormula = compile(threshold.value || "");
-    if (compiledFormula.isBadExpression) {
+    const isBadExpression = CompiledFormula.IsBadExpression(threshold.value || "");
+    if (isBadExpression) {
       switch (thresholdName) {
         case "min":
           return CommandResult.MinInvalidFormula;
@@ -634,8 +634,7 @@ export class ConditionalFormatPlugin
       if (!value.startsWith("=")) {
         continue;
       }
-      const compiledFormula = compile(value || "");
-      if (compiledFormula.isBadExpression) {
+      if (CompiledFormula.IsBadExpression(value)) {
         return CommandResult.ValueCellIsInvalidFormula;
       }
     }

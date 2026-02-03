@@ -90,9 +90,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           content: cell?.content ?? "",
           style: cell?.style,
           format: cell?.format,
-          tokens: cell?.isFormula
-            ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
-            : [],
+          compiledFormula: cell?.isFormula ? cell?.compiledFormula : undefined,
           border: this.getters.getCellBorder(position) || undefined,
           evaluatedCell,
           position,
@@ -259,19 +257,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     }
 
     let content = origin?.content;
-    if (origin?.tokens && origin.tokens.length > 0 && !clipboardOption?.isCutOperation) {
+    if (
+      origin?.compiledFormula &&
+      origin.compiledFormula.hasDependencies &&
+      !clipboardOption?.isCutOperation
+    ) {
       content = this.getters.getTranslatedCellFormula(
         sheetId,
         col - origin.position.col,
         row - origin.position.row,
-        origin.tokens
+        origin.compiledFormula
       );
-    } else if (origin?.tokens && origin.tokens.length > 0) {
-      content = this.getters.getFormulaMovedInSheet(
-        origin.position.sheetId,
-        sheetId,
-        origin.tokens
-      );
+    } else if (origin?.compiledFormula && origin.compiledFormula.hasDependencies) {
+      content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin?.format || origin?.style) {
       this.dispatch("UPDATE_CELL", {

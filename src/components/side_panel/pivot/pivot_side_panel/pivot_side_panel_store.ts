@@ -254,7 +254,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     for (const position of this.getters.getVisibleCellPositions()) {
       const cell = this.getters.getCell(position);
       if (cell?.isFormula) {
-        const pivotFunction = getFirstPivotFunction(cell.compiledFormula.tokens);
+        const pivotFunction = getFirstPivotFunction(cell.compiledFormula, this.getters);
         const pivotFormulaId = pivotFunction?.args[0]?.value;
         if (pivotFunction && updatedPivotFormulaId === pivotFormulaId.toString()) {
           if (pivotFunction.functionName === "PIVOT") {

@@ -16,9 +16,9 @@ export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<T> {
   pasteFromCopy(sheetId: UID, target: Zone[], content: T1[][], options?: ClipboardOptions) {
     if (target.length === 1) {
       // in this specific case, due to the isPasteAllowed function:
-      // state.cells can contains several cells.
+      // state.cells can contain several cells.
       // So if the target zone is larger than the copied zone,
-      // we duplicate each cells as many times as possible to fill the zone.
+      // we duplicate each cell as many times as possible to fill the zone.
       for (const zone of getPasteZones(target, content)) {
         this.pasteZone(sheetId, zone.left, zone.top, content, options);
       }
