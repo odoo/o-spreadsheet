@@ -28405,7 +28405,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     </si>
     <si>
         <t>
-            =#REF + 5
+            =#REF+5
         </t>
     </si>
 </sst>",

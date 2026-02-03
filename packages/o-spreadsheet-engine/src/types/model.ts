@@ -7,7 +7,7 @@ import { FileStore } from "./files";
 import { Locale } from "./locale";
 import { Color } from "./misc";
 
-export type Mode = "normal" | "readonly" | "dashboard";
+export type Mode = "normal" | "readonly" | "dashboard" | "export_verification";
 
 export interface ModelConfig {
   readonly mode: Mode;

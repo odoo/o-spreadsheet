@@ -259,18 +259,14 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     }
 
     let content = origin?.content;
-    if (
-      origin?.compiledFormula &&
-      origin.compiledFormula.hasDependencies &&
-      !clipboardOption?.isCutOperation
-    ) {
+    if (origin?.compiledFormula?.hasDependencies && !clipboardOption?.isCutOperation) {
       content = this.getters.getTranslatedCellFormula(
         sheetId,
         col - origin.position.col,
         row - origin.position.row,
         origin.compiledFormula
       );
-    } else if (origin?.compiledFormula && origin.compiledFormula.hasDependencies) {
+    } else if (origin?.compiledFormula?.hasDependencies) {
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin?.format || origin?.style) {

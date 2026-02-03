@@ -22,6 +22,7 @@ import {
 } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
+import { SquishedFormula } from "../../core/squisher";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
 
@@ -240,7 +241,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   evaluateCompiledFormula(
     sheetId: UID,
     compiledFormula: CompiledFormula,
-    getSymbolValue: GetSymbolValue
+    getSymbolValue?: GetSymbolValue
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
   }
@@ -387,7 +388,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
       const exportedCellData = exportedSheetData.cells[xc];
 
-      let content: string | undefined;
+      let content: string | SquishedFormula | undefined;
       if (isExported && isFormula && formulaCell?.isFormula) {
         content = formulaCell.compiledFormula.toFormulaString(this.getters, {
           useBoundedReference: true,

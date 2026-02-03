@@ -49,7 +49,7 @@ export class CorePlugin<State = any>
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {}
-  export(data: WorkbookData) {}
+  export(data: WorkbookData, shouldSquish: boolean) {}
 
   /**
    * This method can be implemented in any plugin, to loop over the plugin's data structure and adapt the plugin's ranges.
@@ -58,7 +58,7 @@ export class CorePlugin<State = any>
    * When calling the method applyChange, the range will be adapted if necessary, then a copy will be returned along with
    * the type of change that occurred.
    *
-   * @param applyChange a function that, when called, will adapt the range according to the change on the grid
+   * @param rangeAdapterFunctions a function that, when called, will adapt the range according to the change on the grid
    * @param sheetId an sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
