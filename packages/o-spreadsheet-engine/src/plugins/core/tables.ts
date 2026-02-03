@@ -1,4 +1,4 @@
-import { rangeTokenize } from "../../formulas/range_tokenizer";
+import { CompiledFormula } from "../../formulas/compiler";
 import { deepCopy, deepEquals, isDefined, range } from "../../helpers/misc";
 import { getFirstPivotFunction } from "../../helpers/pivot/pivot_composer_helpers";
 import { createFilter } from "../../helpers/table_helpers";
@@ -230,7 +230,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (!newCellContent) {
       return "none";
     }
-    if (this.isPivotFormula(newCellContent)) {
+    if (this.isPivotFormula(newCellContent, sheetId)) {
       return "none";
     }
 
@@ -268,11 +268,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     return direction;
   }
 
-  private isPivotFormula(content: string): boolean {
+  private isPivotFormula(content: string, sheetId: UID): boolean {
     if (!content.startsWith("=")) {
       return false;
     }
-    const pivotFunction = getFirstPivotFunction(rangeTokenize(content));
+    const pivotFunction = getFirstPivotFunction(
+      CompiledFormula.Compile(content, sheetId, this.getters),
+      this.getters
+    );
     return pivotFunction?.functionName === "PIVOT";
   }
 
