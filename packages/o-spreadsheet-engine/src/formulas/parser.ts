@@ -356,7 +356,7 @@ export function parse(str: string): AST {
   return parseTokens(rangeTokenize(str));
 }
 
-export function parseTokens(tokens: Token[]): AST {
+export function parseTokens(tokens: readonly Token[]): AST {
   const richTokens = tokens.map((token, index) => ({
     type: token.type,
     value: token.value,

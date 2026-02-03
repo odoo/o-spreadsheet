@@ -120,7 +120,7 @@ export function canonicalizeNumberValue(content: string, locale: Locale) {
 }
 
 /** Change a formula to its canonical form (en_US locale) */
-function canonicalizeFormula(formula: string, locale: Locale) {
+function canonicalizeFormula(formula: string, locale: Locale): string {
   return _localizeFormula(
     formula.startsWith("+") ? "=" + formula.slice(1) : formula,
     locale,
@@ -129,11 +129,11 @@ function canonicalizeFormula(formula: string, locale: Locale) {
 }
 
 /** Change a formula from the canonical form to the given locale */
-export function localizeFormula(formula: string, locale: Locale) {
+export function localizeFormula(formula: string, locale: Locale): string {
   return _localizeFormula(formula, DEFAULT_LOCALE, locale);
 }
 
-function _localizeFormula(formula: string, fromLocale: Locale, toLocale: Locale) {
+function _localizeFormula(formula: string, fromLocale: Locale, toLocale: Locale): string {
   if (
     fromLocale.formulaArgSeparator === toLocale.formulaArgSeparator &&
     fromLocale.decimalSeparator === toLocale.decimalSeparator
