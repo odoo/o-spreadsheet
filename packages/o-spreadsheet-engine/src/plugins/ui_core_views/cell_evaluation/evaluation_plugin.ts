@@ -1,4 +1,4 @@
-import { isExportableToExcel } from "../../../formulas/helpers";
+import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
@@ -17,13 +17,11 @@ import {
   GetSymbolValue,
   isMatrix,
   Matrix,
-  RangeCompiledFormula,
   UID,
   Zone,
 } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
-import { FormulaCellWithDependencies } from "../../core/cell";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
 import { Evaluator } from "./evaluator";
 
@@ -241,7 +239,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   evaluateCompiledFormula(
     sheetId: UID,
-    compiledFormula: RangeCompiledFormula,
+    compiledFormula: CompiledFormula,
     getSymbolValue: GetSymbolValue
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
@@ -365,10 +363,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
       const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
         const cell = this.getters.getCell(position);
-        isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
+        isExported = formulaCell.compiledFormula.areAllFunctionsExportableToExcel();
         isFormula = isExported && cell?.content === formulaCell.content;
 
-        // If the cell contains a non-exported formula and that is evaluates to
+        // If the cell contains a non-exported formula and that is evaluated to
         // nothing* ,we don't export it.
         // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
         // the empty string.
@@ -385,8 +383,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
       const exportedCellData = exportedSheetData.cells[xc];
 
       let content: string | undefined;
-      if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
-        content = formulaCell.contentWithFixedReferences;
+      if (isExported && isFormula && formulaCell?.isFormula) {
+        content = formulaCell.compiledFormula.toFormulaString(this.getters, {
+          useBoundedReference: true,
+        });
       } else {
         content = !isExported ? newContent : exportedCellData;
       }

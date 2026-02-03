@@ -1,7 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
 import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { compile } from "@odoo/o-spreadsheet-engine/formulas/compiler";
+import { CompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 import { getFieldDisplayName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
@@ -110,7 +110,7 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   get isCalculatedMeasureInvalid(): boolean {
-    return compile(this.props.measure.computedBy?.formula ?? "").isBadExpression;
+    return CompiledFormula.IsBadExpression(this.props.measure.computedBy?.formula ?? "");
   }
 
   get aggregatorOptions(): ValueAndLabel[] {
