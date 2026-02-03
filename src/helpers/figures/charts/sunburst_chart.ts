@@ -7,6 +7,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -25,7 +26,15 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import {
+  BoundedRange,
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  UID,
+} from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -172,6 +181,10 @@ export class SunburstChart extends AbstractChart {
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): SunburstChart {

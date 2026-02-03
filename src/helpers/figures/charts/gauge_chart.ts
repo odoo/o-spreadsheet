@@ -36,6 +36,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
+  BoundedRange,
   CellValueType,
   Color,
   CommandResult,
@@ -279,6 +280,14 @@ export class GaugeChart extends AbstractChart {
         ? [{ dataRange: this.getters.getRangeString(this.dataRange, this.sheetId) }]
         : undefined,
     };
+  }
+
+  getDependencies(): BoundedRange[] {
+    const dependencies: BoundedRange[] = [];
+    if (this.dataRange) {
+      dependencies.push({ sheetId: this.dataRange.sheetId, zone: this.dataRange.zone });
+    }
+    return dependencies;
   }
 
   updateRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions): GaugeChart {

@@ -3,12 +3,7 @@ import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
-import {
-  CoreViewCommand,
-  invalidateCFEvaluationCommands,
-  invalidateChartEvaluationCommands,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
+import { Command, CoreViewCommand, invalidateChartEvaluationCommands } from "../../types/commands";
 import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
@@ -30,33 +25,95 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
-  handle(cmd: CoreViewCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      invalidateChartEvaluationCommands.has(cmd.type)
-    ) {
-      for (const chartId in this.charts) {
-        this.charts[chartId] = undefined;
-      }
-    }
-
+  beforeHandle(cmd: Command) {
     switch (cmd.type) {
-      case "UPDATE_CHART":
-      case "CREATE_CHART":
-        this.charts[cmd.chartId] = undefined;
-        break;
-      case "DELETE_CHART":
-        this.charts[cmd.chartId] = undefined;
-        break;
-      case "DELETE_SHEET":
-        for (const chartId in this.charts) {
-          if (!this.getters.isChartDefined(chartId)) {
-            this.charts[chartId] = undefined;
+      case "START":
+        this.getters
+          .getEntityDependencyRegistry()
+          .registerInvalidationCallback("chart", (chartId) => this.invalidateChart(chartId));
+
+        // Register dependencies for all existing charts
+        for (const sheetId of this.getters.getSheetIds()) {
+          for (const chartId of this.getters.getChartIds(sheetId)) {
+            this.registerChartDependencies(chartId);
           }
         }
         break;
     }
+  }
+
+  handle(cmd: CoreViewCommand) {
+    // Invalidate all charts for commands that affect chart rendering
+    // but don't change cell values (hide/unhide, filters, formatting, etc.)
+    if (invalidateChartEvaluationCommands.has(cmd.type)) {
+      this.invalidateAllCharts();
+    }
+
+    switch (cmd.type) {
+      case "CREATE_CHART":
+        this.registerChartDependencies(cmd.chartId);
+        this.charts[cmd.chartId] = undefined;
+        break;
+      case "UPDATE_CHART":
+        this.registerChartDependencies(cmd.chartId);
+        this.charts[cmd.chartId] = undefined;
+        break;
+      case "DELETE_CHART":
+        this.getters.getEntityDependencyRegistry().unregisterEntity(cmd.chartId);
+        delete this.charts[cmd.chartId];
+        break;
+      case "DELETE_SHEET":
+        for (const chartId in this.charts) {
+          if (!this.getters.isChartDefined(chartId)) {
+            this.getters.getEntityDependencyRegistry().unregisterEntity(chartId);
+            delete this.charts[chartId];
+          }
+        }
+        break;
+      case "DUPLICATE_SHEET":
+        for (const chartId of this.getters.getChartIds(cmd.sheetIdTo)) {
+          this.registerChartDependencies(chartId);
+        }
+        break;
+      case "UNDO":
+      case "REDO":
+        // Re-register all chart dependencies after undo/redo
+        this.getters.getEntityDependencyRegistry().unregisterAllEntitiesOfType("chart");
+        for (const sheetId of this.getters.getSheetIds()) {
+          for (const chartId of this.getters.getChartIds(sheetId)) {
+            this.registerChartDependencies(chartId);
+          }
+        }
+        break;
+    }
+  }
+
+  private invalidateChart(chartId: UID): void {
+    this.charts[chartId] = undefined;
+  }
+
+  private invalidateAllCharts(): void {
+    for (const chartId in this.charts) {
+      this.charts[chartId] = undefined;
+    }
+  }
+
+  private registerChartDependencies(chartId: UID): void {
+    const chart = this.getters.getChart(chartId);
+    if (!chart) {
+      return;
+    }
+
+    const dependencies = chart.getDependencies();
+    if (dependencies.length === 0) {
+      return;
+    }
+
+    this.getters.getEntityDependencyRegistry().registerEntity({
+      id: chartId,
+      type: "chart",
+      dependencies,
+    });
   }
 
   getChartRuntime(chartId: UID): ChartRuntime {

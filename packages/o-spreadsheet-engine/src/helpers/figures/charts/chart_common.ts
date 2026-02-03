@@ -24,7 +24,7 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { BoundedRange, Range } from "../../../types/range";
 import { DOMCoordinates, DOMDimension } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
@@ -516,4 +516,28 @@ export function truncateLabel(label: string | undefined, maxLen: number = MAX_CH
 
 export function isTrendLineAxis(axisID: string) {
   return axisID === TREND_LINE_XAXIS_ID || axisID === MOVING_AVERAGE_TREND_LINE_XAXIS_ID;
+}
+
+/**
+ * Get dependencies for charts that have dataSets and labelRange.
+ * Used by EntityDependencyRegistry to track chart dependencies.
+ */
+export function getChartDatasetDependencies(
+  dataSets: DataSet[],
+  labelRange?: Range
+): BoundedRange[] {
+  const dependencies: BoundedRange[] = [];
+
+  for (const ds of dataSets) {
+    dependencies.push({ sheetId: ds.dataRange.sheetId, zone: ds.dataRange.zone });
+    if (ds.labelCell) {
+      dependencies.push({ sheetId: ds.labelCell.sheetId, zone: ds.labelCell.zone });
+    }
+  }
+
+  if (labelRange) {
+    dependencies.push({ sheetId: labelRange.sheetId, zone: labelRange.zone });
+  }
+
+  return dependencies;
 }

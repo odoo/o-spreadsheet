@@ -19,7 +19,7 @@ import { CoreGetters } from "../../../types/core_getters";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { BoundedRange, Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
@@ -293,6 +293,17 @@ export class ScorecardChart extends AbstractChart {
   getDefinitionForExcel() {
     // This kind of graph is not exportable in Excel
     return undefined;
+  }
+
+  getDependencies(): BoundedRange[] {
+    const dependencies: BoundedRange[] = [];
+    if (this.keyValue) {
+      dependencies.push({ sheetId: this.keyValue.sheetId, zone: this.keyValue.zone });
+    }
+    if (this.baseline) {
+      dependencies.push({ sheetId: this.baseline.sheetId, zone: this.baseline.zone });
+    }
+    return dependencies;
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): ScorecardChart {
