@@ -292,7 +292,7 @@ export function getPyramidChartScales(
 export function getRadarChartScales(
   definition: GenericDefinition<RadarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): DeepPartial<ScaleChartOptions<"radar">["scales"]> {
   const { locale, axisFormats, dataSetsValues } = args;
   const minValue = Math.min(
     ...dataSetsValues.map((ds) => Math.min(...ds.data.filter((x) => !isNaN(x))))

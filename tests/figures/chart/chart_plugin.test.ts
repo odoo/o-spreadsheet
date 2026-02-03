@@ -4053,3 +4053,177 @@ describe("Can make numbers human-readable", () => {
     }
   );
 });
+
+describe("Chart highlighting", () => {
+  test.each(["line", "scatter"] as const)(
+    "%s chart correctly highlights datasets on legend hover",
+    (chartType) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
+          type: chartType,
+        },
+        "43"
+      );
+      const config = getChartConfiguration(model, "43");
+      expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F2");
+      expect(config.data?.datasets![0].pointBackgroundColor).toEqual("#4EA7F2");
+      expect(config.data?.datasets![1].borderColor).toEqual("#EA6175");
+      expect(config.data?.datasets![1].pointBackgroundColor).toEqual("#EA6175");
+
+      const legend = {
+        chart: {
+          ...config,
+          update: jest.fn(),
+        },
+      };
+
+      config.options.plugins.legend.onHover({}, { datasetIndex: 0 }, legend);
+      expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F2");
+      expect(config.data?.datasets![0].pointBackgroundColor).toEqual("#4EA7F2");
+      expect(config.data?.datasets![1].borderColor).toEqual("#EA617566");
+      expect(config.data?.datasets![1].pointBackgroundColor).toEqual("#EA617566");
+
+      config.options.plugins.legend.onHover({}, { datasetIndex: 1 }, legend);
+      expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F266");
+      expect(config.data?.datasets![0].pointBackgroundColor).toEqual("#4EA7F266");
+      expect(config.data?.datasets![1].borderColor).toEqual("#EA6175");
+      expect(config.data?.datasets![1].pointBackgroundColor).toEqual("#EA6175");
+
+      config.options.plugins.legend.onLeave({}, { datasetIndex: 0 }, legend);
+
+      expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F2");
+      expect(config.data?.datasets![0].pointBackgroundColor).toEqual("#4EA7F2");
+      expect(config.data?.datasets![1].borderColor).toEqual("#EA6175");
+      expect(config.data?.datasets![1].pointBackgroundColor).toEqual("#EA6175");
+    }
+  );
+
+  test("area chart correctly highlights datasets on legend hover", () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
+        type: "line",
+        fillArea: true,
+      },
+      "43"
+    );
+    const config = getChartConfiguration(model, "43");
+    expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F2");
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F266");
+    expect(config.data?.datasets![1].borderColor).toEqual("#EA6175");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA617566");
+
+    const legend = {
+      chart: {
+        ...config,
+        update: jest.fn(),
+      },
+    };
+
+    config.options.plugins.legend.onHover({}, { datasetIndex: 0 }, legend);
+    expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F2");
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F266");
+    expect(config.data?.datasets![1].borderColor).toEqual("#EA617566");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA617529");
+
+    config.options.plugins.legend.onHover({}, { datasetIndex: 1 }, legend);
+    expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F266");
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F229");
+    expect(config.data?.datasets![1].borderColor).toEqual("#EA6175");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA617566");
+
+    config.options.plugins.legend.onLeave({}, { datasetIndex: 0 }, legend);
+
+    expect(config.data?.datasets![0].borderColor).toEqual("#4EA7F2");
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F266");
+    expect(config.data?.datasets![1].borderColor).toEqual("#EA6175");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA617566");
+  });
+
+  test("bar chart correctly highlights datasets on legend hover", () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
+        type: "bar",
+      },
+      "43"
+    );
+    const config = getChartConfiguration(model, "43");
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F2");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA6175");
+
+    const legend = {
+      chart: {
+        ...config,
+        update: jest.fn(),
+      },
+    };
+
+    config.options.plugins.legend.onHover({}, { datasetIndex: 0 }, legend);
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F2");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA617566");
+
+    config.options.plugins.legend.onHover({}, { datasetIndex: 1 }, legend);
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F266");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA6175");
+
+    config.options.plugins.legend.onLeave({}, { datasetIndex: 0 }, legend);
+
+    expect(config.data?.datasets![0].backgroundColor).toEqual("#4EA7F2");
+    expect(config.data?.datasets![1].backgroundColor).toEqual("#EA6175");
+  });
+
+  test("pie chart correctly highlights datasets on legend hover", () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "A1:A4" }],
+        type: "pie",
+      },
+      "43"
+    );
+    const config = getChartConfiguration(model, "43");
+    expect(config.data?.datasets![0].backgroundColor).toEqual([
+      "#4EA7F2",
+      "#EA6175",
+      "#43C5B1",
+      "#F4A261",
+    ]);
+
+    const legend = {
+      chart: {
+        ...config,
+        update: jest.fn(),
+      },
+    };
+
+    config.options.plugins.legend.onHover({}, { index: 0 }, legend);
+    expect(config.data?.datasets![0].backgroundColor).toEqual([
+      "#4EA7F2",
+      "#EA617566",
+      "#43C5B166",
+      "#F4A26166",
+    ]);
+
+    config.options.plugins.legend.onHover({}, { index: 1 }, legend);
+    expect(config.data?.datasets![0].backgroundColor).toEqual([
+      "#4EA7F266",
+      "#EA6175",
+      "#43C5B166",
+      "#F4A26166",
+    ]);
+
+    config.options.plugins.legend.onLeave({}, { index: 0 }, legend);
+
+    expect(config.data?.datasets![0].backgroundColor).toEqual([
+      "#4EA7F2",
+      "#EA6175",
+      "#43C5B1",
+      "#F4A261",
+    ]);
+  });
+});

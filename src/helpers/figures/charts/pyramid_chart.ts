@@ -33,9 +33,9 @@ import { ChartConfiguration } from "chart.js";
 import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
   getBarChartDatasets,
-  getBarChartLegend,
   getChartTitle,
   getPyramidChartData,
+  getPyramidChartLegend,
   getPyramidChartScales,
   getPyramidChartShowValues,
   getPyramidChartTooltip,
@@ -238,7 +238,7 @@ export function createPyramidChartRuntime(
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition, getters),
-        legend: getBarChartLegend(definition, chartData),
+        legend: getPyramidChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
         chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
       },
