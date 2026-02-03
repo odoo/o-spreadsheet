@@ -134,9 +134,9 @@ describe("Basic Sorting", () => {
             A3: "8",
             A4: "42",
             C1: "=A3*10", // 80
-            C2: "=SUM(A2, A3)", // 31
-            C3: "=EQ(A1, 4)", // TRUE
-            C4: '=CONCAT("ki", "kou")',
+            C2: "=SUM(A2,A3)", // 31
+            C3: "=EQ(A1,4)", // TRUE
+            C4: '=CONCAT("ki","kou")',
             C5: "=BADBUNNY", // #BAD_EXPR
             C6: "=B1/B2",
           },
@@ -149,14 +149,14 @@ describe("Basic Sorting", () => {
       direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
-      C1: { content: "=SUM(A1, A2)" },
+      C1: { content: "=SUM(A1,A2)" },
       C2: { content: "=A4*10" },
       C3: { content: "=BADBUNNY" },
       C4: {
         content: `=${CellErrorType.InvalidReference}/${CellErrorType.InvalidReference}`,
       },
-      C5: { content: '=CONCAT("ki", "kou")' },
-      C6: { content: "=EQ(A4, 4)" },
+      C5: { content: '=CONCAT("ki","kou")' },
+      C6: { content: "=EQ(A4,4)" },
     });
     expect(getEvaluatedCell(model, "C3").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "C4").type).toBe(CellValueType.error);
@@ -191,8 +191,8 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
-      A3: { content: `=SUM(4, ${CellErrorType.InvalidReference})` },
-      A4: { content: "=DATE(2012, 12, 21)" },
+      A3: { content: `=SUM(4,${CellErrorType.InvalidReference})` },
+      A4: { content: "=DATE(2012,12,21)" },
       A5: { value: parseDateTime("2020/09/01", locale)!.value },
       A6: { content: "=BADBUNNY" },
       A7: {
@@ -200,7 +200,7 @@ describe("Basic Sorting", () => {
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
-      A10: { content: '=CONCAT("Zor", "glub")' },
+      A10: { content: '=CONCAT("Zor","glub")' },
     });
     expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);
@@ -208,12 +208,12 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "23" },
       A2: { content: "4" },
-      A3: { content: '=CONCAT("Zor", "glub")' },
-      A4: { content: "=DATE(2012, 12, 21)" },
+      A3: { content: '=CONCAT("Zor","glub")' },
+      A4: { content: "=DATE(2012,12,21)" },
       A5: { content: "Machette" },
       A7: { content: "Kills" },
       A8: { content: "=BADBUNNY" },
-      A9: { content: "=SUM(4, A1)" },
+      A9: { content: "=SUM(4,A1)" },
       A10: { value: parseDateTime("2020/09/01", locale)!.value },
       A11: { content: "=B1/B2" },
     });
@@ -221,8 +221,8 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
-      A3: { content: `=SUM(4, ${CellErrorType.InvalidReference})` },
-      A4: { content: "=DATE(2012, 12, 21)" },
+      A3: { content: `=SUM(4,${CellErrorType.InvalidReference})` },
+      A4: { content: "=DATE(2012,12,21)" },
       A5: { value: parseDateTime("2020/09/01", locale)!.value },
       A6: { content: "=BADBUNNY" },
       A7: {
@@ -230,7 +230,7 @@ describe("Basic Sorting", () => {
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
-      A10: { content: '=CONCAT("Zor", "glub")' },
+      A10: { content: '=CONCAT("Zor","glub")' },
     });
     expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);

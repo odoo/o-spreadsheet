@@ -727,8 +727,8 @@ describe("SORT function", () => {
     const grid = {
       C1: "=10",
       C2: "=0",
-      C3: "=EQ(A1, 4)", // FALSE
-      C4: '=CONCAT("ki", "kou")',
+      C3: "=EQ(A1,4)", // FALSE
+      C4: '=CONCAT("ki","kou")',
       C5: "=BADBUNNY", // #BAD_EXPR
       C6: "=0/0",
     };
@@ -1123,7 +1123,7 @@ describe("SORTN function", () => {
       C1: "=10",
       C2: "=0",
       C3: "=EQ(A1, 4)", // FALSE
-      C4: '=CONCAT("ki", "kou")',
+      C4: '=CONCAT("ki","kou")',
       C5: "=BADBUNNY", // #BAD_EXPR
       C6: "=0/0",
     };

@@ -26,7 +26,7 @@ describe("createAdaptedRanges", () => {
       ],
     });
     expect(moveFormula(model, "=A1", 1, 1)).toEqual("=B2");
-    expect(moveFormula(model, "=A1 + B3", 1, 1)).toEqual("=B2 + C4");
+    expect(moveFormula(model, "=A1 + B3", 1, 1)).toEqual("=B2+C4");
   });
 
   test("can handle negative offsets", () => {
@@ -68,7 +68,7 @@ describe("createAdaptedRanges", () => {
         },
       ],
     });
-    expect(moveFormula(model, "=AND(true, B2)", 0, 1)).toEqual("=AND(true, B3)");
+    expect(moveFormula(model, "=AND(true, B2)", 0, 1)).toEqual("=AND(true,B3)");
   });
 
   test("can handle cross-sheet formulas", () => {

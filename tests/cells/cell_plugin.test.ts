@@ -275,14 +275,14 @@ describe("link cell", () => {
     "can create a link cell using HYPERLINK function: %s",
     (url) => {
       const model = new Model();
-      setCellContent(model, "B1", `=HYPERLINK("${url}", "Odoo")`);
+      setCellContent(model, "B1", `=HYPERLINK("${url}","Odoo")`);
       const cell = getEvaluatedCell(model, "B1");
       expect(cell.link?.label).toBe("Odoo");
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
-      expect(getCellRawContent(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
+      expect(getCellRawContent(model, "B1")).toBe(`=HYPERLINK("${url}","Odoo")`);
       expect(getStyle(model, "B1")).toEqual({ textColor: LINK_COLOR });
-      expect(getCellText(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
+      expect(getCellText(model, "B1")).toBe(`=HYPERLINK("${url}","Odoo")`);
     }
   );
 

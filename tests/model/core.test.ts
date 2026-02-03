@@ -470,10 +470,10 @@ describe("history", () => {
 
   test("get cell formula text", () => {
     const model = new Model();
-    setCellContent(model, "A1", "=SUM(1, 2)");
+    setCellContent(model, "A1", "=SUM(1,2)");
     setCellContent(model, "A2", "This is Patrick");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
-    expect(getCellContent(model, "A1")).toBe("=SUM(1, 2)");
+    expect(getCellContent(model, "A1")).toBe("=SUM(1,2)");
     expect(getCellContent(model, "A2")).toBe("This is Patrick");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
     expect(getCellContent(model, "A1")).toBe("3");
