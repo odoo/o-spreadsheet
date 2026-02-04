@@ -26,7 +26,9 @@ export class MyChart {
     const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const { ChartTypeHandler, postProcess } = chartRegistry.get(definition.type);
     definition = postProcess?.(getters, sheetId, definition) ?? definition;
-    const chartTypeHandler = new ChartTypeHandler(definition, sheetId, getters);
+    const chartTypeHandler = ChartTypeHandler.fromStrDefinition
+      ? ChartTypeHandler.fromStrDefinition(getters, sheetId, definition)
+      : new ChartTypeHandler(definition, sheetId, getters);
     const dataSourceHandler = DataSourceHandler.fromRangeStr(
       getters,
       sheetId,
