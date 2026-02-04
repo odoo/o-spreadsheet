@@ -26,7 +26,6 @@ import { TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
 
 chartRegistry.add("bar", {
   ChartTypeHandler: BarChart,
-  match: (type) => type === "bar",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -38,7 +37,6 @@ chartRegistry.add("bar", {
 });
 chartRegistry.add("combo", {
   ChartTypeHandler: ComboChart,
-  match: (type) => type === "combo",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
@@ -46,7 +44,6 @@ chartRegistry.add("combo", {
 });
 chartRegistry.add("line", {
   ChartTypeHandler: LineChart,
-  match: (type) => type === "line",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
@@ -54,7 +51,6 @@ chartRegistry.add("line", {
 });
 chartRegistry.add("pie", {
   ChartTypeHandler: PieChart,
-  match: (type) => type === "pie",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
@@ -62,7 +58,6 @@ chartRegistry.add("pie", {
 });
 chartRegistry.add("scorecard", {
   ChartTypeHandler: ScorecardChart,
-  match: (type) => type === "scorecard",
   transformDefinition: ScorecardChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScorecardChart.allowedDefinitionKeys,
@@ -70,7 +65,6 @@ chartRegistry.add("scorecard", {
 });
 chartRegistry.add("gauge", {
   ChartTypeHandler: GaugeChart,
-  match: (type) => type === "gauge",
   transformDefinition: GaugeChart.transformDefinition,
   getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GaugeChart.allowedDefinitionKeys,
@@ -78,7 +72,6 @@ chartRegistry.add("gauge", {
 });
 chartRegistry.add("scatter", {
   ChartTypeHandler: ScatterChart,
-  match: (type) => type === "scatter",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: ScatterChart.allowedDefinitionKeys,
@@ -86,7 +79,6 @@ chartRegistry.add("scatter", {
 });
 chartRegistry.add("waterfall", {
   ChartTypeHandler: WaterfallChart,
-  match: (type) => type === "waterfall",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: WaterfallChart.allowedDefinitionKeys,
@@ -94,7 +86,6 @@ chartRegistry.add("waterfall", {
 });
 chartRegistry.add("pyramid", {
   ChartTypeHandler: PyramidChart,
-  match: (type) => type === "pyramid",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   postProcess: (getters, sheetId, definition) => ({
@@ -108,7 +99,6 @@ chartRegistry.add("pyramid", {
 });
 chartRegistry.add("radar", {
   ChartTypeHandler: RadarChart,
-  match: (type) => type === "radar",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: RadarChart.allowedDefinitionKeys,
@@ -116,7 +106,6 @@ chartRegistry.add("radar", {
 });
 chartRegistry.add("geo", {
   ChartTypeHandler: GeoChart,
-  match: (type) => type === "geo",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: GeoChart.allowedDefinitionKeys,
@@ -125,7 +114,6 @@ chartRegistry.add("geo", {
 });
 chartRegistry.add("funnel", {
   ChartTypeHandler: FunnelChart,
-  match: (type) => type === "funnel",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: FunnelChart.allowedDefinitionKeys,
@@ -134,7 +122,6 @@ chartRegistry.add("funnel", {
 });
 chartRegistry.add("sunburst", {
   ChartTypeHandler: SunburstChart,
-  match: (type) => type === "sunburst",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: SunburstChart.allowedDefinitionKeys,
@@ -142,7 +129,6 @@ chartRegistry.add("sunburst", {
 });
 chartRegistry.add("treemap", {
   ChartTypeHandler: TreeMapChart,
-  match: (type) => type === "treemap",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: TreeMapChart.allowedDefinitionKeys,
@@ -150,7 +136,6 @@ chartRegistry.add("treemap", {
 });
 chartRegistry.add("calendar", {
   ChartTypeHandler: CalendarChart,
-  match: (type) => type === "calendar",
   transformDefinition: transformChartDefinitionWithDataSource,
   getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
   allowedDefinitionKeys: CalendarChart.allowedDefinitionKeys,
