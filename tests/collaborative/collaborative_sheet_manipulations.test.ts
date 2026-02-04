@@ -1,6 +1,6 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
-import { CellIsRule, Model } from "../../src";
+import { CellIsRule, FormulaCell, LiteralCell, Model } from "../../src";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
@@ -1120,7 +1120,8 @@ test("test undo redo", () => {
   deleteColumns(alice, ["C"], otherSheetId);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
-    (user) => user.getters.getCell({ sheetId: otherSheetId, col: 3, row: 0 })?.content,
+    (user) =>
+      (user.getters.getCell({ sheetId: otherSheetId, col: 3, row: 0 }) as LiteralCell)?.content,
     "25"
   );
 
@@ -1128,21 +1129,30 @@ test("test undo redo", () => {
   renameSheet(bob, otherSheetId, newSheetName);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
-    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+    (user) =>
+      (
+        user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 }) as FormulaCell
+      )?.compiledFormula.toFormulaString(user.getters),
     "=" + newSheetName + "!D1"
   );
 
   undo(alice);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
-    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+    (user) =>
+      (
+        user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 }) as FormulaCell
+      )?.compiledFormula.toFormulaString(user.getters),
     "=" + newSheetName + "!E1"
   );
 
   redo(alice);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
-    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+    (user) =>
+      (
+        user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 }) as FormulaCell
+      )?.compiledFormula.toFormulaString(user.getters),
     "=" + newSheetName + "!D1"
   );
 
@@ -1150,7 +1160,10 @@ test("test undo redo", () => {
   undo(bob);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
-    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 3 })?.content,
+    (user) =>
+      (
+        user.getters.getCell({ sheetId: sheetId, col: 0, row: 3 }) as FormulaCell
+      )?.compiledFormula.toFormulaString(user.getters),
     "=" + otherSheetName + "!D1"
   );
 });

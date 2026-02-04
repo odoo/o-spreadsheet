@@ -87,7 +87,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           }
         }
         cellsInRow.push({
-          content: cell?.content ?? "",
+          content: !cell?.isFormula
+            ? cell?.content ?? ""
+            : cell.compiledFormula.toFormulaString(this.getters),
           style: cell?.style,
           format: cell?.format,
           compiledFormula: cell?.isFormula ? cell?.compiledFormula : undefined,

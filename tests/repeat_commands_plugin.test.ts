@@ -40,8 +40,8 @@ import {
 } from "./test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "./test_helpers/constants";
 import {
-  getCell,
   getCellContent,
+  getCellRawContent,
   getEvaluatedCell,
   getStyle,
 } from "./test_helpers/getters_helpers";
@@ -557,7 +557,7 @@ describe("Repeat local commands", () => {
 
     setSelection(model, ["A1:A2"]);
     redo(model);
-    expect(getCell(model, "A3")?.content).toEqual("=SUM(A1:A2)");
+    expect(getCellRawContent(model, "A3")).toEqual("=SUM(A1:A2)");
   });
 
   test("Repeat delete unfiltered content", () => {

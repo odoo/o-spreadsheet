@@ -48,7 +48,7 @@ function getCellsObject(model: Model, sheetId: UID) {
     cells[toXC(col, row)] = {
       ...cell,
       value: model.getters.getEvaluatedCell({ sheetId, col, row }).value,
-      content: cell.content,
+      content: cell.isFormula ? cell.compiledFormula.toFormulaString(model.getters) : cell.content,
     };
   }
   return cells;

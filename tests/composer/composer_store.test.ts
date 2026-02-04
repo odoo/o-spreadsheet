@@ -38,6 +38,7 @@ import {
   getActivePosition,
   getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
@@ -170,7 +171,7 @@ describe("edition", () => {
   test("Composer preserves manually typed array literals", () => {
     composerStore.startEdition("={1,2}");
     composerStore.stopEdition();
-    expect(getCell(model, "A1")?.content).toBe("={1,2}");
+    expect(getCellRawContent(model, "A1")).toBe("={1,2}");
   });
 
   test("select cells in another sheet", () => {
@@ -976,12 +977,12 @@ describe("edition", () => {
   test("Setting the selection processor back to default properly stops the edition", () => {
     composerStore.startEdition('="test"');
     expect(composerStore.editionMode).toEqual("editing");
-    expect(getCell(model, "A1")?.content).toBeUndefined();
+    expect(getCellRawContent(model, "A1")).toBeUndefined();
 
     model.selection.getBackToDefault();
 
     expect(composerStore.editionMode).toEqual("inactive");
-    expect(getCell(model, "A1")?.content).toEqual('="test"');
+    expect(getCellRawContent(model, "A1")).toEqual('="test"');
   });
 
   test.each(["sheet2", "sheet 2"])("Loop references on references with sheet name", (sheetName) => {
@@ -1050,10 +1051,10 @@ describe("edition", () => {
       test("Decimal separator isn't replaced in non-number string", () => {
         updateLocale(model, FR_LOCALE);
         editCell(model, "A1", "3,14");
-        expect(getCell(model, "A1")?.content).toBe("3.14");
+        expect(getCellRawContent(model, "A1")).toBe("3.14");
 
         editCell(model, "A2", "Olà 3,14 :)");
-        expect(getCell(model, "A2")?.content).toBe("Olà 3,14 :)");
+        expect(getCellRawContent(model, "A2")).toBe("Olà 3,14 :)");
       });
     });
 
@@ -1109,14 +1110,14 @@ describe("edition", () => {
       test("Decimal numbers in strings aren't localized", () => {
         updateLocale(model, FR_LOCALE);
         editCell(model, "A1", '="3,14"');
-        expect(getCell(model, "A1")?.content).toBe('="3,14"');
+        expect(getCellRawContent(model, "A1")).toBe('="3,14"');
       });
 
       test("Can input localized date", () => {
         updateLocale(model, FR_LOCALE);
         editCell(model, "A1", "30/01/2020");
         expect(getCell(model, "A1")?.format).toBe("dd/mm/yyyy");
-        expect(getCell(model, "A1")?.content).toBe(
+        expect(getCellRawContent(model, "A1")).toBe(
           jsDateToRoundNumber(new DateTime(2020, 0, 30)).toString()
         );
       });
@@ -1168,7 +1169,7 @@ describe("edition", () => {
     editCell(model, cellOnLastCol, "=TRANSPOSE(A1:A5)");
 
     expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCell(model, cellOnLastCol)?.content).toBe("=TRANSPOSE(A1:A5)");
+    expect(getCellRawContent(model, cellOnLastCol)).toBe("=TRANSPOSE(A1:A5)");
 
     // A current unavoidable limitation is that we have multiple history steps (add cols + update cell)
     undo(model);
@@ -1185,7 +1186,7 @@ describe("edition", () => {
 
     redo(model);
     expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCell(model, cellOnLastCol)?.content).toBe("=TRANSPOSE(A1:A5)");
+    expect(getCellRawContent(model, cellOnLastCol)).toBe("=TRANSPOSE(A1:A5)");
   });
 
   test("Invalid references are filtered out from the highlights", () => {

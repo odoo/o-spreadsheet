@@ -4,15 +4,15 @@ import { FunctionResultObject, Link, Style } from "./misc";
 
 interface CellAttributes {
   readonly id: number;
-  /**
-   * Raw cell content
-   */
-  readonly content: string;
   readonly style?: Style;
   readonly format?: Format;
 }
 
 export interface LiteralCell extends CellAttributes {
+  /**
+   * Raw cell content
+   */
+  readonly content: string;
   readonly isFormula: false;
   readonly parsedValue: CellValue;
 }
