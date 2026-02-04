@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -7,15 +6,14 @@ import {
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
+import { ChartBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
   ComboChartDataSetStyle,
-  ComboChartDefinition,
   ComboChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { ChartCreationContext, ExcelChartDefinition, Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getBarChartData,
   getBarChartScales,
@@ -27,10 +25,9 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class ComboChart extends AbstractChart {
-  readonly type = "combo";
-
-  static allowedDefinitionKeys: readonly (keyof ComboChartDefinition)[] = [
+export const ComboChart: ChartBuilder<"combo"> = {
+  sequence: 15,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -40,28 +37,23 @@ export class ComboChart extends AbstractChart {
     "showValues",
     "hideDataMarkers",
     "zoomable",
-  ] as const;
+  ] as const,
 
-  constructor(private definition: ComboChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(sheetId, getters);
-  }
+  copyInSheetId: (definition) => definition,
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: ComboChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
+  duplicateInDuplicatedSheet: (definition) => definition,
 
-  getRangeDefinition(): ComboChartDefinition {
-    return this.definition;
-  }
+  transformDefinition: (chartSheetId, definition, rangeAdapters) => definition,
 
-  getDefinitionForExcel(
-    getters: Getters,
-    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
-  ): ExcelChartDefinition | undefined {
-    const definition = this.getRangeDefinition();
+  validateChartDefinition: (validator, definition) => CommandResult.Success,
+
+  updateRanges: (definition, rangeAdapters) => definition,
+
+  postProcess: (getters, sheetId, definition) => definition,
+
+  getContextCreation: (dataSource, definition) => definition,
+
+  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
@@ -70,11 +62,9 @@ export class ComboChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
+  },
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): ComboChartDefinition<string> {
+  getChartDefinitionFromContextCreation(context) {
     const dataSetStyles: ComboChartDataSetStyle = {};
     const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
     for (const dataSet of context.dataSource?.dataSets || []) {
@@ -97,10 +87,9 @@ export class ComboChart extends AbstractChart {
       zoomable: context.zoomable,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): ComboChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource): ComboChartRuntime {
     const data = dataSource.extractData(getters);
     const chartData = getBarChartData(definition, data, getters);
 
@@ -131,5 +120,5 @@ export class ComboChart extends AbstractChart {
         label,
       })),
     };
-  }
-}
+  },
+};

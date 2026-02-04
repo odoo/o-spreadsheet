@@ -24,38 +24,10 @@ import { TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
 // Chart Registry
 //------------------------------------------------------------------------------
 
-chartRegistry.add("bar", {
-  ChartTypeHandler: BarChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
-  postProcess: (getters, sheetId, definition) => ({
-    ...definition,
-    zoomable: definition.horizontal ? undefined : definition.zoomable,
-  }),
-  allowedDefinitionKeys: BarChart.allowedDefinitionKeys,
-  sequence: 10,
-});
-chartRegistry.add("combo", {
-  ChartTypeHandler: ComboChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
-  sequence: 15,
-});
-chartRegistry.add("line", {
-  ChartTypeHandler: LineChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
-  sequence: 20,
-});
-chartRegistry.add("pie", {
-  ChartTypeHandler: PieChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
-  sequence: 30,
-});
+chartRegistry.add("bar", BarChart);
+chartRegistry.add("combo", ComboChart);
+chartRegistry.add("line", LineChart);
+chartRegistry.add("pie", PieChart);
 chartRegistry.add("scorecard", {
   ChartTypeHandler: ScorecardChart,
   transformDefinition: ScorecardChart.transformDefinition,
