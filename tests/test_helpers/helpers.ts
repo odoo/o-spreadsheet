@@ -1005,7 +1005,7 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
       style: cell.style,
       format: cell.format,
       value: model.getters.getEvaluatedCell({ sheetId, col, row }).value ?? "",
-      content: cell.content,
+      content: !cell.isFormula ? cell.content : cell.compiledFormula.toFormulaString(model.getters),
     };
   }
   return cells;

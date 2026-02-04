@@ -27,9 +27,9 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   getActivePosition,
-  getCell,
   getCellContent,
   getCellError,
+  getCellRawContent,
   getCellText,
 } from "../test_helpers/getters_helpers";
 import { addToRegistry, flattenHighlightRange } from "../test_helpers/helpers";
@@ -423,7 +423,7 @@ test("replace don't replace value resulting from array formula", () => {
   // Check that the array formula has not been modified : If nothing has
   // been written in C1, B1 should still be an array formula (not errored)
   expect(getCellContent(model, "B1")).not.toBe("#ERROR");
-  expect(getCell(model, "C1")?.content).toBe(undefined);
+  expect(getCellRawContent(model, "C1")).toBe(undefined);
   // Check that the spread value has been updated according to the modified value of A2
   expect(getCellContent(model, "C1")).toBe("kikou");
 });
@@ -732,7 +732,7 @@ describe("Replace", () => {
     replaceSearch("2,5");
     expect(store.searchMatches).toHaveLength(1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    expect(getCell(model, "A1")?.content).toBe("=SUM(2.5,2.5)");
+    expect(getCellRawContent(model, "A1")).toBe("=SUM(2.5,2.5)");
   });
 
   test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {

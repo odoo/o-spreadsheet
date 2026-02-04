@@ -39,7 +39,7 @@ export class TableResizeUI extends UIPlugin {
         if (newTableZone.bottom >= oldTableZone.bottom) {
           for (let col = newTableZone.left; col <= newTableZone.right; col++) {
             const autofillSource = { col, row: oldTableZone.bottom, sheetId: cmd.sheetId };
-            if (this.getters.getCell(autofillSource)?.content.startsWith("=")) {
+            if (this.getters.getCell(autofillSource)?.isFormula) {
               this.dispatch("AUTOFILL_TABLE_COLUMN", {
                 ...autofillSource,
                 autofillRowStart: oldTableZone.bottom,

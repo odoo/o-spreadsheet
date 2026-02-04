@@ -42,8 +42,8 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   getActivePosition,
-  getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getSelectionAnchorCellXc,
   getTable,
@@ -170,7 +170,7 @@ describe("Composer interactions", () => {
     await clickCell(model, "B3");
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
     await keyDown({ key: "Enter" });
-    expect(getCell(model, "A1")?.content).toBe("=PIVOT(B3)");
+    expect(getCellRawContent(model, "A1")).toBe("=PIVOT(B3)");
   });
 
   test("autocomplete disappears when there is no match with an unknown character", async () => {
