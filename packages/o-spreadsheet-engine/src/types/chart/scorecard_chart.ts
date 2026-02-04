@@ -1,12 +1,13 @@
 import { Color, Style } from "../misc";
+import { Range } from "../range";
 import { TitleDesign } from "./chart";
 
-export interface ScorecardChartDefinition {
+export interface ScorecardChartDefinition<T extends string | Range = string> {
   readonly type: "scorecard";
   readonly title: TitleDesign;
-  readonly keyValue?: string;
+  readonly keyValue?: T;
   readonly keyDescr?: TitleDesign;
-  readonly baseline?: string;
+  readonly baseline?: T;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: TitleDesign;
   readonly background?: Color;
