@@ -1,4 +1,4 @@
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
@@ -7,7 +7,6 @@ import {
   LineChart,
   PieChart,
   ScorecardChart,
-  transformChartDefinitionWithDataSource,
   WaterfallChart,
 } from "../helpers/figures/charts";
 import { CalendarChart } from "../helpers/figures/charts/calendar_chart";
@@ -24,124 +23,21 @@ import { TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
 // Chart Registry
 //------------------------------------------------------------------------------
 
-chartRegistry.add("bar", {
-  ChartTypeHandler: BarChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
-  postProcess: (getters, sheetId, definition) => ({
-    ...definition,
-    zoomable: definition.horizontal ? undefined : definition.zoomable,
-  }),
-  allowedDefinitionKeys: BarChart.allowedDefinitionKeys,
-  sequence: 10,
-});
-chartRegistry.add("combo", {
-  ChartTypeHandler: ComboChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: ComboChart.allowedDefinitionKeys,
-  sequence: 15,
-});
-chartRegistry.add("line", {
-  ChartTypeHandler: LineChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: LineChart.allowedDefinitionKeys,
-  sequence: 20,
-});
-chartRegistry.add("pie", {
-  ChartTypeHandler: PieChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: PieChart.allowedDefinitionKeys,
-  sequence: 30,
-});
-chartRegistry.add("scorecard", {
-  ChartTypeHandler: ScorecardChart,
-  transformDefinition: ScorecardChart.transformDefinition,
-  getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: ScorecardChart.allowedDefinitionKeys,
-  sequence: 40,
-});
-chartRegistry.add("gauge", {
-  ChartTypeHandler: GaugeChart,
-  transformDefinition: GaugeChart.transformDefinition,
-  getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: GaugeChart.allowedDefinitionKeys,
-  sequence: 50,
-});
-chartRegistry.add("scatter", {
-  ChartTypeHandler: ScatterChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: ScatterChart.allowedDefinitionKeys,
-  sequence: 60,
-});
-chartRegistry.add("waterfall", {
-  ChartTypeHandler: WaterfallChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: WaterfallChart.allowedDefinitionKeys,
-  sequence: 70,
-});
-chartRegistry.add("pyramid", {
-  ChartTypeHandler: PyramidChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
-  postProcess: (getters, sheetId, definition) => ({
-    ...definition,
-    horizontal: true,
-    stacked: true,
-  }),
-  allowedDefinitionKeys: PyramidChart.allowedDefinitionKeys,
-  sequence: 80,
-  dataSeriesLimit: 2,
-});
-chartRegistry.add("radar", {
-  ChartTypeHandler: RadarChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: RadarChart.allowedDefinitionKeys,
-  sequence: 80,
-});
-chartRegistry.add("geo", {
-  ChartTypeHandler: GeoChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: GeoChart.allowedDefinitionKeys,
-  sequence: 90,
-  dataSeriesLimit: 1,
-});
-chartRegistry.add("funnel", {
-  ChartTypeHandler: FunnelChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: FunnelChart.allowedDefinitionKeys,
-  sequence: 100,
-  dataSeriesLimit: 1,
-});
-chartRegistry.add("sunburst", {
-  ChartTypeHandler: SunburstChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: SunburstChart.allowedDefinitionKeys,
-  sequence: 30,
-});
-chartRegistry.add("treemap", {
-  ChartTypeHandler: TreeMapChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: TreeMapChart.allowedDefinitionKeys,
-  sequence: 100,
-});
-chartRegistry.add("calendar", {
-  ChartTypeHandler: CalendarChart,
-  transformDefinition: transformChartDefinitionWithDataSource,
-  getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
-  allowedDefinitionKeys: CalendarChart.allowedDefinitionKeys,
-  sequence: 110,
-  dataSeriesLimit: 1,
-});
+chartTypeRegistry.add("bar", BarChart);
+chartTypeRegistry.add("combo", ComboChart);
+chartTypeRegistry.add("line", LineChart);
+chartTypeRegistry.add("pie", PieChart);
+chartTypeRegistry.add("scorecard", ScorecardChart);
+chartTypeRegistry.add("gauge", GaugeChart);
+chartTypeRegistry.add("scatter", ScatterChart);
+chartTypeRegistry.add("waterfall", WaterfallChart);
+chartTypeRegistry.add("pyramid", PyramidChart);
+chartTypeRegistry.add("radar", RadarChart);
+chartTypeRegistry.add("geo", GeoChart);
+chartTypeRegistry.add("funnel", FunnelChart);
+chartTypeRegistry.add("sunburst", SunburstChart);
+chartTypeRegistry.add("treemap", TreeMapChart);
+chartTypeRegistry.add("calendar", CalendarChart);
 
 chartSubtypeRegistry
   .add("line", {

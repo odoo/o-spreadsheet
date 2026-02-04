@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -7,18 +6,12 @@ import {
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  LineChartDefinition,
-  LineChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { LineChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -30,10 +23,10 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class LineChart extends AbstractChart {
-  readonly type = "line";
+export const LineChart: ChartTypeBuilder<"line"> = {
+  sequence: 20,
 
-  static allowedDefinitionKeys: readonly (keyof LineChartDefinition)[] = [
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -47,15 +40,25 @@ export class LineChart extends AbstractChart {
     "showValues",
     "hideDataMarkers",
     "zoomable",
-  ] as const;
+  ] as const,
 
-  constructor(private definition: LineChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): LineChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -74,24 +77,9 @@ export class LineChart extends AbstractChart {
       zoomable: context.zoomable,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getRangeDefinition(): LineChartDefinition {
-    return this.definition;
-  }
-
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: LineChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
-
-  getDefinitionForExcel(
-    getters: CoreGetters,
-    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
-  ): ExcelChartDefinition | undefined {
-    const definition = this.getRangeDefinition();
+  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
@@ -100,10 +88,9 @@ export class LineChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
+  },
 
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): LineChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource): LineChartRuntime {
     const data = dataSource.extractData(getters);
     const chartData = getLineChartData(definition, data, getters);
 
@@ -134,5 +121,5 @@ export class LineChart extends AbstractChart {
         label,
       })),
     };
-  }
-}
+  },
+};

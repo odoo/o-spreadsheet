@@ -1,4 +1,4 @@
-import { transformDefinition } from "../../helpers/figures/charts/chart_factory";
+import { MyChart } from "../../helpers/figures/chart";
 import { deepCopy } from "../../helpers/misc";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
 import {
@@ -110,6 +110,6 @@ function updateChartRangesTransformation<Cmd extends UpdateChartCommand | Create
 ): Cmd {
   return {
     ...cmd,
-    definition: transformDefinition(cmd.sheetId, cmd.definition, rangeAdapters),
+    definition: MyChart.transformDefinition(cmd.sheetId, cmd.definition, rangeAdapters),
   };
 }
