@@ -1,19 +1,12 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ChartRangeDataSource,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  TreeMapChartDefinition,
-  TreeMapChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { ChartRangeDataSource } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { TreeMapChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -22,17 +15,9 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class TreeMapChart extends AbstractChart {
-  static defaults = {
-    background: BACKGROUND_CHART_COLOR,
-    legendPosition: "top",
-    dataSetsHaveTitle: false,
-    showHeaders: true,
-    headersColor: "#000000",
-  };
-  readonly type = "treemap";
-
-  static allowedDefinitionKeys: readonly (keyof TreeMapChartDefinition)[] = [
+export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
+  sequence: 100,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -43,19 +28,23 @@ export class TreeMapChart extends AbstractChart {
     "valuesDesign",
     "coloringOptions",
     "showValues",
-  ] as const;
+  ],
 
-  constructor(
-    private definition: TreeMapChartDefinition<Range>,
-    sheetId: UID,
-    getters: CoreGetters
-  ) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): TreeMapChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     let dataSource: ChartRangeDataSource<string> = {
       type: "range",
       dataSets: [],
@@ -85,31 +74,19 @@ export class TreeMapChart extends AbstractChart {
       coloringOptions: context.treemapColoringOptions,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: TreeMapChartDefinition<string>
-  ): ChartCreationContext {
+  getContextCreation(definition, dataSourceHandler, dataSource) {
     return {
       ...definition,
       treemapColoringOptions: definition.coloringOptions,
-      ...dataSource.getHierarchicalContextCreation(
-        dataSource.getDefinition(this.getters, this.sheetId)
-      ),
+      ...dataSourceHandler.getHierarchicalContextCreation(dataSource),
     };
-  }
+  },
 
-  getRangeDefinition(): TreeMapChartDefinition {
-    return this.definition;
-  }
+  getDefinitionForExcel: () => undefined,
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
-  }
-
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): TreeMapChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource: ChartDataSourceHandler): TreeMapChartRuntime {
     const data = dataSource.extractHierarchicalData(getters);
     const chartData = getHierarchalChartData(definition, data, getters);
 
@@ -134,5 +111,5 @@ export class TreeMapChart extends AbstractChart {
       chartJsConfig: config,
       background: definition.background || BACKGROUND_CHART_COLOR,
     };
-  }
-}
+  },
+};

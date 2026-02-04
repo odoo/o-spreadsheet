@@ -1,21 +1,17 @@
-import { CoreGetters, Validator } from "@odoo/o-spreadsheet-engine";
+import { Validator } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ExcelChartDefinition,
-  LegendPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
-import { CommandResult, Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getCalendarChartData,
   getCalendarChartDatasetAndLabels,
@@ -37,10 +33,10 @@ function checkDateGranularity(definition: CalendarChartDefinition<string>): Comm
   return CommandResult.Success;
 }
 
-export class CalendarChart extends AbstractChart {
-  readonly type = "calendar";
-
-  static allowedDefinitionKeys: readonly (keyof CalendarChartDefinition)[] = [
+export const CalendarChart: ChartTypeBuilder<"calendar"> = {
+  sequence: 110,
+  dataSeriesLimit: 1,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "dataSetStyles",
@@ -51,26 +47,30 @@ export class CalendarChart extends AbstractChart {
     "horizontalGroupBy",
     "verticalGroupBy",
     "legendPosition",
-  ] as const;
+  ],
 
-  constructor(
-    private definition: CalendarChartDefinition<Range>,
-    sheetId: UID,
-    getters: CoreGetters
-  ) {
-    super(sheetId, getters);
-  }
-
-  static validateChartDefinition(
+  validateDefinition(
     validator: Validator,
     definition: CalendarChartDefinition<string>
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDateGranularity);
-  }
+  },
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): CalendarChartDefinition<string> {
+  fromStrDefinition: (definition) => definition,
+
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     let legendPosition: LegendPosition = "left";
     if (context.legendPosition === "right") {
       legendPosition = "right";
@@ -87,29 +87,11 @@ export class CalendarChart extends AbstractChart {
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
     };
-  }
+  },
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: CalendarChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
+  getDefinitionForExcel: () => undefined,
 
-  getRangeDefinition(): CalendarChartDefinition {
-    return this.definition;
-  }
-
-  getDefinition() {
-    return this.definition;
-  }
-
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
-  }
-
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): CalendarChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource): CalendarChartRuntime {
     const data = dataSource.extractData(getters);
     const chartData = getCalendarChartData(definition, data, getters);
     const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
@@ -137,5 +119,5 @@ export class CalendarChart extends AbstractChart {
     };
 
     return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
-  }
-}
+  },
+};
