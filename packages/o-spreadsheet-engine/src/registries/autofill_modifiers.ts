@@ -81,7 +81,9 @@ autofillModifiersRegistry
   })
   .add("COPY_MODIFIER", {
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
-      const content = data.cell?.content || "";
+      const content = !data.cell?.isFormula
+        ? data.cell?.content || ""
+        : data.cell?.compiledFormula.toFormulaString(getters);
       const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
       return {
         cellData: {

@@ -364,7 +364,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
       if (formulaCell) {
         const cell = this.getters.getCell(position);
         isExported = formulaCell.compiledFormula.areAllFunctionsExportableToExcel();
-        isFormula = isExported && cell?.content === formulaCell.content;
+        isFormula =
+          isExported &&
+          (!cell?.isFormula
+            ? cell?.content
+            : cell.compiledFormula.toFormulaString(this.getters)) ===
+            formulaCell.compiledFormula.toFormulaString(this.getters);
 
         // If the cell contains a non-exported formula and that is evaluated to
         // nothing* ,we don't export it.

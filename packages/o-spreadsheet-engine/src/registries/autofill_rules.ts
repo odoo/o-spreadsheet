@@ -191,7 +191,7 @@ autofillRulesRegistry
       !cell.isFormula &&
       evaluateLiteral(cell, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
       alphaNumericValueRegExp.test(cell.content),
-    generateRule: (cell: Cell, cells: Cell[], direction: DIRECTION) => {
+    generateRule: (cell: LiteralCell, cells: Cell[], direction: DIRECTION) => {
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
       const prefix = cell.content.match(stringPrefixRegExp)![0];
       const group = getGroup(
