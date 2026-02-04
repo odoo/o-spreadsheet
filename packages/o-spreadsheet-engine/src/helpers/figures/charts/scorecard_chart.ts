@@ -12,7 +12,6 @@ import {
   ChartCreationContext,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
-  TitleDesign,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
@@ -156,17 +155,6 @@ const arrowUpPath =
   );
 
 export class ScorecardChart extends AbstractChart {
-  readonly keyValue?: Range;
-  readonly keyDescr?: TitleDesign;
-  readonly baseline?: Range;
-  readonly baselineMode: BaselineMode;
-  readonly baselineDescr?: TitleDesign;
-  readonly progressBar: boolean = false;
-  readonly background?: Color;
-  readonly baselineColorUp: Color;
-  readonly baselineColorDown: Color;
-  readonly fontColor?: Color;
-  readonly humanize: boolean;
   readonly type = "scorecard";
 
   static allowedDefinitionKeys: readonly (keyof ScorecardChartDefinition)[] = [
@@ -180,17 +168,27 @@ export class ScorecardChart extends AbstractChart {
     "baselineColorDown",
   ] as const;
 
-  constructor(private definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(
+    private definition: ScorecardChartDefinition<Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ) {
     super(sheetId, getters);
-    this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
-    this.keyDescr = definition.keyDescr;
-    this.baseline = createValidRange(getters, sheetId, definition.baseline);
-    this.baselineMode = definition.baselineMode;
-    this.baselineDescr = definition.baselineDescr;
-    this.background = definition.background;
-    this.baselineColorUp = definition.baselineColorUp ?? DEFAULT_SCORECARD_BASELINE_COLOR_UP;
-    this.baselineColorDown = definition.baselineColorDown ?? DEFAULT_SCORECARD_BASELINE_COLOR_DOWN;
-    this.humanize = definition.humanize ?? true;
+  }
+
+  static fromStrDefinition(
+    getters: CoreGetters,
+    sheetId: UID,
+    definition: ScorecardChartDefinition<string>
+  ) {
+    const baseline = createValidRange(getters, sheetId, definition.baseline);
+    const keyValue = createValidRange(getters, sheetId, definition.keyValue);
+    const rangeDefinition: ScorecardChartDefinition<Range> = {
+      ...definition,
+      baseline,
+      keyValue,
+    };
+    return new ScorecardChart(rangeDefinition, sheetId, getters);
   }
 
   static validateChartDefinition(
@@ -246,27 +244,47 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChartDefinition {
-    const baseline = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.baseline);
-    const keyValue = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.keyValue);
+  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChartDefinition<Range> {
+    const baseline = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.definition.baseline
+    );
+    const keyValue = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.definition.keyValue
+    );
     return this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
   }
 
   copyInSheetId(sheetId: UID): ScorecardChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue, sheetId);
+    const definition = this.getDefinitionWithSpecificRanges(
+      this.definition.baseline,
+      this.definition.keyValue,
+      sheetId
+    );
     return new ScorecardChart(definition, sheetId, this.getters);
   }
 
-  getRangeDefinition(): ScorecardChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue);
+  getRangeDefinition(): ScorecardChartDefinition<Range> {
+    return this.getDefinitionWithSpecificRanges(this.definition.baseline, this.definition.keyValue);
   }
 
-  getDefinition(): ScorecardChartDefinition {
-    return this.getRangeDefinition();
+  getDefinition(): ScorecardChartDefinition<string> {
+    return {
+      ...this.definition,
+      keyValue: this.definition.keyValue
+        ? this.getters.getRangeString(this.definition.keyValue, this.sheetId)
+        : undefined,
+      baseline: this.definition.baseline
+        ? this.getters.getRangeString(this.definition.baseline, this.sheetId)
+        : undefined,
+    };
   }
 
   getContextCreation(): ChartCreationContext {
-    const definition = this.getRangeDefinition();
+    const definition = this.getDefinition();
     return {
       ...definition,
       dataSource: {
@@ -280,23 +298,11 @@ export class ScorecardChart extends AbstractChart {
     baseline: Range | undefined,
     keyValue: Range | undefined,
     targetSheetId?: UID
-  ): ScorecardChartDefinition {
+  ): ScorecardChartDefinition<Range> {
     return {
-      baselineColorDown: this.baselineColorDown,
-      baselineColorUp: this.baselineColorUp,
-      baselineMode: this.baselineMode,
-      title: this.definition.title,
-      type: "scorecard",
-      background: this.definition.background,
-      baseline: baseline
-        ? this.getters.getRangeString(baseline, targetSheetId || this.sheetId)
-        : undefined,
-      baselineDescr: this.baselineDescr,
-      keyValue: keyValue
-        ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
-        : undefined,
-      keyDescr: this.keyDescr,
-      humanize: this.humanize,
+      ...this.definition,
+      baseline: baseline,
+      keyValue: keyValue,
     };
   }
 
@@ -306,9 +312,9 @@ export class ScorecardChart extends AbstractChart {
   }
 
   updateRanges(adapterFunctions: RangeAdapterFunctions): ScorecardChart {
-    const baseline = adaptChartRange(this.baseline, adapterFunctions);
-    const keyValue = adaptChartRange(this.keyValue, adapterFunctions);
-    if (this.baseline === baseline && this.keyValue === keyValue) {
+    const baseline = adaptChartRange(this.definition.baseline, adapterFunctions);
+    const keyValue = adaptChartRange(this.definition.keyValue, adapterFunctions);
+    if (this.definition.baseline === baseline && this.definition.keyValue === keyValue) {
       return this;
     }
     const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
@@ -319,17 +325,17 @@ export class ScorecardChart extends AbstractChart {
     let formattedKeyValue = "";
     let keyValueCell: EvaluatedCell | undefined;
     const locale = getters.getLocale();
-    if (this.keyValue) {
+    if (this.definition.keyValue) {
       const keyValuePosition = {
-        sheetId: this.keyValue.sheetId,
-        col: this.keyValue.zone.left,
-        row: this.keyValue.zone.top,
+        sheetId: this.definition.keyValue.sheetId,
+        col: this.definition.keyValue.zone.left,
+        row: this.definition.keyValue.zone.top,
       };
       keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-      formattedKeyValue = getKeyValueText(keyValueCell, this.humanize ?? true, locale);
+      formattedKeyValue = getKeyValueText(keyValueCell, this.definition.humanize ?? true, locale);
     }
     let baselineCell: EvaluatedCell | undefined;
-    const baseline = this.baseline;
+    const baseline = this.definition.baseline;
     if (baseline) {
       const baselinePosition = {
         sheetId: baseline.sheetId,
@@ -339,19 +345,19 @@ export class ScorecardChart extends AbstractChart {
       baselineCell = getters.getEvaluatedCell(baselinePosition);
     }
     const { background, fontColor } = getters.getStyleOfSingleCellChart(
-      this.background,
-      this.keyValue
+      this.definition.background,
+      this.definition.keyValue
     );
 
     const baselineDisplay = getBaselineText(
       baselineCell,
       keyValueCell,
-      this.baselineMode,
-      this.humanize ?? true,
+      this.definition.baselineMode,
+      this.definition.humanize ?? true,
       locale
     );
     const baselineValue =
-      this.baselineMode === "progress" && isNumber(baselineDisplay, locale)
+      this.definition.baselineMode === "progress" && isNumber(baselineDisplay, locale)
         ? toNumber(baselineDisplay, locale)
         : 0;
     const title = this.definition.title;
@@ -361,51 +367,68 @@ export class ScorecardChart extends AbstractChart {
         text: title.text ? getters.dynamicTranslate(title.text) : "",
       },
       keyValue: formattedKeyValue,
-      keyDescr: this.keyDescr?.text ? getters.dynamicTranslate(this.keyDescr.text) : "",
+      keyDescr: this.definition.keyDescr?.text
+        ? getters.dynamicTranslate(this.definition.keyDescr.text)
+        : "",
       baselineDisplay,
-      baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, this.baselineMode),
+      baselineArrow: getBaselineArrowDirection(
+        baselineCell,
+        keyValueCell,
+        this.definition.baselineMode
+      ),
       baselineColor: getBaselineColor(
         baselineCell,
-        this.baselineMode,
+        this.definition.baselineMode,
         keyValueCell,
-        this.baselineColorUp,
-        this.baselineColorDown
+        this.definition.baselineColorUp,
+        this.definition.baselineColorDown
       ),
       baselineDescr:
-        this.baselineMode !== "progress" && this.baselineDescr?.text
-          ? getters.dynamicTranslate(this.baselineDescr.text)
+        this.definition.baselineMode !== "progress" && this.definition.baselineDescr?.text
+          ? getters.dynamicTranslate(this.definition.baselineDescr.text)
           : "",
       fontColor,
       background,
       baselineStyle: {
-        ...(this.baselineMode !== "percentage" && this.baselineMode !== "progress" && baseline
+        ...(this.definition.baselineMode !== "percentage" &&
+        this.definition.baselineMode !== "progress" &&
+        baseline
           ? getters.getCellComputedStyle({
               sheetId: baseline.sheetId,
               col: baseline.zone.left,
               row: baseline.zone.top,
             })
           : undefined),
-        fontSize: this.baselineDescr?.fontSize,
-        align: this.baselineDescr?.align,
+        fontSize: this.definition.baselineDescr?.fontSize,
+        align: this.definition.baselineDescr?.align,
       },
-      baselineDescrStyle: { textColor: this.baselineDescr?.color, ...this.baselineDescr },
+      baselineDescrStyle: {
+        textColor: this.definition.baselineDescr?.color,
+        ...this.definition.baselineDescr,
+      },
       keyValueStyle: {
-        ...(this.keyValue
+        ...(this.definition.keyValue
           ? getters.getCellComputedStyle({
-              sheetId: this.keyValue.sheetId,
-              col: this.keyValue.zone.left,
-              row: this.keyValue.zone.top,
+              sheetId: this.definition.keyValue.sheetId,
+              col: this.definition.keyValue.zone.left,
+              row: this.definition.keyValue.zone.top,
             })
           : undefined),
-        fontSize: this.keyDescr?.fontSize,
-        align: this.keyDescr?.align,
+        fontSize: this.definition.keyDescr?.fontSize,
+        align: this.definition.keyDescr?.align,
       },
-      keyValueDescrStyle: { textColor: this.keyDescr?.color, ...this.keyDescr },
+      keyValueDescrStyle: {
+        textColor: this.definition.keyDescr?.color,
+        ...this.definition.keyDescr,
+      },
       progressBar:
-        this.baselineMode === "progress"
+        this.definition.baselineMode === "progress"
           ? {
               value: baselineValue,
-              color: baselineValue > 0 ? this.baselineColorUp : this.baselineColorDown,
+              color:
+                baselineValue > 0
+                  ? this.definition.baselineColorUp
+                  : this.definition.baselineColorDown,
             }
           : undefined,
     };
