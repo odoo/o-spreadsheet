@@ -1,6 +1,7 @@
 import { PivotDomain, PivotSortedColumn } from "../../src";
 import { isDomainIsInPivot } from "../../src/helpers/pivot/pivot_domain_helpers";
 import {
+  collapseHierarchicalDisplayName,
   isSortedColumnValid,
   toFunctionPivotValue,
   toNormalizedPivotValue,
@@ -321,4 +322,12 @@ test("isDomainInPivot", () => {
     { field: "Date:month_number", value: 1, type: "datetime" },
   ];
   expect(isDomainIsInPivot(pivot, domain)).toBe(true);
+});
+
+test("collapseHierarchicalDisplayName", () => {
+  expect(collapseHierarchicalDisplayName("")).toBe("");
+  expect(collapseHierarchicalDisplayName("first")).toBe("first");
+  expect(collapseHierarchicalDisplayName("first > second")).toBe("first > second");
+  expect(collapseHierarchicalDisplayName("first > second > third")).toBe("first > … > third");
+  expect(collapseHierarchicalDisplayName("a > b > c > d > e > f > g > h")).toBe("a > … > h");
 });
