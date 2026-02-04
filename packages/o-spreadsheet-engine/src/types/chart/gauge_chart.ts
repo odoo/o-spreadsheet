@@ -1,11 +1,12 @@
 import type { ChartOptions } from "chart.js";
 import { Color } from "../misc";
+import { Range } from "../range";
 import { TitleDesign } from "./chart";
 
-export interface GaugeChartDefinition {
+export interface GaugeChartDefinition<T extends string | Range = string> {
   readonly type: "gauge";
   readonly title: TitleDesign;
-  readonly dataRange?: string;
+  readonly dataRange?: T;
   readonly sectionRule: SectionRule;
   readonly background?: Color;
   readonly humanize?: boolean;
