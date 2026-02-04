@@ -11,13 +11,12 @@ import { generateMasterChartConfig } from "./runtime/chart_zoom";
  * Create a function used to create a Chart based on the definition
  */
 export function chartFactory(getters: CoreGetters) {
-  const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   function createChart(
     figureId: UID,
     definitionWithRangeStr: ChartDefinition<string>,
     sheetId: UID
   ): MyChart {
-    const builder = builders.find((builder) => builder.match(definitionWithRangeStr.type));
+    const builder = chartRegistry.get(definitionWithRangeStr.type);
     if (!builder) {
       throw new Error(`No builder for this chart: ${definitionWithRangeStr.type}`);
     }
@@ -31,10 +30,9 @@ export function chartFactory(getters: CoreGetters) {
  * instance
  */
 export function chartRuntimeFactory(getters: Getters) {
-  const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   function createRuntimeChart(chart: MyChart): ChartRuntime {
     const definition = chart.getRangeDefinition();
-    const builder = builders.find((builder) => builder.match(definition.type));
+    const builder = chartRegistry.get(definition.type);
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
@@ -57,7 +55,7 @@ export function transformDefinition(
   definition: ChartDefinition,
   rangeAdapters: RangeAdapterFunctions
 ): ChartDefinition {
-  const transformation = chartRegistry.getAll().find((factory) => factory.match(definition.type));
+  const transformation = chartRegistry.get(definition.type);
   if (!transformation) {
     throw new Error("Unknown chart type.");
   }
