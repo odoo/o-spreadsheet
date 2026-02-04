@@ -281,7 +281,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   private getPrettifiedFormula(cell: FormulaCell): string {
     if (cell.compiledFormula.isBadExpression) {
-      return cell.content;
+      return cell.compiledFormula.toFormulaString(this.getters);
     }
     const width =
       this.editionMode === "inactive"

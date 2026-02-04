@@ -136,7 +136,11 @@ describe("Grid component in dashboard mode", () => {
     const fn = jest.fn();
     addToRegistry(clickableCellRegistry, "fake", {
       condition: (position, getters) => {
-        return !!getters.getCell(position)?.content.startsWith("__");
+        const cell = getters.getCell(position);
+        const content = !cell?.isFormula
+          ? cell?.content
+          : cell.compiledFormula.toFormulaString(getters);
+        return !!content?.startsWith("__");
       },
       execute: (position) => fn(position.col, position.row),
       sequence: 5,
@@ -184,7 +188,11 @@ describe("Grid component in dashboard mode", () => {
     const fn = jest.fn();
     addToRegistry(clickableCellRegistry, "fake", {
       condition: (position, getters) => {
-        return !!getters.getCell(position)?.content.startsWith("__");
+        const cell = getters.getCell(position);
+        const content = !cell?.isFormula
+          ? cell?.content
+          : cell.compiledFormula.toFormulaString(getters);
+        return !!content?.startsWith("__");
       },
       execute: (_, __, isMiddleClick) => fn(isMiddleClick),
       sequence: 5,
@@ -216,7 +224,13 @@ describe("Grid component in dashboard mode", () => {
     addToRegistry(clickableCellRegistry, "fake", {
       condition: () => true,
       execute: () => {},
-      title: (position, getters) => `hello ${getters.getCell(position)?.content}`,
+      title: (position, getters) => {
+        const cell = getters.getCell(position);
+        const content = !cell?.isFormula
+          ? cell?.content
+          : cell?.compiledFormula.toFormulaString(getters);
+        return `hello ${content}`;
+      },
       sequence: 5,
     });
     setCellContent(model, "A1", "Magical Françoise");

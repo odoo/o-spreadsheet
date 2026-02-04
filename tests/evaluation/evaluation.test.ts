@@ -21,6 +21,7 @@ import {
   getCell,
   getCellContent,
   getCellError,
+  getCellRawContent,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
 import {
@@ -301,7 +302,7 @@ describe("evaluateCells", () => {
   test("string representation of an error is stored as an error", () => {
     const model = new Model();
     setCellContent(model, "A1", "#ERROR");
-    expect(getCell(model, "A1")?.content).toBe("#ERROR");
+    expect(getCellRawContent(model, "A1")).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBeUndefined();

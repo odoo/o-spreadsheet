@@ -5,7 +5,7 @@ import { UID } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { keyDown } from "../test_helpers/dom_helper";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellRawContent } from "../test_helpers/getters_helpers";
 import {
   makeTestComposerStore,
   mountSpreadsheet,
@@ -63,7 +63,7 @@ describe("Data validation with blocking rule", () => {
     composerStore.startEdition("3,5");
     composerStore.stopEdition();
 
-    expect(model.getters.getCell({ sheetId, col: 0, row: 0 })?.content).toBe("3.5");
+    expect(getCellRawContent(model, "A1", sheetId)).toBe("3.5");
     expect(model.getters.isDataValidationInvalid({ col: 0, row: 0, sheetId })).toEqual(false);
   });
 

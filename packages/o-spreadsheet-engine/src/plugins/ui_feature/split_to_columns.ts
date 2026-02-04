@@ -68,7 +68,11 @@ export class SplitToColumnsPlugin extends UIPlugin {
       const col = selection.left;
       const mainCell = this.getters.getCell({ sheetId, col, row });
 
-      if (splittedContent.length === 1 && splittedContent[0] === mainCell?.content) {
+      if (
+        splittedContent.length === 1 &&
+        !mainCell?.isFormula &&
+        splittedContent[0] === mainCell?.content
+      ) {
         continue;
       }
 
@@ -116,7 +120,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
       const splittedText = splittedCols[row - selection.top];
       for (let i = 1; i < splittedText.length; i++) {
         const cell = this.getters.getCell({ sheetId, col: selection.left + i, row });
-        if (cell && cell.content) {
+        if (cell?.isFormula || cell?.content) {
           return true;
         }
       }
@@ -162,7 +166,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     for (let i = 1; i < maxColumnsToSpread; i++) {
       const col = cellPosition.col + i;
       const cell = this.getters.getCell({ ...cellPosition, col });
-      if (cell && cell.content) {
+      if (cell?.isFormula || cell?.content) {
         return maxColumnsToSpread - i;
       }
     }
