@@ -9,7 +9,7 @@ import {
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCellRawContent } from "../test_helpers/getters_helpers";
 import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
@@ -119,7 +119,7 @@ describe("Table side panel", () => {
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "A1:C5");
     await click(fixture, ".o-selection .o-selection-ok");
-    expect(getCell(model, "A5")?.content).toEqual("=A4+1");
+    expect(getCellRawContent(model, "A5")).toEqual("=A4+1");
   });
 
   test("Side panel works with unbounded table zones", async () => {

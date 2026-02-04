@@ -12,7 +12,7 @@ import {
   paste,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCellRawContent } from "../test_helpers/getters_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative range manipulation", () => {
@@ -33,7 +33,7 @@ describe("Collaborative range manipulation", () => {
       addColumns(alice, "after", "D", 1);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "C1")?.content,
+      (user) => getCellRawContent(user, "C1"),
       "=SUM(D1:F1)"
     );
   });
@@ -43,7 +43,7 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A1");
     paste(alice, "B1");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2")?.content,
+      (user) => getCellRawContent(user, "A2"),
       "=B1"
     );
   });
@@ -54,7 +54,7 @@ describe("Collaborative range manipulation", () => {
     createSheet(alice, { activate: true });
     paste(alice, "B1");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2", "Sheet1")?.content,
+      (user) => getCellRawContent(user, "A2", "Sheet1"),
       "=Sheet2!B1"
     );
   });
@@ -69,11 +69,11 @@ describe("Collaborative range manipulation", () => {
       paste(alice, "D4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "D4", "Sheet2")?.content,
+      (user) => getCellRawContent(user, "D4", "Sheet2"),
       "hello"
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A1", "Sheet2")?.content,
+      (user) => getCellRawContent(user, "A1", "Sheet2"),
       "=#REF"
     );
   });
@@ -87,7 +87,7 @@ describe("Collaborative range manipulation", () => {
       paste(alice, "D4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2", "Sheet1")?.content,
+      (user) => getCellRawContent(user, "A2", "Sheet1"),
       "=A1"
     );
   });
@@ -101,7 +101,7 @@ describe("Collaborative range manipulation", () => {
       deleteSheet(bob, "Sheet2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "A2", "Sheet1")?.content,
+      (user) => getCellRawContent(user, "A2", "Sheet1"),
       "=#REF"
     );
   });
@@ -137,31 +137,31 @@ describe("Collaborative range manipulation", () => {
     copy(alice, "A1:A7");
     paste(alice, "B1");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B1")?.content,
+      (user) => getCellRawContent(user, "B1"),
       "TRUE"
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B2")?.content,
+      (user) => getCellRawContent(user, "B2"),
       "FALSE" // A2 was empty, which is falsy
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B3")?.content,
+      (user) => getCellRawContent(user, "B3"),
       "FALSE" // text is not a boolean -> falsy
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B4")?.content,
+      (user) => getCellRawContent(user, "B4"),
       "=TRANSPOSE(B1)" // is truthy
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B5")?.content,
+      (user) => getCellRawContent(user, "B5"),
       "FALSE" // text is not a boolean -> falsy
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B6")?.content,
+      (user) => getCellRawContent(user, "B6"),
       "=NOT(B1)"
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCell(user, "B7")?.content,
+      (user) => getCellRawContent(user, "B7"),
       "FALSE" // a number which does not represent a boolean is falsy
     );
   });

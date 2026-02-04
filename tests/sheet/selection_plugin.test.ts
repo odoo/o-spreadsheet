@@ -48,6 +48,7 @@ import {
   getActivePosition,
   getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getSelectionAnchorCellXc,
   getTable,
@@ -1203,7 +1204,7 @@ describe("move elements(s)", () => {
     const model = new Model();
     setCellContent(model, "A4", "=MUNIT(2)");
     moveRows(model, 0, [3], "before");
-    expect(getCell(model, "A1")?.content).toEqual("=MUNIT(2)");
+    expect(getCellRawContent(model, "A1")).toEqual("=MUNIT(2)");
     expect(getCellContent(model, "A1")).toEqual("1");
     expect(getCell(model, "B1")).toEqual(undefined);
   });
@@ -1213,7 +1214,7 @@ describe("move elements(s)", () => {
     setCellContent(model, "C1", "=MUNIT(2)");
     moveColumns(model, "A", ["D"], "before");
     expect(getCell(model, "A1")).toEqual(undefined);
-    expect(getCell(model, "D1")?.content).toEqual("=MUNIT(2)");
+    expect(getCellRawContent(model, "D1")).toEqual("=MUNIT(2)");
   });
 
   test("Formula are correctly updated on col move", () => {
