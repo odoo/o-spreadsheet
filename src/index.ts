@@ -344,6 +344,7 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
+import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
@@ -419,6 +420,7 @@ export const helpers = {
   DateTime,
   parseFormat,
   isFormula,
+  domainToColRowDomain,
 };
 
 export const links = {
