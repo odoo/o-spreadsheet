@@ -491,3 +491,22 @@ export function getPivotStyleFromFnArgs(
 
   return { numberOfRows, numberOfColumns, displayTotals, displayColumnHeaders, displayMeasuresRow };
 }
+
+/**
+ * Collapse a hierarchical display name by keeping only the first and last parts.
+ * Example: "Sales > Europe > France" → "Sales > … > France"
+ */
+export function collapseHierarchicalDisplayName(
+  displayName: string,
+  splitter: string = ">"
+): string {
+  const firstIndex = displayName.indexOf(splitter);
+  const lastIndex = displayName.lastIndexOf(splitter);
+  if (!displayName || !firstIndex || firstIndex === lastIndex) {
+    return displayName;
+  }
+
+  const firstPart = displayName.slice(0, firstIndex + 1);
+  const lastPart = displayName.slice(lastIndex);
+  return `${firstPart} … ${lastPart}`;
+}
