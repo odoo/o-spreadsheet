@@ -25,6 +25,11 @@ interface ChartDataSourceHandlerContructor {
     validator: Validator,
     dataSource: ChartDataSource<string>
   ) => CommandResult | CommandResult[];
+  transform(
+    sheetId: UID,
+    dataSource: ChartDataSource<string>,
+    rangeAdapters: RangeAdapterFunctions
+  ): ChartDataSource<string>;
   // fromContextCreation: (
   //   context: ChartCreationContext
   // ) => ChartDataSource<string>;
