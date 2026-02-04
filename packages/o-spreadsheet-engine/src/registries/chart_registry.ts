@@ -12,6 +12,11 @@ import { Registry } from "./registry";
 export interface ChartBuilder<T extends ChartType, D> {
   ChartTypeHandler: {
     new (...args: any[]): AbstractChart;
+    fromStrDefinition?(
+      getters: CoreGetters,
+      sheetId: UID,
+      definition: ChartTypeDefinition<T, string>
+    ): AbstractChart;
     validateChartDefinition: (
       validator: Validator,
       definition: ChartTypeDefinition<NoInfer<T>, string>

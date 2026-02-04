@@ -62,7 +62,7 @@ export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
 
 export type ChartDefinition<T extends string | Range = string> =
   | ChartDefinitionWithDataSource<T>
-  | ScorecardChartDefinition
+  | ScorecardChartDefinition<T>
   | GaugeChartDefinition;
 
 export type ChartTypeDefinition<T extends ChartType, R extends string | Range> = Extract<
