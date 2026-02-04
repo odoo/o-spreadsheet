@@ -1,4 +1,3 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
@@ -7,18 +6,9 @@ import {
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  BarChartDefinition,
-  BarChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
-import {
-  ChartCreationContext,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
-import { UID } from "@odoo/o-spreadsheet-engine/types/misc";
-import { Range } from "@odoo/o-spreadsheet-engine/types/range";
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import {
@@ -32,10 +22,9 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class BarChart extends AbstractChart {
-  readonly type = "bar";
-
-  static allowedDefinitionKeys: readonly (keyof BarChartDefinition)[] = [
+export const BarChart: ChartTypeBuilder<"bar"> = {
+  sequence: 10,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -46,15 +35,28 @@ export class BarChart extends AbstractChart {
     "aggregated",
     "showValues",
     "zoomable",
-  ] as const;
+  ] as const,
 
-  constructor(private definition: BarChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => ({
+    ...definition,
+    zoomable: definition.horizontal ? undefined : definition.zoomable,
+  }),
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): BarChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -70,28 +72,9 @@ export class BarChart extends AbstractChart {
       zoomable: context.zoomable,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: BarChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
-
-  getRangeDefinition(): BarChartDefinition {
-    return this.definition;
-  }
-
-  getDefinition() {
-    return this.definition;
-  }
-
-  getDefinitionForExcel(
-    getters: CoreGetters,
-    { dataSets, labelRange }: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
-  ): ExcelChartDefinition | undefined {
-    const definition = this.getRangeDefinition();
+  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
@@ -100,10 +83,9 @@ export class BarChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
+  },
 
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): BarChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource): BarChartRuntime {
     const data = dataSource.extractData(getters);
     const chartData = getBarChartData(definition, data, getters);
 
@@ -135,5 +117,5 @@ export class BarChart extends AbstractChart {
         label,
       })),
     };
-  }
-}
+  },
+};

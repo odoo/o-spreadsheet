@@ -1,5 +1,5 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
@@ -447,7 +447,7 @@ export class GenericChartConfigPanel<
   }
 
   get maxNumberOfUsedRanges(): number | undefined {
-    return chartRegistry.get(this.props.definition.type).dataSeriesLimit;
+    return chartTypeRegistry.get(this.props.definition.type).dataSeriesLimit;
   }
 
   private transposeDataSet(

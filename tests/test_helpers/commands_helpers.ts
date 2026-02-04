@@ -45,9 +45,7 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
-// import { chartFactory } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_factory";
-// import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
   ChartCreationContext,
   ChartRangeDataSource,
@@ -261,7 +259,7 @@ export function createChart(
     dataSetStyles: data.dataSetStyles ?? {},
   };
 
-  const keys = new Set(chartRegistry.get(data.type).allowedDefinitionKeys);
+  const keys = new Set(chartTypeRegistry.get(data.type).allowedDefinitionKeys);
   for (const key of Object.keys(definition)) {
     if (!keys.has(key)) {
       delete definition[key];
@@ -556,9 +554,9 @@ export function createChartDefinitionFromContext<TType extends ChartType>(
   type: TType,
   context: ChartCreationContext
 ): ChartTypeDefinition<TType, string> {
-  return chartRegistry
+  return chartTypeRegistry
     .get(type)
-    ?.getChartDefinitionFromContextCreation(context) as ChartTypeDefinition<TType, string>;
+    ?.getDefinitionFromContextCreation(context) as ChartTypeDefinition<TType, string>;
 }
 
 /**
@@ -574,9 +572,9 @@ export function updateChart(
   let updatedDef: ChartDefinition;
   if (definition.type && definition.type !== currentDefinition.type) {
     const context = model.getters.getContextCreationChart(chartId);
-    const converted = chartRegistry
+    const converted = chartTypeRegistry
       .get(definition.type!)
-      .getChartDefinitionFromContextCreation(context ?? {});
+      .getDefinitionFromContextCreation(context ?? {});
     updatedDef = { ...converted, ...definition } as ChartDefinition;
   } else {
     updatedDef = {
