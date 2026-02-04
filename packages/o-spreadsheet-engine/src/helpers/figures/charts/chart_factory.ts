@@ -1,9 +1,9 @@
 import { ChartConfiguration } from "chart.js";
-import { chartRegistry } from "../../../registries/chart_registry";
+import { chartTypeRegistry } from "../../../registries/chart_registry";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart";
 import { CoreGetters } from "../../../types/core_getters";
 import { Getters } from "../../../types/getters";
-import { RangeAdapterFunctions, UID } from "../../../types/misc";
+import { UID } from "../../../types/misc";
 import { MyChart } from "../chart";
 import { generateMasterChartConfig } from "./runtime/chart_zoom";
 
@@ -16,7 +16,7 @@ export function chartFactory(getters: CoreGetters) {
     definitionWithRangeStr: ChartDefinition<string>,
     sheetId: UID
   ): MyChart {
-    const builder = chartRegistry.get(definitionWithRangeStr.type);
+    const builder = chartTypeRegistry.get(definitionWithRangeStr.type);
     if (!builder) {
       throw new Error(`No builder for this chart: ${definitionWithRangeStr.type}`);
     }
@@ -32,7 +32,7 @@ export function chartFactory(getters: CoreGetters) {
 export function chartRuntimeFactory(getters: Getters) {
   function createRuntimeChart(chart: MyChart): ChartRuntime {
     const definition = chart.getRangeDefinition();
-    const builder = chartRegistry.get(definition.type);
+    const builder = chartTypeRegistry.get(definition.type);
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
@@ -44,20 +44,4 @@ export function chartRuntimeFactory(getters: Getters) {
     return runtime;
   }
   return createRuntimeChart;
-}
-
-/**
- * Get a new chart definition transformed with the executed command. This
- * functions will be called during operational transform process
- */
-export function transformDefinition(
-  chartSheetId: UID,
-  definition: ChartDefinition,
-  rangeAdapters: RangeAdapterFunctions
-): ChartDefinition {
-  const transformation = chartRegistry.get(definition.type);
-  if (!transformation) {
-    throw new Error("Unknown chart type.");
-  }
-  return transformation.transformDefinition(chartSheetId, definition, rangeAdapters);
 }
