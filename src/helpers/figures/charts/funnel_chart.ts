@@ -1,15 +1,11 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  ChartCreationContext,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -20,10 +16,10 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class FunnelChart extends AbstractChart {
-  readonly type = "funnel";
-
-  static allowedDefinitionKeys: readonly (keyof FunnelChartDefinition)[] = [
+export const FunnelChart: ChartTypeBuilder<"funnel"> = {
+  sequence: 100,
+  dataSeriesLimit: 1,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "dataSetStyles",
@@ -34,19 +30,25 @@ export class FunnelChart extends AbstractChart {
     "showValues",
     "funnelColors",
     "cumulative",
-  ] as const;
+  ],
 
-  constructor(
-    private definition: FunnelChartDefinition<Range>,
-    sheetId: UID,
-    getters: CoreGetters
-  ) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): FunnelChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -62,25 +64,11 @@ export class FunnelChart extends AbstractChart {
       cumulative: context.cumulative,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: FunnelChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
+  getDefinitionForExcel: () => undefined,
 
-  getRangeDefinition(): FunnelChartDefinition {
-    return this.definition;
-  }
-
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
-  }
-
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): FunnelChartRuntime {
-    const definition = this.getRangeDefinition();
+  getRuntime(getters, definition, dataSource): FunnelChartRuntime {
     const data = dataSource.extractData(getters);
     const chartData = getFunnelChartData(definition, data, getters);
 

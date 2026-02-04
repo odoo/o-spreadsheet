@@ -1,18 +1,10 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  SunburstChartDefinition,
-  SunburstChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  ChartCreationContext,
-  ChartRangeDataSource,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { SunburstChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { ChartRangeDataSource } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getChartTitle,
   getHierarchalChartData,
@@ -23,10 +15,9 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class SunburstChart extends AbstractChart {
-  readonly type = "sunburst";
-
-  static allowedDefinitionKeys: readonly (keyof SunburstChartDefinition)[] = [
+export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
+  sequence: 30,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -36,19 +27,23 @@ export class SunburstChart extends AbstractChart {
     "valuesDesign",
     "groupColors",
     "pieHolePercentage",
-  ] as const;
+  ],
 
-  constructor(
-    private definition: SunburstChartDefinition<Range>,
-    sheetId: UID,
-    getters: CoreGetters
-  ) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): SunburstChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     let labelRange = context.dataSource?.dataSets?.[0]?.dataRange;
     if (!labelRange) {
       labelRange = context.auxiliaryRange;
@@ -83,30 +78,18 @@ export class SunburstChart extends AbstractChart {
       humanize: context.humanize,
       pieHolePercentage: context.pieHolePercentage,
     };
-  }
+  },
 
-  getRangeDefinition(): SunburstChartDefinition {
-    return this.definition;
-  }
-
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: SunburstChartDefinition<string>
-  ): ChartCreationContext {
+  getContextCreation(definition, dataSourceHandler, dataSource) {
     return {
       ...definition,
-      ...dataSource.getHierarchicalContextCreation(
-        dataSource.getDefinition(this.getters, this.sheetId)
-      ),
+      ...dataSourceHandler.getHierarchicalContextCreation(dataSource),
     };
-  }
+  },
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
-  }
+  getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): SunburstChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource): SunburstChartRuntime {
     const data = dataSource.extractHierarchicalData(getters);
     const chartData = getHierarchalChartData(definition, data, getters);
 

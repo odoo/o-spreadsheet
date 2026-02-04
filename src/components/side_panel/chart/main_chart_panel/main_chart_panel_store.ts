@@ -1,4 +1,4 @@
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { deepEquals } from "../../../../helpers";
 import { SpreadsheetStore } from "../../../../stores";
@@ -57,7 +57,7 @@ export class MainChartPanelStore extends SpreadsheetStore {
     if (!sheetId) {
       return;
     }
-    const definition = this.getChartDefinitionFromContextCreation(chartId, newDisplayType);
+    const definition = this.getDefinitionFromContextCreation(chartId, newDisplayType);
     this.model.dispatch("UPDATE_CHART", {
       definition,
       chartId,
@@ -66,14 +66,11 @@ export class MainChartPanelStore extends SpreadsheetStore {
     });
   }
 
-  private getChartDefinitionFromContextCreation(
-    chartId: UID,
-    newDisplayType: string
-  ): ChartDefinition {
+  private getDefinitionFromContextCreation(chartId: UID, newDisplayType: string): ChartDefinition {
     const newChartInfo = chartSubtypeRegistry.get(newDisplayType);
-    const ChartClass = chartRegistry.get(newChartInfo.chartType);
+    const ChartClass = chartTypeRegistry.get(newChartInfo.chartType);
     return {
-      ...ChartClass.getChartDefinitionFromContextCreation(this.creationContexts[chartId]),
+      ...ChartClass.getDefinitionFromContextCreation(this.creationContexts[chartId]),
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition;
   }
