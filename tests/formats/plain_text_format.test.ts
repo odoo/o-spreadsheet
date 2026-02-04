@@ -1,7 +1,12 @@
 import { Model } from "../../src";
 import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellRawContent,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 let model: Model;
@@ -44,7 +49,7 @@ describe("Plain text format", () => {
   ])("use single quote to input plain text in a cell", (cellContent, expectedValue) => {
     setCellContent(model, "A1", cellContent);
     expect(getEvaluatedCell(model, "A1").value).toBe(expectedValue);
-    expect(getCell(model, "A1")?.content).toBe(cellContent);
+    expect(getCellRawContent(model, "A1")).toBe(cellContent);
   });
 
   test("Set more complex text format to a cell", () => {
@@ -82,14 +87,14 @@ describe("Plain text format", () => {
     setFormat(model, "A1", "@");
     setCellContent(model, "A1", "30/05/2015");
 
-    expect(getCell(model, "A1")?.content).toBe("30/05/2015");
+    expect(getCellRawContent(model, "A1")).toBe("30/05/2015");
     expect(getEvaluatedCell(model, "A1").value).toBe("30/05/2015");
 
     setCellContent(model, "A2", "=A1+1");
     expect(getEvaluatedCell(model, "A2").value).toBe("42155"); // Not pretty, but same behavior as Excel
 
     updateLocale(model, DEFAULT_LOCALE);
-    expect(getCell(model, "A1")?.content).toBe("30/05/2015");
+    expect(getCellRawContent(model, "A1")).toBe("30/05/2015");
     expect(getEvaluatedCell(model, "A1").value).toBe("30/05/2015");
 
     // Kind of a wrong behavior, but it's an edge case that would be difficult to fix
@@ -110,7 +115,7 @@ describe("Plain text format", () => {
 
   test("Cells with no content stay empty with a text format", () => {
     setFormat(model, "A1", "@");
-    expect(getCell(model, "A1")?.content).toBe("");
+    expect(getCellRawContent(model, "A1")).toBe("");
     expect(getEvaluatedCell(model, "A1").value).toBe(null);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.empty);
   });

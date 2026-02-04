@@ -28,6 +28,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getEvaluatedCell,
   getStyle,
@@ -264,7 +265,7 @@ describe("link cell", () => {
       expect(cell.link?.label).toBe("my label");
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
-      expect(getCell(model, "A1")?.content).toBe(`[my label](${url})`);
+      expect(getCellRawContent(model, "A1")).toBe(`[my label](${url})`);
       expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "A1")).toBe("my label");
     }
@@ -279,7 +280,7 @@ describe("link cell", () => {
       expect(cell.link?.label).toBe("Odoo");
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
-      expect(getCell(model, "B1")?.content).toBe(`=HYPERLINK("${url}", "Odoo")`);
+      expect(getCellRawContent(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
       expect(getStyle(model, "B1")).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
     }
@@ -368,7 +369,7 @@ describe("link cell", () => {
     const model = new Model();
     setCellContent(model, "A1", "http://odoo.com");
     const cell = getEvaluatedCell(model, "A1");
-    expect(getCell(model, "A1")?.content).toBe("http://odoo.com");
+    expect(getCellRawContent(model, "A1")).toBe("http://odoo.com");
     expect(cell.link?.label).toBe("http://odoo.com");
     expect(cell.link?.url).toBe("http://odoo.com");
     expect(cell.value).toBe("http://odoo.com");
@@ -382,7 +383,7 @@ describe("link cell", () => {
   ])("invalid url %s are not recognized as web links", (url) => {
     const model = new Model();
     setCellContent(model, "A1", url);
-    expect(getCell(model, "A1")?.content).toBe(url);
+    expect(getCellRawContent(model, "A1")).toBe(url);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.text);
   });
 

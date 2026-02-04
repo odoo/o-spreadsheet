@@ -24,7 +24,12 @@ import {
   setFormat,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellRawContent,
+  getEvaluatedCell,
+} from "../test_helpers/getters_helpers";
 import { toRangesData } from "../test_helpers/helpers";
 
 /**
@@ -106,9 +111,9 @@ describe("Export data to xlsx then import it", () => {
     setCellContent(model, "A2", "=A1");
     setCellContent(model, "A3", "text");
     const importedModel = await exportToXlsxThenImport(model);
-    expect(getCell(importedModel, "A1")!.content).toEqual("0");
-    expect(getCell(importedModel, "A2")!.content).toEqual("=A1");
-    expect(getCell(importedModel, "A3")!.content).toEqual("text");
+    expect(getCellRawContent(importedModel, "A1")).toEqual("0");
+    expect(getCellRawContent(importedModel, "A2")).toEqual("=A1");
+    expect(getCellRawContent(importedModel, "A3")).toEqual("text");
   });
 
   test.each([

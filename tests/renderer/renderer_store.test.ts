@@ -14,7 +14,7 @@ import {
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
-import { Model } from "../../src";
+import { LiteralCell, Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
   blendColors,
@@ -1110,7 +1110,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     const centeredBox = getBoxFromText(gridRendererStore, overflowingContent);
-    const cell = getCell(model, "C1")!;
+    const cell = getCell(model, "C1")! as LiteralCell;
     const contentWidth =
       model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipX = 2 * DEFAULT_CELL_WIDTH + colSize / 2 - contentWidth / 2;
@@ -1481,7 +1481,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
     const box = getBoxFromText(gridRendererStore, cellContent);
-    const cell = getCell(model, "B2")!;
+    const cell = getCell(model, "B2")! as LiteralCell;
     const textWidth =
       model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
     const expectedClipRect = model.getters.getVisibleRect({

@@ -311,7 +311,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
-        if (cell.content) {
+        if (cell.isFormula) {
+          cells[xc] = cell.compiledFormula.toFormulaString(this.getters);
+        } else if (cell.content) {
           cells[xc] = cell.content;
         }
       }
@@ -360,9 +362,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private extractCustomStyle(cell: Cell): Style {
     const cleanedStyle = { ...cell.style };
-    const defaultStyle = isNumber(cell.content, DEFAULT_LOCALE)
-      ? DEFAULT_NUMBER_STYLE
-      : DEFAULT_STYLE;
+    const defaultStyle =
+      !cell.isFormula && isNumber(cell.content, DEFAULT_LOCALE)
+        ? DEFAULT_NUMBER_STYLE
+        : DEFAULT_STYLE;
     for (const property in cleanedStyle) {
       if (
         (property !== "align" || !cell.isFormula) &&
@@ -576,7 +579,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasContent = after.content !== undefined || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
+    let afterContent: string;
+    if (hasContent) {
+      afterContent = replaceNewLines(after?.content);
+    } else {
+      afterContent = before?.isFormula
+        ? before.compiledFormula.toFormulaString(this.getters)
+        : before?.content || "";
+    }
     let style: Style | undefined;
     if (after.style !== undefined) {
       style = after.style || undefined;
@@ -594,7 +604,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *  */
     if (
       ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (!before || before.content === ""))) &&
+        (!hasContent && (!before || (!before.isFormula && before.content === "")))) &&
       !style &&
       !format
     ) {
@@ -673,12 +683,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     format: Format | undefined,
     style: Style | undefined
   ): FormulaCell {
-    const getters = this.getters;
     return {
       id,
-      get content() {
-        return compiledFormula.toFormulaString(getters);
-      },
       format,
       style,
       isFormula: true,
@@ -701,7 +707,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (!cell) {
       return CommandResult.NoChanges;
     }
-    if (!cell.content && !cell.style && !cell.format) {
+    if (!cell.isFormula && !cell.content && !cell.style && !cell.format) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
@@ -713,7 +719,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasStyle = "style" in cmd;
     const hasFormat = "format" in cmd;
     if (
-      (!hasContent || cell?.content === cmd.content) &&
+      (!hasContent ||
+        (cell?.isFormula && cell.compiledFormula.toFormulaString(this.getters) === cmd.content) ||
+        (!cell?.isFormula && cell?.content === cmd.content)) &&
       (!hasStyle || deepEquals(cell?.style, cmd.style)) &&
       (!hasFormat || cell?.format === cmd.format)
     ) {

@@ -41,6 +41,21 @@ export function getCell(
   return model.getters.getCell({ sheetId, col, row });
 }
 
+/**
+ * Helper function that returns either the content property of a literal cell or the formula string of a formula cell
+ * */
+export function getCellRawContent(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): string | undefined {
+  const cell = getCell(model, xc, sheetId);
+  if (cell?.isFormula) {
+    return cell.compiledFormula.toFormulaString(model.getters);
+  }
+  return cell?.content;
+}
+
 export function getCellStyle(
   model: Model,
   xc: string,

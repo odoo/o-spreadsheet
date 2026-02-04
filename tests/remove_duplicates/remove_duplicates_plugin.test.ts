@@ -1,6 +1,6 @@
 import { CommandResult } from "../../src";
 import { toZone } from "../../src/helpers";
-import { getCell, getEvaluatedCell } from "../test_helpers";
+import { getCellRawContent, getEvaluatedCell } from "../test_helpers";
 import { merge, setFormat, setSelection } from "../test_helpers/commands_helpers";
 import {
   createModelFromGrid,
@@ -90,7 +90,7 @@ describe("remove duplicates", () => {
 
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
     expect(getEvaluatedCell(model, "A3").value).toBe(1);
-    expect(getCell(model, "A3")!.content).toBe("=A1+1");
+    expect(getCellRawContent(model, "A3")).toBe("=A1+1");
   });
 
   test("dont take into account the format", () => {
