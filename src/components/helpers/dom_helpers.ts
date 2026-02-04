@@ -1,5 +1,6 @@
 import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
 import { DOMCoordinates, Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
+import { whenReady } from "@odoo/owl";
 
 const macRegex = /Mac/i;
 
@@ -13,7 +14,7 @@ function defineZoomCssImpactOnBoundingRect() {
   document.body.removeChild(div);
 }
 
-defineZoomCssImpactOnBoundingRect();
+whenReady(defineZoomCssImpactOnBoundingRect);
 
 const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
 
