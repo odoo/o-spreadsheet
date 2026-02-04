@@ -33,6 +33,7 @@ import {
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
+  transformChartDefinitionWithDataSource,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 
@@ -70,6 +71,13 @@ export class ChartRangeDataSourceHandler implements ChartDataSourceHandler {
     return validator.checkValidations(dataSource, checkDataset, checkLabelRange);
   }
 
+  static transform(
+    sheetId: UID,
+    dataSource: ChartRangeDataSource<string>,
+    rangeAdapters: RangeAdapterFunctions
+  ) {
+    return transformChartDefinitionWithDataSource(sheetId, dataSource, rangeAdapters);
+  }
   extractData(getters: Getters): ChartData {
     return getChartData(getters, this.dataSource);
   }
@@ -311,6 +319,10 @@ class ChartNeverDataSourceHandler implements ChartDataSourceHandler {
 
   static validate() {
     return CommandResult.Success;
+  }
+
+  static transform() {
+    return { type: "never" } as const;
   }
 
   extractData(getters: Getters): ChartData {
