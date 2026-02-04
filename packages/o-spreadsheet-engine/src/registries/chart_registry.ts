@@ -10,10 +10,6 @@ import { Registry } from "./registry";
  * Instantiate a chart object based on a definition
  */
 export interface ChartBuilder<T extends ChartType, D> {
-  /**
-   * Check if this factory should be used
-   */
-  match: (type: T) => boolean;
   ChartTypeHandler: {
     new (...args: any[]): AbstractChart;
     validateChartDefinition: (
