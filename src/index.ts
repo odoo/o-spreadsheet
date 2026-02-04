@@ -157,7 +157,7 @@ import {
 import { UNDO_REDO_PIVOT_COMMANDS } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/pivot_ui";
 import { autofillModifiersRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_modifiers";
 import { autofillRulesRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_rules";
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "@odoo/o-spreadsheet-engine/registries/inverse_command_registry";
 import { otRegistry } from "@odoo/o-spreadsheet-engine/registries/ot_registry";
@@ -315,7 +315,7 @@ export const registries = {
   figureRegistry,
   chartSidePanelComponentRegistry,
   chartComponentRegistry,
-  chartRegistry,
+  chartRegistry: chartTypeRegistry,
   chartSubtypeRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,

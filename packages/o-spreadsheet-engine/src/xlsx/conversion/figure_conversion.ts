@@ -2,7 +2,7 @@ import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
 import { getFullReference, splitReference } from "../../helpers";
 import { isDefined } from "../../helpers/misc";
 import { toUnboundedZone, zoneToXc } from "../../helpers/zones";
-import { chartRegistry } from "../../registries/chart_registry";
+import { chartTypeRegistry } from "../../registries/chart_registry";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -124,8 +124,8 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<stri
     showValues: chartData.showValues,
   };
   try {
-    const ChartClass = chartRegistry.get(chartData.type);
-    return ChartClass.getChartDefinitionFromContextCreation(creationContext);
+    const ChartClass = chartTypeRegistry.get(chartData.type);
+    return ChartClass.getDefinitionFromContextCreation(creationContext);
   } catch (e) {
     return undefined;
   }

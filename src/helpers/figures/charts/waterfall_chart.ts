@@ -1,19 +1,11 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  WaterfallChartDefinition,
-  WaterfallChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
+
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import type { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getBarChartData,
   getChartTitle,
@@ -25,10 +17,9 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class WaterfallChart extends AbstractChart {
-  readonly type = "waterfall";
-
-  static allowedDefinitionKeys: readonly (keyof WaterfallChartDefinition)[] = [
+export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
+  sequence: 70,
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -44,19 +35,25 @@ export class WaterfallChart extends AbstractChart {
     "zoomable",
     "axesDesign",
     "showValues",
-  ] as const;
+  ],
 
-  constructor(
-    private definition: WaterfallChartDefinition<Range>,
-    sheetId: UID,
-    getters: CoreGetters
-  ) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): WaterfallChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -74,26 +71,11 @@ export class WaterfallChart extends AbstractChart {
       zoomable: context.zoomable ?? false,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: WaterfallChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
+  getDefinitionForExcel: () => undefined,
 
-  getRangeDefinition(): WaterfallChartDefinition {
-    return this.definition;
-  }
-
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    // TODO: implement export excel
-    return undefined;
-  }
-
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): WaterfallChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource) {
     const data = dataSource.extractData(getters);
     const chartData = getBarChartData(definition, data, getters);
 
@@ -122,5 +104,5 @@ export class WaterfallChart extends AbstractChart {
       chartJsConfig: config,
       background: definition.background || BACKGROUND_CHART_COLOR,
     };
-  }
-}
+  },
+};

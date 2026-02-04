@@ -1,19 +1,11 @@
-import { CoreGetters } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
-import {
-  ChartCreationContext,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  GeoChartDefinition,
-  GeoChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { ChartConfiguration } from "chart.js";
-import { Getters, Range, UID } from "../../../types";
+import { CommandResult } from "../../../types";
 import {
   getChartTitle,
   getGeoChartData,
@@ -23,10 +15,11 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class GeoChart extends AbstractChart {
-  readonly type = "geo";
+export const GeoChart: ChartTypeBuilder<"geo"> = {
+  sequence: 90,
+  dataSeriesLimit: 1,
 
-  static allowedDefinitionKeys: readonly (keyof GeoChartDefinition)[] = [
+  allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "dataSource",
     "legendPosition",
@@ -34,15 +27,25 @@ export class GeoChart extends AbstractChart {
     "colorScale",
     "missingValueColor",
     "region",
-  ] as const;
+  ],
 
-  constructor(private definition: GeoChartDefinition<Range>, sheetId: UID, getters: CoreGetters) {
-    super(sheetId, getters);
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static getDefinitionFromContextCreation(
-    context: ChartCreationContext
-  ): GeoChartDefinition<string> {
+  toStrDefinition: (definition) => definition,
+
+  copyInSheetId: (definition) => definition,
+
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context) {
     return {
       background: context.background,
       dataSource: getDataSourceFromContextCreation(context),
@@ -52,25 +55,11 @@ export class GeoChart extends AbstractChart {
       type: "geo",
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(
-    dataSource: ChartDataSourceHandler,
-    definition: GeoChartDefinition<string>
-  ): ChartCreationContext {
-    return definition;
-  }
+  getDefinitionForExcel: () => undefined,
 
-  getRangeDefinition(): GeoChartDefinition {
-    return this.definition;
-  }
-
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
-  }
-
-  getRuntime(getters: Getters, dataSource: ChartDataSourceHandler): GeoChartRuntime {
-    const definition = this.definition;
+  getRuntime(getters, definition, dataSource): GeoChartRuntime {
     const data = dataSource.extractData(getters);
     const chartData = getGeoChartData(definition, data, getters);
 
@@ -92,5 +81,5 @@ export class GeoChart extends AbstractChart {
     };
 
     return { chartJsConfig: config, background: definition.background || BACKGROUND_CHART_COLOR };
-  }
-}
+  },
+};

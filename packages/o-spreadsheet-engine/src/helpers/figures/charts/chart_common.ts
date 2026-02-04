@@ -323,14 +323,16 @@ export function toExcelLabelRange(
  * Transform a chart definition which supports dataSets (dataSets and LabelRange)
  * with an executed command
  */
-export function transformChartDefinitionWithDataSource<
-  T extends ChartDefinitionWithDataSource<string>
->(chartSheetId: UID, definition: T, { adaptRangeString }: RangeAdapterFunctions): T {
+export function transformChartDefinitionWithDataSource(
+  chartSheetId: UID,
+  dataSource: ChartRangeDataSource<string>,
+  { adaptRangeString }: RangeAdapterFunctions
+): ChartRangeDataSource<string> {
   let labelRange: string | undefined;
-  if (definition.dataSource.labelRange) {
+  if (dataSource.labelRange) {
     const { changeType, range: adaptedRange } = adaptRangeString(
       chartSheetId,
-      definition.dataSource.labelRange
+      dataSource.labelRange
     );
     if (changeType !== "REMOVE") {
       labelRange = adaptedRange;
@@ -338,7 +340,7 @@ export function transformChartDefinitionWithDataSource<
   }
 
   const dataSets: ChartRangeDataSource<string>["dataSets"] = [];
-  for (const dataSet of definition.dataSource.dataSets) {
+  for (const dataSet of dataSource.dataSets) {
     const newDataSet = { ...dataSet };
     const { changeType, range: adaptedRange } = adaptRangeString(chartSheetId, dataSet.dataRange);
 
@@ -347,14 +349,10 @@ export function transformChartDefinitionWithDataSource<
       dataSets.push(newDataSet);
     }
   }
-  // TODO clean design
   return {
-    ...definition,
-    dataSource: {
-      ...definition.dataSource,
-      dataSets,
-      labelRange,
-    },
+    ...dataSource,
+    dataSets,
+    labelRange,
   };
 }
 
