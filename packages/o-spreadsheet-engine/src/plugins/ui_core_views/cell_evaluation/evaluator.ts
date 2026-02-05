@@ -13,7 +13,6 @@ import {
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";
-import { RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 import { SpreadingRelation } from "./spreading_relation";
 
@@ -186,29 +185,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    this.formulaDependencies = lazy(() => {
-      const rTreeItems: RTreeItem<BoundedRange>[] = [];
-      for (const sheetId of this.getters.getSheetIds()) {
-        for (const cell of this.getters.getCells(sheetId)) {
-          if (cell.isFormula) {
-            const directDependencies = cell.compiledFormula.dependencies;
-            for (const range of directDependencies) {
-              if (range.invalidSheetName || range.invalidXc) {
-                continue;
-              }
-              rTreeItems.push({
-                data: {
-                  sheetId,
-                  zone: positionToZone(this.getters.getCellPosition(cell.id)),
-                },
-                boundingBox: { sheetId: range.sheetId, zone: range.zone },
-              });
-            }
-          }
-        }
-      }
-      return new FormulaDependencyGraph(rTreeItems);
-    });
+    this.formulaDependencies = lazy(new FormulaDependencyGraph());
   }
 
   evaluateAllCells() {
@@ -665,7 +642,7 @@ export function updateEvalContextAndExecute(
   if (originCellPosition) {
     formulaDependencies().addDependencies(
       originCellPosition,
-      compilationParams.evalContext.currentFormulaDependencies
+      new RangeSet(compilationParams.evalContext.currentFormulaDependencies)
     );
   }
 

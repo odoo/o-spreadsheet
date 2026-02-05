@@ -2,7 +2,7 @@ import { PositionMap } from "../../../helpers/cells/position_map";
 import { positionToZone } from "../../../helpers/zones";
 import { CellPosition } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
-import { DependenciesRTree } from "./dependencies_r_tree";
+import { DependenciesRTree, RTreeRangeItem } from "./dependencies_r_tree";
 import { RTreeBoundingBox, RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 
@@ -32,17 +32,20 @@ export class FormulaDependencyGraph {
     this.dependencies.delete(formulaPosition);
   }
 
-  addDependencies(formulaPosition: CellPosition, dependencies: RTreeBoundingBox[]): void {
-    const rTreeItems = dependencies.map(({ sheetId, zone }) => ({
-      data: {
-        sheetId: formulaPosition.sheetId,
-        zone: positionToZone(formulaPosition),
-      },
-      boundingBox: {
-        zone,
-        sheetId,
-      },
-    }));
+  addDependencies(formulaPosition: CellPosition, dependencies: Iterable<RTreeBoundingBox>): void {
+    const rTreeItems: RTreeRangeItem[] = [];
+    for (const { sheetId, zone } of dependencies) {
+      rTreeItems.push({
+        data: {
+          sheetId: formulaPosition.sheetId,
+          zone: positionToZone(formulaPosition),
+        },
+        boundingBox: {
+          zone,
+          sheetId,
+        },
+      });
+    }
     for (const item of rTreeItems) {
       this.rTree.insert(item);
     }

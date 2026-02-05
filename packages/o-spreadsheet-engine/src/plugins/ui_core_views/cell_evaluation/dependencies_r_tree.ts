@@ -8,7 +8,7 @@ interface RangeSetItem {
   data: RangeSet;
 }
 
-type RTreeRangeItem = RTreeItem<BoundedRange>;
+export type RTreeRangeItem = RTreeItem<BoundedRange>;
 
 /**
  * R-Tree of ranges, mapping zones (r-tree bounding boxes) to ranges (data of the r-tree item).
