@@ -22,7 +22,6 @@ import {
 } from "../../../functions/create_compute_function";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
-import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, getZoneArea, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -32,7 +31,6 @@ import {
   FunctionResultObject,
   GetSymbolValue,
   isMatrix,
-  Lazy,
   Matrix,
   UID,
   Zone,
@@ -49,7 +47,7 @@ export class Evaluator {
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
-  private formulaDependencies = lazy(new FormulaDependencyGraph());
+  private formulaDependencies = new FormulaDependencyGraph();
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
 
@@ -109,11 +107,11 @@ export class Evaluator {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
     // The data structure is optimized for searches the other way around
-    this.formulaDependencies().removeAllDependencies(position);
+    this.formulaDependencies.removeAllDependencies(position);
   }
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
-    this.formulaDependencies().addDependencies(position, dependencies);
+    this.formulaDependencies.addDependencies(position, dependencies);
     this.computeDependencies(dependencies);
   }
 
@@ -202,7 +200,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    this.formulaDependencies = lazy(new FormulaDependencyGraph());
+    this.formulaDependencies = new FormulaDependencyGraph();
   }
 
   evaluateAllCells() {
@@ -578,7 +576,7 @@ export class Evaluator {
   // ----------------------------------------------------------
 
   private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
-    return this.formulaDependencies().getCellsDependingOn(ranges, this.nextRangesToUpdate);
+    return this.formulaDependencies.getCellsDependingOn(ranges, this.nextRangesToUpdate);
   }
 }
 
@@ -624,7 +622,7 @@ export function updateEvalContextAndExecute(
   sheetId: UID,
   getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined,
-  formulaDependencies: Lazy<FormulaDependencyGraph>
+  formulaDependencies: FormulaDependencyGraph
 ) {
   const evalContext = compilationParams.evalContext;
   const currentCellPosition = evalContext.__originCellPosition;
@@ -643,7 +641,7 @@ export function updateEvalContextAndExecute(
   );
 
   if (originCellPosition && evalContext.currentFormulaDependencies.length > 0) {
-    formulaDependencies().addDependencies(
+    formulaDependencies.addDependencies(
       originCellPosition,
       new RangeSet(evalContext.currentFormulaDependencies)
     );
