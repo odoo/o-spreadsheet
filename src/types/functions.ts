@@ -2,7 +2,7 @@ import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
 import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
-import { Range } from "./range";
+import { BoundedRange, Range } from "./range";
 
 export type ArgType =
   | "ANY"
@@ -61,8 +61,8 @@ export type EvalContext = {
   getters: Getters;
   getFormulaResult: (position: CellPosition) => FunctionResultObject;
   [key: string]: any;
-  currentFormulaDependencies?: Range[];
-  updateDependencies?: (position: CellPosition) => void;
+  currentFormulaDependencies?: BoundedRange[];
+  removeDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
   lookupCaches?: LookupCaches;

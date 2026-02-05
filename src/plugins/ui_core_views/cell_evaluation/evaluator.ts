@@ -105,7 +105,7 @@ export class Evaluator {
     return this.blockedArrayFormulas.has(position);
   }
 
-  updateDependencies(position: CellPosition) {
+  removeDependencies(position: CellPosition) {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
     // The data structure is optimized for searches the other way around
@@ -131,7 +131,7 @@ export class Evaluator {
       this.computeAndSave.bind(this)
     );
     this.compilationParams.evalContext.__originCellPosition = originCellPosition;
-    this.compilationParams.evalContext.updateDependencies = undefined;
+    this.compilationParams.evalContext.removeDependencies = undefined;
     this.compilationParams.evalContext.addDependencies = undefined;
     this.compilationParams.evalContext.lookupCaches = this.compilationParams.evalContext
       .lookupCaches || {
@@ -147,7 +147,7 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
-    this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
+    this.compilationParams.evalContext.removeDependencies = this.removeDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
     this.compilationParams.evalContext.lookupCaches = {
       forwardSearch: new Map(),
@@ -202,18 +202,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    this.formulaDependencies = lazy(() => {
-      const graph = new FormulaDependencyGraph();
-      for (const sheetId of this.getters.getSheetIds()) {
-        for (const cell of this.getters.getCells(sheetId)) {
-          if (cell.isFormula) {
-            const cellPosition = this.getters.getCellPosition(cell.id);
-            graph.addDependencies(cellPosition, cell.compiledFormula.rangeDependencies);
-          }
-        }
-      }
-      return graph;
-    });
+    this.formulaDependencies = lazy(new FormulaDependencyGraph());
   }
 
   evaluateAllCells() {
@@ -640,10 +629,11 @@ export function updateEvalContextAndExecute(
   const evalContext = compilationParams.evalContext;
   const currentCellPosition = evalContext.__originCellPosition;
   const currentSheetId = evalContext.__originSheetId;
+  const currentFormulaDependencies = evalContext.currentFormulaDependencies;
 
   evalContext.__originCellPosition = originCellPosition;
   evalContext.__originSheetId = sheetId;
-  compilationParams.evalContext.currentFormulaDependencies = [];
+  evalContext.currentFormulaDependencies = [];
   const result = compiledFormula.execute(
     compiledFormula.rangeDependencies,
     compilationParams.referenceDenormalizer,
@@ -652,15 +642,16 @@ export function updateEvalContextAndExecute(
     evalContext
   );
 
-  if (originCellPosition) {
+  if (originCellPosition && evalContext.currentFormulaDependencies.length > 0) {
     formulaDependencies().addDependencies(
       originCellPosition,
-      compilationParams.evalContext.currentFormulaDependencies
+      new RangeSet(evalContext.currentFormulaDependencies)
     );
   }
 
   evalContext.__originCellPosition = currentCellPosition;
   evalContext.__originSheetId = currentSheetId;
+  evalContext.currentFormulaDependencies = currentFormulaDependencies;
   return result;
 }
 
