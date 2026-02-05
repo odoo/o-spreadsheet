@@ -21,6 +21,7 @@ import {
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
 import { isMimicMatrix } from "../../../functions/helper_arg";
+import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
@@ -40,7 +41,6 @@ import {
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { BoundedRange, Range } from "../../../types/range";
-import { matrixMap } from "../../../functions/helpers";
 
 const MAX_ITERATION = 30;
 
@@ -200,18 +200,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    this.formulaDependencies = lazy(() => {
-      const graph = new FormulaDependencyGraph();
-      for (const sheetId of this.getters.getSheetIds()) {
-        for (const cell of this.getters.getCells(sheetId)) {
-          if (cell.isFormula) {
-            const cellPosition = this.getters.getCellPosition(cell.id);
-            graph.addDependencies(cellPosition, cell.compiledFormula.rangeDependencies);
-          }
-        }
-      }
-      return graph;
-    });
+    this.formulaDependencies = lazy(new FormulaDependencyGraph());
   }
 
   evaluateAllCells() {
@@ -663,7 +652,7 @@ export function updateEvalContextAndExecute(
   if (originCellPosition) {
     formulaDependencies().addDependencies(
       originCellPosition,
-      compilationParams.evalContext.currentFormulaDependencies
+      new RangeSet(compilationParams.evalContext.currentFormulaDependencies)
     );
   }
 

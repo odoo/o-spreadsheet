@@ -1,6 +1,6 @@
 import { CellPosition, HeaderIndex, UID } from "../../..";
 import { positionToZone } from "../../../helpers/zones";
-import { BoundedRange, Range } from "../../../types/range";
+import { BoundedRange } from "../../../types/range";
 import { IntervalTree } from "./interval_tree";
 import { RangeSet } from "./range_set";
 
@@ -24,15 +24,12 @@ export class FormulaDependencyGraph {
     // where this would cause a significant performance issue.
   }
 
-  addDependencies(formulaPosition: CellPosition, dependencies: Iterable<Range>) {
+  addDependencies(formulaPosition: CellPosition, dependencies: Iterable<BoundedRange>) {
     const dependentsRange = {
       zone: positionToZone(formulaPosition),
       sheetId: formulaPosition.sheetId,
     };
     for (const range of dependencies) {
-      if (range.invalidSheetName || range.invalidXc) {
-        continue;
-      }
       const { zone, sheetId } = range;
       for (let col = zone.left; col <= zone.right; col++) {
         const columnTree = this.getOrCreateIntervalTree(sheetId, col);
