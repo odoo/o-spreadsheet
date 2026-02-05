@@ -23,7 +23,6 @@ import {
 import { isMimicMatrix } from "../../../functions/helper_arg";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
-import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -33,7 +32,6 @@ import {
   FunctionResultObject,
   GetSymbolValue,
   isMatrix,
-  Lazy,
   Matrix,
   UID,
   Zone,
@@ -51,7 +49,7 @@ export class Evaluator {
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
-  private formulaDependencies = lazy(new FormulaDependencyGraph());
+  private formulaDependencies = new FormulaDependencyGraph();
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
 
@@ -111,11 +109,11 @@ export class Evaluator {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
     // The data structure is optimized for searches the other way around
-    this.formulaDependencies().removeAllDependencies(position);
+    this.formulaDependencies.removeAllDependencies(position);
   }
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
-    this.formulaDependencies().addDependencies(position, dependencies);
+    this.formulaDependencies.addDependencies(position, dependencies);
     for (const range of dependencies) {
       // ensure that all ranges are computed
       this.compilationParams.ensureRange(range).getAll(); // TO DO: see if we can avoid this step for performance
@@ -200,7 +198,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    this.formulaDependencies = lazy(new FormulaDependencyGraph());
+    this.formulaDependencies = new FormulaDependencyGraph();
   }
 
   evaluateAllCells() {
@@ -582,7 +580,7 @@ export class Evaluator {
   // ----------------------------------------------------------
 
   private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
-    return this.formulaDependencies().getCellsDependingOn(ranges, this.nextRangesToUpdate);
+    return this.formulaDependencies.getCellsDependingOn(ranges, this.nextRangesToUpdate);
   }
 }
 
@@ -628,7 +626,7 @@ export function updateEvalContextAndExecute(
   sheetId: UID,
   getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined,
-  formulaDependencies: Lazy<FormulaDependencyGraph>
+  formulaDependencies: FormulaDependencyGraph
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   const evalContext = compilationParams.evalContext;
   const currentCellPosition = evalContext.__originCellPosition;
@@ -651,7 +649,7 @@ export function updateEvalContextAndExecute(
     : compiledFormulaResult;
 
   if (originCellPosition && evalContext.currentFormulaDependencies.length > 0) {
-    formulaDependencies().addDependencies(
+    formulaDependencies.addDependencies(
       originCellPosition,
       new RangeSet(evalContext.currentFormulaDependencies)
     );
