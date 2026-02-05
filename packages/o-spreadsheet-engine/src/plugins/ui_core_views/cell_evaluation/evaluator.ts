@@ -638,10 +638,12 @@ export function updateEvalContextAndExecute(
     : compiledFormulaResult;
 
   if (originCellPosition) {
-    formulaDependencies.addDependencies(
-      originCellPosition,
-      new RangeSet(compilationParams.evalContext.currentFormulaDependencies)
-    );
+    const currentFormulaDependencies = compilationParams.evalContext.currentFormulaDependencies;
+    const dependencies =
+      currentFormulaDependencies.length > 1
+        ? new RangeSet(currentFormulaDependencies)
+        : currentFormulaDependencies;
+    formulaDependencies.addDependencies(originCellPosition, dependencies);
   }
 
   evalContext.__originCellPosition = currentCellPosition;

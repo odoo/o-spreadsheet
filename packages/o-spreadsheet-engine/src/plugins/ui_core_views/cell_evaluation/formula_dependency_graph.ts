@@ -34,16 +34,14 @@ export class FormulaDependencyGraph {
 
   addDependencies(formulaPosition: CellPosition, dependencies: Iterable<RTreeBoundingBox>): void {
     const rTreeItems: RTreeRangeItem[] = [];
+    const data = {
+      sheetId: formulaPosition.sheetId,
+      zone: positionToZone(formulaPosition),
+    };
     for (const { sheetId, zone } of dependencies) {
       const item = {
-        data: {
-          sheetId: formulaPosition.sheetId,
-          zone: positionToZone(formulaPosition),
-        },
-        boundingBox: {
-          zone,
-          sheetId,
-        },
+        data,
+        boundingBox: { zone, sheetId },
       };
       rTreeItems.push(item);
       this.rTree.insert(item);
