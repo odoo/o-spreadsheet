@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Pixel, UID } from "../../../../types";
@@ -46,6 +46,15 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
         this.switchPanel(nextProps.openTab);
       }
     });
+    useEffect(
+      () => {
+        const el = this.panelContentRef.el as HTMLElement;
+        if (el) {
+          el.scrollTop = this.scrollPositions[this.state.panel];
+        }
+      },
+      () => [this.state.panel]
+    );
   }
 
   get sidePanelEditor() {
