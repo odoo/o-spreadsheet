@@ -23,25 +23,14 @@ export class DependenciesRTree {
     this.rTree = new SpreadsheetRTree(compactedBoxes);
   }
 
+  private itemsBeforeNextSearch: RTreeRangeItem[] = [];
+
   insert(item: RTreeRangeItem) {
-    const data = this.rTree.search(item.boundingBox);
-    const itemBoundingBox = item.boundingBox;
-    const exactBoundingBox = data.find(
-      ({ boundingBox }) =>
-        boundingBox.sheetId === itemBoundingBox.sheetId &&
-        boundingBox.zone.left === itemBoundingBox.zone.left &&
-        boundingBox.zone.top === itemBoundingBox.zone.top &&
-        boundingBox.zone.right === itemBoundingBox.zone.right &&
-        boundingBox.zone.bottom === itemBoundingBox.zone.bottom
-    );
-    if (exactBoundingBox) {
-      exactBoundingBox.data.add(item.data);
-    } else {
-      this.rTree.insert({ ...item, data: new RangeSet([item.data]) });
-    }
+    this.itemsBeforeNextSearch.push(item);
   }
 
   search({ zone, sheetId }: RTreeBoundingBox): RangeSet {
+    this.bulkInsert();
     const results: RangeSet = new RangeSet();
     for (const { data } of this.rTree.search({ zone, sheetId })) {
       results.addMany(data);
@@ -50,6 +39,7 @@ export class DependenciesRTree {
   }
 
   remove(item: RTreeRangeItem) {
+    this.bulkInsert();
     const data = this.rTree.search(item.boundingBox);
     const itemBoundingBox = item.boundingBox;
     const exactBoundingBox = data.find(
@@ -65,6 +55,15 @@ export class DependenciesRTree {
     } else {
       this.rTree.remove({ ...item, data: new RangeSet([item.data]) });
     }
+  }
+
+  private bulkInsert() {
+    if (this.itemsBeforeNextSearch.length === 0) {
+      return;
+    }
+    const compactedBoxes = groupSameBoundingBoxes(this.itemsBeforeNextSearch);
+    this.rTree.load(compactedBoxes);
+    this.itemsBeforeNextSearch = [];
   }
 }
 

@@ -89,6 +89,18 @@ export class SpreadsheetRTree<T> {
    * an empty tree), subsequent query performance is also ~20-30% better.
    */
   constructor(items: RTreeItem[] = []) {
+    this.load(items);
+  }
+
+  insert(item: RTreeItem<T>) {
+    const sheetId = item.boundingBox.sheetId;
+    if (!this.rTrees[sheetId]) {
+      this.rTrees[sheetId] = new ZoneRBush();
+    }
+    this.rTrees[sheetId].insert(item);
+  }
+
+  load(items: RTreeItem[]) {
     const rangesPerSheet = {};
     for (const item of items) {
       const sheetId = item.boundingBox.sheetId;
@@ -98,17 +110,13 @@ export class SpreadsheetRTree<T> {
       rangesPerSheet[sheetId].push(item);
     }
     for (const sheetId in rangesPerSheet) {
-      this.rTrees[sheetId] = new ZoneRBush();
-      this.rTrees[sheetId].load(rangesPerSheet[sheetId]); // bulk-insert
+      if (this.rTrees[sheetId]) {
+        this.rTrees[sheetId].load(rangesPerSheet[sheetId]);
+      } else {
+        this.rTrees[sheetId] = new ZoneRBush();
+        this.rTrees[sheetId].load(rangesPerSheet[sheetId]);
+      }
     }
-  }
-
-  insert(item: RTreeItem<T>) {
-    const sheetId = item.boundingBox.sheetId;
-    if (!this.rTrees[sheetId]) {
-      this.rTrees[sheetId] = new ZoneRBush();
-    }
-    this.rTrees[sheetId].insert(item);
   }
 
   search({ zone, sheetId }: RTreeBoundingBox): RTreeItem<T>[] {
