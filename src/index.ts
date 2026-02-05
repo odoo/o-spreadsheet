@@ -102,6 +102,7 @@ import {
   overlap,
   parseMarkdownLink,
   positionToZone,
+  positions,
   reduceZoneOnDeletion,
   rgbaToHex,
   sanitizeSheetName,
@@ -125,6 +126,7 @@ import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { chartJsExtensionRegistry } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import {
+  DEFAULT_PIVOT_STYLE,
   areDomainArgsFieldsValid,
   createCustomFields,
   createPivotFormula,
@@ -421,6 +423,7 @@ export const helpers = {
   parseFormat,
   isFormula,
   domainToColRowDomain,
+  positions,
 };
 
 export const links = {
@@ -545,6 +548,7 @@ export const constants = {
   FIGURE_ID_SPLITTER,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  DEFAULT_PIVOT_STYLE,
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
