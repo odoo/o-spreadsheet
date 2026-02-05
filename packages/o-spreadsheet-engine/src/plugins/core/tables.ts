@@ -1,4 +1,6 @@
+import { rangeTokenize } from "../../formulas/range_tokenizer";
 import { deepCopy, deepEquals, isDefined, range } from "../../helpers/misc";
+import { getFirstPivotFunction } from "../../helpers/pivot/pivot_composer_helpers";
 import { createFilter } from "../../helpers/table_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import {
@@ -228,6 +230,9 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (!newCellContent) {
       return "none";
     }
+    if (this.isPivotFormula(newCellContent)) {
+      return "none";
+    }
 
     const zone = table.range.zone;
     let direction: "down" | "right" | "none" = "none";
@@ -261,6 +266,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       }
     }
     return direction;
+  }
+
+  private isPivotFormula(content: string): boolean {
+    if (!content.startsWith("=")) {
+      return false;
+    }
+    const pivotFunction = getFirstPivotFunction(rangeTokenize(content));
+    return pivotFunction?.functionName === "PIVOT";
   }
 
   getCoreTableMatchingTopLeft(sheetId: UID, zone: Zone): CoreTable | undefined {
