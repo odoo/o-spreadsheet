@@ -283,6 +283,20 @@ describe("Dynamic tables", () => {
       });
     });
 
+    test("Pivot dynamic table inside a static table is ignored", () => {
+      createTable(model, "C3:E5");
+      updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+      setCellContent(model, "E5", "=PIVOT(1)");
+
+      const tables = getTables(model, sheetId);
+      expect(tables).toHaveLength(2); // static table + pivot table anchored at A3
+      expect(tables.map((table) => table.zone).sort()).toEqual(["A3:B5", "C3:E5"]);
+
+      const pivotTables = tables.filter((table) => table.isPivotTable);
+      expect(pivotTables).toHaveLength(1);
+      expect(pivotTables[0].zone).toBe("A3:B5");
+    });
+
     test("Tables from pivots are not exported", async () => {
       updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
       expect(getTables(model, sheetId)).toHaveLength(1);
