@@ -74,6 +74,15 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
     for (const coreTable of this.getDynamicTables(sheetId)) {
       const table = this.coreTableToTable(sheetId, coreTable);
       let tableZone = table.range.zone;
+      const anchorCol = tableZone.left;
+      const anchorRow = tableZone.top;
+      // Skip dynamic tables whose anchor is inside a static table.
+      const isAnchorInStaticTable = staticTables.some((staticTable) =>
+        isInside(anchorCol, anchorRow, staticTable.range.zone)
+      );
+      if (isAnchorInStaticTable) {
+        continue;
+      }
       // Reduce the zone to avoid collision with static tables. Per design, dynamic tables can't overlap with other
       // dynamic tables, because formulas cannot spread on the same area, so we don't need to check for that.
       for (const staticTable of staticTables) {
