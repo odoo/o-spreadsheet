@@ -263,6 +263,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return finalCell;
   }
 
+  getPivotRowGroupName(rowField: string): FunctionResultObject {
+    const rowDimension = this.definition.rows.find((dim) => dim.nameWithGranularity === rowField);
+    return { value: rowDimension?.displayName || "" };
+  }
+
   getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
@@ -304,6 +309,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   getCollapsedTableStructure(): SpreadsheetPivotTable {
     if (!this.isValid()) {
       throw new Error("Pivot is not valid !");
+    }
+    if (this.coreDefinition.style?.tabularForm) {
+      // ADRM TODO: do the same in odoo
+      return this.getExpandedTableStructure();
     }
     if (!this.collapsedTable) {
       this.collapsedTable = dataEntriesToSpreadsheetPivotTable(
