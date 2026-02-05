@@ -331,6 +331,12 @@ describe("Table plugin", () => {
       ]);
     });
 
+    test("Table zone is not expanded when creating a PIVOT formula right of the table", () => {
+      createTable(model, "B1:B3");
+      setCellContent(model, "C3", "=PIVOT(1)");
+      expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("B1:B3");
+    });
+
     test("Table zone is not expended at creation", () => {
       setCellContent(model, "A4", "Something");
       createTableWithFilter(model, "A1:A3");
