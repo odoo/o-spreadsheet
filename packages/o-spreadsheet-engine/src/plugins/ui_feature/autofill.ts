@@ -436,7 +436,7 @@ export class AutofillPlugin extends UIPlugin {
       content,
       style,
       border,
-      format,
+      format: format ?? undefined,
     };
   }
 

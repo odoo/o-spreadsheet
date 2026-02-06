@@ -175,7 +175,7 @@ export const ZOOM_VALUES = [50, 75, 100, 125, 150, 200];
 
 // Style
 export const DEFAULT_STYLE = {
-  align: "left",
+  align: "default",
   verticalAlign: "bottom",
   wrapping: "overflow",
   bold: false,

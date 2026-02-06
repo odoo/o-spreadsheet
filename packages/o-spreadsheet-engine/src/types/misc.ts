@@ -133,7 +133,7 @@ export interface UpdateCellData {
   content?: string;
   formula?: string;
   style?: Style | null;
-  format?: Format;
+  format?: Format | null;
 }
 
 export interface Sheet {
@@ -381,11 +381,11 @@ export interface MenuMouseEvent extends MouseEvent {
 // https://github.com/Microsoft/TypeScript/issues/13923#issuecomment-557509399
 // prettier-ignore
 export type Immutable<T> =
-    T extends ImmutablePrimitive ? T :
-    T extends Array<infer U> ? ImmutableArray<U> :
-    T extends Map<infer K, infer V> ? ImmutableMap<K, V> :
-    T extends Set<infer M> ? ImmutableSet<M> :
-    ImmutableObject<T>;
+  T extends ImmutablePrimitive ? T :
+  T extends Array<infer U> ? ImmutableArray<U> :
+  T extends Map<infer K, infer V> ? ImmutableMap<K, V> :
+  T extends Set<infer M> ? ImmutableSet<M> :
+  ImmutableObject<T>;
 
 type ImmutablePrimitive = undefined | null | boolean | string | number | Function;
 type ImmutableArray<T> = ReadonlyArray<Immutable<T>>;

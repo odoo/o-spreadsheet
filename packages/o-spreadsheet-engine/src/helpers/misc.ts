@@ -772,3 +772,15 @@ export function doesCellContainFunction(cell: Cell, formula: string): boolean {
     )
   );
 }
+
+export function isObjectEmpty(obj: Object) {
+  if (Object.keys(obj).length === 0) {
+    return true;
+  }
+  for (const value of Object.values(obj)) {
+    if (value !== undefined && (typeof value !== "object" || !isObjectEmpty(value))) {
+      return false;
+    }
+  }
+  return true;
+}

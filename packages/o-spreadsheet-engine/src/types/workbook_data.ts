@@ -1,4 +1,5 @@
 import { ZoneBorderData } from "../plugins/core/borders";
+import { defaultStyle, defaultValues } from "../plugins/core/default";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
@@ -77,7 +78,9 @@ export interface WorkbookData {
   version: string;
   sheets: SheetData[];
   styles: { [key: number]: Style };
+  defaultStyle?: defaultStyle;
   formats: { [key: number]: Format };
+  defaultFormat?: defaultValues<Format>;
   borders: { [key: number]: ZoneBorderData };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;

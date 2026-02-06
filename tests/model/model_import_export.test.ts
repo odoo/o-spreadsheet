@@ -32,6 +32,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellStyle,
   getEvaluatedCell,
   getMerges,
 } from "../test_helpers/getters_helpers";
@@ -515,7 +516,7 @@ describe("Migrations", () => {
       borders: { 3: border },
     });
     expect(getCell(model, "A1")?.format).toBe("0.00%");
-    expect(getCell(model, "A1")?.style).toEqual(style);
+    expect(getCellStyle(model, "A1")).toEqual(style);
     expect(getBorder(model, "A1")).toEqual(border);
     const data = model.exportData();
     expect(data.version).toBe(getCurrentVersion());

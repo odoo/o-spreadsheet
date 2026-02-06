@@ -18,6 +18,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellText,
   getMerges,
   getStyle,
@@ -672,6 +673,7 @@ describe("Autofill", () => {
 
     test("Autofill should override selected zone", () => {
       setCellContent(model, "A1", "1");
+      expect(getCellFormat(model, "A1")).toBeUndefined();
       const sheetId = model.getters.getActiveSheetId();
       const col = 0;
       const row = 1;

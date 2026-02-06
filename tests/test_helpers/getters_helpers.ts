@@ -7,6 +7,7 @@ import {
   CellValue,
   CellValueType,
   EvaluatedCell,
+  Format,
   FormattedValue,
   Merge,
   Style,
@@ -49,6 +50,16 @@ export function getCellStyle(
   const { col, row } = toCartesian(xc);
   return model.getters.getCell({ sheetId, col, row })?.style;
 }
+
+export function getCellFormat(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Format | undefined {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCell({ sheetId, col, row })?.format;
+}
+
 export function getEvaluatedCell(
   model: Model,
   xc: string,

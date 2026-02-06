@@ -85,6 +85,7 @@ import {
   getCell,
   getCellContent,
   getCellIcons,
+  getCellStyle,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -584,7 +585,7 @@ describe("Grid component", () => {
       expect(getCell(model, "A1")!.style).toEqual({ bold: true });
       expect(getStyle(model, "A1")).toEqual({ bold: true });
       await keyDown({ key: "B", ctrlKey: true });
-      expect(getCell(model, "A1")!.style).toEqual({ bold: false });
+      expect(getCell(model, "A1")!.style).toBeUndefined();
       expect(getStyle(model, "A1")).toEqual({});
     });
 
@@ -595,7 +596,7 @@ describe("Grid component", () => {
       expect(getCell(model, "A1")!.style).toEqual({ italic: true });
       expect(getStyle(model, "A1")).toEqual({ italic: true });
       await keyDown({ key: "I", ctrlKey: true });
-      expect(getCell(model, "A1")!.style).toEqual({ italic: false });
+      expect(getCell(model, "A1")!.style).toBeUndefined();
       expect(getStyle(model, "A1")).toEqual({});
     });
 
@@ -1167,7 +1168,7 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "C8");
       gridMouseEvent(model, "pointerup", "C8");
 
-      expect(getCell(model, "C8")?.style).toMatchObject({ fillColor: "#748747" });
+      expect(getCellStyle(model, "C8")).toMatchObject({ fillColor: "#748747" });
     });
 
     test("Paste format works with conditional format", () => {
@@ -1284,7 +1285,7 @@ describe("Grid component", () => {
 
       gridMouseEvent(model, "pointerdown", "D8");
       gridMouseEvent(model, "pointerup", "D8");
-      expect(getCell(model, "D8")?.style).toEqual({ bold: true });
+      expect(getCellStyle(model, "D8")).toEqual({ bold: true });
     });
 
     test("Paint format does a single history step", async () => {

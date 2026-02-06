@@ -349,7 +349,6 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
-    const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
     try {
       if (this.cellsBeingComputed.has(cellId)) {
         return ERROR_CYCLE_CELL;
@@ -357,7 +356,14 @@ export class Evaluator {
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(position, cell)
-        : evaluateLiteral(cell, localeFormat, position);
+        : evaluateLiteral(
+            cell,
+            {
+              format: this.getters.getCellFormat(position, cell),
+              locale: this.getters.getLocale(),
+            },
+            position
+          );
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
@@ -384,11 +390,12 @@ export class Evaluator {
       this.buildSafeGetSymbolValue(),
       formulaPosition
     );
+    const cellFormat = this.getters.getCellFormat(formulaPosition, cellData);
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(formulaReturn),
         this.getters.getLocale(),
-        cellData,
+        cellFormat,
         formulaPosition
       );
       if (evaluatedCell.type === CellValueType.error) {
@@ -403,14 +410,14 @@ export class Evaluator {
     const nbRows = formulaReturn[0].length;
     if (nbRows === 0) {
       // empty matrix
-      return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), cellData);
+      return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), cellFormat);
     }
     if (nbRows === 1 && nbColumns === 1) {
       // single value matrix
       return createEvaluatedCell(
         validateNumberValue(formulaReturn[0][0]),
         this.getters.getLocale(),
-        cellData
+        cellFormat
       );
     }
 
@@ -433,7 +440,7 @@ export class Evaluator {
     return createEvaluatedCell(
       validateNumberValue(formulaReturn[0][0]),
       this.getters.getLocale(),
-      cellData
+      cellFormat
     );
   }
 
@@ -524,11 +531,11 @@ export class Evaluator {
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const cell = this.getters.getCell(position);
+      const cellFormat = this.getters.getCellFormat(position);
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(matrixResult[i][j]),
         this.getters.getLocale(),
-        cell,
+        cellFormat,
         position
       );
       if (evaluatedCell.type === CellValueType.error) {

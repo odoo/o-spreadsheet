@@ -383,7 +383,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     if (tl === br) {
       return;
     }
-    const topLeft = this.getters.getCell({ sheetId, col: left, row: top });
+    const topLeftStyle = this.getters.getCellStyle({ sheetId, col: left, row: top });
 
     const id = this.nextId++;
     this.history.update(
@@ -400,7 +400,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
             sheetId,
             col,
             row,
-            style: topLeft ? topLeft.style : null,
+            style: topLeftStyle ?? null,
             content: "",
           });
         }
