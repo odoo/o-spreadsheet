@@ -177,6 +177,7 @@ export class SortPlugin extends UIPlugin {
               cell.compiledFormula.tokens
             );
           }
+          // TODO default
           newCellValues.style = cell.style;
           newCellValues.content = content;
           newCellValues.format = cell.format;
