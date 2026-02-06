@@ -3002,7 +3002,7 @@ describe("SUBTOTAL formula", () => {
   test("casting test", () => {
     expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2, A3)", A2: "42", A3: "58" })).toBe(100);
     expect(evaluateCell("A1", { A1: '=SUBTOTAL("9", A2, A3)', A2: "42", A3: "58" })).toBe(100);
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, 42, 58)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, 42, 58)" })).toBe("#REF");
     expect(evaluateCell("A1", { A1: "=SUBTOTAL(, A2, A3)", A2: "42", A3: "58" })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: "=SUBTOTAL(B1, A2, A3)", B1: "9", A2: "42", A3: "58" })).toBe(
       100
@@ -3187,5 +3187,21 @@ describe("SUBTOTAL formula", () => {
 
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A1).toBe("#DIV/0!"); // Error in range
+  });
+
+  test("SUBTOTAL can use formulas that return references", () => {
+    const grid = {
+      A1: '=SUBTOTAL(9, XLOOKUP("B", B1:B4, B137:B140), XLOOKUP("D", B1:B4, B137:B140))',
+      B1: "A",
+      B2: "B",
+      B3: "C",
+      B4: "D",
+      B137: "1",
+      B138: "2",
+      B139: "4",
+      B140: "=SUBTOTAL(9, B137:B140)",
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toBe(2);
   });
 });

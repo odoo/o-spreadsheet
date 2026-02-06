@@ -57,6 +57,10 @@ const expectNumberValueError = (value: string) =>
     value
   );
 
+export const expectReferenceError = _t(
+  "The function [[FUNCTION_NAME]] expects a reference to a cell or range."
+);
+
 export const expectNumberRangeError = (lowerBound: number, upperBound: number, value: number) =>
   _t(
     "The function [[FUNCTION_NAME]] expects a number value between %s and %s inclusive, but receives %s.",

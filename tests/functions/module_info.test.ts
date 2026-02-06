@@ -120,6 +120,18 @@ describe("CELL formula", () => {
     expect(model.getters.evaluateFormula(sheetId, '=CELL("address", Sh2!B1)')).toBe("Sh2!$B$1");
     expect(model.getters.evaluateFormula(sheetId, '=CELL("contents", D5)')).toBe(2);
   });
+
+  test("CELL can use formulas that return references", () => {
+    //prettier-ignore
+    const grid = {
+      A1: '=CELL("address", XLOOKUP(2, B1:B3, C1:C3))',
+      B1: "1", C1: "11",
+      B2: "2", C2: "22",
+      B3: "3", C3: "33",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellContent(model, "A1")).toBe("$C$2");
+  });
 });
 
 describe("ISERR formula", () => {

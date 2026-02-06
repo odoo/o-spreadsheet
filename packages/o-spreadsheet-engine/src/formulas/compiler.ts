@@ -139,11 +139,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         const currentArg = args[i];
         const argTypes = argDefinition.type || [];
 
-        // detect when an argument need to be evaluated as a meta argument
-        const isMeta = argTypes.includes("META") || argTypes.includes("RANGE<META>");
         const hasRange = argTypes.some((t) => isRangeType(t));
 
-        compiledArgs.push(compileAST(currentArg, isMeta, hasRange));
+        compiledArgs.push(compileAST(currentArg, hasRange));
       }
 
       return compiledArgs;
@@ -153,21 +151,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
      * This function compiles all the information extracted by the parser into an
      * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
-     *
-     * The function is sensitive to parameter “isMeta”. This
-     * parameter may vary when compiling function arguments:
-     * isMeta: In some cases the function arguments expects information on the
-     * cell/range other than the associated value(s). For example the COLUMN
-     * function needs to receive as argument the coordinates of a cell rather
-     * than its value. For this we have meta arguments.
      */
-    function compileAST(ast: AST, isMeta = false, hasRange = false): FunctionCode {
+    function compileAST(ast: AST, hasRange = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
-      if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
-        if (isMeta) {
-          throw new BadExpressionError(_t("Argument must be a reference to a cell or range."));
-        }
-      }
       if (ast.debug) {
         code.append("debugger;");
         code.append(`ctx["debug"] = true;`);
@@ -181,9 +167,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
           return code.return(`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
           return code.return(
-            `${ast.value.includes(":") || hasRange ? `range` : `ref`}(deps[${dependencyCount++}], ${
-              isMeta ? "true" : "false"
-            })`
+            `${ast.value.includes(":") || hasRange ? `range` : `ref`}(deps[${dependencyCount++}])`
           );
         case "FUNCALL":
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
@@ -209,18 +193,18 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
-          const { isMeta, hasRange } =
+          const hasRange =
             ast.value === "#"
-              ? { isMeta: true, hasRange: true } // hasRange is true to avoid vectorization of SPILLED.RANGE
-              : { isMeta: false, hasRange: false };
-          const operand = compileAST(ast.operand, isMeta, hasRange).assignResultToVariable();
+              ? true // hasRange is true to avoid vectorization of SPILLED.RANGE
+              : false;
+          const operand = compileAST(ast.operand, hasRange).assignResultToVariable();
           code.append(operand);
           return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
           const fnName = OPERATOR_MAP[ast.value];
-          const left = compileAST(ast.left, false, false).assignResultToVariable();
-          const right = compileAST(ast.right, false, false).assignResultToVariable();
+          const left = compileAST(ast.left, false).assignResultToVariable();
+          const right = compileAST(ast.right, false).assignResultToVariable();
           code.append(left);
           code.append(right);
           return code.return(
