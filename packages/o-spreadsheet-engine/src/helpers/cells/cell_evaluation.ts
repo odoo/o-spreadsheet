@@ -1,7 +1,6 @@
 import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
-  Cell,
   CellValue,
   CellValueType,
   EmptyCell,
@@ -10,7 +9,7 @@ import {
   LiteralCell,
   NumberCell,
 } from "../../types/cells";
-import { LocaleFormat } from "../../types/format";
+import { Format, LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { CellPosition, FunctionResultObject } from "../../types/misc";
 import { parseDateTime } from "../dates";
@@ -67,12 +66,12 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
 export function createEvaluatedCell(
   functionResult: FunctionResultObject,
   locale: Locale = DEFAULT_LOCALE,
-  cell?: Cell,
+  cellFormat?: Format,
   origin?: CellPosition
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
   if (!link) {
-    const evaluateCell = _createEvaluatedCell(functionResult, locale, cell);
+    const evaluateCell = _createEvaluatedCell(functionResult, locale, cellFormat);
     return addOrigin(evaluateCell, functionResult.origin ?? origin);
   }
   const value = parseLiteral(link.label, locale);
@@ -87,7 +86,7 @@ export function createEvaluatedCell(
   };
   return addOrigin(
     {
-      ..._createEvaluatedCell(linkPayload, locale, cell),
+      ..._createEvaluatedCell(linkPayload, locale, cellFormat),
       link,
     },
     functionResult.origin ?? origin
@@ -97,10 +96,10 @@ export function createEvaluatedCell(
 function _createEvaluatedCell(
   functionResult: FunctionResultObject,
   locale: Locale,
-  cell?: Cell
+  cellFormat?: Format
 ): EvaluatedCell {
   let { value, format, message } = functionResult;
-  format = cell?.format || format;
+  format = cellFormat || format;
 
   const formattedValue = formatValue(value, { format, locale });
   if (isEvaluationError(value)) {
