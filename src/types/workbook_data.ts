@@ -1,3 +1,4 @@
+import { sparseDefaultValue } from "../plugins/core/default";
 import { SquishedContent } from "../plugins/core/squisher";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart/chart";
@@ -50,7 +51,9 @@ export interface SheetData {
   rowNumber: number;
   cells: { [key: string]: undefined | SquishedContent };
   styles: { [zone: string]: number };
+  defaultStyle?: sparseDefaultValue<number>;
   formats: { [zone: string]: number };
+  defaultFormat?: sparseDefaultValue<number>;
   borders: { [zone: string]: number };
   merges: string[];
   figures: FigureData<any>[];
