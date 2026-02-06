@@ -102,11 +102,14 @@ function groupSameBoundingBoxes(items: RTreeRangeItem[]): RangeSetItem[] {
   if (!useFastKey) {
     console.warn("Max col/row size exceeded, using slow zone key");
   }
-  const groupedByBBox: Record<UID, Record<string, RangeSetItem>> = {};
+
+  // Use Map instead of plain objects for better key handling and performance
+  const groupedByBBox: Map<UID, Map<number | string, RangeSetItem>> = new Map();
+
   for (const item of items) {
     const sheetId = item.boundingBox.sheetId;
-    if (!groupedByBBox[sheetId]) {
-      groupedByBBox[sheetId] = {};
+    if (!groupedByBBox.has(sheetId)) {
+      groupedByBBox.set(sheetId, new Map());
     }
     const bBox = item.boundingBox.zone;
     let bBoxKey: number | string = 0;
@@ -119,21 +122,21 @@ function groupSameBoundingBoxes(items: RTreeRangeItem[]): RangeSetItem[] {
     } else {
       bBoxKey = `${bBox.left},${bBox.top},${bBox.right},${bBox.bottom}`;
     }
-    if (groupedByBBox[sheetId][bBoxKey]) {
-      const ranges = groupedByBBox[sheetId][bBoxKey].data;
-      ranges.add(item.data);
+    const sheetMap = groupedByBBox.get(sheetId)!;
+    if (sheetMap.has(bBoxKey)) {
+      sheetMap.get(bBoxKey)!.data.add(item.data);
     } else {
-      groupedByBBox[sheetId][bBoxKey] = {
+      sheetMap.set(bBoxKey, {
         boundingBox: item.boundingBox,
         data: new RangeSet([item.data]),
-      };
+      });
     }
   }
+
   const result: RangeSetItem[] = [];
-  for (const sheetId in groupedByBBox) {
-    const map = groupedByBBox[sheetId];
-    for (const key in map) {
-      result.push(map[key]);
+  for (const sheetMap of groupedByBBox.values()) {
+    for (const item of sheetMap.values()) {
+      result.push(item);
     }
   }
   return result;
