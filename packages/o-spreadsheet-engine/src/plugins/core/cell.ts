@@ -21,7 +21,6 @@ import {
   CommandResult,
   CoreCommand,
   PositionDependentCommand,
-  SetFormattingCommand,
   UpdateCellCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
@@ -65,7 +64,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getTranslatedCellFormula",
-    "getCellStyle",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
@@ -112,8 +110,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
           ? CommandResult.Success
           : CommandResult.InvalidCellId;
-      case "SET_FORMATTING":
-        return this.checkUselessSetFormatting(cmd);
       default:
         return CommandResult.Success;
     }
@@ -121,12 +117,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "SET_FORMATTING":
-        this.setStyleFormat(cmd.sheetId, cmd.target, cmd.style, cmd.format);
-        break;
-      case "CLEAR_FORMATTING":
-        this.clearFormatting(cmd.sheetId, cmd.target);
-        break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
           this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
@@ -175,25 +165,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
               row,
             });
           }
-        }
-      }
-    }
-  }
-
-  /**
-   * Clear the styles and format of zones
-   */
-  private clearFormatting(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            style: null,
-            format: "",
-          });
         }
       }
     }
@@ -302,7 +273,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-        const style = this.extractCustomStyle(cell);
+        const style = this.extractCustomStyle(position, cell);
         if (Object.keys(style).length) {
           const styleId = getItemId<Style>(style, styles);
           positionsByStyle[styleId] ??= [];
@@ -351,8 +322,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private extractCustomStyle(cell: Cell): Style {
-    const cleanedStyle = { ...cell.style };
+  private extractCustomStyle(position: CellPosition, cell: Cell): Style {
+    const cleanedStyle = this.getters.getCellStyle(position, cell);
     const defaultStyle = isNumber(cell.content, DEFAULT_LOCALE)
       ? DEFAULT_NUMBER_STYLE
       : DEFAULT_STYLE;
@@ -430,10 +401,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.getFormulaString(targetSheetId, tokens, adaptedDependencies);
   }
 
-  getCellStyle(position: CellPosition): Style {
-    return this.getters.getCell(position)?.style || {};
-  }
-
   /**
    * Converts a zone to a XC coordinate system
    *
@@ -478,31 +445,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     return topLeft;
-  }
-
-  private setStyleFormat(
-    sheetId: UID,
-    target: Zone[],
-    style: Style | undefined,
-    format: Format | undefined
-  ) {
-    if (style === undefined && format === undefined) {
-      return;
-    }
-    for (const zone of recomputeZones(target)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            style: style ? { ...cell?.style, ...style } : undefined,
-            format,
-          });
-        }
-      }
-    }
   }
 
   /**
@@ -730,30 +672,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
-  }
-
-  private checkUselessSetFormatting(cmd: SetFormattingCommand) {
-    const { sheetId, target } = cmd;
-    const hasStyle = "style" in cmd;
-    const hasFormat = "format" in cmd;
-    if (!hasStyle && !hasFormat) {
-      return CommandResult.NoChanges;
-    }
-    for (const zone of recomputeZones(target)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const position = { sheetId, col, row };
-          const cell = this.getters.getCell(position);
-          if (
-            (hasStyle && !deepEquals(cell?.style, cmd.style)) ||
-            (hasFormat && cell?.format !== cmd.format)
-          ) {
-            return CommandResult.Success;
-          }
-        }
-      }
-    }
-    return CommandResult.NoChanges;
   }
 }
 
