@@ -71,6 +71,7 @@ import {
   getCell,
   getCellContent,
   getCellError,
+  getCellRawContent,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -162,7 +163,7 @@ describe("clipboard", () => {
     setSelection(model, ["B2"]);
     model.dispatch("CUT");
     paste(model, "D2");
-    expect(getCell(model, "D2")?.content).toBe("b2");
+    expect(getCellRawContent(model, "D2")).toBe("b2");
   });
 
   test("paste without copied value", () => {
@@ -1332,8 +1333,8 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "=SUM(4.5)");
     copy(model, "A1:A2");
     paste(model, "B1", "asValue");
-    expect(getCell(model, "B1")?.content).toBe("5.4");
-    expect(getCell(model, "B2")?.content).toBe("4.5");
+    expect(getCellRawContent(model, "B1")).toBe("5.4");
+    expect(getCellRawContent(model, "B2")).toBe("4.5");
   });
 
   test("can copy a formula and paste -> apply the format defined by user, if not apply the automatic evaluated format ", () => {
@@ -2030,11 +2031,11 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A3", initialFormula);
     deleteRows(model, [0]);
-    expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
 
     copy(model, "A2");
     paste(model, "C5");
-    expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "C5")).toBe(expectedInvalidFormula);
   });
 
   test.each([
@@ -2044,11 +2045,11 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "C1", initialFormula);
     deleteColumns(model, ["A"]);
-    expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
 
     copy(model, "B1");
     paste(model, "C3");
-    expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "C3")).toBe(expectedInvalidFormula);
   });
 
   test.each([
@@ -2058,11 +2059,11 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A3", initialFormula);
     deleteRows(model, [0]);
-    expect(getCell(model, "A2")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
 
     cut(model, "A2");
     paste(model, "C5");
-    expect(getCell(model, "C5")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "C5")).toBe(expectedInvalidFormula);
   });
 
   test.each([
@@ -2072,11 +2073,11 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "C1", initialFormula);
     deleteColumns(model, ["A"]);
-    expect(getCell(model, "B1")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
 
     cut(model, "B1");
     paste(model, "C3");
-    expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+    expect(getCellRawContent(model, "C3")).toBe(expectedInvalidFormula);
   });
 
   test("filtered rows are ignored when copying range", () => {
@@ -2177,7 +2178,7 @@ describe("clipboard", () => {
     copy(model, "D1"); // copy the header Total
     paste(model, "G4");
     expect(getEvaluatedCell(model, "G4").value).toBe("Total");
-    expect(getCell(model, "G4")!.content).toBe("=PIVOT.HEADER(1)");
+    expect(getCellRawContent(model, "G4")).toBe("=PIVOT.HEADER(1)");
 
     // copy part of pivot
     copy(model, "C1:D4");
@@ -2208,12 +2209,12 @@ describe("clipboard", () => {
 
     copy(model, "C1:D5");
     paste(model, "G4");
-    expect(getCell(model, "G4")!.content).toBe("=PIVOT(1)");
+    expect(getCellRawContent(model, "G4")).toBe("=PIVOT(1)");
     expect(getCell(model, "G5")).toBeUndefined();
 
     cut(model, "C1:D5");
     paste(model, "G20");
-    expect(getCell(model, "G20")!.content).toBe("=PIVOT(1)");
+    expect(getCellRawContent(model, "G20")).toBe("=PIVOT(1)");
     expect(getCell(model, "G21")).toBeUndefined();
   });
 
@@ -2239,12 +2240,12 @@ describe("clipboard", () => {
     paste(model, "G4");
 
     // automatic format on G4
-    expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
+    expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
     expect(getCell(model, "G4")?.format).toBeUndefined();
     expect(getEvaluatedCell(model, "G4").format).toBe("#,##0[$$]");
 
     // forced format copied from D5
-    expect(getCell(model, "G5")?.content).toBe('=PIVOT.VALUE(1,"Price:sum")');
+    expect(getCellRawContent(model, "G5")).toBe('=PIVOT.VALUE(1,"Price:sum")');
     expect(getCell(model, "G5")?.format).toBe("#,##0.0");
     expect(getEvaluatedCell(model, "G5").format).toBe("#,##0.0");
   });
@@ -2265,7 +2266,7 @@ describe("clipboard", () => {
 
     copy(model, "D4");
     paste(model, "G4");
-    expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Alice")');
+    expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Alice")');
   });
 
   test("copying a spread pivot cell with (Undefined)", () => {
@@ -2310,7 +2311,7 @@ describe("clipboard", () => {
 
     copy(model, "C1");
     paste(model, "G4");
-    expect(getCell(model, "G4")!.content).toBe("=PIVOT(1)");
+    expect(getCellRawContent(model, "G4")).toBe("=PIVOT(1)");
   });
 
   test("fixed pivot formulas are copied like standard cells", () => {
@@ -2329,7 +2330,7 @@ describe("clipboard", () => {
     });
     copy(model, "C2");
     paste(model, "G4");
-    expect(getCell(model, "G4")!.content).toBe('=PIVOT.VALUE(G3,"Price","Customer","Bob")');
+    expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(G3,"Price","Customer","Bob")');
   });
 });
 
@@ -2530,12 +2531,12 @@ describe("clipboard: pasting outside of sheet", () => {
     createDynamicTable(model, "A1");
 
     insertCells(model, "B1", "down");
-    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellRawContent(model, "A1")).toBe("=MUNIT(2)");
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCell(model, "B2")).toBe(undefined);
 
     deleteCells(model, "A2", "left");
-    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellRawContent(model, "A1")).toBe("=MUNIT(2)");
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCell(model, "A2")).toBe(undefined);
   });
@@ -2622,7 +2623,7 @@ describe("clipboard: pasting outside of sheet", () => {
       thousandsSeparator: " ",
     });
     pasteFromOSClipboard(model, "A1", { text: "=SUM(5 ; 3,14)" });
-    expect(getCell(model, "A1")?.content).toBe("=SUM(5 , 3.14)");
+    expect(getCellRawContent(model, "A1")).toBe("=SUM(5 , 3.14)");
     expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
   });
 
@@ -2992,8 +2993,8 @@ describe("cross spreadsheet copy/paste", () => {
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D2", osClipboardContent);
 
-    expect(getCell(modelA, "B2")?.content).toBe("b2");
-    expect(getCell(modelB, "D2")?.content).toBe("b2");
+    expect(getCellRawContent(modelA, "B2")).toBe("b2");
+    expect(getCellRawContent(modelB, "D2")).toBe("b2");
     expect(getStyle(modelA, "B2")).toEqual(cellStyle);
     expect(getStyle(modelB, "D2")).toEqual(cellStyle);
   });
@@ -3033,11 +3034,11 @@ describe("cross spreadsheet copy/paste", () => {
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
-    expect(getCell(modelB, "D1")?.content).toBe("=SUM(1,2)");
-    expect(getCell(modelB, "D2")?.content).toBe("=SUM(1,2)");
-    expect(getCell(modelB, "D3")?.content).toBe("=DATE(2024,1,1)");
-    expect(getCell(modelB, "D4")?.content).toBe("=DATE(2024,1,1)");
-    expect(getCell(modelB, "D5")?.content).toBe("=SOMME(1,2)");
+    expect(getCellRawContent(modelB, "D1")).toBe("=SUM(1,2)");
+    expect(getCellRawContent(modelB, "D2")).toBe("=SUM(1,2)");
+    expect(getCellRawContent(modelB, "D3")).toBe("=DATE(2024,1,1)");
+    expect(getCellRawContent(modelB, "D4")).toBe("=DATE(2024,1,1)");
+    expect(getCellRawContent(modelB, "D5")).toBe("=SOMME(1,2)");
   });
 
   test("should copy/paste a cell with a markdown link", async () => {
@@ -3056,7 +3057,7 @@ describe("cross spreadsheet copy/paste", () => {
     expect(cell.link?.label).toBe(urlLabel);
     expect(cell.link?.url).toBe(url);
     expect(urlRepresentation(cell.link!, modelB.getters)).toBe(url);
-    expect(getCell(modelB, "D1")?.content).toBe("[Odoo Website](https://www.odoo.com)");
+    expect(getCellRawContent(modelB, "D1")).toBe("[Odoo Website](https://www.odoo.com)");
     expect(getStyle(modelB, "D1")).toEqual({ textColor: LINK_COLOR });
     expect(getCellText(modelB, "D1")).toBe("Odoo Website");
   });
@@ -3131,9 +3132,9 @@ describe("cross spreadsheet copy/paste", () => {
     );
     pasteFromOSClipboard(modelB, "E1", osClipboardContent);
 
-    expect(getCell(modelB, "G1")?.content).toBe("=E1*F1");
-    expect(getCell(modelB, "G2")?.content).toBe("=E2*F2");
-    expect(getCell(modelB, "G3")?.content).toBe("=E3*F3");
+    expect(getCellRawContent(modelB, "G1")).toBe("=E1*F1");
+    expect(getCellRawContent(modelB, "G2")).toBe("=E2*F2");
+    expect(getCellRawContent(modelB, "G3")).toBe("=E3*F3");
   });
 
   test("can copy/paste cells with escapable content", async () => {
@@ -3148,8 +3149,8 @@ describe("cross spreadsheet copy/paste", () => {
     expect(clipboardContent["text/plain"]).toBe(escapableString);
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D2", osClipboardContent);
-    expect(getCell(modelA, "A1")?.content).toBe(escapableString);
-    expect(getCell(modelB, "D2")?.content).toBe(escapableString);
+    expect(getCellRawContent(modelA, "A1")).toBe(escapableString);
+    expect(getCellRawContent(modelB, "D2")).toBe(escapableString);
   });
 
   test("o-spreadsheet data from Excel clipboard is ignored", async () => {

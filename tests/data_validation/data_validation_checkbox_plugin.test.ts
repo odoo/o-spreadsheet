@@ -5,7 +5,7 @@ import {
   setCellContent,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellRawContent, getStyle } from "../test_helpers/getters_helpers";
 import { getDataValidationRules } from "../test_helpers/helpers";
 
 describe("Checkbox in model", () => {
@@ -69,7 +69,7 @@ describe("Checkbox in model", () => {
       setCellContent(model, "A1", formula);
       addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
       expect(getCellContent(model, "A1")).toEqual(content);
-      expect(getCell(model, "A1")?.content).toEqual(formula);
+      expect(getCellRawContent(model, "A1")).toEqual(formula);
     }
   );
 
@@ -79,7 +79,7 @@ describe("Checkbox in model", () => {
       setCellContent(model, "A1", formula);
       addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
       expect(getCellContent(model, "A1")).toEqual("FALSE");
-      expect(getCell(model, "A1")?.content).toEqual("FALSE");
+      expect(getCellRawContent(model, "A1")).toEqual("FALSE");
     }
   );
 

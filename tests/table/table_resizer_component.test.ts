@@ -5,7 +5,7 @@ import { Grid } from "../../src/components/grid/grid";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { createDynamicTable, createTable, setCellContent } from "../test_helpers/commands_helpers";
 import { clickAndDrag, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getCellRawContent } from "../test_helpers/getters_helpers";
 import {
   flattenHighlightRange,
   getHighlightsFromStore,
@@ -94,8 +94,8 @@ describe("Table resizer component", () => {
     await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, true);
 
     expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:B3");
-    expect(getCell(model, "A3")?.content).toEqual("=A2+1");
-    expect(getCell(model, "B3")?.content).toBeUndefined();
+    expect(getCellRawContent(model, "A3")).toEqual("=A2+1");
+    expect(getCellRawContent(model, "B3")).toBeUndefined();
   });
 
   test("Cannot resize a dynamic table", async () => {

@@ -1,4 +1,4 @@
-import { compile } from "../../../formulas/compiler";
+import { CompiledFormula } from "../../../formulas/compiler";
 
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 
@@ -35,7 +35,6 @@ import {
   GetSymbolValue,
   isMatrix,
   Matrix,
-  RangeCompiledFormula,
   UID,
   Zone,
 } from "../../../types/misc";
@@ -168,13 +167,13 @@ export class Evaluator {
     const impactedRanges = new RangeSet();
 
     for (const position of positions) {
-      const content = this.getters.getCell(position)?.content;
+      const cell = this.getters.getCell(position);
       const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
       if (arrayFormulaPosition !== undefined) {
         // take into account new collisions.
         impactedRanges.addPosition(arrayFormulaPosition);
       }
-      if (!content) {
+      if (!cell?.isFormula && !cell?.content) {
         // The previous content could have blocked some array formulas
         impactedRanges.addPosition(position);
       }
@@ -193,7 +192,7 @@ export class Evaluator {
       for (const sheetId of this.getters.getSheetIds()) {
         for (const cell of this.getters.getCells(sheetId)) {
           if (cell.isFormula) {
-            const directDependencies = cell.compiledFormula.dependencies;
+            const directDependencies = cell.compiledFormula.rangeDependencies;
             for (const range of directDependencies) {
               if (range.invalidSheetName || range.invalidXc) {
                 continue;
@@ -229,21 +228,14 @@ export class Evaluator {
     sheetId: UID,
     formulaString: string
   ): FunctionResultObject | Matrix<FunctionResultObject> {
-    const compiledFormula = compile(formulaString);
-
-    const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
+    const compiledFormula = CompiledFormula.CompileFormula(formulaString, sheetId, this.getters);
     this.updateCompilationParameters();
-    return this.evaluateCompiledFormula(sheetId, {
-      ...compiledFormula,
-      dependencies: ranges,
-    });
+    return this.evaluateCompiledFormula(sheetId, compiledFormula);
   }
 
   evaluateCompiledFormula(
     sheetId: UID,
-    compiledFormula: RangeCompiledFormula,
+    compiledFormula: CompiledFormula,
     getContextualSymbolValue?: GetSymbolValue
   ) {
     try {
@@ -502,6 +494,7 @@ export class Evaluator {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
       if (
+        rawCell?.isFormula ||
         rawCell?.content ||
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
@@ -547,8 +540,8 @@ export class Evaluator {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const resultPosition = { sheetId: position.sheetId, col, row };
-        const content = this.getters.getCell(resultPosition)?.content;
-        if (content) {
+        const cell = this.getters.getCell(resultPosition);
+        if (cell?.isFormula || cell?.content) {
           // there's no point at re-evaluating overlapping array formulas,
           // there's still a collision
           continue;
@@ -593,7 +586,7 @@ export class Evaluator {
     if (!cell?.isFormula) {
       return [];
     }
-    return cell.compiledFormula.dependencies;
+    return cell.compiledFormula.rangeDependencies;
   }
 
   private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
@@ -638,7 +631,7 @@ function validateNumberValue(data: FunctionResultObject): FunctionResultObject {
 }
 
 export function updateEvalContextAndExecute(
-  compiledFormula: RangeCompiledFormula,
+  compiledFormula: CompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
   getSymbolValue: GetSymbolValue,
@@ -651,7 +644,7 @@ export function updateEvalContextAndExecute(
   evalContext.__originCellPosition = originCellPosition;
   evalContext.__originSheetId = sheetId;
   const result = compiledFormula.execute(
-    compiledFormula.dependencies,
+    compiledFormula.rangeDependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,

@@ -10,7 +10,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellRawContent } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 const selectors = {
@@ -379,7 +379,7 @@ describe("find and replace sidePanel component", () => {
       await click(fixture, selectors.checkBoxSearchFormulas);
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4");
       await click(fixture, selectors.replaceButton);
-      expect(getCell(model, "A1")?.content).toBe("=SUM(4)");
+      expect(getCellRawContent(model, "A1")).toBe("=SUM(4)");
     });
 
     test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
@@ -387,7 +387,7 @@ describe("find and replace sidePanel component", () => {
       inputSearchValue("4");
       setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2");
       await click(fixture, selectors.replaceButton);
-      expect(getCell(model, "A1")?.content).toBe("=SUM(2)");
+      expect(getCellRawContent(model, "A1")).toBe("=SUM(2)");
     });
 
     test("can replace all", async () => {

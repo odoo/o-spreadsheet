@@ -2,7 +2,7 @@ import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, splitReference } from "../helpers/";
 import { toCartesian, toXC } from "../helpers/coordinates";
-import { isFormula, range } from "../helpers/misc";
+import { range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
@@ -1251,8 +1251,8 @@ export const FORMULATEXT = {
     const sheetId: UID =
       (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.__originSheetId;
     const cell = this.getters.getCell({ sheetId, col, row });
-    if (cell && isFormula(cell.content)) {
-      return cell.content;
+    if (cell?.isFormula) {
+      return cell.compiledFormula.toFormulaString(this.getters);
     } else {
       return new NotAvailableError(_t("The cell does not contain a formula."));
     }

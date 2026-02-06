@@ -142,7 +142,7 @@ function deconstructSheets(convertedSheets: SheetData[]): DeconstructedSheets {
   const deconstructedSheets: DeconstructedSheets = {};
   for (const sheet of convertedSheets) {
     for (const xc in sheet.cells) {
-      const cellContent = sheet.cells[xc];
+      const cellContent = sheet.cells[xc] as string | undefined;
       if (!cellContent || !cellContent.startsWith("=")) {
         continue;
       }

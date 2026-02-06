@@ -86,6 +86,7 @@ import {
   getCell,
   getCellContent,
   getCellIcons,
+  getCellRawContent,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -2049,16 +2050,16 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     keyDown({ key: "D", ctrlKey: true });
-    expect(getCell(model, "B2")?.content).toBe("b1");
+    expect(getCellRawContent(model, "B2")).toBe("b1");
 
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C1", "c1");
     setCellContent(model, "D1", "d1");
     setSelection(model, ["B2:D2"]);
     keyDown({ key: "D", ctrlKey: true });
-    expect(getCell(model, "B2")?.content).toBe("b1");
-    expect(getCell(model, "C2")?.content).toBe("c1");
-    expect(getCell(model, "D2")?.content).toBe("d1");
+    expect(getCellRawContent(model, "B2")).toBe("b1");
+    expect(getCellRawContent(model, "C2")).toBe("c1");
+    expect(getCellRawContent(model, "D2")).toBe("d1");
   });
 
   test("raise error if copied zone contains merged cells", () => {
@@ -2075,25 +2076,25 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     keyDown({ key: "R", ctrlKey: true });
-    expect(getCell(model, "B2")?.content).toBe("a2");
+    expect(getCellRawContent(model, "B2")).toBe("a2");
 
     setCellContent(model, "A3", "a3");
     setCellContent(model, "A4", "a4");
     setSelection(model, ["B2:B4"]);
     keyDown({ key: "R", ctrlKey: true });
-    expect(getCell(model, "B2")?.content).toBe("a2");
-    expect(getCell(model, "B3")?.content).toBe("a3");
-    expect(getCell(model, "B4")?.content).toBe("a4");
+    expect(getCellRawContent(model, "B2")).toBe("a2");
+    expect(getCellRawContent(model, "B3")).toBe("a3");
+    expect(getCellRawContent(model, "B4")).toBe("a4");
   });
 
   test("can copy and paste cell(s) on zone using CTRL+ENTER", async () => {
     setCellContent(model, "A1", "a1");
     setSelection(model, ["A1:B2"]);
     keyDown({ key: "Enter", ctrlKey: true });
-    expect(getCell(model, "A1")?.content).toBe("a1");
-    expect(getCell(model, "A2")?.content).toBe("a1");
-    expect(getCell(model, "B1")?.content).toBe("a1");
-    expect(getCell(model, "B2")?.content).toBe("a1");
+    expect(getCellRawContent(model, "A1")).toBe("a1");
+    expect(getCellRawContent(model, "A2")).toBe("a1");
+    expect(getCellRawContent(model, "B1")).toBe("a1");
+    expect(getCellRawContent(model, "B2")).toBe("a1");
   });
 
   test("Alt+T -> Table", async () => {

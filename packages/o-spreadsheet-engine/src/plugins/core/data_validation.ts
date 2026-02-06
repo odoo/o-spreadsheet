@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { toXC } from "../../helpers/coordinates";
 import { deepCopy } from "../../helpers/misc";
 import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
@@ -158,10 +158,12 @@ export class DataValidationPlugin
               if (!dataValidation) {
                 continue;
               }
+              const cell = this.getters.getCell({ sheetId, col, row });
               if (
                 dataValidation.criterion.type === "isBoolean" ||
                 (dataValidation.criterion.type === "isValueInList" &&
-                  !this.getters.getCell({ sheetId, col, row })?.content)
+                  !cell?.isFormula &&
+                  !cell?.content)
               ) {
                 const rules = this.rules[sheetId];
                 const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
@@ -351,7 +353,7 @@ export class DataValidationPlugin
         return true;
       }
       if (value.startsWith("=")) {
-        return evaluator.allowedValues === "onlyLiterals" || compile(value).isBadExpression;
+        return evaluator.allowedValues === "onlyLiterals" || CompiledFormula.IsBadExpression(value);
       }
       return !evaluator.isCriterionValueValid(value);
     };
