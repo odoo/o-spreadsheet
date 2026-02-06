@@ -19,10 +19,10 @@ import {
   AddPivotCommand,
   Command,
   CoreCommand,
-  UpdatePivotCommand,
   invalidateEvaluationCommands,
+  UpdatePivotCommand,
 } from "../../types/commands";
-import { CellPosition, FunctionResultObject, SortDirection, UID, isMatrix } from "../../types/misc";
+import { CellPosition, FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
 import { PivotCoreMeasure, PivotStyle, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
@@ -60,8 +60,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "START":
+        this.getters
+          .getEntityDependencyRegistry()
+          .registerInvalidationCallback("pivot", (pivotId) => this.invalidatePivot(pivotId));
+
         for (const pivotId of this.getters.getPivotIds()) {
           this.setupPivot(pivotId);
+          this.registerPivotDependencies(pivotId);
         }
     }
   }
@@ -69,7 +74,18 @@ export class PivotUIPlugin extends CoreViewPlugin {
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
       for (const pivotId of this.getters.getPivotIds()) {
-        this.setupPivot(pivotId, { recreate: true });
+        //TODOPRO C'est vraiment nul, c'est juste là pour ré-créer une pivot si le core definition change
+        //par exemple après un delete sheet ou quoi
+        const definition = deepCopy(this.getters.getPivotCoreDefinition(pivotId));
+        if (
+          JSON.stringify(definition) !== JSON.stringify(this.pivots[pivotId]?.["coreDefinition"])
+        ) {
+          const Pivot = withPivotPresentationLayer(pivotRegistry.get(definition.type).ui);
+          this.pivots[pivotId] = new Pivot(pivotId, this.custom, {
+            definition,
+            getters: this.getters,
+          });
+        }
       }
     }
     switch (cmd.type) {
@@ -78,14 +94,21 @@ export class PivotUIPlugin extends CoreViewPlugin {
         break;
       case "ADD_PIVOT": {
         this.setupPivot(cmd.pivotId);
+        this.registerPivotDependencies(cmd.pivotId);
         break;
       }
       case "DUPLICATE_PIVOT": {
         this.setupPivot(cmd.newPivotId);
+        this.registerPivotDependencies(cmd.newPivotId);
         break;
       }
       case "UPDATE_PIVOT": {
         this.setupPivot(cmd.pivotId, { recreate: true });
+        this.registerPivotDependencies(cmd.pivotId);
+        break;
+      }
+      case "REMOVE_PIVOT": {
+        this.getters.getEntityDependencyRegistry().unregisterEntity(cmd.pivotId);
         break;
       }
       case "DELETE_SHEET":
@@ -102,9 +125,12 @@ export class PivotUIPlugin extends CoreViewPlugin {
         for (const cmd of pivotCommands) {
           const pivotId = cmd.pivotId;
           if (!this.getters.isExistingPivot(pivotId)) {
+            // Pivot was removed, unregister its dependencies
+            this.getters.getEntityDependencyRegistry().unregisterEntity(pivotId);
             continue;
           }
           this.setupPivot(pivotId, { recreate: true });
+          this.registerPivotDependencies(pivotId);
         }
         break;
       }
@@ -403,5 +429,30 @@ export class PivotUIPlugin extends CoreViewPlugin {
     return (
       firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === "PIVOT"
     );
+  }
+
+  private invalidatePivot(pivotId: UID): void {
+    if (this.getters.isExistingPivot(pivotId)) {
+      this.setupPivot(pivotId, { recreate: true });
+    }
+  }
+
+  private registerPivotDependencies(pivotId: UID): void {
+    const definition = this.getters.getPivotCoreDefinition(pivotId);
+
+    if (definition.type !== "SPREADSHEET" || !definition.dataSet) {
+      return;
+    }
+
+    this.getters.getEntityDependencyRegistry().registerEntity({
+      id: pivotId,
+      type: "pivot",
+      dependencies: [
+        {
+          sheetId: definition.dataSet.sheetId,
+          zone: definition.dataSet.zone,
+        },
+      ],
+    });
   }
 }

@@ -36,6 +36,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
 import {
+  BoundedRange,
   CellValueType,
   Color,
   CommandResult,
@@ -281,6 +282,14 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
+  getDependencies(): BoundedRange[] {
+    const dependencies: BoundedRange[] = [];
+    if (this.dataRange) {
+      dependencies.push({ sheetId: this.dataRange.sheetId, zone: this.dataRange.zone });
+    }
+    return dependencies;
+  }
+
   updateRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions): GaugeChart {
     const dataRange = adaptChartRange(this.dataRange, applyChange);
 
@@ -316,7 +325,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   let minValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMin, getters);
   let maxValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMax, getters);
   if (minValue === undefined || maxValue === undefined) {
-    return getInvalidGaugeRuntime(chart, getters);
+    return getInvalidGaugeRuntime(chart);
   }
   if (maxValue < minValue) {
     [minValue, maxValue] = [maxValue, minValue];
@@ -372,7 +381,6 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   colors.push(chartColors.upperColor);
 
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
     title: {
       ...chart.title,
       text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
@@ -424,9 +432,8 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
     : tryToNumber(toScalar(value), getters.getLocale());
 }
 
-function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
+function getInvalidGaugeRuntime(chart: GaugeChart): GaugeChartRuntime {
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, chart.dataRange).background,
     title: chart.title ?? { text: "" },
     minValue: { value: 0, label: "" },
     maxValue: { value: 100, label: "" },

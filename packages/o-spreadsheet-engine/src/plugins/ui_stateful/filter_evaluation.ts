@@ -9,11 +9,19 @@ import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../..
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, FilterId, UID } from "../../types/misc";
+import { BoundedRange } from "../../types/range";
 import { CriterionFilter, DataFilterValue, Table } from "../../types/table";
 import { ExcelFilterData, ExcelWorkbookData } from "../../types/workbook_data";
 import { UIPlugin } from "../ui_plugin";
 
 const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };
+
+// Prefix for filter entity IDs in the registry
+const FILTER_ENTITY_PREFIX = "filter_sheet_";
+
+function getFilterEntityId(sheetId: UID): string {
+  return FILTER_ENTITY_PREFIX + sheetId;
+}
 
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
@@ -28,7 +36,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
   private filterValues: Record<UID, Record<FilterId, DataFilterValue>> = {};
 
   hiddenRows: Record<UID, Set<number> | undefined> = {};
-  isEvaluationDirty = false;
+
+  /**
+   * Set of sheet IDs that need their hidden rows to be recalculated
+   */
+  private dirtySheets: Set<UID> = new Set();
 
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
@@ -43,24 +55,44 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UNDO":
-      case "REDO":
-      case "UPDATE_CELL":
-      case "EVALUATE_CELLS":
-      case "ACTIVATE_SHEET":
-      case "REMOVE_TABLE":
-      case "ADD_COLUMNS_ROWS":
-      case "REMOVE_COLUMNS_ROWS":
-      case "UPDATE_TABLE":
-        this.isEvaluationDirty = true;
-        break;
       case "START":
+        this.getters
+          .getEntityDependencyRegistry()
+          .registerInvalidationCallback("filter", (entityId) => this.invalidateFilter(entityId));
+
         for (const sheetId of this.getters.getSheetIds()) {
           this.filterValues[sheetId] = {};
+          // Note: Filter dependencies are registered in finalize() because
+          // DynamicTablesPlugin.finalize() needs to run first to compute the filters
+          this.dirtySheets.add(sheetId);
+        }
+        break;
+      case "UNDO":
+      case "REDO":
+        // Re-register all filter dependencies after undo/redo
+        this.getters.getEntityDependencyRegistry().unregisterAllEntitiesOfType("filter");
+        for (const sheetId of this.getters.getSheetIds()) {
+          this.registerFilterDependencies(sheetId);
+          this.dirtySheets.add(sheetId);
+        }
+        break;
+      case "EVALUATE_CELLS":
+      case "ACTIVATE_SHEET":
+        // These commands may affect all sheets
+        for (const sheetId of this.getters.getSheetIds()) {
+          this.dirtySheets.add(sheetId);
         }
         break;
       case "CREATE_SHEET":
         this.filterValues[cmd.sheetId] = {};
+        break;
+      case "REMOVE_TABLE":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+      case "UPDATE_TABLE":
+        // Re-register filter dependencies when table structure changes
+        this.registerFilterDependencies(cmd.sheetId);
+        this.dirtySheets.add(cmd.sheetId);
         break;
       case "HIDE_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
@@ -80,19 +112,61 @@ export class FilterEvaluationPlugin extends UIPlugin {
         break;
       case "DUPLICATE_SHEET":
         this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
+        this.registerFilterDependencies(cmd.sheetIdTo);
         break;
-      // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
-      // on DELETE_SHEET followed by undo
+      case "DELETE_SHEET":
+        this.getters.getEntityDependencyRegistry().unregisterEntity(getFilterEntityId(cmd.sheetId));
+        delete this.filterValues[cmd.sheetId];
+        delete this.hiddenRows[cmd.sheetId];
+        this.dirtySheets.delete(cmd.sheetId);
+        break;
+      // Note: UPDATE_CELL is now handled via EntityDependencyRegistry callback
     }
   }
 
   finalize() {
-    if (this.isEvaluationDirty) {
-      for (const sheetId of this.getters.getSheetIds()) {
-        this.updateHiddenRows(sheetId);
+    if (this.dirtySheets.size > 0) {
+      for (const sheetId of this.dirtySheets) {
+        if (this.getters.tryGetSheet(sheetId)) {
+          // Register dependencies first (filters are now available from DynamicTablesPlugin.finalize())
+          this.registerFilterDependencies(sheetId);
+          this.updateHiddenRows(sheetId);
+        }
       }
-      this.isEvaluationDirty = false;
+      this.dirtySheets.clear();
     }
+  }
+
+  private invalidateFilter(entityId: UID): void {
+    // Extract sheetId from the entity ID
+    const sheetId = entityId.replace(FILTER_ENTITY_PREFIX, "");
+    this.dirtySheets.add(sheetId);
+  }
+
+  private registerFilterDependencies(sheetId: UID): void {
+    const filters = this.getters.getFilters(sheetId);
+    const dependencies: BoundedRange[] = [];
+
+    for (const filter of filters) {
+      if (filter.filteredRange) {
+        dependencies.push({
+          sheetId: filter.filteredRange.sheetId,
+          zone: filter.filteredRange.zone,
+        });
+      }
+    }
+
+    if (dependencies.length === 0) {
+      // Unregister if no filters
+      this.getters.getEntityDependencyRegistry().unregisterEntity(getFilterEntityId(sheetId));
+      return;
+    }
+
+    this.getters.getEntityDependencyRegistry().registerEntity({
+      id: getFilterEntityId(sheetId),
+      type: "filter",
+      dependencies,
+    });
   }
 
   isRowFiltered(sheetId: UID, row: number): boolean {

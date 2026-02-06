@@ -7,6 +7,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -28,6 +29,7 @@ import {
 import type { ChartConfiguration } from "chart.js";
 import {
   AxesDesign,
+  BoundedRange,
   ChartColorScale,
   Color,
   CommandResult,
@@ -196,6 +198,10 @@ export class CalendarChart extends AbstractChart {
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): CalendarChart {

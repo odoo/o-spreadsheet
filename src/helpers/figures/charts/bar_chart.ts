@@ -8,6 +8,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
@@ -31,7 +32,7 @@ import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_ch
 import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
-import { Range } from "@odoo/o-spreadsheet-engine/types/range";
+import { BoundedRange, Range } from "@odoo/o-spreadsheet-engine/types/range";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
 import {
@@ -203,6 +204,10 @@ export class BarChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): BarChart {
