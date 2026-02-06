@@ -169,7 +169,7 @@ export class Squisher {
         this.getters,
         -1,
         command.content,
-        command.format,
+        command.format ?? undefined,
         command.style ?? undefined,
         command.sheetId
       );

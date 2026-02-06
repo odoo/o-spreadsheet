@@ -32,6 +32,7 @@ import {
   getCell,
   getCellContent,
   getCellRawContent,
+  getCellStyle,
   getCellText,
   getEvaluatedCell,
   getStyle,
@@ -421,7 +422,7 @@ describe("link cell", () => {
         content,
         style: { fillColor: "#555", bold: true, textColor: "#111" },
       });
-      expect(getCell(model, "A1")?.style).toEqual({
+      expect(getCellStyle(model, "A1")).toEqual({
         fillColor: "#555",
         bold: true,
         textColor: "#111",
@@ -435,7 +436,7 @@ describe("link cell", () => {
       const model = new Model();
       setCellStyle(model, "A1", { fillColor: "#555", bold: true, textColor: "#111" });
       setCellContent(model, "A1", content);
-      expect(getCell(model, "A1")?.style).toEqual({
+      expect(getCellStyle(model, "A1")).toEqual({
         fillColor: "#555",
         bold: true,
         textColor: "#111",
@@ -453,7 +454,7 @@ describe("link cell", () => {
     const D2 = getEvaluatedCell(model, "D2");
     expect(B2After.link).toEqual(B2.link);
     expect(D2.link).toEqual(B2.link);
-    expect(getCell(model, "D2")?.style).toEqual(getCell(model, "B2")?.style);
+    expect(getCellStyle(model, "D2")).toEqual(getCellStyle(model, "B2"));
   });
 
   test("copy-paste sheet links", () => {
@@ -468,7 +469,7 @@ describe("link cell", () => {
     const D2 = getEvaluatedCell(model, "D2");
     expect(B2After.link).toEqual(B2.link);
     expect(D2.link).toEqual(B2.link);
-    expect(getCell(model, "D2")?.style).toEqual(getCell(model, "B2")?.style);
+    expect(getCellStyle(model, "D2")).toEqual(getCellStyle(model, "B2"));
   });
 
   test("copy-paste custom style", () => {
@@ -479,7 +480,7 @@ describe("link cell", () => {
     });
     copy(model, "B2");
     paste(model, "D2");
-    expect(getCell(model, "D2")?.style).toEqual({
+    expect(getCellStyle(model, "D2")).toEqual({
       fillColor: "#555",
       bold: true,
       textColor: "#111",
