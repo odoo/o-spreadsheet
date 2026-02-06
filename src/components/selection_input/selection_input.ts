@@ -2,7 +2,8 @@ import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helper
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
-import { Store, useLocalStore } from "../../store_engine";
+import { Store, useLocalStore, useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
@@ -69,6 +70,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private dragAndDrop = useDragAndDropListItems();
   private focusedInput = useRef("focusedInput");
   private selectionRef = useRef("o-selection");
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private store!: Store<SelectionInputStore>;
 
   get ranges(): SelectionRange[] {
@@ -107,6 +109,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       }
     });
 
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.store = useLocalStore(
       SelectionInputStore,
       this.props.ranges,
@@ -179,10 +182,14 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
-    if (!range.color) {
-      return "";
+    const properties = {};
+    if (range.color) {
+      properties["color"] = range.color;
     }
-    return cssPropertiesToCss({ color: range.color });
+    if (this.store.mode === "select-range") {
+      properties["caret-color"] = "transparent";
+    }
+    return cssPropertiesToCss(properties);
   }
 
   private triggerChange() {
@@ -194,10 +201,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "F2") {
       ev.preventDefault();
       ev.stopPropagation();
-      this.state.mode = this.state.mode === "select-range" ? "text-edit" : "select-range";
+      this.store.toggleEditMode();
     } else if (ev.key.startsWith("Arrow")) {
       ev.stopPropagation();
-      if (this.state.mode === "select-range") {
+      if (this.store.mode === "select-range") {
         ev.preventDefault();
         updateSelectionWithArrowKeys(ev, this.env.model.selection);
       }
@@ -207,6 +214,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       if (this.isConfirmable) {
         this.confirm();
       }
+    } else if (ev.key === "Escape") {
+      this.reset();
+      this.DOMFocusableElementStore.focus();
     }
   }
 
@@ -216,7 +226,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   focus(rangeId: number) {
     this.state.isMissing = false;
-    this.state.mode = "select-range";
     this.store.focusById(rangeId);
   }
 
