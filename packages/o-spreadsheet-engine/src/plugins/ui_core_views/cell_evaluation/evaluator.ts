@@ -637,7 +637,7 @@ export function updateEvalContextAndExecute(
     ? compiledFormulaResult.getAll() // getAll will allow us to store on evalContext.currentFormulaDependencies all dependencies really used in the matrix
     : compiledFormulaResult;
 
-  if (originCellPosition) {
+  if (originCellPosition && compilationParams.evalContext.currentFormulaDependencies.length > 0) {
     const currentFormulaDependencies = compilationParams.evalContext.currentFormulaDependencies;
     const dependencies =
       currentFormulaDependencies.length > 1
