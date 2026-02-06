@@ -20,8 +20,8 @@ export class DependenciesRTree {
 
   constructor(items: RTreeRangeItem[] = []) {
     this.rTree = new SpreadsheetRTree();
-    const groupedByBBox = groupSameBoundingBoxes(items);
-    this.rTree.loadBySheet(groupedByBBox);
+    this.itemsBeforeNextSearch = items;
+    this.bulkInsert();
   }
 
   private itemsBeforeNextSearch: RTreeRangeItem[] = [];
@@ -63,8 +63,28 @@ export class DependenciesRTree {
       return;
     }
     const groupedByBBox = groupSameBoundingBoxes(this.itemsBeforeNextSearch);
-    this.rTree.loadBySheet(groupedByBBox);
     this.itemsBeforeNextSearch = [];
+
+    for (const [sheetId, sheetMap] of groupedByBBox.entries()) {
+      const restItems: RangeSetItem[] = [];
+      for (const item of sheetMap.values()) {
+        const existingItems = this.rTree.search(item.boundingBox);
+        const existingItem = existingItems.find(
+          ({ boundingBox }) =>
+            boundingBox.sheetId === item.boundingBox.sheetId &&
+            boundingBox.zone.left === item.boundingBox.zone.left &&
+            boundingBox.zone.top === item.boundingBox.zone.top &&
+            boundingBox.zone.right === item.boundingBox.zone.right &&
+            boundingBox.zone.bottom === item.boundingBox.zone.bottom
+        );
+        if (existingItem) {
+          existingItem.data.addMany(item.data);
+        } else {
+          restItems.push(item);
+        }
+      }
+      this.rTree.loadBySheet(sheetId, restItems);
+    }
   }
 }
 

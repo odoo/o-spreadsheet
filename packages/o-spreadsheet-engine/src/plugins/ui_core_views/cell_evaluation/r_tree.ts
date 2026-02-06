@@ -3,8 +3,6 @@ import RBush from "rbush";
 import { deepEquals } from "../../../helpers";
 import { UID, Zone } from "../../../types/misc";
 
-type groupedByBBox<T> = Map<UID, Map<number | string, RTreeItem<T>>>;
-
 /**
  * R-Tree Data Structure
  *
@@ -121,14 +119,12 @@ export class SpreadsheetRTree<T> {
     }
   }
 
-  loadBySheet(groupedByBBox: groupedByBBox<T>) {
-    for (const [sheetId, sheetMap] of groupedByBBox.entries()) {
-      if (this.rTrees[sheetId]) {
-        this.rTrees[sheetId].load(Array.from(sheetMap.values()));
-      } else {
-        this.rTrees[sheetId] = new ZoneRBush();
-        this.rTrees[sheetId].load(Array.from(sheetMap.values()));
-      }
+  loadBySheet(sheetId: UID, sheetMap: RTreeItem<T>[]) {
+    if (this.rTrees[sheetId]) {
+      this.rTrees[sheetId].load(sheetMap);
+    } else {
+      this.rTrees[sheetId] = new ZoneRBush();
+      this.rTrees[sheetId].load(sheetMap);
     }
   }
 
