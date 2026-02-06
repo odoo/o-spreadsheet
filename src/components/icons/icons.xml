@@ -962,6 +962,26 @@
       </svg>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.ANGLE_RIGHT">
+    <div class="o-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 256">
+        <path
+          fill="currentColor"
+          d="M161 139c6-6 6-16 0-23L81 36c-6-6-16-6-23 0s-6 16 0 23l69 69-69 69c-6 6-6 16 0 23s16 6 23 0l80-80z"
+        />
+      </svg>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.ANGLE_LEFT">
+    <div class="o-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 256">
+        <path
+          fill="currentColor"
+          d="M59 116c-6 6-6 16 0 23l80 80c6 6 16 6 23 0s6-16 0-23L93 127l69-69c6-6 6-16 0-23s-16-6-23 0l-80 80z"
+        />
+      </svg>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.INSERT_PIVOT">
     <svg class="o-icon">
       <defs>
@@ -1124,5 +1144,38 @@
     <div class="o-icon">
       <i class="fa fa-unlock"/>
     </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.COLUMN_STATS">
+    <svg width="18px" height="18px" viewBox="0 0 512 512">
+      <path
+        d="M319 174c71 0 129 58 129 129 0 27-8 52-23 73l66 66-33 33-66-66c-21 14-46 23-73 23-71 0-129-58-129-129s57-129 129-129m0 47c-45 0-82 37-82 82s36 82 82 82 82-37 82-82-37-82-82-82m-152 70a155 155 0 0 0 0 12c0 12 1 24 4 35H25v-47zM119 33v235H49V33zm94 94v66c-21 20-36 46-43 75h-28V127zm94-47v71a152 152 0 0 0-70 24V80zm94 23v71a152 152 0 0 0-70-24v-47z"
+        fill="currentColor"
+      />
+    </svg>
+  </t>
+  <br/>
+  <t t-name="o-spreadsheet-Icon.DESCENDING_SORT">
+    <svg width="20px" height="16px" viewBox="0 0 20 16">
+      <path
+        d="M9.9 11.4h3.9a.9.9 0 0 0 .9-.9V6.24a.9.9 0 0 0-1.8 0V8.4L8.1 3.6s-.6-.6-1.2 0L5.1 5.4 1.5 1.8A.9.9 0 0 0 .3 3l4.2 4.2s.6.6 1.2 0l1.8-1.8 4.2 4.2H9.6a.9.9 0 0 0 0 1.8z"
+        fill="currentColor"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.ASCENDING_SORT">
+    <svg width="20px" height="16px" viewBox="0 0 20 16">
+      <path
+        d="M9.9 3h3.9a.9.9 0 0 1 .9.9v4.26a.9.9 0 0 1-1.8 0V6l-4.8 4.8s-.6.6-1.2 0L5.1 9l-3.6 3.6a.9.9 0 0 1-1.2-1.2l4.2-4.2s.6-.6 1.2 0L7.5 9l4.2-4.2H9.6a.9.9 0 0 1 0-1.8z"
+        fill="currentColor"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.COUNT_CHART">
+    <svg width="20px" height="16px" viewBox="0 0 20 16">
+      <path
+        fill="currentColor"
+        d="M.747 1.05h2.24v9.707H.747zM4.48 5.53h2.24v5.227H4.48zm7.467-1.493h2.24v6.72h-2.24zM8.213 2.543h2.24v8.214h-2.24zM0 11.503h14.933v1.494H0z"
+      />
+    </svg>
   </t>
 </templates>

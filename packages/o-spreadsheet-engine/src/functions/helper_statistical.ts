@@ -47,6 +47,28 @@ export function average(values: Arg[], locale: Locale) {
   return sum / count;
 }
 
+export function median(values: Arg[], locale: Locale) {
+  const nums: number[] = [];
+  visitNumbers(
+    values,
+    (a) => {
+      nums.push(a.value);
+    },
+    locale
+  );
+  nums.sort((a, b) => a - b);
+  const len = nums.length;
+  if (len === 0) {
+    return 0;
+  }
+  const mid = Math.floor(len / 2);
+  if (len % 2 === 0) {
+    return (nums[mid - 1] + nums[mid]) / 2;
+  } else {
+    return nums[mid];
+  }
+}
+
 export function countNumbers(values: Arg[], locale: Locale) {
   let count = 0;
   for (const n of values) {
