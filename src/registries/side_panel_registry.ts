@@ -61,7 +61,7 @@ sidePanelRegistry.add("ChartPanel", {
   title: _t("Chart"),
   Body: ChartPanel,
   computeState: (getters: Getters, initialProps: { chartId: UID }) => {
-    const figureId = getters.getSelectedFigureId();
+    const figureId = getters.getSelectedFigureIds().length && getters.getSelectedFigureIds()[0];
     const sheetId = figureId && getters.getFigureSheetId(figureId);
     const isSheetLocked = sheetId ? getters.isSheetLocked(sheetId) : false;
     const chartId = figureId ? getters.getChartIdFromFigureId(figureId) : initialProps.chartId;
@@ -179,7 +179,9 @@ sidePanelRegistry.add("CarouselPanel", {
   title: _t("Carousel"),
   Body: CarouselPanel,
   computeState: (getters: Getters, initialProps: { figureId: UID }) => {
-    const figureId = initialProps.figureId || getters.getSelectedFigureId();
+    const figureId =
+      initialProps.figureId ||
+      (getters.getSelectedFigureIds().length && getters.getSelectedFigureIds()[0]);
     const sheetId = figureId && getters.getFigureSheetId(figureId);
     const isSheetLocked = sheetId ? getters.isSheetLocked(sheetId) : false;
     if (!figureId || !getters.doesCarouselExist(figureId) || isSheetLocked) {

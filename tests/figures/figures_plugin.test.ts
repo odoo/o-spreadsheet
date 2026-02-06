@@ -14,6 +14,7 @@ import {
   freezeRows,
   moveColumns,
   moveRows,
+  redo,
   selectCell,
   setCellContent,
   setViewportOffset,
@@ -204,11 +205,135 @@ describe("figure plugin", () => {
       width: 100,
       height: 100,
     });
-    expect(model.getters.getSelectedFigureId()).toBe(null);
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
     selectCell(model, "A1");
-    expect(model.getters.getSelectedFigureId()).toBe(null);
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
+  });
+
+  test("can select multiple figures", () => {
+    const model = new Model();
+    createFigure(model, {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
+    });
+    createFigure(model, {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "bis",
+      col: 0,
+      row: 0,
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
+    });
+    createFigure(model, {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "repetita",
+      col: 0,
+      row: 0,
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
+    });
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
+    model.dispatch("SELECT_FIGURE", { figureId: "bis", selectMultiple: true });
+    expect(model.getters.getSelectedFigureIds()).toEqual(["bis", "someuuid"]);
+    model.dispatch("SELECT_FIGURE", { figureId: "repetita", selectMultiple: true });
+    expect(model.getters.getSelectedFigureIds()).toEqual(["repetita", "bis", "someuuid"]);
+    model.dispatch("UNSELECT_FIGURE", { figureId: "bis" });
+    expect(model.getters.getSelectedFigureIds()).toEqual(["repetita", "someuuid"]);
+    model.dispatch("SELECT_FIGURE", { figureId: "bis" });
+    expect(model.getters.getSelectedFigureIds()).toEqual(["bis"]);
+  });
+
+  test("can delete multiple figures and undo/redo", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createFigure(model, {
+      sheetId,
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
+    });
+    createFigure(model, {
+      sheetId,
+      id: "bis",
+      col: 0,
+      row: 0,
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
+    });
+    expect(model.getters.getFigures(sheetId).length).toBe(2);
+    model.dispatch("DELETE_FIGURES", { figureIds: ["someuuid", "bis"], sheetId });
+    expect(model.getters.getFigures(sheetId).length).toBe(0);
+    undo(model);
+    expect(model.getters.getFigures(sheetId).length).toBe(2);
+    redo(model);
+    expect(model.getters.getFigures(sheetId).length).toBe(0);
+  });
+
+  test("can move multiple figures and undo/redo", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const positions = [
+      {
+        col: 1,
+        row: 1,
+        offset: { x: 10, y: 10 },
+      },
+      {
+        col: 2,
+        row: 2,
+        offset: { x: 20, y: 20 },
+      },
+      {
+        col: 3,
+        row: 0,
+        offset: { x: 15, y: 10 },
+      },
+    ];
+    createFigure(model, {
+      sheetId,
+      id: "someuuid",
+      width: 100,
+      height: 100,
+      ...positions[0],
+    });
+    createFigure(model, {
+      sheetId,
+      id: "bis",
+      width: 100,
+      height: 100,
+      ...positions[1],
+    });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject(positions[0]);
+    expect(model.getters.getFigure(sheetId, "bis")).toMatchObject(positions[1]);
+    model.dispatch("MOVE_FIGURES", {
+      figures: [
+        { sheetId, figureId: "someuuid", ...positions[2] },
+        { sheetId, figureId: "bis", ...positions[0] },
+      ],
+    });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject(positions[2]);
+    expect(model.getters.getFigure(sheetId, "bis")).toMatchObject(positions[0]);
+    undo(model);
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject(positions[0]);
+    expect(model.getters.getFigure(sheetId, "bis")).toMatchObject(positions[1]);
+    redo(model);
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject(positions[2]);
+    expect(model.getters.getFigure(sheetId, "bis")).toMatchObject(positions[0]);
   });
 
   test("some commands do not remove figure selection", () => {
@@ -223,13 +348,13 @@ describe("figure plugin", () => {
       height: 100,
     });
     selectCell(model, "A1");
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
 
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
 
     model.dispatch("EVALUATE_CELLS");
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
   });
 
   test.each([
@@ -362,7 +487,7 @@ describe("figure plugin", () => {
     expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
   });
 
-  test("can delete a figure", () => {
+  test("can delete a figure and UNDO will reselect it", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     createFigure(model, {
@@ -375,13 +500,13 @@ describe("figure plugin", () => {
       height: 10,
     });
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
     expect(model.getters.getVisibleFigures()).toHaveLength(1);
     model.dispatch("DELETE_FIGURE", { sheetId, figureId: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
     expect(model.getters.getVisibleFigures()).toHaveLength(0);
     undo(model);
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
     expect(model.getters.getVisibleFigures()).toHaveLength(1);
   });
 
@@ -402,9 +527,9 @@ describe("figure plugin", () => {
       height: 10,
     });
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
     activateSheet(model, "2");
-    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getSelectedFigureIds()).toEqual([]);
   });
 
   test("Selecting a figure cancels the edition of a cell", () => {
