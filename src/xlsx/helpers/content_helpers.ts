@@ -150,7 +150,7 @@ export function extractStyle(
           fgColor: { rgb: style!.fillColor },
         }
       : { reservedAttribute: "none" },
-    numFmt: format ? { format: format, id: 0 /* id not used for export */ } : undefined,
+    numFmt: format ? { format, id: 0 /* id not used for export */ } : undefined,
     border: borderId || 0,
     alignment: {
       horizontal: style.align === "default" ? undefined : style.align,

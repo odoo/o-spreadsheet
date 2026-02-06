@@ -1,4 +1,5 @@
 import { SquishedContent } from "../plugins/core/squisher";
+import { defaultValue } from "../plugins/core/default";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart";
 import { ConditionalFormat } from "./conditional_formatting";
@@ -50,7 +51,9 @@ export interface SheetData {
   rowNumber: number;
   cells: { [key: string]: undefined | SquishedContent };
   styles: { [zone: string]: number };
+  defaultStyle?: defaultValue<number>;
   formats: { [zone: string]: number };
+  defaultFormat?: defaultValue<number>;
   borders: { [zone: string]: number };
   merges: string[];
   figures: FigureData<any>[];

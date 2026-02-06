@@ -67,7 +67,7 @@ export function createLiteralCell(
   const locale = getters.getLocale();
   const parsedValue = parseLiteral(content, locale);
 
-  if (!format && typeof parsedValue === "number") {
+  if (format === undefined && typeof parsedValue === "number") {
     const dateFormat = detectDateFormat(content, locale);
     if (options?.avoidAutomaticDateFormat && dateFormat) {
       return {
@@ -154,12 +154,13 @@ export function createEvaluatedCell(
   functionResult: FunctionResultObject,
   locale: Locale = DEFAULT_LOCALE,
   position?: CellPosition,
-  cell?: Cell
+  cellFormat?: Format,
+  origin?: CellPosition
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
   if (!link) {
-    const evaluateCell = _createEvaluatedCell(functionResult, locale, position, cell);
-    return addOrigin(evaluateCell, functionResult.origin ?? position);
+    const evaluateCell = _createEvaluatedCell(functionResult, locale, position, cellFormat);
+    return addOrigin(evaluateCell, functionResult.origin ?? origin);
   }
   const value = parseLiteral(link.label, locale);
   const format =
@@ -173,7 +174,7 @@ export function createEvaluatedCell(
   };
   return addOrigin(
     {
-      ..._createEvaluatedCell(linkPayload, locale, position, cell),
+      ..._createEvaluatedCell(linkPayload, locale, position, cellFormat),
       link,
     },
     functionResult.origin ?? position
@@ -184,10 +185,10 @@ function _createEvaluatedCell(
   functionResult: FunctionResultObject,
   locale: Locale,
   position?: CellPosition,
-  cell?: Cell
+  cellFormat?: Format
 ): EvaluatedCell {
   let { value, format, message, errorOriginPosition } = functionResult;
-  format = cell?.format || format;
+  format = cellFormat || format;
 
   const formattedValue = formatValue(value, { format, locale });
   if (isEvaluationError(value)) {

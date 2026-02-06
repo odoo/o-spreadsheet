@@ -14,7 +14,7 @@ import {
 import { Cell, CellValueType } from "../../types/cells";
 import { AutoFillCellCommand, Command, CommandResult, LocalCommand } from "../../types/commands";
 import { Getters } from "../../types/getters";
-import { Border, DIRECTION, HeaderIndex, UID, Zone } from "../../types/misc";
+import { Border, DIRECTION, HeaderIndex, Style, UID, Zone } from "../../types/misc";
 import { GridRenderingContext } from "../../types/rendering";
 import { UIPlugin } from "../ui_plugin";
 
@@ -436,7 +436,7 @@ export class AutofillPlugin extends UIPlugin {
       content,
       style,
       border,
-      format,
+      format: format ?? undefined,
     };
   }
 
@@ -459,12 +459,20 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     for (const xc of source) {
       const { col, row } = toCartesian(xc);
-      const cell = this.getters.getCell({ sheetId, col, row });
+      const position = { sheetId, col, row };
+      const cell = this.getters.getCell(position);
+      let style: Style | undefined = this.getters.getCellStyle(position, cell);
+      if (Object.keys(style).length === 0) {
+        style = undefined;
+      }
+      const format = this.getters.getCellFormat(position, cell);
       cellsData.push({
         col,
         row,
         cell,
         sheetId,
+        style,
+        format,
       });
     }
     const cells = cellsData.map((cellData) => cellData.cell);

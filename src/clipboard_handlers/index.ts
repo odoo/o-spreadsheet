@@ -5,6 +5,7 @@ import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
 import { DataValidationClipboardHandler } from "./data_validation_clipboard";
+import { DefaultClipboardHandler } from "./default_clipboard";
 import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { ReferenceClipboardHandler } from "./references_clipboard";
@@ -18,6 +19,7 @@ clipboardHandlersRegistries.figureHandlers
 
 clipboardHandlersRegistries.cellHandlers
   .add("dataValidation", DataValidationClipboardHandler)
+  .add("default", DefaultClipboardHandler)
   .add("cell", CellClipboardHandler)
   .add("sheet", SheetClipboardHandler)
   .add("merge", MergeClipboardHandler)

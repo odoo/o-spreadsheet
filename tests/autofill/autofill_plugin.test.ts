@@ -25,7 +25,9 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellFormat,
   getCellRawContent,
+  getCellStyle,
   getCellText,
   getMerges,
   getStyle,
@@ -628,6 +630,7 @@ describe("Autofill", () => {
 
     test("Autofill should override selected zone", () => {
       setCellContent(model, "A1", "1");
+      expect(getCellFormat(model, "A1")).toBeUndefined();
       const border: Border = {
         left: { style: "thin", color: "#000" },
       };
@@ -636,9 +639,9 @@ describe("Autofill", () => {
       setBorders(model, "A2", border);
       autofill(model, "A1", "A2");
       const cell = getCell(model, "A2")!;
-      expect(cell.style).toBeUndefined();
+      expect(getCellStyle(model, "A2")).toBeUndefined();
       expect(getBorder(model, "A2")).toBeNull();
-      expect(cell.format).toBeUndefined();
+      expect(getCellFormat(model, "A2")).toBeUndefined();
       expect(cell["content"]).toBe("1");
     });
   });

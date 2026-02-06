@@ -207,7 +207,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         ${addSheetProperties(sheet)}
         ${addSheetViews(sheet)}
         <sheetFormatPr ${formatAttributes(sheetFormatAttributes)} />
-        ${addColumns(sheet.cols)}
+        ${addColumns(construct, data, sheet)}
         ${addRows(construct, data, sheet)}
         ${addMerges(sheet.merges)}
         ${addSheetProtection(sheet)}
