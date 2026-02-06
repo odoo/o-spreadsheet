@@ -7,6 +7,7 @@ import { NotificationStore } from "../../../src/stores/notification_store";
 import {
   activateSheet,
   createSheet,
+  deleteColumns,
   selectCell,
   setCellContent,
   setViewportOffset,
@@ -755,5 +756,17 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(1).toBe(1);
+  });
+
+  test("Pivot is reevaluated if there is no pivot cell but the side panel opened", async () => {
+    updatePivot(model, "1", {
+      columns: [],
+      measures: [{ id: "Product:sum", fieldName: "Product", aggregator: "sum" }],
+    });
+    // Force evaluation
+    model.getters.getPivot("1").init({ reload: true });
+    expect(model.getters.getPivot("1").getMeasure("Product:sum").isValid).toBe(true);
+    deleteColumns(model, ["B"]);
+    expect(model.getters.getPivot("1").getMeasure("Product:sum").isValid).toBe(false);
   });
 });

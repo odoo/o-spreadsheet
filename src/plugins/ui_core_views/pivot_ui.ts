@@ -115,6 +115,18 @@ export class PivotUIPlugin extends UIPlugin {
     }
   }
 
+  finalize() {
+    for (const pivotId of this.getters.getPivotIds()) {
+      if (
+        this.getters.isExistingPivot(pivotId) &&
+        this.getters.isPivotUnused(pivotId) &&
+        pivotRegistry.get(this.getters.getPivotCoreDefinition(pivotId).type)?.isGridDependent
+      ) {
+        this.getters.getPivot(pivotId).init();
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------
