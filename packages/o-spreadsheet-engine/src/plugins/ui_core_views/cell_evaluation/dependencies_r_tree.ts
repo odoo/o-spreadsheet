@@ -19,8 +19,9 @@ export class DependenciesRTree {
   private readonly rTree: SpreadsheetRTree<RangeSet>;
 
   constructor(items: RTreeRangeItem[] = []) {
-    const compactedBoxes = groupSameBoundingBoxes(items);
-    this.rTree = new SpreadsheetRTree(compactedBoxes);
+    this.rTree = new SpreadsheetRTree();
+    const groupedByBBox = groupSameBoundingBoxes(items);
+    this.rTree.loadBySheet(groupedByBBox);
   }
 
   private itemsBeforeNextSearch: RTreeRangeItem[] = [];
@@ -61,11 +62,13 @@ export class DependenciesRTree {
     if (this.itemsBeforeNextSearch.length === 0) {
       return;
     }
-    const compactedBoxes = groupSameBoundingBoxes(this.itemsBeforeNextSearch);
-    this.rTree.load(compactedBoxes);
+    const groupedByBBox = groupSameBoundingBoxes(this.itemsBeforeNextSearch);
+    this.rTree.loadBySheet(groupedByBBox);
     this.itemsBeforeNextSearch = [];
   }
 }
+
+type GroupedByBBox = Map<UID, Map<number | string, RangeSetItem>>;
 
 /**
  * Group together all formulas pointing to the exact same dependency (bounding box).
@@ -79,7 +82,7 @@ export class DependenciesRTree {
  * Instead of having 1000 entries in the R-tree, we want to have a single entry
  * with B1:B1000 (bounding box) pointing to C1:C1000 (formulas).
  */
-function groupSameBoundingBoxes(items: RTreeRangeItem[]): RangeSetItem[] {
+function groupSameBoundingBoxes(items: RTreeRangeItem[]): GroupedByBBox {
   // Important: this function must be as fast as possible. It is on the evaluation hot path.
   let maxCol = 0;
   let maxRow = 0;
@@ -104,40 +107,31 @@ function groupSameBoundingBoxes(items: RTreeRangeItem[]): RangeSetItem[] {
   }
 
   // Use Map instead of plain objects for better key handling and performance
-  const groupedByBBox: Map<UID, Map<number | string, RangeSetItem>> = new Map();
+  const groupedByBBox: GroupedByBBox = new Map();
+  const mult1 = maxCol * maxRow;
+  const mult2 = mult1 * maxCol;
 
   for (const item of items) {
-    const sheetId = item.boundingBox.sheetId;
+    const boundingBox = item.boundingBox;
+    const sheetId = boundingBox.sheetId;
+    const zone = boundingBox.zone;
+    const bBoxKey = useFastKey
+      ? zone.left + zone.top * maxCol + zone.right * mult1 + zone.bottom * mult2
+      : `${zone.left},${zone.top},${zone.right},${zone.bottom}`;
+
     if (!groupedByBBox.has(sheetId)) {
       groupedByBBox.set(sheetId, new Map());
-    }
-    const bBox = item.boundingBox.zone;
-    let bBoxKey: number | string = 0;
-    if (useFastKey) {
-      bBoxKey =
-        bBox.left +
-        bBox.top * maxCol +
-        bBox.right * maxCol * maxRow +
-        bBox.bottom * maxCol * maxRow * maxCol;
-    } else {
-      bBoxKey = `${bBox.left},${bBox.top},${bBox.right},${bBox.bottom}`;
     }
     const sheetMap = groupedByBBox.get(sheetId)!;
     if (sheetMap.has(bBoxKey)) {
       sheetMap.get(bBoxKey)!.data.add(item.data);
     } else {
       sheetMap.set(bBoxKey, {
-        boundingBox: item.boundingBox,
+        boundingBox,
         data: new RangeSet([item.data]),
       });
     }
   }
 
-  const result: RangeSetItem[] = [];
-  for (const sheetMap of groupedByBBox.values()) {
-    for (const item of sheetMap.values()) {
-      result.push(item);
-    }
-  }
-  return result;
+  return groupedByBBox;
 }
