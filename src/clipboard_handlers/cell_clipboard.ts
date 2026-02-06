@@ -238,7 +238,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
-    const originFormat = origin?.format || origin.evaluatedCell.format;
+    const originFormat = origin.format || origin.evaluatedCell.format;
+    const originStyle = Object.keys(origin?.style ?? {}).length === 0 ? undefined : origin.style;
 
     if (clipboardOption?.pasteOption === "asValue") {
       this.dispatch("UPDATE_CELL", {
@@ -252,7 +253,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        style: origin?.style ?? null,
+        style: originStyle,
         format: originFormat ?? targetCell.format,
       });
       return;
@@ -273,15 +274,18 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         origin.tokens
       );
     }
-    if (content !== "" || origin?.format || origin?.style) {
+    if (content !== "" || origin?.format || originStyle) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin?.style || null,
-        format: origin?.format,
+        style: originStyle,
+        format: origin.format,
       });
-    } else if (targetCell) {
-      this.dispatch("CLEAR_CELL", target);
+    } else if (targetCell.type !== "empty") {
+      this.dispatch("UPDATE_CELL", {
+        content: "",
+        ...target,
+      });
     }
   }
 
