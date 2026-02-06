@@ -114,15 +114,19 @@ export interface DatasetDesign {
   readonly label?: string;
 }
 
+export type AxisGridType = "major" | "minor" | "none" | "both";
+
 export interface AxisDesign {
   readonly title?: TitleDesign;
+  readonly min?: number;
+  readonly max?: number;
+  readonly gridLines?: AxisGridType;
 }
 
-export interface AxesDesign {
-  readonly x?: AxisDesign;
-  readonly y?: AxisDesign;
-  readonly y1?: AxisDesign;
-}
+export type AxisId = "x" | "y" | "y1";
+export type AxesDesign = {
+  [K in AxisId]?: AxisDesign;
+};
 
 export interface ChartStyle {
   readonly bold?: boolean;
