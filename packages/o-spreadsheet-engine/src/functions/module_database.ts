@@ -2,18 +2,19 @@ import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { MimicMatrix } from "./helper_arg";
 import { toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(
-  database: Matrix<FunctionResultObject>,
+  database: MimicMatrix,
   field: Maybe<FunctionResultObject>,
-  criteria: Matrix<FunctionResultObject>,
+  criteria: MimicMatrix,
   locale: Locale
-): any[] {
+): MimicMatrix {
   // Example
 
   // # DATABASE             # CRITERIA          # field = "C"
@@ -27,9 +28,9 @@ function getMatchingCells(
   // 1 - Select coordinates of database columns ----------------------------------------------------
 
   const indexColNameDB: Map<string, number> = new Map();
-  const dimRowDB = database.length;
+  const dimRowDB = database.width;
   for (let indexCol = dimRowDB - 1; indexCol >= 0; indexCol--) {
-    indexColNameDB.set(toString(database[indexCol][0]).toUpperCase(), indexCol);
+    indexColNameDB.set(toString(database.get(indexCol, 0)).toUpperCase(), indexCol);
   }
 
   // Example continuation: indexColNameDB = {"A" => 0, "B" => 1, "C" => 2}
@@ -77,7 +78,7 @@ function getMatchingCells(
 
   // 3 - For each criteria row, find database row that correspond ----------------------------------
 
-  const dimColCriteria = criteria[0].length;
+  const dimColCriteria = criteria.height;
 
   if (dimColCriteria < 2) {
     throw new EvaluationError(
@@ -89,17 +90,17 @@ function getMatchingCells(
   }
 
   let matchingRows: Set<number> = new Set();
-  const dimColDB = database[0].length;
+  const dimColDB = database.height;
   for (let indexRow = 1; indexRow < dimColCriteria; indexRow++) {
     const args: Arg[] = [];
     let existColNameDB = true;
-    for (let indexCol = 0; indexCol < criteria.length; indexCol++) {
-      const currentName = toString(criteria[indexCol][0]).toUpperCase();
+    for (let indexCol = 0; indexCol < criteria.width; indexCol++) {
+      const currentName = toString(criteria.get(indexCol, 0)).toUpperCase();
       const indexColDB = indexColNameDB.get(currentName);
-      const criter = criteria[indexCol][indexRow];
+      const criter = criteria.get(indexCol, indexRow);
       if (criter.value !== null) {
         if (indexColDB !== undefined) {
-          args.push([database[indexColDB].slice(1, dimColDB)]);
+          args.push(database.getCol(indexColDB, 1));
           args.push(criter);
         } else {
           existColNameDB = false;
@@ -132,10 +133,13 @@ function getMatchingCells(
 
   // 4 - return for each database row corresponding, the cells corresponding to the field parameter
 
-  const fieldCol = database[index];
   // Example continuation:: fieldCol = ["C", "j", "k", 7]
   // Example continuation:: matchingCells = ["j", 7]
-  return [...matchingRows].map((x) => fieldCol[x + 1]);
+  const matchingRowsIndexes = [...matchingRows].map((x) => x + 1);
+
+  return new MimicMatrix(1, matchingRows.size, (col, row) =>
+    database.get(index, matchingRowsIndexes[row])
+  );
 }
 
 const databaseArgs = [
@@ -164,12 +168,12 @@ export const DAVERAGE = {
   description: _t("Average of a set of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): FunctionResultNumber {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return AVERAGE.compute.bind(this)([cells]);
+    return AVERAGE.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -181,12 +185,12 @@ export const DCOUNT = {
   description: _t("Counts values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): number {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return COUNT.compute.bind(this)([cells]);
+    return COUNT.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -198,12 +202,12 @@ export const DCOUNTA = {
   description: _t("Counts values and text from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): number {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return COUNTA.compute.bind(this)([cells]);
+    return COUNTA.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -215,15 +219,15 @@ export const DGET = {
   description: _t("Single value from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): FunctionResultObject {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    if (cells.length !== 1) {
+    if (cells.width > 1 || cells.height > 1) {
       return new EvaluationError(_t("More than one match found in DGET evaluation."));
     }
-    return cells[0];
+    return cells.get(0, 0);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -235,12 +239,12 @@ export const DMAX = {
   description: _t("Maximum of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): FunctionResultNumber {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return MAX.compute.bind(this)([cells]);
+    return MAX.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -252,12 +256,12 @@ export const DMIN = {
   description: _t("Minimum of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): FunctionResultNumber {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return MIN.compute.bind(this)([cells]);
+    return MIN.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -269,12 +273,12 @@ export const DPRODUCT = {
   description: _t("Product of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
+    criteria: MimicMatrix
   ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return PRODUCT.compute.bind(this)([cells]);
+    return PRODUCT.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -286,12 +290,12 @@ export const DSTDEV = {
   description: _t("Standard deviation of population sample from table."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): number {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return STDEV.compute.bind(this)([cells]);
+    return STDEV.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -303,12 +307,12 @@ export const DSTDEVP = {
   description: _t("Standard deviation of entire population from table."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): number {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return STDEVP.compute.bind(this)([cells]);
+    return STDEVP.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -320,12 +324,12 @@ export const DSUM = {
   description: _t("Sum of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
+    criteria: MimicMatrix
   ): FunctionResultNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return SUM.compute.bind(this)([cells]);
+    return SUM.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -337,12 +341,12 @@ export const DVAR = {
   description: _t("Variance of population sample from table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): number {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return VAR.compute.bind(this)([cells]);
+    return VAR.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -354,12 +358,12 @@ export const DVARP = {
   description: _t("Variance of a population from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FunctionResultObject>,
+    database: MimicMatrix,
     field: Maybe<FunctionResultObject>,
-    criteria: Matrix<FunctionResultObject>
-  ): number {
+    criteria: MimicMatrix
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    return VARP.compute.bind(this)([cells]);
+    return VARP.compute.bind(this)(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

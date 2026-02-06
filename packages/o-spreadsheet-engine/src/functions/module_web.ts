@@ -17,16 +17,13 @@ export const HYPERLINK = {
       _t("The text to display in the cell, enclosed in quotation marks.")
     ),
   ],
-  compute: function (
-    url: Maybe<FunctionResultObject>,
-    linkLabel: Maybe<FunctionResultObject>
-  ): string {
+  compute: function (url: Maybe<FunctionResultObject>, linkLabel: Maybe<FunctionResultObject>) {
     const processedUrl = toString(url).trim();
     const processedLabel = toString(linkLabel) || processedUrl;
     if (processedUrl === "") {
-      return processedLabel;
+      return { value: processedLabel };
     }
-    return markdownLink(processedLabel, processedUrl);
+    return { value: markdownLink(processedLabel, processedUrl) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

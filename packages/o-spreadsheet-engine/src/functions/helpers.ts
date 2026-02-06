@@ -20,20 +20,19 @@ import {
   Matrix,
   Maybe,
   SortDirection,
-  isMatrix,
 } from "../types/misc";
+import { MimicMatrix, isMimicMatrix, toMimicMatrix } from "./helper_arg";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
-export function inferFormat(data: Arg | undefined): string | undefined {
-  if (data === undefined) {
+export function inferFormat(data: Arg): string | undefined {
+  if (!isMimicMatrix(data)) {
+    return data?.format;
+  }
+  if (data.isEmpty()) {
     return undefined;
   }
-
-  if (isMatrix(data)) {
-    return data[0][0]?.format;
-  }
-  return data.format;
+  return data.get(0, 0).format;
 }
 
 export function isEvaluationError(error: Maybe<CellValue>): error is ErrorValue {
@@ -114,30 +113,28 @@ export function tryToNumber(
 }
 
 export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
-  return toMatrix(data).map((row) => {
-    return row.map((cell) => {
-      if (typeof cell.value !== "number") {
-        let message = "";
-        if (typeof cell === "object") {
-          message = _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got an empty value.",
-            argName
-          );
-        } else if (typeof cell === "string") {
-          message = _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a string.",
-            argName
-          );
-        } else if (typeof cell === "boolean") {
-          message = _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a boolean.",
-            argName
-          );
-        }
-        throw new EvaluationError(message);
+  return toMimicMatrix(data).map((cell) => {
+    if (typeof cell.value !== "number") {
+      let message = "";
+      if (typeof cell === "object") {
+        message = _t(
+          "Function [[FUNCTION_NAME]] expects number values for %s, but got an empty value.",
+          argName
+        );
+      } else if (typeof cell === "string") {
+        message = _t(
+          "Function [[FUNCTION_NAME]] expects number values for %s, but got a string.",
+          argName
+        );
+      } else if (typeof cell === "boolean") {
+        message = _t(
+          "Function [[FUNCTION_NAME]] expects number values for %s, but got a boolean.",
+          argName
+        );
       }
-      return cell.value;
-    });
+      throw new EvaluationError(message);
+    }
+    return cell.value;
   });
 }
 
@@ -255,25 +252,13 @@ export function toValue(data: FunctionResultObject | CellValue | undefined): Cel
 // -----------------------------------------------------------------------------
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
-function visitArgs<T extends FunctionResultObject | CellValue>(
-  args: (T | Matrix<T> | undefined)[],
-  cellCb: (a: T) => void,
-  dataCb: (a: T | undefined) => void
+function visitArgs(
+  args: Arg[],
+  cellCb: (a: FunctionResultObject) => void,
+  dataCb: (a: Maybe<FunctionResultObject>) => void
 ): void {
   for (const arg of args) {
-    if (isMatrix(arg)) {
-      // arg is ref to a Cell/Range
-      const lenRow = arg.length;
-      const lenCol = arg[0].length;
-      for (let y = 0; y < lenCol; y++) {
-        for (let x = 0; x < lenRow; x++) {
-          cellCb(arg[x][y]);
-        }
-      }
-    } else {
-      // arg is set directly in the formula function
-      dataCb(arg);
-    }
+    isMimicMatrix(arg) ? arg.visit(cellCb) : dataCb(arg);
   }
 }
 
@@ -320,44 +305,23 @@ export function visitNumbers(
 // REDUCE FUNCTIONS
 // -----------------------------------------------------------------------------
 
-function reduceArgs<T, M>(
-  args: (T | Matrix<T>)[],
-  cellCb: (acc: M, a: T) => M,
-  dataCb: (acc: M, a: T) => M,
+function reduceArgs<M>(
+  args: Arg[],
+  cellCb: (acc: M, a: FunctionResultObject) => M,
+  dataCb: (acc: M, a: Maybe<FunctionResultObject>) => M,
   initialValue: M,
   dir: "rowFirst" | "colFirst" = "rowFirst"
 ): M {
   let val = initialValue;
   for (const arg of args) {
-    if (isMatrix(arg)) {
-      // arg is ref to a Cell/Range
-      const numberOfCols = arg.length;
-      const numberOfRows = arg[0].length;
-
-      if (dir === "rowFirst") {
-        for (let row = 0; row < numberOfRows; row++) {
-          for (let col = 0; col < numberOfCols; col++) {
-            val = cellCb(val, arg[col][row]);
-          }
-        }
-      } else {
-        for (let col = 0; col < numberOfCols; col++) {
-          for (let row = 0; row < numberOfRows; row++) {
-            val = cellCb(val, arg[col][row]);
-          }
-        }
-      }
-    } else {
-      // arg is set directly in the formula function
-      val = dataCb(val, arg);
-    }
+    val = isMimicMatrix(arg) ? arg.reduce(dir, cellCb, val) : dataCb(val, arg);
   }
   return val;
 }
 
-export function reduceAny<T, M>(
-  args: (T | Matrix<T>)[],
-  cb: (acc: M, a: T) => M,
+export function reduceAny<M>(
+  args: Arg[],
+  cb: (acc: M, a: FunctionResultObject) => M,
   initialValue: M,
   dir: "rowFirst" | "colFirst" = "rowFirst"
 ): M {
@@ -464,7 +428,7 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
   return generateMatrix(matrix[0].length, matrix.length, (i, j) => matrix[j][i]);
 }
 
-type VectorArgType = "horizontal" | "vertical" | "matrix";
+type VectorArgType = "horizontal" | "vertical" | "mimicMatrix";
 
 /**
  * Enables a formula function to accept matrix or vector inputs instead of simple value, computing results across multiple dimensions.
@@ -503,10 +467,10 @@ type VectorArgType = "horizontal" | "vertical" | "matrix";
  *   as ranges and invoke this helper directly within your `compute` implementation.
  */
 export function applyVectorization(
-  formula: (...args: Arg[]) => Matrix<FunctionResultObject> | FunctionResultObject,
+  formula: (...args: Arg[]) => Exclude<Arg, undefined>,
   args: Arg[],
   acceptToVectorize: boolean[] | undefined = undefined
-): FunctionResultObject | Matrix<FunctionResultObject> {
+): Exclude<Arg, undefined> {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
   let vectorizedColLimit = Infinity;
@@ -517,13 +481,13 @@ export function applyVectorization(
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
 
-    if (isMatrix(arg) && (acceptToVectorize === undefined || acceptToVectorize[i])) {
-      const nColumns = arg.length;
-      const nRows = arg[0].length;
-      if (nColumns !== 1 || nRows !== 1) {
+    if (isMimicMatrix(arg) && (acceptToVectorize === undefined || acceptToVectorize[i])) {
+      const nColumns = arg.width;
+      const nRows = arg.height;
+      if (!arg.isSingleElement()) {
         vectorArgsType ??= new Array(args.length);
         if (nColumns !== 1 && nRows !== 1) {
-          vectorArgsType[i] = "matrix";
+          vectorArgsType[i] = "mimicMatrix";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
@@ -538,7 +502,7 @@ export function applyVectorization(
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         }
       } else {
-        args[i] = arg[0][0];
+        args[i] = arg.get(0, 0); // TO DO: see if really needed to do this
       }
     }
   }
@@ -551,18 +515,18 @@ export function applyVectorization(
   const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
     args.map((arg, index) => {
       switch (vectorArgsType?.[index]) {
-        case "matrix":
-          return arg![i][j];
+        case "mimicMatrix":
+          return (arg as MimicMatrix).get(i, j);
         case "horizontal":
-          return arg![i][0];
+          return (arg as MimicMatrix).get(i, 0);
         case "vertical":
-          return arg![0][j];
+          return (arg as MimicMatrix).get(0, j);
         case undefined:
           return arg;
       }
     });
 
-  return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
+  return new MimicMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
     if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
       return new NotAvailableError(
         _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
@@ -578,8 +542,8 @@ export function applyVectorization(
     // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
     // for the value in A2). In this case, we will simply take the first value of each matrix and
     // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-    return isMatrix(singleCellComputeResult)
-      ? singleCellComputeResult[0][0]
+    return isMimicMatrix(singleCellComputeResult)
+      ? singleCellComputeResult.get(0, 0)
       : singleCellComputeResult;
   });
 }
@@ -593,17 +557,17 @@ export function applyVectorization(
  */
 function conditionalVisitArgs(
   args: Arg[],
-  cellCb: (a: FunctionResultObject | undefined) => boolean,
+  cellCb: (a: Maybe<FunctionResultObject>) => boolean,
   dataCb: (a: Maybe<FunctionResultObject>) => boolean
 ): void {
   for (const arg of args) {
-    if (isMatrix(arg)) {
+    if (isMimicMatrix(arg)) {
       // arg is ref to a Cell/Range
-      const lenRow = arg.length;
-      const lenCol = arg[0].length;
+      const lenRow = arg.width;
+      const lenCol = arg.height;
       for (let y = 0; y < lenCol; y++) {
         for (let x = 0; x < lenRow; x++) {
-          if (!cellCb(arg[x][y] ?? undefined)) {
+          if (!cellCb(arg.get(x, y) ?? undefined)) {
             return;
           }
         }
@@ -802,16 +766,16 @@ export function visitMatchingRanges(
     );
   }
 
-  const firstArg = toMatrix(args[0]);
-  const dimRow = firstArg.length;
-  const dimCol = firstArg[0].length;
+  const firstArg = toMimicMatrix(args[0]);
+  const dimRow = firstArg.width;
+  const dimCol = firstArg.height;
 
   const predicates: Predicate[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
-    const criteriaRange = toMatrix(args[i]);
+    const criteriaRange = toMimicMatrix(args[i]);
 
-    if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
+    if (criteriaRange.width !== dimRow || criteriaRange.height !== dimCol) {
       throw new EvaluationError(
         _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
       );
@@ -829,7 +793,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = toMatrix(args[k])[i][j].value;
+        const criteriaValue = toMimicMatrix(args[k]).get(i, j).value;
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion, locale);
         if (!validatedPredicates) {
@@ -1121,33 +1085,7 @@ function compareCellValues(left: CellValue | undefined, right: CellValue | undef
   return typeOrder;
 }
 
-export function toMatrix<T>(data: T | Matrix<T> | undefined): Matrix<T> {
-  if (data === undefined) {
-    return [[]];
-  }
-  return isMatrix(data) ? data : [[data]];
-}
-
-/**
- * Flatten an array of items, where each item can be a single value or a 2D array, and apply the
- * callback to each element.
- *
- * The 2D array are flattened row first.
- */
-export function flattenRowFirst<T, K>(items: Array<T | Matrix<T>>, callback: (val: T) => K): K[] {
-  /**/
-  return reduceAny(
-    items,
-    (array: K[], val: T) => {
-      array.push(callback(val));
-      return array;
-    },
-    [],
-    "rowFirst"
-  );
-}
-
-export function isDataNonEmpty(data: FunctionResultObject | undefined): boolean {
+export function isDataNonEmpty(data: Maybe<FunctionResultObject>): boolean {
   if (data === undefined) {
     return false;
   }

@@ -1,3 +1,4 @@
+import { matrixToMimicMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import { sum } from "@odoo/o-spreadsheet-engine/functions/helper_math";
 import {
   average,
@@ -33,32 +34,32 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _t("Sum"),
     types: [CellValueType.number],
-    compute: (values, locale) => sum([[values]], locale),
+    compute: (values, locale) => sum([matrixToMimicMatrix([values])], locale),
   },
   {
     name: _t("Avg"),
     types: [CellValueType.number],
-    compute: (values, locale) => average([[values]], locale),
+    compute: (values, locale) => average([matrixToMimicMatrix([values])], locale),
   },
   {
     name: _t("Min"),
     types: [CellValueType.number],
-    compute: (values, locale) => min([[values]], locale).value,
+    compute: (values, locale) => min([matrixToMimicMatrix([values])], locale).value,
   },
   {
     name: _t("Max"),
     types: [CellValueType.number],
-    compute: (values, locale) => max([[values]], locale).value,
+    compute: (values, locale) => max([matrixToMimicMatrix([values])], locale).value,
   },
   {
     name: _t("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => countAny([[values]]),
+    compute: (values) => countAny([matrixToMimicMatrix([values])]),
   },
   {
     name: _t("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values, locale) => countNumbers([[values]], locale),
+    compute: (values, locale) => countNumbers([matrixToMimicMatrix([values])], locale),
   },
 ];
 

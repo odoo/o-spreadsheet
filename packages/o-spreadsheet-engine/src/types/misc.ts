@@ -4,6 +4,7 @@ import { CellValue, CellValueType, EvaluatedCell } from "./cells";
 // MISC
 // -----------------------------------------------------------------------------
 import { Token } from "../formulas/tokenizer";
+import { MimicMatrix } from "../functions/helper_arg";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
@@ -176,7 +177,7 @@ export interface Border {
 
 export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
-export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
+export type EnsureRange = (range: Range) => MimicMatrix;
 
 export type GetSymbolValue = (symbolName: string) => Arg;
 
@@ -186,7 +187,7 @@ export type FormulaToExecute = (
   range: EnsureRange,
   getSymbolValue: GetSymbolValue,
   ctx: object
-) => Matrix<FunctionResultObject> | FunctionResultObject;
+) => FunctionResultObject | MimicMatrix;
 
 export interface CompiledFormula {
   execute: FormulaToExecute;
@@ -200,7 +201,7 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
   dependencies: Range[];
 }
 
-export type Matrix<T = unknown> = T[][];
+export type Matrix<T> = T[][];
 
 export type FunctionResultObject = {
   value: CellValue;
@@ -226,10 +227,17 @@ export type FunctionResultObject = {
   type?: CellValueType;
 };
 
+export function isFunctionResultObject(value: any): value is FunctionResultObject {
+  return value && typeof value === "object" && "value" in value;
+}
+
 export type FunctionResultNumber = { value: number; format?: string };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
-export type Arg = Maybe<FunctionResultObject> | Matrix<FunctionResultObject>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+export type Arg = Maybe<FunctionResultObject | MimicMatrix>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+// TO DO: areplace Arg by a new type "subArg"
+// and create a new type Arg = Maybe<FunctionResultObject | Matrix<FunctionResultObject>>
+// next see if interesting to place Maybe<...> on arg and sub-arg directly
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);

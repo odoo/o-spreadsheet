@@ -31747,8 +31747,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
             </c>
             <c r="B3">
             </c>
-            <c r="C3">
-            </c>
             <c r="G3" t="s">
                 <v>
                     7
@@ -31788,8 +31786,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     1.3169578969248166
                 </v>
-            </c>
-            <c r="B4">
             </c>
             <c r="C4">
             </c>
@@ -31841,10 +31837,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     0.9050225767665427
                 </v>
             </c>
-            <c r="C5">
-            </c>
-            <c r="D5">
-            </c>
             <c r="G5" t="s">
                 <v>
                     9
@@ -31884,12 +31876,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     0.5493061443340548
                 </v>
-            </c>
-            <c r="B6">
-            </c>
-            <c r="C6">
-            </c>
-            <c r="D6">
             </c>
             <c r="G6" t="s">
                 <v>
@@ -31931,12 +31917,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     true
                 </v>
             </c>
-            <c r="B7">
-            </c>
-            <c r="C7">
-            </c>
-            <c r="D7">
-            </c>
             <c r="G7" t="s">
                 <v>
                     12
@@ -31976,12 +31956,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     0.5235987755982989
                 </v>
-            </c>
-            <c r="B8">
-            </c>
-            <c r="C8">
-            </c>
-            <c r="D8">
             </c>
             <c r="G8" t="s">
                 <v>
@@ -32023,12 +31997,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     1.4436354751788103
                 </v>
             </c>
-            <c r="B9">
-            </c>
-            <c r="C9">
-            </c>
-            <c r="D9">
-            </c>
             <c r="G9" t="s">
                 <v>
                     14
@@ -32064,12 +32032,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     0.7853981633974483
                 </v>
             </c>
-            <c r="B10">
-            </c>
-            <c r="C10">
-            </c>
-            <c r="D10">
-            </c>
         </row>
         <row r="11">
             <c r="A11" cm="1" t="n">
@@ -32079,12 +32041,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     3.141592653589793
                 </v>
-            </c>
-            <c r="B11">
-            </c>
-            <c r="C11">
-            </c>
-            <c r="D11">
             </c>
             <c r="G11" t="s">
                 <v>
@@ -32100,12 +32056,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     0.8673005276940531
                 </v>
-            </c>
-            <c r="B12">
-            </c>
-            <c r="C12">
-            </c>
-            <c r="D12">
             </c>
             <c r="G12" t="s">
                 <v>
@@ -32142,10 +32092,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     2959.1624999999995
                 </v>
             </c>
-            <c r="B13">
-            </c>
-            <c r="C13">
-            </c>
             <c r="G13" t="s">
                 <v>
                     8
@@ -32181,10 +32127,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     26.25
                 </v>
             </c>
-            <c r="B14">
-            </c>
-            <c r="C14">
-            </c>
         </row>
         <row r="15">
             <c r="A15" cm="1" t="n">
@@ -32194,10 +32136,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     13.125
                 </v>
-            </c>
-            <c r="B15">
-            </c>
-            <c r="C15">
             </c>
         </row>
         <row r="16">
@@ -32209,10 +32147,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     222797
                 </v>
             </c>
-            <c r="B16">
-            </c>
-            <c r="C16">
-            </c>
         </row>
         <row r="17">
             <c r="A17" cm="1" t="n">
@@ -32222,10 +32156,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     8376.65
                 </v>
-            </c>
-            <c r="B17">
-            </c>
-            <c r="C17">
             </c>
         </row>
         <row r="18">
@@ -32237,10 +32167,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     21
                 </v>
             </c>
-            <c r="B18">
-            </c>
-            <c r="C18">
-            </c>
         </row>
         <row r="19">
             <c r="A19" cm="1" t="n">
@@ -32250,10 +32176,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     -5
                 </v>
-            </c>
-            <c r="B19">
-            </c>
-            <c r="C19">
             </c>
         </row>
         <row r="20">
@@ -32265,10 +32187,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     300
                 </v>
             </c>
-            <c r="B20">
-            </c>
-            <c r="C20">
-            </c>
         </row>
         <row r="21">
             <c r="A21" cm="1" t="str">
@@ -32278,10 +32196,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     J
                 </v>
-            </c>
-            <c r="B21">
-            </c>
-            <c r="C21">
             </c>
         </row>
         <row r="22">
@@ -32293,10 +32207,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     3
                 </v>
             </c>
-            <c r="B22">
-            </c>
-            <c r="C22">
-            </c>
         </row>
         <row r="23">
             <c r="A23" cm="1" t="n">
@@ -32306,10 +32216,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     4
                 </v>
-            </c>
-            <c r="B23">
-            </c>
-            <c r="C23">
             </c>
         </row>
         <row r="24">
@@ -32321,10 +32227,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     123
                 </v>
             </c>
-            <c r="B24">
-            </c>
-            <c r="C24">
-            </c>
         </row>
         <row r="25">
             <c r="A25" cm="1" t="str">
@@ -32334,10 +32236,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     BUT, MICHEL
                 </v>
-            </c>
-            <c r="B25">
-            </c>
-            <c r="C25">
             </c>
         </row>
         <row r="26">
@@ -32349,10 +32247,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     0.5000000000000001
                 </v>
             </c>
-            <c r="B26">
-            </c>
-            <c r="C26">
-            </c>
         </row>
         <row r="27">
             <c r="A27" cm="1" t="n">
@@ -32362,10 +32256,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     3.7621956910836314
                 </v>
-            </c>
-            <c r="B27">
-            </c>
-            <c r="C27">
             </c>
         </row>
         <row r="28">
@@ -32377,10 +32267,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     1.7320508075688774
                 </v>
             </c>
-            <c r="B28">
-            </c>
-            <c r="C28">
-            </c>
         </row>
         <row r="29">
             <c r="A29" cm="1" t="n">
@@ -32390,10 +32276,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     2.163953413738653
                 </v>
-            </c>
-            <c r="B29">
-            </c>
-            <c r="C29">
             </c>
         </row>
         <row r="30">
@@ -32405,10 +32287,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     3
                 </v>
             </c>
-            <c r="B30">
-            </c>
-            <c r="C30">
-            </c>
         </row>
         <row r="31">
             <c r="A31" cm="1" t="n">
@@ -32418,10 +32296,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     4
                 </v>
-            </c>
-            <c r="B31">
-            </c>
-            <c r="C31">
             </c>
         </row>
         <row r="32">
@@ -32433,10 +32307,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     1
                 </v>
             </c>
-            <c r="B32">
-            </c>
-            <c r="C32">
-            </c>
         </row>
         <row r="33">
             <c r="A33" cm="1" t="n">
@@ -32446,10 +32316,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     2
                 </v>
-            </c>
-            <c r="B33">
-            </c>
-            <c r="C33">
             </c>
         </row>
         <row r="34">
@@ -32461,10 +32327,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     3
                 </v>
             </c>
-            <c r="B34">
-            </c>
-            <c r="C34">
-            </c>
         </row>
         <row r="35">
             <c r="A35" cm="1" t="n">
@@ -32474,10 +32336,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     -2119.25
                 </v>
-            </c>
-            <c r="B35">
-            </c>
-            <c r="C35">
             </c>
         </row>
         <row r="36">
@@ -32489,10 +32347,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     -2119.25
                 </v>
             </c>
-            <c r="B36">
-            </c>
-            <c r="C36">
-            </c>
         </row>
         <row r="37">
             <c r="A37" cm="1" t="n">
@@ -32502,10 +32356,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     237217364.71640626
                 </v>
-            </c>
-            <c r="B37">
-            </c>
-            <c r="C37">
             </c>
         </row>
         <row r="38">
@@ -32517,10 +32367,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     1.4142135623730951
                 </v>
             </c>
-            <c r="B38">
-            </c>
-            <c r="C38">
-            </c>
         </row>
         <row r="39">
             <c r="A39" cm="1" t="n">
@@ -32531,10 +32377,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                     0.8004052928885931
                 </v>
             </c>
-            <c r="B39">
-            </c>
-            <c r="C39">
-            </c>
         </row>
         <row r="40">
             <c r="A40" cm="1" t="n">
@@ -32544,10 +32386,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 <v>
                     43976
                 </v>
-            </c>
-            <c r="B40">
-            </c>
-            <c r="C40">
             </c>
         </row>
         <row r="41">
@@ -34328,310 +34166,6 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
                 </v>
             </c>
         </row>
-        <row r="25">
-            <c r="A25">
-            </c>
-        </row>
-        <row r="26">
-            <c r="A26">
-            </c>
-        </row>
-        <row r="27">
-            <c r="A27">
-            </c>
-        </row>
-        <row r="28">
-            <c r="A28">
-            </c>
-        </row>
-        <row r="29">
-            <c r="A29">
-            </c>
-        </row>
-        <row r="30">
-            <c r="A30">
-            </c>
-        </row>
-        <row r="31">
-            <c r="A31">
-            </c>
-        </row>
-        <row r="32">
-            <c r="A32">
-            </c>
-        </row>
-        <row r="33">
-            <c r="A33">
-            </c>
-        </row>
-        <row r="34">
-            <c r="A34">
-            </c>
-        </row>
-        <row r="35">
-            <c r="A35">
-            </c>
-        </row>
-        <row r="36">
-            <c r="A36">
-            </c>
-        </row>
-        <row r="37">
-            <c r="A37">
-            </c>
-        </row>
-        <row r="38">
-            <c r="A38">
-            </c>
-        </row>
-        <row r="39">
-            <c r="A39">
-            </c>
-        </row>
-        <row r="40">
-            <c r="A40">
-            </c>
-        </row>
-        <row r="41">
-            <c r="A41">
-            </c>
-        </row>
-        <row r="42">
-            <c r="A42">
-            </c>
-        </row>
-        <row r="43">
-            <c r="A43">
-            </c>
-        </row>
-        <row r="44">
-            <c r="A44">
-            </c>
-        </row>
-        <row r="45">
-            <c r="A45">
-            </c>
-        </row>
-        <row r="46">
-            <c r="A46">
-            </c>
-        </row>
-        <row r="47">
-            <c r="A47">
-            </c>
-        </row>
-        <row r="48">
-            <c r="A48">
-            </c>
-        </row>
-        <row r="49">
-            <c r="A49">
-            </c>
-        </row>
-        <row r="50">
-            <c r="A50">
-            </c>
-        </row>
-        <row r="51">
-            <c r="A51">
-            </c>
-        </row>
-        <row r="52">
-            <c r="A52">
-            </c>
-        </row>
-        <row r="53">
-            <c r="A53">
-            </c>
-        </row>
-        <row r="54">
-            <c r="A54">
-            </c>
-        </row>
-        <row r="55">
-            <c r="A55">
-            </c>
-        </row>
-        <row r="56">
-            <c r="A56">
-            </c>
-        </row>
-        <row r="57">
-            <c r="A57">
-            </c>
-        </row>
-        <row r="58">
-            <c r="A58">
-            </c>
-        </row>
-        <row r="59">
-            <c r="A59">
-            </c>
-        </row>
-        <row r="60">
-            <c r="A60">
-            </c>
-        </row>
-        <row r="61">
-            <c r="A61">
-            </c>
-        </row>
-        <row r="62">
-            <c r="A62">
-            </c>
-        </row>
-        <row r="63">
-            <c r="A63">
-            </c>
-        </row>
-        <row r="64">
-            <c r="A64">
-            </c>
-        </row>
-        <row r="65">
-            <c r="A65">
-            </c>
-        </row>
-        <row r="66">
-            <c r="A66">
-            </c>
-        </row>
-        <row r="67">
-            <c r="A67">
-            </c>
-        </row>
-        <row r="68">
-            <c r="A68">
-            </c>
-        </row>
-        <row r="69">
-            <c r="A69">
-            </c>
-        </row>
-        <row r="70">
-            <c r="A70">
-            </c>
-        </row>
-        <row r="71">
-            <c r="A71">
-            </c>
-        </row>
-        <row r="72">
-            <c r="A72">
-            </c>
-        </row>
-        <row r="73">
-            <c r="A73">
-            </c>
-        </row>
-        <row r="74">
-            <c r="A74">
-            </c>
-        </row>
-        <row r="75">
-            <c r="A75">
-            </c>
-        </row>
-        <row r="76">
-            <c r="A76">
-            </c>
-        </row>
-        <row r="77">
-            <c r="A77">
-            </c>
-        </row>
-        <row r="78">
-            <c r="A78">
-            </c>
-        </row>
-        <row r="79">
-            <c r="A79">
-            </c>
-        </row>
-        <row r="80">
-            <c r="A80">
-            </c>
-        </row>
-        <row r="81">
-            <c r="A81">
-            </c>
-        </row>
-        <row r="82">
-            <c r="A82">
-            </c>
-        </row>
-        <row r="83">
-            <c r="A83">
-            </c>
-        </row>
-        <row r="84">
-            <c r="A84">
-            </c>
-        </row>
-        <row r="85">
-            <c r="A85">
-            </c>
-        </row>
-        <row r="86">
-            <c r="A86">
-            </c>
-        </row>
-        <row r="87">
-            <c r="A87">
-            </c>
-        </row>
-        <row r="88">
-            <c r="A88">
-            </c>
-        </row>
-        <row r="89">
-            <c r="A89">
-            </c>
-        </row>
-        <row r="90">
-            <c r="A90">
-            </c>
-        </row>
-        <row r="91">
-            <c r="A91">
-            </c>
-        </row>
-        <row r="92">
-            <c r="A92">
-            </c>
-        </row>
-        <row r="93">
-            <c r="A93">
-            </c>
-        </row>
-        <row r="94">
-            <c r="A94">
-            </c>
-        </row>
-        <row r="95">
-            <c r="A95">
-            </c>
-        </row>
-        <row r="96">
-            <c r="A96">
-            </c>
-        </row>
-        <row r="97">
-            <c r="A97">
-            </c>
-        </row>
-        <row r="98">
-            <c r="A98">
-            </c>
-        </row>
-        <row r="99">
-            <c r="A99">
-            </c>
-        </row>
-        <row r="100">
-            <c r="A100">
-            </c>
-        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -35142,8 +34676,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
             </c>
             <c r="B3">
             </c>
-            <c r="C3">
-            </c>
             <c r="G3" t="s">
                 <v>
                     7
@@ -35183,8 +34715,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     1.3169578969248166
                 </v>
-            </c>
-            <c r="B4">
             </c>
             <c r="C4">
             </c>
@@ -35236,10 +34766,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     0.9050225767665427
                 </v>
             </c>
-            <c r="C5">
-            </c>
-            <c r="D5">
-            </c>
             <c r="G5" t="s">
                 <v>
                     9
@@ -35279,12 +34805,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     0.5493061443340548
                 </v>
-            </c>
-            <c r="B6">
-            </c>
-            <c r="C6">
-            </c>
-            <c r="D6">
             </c>
             <c r="G6" t="s">
                 <v>
@@ -35326,12 +34846,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     true
                 </v>
             </c>
-            <c r="B7">
-            </c>
-            <c r="C7">
-            </c>
-            <c r="D7">
-            </c>
             <c r="G7" t="s">
                 <v>
                     12
@@ -35371,12 +34885,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     0.5235987755982989
                 </v>
-            </c>
-            <c r="B8">
-            </c>
-            <c r="C8">
-            </c>
-            <c r="D8">
             </c>
             <c r="G8" t="s">
                 <v>
@@ -35418,12 +34926,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     1.4436354751788103
                 </v>
             </c>
-            <c r="B9">
-            </c>
-            <c r="C9">
-            </c>
-            <c r="D9">
-            </c>
             <c r="G9" t="s">
                 <v>
                     14
@@ -35459,12 +34961,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     0.7853981633974483
                 </v>
             </c>
-            <c r="B10">
-            </c>
-            <c r="C10">
-            </c>
-            <c r="D10">
-            </c>
         </row>
         <row r="11">
             <c r="A11" cm="1" t="n">
@@ -35474,12 +34970,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     3.141592653589793
                 </v>
-            </c>
-            <c r="B11">
-            </c>
-            <c r="C11">
-            </c>
-            <c r="D11">
             </c>
             <c r="G11" t="s">
                 <v>
@@ -35495,12 +34985,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     0.8673005276940531
                 </v>
-            </c>
-            <c r="B12">
-            </c>
-            <c r="C12">
-            </c>
-            <c r="D12">
             </c>
             <c r="G12" t="s">
                 <v>
@@ -35537,10 +35021,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     2959.1624999999995
                 </v>
             </c>
-            <c r="B13">
-            </c>
-            <c r="C13">
-            </c>
             <c r="G13" t="s">
                 <v>
                     8
@@ -35576,10 +35056,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     26.25
                 </v>
             </c>
-            <c r="B14">
-            </c>
-            <c r="C14">
-            </c>
         </row>
         <row r="15">
             <c r="A15" cm="1" t="n">
@@ -35589,10 +35065,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     13.125
                 </v>
-            </c>
-            <c r="B15">
-            </c>
-            <c r="C15">
             </c>
         </row>
         <row r="16">
@@ -35604,10 +35076,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     222797
                 </v>
             </c>
-            <c r="B16">
-            </c>
-            <c r="C16">
-            </c>
         </row>
         <row r="17">
             <c r="A17" cm="1" t="n">
@@ -35617,10 +35085,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     8376.65
                 </v>
-            </c>
-            <c r="B17">
-            </c>
-            <c r="C17">
             </c>
         </row>
         <row r="18">
@@ -35632,10 +35096,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     21
                 </v>
             </c>
-            <c r="B18">
-            </c>
-            <c r="C18">
-            </c>
         </row>
         <row r="19">
             <c r="A19" cm="1" t="n">
@@ -35645,10 +35105,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     -5
                 </v>
-            </c>
-            <c r="B19">
-            </c>
-            <c r="C19">
             </c>
         </row>
         <row r="20">
@@ -35660,10 +35116,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     300
                 </v>
             </c>
-            <c r="B20">
-            </c>
-            <c r="C20">
-            </c>
         </row>
         <row r="21">
             <c r="A21" cm="1" t="str">
@@ -35673,10 +35125,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     J
                 </v>
-            </c>
-            <c r="B21">
-            </c>
-            <c r="C21">
             </c>
         </row>
         <row r="22">
@@ -35688,10 +35136,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     3
                 </v>
             </c>
-            <c r="B22">
-            </c>
-            <c r="C22">
-            </c>
         </row>
         <row r="23">
             <c r="A23" cm="1" t="n">
@@ -35701,10 +35145,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     4
                 </v>
-            </c>
-            <c r="B23">
-            </c>
-            <c r="C23">
             </c>
         </row>
         <row r="24">
@@ -35716,10 +35156,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     123
                 </v>
             </c>
-            <c r="B24">
-            </c>
-            <c r="C24">
-            </c>
         </row>
         <row r="25">
             <c r="A25" cm="1" t="str">
@@ -35729,10 +35165,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     BUT, MICHEL
                 </v>
-            </c>
-            <c r="B25">
-            </c>
-            <c r="C25">
             </c>
         </row>
         <row r="26">
@@ -35744,10 +35176,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     0.5000000000000001
                 </v>
             </c>
-            <c r="B26">
-            </c>
-            <c r="C26">
-            </c>
         </row>
         <row r="27">
             <c r="A27" cm="1" t="n">
@@ -35757,10 +35185,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     3.7621956910836314
                 </v>
-            </c>
-            <c r="B27">
-            </c>
-            <c r="C27">
             </c>
         </row>
         <row r="28">
@@ -35772,10 +35196,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     1.7320508075688774
                 </v>
             </c>
-            <c r="B28">
-            </c>
-            <c r="C28">
-            </c>
         </row>
         <row r="29">
             <c r="A29" cm="1" t="n">
@@ -35785,10 +35205,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     2.163953413738653
                 </v>
-            </c>
-            <c r="B29">
-            </c>
-            <c r="C29">
             </c>
         </row>
         <row r="30">
@@ -35800,10 +35216,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     3
                 </v>
             </c>
-            <c r="B30">
-            </c>
-            <c r="C30">
-            </c>
         </row>
         <row r="31">
             <c r="A31" cm="1" t="n">
@@ -35813,10 +35225,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     4
                 </v>
-            </c>
-            <c r="B31">
-            </c>
-            <c r="C31">
             </c>
         </row>
         <row r="32">
@@ -35828,10 +35236,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     1
                 </v>
             </c>
-            <c r="B32">
-            </c>
-            <c r="C32">
-            </c>
         </row>
         <row r="33">
             <c r="A33" cm="1" t="n">
@@ -35841,10 +35245,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     2
                 </v>
-            </c>
-            <c r="B33">
-            </c>
-            <c r="C33">
             </c>
         </row>
         <row r="34">
@@ -35856,10 +35256,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     3
                 </v>
             </c>
-            <c r="B34">
-            </c>
-            <c r="C34">
-            </c>
         </row>
         <row r="35">
             <c r="A35" cm="1" t="n">
@@ -35869,10 +35265,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     -2119.25
                 </v>
-            </c>
-            <c r="B35">
-            </c>
-            <c r="C35">
             </c>
         </row>
         <row r="36">
@@ -35884,10 +35276,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     -2119.25
                 </v>
             </c>
-            <c r="B36">
-            </c>
-            <c r="C36">
-            </c>
         </row>
         <row r="37">
             <c r="A37" cm="1" t="n">
@@ -35897,10 +35285,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     237217364.71640626
                 </v>
-            </c>
-            <c r="B37">
-            </c>
-            <c r="C37">
             </c>
         </row>
         <row r="38">
@@ -35912,10 +35296,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     1.4142135623730951
                 </v>
             </c>
-            <c r="B38">
-            </c>
-            <c r="C38">
-            </c>
         </row>
         <row r="39">
             <c r="A39" cm="1" t="n">
@@ -35926,10 +35306,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                     0.8004052928885931
                 </v>
             </c>
-            <c r="B39">
-            </c>
-            <c r="C39">
-            </c>
         </row>
         <row r="40">
             <c r="A40" cm="1" t="n">
@@ -35939,10 +35315,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <v>
                     43976
                 </v>
-            </c>
-            <c r="B40">
-            </c>
-            <c r="C40">
             </c>
         </row>
         <row r="41">

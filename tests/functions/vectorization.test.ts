@@ -1,6 +1,9 @@
 import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "@odoo/o-spreadsheet-engine";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import {
+  matrixToMimicMatrix,
+  toScalarMimicMatrix,
+} from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -27,7 +30,7 @@ describe("vectorization", () => {
         { name: "arg2", description: "", type: ["ANY"] },
       ],
       compute: function (arg1, arg2) {
-        return toString(toScalar(arg1)) + toString(toScalar(arg2));
+        return { value: toString(toScalarMimicMatrix(arg1)) + toString(toScalarMimicMatrix(arg2)) };
       },
     });
 
@@ -35,11 +38,11 @@ describe("vectorization", () => {
       description: "a function that spreads a matrix",
       args: [{ name: "arg1", description: "", type: ["ANY"] }],
       compute: function (arg1) {
-        const value = toString(toScalar(arg1));
-        return [
+        const value = toString(toScalarMimicMatrix(arg1));
+        return matrixToMimicMatrix([
           [value, value],
           [value, value],
-        ];
+        ]);
       },
     });
   });

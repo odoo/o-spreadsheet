@@ -1,7 +1,12 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { toMatrix, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import {
+  matrixToMimicMatrix,
+  MimicMatrix,
+  toMimicMatrix,
+  toScalarMimicMatrix,
+} from "@odoo/o-spreadsheet-engine/functions/helper_arg";
+import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_LOCALE, ErrorCell, UID } from "../../src/types";
@@ -35,11 +40,11 @@ describe("evaluate formulas that use/return an array", () => {
         arg("m (number)", "number of row of the matrix"),
         arg("v (number)", "value to fill matrix"),
       ],
-      compute: function (n, m, v): number[][] {
-        const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
-        const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
-        const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
-        return Array.from({ length: _n }, (_, i) => Array.from({ length: _m }, (_, j) => _v));
+      compute: function (n, m, v) {
+        const _n = toNumber(toScalarMimicMatrix(n), DEFAULT_LOCALE);
+        const _m = toNumber(toScalarMimicMatrix(m), DEFAULT_LOCALE);
+        const _v = toNumber(toScalarMimicMatrix(v), DEFAULT_LOCALE);
+        return new MimicMatrix(_n, _m, () => ({ value: _v }));
       },
     });
   });
@@ -117,7 +122,7 @@ describe("evaluate formulas that use/return an array", () => {
           value: "#SPILL!",
           message: "Function [[FUNCTION_NAME]] failed",
         };
-        return [[{ value: 42 }, error]];
+        return matrixToMimicMatrix([[{ value: 42 }, error]]);
       },
       args: [],
     });
@@ -155,10 +160,10 @@ describe("evaluate formulas that use/return an array", () => {
         description: "Return an 2*2 matrix with some values",
         args: [],
         compute: function () {
-          return [
+          return matrixToMimicMatrix([
             [{ value: 1, format: "0.00" }, { value: 2 }],
             [{ value: 3, format: "0.00" }, { value: 4 }],
-          ];
+          ]);
         },
       });
 
@@ -177,7 +182,7 @@ describe("evaluate formulas that use/return an array", () => {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
         compute: function (matrix) {
-          return toMatrix(matrix);
+          return toMimicMatrix(matrix);
         },
       });
 
@@ -633,7 +638,7 @@ describe("evaluate formulas that use/return an array", () => {
         args: [arg("range (any, range<any>)", "The matrix to be transposed.")],
         compute: function (values) {
           c++;
-          return 5;
+          return { value: 5 };
         },
         isExported: true,
       });
@@ -691,9 +696,10 @@ describe("evaluate formulas that use/return an array", () => {
       addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "",
         args: [arg("range (any, range<any>)", "")],
-        compute: function () {
+        compute: function (arg) {
           c++;
-          return 5;
+          toMimicMatrix(arg).getAll();
+          return { value: 5 };
         },
         isExported: false,
       });
@@ -711,9 +717,10 @@ describe("evaluate formulas that use/return an array", () => {
       addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "",
         args: [arg("range (any, range<any>)", "")],
-        compute: function () {
+        compute: function (arg) {
           c++;
-          return 5;
+          toMimicMatrix(arg).getAll();
+          return { value: 5 };
         },
         isExported: false,
       });
