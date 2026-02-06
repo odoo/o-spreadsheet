@@ -1,7 +1,7 @@
-import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
-import { debounce, isDefined } from "../helpers/misc";
+import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import {
   Client,
@@ -38,10 +38,6 @@ export class Session extends EventBus<CollaborativeEvent> {
   private clients: Record<ClientId, Client | undefined> = {};
   private clientId: ClientId = "local";
 
-  /**
-   * Id of the server revision
-   */
-  private debouncedMove: Session["move"];
   private pendingMessages: StateUpdateMessage[] = [];
 
   /**
@@ -87,8 +83,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     private serverRevisionId: UID = DEFAULT_REVISION_ID
   ) {
     super();
-
-    this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME) as Session["move"];
   }
 
   canApplyOptimisticUpdate() {
@@ -150,13 +144,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     });
   }
 
-  /**
-   * Notify that the position of the client has changed
-   */
-  move(position: ClientPosition) {
-    this.debouncedMove(position);
-  }
-
   join(client?: Client) {
     if (client) {
       this.clients[client.id] = client;
@@ -167,7 +154,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     }
     this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
     if (this.awaitingClientPosition) {
-      this._move(this.awaitingClientPosition);
+      this.move(this.awaitingClientPosition);
       this.awaitingClientPosition = undefined;
     }
   }
@@ -255,7 +242,10 @@ export class Session extends EventBus<CollaborativeEvent> {
     return this.lastLocalOperation;
   }
 
-  private _move(position: ClientPosition) {
+  /**
+   * Notify that the position of the client has changed
+   */
+  move(position: ClientPosition) {
     // this method could be called before the client joins the session, or after he left (because of the debounce)
     if (!this.clients[this.clientId]) {
       this.awaitingClientPosition = position;

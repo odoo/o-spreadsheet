@@ -1,7 +1,6 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   BACKGROUND_CHART_COLOR,
-  DEBOUNCE_TIME,
   LINE_DATA_POINT_RADIUS,
 } from "@odoo/o-spreadsheet-engine/constants";
 import {
@@ -176,10 +175,7 @@ describe("charts", () => {
         },
       ],
     };
-    jest.useFakeTimers();
     model = new Model(data, { external: { geoJsonService: mockGeoJsonService } });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 10); // wait for the debounce of session.move
-    jest.useRealTimers();
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {

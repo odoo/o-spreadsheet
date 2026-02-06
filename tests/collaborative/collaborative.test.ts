@@ -1,8 +1,4 @@
-import {
-  DEBOUNCE_TIME,
-  DEFAULT_REVISION_ID,
-  MESSAGE_VERSION,
-} from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
@@ -65,8 +61,6 @@ import {
 } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
-
-jest.useFakeTimers();
 
 describe("Multi users synchronisation", () => {
   let network: MockTransportService;
@@ -709,7 +703,6 @@ describe("Multi users synchronisation", () => {
   );
 
   test("readonly client is visible to other users", () => {
-    jest.advanceTimersByTime(DEBOUNCE_TIME);
     expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",
@@ -719,7 +712,6 @@ describe("Multi users synchronisation", () => {
       mode: "readonly",
       client: { id: "david", name: "David" },
     });
-    jest.advanceTimersByTime(DEBOUNCE_TIME);
     expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",

@@ -1,4 +1,4 @@
-import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
@@ -1082,13 +1082,10 @@ describe("Topbar svg icon", () => {
 });
 
 test("Clicking on a topbar button triggers two renders", async () => {
-  jest.useFakeTimers();
   const transportService = new MockTransportService();
 
   const model = new Model({}, { transportService });
   const { fixture, env } = await mountSpreadsheet({ model });
-  jest.advanceTimersByTime(DEBOUNCE_TIME + 10); // wait for the debounce of session.move
-  jest.useRealTimers();
 
   const modelRender = jest.fn();
   const storeRender = jest.fn();

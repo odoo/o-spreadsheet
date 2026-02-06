@@ -21,7 +21,6 @@ import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
-import { patchSessionMove } from "./session_debounce_mock";
 
 // Mock getCanvas for all imports
 jest.mock("@odoo/o-spreadsheet-engine/helpers/text_helper", () => {
@@ -160,7 +159,6 @@ beforeEach(() => {
       return this.parentElement; // should be nearest positioned ancestor, but simplified for tests
     });
 
-  patchSessionMove();
   /** this is the magic shit
    * ensures that we properly load every files from the library but
    * this needs to happen after we mock the said files. Otherwise,
