@@ -12,6 +12,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { createEmptyWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { ClipboardPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
@@ -93,6 +94,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   createEqualCF,
   flattenHighlightRange,
   getPlugin,
@@ -1027,6 +1029,20 @@ describe("Grid component", () => {
     test("pressing Ctrl+K opens the link editor", async () => {
       await keyDown({ key: "k", ctrlKey: true });
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+    });
+
+    test("pressing F9 triggers a full re-evaluation of all cells", () => {
+      let value = 1;
+      addToRegistry(functionRegistry, "GETVALUE", {
+        description: "Get value",
+        compute: () => value,
+        args: [],
+      });
+      setCellContent(model, "A1", "=GETVALUE()");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      value = 2;
+      keyDown({ key: "F9" });
+      expect(getEvaluatedCell(model, "A1").value).toBe(2);
     });
 
     test("Filter icon is correctly rendered", () => {

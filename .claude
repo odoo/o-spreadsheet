@@ -1,0 +1,468 @@
+# o-spreadsheet Development Guide
+
+## Project Overview
+
+o-spreadsheet (aka "Owly Sheet") is a standalone, web-based spreadsheet component built with TypeScript and Owl (Odoo Web Library). It's a fully-featured, real-time collaborative spreadsheet designed for easy integration and extensibility.
+
+**Key Features:**
+- Full spreadsheet functionality (cells, formulas, formatting)
+- Real-time collaboration with Operational Transform (OT)
+- Excel file import/export (XLSX)
+- Pivot tables, charts, data validation, conditional formatting
+- Responsive design with mobile support
+
+**Published as:** `@odoo/o-spreadsheet` (NPM)
+**License:** LGPL-3.0-or-later
+
+## Technology Stack
+
+- **Language:** TypeScript 5.8.2 (strict mode enabled)
+- **UI Framework:** Owl 2.8.1 (Vue-like reactive framework from Odoo)
+- **Build Tool:** Rollup 3.28.0 with SWC transpiler
+- **Testing:** Jest 29.5.0 with jsdom
+- **CSS Framework:** Bootstrap 5.3.3
+- **Node Requirement:** >= 22.0.0
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Development mode (builds, watches, serves demo)
+npm run dev
+
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test -- --watch
+
+# Lint and format
+npm run lint
+npm run prettier
+
+# Production build
+npm run build
+```
+
+## Project Structure
+
+```
+/
+├── src/                           # Main source code (~366 TypeScript files)
+│   ├── actions/                   # Menu actions & toolbar buttons
+│   ├── components/                # Owl UI components (60+ subdirectories)
+│   │   ├── spreadsheet/          # Root Spreadsheet component
+│   │   ├── grid/                 # Grid rendering components
+│   │   ├── top_bar/              # Toolbar components
+│   │   ├── side_panel/           # Configuration panels (charts, pivots)
+│   │   ├── composer/             # Formula editor
+│   │   └── ...                   # Many more UI components
+│   ├── clipboard_handlers/        # Modular clipboard system (13 handlers)
+│   ├── functions/                 # Custom spreadsheet functions
+│   ├── helpers/                   # Pure utility functions (organized by domain)
+│   ├── plugins/                   # UI feature plugins
+│   ├── registries/                # Extension registries (menus, functions, etc.)
+│   ├── store_engine/              # Reactive state management system
+│   ├── stores/                    # Application stores (*_store.ts)
+│   └── types/                     # TypeScript type definitions
+│
+├── packages/o-spreadsheet-engine/ # Core engine (monorepo workspace)
+│   └── src/
+│       ├── model/                # Core spreadsheet model
+│       ├── plugins/              # Core plugins (separate from UI plugins)
+│       ├── formulas/             # Formula parsing & compilation
+│       ├── functions/            # Built-in spreadsheet functions
+│       ├── collaborative/        # OT (Operational Transform) system
+│       ├── xlsx/                 # Excel import/export logic
+│       └── types/                # Engine type definitions
+│
+├── tests/                         # ~265 test files mirroring src structure
+│   ├── setup/                    # Jest configuration & global setup
+│   ├── components/               # Component tests
+│   ├── functions/                # Function tests
+│   ├── collaborative/            # Collaboration tests
+│   └── ...                       # Many more test categories
+│
+├── tools/                         # Build utilities & dev server
+├── demo/                          # Live demo application
+├── doc/                           # Documentation
+│   ├── extending/                # Extension guides (plugins, commands)
+│   └── integrating/              # Integration guides
+└── dist/                          # Build output (generated)
+```
+
+## Architecture Patterns
+
+### 1. Component Architecture (Owl)
+
+Components follow Owl framework patterns:
+
+```typescript
+export class MyComponent extends Component<Props, Env> {
+  static template = "template-name";
+  static props = { /* prop definitions */ };
+  static components = { /* child components */ };
+
+  setup() {
+    // Initialization, hooks, reactive state
+  }
+
+  get computedValue() {
+    // Getters for template access
+  }
+}
+```
+
+**Component Directory Pattern:**
+```
+component_name/
+├── component_name.ts       # Component class
+├── component_name.xml      # Owl template
+├── component_name.css      # Styling
+└── [child-components]/     # Nested subdirectories
+```
+
+### 2. State Management (Store Engine)
+
+Reactive stores are used throughout the application:
+
+```typescript
+class MyStore extends SpreadsheetStore {
+  value: string = "";
+
+  setValue(val: string) {
+    this.value = val; // Automatically reactive
+  }
+}
+
+// In components:
+class MyComponent extends Component {
+  myStore = useStore(MyStore);
+
+  setup() {
+    this.myStore.setValue("test"); // Updates UI reactively
+  }
+}
+```
+
+**Store Types:**
+- `SpreadsheetStore` - Reacts to Model commands
+- `ReactiveStore` - Basic reactive store
+- Domain-specific stores in `src/stores/*_store.ts`
+
+### 3. Registries Pattern
+
+Extensibility via registries:
+
+```typescript
+// 30+ registries available:
+functionRegistry       // Custom spreadsheet functions
+chartRegistry         // Chart types
+cellMenuRegistry      // Context menus
+sidePanelRegistry     // Side panel sections
+pivotRegistry         // Pivot extensions
+// ... and many more
+```
+
+Add custom functionality by registering with appropriate registry.
+
+### 4. Plugin Architecture
+
+**Three Plugin Types:**
+
+1. **CorePlugin** - Model logic (in engine package)
+2. **CoreViewPlugin** - View-related logic (in engine package)
+3. **UIPlugin** - UI feature plugins (in main package)
+
+Plugins handle specific features and can be enabled/disabled via `FeaturePluginRegistry`.
+
+### 5. Actions & Menus
+
+Actions define menu items, toolbar buttons, and commands:
+
+```typescript
+export interface ActionSpec {
+  name: string | ((env) => string);
+  icon?: string;
+  isVisible?: (env) => boolean;
+  isEnabled?: (env) => boolean;
+  execute?: (env) => void;
+  children?: ActionSpec[];  // Nested menus
+  separator?: boolean;
+}
+```
+
+Located in `src/actions/` and used across menus and toolbars.
+
+### 6. Clipboard System
+
+Modular clipboard handlers in `src/clipboard_handlers/`:
+- Each handler manages a specific aspect (cells, styles, borders, charts, etc.)
+- 13 specialized handlers work together for copy/paste operations
+
+## Code Organization Conventions
+
+### File Naming
+- **Components:** PascalCase (e.g., `Spreadsheet.ts`, `GridOverlay.ts`)
+- **Stores:** PascalCase with `_store.ts` suffix (e.g., `model_store.ts`)
+- **Helpers:** kebab-case or camelCase
+- **Tests:** Mirror source structure with `.test.ts` or `.spec.ts` suffix
+
+### Import Patterns
+```typescript
+// 1. Absolute imports from engine package
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+
+// 2. Relative imports
+import { Component } from "@odoo/owl";
+import { myHelper } from "../../helpers";
+
+// 3. Index re-exports are common
+export * from "./stores";
+```
+
+### TypeScript Standards
+- **Strict mode** enabled (strictNullChecks, strictPropertyInitialization, etc.)
+- **No implicit returns** - all functions must explicitly return
+- **No unused locals** - clean up unused variables
+- **Prefer const** for destructuring and immutable values
+- **Always use curly braces** for control structures
+
+## Testing Approach
+
+### Test Organization
+- **265+ test files** organized by feature/domain
+- Tests mirror `src/` structure in `tests/` directory
+- Test categories: unit, integration, components, formulas, features, clipboard, xlsx
+
+### Running Tests
+```bash
+# All tests
+npm test
+
+# Watch mode
+npm run test -- --watch
+
+# Specific test file
+npm test -- path/to/test.test.ts
+
+# With coverage
+npm test -- --coverage
+```
+
+### Test Setup
+Tests use Jest with jsdom. Global setup includes:
+- Canvas mocking for chart tests
+- ResizeObserver mocking
+- getBoundingClientRect mocking
+- Owl template registration
+- Cleanup utilities (`registerCleanup()`)
+
+### Writing Tests
+```typescript
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { createSheet, target } from "../setup/test_helpers";
+
+describe("MyFeature", () => {
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("should do something", () => {
+    // Test implementation
+    expect(result).toBe(expected);
+  });
+});
+```
+
+## Build System
+
+### Build Process
+1. **TypeScript Compilation** → `/build/js/src/`
+2. **Rollup Bundling** → 4 output formats:
+   - ESM: `dist/o_spreadsheet.esm.js`
+   - CommonJS: `dist/o_spreadsheet.cjs.js`
+   - IIFE: `dist/o_spreadsheet.iife.js` (browser bundle)
+   - Minified IIFE: `dist/o_spreadsheet.min.iife.js`
+3. **XML Template Bundling** → `dist/o_spreadsheet.xml`
+4. **CSS Bundling** → `dist/o_spreadsheet.css`
+5. **Type Definitions** → `dist/o-spreadsheet.d.ts`
+
+### Build Scripts
+```bash
+npm run build              # Full production build
+npm run build:watch        # Watch mode for development
+npm run transpile-js       # TypeScript only
+npm run bundle:esm         # ESM bundle only
+npm run bundle:iife        # IIFE bundle only
+npm run dist               # Distribution build
+```
+
+### Development Server
+```bash
+npm run dev
+```
+Starts:
+- Live server at http://localhost:8080 (auto-reloading)
+- Collaborative WebSocket server
+- File watchers for TypeScript, CSS, XML
+
+## Common Development Workflows
+
+### Adding a New Component
+1. Create directory: `src/components/my_component/`
+2. Create files:
+   - `my_component.ts` - Component class
+   - `my_component.xml` - Owl template
+   - `my_component.css` - Styles (optional)
+3. Register template in component: `static template = "MyComponent"`
+4. Export from appropriate index file
+5. Add to parent component's `static components = { MyComponent }`
+6. Write tests in `tests/components/my_component/`
+
+### Adding a Store
+1. Create `src/stores/my_feature_store.ts`
+2. Extend `SpreadsheetStore` or `ReactiveStore`
+3. Define reactive properties and methods
+4. Export and use with `useStore(MyFeatureStore)` in components
+5. Add tests in `tests/stores/`
+
+### Adding a Custom Function
+1. See `doc/add_function.md` for detailed guide
+2. Create function in `src/functions/` or `packages/o-spreadsheet-engine/src/functions/`
+3. Register with `functionRegistry`
+4. Add argument definitions and return type
+5. Write tests in `tests/functions/`
+
+### Extending Menus
+1. Create `ActionSpec` in `src/actions/`
+2. Register with appropriate menu registry:
+   - `cellMenuRegistry` - Right-click context menu
+   - `topbarMenuRegistry` - Top bar menus
+   - `colMenuRegistry` - Column header menu
+   - `rowMenuRegistry` - Row header menu
+3. Define `isVisible`, `isEnabled`, `execute` functions
+
+### Adding a Plugin
+1. Decide plugin type (Core, CoreView, or UI)
+2. Create in `src/plugins/` or `packages/o-spreadsheet-engine/src/plugins/`
+3. Implement required methods (`allowDispatch`, `handle`, etc.)
+4. Register plugin with Model configuration
+5. Add to `FeaturePluginRegistry` if toggleable
+6. Write comprehensive tests
+
+## Real-time Collaboration
+
+The collaborative system uses **Operational Transform (OT)** for conflict-free synchronization:
+- Located in: `packages/o-spreadsheet-engine/src/collaborative/`
+- Handles concurrent edits from multiple users
+- Transform functions adapt commands based on other users' changes
+- WebSocket transport for real-time communication
+- LocalTransportService available for testing
+
+## Excel Support
+
+XLSX import/export:
+- Located in: `packages/o-spreadsheet-engine/src/xlsx/`
+- Uses jszip for ZIP file handling
+- Supports most Excel features (formulas, formatting, charts, etc.)
+- Custom bundler in `tools/bundle_xlsx/`
+
+## Code Quality
+
+### Linting
+```bash
+npm run lint              # Auto-fix ESLint issues
+```
+
+Key rules:
+- No debugger statements
+- Prefer const for destructuring
+- Use strict equality (===)
+- Always use curly braces
+- No unused locals
+
+### Formatting
+```bash
+npm run prettier          # Format all files
+```
+
+Settings:
+- Print width: 100 characters
+- Bracket same line for JSX/XML
+- XML whitespace insensitivity
+
+### Pre-commit Hooks
+Husky runs lint-staged on commit:
+- ESLint with auto-fix
+- Prettier formatting
+- Only on staged files
+
+## Special Considerations
+
+### Monorepo Structure
+- Main package: `@odoo/o-spreadsheet` (UI + integration)
+- Engine package: `@odoo/o-spreadsheet-engine` (core logic)
+- Shared types and utilities between packages
+- Path alias: `@odoo/o-spreadsheet-engine` configured in tsconfig
+
+### Dashboard Mode
+Some components behave differently in dashboard mode:
+```typescript
+if (env.isDashboard()) {
+  // Dashboard-specific rendering
+}
+```
+
+### Responsive Design
+Mobile support with adaptive layouts:
+- Check `isMobile` from environment
+- Different grid layouts for mobile/desktop
+- Touch event handling
+
+### Performance Considerations
+- GridRendererStore manages efficient rendering
+- Spatial indexing with rbush library
+- Formula dependency tracking with fingerprints
+- Array formulas with optimized evaluation
+
+## Useful References
+
+- **Main docs:** `/doc/` directory
+- **Extending guide:** `/doc/extending/`
+- **Integration guide:** `/doc/integrating/`
+- **Add function guide:** `/doc/add_function.md`
+- **Data model:** `/doc/data-model.md`
+- **Demo examples:** `/demo/` directory
+
+## Package Scripts Reference
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Full dev environment (build + serve + watch) |
+| `npm run build` | Production build all formats |
+| `npm run build:watch` | Incremental development build |
+| `npm test` | Run test suite |
+| `npm run test -- --watch` | Test watch mode |
+| `npm run lint` | ESLint with auto-fix |
+| `npm run prettier` | Format code with Prettier |
+| `npm run transpile-js` | TypeScript compilation only |
+| `npm run bundle:esm` | ESM bundle |
+| `npm run bundle:iife` | IIFE bundle (browser) |
+| `npm run bundle:cjs` | CommonJS bundle |
+| `npm run dist` | Distribution build |
+
+## Getting Help
+
+- Check `/doc/` directory for detailed documentation
+- Review tests for usage examples
+- Examine demo in `/demo/` for integration examples
+- Read component/plugin source code for patterns
+
+---
+
+**Last Updated:** Based on codebase analysis from version 19.2.0-alpha.4
