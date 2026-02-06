@@ -3,7 +3,7 @@ import { recomputeZones } from "./recompute_zones";
 import { positionToZone, toZone, zoneToXc } from "./zones";
 
 type ReverseLookup = Map<string, number>;
-type ItemsDic<T> = { [id: number]: T };
+export type ItemsDic<T> = { [id: number]: T };
 
 const globalReverseLookup = new WeakMap<ItemsDic<any>, ReverseLookup>();
 const globalIdCounter = new WeakMap<ItemsDic<any>, number>();

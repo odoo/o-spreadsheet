@@ -101,6 +101,7 @@ export class GridSelectionPlugin extends UIPlugin {
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
   private isUnbounded: boolean;
+  private currentStyle: Style | undefined = undefined;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
@@ -187,6 +188,7 @@ export class GridSelectionPlugin extends UIPlugin {
       row,
     });
     this.selectedFiguresIds = [];
+    this.currentStyle = undefined;
   }
 
   handle(cmd: Command) {
@@ -314,6 +316,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   finalize(): void {
     this.fallbackToVisibleSheet();
+    this.currentStyle = undefined;
     /** Any change to the selection has to be  reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
   }
@@ -375,9 +378,16 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getCurrentStyle(): Style {
-    const zone = this.getters.getSelectedZone();
-    const sheetId = this.getters.getActiveSheetId();
-    return this.getters.getCellStyle({ sheetId, col: zone.left, row: zone.top });
+    if (!this.currentStyle) {
+      const zone = this.getters.getSelectedZone();
+      const sheetId = this.getters.getActiveSheetId();
+      this.currentStyle = this.getters.getCellStyle({
+        sheetId,
+        col: zone.left,
+        row: zone.top,
+      });
+    }
+    return this.currentStyle;
   }
 
   getSelectedZones(): Zone[] {

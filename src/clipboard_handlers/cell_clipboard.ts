@@ -3,7 +3,7 @@ import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { deepEquals } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
-import { isZoneInside } from "../helpers/zones";
+import { cellPositions, isZoneInside } from "../helpers/zones";
 import {
   ClipboardCellData,
   ClipboardCopyOptions,
@@ -67,22 +67,20 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               parsedValue: evaluatedCell.value,
             };
           }
-        } else if (mode !== "shiftCells") {
-          if (spreader && !deepEquals(spreader, position)) {
-            const isSpreaderCopied =
-              rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
-            const content = isSpreaderCopied
-              ? ""
-              : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
-            cell = {
-              id: cell?.id ?? 0,
-              style: cell?.style,
-              format: evaluatedCell.format,
-              content,
-              isFormula: false,
-              parsedValue: evaluatedCell.value,
-            };
-          }
+        } else if (mode !== "shiftCells" && spreader && !deepEquals(spreader, position)) {
+          const isSpreaderCopied =
+            rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
+          const content = isSpreaderCopied
+            ? ""
+            : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
+          cell = {
+            id: cell?.id ?? 0,
+            style: cell?.style,
+            format: evaluatedCell.format,
+            content,
+            isFormula: false,
+            parsedValue: evaluatedCell.value,
+          };
         }
         cellsInRow.push({
           content: !cell?.isFormula
@@ -194,17 +192,15 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   /**
-   * Clear the clipped zones: remove the cells and clear the formatting
+   * Clear the clipped zones: remove the cells content
    */
   private clearClippedZones(content: ClipboardContent) {
-    this.dispatch("CLEAR_CELLS", {
-      sheetId: content.sheetId,
-      target: content.zones,
-    });
-    this.dispatch("CLEAR_FORMATTING", {
-      sheetId: content.sheetId,
-      target: content.zones,
-    });
+    for (const position of content.zones.flatMap((zone) => cellPositions(content.sheetId, zone))) {
+      this.dispatch("UPDATE_CELL", {
+        ...position,
+        content: "",
+      });
+    }
   }
 
   pasteZone(
@@ -235,9 +231,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     clipboardOption?: ClipboardOptions
   ) {
     const { sheetId, col, row } = target;
-    const targetCell = this.getters.getEvaluatedCell(target);
-    const originFormat = origin?.format || origin.evaluatedCell.format;
-
+    const targetCell = this.getters.getCell(target);
+    const targetEvaluatedCell = this.getters.getEvaluatedCell(target);
+    const originFormat = origin.format || origin.evaluatedCell.format;
+    // We know the target cell style is already edited by the default_clipboard
+    const newStyle = { ...targetCell?.style, ...origin.style };
+    const style = Object.keys(newStyle ?? {}).length === 0 ? undefined : newStyle;
     if (clipboardOption?.pasteOption === "asValue") {
       this.dispatch("UPDATE_CELL", {
         ...target,
@@ -249,8 +248,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        style: origin?.style ?? null,
-        format: originFormat ?? targetCell.format,
+        style,
+        format: originFormat ?? targetEvaluatedCell.format,
       });
       return;
     }
@@ -266,15 +265,18 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     } else if (origin?.compiledFormula?.hasDependencies) {
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
-    if (content !== "" || origin?.format || origin?.style) {
+    if (content !== "" || origin.format || style) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin?.style || null,
-        format: origin?.format,
+        style,
+        format: origin.format,
       });
-    } else if (targetCell) {
-      this.dispatch("CLEAR_CELL", target);
+    } else if (targetEvaluatedCell.type !== "empty") {
+      this.dispatch("UPDATE_CELL", {
+        content: "",
+        ...target,
+      });
     }
   }
 

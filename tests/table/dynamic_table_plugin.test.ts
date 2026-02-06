@@ -14,7 +14,7 @@ import {
   updateTableConfig,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { getCell, getTables } from "../test_helpers/getters_helpers";
+import { getCellStyle, getTables } from "../test_helpers/getters_helpers";
 import {
   getExportedExcelData,
   getFilterHiddenValues,
@@ -214,7 +214,7 @@ describe("Dynamic tables", () => {
     paste(model, "D1");
 
     expect(model.getters.getTable({ sheetId, col: 3, row: 0 })).toBeUndefined();
-    expect(getCell(model, "D1")?.style).toMatchObject(
+    expect(getCellStyle(model, "D1")).toMatchObject(
       model.getters.getCellComputedStyle(toCellPosition(sheetId, "B1"))
     );
   });
