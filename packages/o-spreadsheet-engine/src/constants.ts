@@ -237,7 +237,6 @@ export const LINE_DATA_POINT_RADIUS = 3;
 export const DEFAULT_WINDOW_SIZE = 2;
 
 // session
-export const DEBOUNCE_TIME = 200;
 export const MESSAGE_VERSION = 1;
 
 // Sheets

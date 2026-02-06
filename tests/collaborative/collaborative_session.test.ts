@@ -1,11 +1,10 @@
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
-import { DEBOUNCE_TIME, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
 import { Model } from "../../src";
 import { lazy } from "../../src/helpers";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
 
@@ -32,15 +31,11 @@ describe("Collaborative session", () => {
   });
 
   test("local client move", () => {
-    unPatchSessionMove();
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const spy = jest.spyOn(transport, "sendMessage");
 
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
-    expect(spy).not.toHaveBeenCalled(); // Wait for debounce
 
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,
@@ -215,7 +210,6 @@ describe("Collaborative session", () => {
 
   test("remote client joins", () => {
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const spy = jest.spyOn(transport, "sendMessage");
     transport.sendMessage({
       type: "CLIENT_JOINED",
@@ -232,7 +226,6 @@ describe("Collaborative session", () => {
   test("local client joins", () => {
     const spy = jest.spyOn(transport, "sendMessage");
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -250,7 +243,6 @@ describe("Collaborative session", () => {
       }
     );
     const sheetId = model.getters.getActiveSheetId();
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -262,7 +254,6 @@ describe("Collaborative session", () => {
       },
     });
     selectCell(model, "B1");
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,
@@ -278,7 +269,6 @@ describe("Collaborative session", () => {
   test("Leave the session do not crash", () => {
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
     session.leave(lazy({} as WorkbookData));
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
   });
 
   const messages = [

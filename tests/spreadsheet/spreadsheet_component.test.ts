@@ -1,5 +1,4 @@
 import {
-  DEBOUNCE_TIME,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
@@ -13,7 +12,6 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import {
   addDataValidation,
   addRows,
@@ -51,14 +49,6 @@ let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
 let env: SpreadsheetChildEnv;
-
-beforeEach(() => {
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.useRealTimers();
-});
 
 let spreadsheetWidth = 1000;
 
@@ -214,14 +204,8 @@ describe("Simple Spreadsheet Component", () => {
 });
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
-  unPatchSessionMove();
   const client = { id: "alice", name: "Alice" };
   ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
-  expect(model.getters.getCurrentClient()).toEqual(client);
-
-  // Validate that after the move debounce has run, the client has a position ad
-  // additional property
-  jest.advanceTimersByTime(DEBOUNCE_TIME + 1);
   expect(model.getters.getCurrentClient()).toEqual({
     id: "alice",
     name: "Alice",
