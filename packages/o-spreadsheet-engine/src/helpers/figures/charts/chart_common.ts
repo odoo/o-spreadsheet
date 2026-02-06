@@ -397,7 +397,7 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
 
 export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
   if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
+    const invalidLabels = !rangeReference.test(definition.labelRange);
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }
