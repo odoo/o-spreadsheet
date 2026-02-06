@@ -93,6 +93,21 @@ describe("Pivot side panel", () => {
     });
   });
 
+  test("Side panel restores the scroll position when switching tabs", async () => {
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    const pivotPanel = fixture.querySelector(".o-panel-content")!;
+    pivotPanel.scrollTop = 100;
+
+    const designPanel = fixture.querySelector(".o-sidePanel-tab.inactive")!;
+    await click(designPanel);
+    expect(pivotPanel.scrollTop).toBe(0);
+
+    const configTab = fixture.querySelector(".o-sidePanel-tab.inactive")!;
+    await click(configTab);
+    expect(pivotPanel.scrollTop).toBe(100);
+  });
+
   test("Pivot cells are highlighted when the panel is open", async () => {
     // prettier-ignore
     setGrid(model, {
