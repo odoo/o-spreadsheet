@@ -102,6 +102,25 @@ const simpleData = {
         B2: { content: "42" },
       },
     },
+    {
+      name: "ColRowDefaults",
+      cells: {},
+      defaultStyle: {
+        colDefault: {
+          3: 4,
+          7: 1,
+          8: 1,
+        },
+        rowDefault: { 0: 1 },
+      },
+    },
+    {
+      name: "SheetDefaults",
+      cells: {},
+      defaultStyle: {
+        sheetDefault: 1,
+      },
+    },
   ],
   formats: {
     1: "0.00%",
@@ -115,7 +134,7 @@ const simpleData = {
     5: { underline: true },
     6: { verticalAlign: "top" },
     7: { verticalAlign: "middle" },
-    8: { VerticalAlign: "bottom" },
+    8: { verticalAlign: "bottom" },
     9: { wrapping: "overflow" },
     10: { wrapping: "wrap" },
     11: { wrapping: "clip" },

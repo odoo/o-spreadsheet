@@ -436,7 +436,7 @@ export class AutofillPlugin extends UIPlugin {
       content,
       style,
       border,
-      format,
+      format: format ?? undefined,
     };
   }
 
@@ -459,12 +459,17 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     for (const xc of source) {
       const { col, row } = toCartesian(xc);
-      const cell = this.getters.getCell({ sheetId, col, row });
+      const position = { sheetId, col, row };
+      const cell = this.getters.getCell(position);
+      const style = this.getters.getCellStyle(position, cell);
+      const format = this.getters.getCellFormat(position, cell);
       cellsData.push({
         col,
         row,
         cell,
         sheetId,
+        style,
+        format,
       });
     }
     const cells = cellsData.map((cellData) => cellData.cell);
