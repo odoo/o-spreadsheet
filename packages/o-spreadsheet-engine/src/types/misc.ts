@@ -103,6 +103,7 @@ export interface ZoneDimension {
 }
 
 export type Align = "left" | "right" | "center" | undefined;
+export type StyleAlign = Align | "default";
 
 export type VerticalAlign = "top" | "middle" | "bottom" | undefined;
 
@@ -113,7 +114,7 @@ export interface Style {
   italic?: boolean;
   strikethrough?: boolean;
   underline?: boolean;
-  align?: Align;
+  align?: StyleAlign;
   wrapping?: Wrapping;
   verticalAlign?: VerticalAlign;
   fillColor?: Color;
