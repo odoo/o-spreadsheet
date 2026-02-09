@@ -69,22 +69,20 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               parsedValue: evaluatedCell.value,
             };
           }
-        } else if (mode !== "shiftCells") {
-          if (spreader && !deepEquals(spreader, position)) {
-            const isSpreaderCopied =
-              rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
-            const content = isSpreaderCopied
-              ? ""
-              : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
-            cell = {
-              id: cell?.id ?? 0,
-              style: cell?.style,
-              format: evaluatedCell.format,
-              content,
-              isFormula: false,
-              parsedValue: evaluatedCell.value,
-            };
-          }
+        } else if (mode !== "shiftCells" && spreader && !deepEquals(spreader, position)) {
+          const isSpreaderCopied =
+            rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
+          const content = isSpreaderCopied
+            ? ""
+            : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
+          cell = {
+            id: cell?.id ?? 0,
+            style: cell?.style,
+            format: evaluatedCell.format,
+            content,
+            isFormula: false,
+            parsedValue: evaluatedCell.value,
+          };
         }
         cellsInRow.push({
           content: cell?.content ?? "",
@@ -199,11 +197,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
    * Clear the clipped zones: remove the cells and clear the formatting
    */
   private clearClippedZones(content: ClipboardContent) {
-    this.dispatch("CLEAR_CELLS", {
-      sheetId: content.sheetId,
-      target: content.zones,
-    });
-    this.dispatch("CLEAR_FORMATTING", {
+    this.dispatch("DELETE_CONTENT", {
       sheetId: content.sheetId,
       target: content.zones,
     });
