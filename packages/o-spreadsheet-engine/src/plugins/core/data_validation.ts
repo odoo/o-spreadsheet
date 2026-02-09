@@ -256,7 +256,7 @@ export class DataValidationPlugin
       const cell = this.getters.getCell(position);
       const style: Style = {
         ...cell?.style,
-        align: cell?.style?.align ?? "center",
+        align: !cell?.style?.align || cell.style.align === "default" ? "center" : cell.style.align,
         verticalAlign: cell?.style?.verticalAlign ?? "middle",
       };
       this.dispatch("UPDATE_CELL", { ...position, style });

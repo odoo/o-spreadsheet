@@ -10,7 +10,6 @@ import {
   ExtractedStyle,
   XLSXDataValidationDateOperatorType,
   XLSXDataValidationOperatorType,
-  XLSXHorizontalAlignment,
   XLSXNumFormat,
   XLSXRel,
   XLSXRelFile,
@@ -150,7 +149,7 @@ export function extractStyle(
     numFmt: format ? { format: format, id: 0 /* id not used for export */ } : undefined,
     border: borderId || 0,
     alignment: {
-      horizontal: style.align as XLSXHorizontalAlignment,
+      horizontal: style.align === "default" ? undefined : style.align,
       vertical: style.verticalAlign
         ? V_ALIGNMENT_EXPORT_CONVERSION_MAP[style.verticalAlign]
         : undefined,
