@@ -13,7 +13,6 @@ import {
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";
-import { RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 import { SpreadingRelation } from "./spreading_relation";
 
@@ -204,27 +203,16 @@ export class Evaluator {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
-      const rTreeItems: RTreeItem<BoundedRange>[] = [];
+      const graph = new FormulaDependencyGraph();
       for (const sheetId of this.getters.getSheetIds()) {
         for (const cell of this.getters.getCells(sheetId)) {
           if (cell.isFormula) {
-            const directDependencies = cell.compiledFormula.rangeDependencies;
-            for (const range of directDependencies) {
-              if (range.invalidSheetName || range.invalidXc) {
-                continue;
-              }
-              rTreeItems.push({
-                data: {
-                  sheetId,
-                  zone: positionToZone(this.getters.getCellPosition(cell.id)),
-                },
-                boundingBox: { sheetId: range.sheetId, zone: range.zone },
-              });
-            }
+            const cellPosition = this.getters.getCellPosition(cell.id);
+            graph.addDependencies(cellPosition, cell.compiledFormula.rangeDependencies);
           }
         }
       }
-      return new FormulaDependencyGraph(rTreeItems);
+      return graph;
     });
   }
 
