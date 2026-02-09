@@ -714,7 +714,10 @@ export class GridRenderer extends DisposableStore {
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
     }
-    return align || evaluatedCell.defaultAlign;
+    if (!align || align === "default") {
+      return evaluatedCell.defaultAlign;
+    }
+    return align;
   }
 
   private createZoneBox(
