@@ -321,7 +321,7 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: 1,
+            id: "1",
             cols: { 0: { size: 5 }, 2: { size: 25 } },
             colNumber: 3,
             cells: {
@@ -684,7 +684,7 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: 1,
+            id: "1",
             colNumber: 4,
             cols: {
               0: { size: 2 + MIN_CELL_TEXT_MARGIN },
