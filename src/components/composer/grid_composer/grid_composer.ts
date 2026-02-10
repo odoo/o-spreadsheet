@@ -157,7 +157,11 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     let textAlign = "left";
 
     if (!_isFormula) {
-      textAlign = style.align || cell.defaultAlign;
+      if (style.align === "default" || !style.align) {
+        textAlign = cell.defaultAlign;
+      } else {
+        textAlign = style.align;
+      }
     }
 
     const maxHeight = this.props.gridDims.height - this.rect.y;

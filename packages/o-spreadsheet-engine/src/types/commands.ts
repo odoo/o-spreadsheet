@@ -364,7 +364,7 @@ export interface UpdateCellCommand extends PositionDependentCommand {
   type: "UPDATE_CELL";
   content?: string;
   style?: Style | null;
-  format?: Format;
+  format?: Format | null;
 }
 
 /**

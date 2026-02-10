@@ -5,6 +5,7 @@ import { CellPlugin } from "./core/cell";
 import { ChartPlugin } from "./core/chart";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { DataValidationPlugin } from "./core/data_validation";
+import { DefaultPlugin } from "./core/default";
 import { FigurePlugin } from "./core/figures";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
@@ -67,6 +68,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("tables", TablePlugin)
   .add("dataValidation", DataValidationPlugin)
   .add("cell", CellPlugin)
+  .add("default", DefaultPlugin)
   .add("merge", MergePlugin)
   .add("headerSize", HeaderSizePlugin)
   .add("borders", BordersPlugin)

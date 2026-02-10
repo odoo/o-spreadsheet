@@ -683,7 +683,10 @@ export class GridRenderer extends SpreadsheetStore {
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
     }
-    return align || evaluatedCell.defaultAlign;
+    if (!align || align === "default") {
+      return evaluatedCell.defaultAlign;
+    }
+    return align;
   }
 
   private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport, precomputeZone: Zone): Box {
