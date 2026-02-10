@@ -1,10 +1,16 @@
 import { RangeAdapterFunctions, UID, Validator } from "../..";
 import {
-  ChartDataSourceHandler,
+  ChartDataSourceBuilder,
   chartDataSourceRegistry,
 } from "../../registries/chart_data_source_registry";
 import { ChartTypeBuilder, chartTypeRegistry } from "../../registries/chart_registry";
-import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart";
+import {
+  ChartCreationContext,
+  ChartDataSource,
+  ChartDataSourceType,
+  ChartDefinition,
+  ChartType,
+} from "../../types/chart";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { Range } from "../../types/range";
@@ -14,8 +20,9 @@ export class MyChart {
     private readonly getters: CoreGetters,
     readonly sheetId: UID,
     private readonly definition: ChartDefinition<Range>,
+    private readonly dataSource: ChartDataSource<Range> | undefined,
     private readonly chartTypeBuilder: ChartTypeBuilder<ChartType>, // e.g., BarChart
-    private readonly dataSourceHandler: ChartDataSourceHandler // from registry
+    private readonly dataSourceBuilder: ChartDataSourceBuilder<ChartDataSourceType> // from registry
   ) {}
 
   static fromStrDefinition(
@@ -23,9 +30,9 @@ export class MyChart {
     sheetId: UID,
     definition: ChartDefinition<string>
   ) {
-    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    const dataSourceHandler = DataSourceHandler.fromRangeStr(
+    const dataSource = dataSourceBuilder.fromRangeStr(
       getters,
       sheetId,
       definition.dataSource ?? { type: "never" }
@@ -35,28 +42,33 @@ export class MyChart {
       sheetId,
       {
         ...chartTypeBuilder.fromStrDefinition(definition, sheetId, getters),
-        dataSource: dataSourceHandler.dataSource,
+        dataSource,
       } as ChartDefinition<Range>,
+      dataSource,
       chartTypeBuilder,
-      dataSourceHandler
+      dataSourceBuilder
     );
   }
 
   static fromDefinition(getters: CoreGetters, sheetId: UID, definition: ChartDefinition<Range>) {
-    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    const dataSourceHandler = DataSourceHandler.fromRanges(
-      definition.dataSource ?? { type: "never" }
+    return new MyChart(
+      getters,
+      sheetId,
+      definition,
+      definition.dataSource,
+      chartTypeBuilder,
+      dataSourceBuilder
     );
-    return new MyChart(getters, sheetId, definition, chartTypeBuilder, dataSourceHandler);
   }
 
   static validate(validator: Validator, definition: ChartDefinition<string>) {
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     return validator.batchValidations(
       () => chartTypeBuilder.validateDefinition(validator, definition),
-      () => DataSourceHandler.validate(validator, definition.dataSource ?? { type: "never" })
+      () => dataSourceBuilder.validate(validator, definition.dataSource ?? { type: "never" })
     )(undefined); // Typescript requires a parameter but we don't use it (`definition` is captured by closure)
   }
 
@@ -69,8 +81,8 @@ export class MyChart {
     if (!definition.dataSource) {
       return chartTypeBuilder.transformDefinition(definition, chartSheetId, rangeAdapters);
     }
-    const DataSourceHandler = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
-    const newDataSource = DataSourceHandler.transform(
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const newDataSource = dataSourceBuilder.transform(
       chartSheetId,
       definition.dataSource,
       rangeAdapters
@@ -84,30 +96,36 @@ export class MyChart {
   getRangeDefinition(): ChartDefinition<Range> {
     return {
       ...this.definition,
-      dataSource: this.dataSourceHandler.dataSource,
+      dataSource: this.dataSource,
     } as ChartDefinition<Range>;
   }
 
   getDefinition(): ChartDefinition<string> {
     return {
       ...this.chartTypeBuilder.toStrDefinition(this.definition, this.sheetId, this.getters),
-      dataSource: this.dataSourceHandler.getDefinition(this.getters, this.sheetId),
+      dataSource:
+        this.dataSource &&
+        this.dataSourceBuilder.getDefinition(this.dataSource, this.getters, this.sheetId),
     } as ChartDefinition<string>;
   }
 
   updateRanges(rangeAdapters: RangeAdapterFunctions): ChartDefinition<Range> {
     return {
       ...this.chartTypeBuilder.updateRanges(this.definition, rangeAdapters, this.sheetId),
-      dataSource: this.dataSourceHandler.adaptRanges(rangeAdapters),
+      dataSource:
+        this.dataSource && this.dataSourceBuilder.adaptRanges(this.dataSource, rangeAdapters),
     } as ChartDefinition<Range>;
   }
 
   duplicateInDuplicatedSheet(sheetIdFrom: UID, sheetIdTo: UID): ChartDefinition<string> {
-    const newDataSource = this.dataSourceHandler.duplicateInDuplicatedSheet(
-      this.getters,
-      sheetIdFrom,
-      sheetIdTo
-    );
+    const newDataSource =
+      this.dataSource &&
+      this.dataSourceBuilder.duplicateInDuplicatedSheet(
+        this.dataSource,
+        this.getters,
+        sheetIdFrom,
+        sheetIdTo
+      );
     const newChartTypeDef = this.chartTypeBuilder.duplicateInDuplicatedSheet(
       this.definition,
       sheetIdFrom,
@@ -130,18 +148,20 @@ export class MyChart {
     );
     return {
       ...newChartTypeDef,
-      dataSource: this.dataSourceHandler.dataSource,
+      dataSource: this.dataSource,
     } as ChartDefinition<Range>;
   }
 
   getContextCreation(): ChartCreationContext {
     const definition = this.getDefinition();
-    const dataSourceDefinition = this.dataSourceHandler.getDefinition(this.getters, this.sheetId);
+    const dataSourceDefinition =
+      this.dataSource &&
+      this.dataSourceBuilder.getDefinition(this.dataSource, this.getters, this.sheetId);
     return {
-      ...this.dataSourceHandler.getContextCreation(definition.dataSource ?? { type: "never" }),
+      ...this.dataSourceBuilder.getContextCreation(definition.dataSource ?? { type: "never" }),
       ...this.chartTypeBuilder.getContextCreation(
         definition,
-        this.dataSourceHandler,
+        this.dataSourceBuilder,
         dataSourceDefinition
       ),
     };
@@ -155,16 +175,24 @@ export class MyChart {
     return this.chartTypeBuilder.getDefinitionForExcel(
       getters,
       definition,
-      this.dataSourceHandler.toExcelDataSets(getters, definition.dataSetStyles)
+      this.dataSource
+        ? this.dataSourceBuilder.toExcelDataSets(this.dataSource, getters, definition.dataSetStyles)
+        : { dataSets: [] }
     );
   }
 
   getRuntime(getters: Getters) {
-    return this.chartTypeBuilder.getRuntime(
-      getters,
-      this.definition,
-      this.dataSourceHandler,
-      this.sheetId
-    );
+    const dataSource = this.dataSource;
+    const dataExtractors = dataSource
+      ? {
+          extractData: () => this.dataSourceBuilder.extractData(dataSource, getters),
+          extractHierarchicalData: () =>
+            this.dataSourceBuilder.extractHierarchicalData(dataSource, getters),
+        }
+      : {
+          extractData: () => ({ dataSetsValues: [], labelValues: [] }),
+          extractHierarchicalData: () => ({ dataSetsValues: [], labelValues: [] }),
+        };
+    return this.chartTypeBuilder.getRuntime(getters, this.definition, dataExtractors, this.sheetId);
   }
 }
