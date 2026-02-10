@@ -1,7 +1,5 @@
 import { functionRegistry } from "../../../functions/function_registry";
-import { getFullReference } from "../../../helpers";
-import { toXC } from "../../../helpers/coordinates";
-import { intersection, isZoneValid, zoneToXc } from "../../../helpers/zones";
+import { intersection, isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
@@ -52,6 +50,7 @@ class CompilationParametersBuilder {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
       locale: this.getters.getLocale(),
+      getRef: this.getRef.bind(this),
     });
   }
 
@@ -67,24 +66,19 @@ class CompilationParametersBuilder {
    * Returns the value of the cell(s) used in reference
    *
    * @param range the references used
-   * @param isMeta if a reference is supposed to be used in a `meta` parameter as described in the
-   *        function for which this parameter is used, we just return the string of the parameter.
-   *        The `compute` of the formula's function must process it completely
    */
-  private refFn(range: Range, isMeta: boolean): FunctionResultObject {
+  private refFn(range: Range): FunctionResultObject {
     const rangeError = this.getRangeError(range);
     if (rangeError) {
       return rangeError;
     }
     // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-    if (isMeta) {
-      this.computeCell(position); // ensure the cell is computed if the function using the meta parameter uses the value
-      // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
-      const sheetName = this.getters.getSheetName(range.sheetId);
-      return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
+    const result = this.computeCell(position);
+    if (!result.position) {
+      return { ...result, position };
     }
-    return this.computeCell(position);
+    return result;
   }
 
   /**
@@ -95,7 +89,7 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range(range: Range, isMeta: boolean): Matrix<FunctionResultObject> {
+  private range(range: Range): Matrix<FunctionResultObject> {
     const rangeError = this.getRangeError(range);
     if (rangeError) {
       return [[rangeError]];
@@ -111,7 +105,7 @@ class CompilationParametersBuilder {
       return [[]];
     }
     const { top, left, bottom, right } = zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}-${isMeta}`;
+    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
     if (cacheKey in this.rangeCache) {
       return this.rangeCache[cacheKey];
     }
@@ -119,7 +113,6 @@ class CompilationParametersBuilder {
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
     const matrix: Matrix<FunctionResultObject> = new Array(width);
-    const sheetName = this.getters.getSheetName(range.sheetId);
 
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
@@ -127,15 +120,20 @@ class CompilationParametersBuilder {
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
-        const computedCell = this.computeCell({ sheetId, col, row });
-        matrix[colIndex][rowIndex] = isMeta
-          ? { value: getFullReference(sheetName, toXC(col, row)) }
-          : computedCell;
+        matrix[colIndex][rowIndex] = this.getRef({ sheetId, col, row });
       }
     }
 
     this.rangeCache[cacheKey] = matrix;
     return matrix;
+  }
+
+  private getRef(position: CellPosition): FunctionResultObject {
+    const result = this.computeCell(position);
+    if (!result.position) {
+      return { ...result, position };
+    }
+    return result;
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {

@@ -130,6 +130,20 @@ describe("COLUMN formula", () => {
   test("COLUMN accepts errors on first argument", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN(B2)", B2: "=KABOUM" })).toBe(2);
   });
+
+  test("COLUMN accepts formulas that return references", () => {
+    const grid = {
+      A1: "=COLUMN(XLOOKUP(2, B1:D1, X1:Z1))",
+      B1: "1",
+      C1: "2",
+      D1: "3",
+      X1: "42",
+      Y1: "43",
+      Z1: "44",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellContent(model, "A1")).toBe("25");
+  });
 });
 
 describe("COLUMNS formula", () => {
@@ -283,6 +297,12 @@ describe("LOOKUP formula", () => {
     });
     expect(grid.A1).toBe(42);
     expect(grid.A2).toBe(42);
+  });
+
+  test("LOOKUP output can be used as a reference", () => {
+    expect(
+      evaluateCell("A1", { A1: '=CELL("address", LOOKUP(2, B1:B3))', B1: "1", B2: "2", B3: "3" })
+    ).toBe("$B$2");
   });
 });
 
@@ -526,6 +546,10 @@ describe("MATCH formula", () => {
     expect(grid.A2).toBe(1);
     expect(grid.A3).toBe(1);
   });
+
+  test("MATCH output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", CHOOSE(2, B2, C3))' })).toBe("$C$3");
+  });
 });
 
 describe("ROW formula", () => {
@@ -573,6 +597,20 @@ describe("ROW formula", () => {
 
   test("ROW accepts errors on first argument", () => {
     expect(evaluateCell("A1", { A1: "=ROW(B2)", B2: "=KABOUM" })).toBe(2);
+  });
+
+  test("ROW accepts formulas that return references", () => {
+    const grid = {
+      A1: "=ROW(XLOOKUP(2, B1:B3, B42:B44))",
+      B1: "1",
+      B2: "2",
+      B3: "3",
+      B42: "abc",
+      B43: "def",
+      B44: "ghi",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellContent(model, "A1")).toBe("43");
   });
 });
 
@@ -908,6 +946,17 @@ describe("VLOOKUP formula", () => {
     expect(grid.A1).toBe(42);
     expect(grid.A2).toBe(42);
   });
+
+  test("VLOOKUP output can be used as a reference", () => {
+    expect(
+      evaluateCell("A1", {
+        A1: '=CELL("address", VLOOKUP(2, B1:B3, 1))',
+        B1: "1",
+        B2: "2",
+        B3: "3",
+      })
+    ).toBe("$B$2");
+  });
 });
 
 describe("HLOOKUP formula", () => {
@@ -1128,6 +1177,17 @@ describe("HLOOKUP formula", () => {
     });
     expect(grid.A1).toBe(42);
     expect(grid.A2).toBe(42);
+  });
+
+  test("HLOOKUP output can be used as a reference", () => {
+    expect(
+      evaluateCell("A1", {
+        A1: '=CELL("address", HLOOKUP(2, B1:D1, 1))',
+        B1: "1",
+        C1: "2",
+        D1: "3",
+      })
+    ).toBe("$C$1");
   });
 });
 
@@ -1428,6 +1488,12 @@ describe("XLOOKUP formula", () => {
   ])("Accept simple values on the search range or the return range. Formula: %s", (formula) => {
     expect(evaluateCell("A1", { A1: formula })).toBe(42);
   });
+
+  test("XLOOKUP output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", XLOOKUP(2, {1, 2, 3}, B1:D1))' })).toBe(
+      "$C$1"
+    );
+  });
 });
 
 describe("INDEX formula", () => {
@@ -1594,6 +1660,10 @@ describe("INDEX formula", () => {
     expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe(42);
     expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 2, 2)", ...grid })).toBe("#BAD_EXPR");
   });
+
+  test("INDEX output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", INDEX(B2:C3, 2, 2))' })).toBe("$C$3");
+  });
 });
 
 describe("INDIRECT formula", () => {
@@ -1734,12 +1804,16 @@ describe("INDIRECT formula", () => {
     expect(grid.A5).toBe("#CYCLE");
     expect(grid.A6).toBe("#ERROR");
   });
+
+  test("INDIRECT output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", INDIRECT("B2"))' })).toBe("$B$2");
+  });
 });
 
 describe("OFFSET formula", () => {
   test("should check argument validity", () => {
     expect(evaluateCell("A1", { A1: "=OFFSET()" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=OFFSET(,1,1,0,0)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(,1,1,0,0)" })).toBe("#REF");
     expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 'hola')" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5)" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 0)" })).toBe("#BAD_EXPR");
@@ -1921,6 +1995,22 @@ describe("OFFSET formula", () => {
     expect(getEvaluatedCell(model2, "A1", "sh2").value).toBe("bloub");
     expect(getEvaluatedCell(model2, "A1", "sh3").value).toBe("bloub");
   });
+
+  test("OFFSET can use formulas that return references", () => {
+    //prettier-ignore
+    const grid = {
+      A1: '=OFFSET(XLOOKUP(2, B1:B3, C1:C3), 1, 0)',
+      B1: "1", C1: "1112UY35",
+      B2: "2", C2: "2282TGR8",
+      B3: "3", C3: "923Y9YF9",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellContent(model, "A1")).toBe("923Y9YF9");
+  });
+
+  test("OFFSET output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", OFFSET(B2, 1, 1))' })).toBe("$C$3");
+  });
 });
 
 describe("CHOOSE formula", () => {
@@ -1957,6 +2047,10 @@ describe("CHOOSE formula", () => {
   });
   test("error if argument is 0", () => {
     expect(evaluateCell("A1", { A1: `=CHOOSE(1,0)` })).toBe(0);
+  });
+
+  test("CHOOSE output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", CHOOSE(2, B2, C3))' })).toBe("$C$3");
   });
 });
 
@@ -2065,6 +2159,18 @@ describe("FORMULATEXT formula", () => {
                                     D5: "=FORMULATEXT(A1)",
     };
     expect(evaluateCell("D5", grid)).toBe("#N/A");
+  });
+
+  test("FORMULATEXT can use formulas that return references", () => {
+    //prettier-ignore
+    const grid = {
+      A1: '=FORMULATEXT(XLOOKUP(2, B1:B3, C1:C3))',
+      B1: "1", C1: "=11",
+      B2: "2", C2: "=22",
+      B3: "3", C3: "=33",
+    };
+    const model = createModelFromGrid(grid);
+    expect(getCellContent(model, "A1")).toBe("=22");
   });
 });
 describe("TAKE formula", () => {
@@ -2181,5 +2287,9 @@ describe("TAKE formula", () => {
                                     D5: "=TAKE(A1:B2,0)",
     };
     expect(evaluateCell("D5", grid)).toBe("#ERROR");
+  });
+
+  test("TAKE output can be used as a reference", () => {
+    expect(evaluateCell("A1", { A1: '=CELL("address", TAKE(B2:C3, -1, -1))' })).toBe("$C$3");
   });
 });

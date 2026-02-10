@@ -1,13 +1,12 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
-import { getFullReference, splitReference } from "../helpers/";
-import { toCartesian, toXC } from "../helpers/coordinates";
+import { getFullReference } from "../helpers/";
+import { toXC } from "../helpers/coordinates";
 import { isFormula, range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
 } from "../helpers/pivot/pivot_helpers";
-import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
 import {
   CellErrorType,
@@ -16,7 +15,7 @@ import {
   NotAvailableError,
 } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, UID, Zone } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -28,8 +27,8 @@ import {
 import {
   dichotomicSearch,
   expectNumberRangeError,
+  expectReferenceError,
   generateMatrix,
-  isEvaluationError,
   linearSearch,
   LinearSearchMode,
   strictToInteger,
@@ -134,15 +133,15 @@ export const COLUMN = {
   description: _t("Column number of a specified cell."),
   args: [
     arg(
-      "cell_reference (meta, range<meta>, default='this cell')",
+      "cell_reference (any, range<any>, default='this cell')",
       _t(
         "The cell whose column number will be returned. Column A corresponds to 1. By default, the function use the cell in which the formula is entered."
       )
     ),
   ],
-  compute: function (cellReference: Matrix<{ value: string }> | undefined) {
+  compute: function (cellReference: Arg) {
     if (cellReference === undefined) {
-      if (this.__originCellPosition?.col === undefined) {
+      if (this.__originCellPosition === undefined) {
         return new EvaluationError(
           _t(
             "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
@@ -151,20 +150,20 @@ export const COLUMN = {
       }
       return this.__originCellPosition.col + 1;
     }
-    if (cellReference[0][0] === undefined) {
+    const _cellReference = toMatrix(cellReference);
+    const firstCell = _cellReference[0][0];
+    if (firstCell === undefined) {
+      // to do: should work with ranges out of bounds
       return new EvaluationError(_t("The range is out of bounds."));
     }
-    if (cellReference[0][0].value === CellErrorType.InvalidReference) {
-      return cellReference[0][0]; // return the same error
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
     }
-    const left = this.getters.getRangeFromSheetXC(
-      this.getters.getActiveSheetId(),
-      cellReference[0][0].value
-    ).zone.left;
-    if (cellReference.length === 1) {
+    const left = firstCell.position.col;
+    if (_cellReference.length === 1) {
       return left + 1;
     }
-    return generateMatrix(cellReference.length, 1, (col, row) => ({ value: left + col + 1 }));
+    return generateMatrix(_cellReference.length, 1, (col) => ({ value: left + col + 1 }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -349,7 +348,7 @@ export const INDIRECT: AddFunctionDescription = {
       const colValues: FunctionResultObject[] = [];
       for (let row = range.zone.top; row <= range.zone.bottom; row++) {
         const position = { sheetId: range.sheetId, col, row };
-        colValues.push(this.getters.getEvaluatedCell(position));
+        colValues.push(this.getRef(position));
       }
       values.push(colValues);
     }
@@ -528,13 +527,13 @@ export const ROW = {
   description: _t("Row number of a specified cell."),
   args: [
     arg(
-      "cell_reference (meta, range<meta>, default='this cell')",
+      "cell_reference (any, range<any>, default='this cell')",
       _t(
         "The cell whose row number will be returned. By default, this function uses the cell in which the formula is entered."
       )
     ),
   ],
-  compute: function (cellReference: Matrix<{ value: string }> | undefined) {
+  compute: function (cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition?.row === undefined) {
         return new EvaluationError(
@@ -545,20 +544,20 @@ export const ROW = {
       }
       return this.__originCellPosition.row + 1;
     }
-    if (cellReference[0][0] === undefined) {
+    const _cellReference = toMatrix(cellReference);
+    const firstCell = _cellReference[0][0];
+    if (firstCell === undefined) {
+      // to do: should work with ranges out of bounds
       return new EvaluationError(_t("The range is out of bounds."));
     }
-    if (cellReference[0][0].value === CellErrorType.InvalidReference) {
-      return cellReference[0][0]; // return the same error
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
     }
-    const top = this.getters.getRangeFromSheetXC(
-      this.getters.getActiveSheetId(),
-      cellReference[0][0].value
-    ).zone.top;
-    if (cellReference[0].length === 1) {
+    const top = firstCell.position.row;
+    if (_cellReference[0].length === 1) {
       return top + 1;
     }
-    return generateMatrix(1, cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
+    return generateMatrix(1, _cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1004,7 +1003,7 @@ export const OFFSET = {
   ),
   args: [
     arg(
-      "cell_reference (meta, range<meta>)",
+      "cell_reference (any, range<any>)",
       _t("The starting point from which to count the offset rows and columns.")
     ),
     arg("offset_rows (number)", _t("The number of rows to offset by.")),
@@ -1019,26 +1018,29 @@ export const OFFSET = {
     ),
   ],
   compute: function (
-    cellReference: Matrix<{ value: string }>,
+    cellReference: Arg,
     offsetRows: Maybe<FunctionResultObject>,
     offsetColumns: Maybe<FunctionResultObject>,
     height: Maybe<FunctionResultObject>,
     width: Maybe<FunctionResultObject>
   ) {
-    if (isEvaluationError(cellReference[0][0].value)) {
-      return cellReference[0][0];
+    if (cellReference === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
+    }
+    const _cellReference = toMatrix(cellReference);
+    const firstCell = _cellReference[0][0];
+
+    if (firstCell === undefined) {
+      // to do: should work with ranges out of bounds
+      return new EvaluationError(_t("The range is out of bounds."));
     }
 
-    const ref0 = cellReference[0][0].value;
-    if (!ref0) {
-      return new EvaluationError(
-        "In this context, the function OFFSET needs to have a cell or range in parameter."
-      );
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
     }
-    const zone = toZone(ref0);
 
-    let offsetHeight = cellReference[0].length;
-    let offsetWidth = cellReference.length;
+    let offsetHeight = _cellReference[0].length;
+    let offsetWidth = _cellReference.length;
 
     if (height) {
       const _height = toNumber(height, this.locale);
@@ -1060,11 +1062,6 @@ export const OFFSET = {
       offsetWidth = _width;
     }
 
-    const { sheetName } = splitReference(ref0);
-
-    const sheetId =
-      (sheetName && this.getters.getSheetIdByName(sheetName)) || this.getters.getActiveSheetId();
-
     const _offsetRows = toNumber(offsetRows, this.locale);
     const _offsetColumns = toNumber(offsetColumns, this.locale);
 
@@ -1073,8 +1070,8 @@ export const OFFSET = {
       this.updateDependencies?.(originPosition);
     }
 
-    const startingCol = zone.left + _offsetColumns;
-    const startingRow = zone.top + _offsetRows;
+    const startingCol = firstCell.position.col + _offsetColumns;
+    const startingRow = firstCell.position.row + _offsetRows;
 
     if (startingCol < 0 || startingRow < 0) {
       return new InvalidReferenceError(_t("OFFSET evaluates to an out of bounds range."));
@@ -1087,6 +1084,7 @@ export const OFFSET = {
       bottom: startingRow + offsetHeight - 1,
     };
 
+    const sheetId = firstCell.position.sheetId;
     const range = this.getters.getRangeFromZone(sheetId, dependencyZone);
     if (range.invalidXc || range.invalidSheetName) {
       return new InvalidReferenceError();
@@ -1099,7 +1097,7 @@ export const OFFSET = {
       offsetWidth,
       offsetHeight,
       (col: number, row: number): FunctionResultObject =>
-        this.getters.getEvaluatedCell({
+        this.getRef({
           sheetId,
           col: startingCol + col,
           row: startingRow + row,
@@ -1244,13 +1242,12 @@ export const TAKE = {
 
 export const FORMULATEXT = {
   description: _t("Returns a formula as a string."),
-  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
-  compute: function (cellReference: { value: string }) {
-    const { sheetName, xc } = splitReference(cellReference.value);
-    const { col, row } = toCartesian(xc);
-    const sheetId: UID =
-      (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.__originSheetId;
-    const cell = this.getters.getCell({ sheetId, col, row });
+  args: [arg("cell_reference (any)", _t("A reference to a cell."))],
+  compute: function (cellReference: Maybe<FunctionResultObject>) {
+    if (cellReference?.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
+    }
+    const cell = this.getters.getCell(cellReference.position);
     if (cell && isFormula(cell.content)) {
       return cell.content;
     } else {

@@ -158,6 +158,37 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
 
+  test("Functions output can be used as a reference", () => {
+    const model = new Model();
+    addToRegistry(functionRegistry, "GET.VALUE", {
+      args: [arg("cell (any)", "blabla")],
+      description: "Get the value of a cell",
+      compute: function (arg) {
+        return arg || { value: 0 };
+      },
+    });
+    addToRegistry(functionRegistry, "IS.REF", {
+      args: [arg("cell (any)", "blabla")],
+      description: "Check if argument is a reference",
+      compute: function (arg) {
+        const _arg = toScalar(arg);
+        return !!_arg?.position;
+      },
+    });
+
+    setCellContent(model, "A1", "42");
+
+    setCellContent(model, "B1", "=GET.VALUE(A1)");
+    expect(getEvaluatedCell(model, "B1").value).toBe(42);
+    setCellContent(model, "B2", "=GET.VALUE(42)");
+    expect(getEvaluatedCell(model, "B2").value).toBe(42);
+
+    setCellContent(model, "C1", "=IS.REF(GET.VALUE(A1))");
+    expect(getEvaluatedCell(model, "C1").value).toBe(true);
+    setCellContent(model, "C2", "=IS.REF(GET.VALUE(42))");
+    expect(getEvaluatedCell(model, "C2").value).toBe(false);
+  });
+
   test("Can use a custom evaluation context in a function", () => {
     const model = new Model(
       {},
