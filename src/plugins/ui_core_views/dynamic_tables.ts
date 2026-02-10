@@ -88,8 +88,14 @@ export class DynamicTablesPlugin extends UIPlugin {
       // Reduce the zone to avoid collision with static tables. Per design, dynamic tables can't overlap with other
       // dynamic tables, because formulas cannot spread on the same area, so we don't need to check for that.
       for (const staticTable of staticTables) {
-        if (overlap(tableZone, staticTable.range.zone)) {
-          tableZone = { ...tableZone, right: staticTable.range.zone.left - 1 };
+        const staticTableZone = staticTable.range.zone;
+        if (!overlap(tableZone, staticTableZone)) {
+          continue;
+        }
+        if (staticTableZone.left > tableZone.left) {
+          tableZone = { ...tableZone, right: Math.min(tableZone.right, staticTableZone.left - 1) };
+        } else {
+          tableZone = { ...tableZone, bottom: Math.min(tableZone.bottom, staticTableZone.top - 1) };
         }
       }
       tables.push({ ...table, range: this.getters.getRangeFromZone(sheetId, tableZone) });
