@@ -77,8 +77,8 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource): PieChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): PieChartRuntime {
+    const data = extractData();
     const chartData = getPieChartData(definition, data, getters);
 
     const config: ChartConfiguration<"doughnut" | "pie"> = {

@@ -65,6 +65,12 @@ export type ChartDefinition<T extends string | Range = string> =
   | ScorecardChartDefinition<T>
   | GaugeChartDefinition<T>;
 
+/**
+ * `ChartTypeDefinition<"bar", Range>`
+ * `ChartTypeDefinition<"bar", string>`
+ * `ChartTypeDefinition<"pie", Range>`
+ *  ... for each chart type and for Range or string data source.
+ */
 export type ChartTypeDefinition<T extends ChartType, R extends string | Range> = Extract<
   ChartDefinition<R>,
   { type: T }
@@ -170,6 +176,11 @@ export type ChartDataSource<T extends string | Range = Range> =
   | ChartRangeDataSource<T>
   | { type: "never" };
 // | ChartPivotDataSource;
+
+export type DataSourceType<T extends ChartDataSourceType, R extends string | Range> = Extract<
+  ChartDataSource<R>,
+  { type: T }
+>;
 
 export type ChartDataSourceType = ChartDataSource["type"];
 
