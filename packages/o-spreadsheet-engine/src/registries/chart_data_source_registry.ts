@@ -4,6 +4,7 @@ import {
   ChartDataSource,
   ChartDataSourceType,
   DataSetStyle,
+  DataSourceType,
   ExcelChartDefinition,
 } from "../types/chart";
 import { CommandResult } from "../types/commands";
@@ -14,48 +15,50 @@ import { Range } from "../types/range";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
-interface ChartDataSourceHandlerContructor {
+export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
   fromRangeStr: (
     getters: CoreGetters,
     defaultSheetId: UID,
-    dataSource: ChartDataSource<string>
-  ) => ChartDataSourceHandler;
-  fromRanges: (dataSource: ChartDataSource<Range>) => ChartDataSourceHandler;
+    dataSource: DataSourceType<T, string>
+  ) => ChartDataSource<Range>;
+  // fromRanges: (dataSource: ChartDataSource<Range>) => ChartDataSourceHandler;
   validate: (
     validator: Validator,
-    dataSource: ChartDataSource<string>
+    dataSource: DataSourceType<T, string>
   ) => CommandResult | CommandResult[];
   transform(
     sheetId: UID,
-    dataSource: ChartDataSource<string>,
+    dataSource: DataSourceType<T, string>,
     rangeAdapters: RangeAdapterFunctions
   ): ChartDataSource<string>;
-  // fromContextCreation: (
-  //   context: ChartCreationContext
-  // ) => ChartDataSource<string>;
-}
-
-export interface ChartDataSourceHandler {
-  dataSource: ChartDataSource<Range>;
-  extractData(getters: Getters): ChartData;
-  extractHierarchicalData(getters: Getters): ChartData;
-  adaptRanges(rangeAdapters: RangeAdapterFunctions): ChartDataSource;
+  extractData(dataSource: DataSourceType<T, Range>, getters: Getters): ChartData;
+  extractHierarchicalData(dataSource: DataSourceType<T, Range>, getters: Getters): ChartData;
+  adaptRanges(
+    dataSource: DataSourceType<T, Range>,
+    rangeAdapters: RangeAdapterFunctions
+  ): ChartDataSource;
   duplicateInDuplicatedSheet(
+    dataSource: DataSourceType<T, Range>,
     getters: CoreGetters,
     sheetIdFrom: UID,
     sheetIdTo: UID
   ): ChartDataSource<Range>;
-  getDefinition(getters: CoreGetters, defaultSheetId: UID): ChartDataSource<string>;
-  getContextCreation(dataSource: ChartDataSource<string>): ChartCreationContext;
-  getHierarchicalContextCreation(dataSource: ChartDataSource<string>): ChartCreationContext;
+  getDefinition(
+    dataSource: DataSourceType<T, Range>,
+    getters: CoreGetters,
+    defaultSheetId: UID
+  ): ChartDataSource<string>;
+  getContextCreation(dataSource: DataSourceType<T, string>): ChartCreationContext;
+  getHierarchicalContextCreation(dataSource: DataSourceType<T, string>): ChartCreationContext;
   toExcelDataSets(
+    dataSource: DataSourceType<T, Range>,
     getters: CoreGetters,
     dataSetStyles: DataSetStyle
   ): Pick<ExcelChartDefinition, "dataSets" | "labelRange">;
 }
 
-interface ChartDataSourceRegistry extends Registry<ChartDataSourceHandlerContructor> {
-  add<T extends ChartDataSourceType>(type: T, builder: ChartDataSourceHandlerContructor): this;
+interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<any>> {
+  add<T extends ChartDataSourceType>(type: T, builder: ChartDataSourceBuilder<T>): this;
 }
 
 export const chartDataSourceRegistry: ChartDataSourceRegistry = new Registry();
