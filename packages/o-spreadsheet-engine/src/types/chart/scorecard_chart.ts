@@ -31,11 +31,14 @@ export interface ScorecardChartRuntime {
   readonly baselineColor?: string;
   readonly baselineArrow: BaselineArrowDirection;
   readonly baselineDescr?: string;
-  readonly background: Color;
-  readonly fontColor: Color;
   readonly keyValueStyle?: Style;
   readonly keyValueDescrStyle?: Style;
   readonly baselineStyle?: Style;
   readonly baselineDescrStyle?: Style;
   readonly progressBar?: ProgressBar;
+}
+
+export interface ScorecardChartStyle {
+  readonly background: Color;
+  readonly fontColor: Color;
 }

@@ -25,6 +25,7 @@ import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { FormulaCellWithDependencies } from "../../core/cell";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
+import { EntityDependencyRegistry } from "./entity_dependency_registry";
 import { Evaluator } from "./evaluator";
 
 //#region
@@ -159,16 +160,23 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "getEntityDependencyRegistry",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
+  private entityDependencyRegistry: EntityDependencyRegistry;
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
-    this.evaluator = new Evaluator(config.custom, this.getters);
+    this.entityDependencyRegistry = new EntityDependencyRegistry();
+    //@ts-ignore
+    globalThis.pro = this.entityDependencyRegistry;
+    //@ts-ignore
+    globalThis.getters = this.getters;
+    this.evaluator = new Evaluator(config.custom, this.getters, this.entityDependencyRegistry);
   }
 
   // ---------------------------------------------------------------------------
@@ -245,6 +253,15 @@ export class EvaluationPlugin extends CoreViewPlugin {
     getSymbolValue: GetSymbolValue
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
+  }
+
+  /**
+   * Returns the entity dependency registry.
+   * This registry allows non-formula entities (charts, pivots, conditional formats, etc.)
+   * to register their dependencies on cell ranges and be notified when those cells change.
+   */
+  getEntityDependencyRegistry(): EntityDependencyRegistry {
+    return this.entityDependencyRegistry;
   }
 
   /**

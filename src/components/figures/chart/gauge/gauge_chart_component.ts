@@ -1,8 +1,9 @@
 import { drawGaugeChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/gauge_chart_rendering";
-import { GaugeChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { GaugeChartRuntime, GaugeChartStyle } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { deepEquals } from "../../../../helpers";
+import { GaugeChart } from "../../../../helpers/figures/charts/gauge_chart";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
@@ -30,6 +31,11 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
   }
 
+  get style(): GaugeChartStyle {
+    const chart = this.env.model.getters.getChart(this.props.chartId) as GaugeChart;
+    return this.env.model.getters.getStyleOfSingleCellChart(chart.background, chart.dataRange);
+  }
+
   setup() {
     if (this.env.model.getters.isDashboard()) {
       this.animationStore = useStore(ChartAnimationStore);
@@ -54,7 +60,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
-          drawGaugeChart(this.canvasEl, this.runtime);
+          drawGaugeChart(this.canvasEl, this.runtime, this.style);
         }
 
         lastRuntime = this.runtime;
@@ -62,13 +68,20 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
       },
       () => {
         const rect = this.canvasEl.getBoundingClientRect();
-        return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];
+        return [
+          rect.width,
+          rect.height,
+          this.runtime,
+          this.style,
+          this.canvas.el,
+          window.devicePixelRatio,
+        ];
       }
     );
   }
 
   drawGaugeWithAnimation() {
-    drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue: 0 }, undefined);
+    drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue: 0 }, this.style, undefined);
 
     const gaugeValue = this.runtime.gaugeValue?.value || 0;
     const upperBound = this.runtime.maxValue.value;
@@ -79,7 +92,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
 
     const lowerBound = this.runtime.minValue.value;
     const animation = new Animation(lowerBound, finalValue, ANIMATION_DURATION, (animationValue) =>
-      drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue }, undefined)
+      drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue }, this.style, undefined)
     );
     animation.start();
     return animation;

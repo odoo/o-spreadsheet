@@ -3,18 +3,23 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "@odoo/o-spreadsheet-engine/constants";
 import {
-  ScorecardChartConfig,
   getScorecardConfiguration,
+  ScorecardChartConfig,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
+  ScorecardChartStyle,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { getContextFontSize } from "../../../../src/helpers";
-import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
+import {
+  chartMutedFontColor,
+  drawScoreChart,
+  ScorecardChart,
+} from "../../../../src/helpers/figures/charts";
 import { Pixel, UID } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click } from "../../../test_helpers";
@@ -59,11 +64,17 @@ function updateScorecardChartSize(width: Pixel, height: Pixel) {
   });
 }
 
+function getChartStyle(model: Model, chartId: UID): ScorecardChartStyle {
+  const chart = model.getters.getChart(chartId) as ScorecardChart;
+  return model.getters.getStyleOfSingleCellChart(chart.background, chart.keyValue);
+}
+
 function getChartDesign(model: Model, chartId: UID, sheetId: UID): ScorecardChartConfig {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
   const figure = model.getters.getFigure(sheetId, figureId)!;
   const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
-  return getScorecardConfiguration({ width: figure.width, height: figure.height }, runtime);
+  const style = getChartStyle(model, chartId);
+  return getScorecardConfiguration({ width: figure.width, height: figure.height }, runtime, style);
 }
 
 let scorecardChartStyle: {
@@ -79,7 +90,12 @@ function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: 
   const figureId = model.getters.getFigureIdFromChartId(chartId);
   const figure = model.getters.getFigure(sheetId, figureId)!;
   const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
-  const design = getScorecardConfiguration({ width: figure.width, height: figure.height }, runtime);
+  const style = getChartStyle(model, chartId);
+  const design = getScorecardConfiguration(
+    { width: figure.width, height: figure.height },
+    runtime,
+    style
+  );
   drawScoreChart(design, canvas);
 }
 

@@ -11,7 +11,7 @@ import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
 import { RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { BoundedRange, Range } from "../../../types/range";
 import { Validator } from "../../../types/validator";
 import { toExcelDataset, toExcelLabelRange } from "./chart_common";
 
@@ -96,6 +96,12 @@ export abstract class AbstractChart {
    * Extract the ChartCreationContext of the chart
    */
   abstract getContextCreation(): ChartCreationContext;
+
+  /**
+   * Get the ranges that this chart depends on.
+   * Used by EntityDependencyRegistry to track dependencies.
+   */
+  abstract getDependencies(): BoundedRange[];
 
   protected getCommonDataSetAttributesForExcel(
     labelRange: Range | undefined,

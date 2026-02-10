@@ -2,7 +2,6 @@
 
 exports[`datasource tests create a gauge chart 1`] = `
 {
-  "background": "#FFFFFF",
   "colors": [
     "#999999",
     "#111111",
@@ -37,7 +36,6 @@ exports[`datasource tests create a gauge chart 1`] = `
 
 exports[`datasource tests create empty gauge chart 1`] = `
 {
-  "background": "#FFFFFF",
   "colors": [
     "#6aa84f",
     "#f1c232",

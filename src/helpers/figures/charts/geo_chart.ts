@@ -7,6 +7,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
@@ -26,7 +27,15 @@ import {
   GeoChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import {
+  BoundedRange,
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  UID,
+} from "../../../types";
 import {
   getChartTitle,
   getGeoChartData,
@@ -166,6 +175,10 @@ export class GeoChart extends AbstractChart {
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): GeoChart {

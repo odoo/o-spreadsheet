@@ -503,9 +503,9 @@ test("font color is white with a dark background color", () => {
     },
     "1"
   );
-  expect((model.getters.getChartRuntime("1") as ScorecardChartRuntime).fontColor).toEqual(
-    "#FFFFFF"
-  );
+  const chart = model.getters.getChart("1") as ScorecardChart;
+  const style = model.getters.getStyleOfSingleCellChart(chart.background, chart.keyValue);
+  expect(style.fontColor).toEqual("#FFFFFF");
 });
 
 test("Scorecard with formula cell", () => {
