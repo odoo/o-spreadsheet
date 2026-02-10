@@ -1,6 +1,5 @@
 export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_factory";
 export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 export * from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart";
 export * from "./bar_chart";
