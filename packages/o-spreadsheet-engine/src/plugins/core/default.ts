@@ -31,7 +31,7 @@ interface defaultState {
 }
 
 export class DefaultPlugin extends CorePlugin<defaultState> implements defaultState {
-  static getters = ["getCellStyle", "getDefaultStyle"] as const;
+  static getters = ["getCellStyle", "getDefaultStyle", "getCellFormat"] as const;
   public readonly style: defaultStyle = {};
   public readonly format: defaultValues<Format | undefined> = {};
 
@@ -51,7 +51,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         break;
       case "CLEAR_FORMATTING":
         this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
-        this.setFormat(cmd.sheetId, cmd.target, "");
+        this.setFormat(cmd.sheetId, cmd.target, null);
         break;
       case "ADD_COLUMNS_ROWS":
         const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
@@ -116,17 +116,192 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         this.history.update("style", key as keyof Style, sheetId, colRowDefault, header, undefined);
       }
     }
+    const positionValue = Object.entries(this.format[sheetId]?.[colRowDefault] ?? []);
+    if (quantity > 0) {
+      positionValue.reverse();
+    }
+    for (const [headerIndex, value] of positionValue) {
+      const header = parseInt(headerIndex);
+      if (header < start) {
+        continue;
+      }
+      this.history.update("format", sheetId, colRowDefault, header + quantity, value);
+      this.history.update("format", sheetId, colRowDefault, header, undefined);
+    }
   }
 
   private copyColRow(sheetId: UID, colRow: Dimension, copyFrom: HeaderIndex, copyTo: HeaderIndex) {
     const colRowDefault = colRow === "COL" ? "colDefault" : "rowDefault";
     for (const key in this.style) {
-      const value = this.style[key][sheetId][colRowDefault][copyFrom];
+      const value = this.style[key][sheetId]?.[colRowDefault]?.[copyFrom];
       this.history.update("style", key as keyof Style, sheetId, colRowDefault, copyTo, value);
+    }
+    this.history.update(
+      "format",
+      sheetId,
+      colRowDefault,
+      copyTo,
+      this.format[sheetId]?.[colRowDefault]?.[copyFrom]
+    );
+  }
+
+  private setFormat(sheetId: UID, zones: Zone[], format: Format | null) {
+    zones = recomputeZones(zones);
+    const { numberOfCols, numberOfRows } = this.getters.getSheetSize(sheetId);
+    const sheetArea = numberOfCols * numberOfRows;
+    for (const zone of zones) {
+      const defaultCol = zone.bottom - zone.top + 1 > numberOfRows / 2;
+      const defaultRow = zone.right - zone.left + 1 > numberOfCols / 2;
+      if (defaultRow && defaultCol && getZoneArea(zone) > sheetArea / 2) {
+        this.setSheetFormat(sheetId, zone, format);
+      } else if (defaultCol) {
+        this.setColsFormat(sheetId, zone, format ?? "");
+      } else if (defaultRow) {
+        this.setRowsFormat(sheetId, zone, format ?? "");
+      } else {
+        this.updateCellsFormat(sheetId, zone, format ?? "");
+      }
     }
   }
 
-  private setFormat(sheetId: UID, zones: Zone[], format: Format) {}
+  private setSheetFormat(sheetId: UID, zone: Zone, format: Format | null) {
+    this.updateCellsFormat(sheetId, zone, null);
+    const sheetZone = this.getters.getSheetZone(sheetId);
+    const horizontalZone = this.getters.getRowsZone(sheetId, zone.top, zone.bottom);
+    const externalHorizontalZones = recomputeZones([horizontalZone], [zone]);
+    this.setDefaultFormatInCell(sheetId, externalHorizontalZones, {
+      sheet: true,
+      row: true,
+    });
+    const verticalZone = this.getters.getColsZone(sheetId, zone.left, zone.right);
+    const externalVerticalZones = recomputeZones([verticalZone], [zone]);
+    this.setDefaultFormatInCell(sheetId, externalVerticalZones, {
+      sheet: true,
+      col: true,
+    });
+    const externalCornerZones = recomputeZones([sheetZone], [horizontalZone, verticalZone]);
+    this.setDefaultFormatInCell(sheetId, externalCornerZones, { sheet: true });
+    this.history.update("format", sheetId, "sheetDefault", format ?? undefined);
+    const rows = Object.keys(this.format[sheetId]?.rowDefault ?? {});
+    for (const rowIdx of rows) {
+      const row = parseInt(rowIdx);
+      if (zone.top <= row && row <= zone.bottom) {
+        this.history.update("format", sheetId, "rowDefault", row, undefined);
+      }
+    }
+    const cols = Object.keys(this.format[sheetId]?.colDefault ?? {});
+    for (const colIdx of cols) {
+      const col = parseInt(colIdx);
+      if (zone.left <= col && col <= zone.right) {
+        this.history.update("format", sheetId, "colDefault", col, undefined);
+      }
+    }
+  }
+
+  private setColsFormat(sheetId: UID, zone: Zone, format: Format) {
+    this.updateCellsFormat(sheetId, zone, null);
+    const leftoverZones = recomputeZones(
+      [this.getters.getColsZone(sheetId, zone.left, zone.right)],
+      [zone]
+    );
+    this.setDefaultFormatInCell(sheetId, leftoverZones, {
+      sheet: true,
+      col: true,
+    });
+    const rowOverlap = Object.keys(this.format[sheetId]?.rowDefault ?? {});
+    for (let col = zone.left; col <= zone.right; col++) {
+      if (format !== this.format[sheetId]?.sheetDefault) {
+        this.history.update("format", sheetId, "colDefault", col, format);
+      } else {
+        this.history.update("format", sheetId, "colDefault", col, undefined);
+      }
+      for (const rowIndex of rowOverlap) {
+        const row = parseInt(rowIndex);
+        if (zone.top <= row && row <= zone.bottom) {
+          this.updateCellFormat({ col, row, sheetId }, format);
+        }
+      }
+    }
+  }
+
+  private setRowsFormat(sheetId: UID, zone: Zone, format: Format) {
+    this.updateCellsFormat(sheetId, zone, null);
+    const leftoverZones = recomputeZones(
+      [this.getters.getRowsZone(sheetId, zone.bottom, zone.top)],
+      [zone]
+    );
+    this.setDefaultFormatInCell(sheetId, leftoverZones, {
+      sheet: true,
+      col: true,
+      row: true,
+    });
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      this.history.update("format", sheetId, "rowDefault", row, format);
+    }
+  }
+
+  private updateCellsFormat(
+    sheetId: UID,
+    zone: Zone,
+    format: Format | null,
+    option?: { cellPriority?: boolean }
+  ) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        this.updateCellFormat({ sheetId, col, row }, format, option);
+      }
+    }
+  }
+
+  private updateCellFormat(
+    position: CellPosition,
+    format: Format | null,
+    option?: { cellPriority?: boolean }
+  ) {
+    if (option?.cellPriority && this.getters.getCell(position)?.format) {
+      return;
+    }
+    this.dispatch("UPDATE_CELL", {
+      sheetId: position.sheetId,
+      col: position.col,
+      row: position.row,
+      format,
+    });
+  }
+
+  private setDefaultFormatInCell(
+    sheetId: UID,
+    zones: Zone[],
+    newHasPriorityOver: { col?: boolean; row?: boolean; sheet?: boolean }
+  ) {
+    for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
+      const cellFormat = this.getters.getCell(position)?.format;
+      if (cellFormat) {
+        continue;
+      }
+      const rowDefault = this.format[sheetId]?.rowDefault?.[position.row];
+      if (rowDefault) {
+        if (newHasPriorityOver.row) {
+          this.updateCellFormat(position, rowDefault);
+        }
+        continue;
+      }
+      const colDefault = this.format[sheetId]?.colDefault?.[position.col];
+      if (colDefault) {
+        if (newHasPriorityOver.col) {
+          this.updateCellFormat(position, colDefault);
+        }
+        continue;
+      }
+      const sheetDefault = this.format[sheetId]?.sheetDefault;
+      if (sheetDefault) {
+        if (newHasPriorityOver.sheet) {
+          this.updateCellFormat(position, sheetDefault);
+        }
+        continue;
+      }
+    }
+  }
 
   private setStyle(sheetId: UID, zones: Zone[], style: Style) {
     zones = recomputeZones(zones);
@@ -195,15 +370,18 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       const rowOverlap = Object.keys(this.style[key]?.[sheetId]?.rowDefault ?? {});
       for (let col = zone.left; col <= zone.right; col++) {
         this.history.update("style", key as keyof Style, sheetId, "colDefault", col, style[key]);
-        for (const row of rowOverlap) {
-          const position = { col, row: parseInt(row), sheetId };
-          const s = overlapUpdate.get(position);
-          if (s) {
-            s[key] = style[key];
-          } else {
-            const s = {};
-            s[key] = style[key];
-            overlapUpdate.set(position, s);
+        for (const rowIndex of rowOverlap) {
+          const row = parseInt(rowIndex);
+          if (zone.top <= row && row <= zone.bottom) {
+            const position = { col, row, sheetId };
+            const s = overlapUpdate.get(position);
+            if (s) {
+              s[key] = style[key];
+            } else {
+              const s = {};
+              s[key] = style[key];
+              overlapUpdate.set(position, s);
+            }
           }
         }
       }
@@ -250,7 +428,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     option?: { cellPriority?: boolean }
   ) {
     const cell = this.getters.getCell(position);
-    // TODO ??? keep default priority also :eyes:
     const cellStyle = option?.cellPriority
       ? { ...style, ...cell?.style }
       : { ...cell?.style, ...style };
@@ -354,6 +531,19 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       }
     }
     return style;
+  }
+
+  getCellFormat(position: CellPosition, cell?: Cell): Format | undefined {
+    cell = cell || this.getters.getCell(position);
+    if (cell?.format !== undefined) {
+      return cell?.format;
+    }
+    const formatSheet = this.format[position.sheetId];
+    return (
+      formatSheet?.rowDefault?.[position.row] ??
+      formatSheet?.colDefault?.[position.col] ??
+      formatSheet?.sheetDefault
+    );
   }
 
   getDefaultStyle<J extends keyof Style, D extends "COL" | "ROW" | "SHEET">(

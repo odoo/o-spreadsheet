@@ -83,6 +83,11 @@ autofillModifiersRegistry
     apply: (rule: CopyModifier, data: AutofillData, getters: Getters) => {
       const content = data.cell?.content || "";
       const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
+      const cellId = data.cell?.id;
+      if (cellId) {
+        const position = getters.getCellPosition(cellId);
+        localeFormat.format = getters.getCellFormat(position);
+      }
       return {
         cellData: {
           border: data.border,

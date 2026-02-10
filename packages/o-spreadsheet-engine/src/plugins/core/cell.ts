@@ -515,7 +515,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       style = before ? before.style : undefined;
     }
-    const format = after.format !== undefined ? after.format : before && before.format;
+    let format: Format | undefined;
+    if (after.format !== undefined) {
+      format = after.format === null ? undefined : after.format;
+    } else {
+      format = before && before.format;
+    }
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -528,7 +533,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       ((hasContent && !afterContent && !after.formula) ||
         (!hasContent && (!before || before.content === ""))) &&
       !style &&
-      !format
+      format === undefined
     ) {
       if (before) {
         this.history.update("cells", sheetId, before.id, undefined);
@@ -571,10 +576,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const parsedValue = parseLiteral(content, locale);
 
     format =
-      format ||
-      (typeof parsedValue === "number"
+      format !== undefined
+        ? format
+        : typeof parsedValue === "number"
         ? detectDateFormat(content, locale) || detectNumberFormat(content)
-        : undefined);
+        : undefined;
     if (!isTextFormat(format) && !content.startsWith("'") && !isEvaluationError(content)) {
       content = toString(parsedValue);
     }

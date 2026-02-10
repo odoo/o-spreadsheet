@@ -30,12 +30,9 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     // TODO Format
     for (const key in DEFAULT_STYLE) {
       content.style[key] = {
-        sheetDefault: this.getters.getDefaultStyle(
-          data.sheetId,
-          key as keyof Style,
-          "SHEET",
-          undefined
-        ),
+        sheetDefault:
+          this.getters.getDefaultStyle(data.sheetId, key as keyof Style, "SHEET", undefined) ??
+          DEFAULT_STYLE[key],
         colDefault: {},
         rowDefault: {},
       };
@@ -108,6 +105,7 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       target: [{ left: col, right: col + width - 1, top: row, bottom: row + height - 1 }],
     });
     for (const key in defaultValues) {
+      // TODO find a way to reduce the number of command dispatched by grouping when possible
       // Sheet format
       this.dispatch("SET_FORMATTING", {
         sheetId,
