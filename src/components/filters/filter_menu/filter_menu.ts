@@ -1,6 +1,12 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepEquals, isDateTimeFormat } from "../../../helpers";
+import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import {
+  deepCopy,
+  deepEquals,
+  isDateTimeFormat,
+  positions,
+  toTrimmedLowerCase,
+} from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import {
   CellValueType,
@@ -22,6 +28,16 @@ interface Props {
   onClosed?: () => void;
 }
 
+interface State {
+  values: Value[];
+}
+
+interface Value {
+  checked: boolean;
+  string: string;
+  scrolledTo?: "top" | "bottom" | undefined;
+}
+
 type CriterionCategory = "text" | "number" | "date";
 
 export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
@@ -31,7 +47,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onClosed: { type: Function, optional: true },
   };
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
-
+  private state: State = useState({ values: [] });
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
 
@@ -40,9 +56,11 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
         this.updatedCriterionValue = undefined;
         this.criterionCategory = this.getCriterionCategory(nextProps.filterPosition);
+        this.state.values = this.getFilterHiddenValues(nextProps.filterPosition);
       }
     });
     this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
+    this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
   }
 
   get isSortable() {
@@ -149,6 +167,62 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
     interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
+  }
+
+  private getFilterHiddenValues(position: Position): Value[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
+    if (!filter) {
+      return [];
+    }
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    let cells = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
+      (position) => ({
+        position,
+        cellValue: this.env.model.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue,
+      })
+    );
+    if (filterValue?.filterType !== "criterion") {
+      cells = cells.filter((val) => !this.env.model.getters.isRowHidden(sheetId, val.position.row));
+    }
+
+    const cellValues = cells.map((val) => val.cellValue);
+    const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
+    const normalizedFilteredValues = new Set(filterValues.map(toTrimmedLowerCase));
+
+    const set = new Set<string>();
+    const values: (Value & { normalizedValue: string })[] = [];
+    const addValue = (value: string) => {
+      const normalizedValue = toTrimmedLowerCase(value);
+      if (!set.has(normalizedValue)) {
+        values.push({
+          string: value || "",
+          checked:
+            filterValue?.filterType !== "criterion"
+              ? !normalizedFilteredValues.has(normalizedValue)
+              : false,
+          normalizedValue,
+        });
+        set.add(normalizedValue);
+      }
+    };
+    cellValues.forEach(addValue);
+    filterValues.forEach(addValue);
+
+    return values.sort((val1, val2) =>
+      val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
+  }
+
+  getFilterCriterionValue(position: Position): CriterionFilter {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filterValue = this.env.model.getters.getFilterCriterionValue({ sheetId, ...position });
+    return filterValue?.filterType === "criterion"
+      ? deepCopy(filterValue)
+      : { filterType: "criterion", type: "none", values: [] };
   }
 }
 

@@ -22,6 +22,7 @@ function defaultPivotDefinition(sheetId: UID): SpreadsheetPivotCoreDefinition {
     },
     rows: [],
     columns: [],
+    filters: [],
     measures: [],
   };
 }
@@ -118,6 +119,7 @@ export function createModelWithTestPivotDataset(
     columns: [{ fieldName: "Salesperson", order: "asc" }],
     rows: [{ fieldName: "Created on", granularity: "month_number", order: "asc" }],
     measures: [{ fieldName: "Expected Revenue", aggregator: "sum", id: measureId }],
+    filters: [],
     ...pivotDefinition,
   };
   addPivot(model, "A1:E18", pivotDefinition, pivotId);
