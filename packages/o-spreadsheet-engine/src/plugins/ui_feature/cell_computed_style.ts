@@ -98,15 +98,7 @@ export class CellComputedStylePlugin extends UIPlugin {
   private computeCellStyle(position: CellPosition): Style {
     const cell = this.getters.getCell(position);
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
-    // const tableStyle = this.getters.getCellTableStyle(position);
-    const tableStyle = this.getters
-      .getCellTableStyleZone(position.sheetId, {
-        left: position.col,
-        right: position.col,
-        top: position.row,
-        bottom: position.row,
-      })
-      .get(position);
+    const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
     const computedStyle = {
       ...removeFalsyAttributes(tableStyle),
