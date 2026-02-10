@@ -1,3 +1,4 @@
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   BarController,
   BarControllerChartOptions,
@@ -29,8 +30,8 @@ export function getCalendarChartController(): ChartComponent & {
       super.updateElements(rects, start, count, mode);
 
       // Remove the element background at the start of an animation
-      const chartBackground = (this.chart.config as any).options?.chartBackground;
-      const backgroundColor = chartBackground || "#ffffff";
+      const chartBackground = this.chart.config.options?.plugins?.background?.color;
+      const backgroundColor = chartBackground || BACKGROUND_CHART_COLOR;
       for (let i = start; i < start + count; i++) {
         if (mode === "reset") {
           this.updateElement(rects[i], i, { options: { backgroundColor } }, mode);
@@ -43,7 +44,7 @@ export function getCalendarChartController(): ChartComponent & {
 declare module "chart.js" {
   interface ChartTypeRegistry {
     calendar: {
-      chartOptions: BarControllerChartOptions & { chartBackground: string };
+      chartOptions: BarControllerChartOptions;
       datasetOptions: BarControllerDatasetOptions & { values: number[] };
       defaultDataPoint: number | null;
       metaExtensions: {};

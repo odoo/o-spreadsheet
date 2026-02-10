@@ -1,5 +1,4 @@
 import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   checkDataset,
@@ -238,10 +237,10 @@ export function createCalendarChartRuntime(
         tooltip: getCalendarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
         chartColorScalePlugin: getCalendarColorScale(definition, chartData),
+        background: { color: chart.background },
       },
-      chartBackground: definition.background || BACKGROUND_CHART_COLOR,
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }

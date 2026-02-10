@@ -246,7 +246,8 @@ describe("TreeMap chart", () => {
       background: "#123456",
       dataSets: [{ dataRange: "A1" }],
     });
-    expect(model.getters.getChartRuntime(chartId)?.background).toEqual("#123456");
+    const runtime = model.getters.getChartRuntime(chartId) as TreeMapChartRuntime;
+    expect(runtime?.chartJsConfig?.options?.plugins?.background?.color).toEqual("#123456");
   });
 
   test("TreeMap header style", () => {
