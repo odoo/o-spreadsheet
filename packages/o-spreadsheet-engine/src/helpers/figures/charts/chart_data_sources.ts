@@ -35,16 +35,16 @@ const EMPTY = Object.freeze({ value: null });
 const ONE = Object.freeze({ value: 1 });
 
 export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
-  fromRangeStr(getters, defaultSheetId, dataSource) {
+  fromRangeStr(dataSource, defaultSheetId, getters) {
     const dataSets = createDataSets(getters, defaultSheetId, dataSource);
     const labelRange = createValidRange(getters, defaultSheetId, dataSource.labelRange);
     return { ...dataSource, dataSets, labelRange };
   },
 
-  validate: (validator, dataSource) =>
+  validate: (dataSource, validator) =>
     validator.checkValidations(dataSource, checkDataset, checkLabelRange),
 
-  transform(defaultSheetId, dataSource, { adaptRangeString }) {
+  transform(dataSource, defaultSheetId, { adaptRangeString }) {
     let labelRange: string | undefined;
     if (dataSource.labelRange) {
       const { changeType, range: adaptedRange } = adaptRangeString(
@@ -137,7 +137,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     };
   },
 
-  getDefinition(dataSource, getters, defaultSheetId) {
+  getDefinition(dataSource, defaultSheetId, getters) {
     return {
       labelRange: dataSource.labelRange
         ? getters.getRangeString(dataSource.labelRange, defaultSheetId)
@@ -155,7 +155,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
    * Duplicate the dataSets. All ranges on sheetIdFrom are adapted to target
    * sheetIdTo.
    */
-  duplicateInDuplicatedSheet(dataSource, getters, sheetIdFrom, sheetIdTo) {
+  duplicateInDuplicatedSheet(dataSource, sheetIdFrom, sheetIdTo, getters) {
     return {
       ...dataSource,
       labelRange: duplicateLabelRangeInDuplicatedSheet(
@@ -188,7 +188,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     };
   },
 
-  toExcelDataSets(dataSource, getters, dataSetStyles) {
+  toExcelDataSets(dataSource, dataSetStyles, getters) {
     const dataSets = dataSource.dataSets;
     const labelRange = dataSource.labelRange;
     const excelDataSets: ExcelChartDataset[] = dataSets
