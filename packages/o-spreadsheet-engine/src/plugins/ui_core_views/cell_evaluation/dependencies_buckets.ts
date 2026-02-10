@@ -1,11 +1,11 @@
 import { CellPosition, Zone } from "../../..";
-import { positionToZone } from "../../../helpers/zones";
+import { overlap, positionToZone } from "../../../helpers/zones";
 import { BoundedRange } from "../../../types/range";
 import { RangeSet } from "./range_set";
 
 // Bucket Shape: 64 columns x 512 rows
-const SHIFT_Y = 9; // 2^9 = 512 rows
-const SHIFT_X = 6; // 2^6 = 64 cols
+const SHIFT_Y = 6; // 2^9 = 512 rows
+const SHIFT_X = 5; // 2^6 = 64 cols
 
 // Threshold for "Huge" ranges (bypass grid)
 // If a range spans > 16 buckets (~8192 rows or ~1024 cols), it goes to global list
@@ -24,9 +24,9 @@ export class DependencyGraph {
   private globalRows: GroupId[];
   private globalHuge: GroupId[];
   private registry: Map<string, GroupId>;
-  private groupSources: Map<GroupId, Zone>;
+  private groupSources: Record<GroupId, Zone>;
   private groupDependents: Map<GroupId, RangeSet>;
-  private groupQueryIds: Map<GroupId, number>;
+  private groupQueryIds: Record<GroupId, number>;
   private nextGroupId: number;
   private currentQueryId: number;
   constructor() {
@@ -45,11 +45,11 @@ export class DependencyGraph {
     // 4. Data Storage (Structure of Arrays)
     this.nextGroupId = 1;
     // ID -> Zone
-    this.groupSources = new Map();
+    this.groupSources = {};
     // ID -> RangeSet
     this.groupDependents = new Map();
     // ID -> Int (Timestamp for deduplication)
-    this.groupQueryIds = new Map();
+    this.groupQueryIds = {};
 
     // Rolling query ID for O(1) deduplication
     this.currentQueryId = 0;
@@ -112,7 +112,7 @@ export class DependencyGraph {
     for (let i = 0; i < this.globalCols.length; i++) {
       const groupId = this.globalCols[i];
       // Optimization: Only check Column intersection for Col-Global items
-      const src = this.groupSources.get(groupId);
+      const src = this.groupSources[groupId];
       if (src && src.left <= right && src.right >= left) {
         this.checkAndAdd(groupId, zone, queryId, affectedGroups, true);
       }
@@ -121,7 +121,7 @@ export class DependencyGraph {
     // 2. Global Rows (e.g. 1:1) - Check overlap with Query Rows
     for (let i = 0; i < this.globalRows.length; i++) {
       const groupId = this.globalRows[i];
-      const src = this.groupSources.get(groupId);
+      const src = this.groupSources[groupId];
       if (src && src.top <= bottom && src.bottom >= top) {
         this.checkAndAdd(groupId, zone, queryId, affectedGroups, true);
       }
@@ -139,9 +139,9 @@ export class DependencyGraph {
     const groupId = this.nextGroupId++;
 
     // Store Source
-    this.groupSources.set(groupId, zone);
+    this.groupSources[groupId] = zone;
     this.groupDependents.set(groupId, new RangeSet());
-    this.groupQueryIds.set(groupId, 0);
+    this.groupQueryIds[groupId] = 0;
 
     // Register Key
     const key = `${zone.top},${zone.left},${zone.bottom},${zone.right}`;
@@ -203,29 +203,30 @@ export class DependencyGraph {
 
   private checkAndAdd(
     groupId: GroupId,
-    { top, left, bottom, right }: Zone,
+    zone: Zone,
     queryId: number,
     results: BoundedRange[],
     skipIntersectionCheck = false
   ) {
     // 1. Deduplication
     // If a group appears in multiple buckets, we only want to process it once per query
-    if (this.groupQueryIds.get(groupId) === queryId) {
+    if (this.groupQueryIds[groupId] === queryId) {
       return; // Already visited in this query
     }
 
     // Mark as visited for this query
-    this.groupQueryIds.set(groupId, queryId);
+    this.groupQueryIds[groupId] = queryId;
 
     // 2. Intersection Check
-    const src = this.groupSources.get(groupId);
+    const src = this.groupSources[groupId];
 
     // If we came from a Global List known to overlap, skip check
     let isHit = skipIntersectionCheck;
 
     if (!isHit) {
       // Standard AABB Intersection
-      if (src && src.top <= bottom && src.bottom >= top && src.left <= right && src.right >= left) {
+      if (src && overlap(src, zone)) {
+        // if (src && src.top <= bottom && src.bottom >= top && src.left <= right && src.right >= left) {
         isHit = true;
       }
     }
