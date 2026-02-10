@@ -2,8 +2,8 @@ import {
   chartFontColor,
   isTrendLineAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { ChartType as AllChartType } from "@odoo/o-spreadsheet-engine/types/chart";
-import { Chart, ChartMeta, ChartType, Plugin } from "chart.js";
+import type { ChartType as AllChartType } from "@odoo/o-spreadsheet-engine/types/chart";
+import type { ChartMeta, ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
 import { Color } from "../../../../types";
 
@@ -110,7 +110,7 @@ function drawLineOrBarOrRadarChartValues(
       } else {
         const yZeroLine = yAxisScale.getPixelForValue(0);
         const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
-        const textHeight = Chart.defaults.font.size ?? 12; // ChartJS default text height
+        const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
 
         if (distanceFromAxisOrigin < textHeight) {
           yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
@@ -168,7 +168,7 @@ function drawBarChartValues(
       let yPosition = 0;
       const yZeroLine = yAxisScale.getPixelForValue(0);
       const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
-      const textHeight = Chart.defaults.font.size ?? 12; // ChartJS default text height
+      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
 
       if (distanceFromAxisOrigin < textHeight) {
         yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
@@ -220,7 +220,7 @@ function drawHorizontalBarChartValues(
       const textWidth = computeTextWidth(
         ctx,
         displayValue,
-        { fontSize: Chart.defaults.font.size ?? 12 },
+        { fontSize: globalThis.Chart?.defaults.font.size ?? 12 },
         "px"
       );
       const distanceFromAxisOrigin = Math.abs(point.x - xZeroLine);
@@ -274,7 +274,7 @@ function drawPieChartValues(
       const y = bar.y + midRadius * Math.sin(midAngle);
       const displayValue = options.callback(value, dataset, i);
 
-      const textHeight = Chart.defaults.font.size ?? 12; // ChartJS default
+      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default
       const textWidth = computeTextWidth(ctx, displayValue, { fontSize: textHeight }, "px");
 
       const radius = outerRadius - innerRadius;
