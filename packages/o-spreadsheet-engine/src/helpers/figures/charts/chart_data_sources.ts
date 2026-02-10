@@ -17,20 +17,18 @@ import { Getters } from "../../../types/getters";
 import { FunctionResultObject } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { isErrorCell, isNumberCell, isTextCell } from "../../cells/cell_evaluation";
-import { range } from "../../misc";
-import { createValidRange } from "../../range";
+import { isDefined, range } from "../../misc";
+import { createValidRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { recomputeZones } from "../../recompute_zones";
 import { getZoneArea } from "../../zones";
 import {
   checkDataset,
   checkLabelRange,
   createDataSets,
-  duplicateDataSourceInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
-  transformChartDefinitionWithDataSource,
-  updateChartRangesWithDataSets,
 } from "./chart_common";
 
 const EMPTY = Object.freeze({ value: null });
@@ -46,8 +44,36 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
   validate: (validator, dataSource) =>
     validator.checkValidations(dataSource, checkDataset, checkLabelRange),
 
-  transform(sheetId, dataSource, rangeAdapters) {
-    return transformChartDefinitionWithDataSource(sheetId, dataSource, rangeAdapters);
+  transform(defaultSheetId, dataSource, { adaptRangeString }) {
+    let labelRange: string | undefined;
+    if (dataSource.labelRange) {
+      const { changeType, range: adaptedRange } = adaptRangeString(
+        defaultSheetId,
+        dataSource.labelRange
+      );
+      if (changeType !== "REMOVE") {
+        labelRange = adaptedRange;
+      }
+    }
+
+    const dataSets: ChartRangeDataSource<string>["dataSets"] = [];
+    for (const dataSet of dataSource.dataSets) {
+      const newDataSet = { ...dataSet };
+      const { changeType, range: adaptedRange } = adaptRangeString(
+        defaultSheetId,
+        dataSet.dataRange
+      );
+
+      if (changeType !== "REMOVE") {
+        newDataSet.dataRange = adaptedRange;
+        dataSets.push(newDataSet);
+      }
+    }
+    return {
+      ...dataSource,
+      dataSets,
+      labelRange,
+    };
   },
 
   extractData: (dataSource, getters) => getChartData(getters, dataSource),
@@ -70,8 +96,45 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     return data;
   },
 
-  adaptRanges(dataSource, rangeAdapters) {
-    return updateChartRangesWithDataSets(rangeAdapters, dataSource);
+  adaptRanges(dataSource, { applyChange }) {
+    const dataSetsWithUndefined = dataSource.dataSets
+      // FIXME: I'm cheating here. ds is not supposed to be a DataSet, but a dataSet from definition
+      .map((ds: DataSet) => {
+        const { range: adaptedRangeStr, changeType } = applyChange(ds.dataRange);
+        if (changeType === "REMOVE") {
+          return undefined;
+        }
+        let labelCell: Range | undefined = undefined;
+        if (ds.labelCell) {
+          const { range: adaptedLabelCellRange, changeType: labelCellChangeType } = applyChange(
+            ds.labelCell
+          );
+          if (labelCellChangeType !== "REMOVE") {
+            labelCell = adaptedLabelCellRange;
+          }
+        }
+        return {
+          ...ds,
+          dataRange: adaptedRangeStr,
+          labelCell,
+        };
+      })
+      .filter(isDefined);
+    let labelRange = dataSource.labelRange;
+    if (labelRange) {
+      const { range: adaptedLabelRange, changeType } = applyChange(labelRange);
+      if (changeType === "REMOVE") {
+        labelRange = undefined;
+      } else {
+        labelRange = adaptedLabelRange;
+      }
+    }
+    const dataSets = dataSetsWithUndefined;
+    return {
+      ...dataSource,
+      dataSets,
+      labelRange: labelRange?.invalidSheetName || labelRange?.invalidXc ? undefined : labelRange,
+    };
   },
 
   getDefinition(dataSource, getters, defaultSheetId) {
@@ -88,8 +151,23 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     };
   },
 
+  /**
+   * Duplicate the dataSets. All ranges on sheetIdFrom are adapted to target
+   * sheetIdTo.
+   */
   duplicateInDuplicatedSheet(dataSource, getters, sheetIdFrom, sheetIdTo) {
-    return duplicateDataSourceInDuplicatedSheet(getters, sheetIdFrom, sheetIdTo, dataSource);
+    return {
+      ...dataSource,
+      labelRange: duplicateLabelRangeInDuplicatedSheet(
+        sheetIdFrom,
+        sheetIdTo,
+        dataSource.labelRange
+      ),
+      dataSets: dataSource.dataSets.map((ds) => ({
+        ...ds,
+        dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
+      })),
+    };
   },
 
   getContextCreation: (dataSource) => ({ auxiliaryRange: dataSource.labelRange }),

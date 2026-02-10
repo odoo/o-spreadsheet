@@ -22,7 +22,7 @@ import { DOMCoordinates, DOMDimension } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
-import { isDefined, largeMax } from "../../misc";
+import { largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
@@ -40,73 +40,6 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  * This file contains helpers that are common to different charts (mainly
  * line, bar and pie charts)
  */
-
-/**
- * Adapt ranges of a chart which support DataSet (dataSets and LabelRange).
- */
-export function updateChartRangesWithDataSets(
-  { applyChange }: RangeAdapterFunctions,
-  dataSource: ChartRangeDataSource
-) {
-  const dataSetsWithUndefined = dataSource.dataSets
-    // FIXME: I'm cheating here. ds is not supposed to be a DataSet, but a dataSet from definition
-    .map((ds: DataSet) => {
-      const { range: adaptedRangeStr, changeType } = applyChange(ds.dataRange);
-      if (changeType === "REMOVE") {
-        return undefined;
-      }
-      let labelCell: Range | undefined = undefined;
-      if (ds.labelCell) {
-        const { range: adaptedLabelCellRange, changeType: labelCellChangeType } = applyChange(
-          ds.labelCell
-        );
-        if (labelCellChangeType !== "REMOVE") {
-          labelCell = adaptedLabelCellRange;
-        }
-      }
-      return {
-        ...ds,
-        dataRange: adaptedRangeStr,
-        labelCell,
-      };
-    })
-    .filter(isDefined);
-  let labelRange = dataSource.labelRange;
-  if (labelRange) {
-    const { range: adaptedLabelRange, changeType } = applyChange(labelRange);
-    if (changeType === "REMOVE") {
-      labelRange = undefined;
-    } else {
-      labelRange = adaptedLabelRange;
-    }
-  }
-  const dataSets = dataSetsWithUndefined;
-  return {
-    ...dataSource,
-    dataSets,
-    labelRange: labelRange?.invalidSheetName || labelRange?.invalidXc ? undefined : labelRange,
-  };
-}
-
-/**
- * Duplicate the dataSets. All ranges on sheetIdFrom are adapted to target
- * sheetIdTo.
- */
-export function duplicateDataSourceInDuplicatedSheet(
-  getters: CoreGetters,
-  sheetIdFrom: UID,
-  sheetIdTo: UID,
-  dataSource: ChartRangeDataSource
-): ChartRangeDataSource {
-  return {
-    ...dataSource,
-    labelRange: duplicateLabelRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, dataSource.labelRange),
-    dataSets: dataSource.dataSets.map((ds) => ({
-      ...ds,
-      dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
-    })),
-  };
-}
 
 /**
  * Duplicate a range. If the range is on the sheetIdFrom, the range will target
@@ -317,43 +250,6 @@ export function toExcelLabelRange(
   }
   const range = createRange({ ...labelRange, zone: zone }, getters.getSheetSize);
   return getters.getRangeString(range, "forceSheetReference", { useBoundedReference: true });
-}
-
-/**
- * Transform a chart definition which supports dataSets (dataSets and LabelRange)
- * with an executed command
- */
-export function transformChartDefinitionWithDataSource(
-  chartSheetId: UID,
-  dataSource: ChartRangeDataSource<string>,
-  { adaptRangeString }: RangeAdapterFunctions
-): ChartRangeDataSource<string> {
-  let labelRange: string | undefined;
-  if (dataSource.labelRange) {
-    const { changeType, range: adaptedRange } = adaptRangeString(
-      chartSheetId,
-      dataSource.labelRange
-    );
-    if (changeType !== "REMOVE") {
-      labelRange = adaptedRange;
-    }
-  }
-
-  const dataSets: ChartRangeDataSource<string>["dataSets"] = [];
-  for (const dataSet of dataSource.dataSets) {
-    const newDataSet = { ...dataSet };
-    const { changeType, range: adaptedRange } = adaptRangeString(chartSheetId, dataSet.dataRange);
-
-    if (changeType !== "REMOVE") {
-      newDataSet.dataRange = adaptedRange;
-      dataSets.push(newDataSet);
-    }
-  }
-  return {
-    ...dataSource,
-    dataSets,
-    labelRange,
-  };
 }
 
 /**
