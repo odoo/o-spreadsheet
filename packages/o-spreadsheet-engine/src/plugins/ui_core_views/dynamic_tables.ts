@@ -134,13 +134,19 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   ): TableConfig {
     const pivot = this.getters.getPivot(pivotId);
     const pivotTable = pivot.getCollapsedTableStructure();
+    const { numberOfRows, numberOfHeaderRows } = pivotTable.getPivotTableDimensions(pivotStyle);
+    const lastVisibleCell = pivotTable.getPivotCells(pivotStyle)[0]?.[numberOfRows - 1];
+    const hasVisibleTotalRow =
+      pivotStyle.displayTotals &&
+      lastVisibleCell?.type === "HEADER" &&
+      lastVisibleCell.domain.length === 0;
 
     return {
       hasFilters: pivotStyle.hasFilters,
-      totalRow: pivotStyle.displayTotals,
+      totalRow: hasVisibleTotalRow,
       firstColumn: true,
       lastColumn: true,
-      numberOfHeaders: pivotTable.getPivotTableDimensions(pivotStyle).numberOfHeaderRows,
+      numberOfHeaders: numberOfHeaderRows,
       bandedRows: pivotStyle.bandedRows,
       bandedColumns: pivotStyle.bandedColumns,
       styleId: pivotStyle.tableStyleId,
