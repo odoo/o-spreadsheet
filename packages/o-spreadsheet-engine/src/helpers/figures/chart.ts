@@ -33,9 +33,9 @@ export class MyChart {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
     const dataSource = dataSourceBuilder.fromRangeStr(
-      getters,
+      definition.dataSource ?? { type: "never" },
       sheetId,
-      definition.dataSource ?? { type: "never" }
+      getters
     );
     return new MyChart(
       getters,
@@ -68,7 +68,7 @@ export class MyChart {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     return validator.batchValidations(
       () => chartTypeBuilder.validateDefinition(validator, definition),
-      () => dataSourceBuilder.validate(validator, definition.dataSource ?? { type: "never" })
+      () => dataSourceBuilder.validate(definition.dataSource ?? { type: "never" }, validator)
     )(undefined); // Typescript requires a parameter but we don't use it (`definition` is captured by closure)
   }
 
@@ -83,8 +83,8 @@ export class MyChart {
     }
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
     const newDataSource = dataSourceBuilder.transform(
-      chartSheetId,
       definition.dataSource,
+      chartSheetId,
       rangeAdapters
     );
     return {
@@ -105,7 +105,7 @@ export class MyChart {
       ...this.chartTypeBuilder.toStrDefinition(this.definition, this.sheetId, this.getters),
       dataSource:
         this.dataSource &&
-        this.dataSourceBuilder.getDefinition(this.dataSource, this.getters, this.sheetId),
+        this.dataSourceBuilder.getDefinition(this.dataSource, this.sheetId, this.getters),
     } as ChartDefinition<string>;
   }
 
@@ -122,9 +122,9 @@ export class MyChart {
       this.dataSource &&
       this.dataSourceBuilder.duplicateInDuplicatedSheet(
         this.dataSource,
-        this.getters,
         sheetIdFrom,
-        sheetIdTo
+        sheetIdTo,
+        this.getters
       );
     const newChartTypeDef = this.chartTypeBuilder.duplicateInDuplicatedSheet(
       this.definition,
@@ -156,7 +156,7 @@ export class MyChart {
     const definition = this.getDefinition();
     const dataSourceDefinition =
       this.dataSource &&
-      this.dataSourceBuilder.getDefinition(this.dataSource, this.getters, this.sheetId);
+      this.dataSourceBuilder.getDefinition(this.dataSource, this.sheetId, this.getters);
     return {
       ...this.dataSourceBuilder.getContextCreation(definition.dataSource ?? { type: "never" }),
       ...this.chartTypeBuilder.getContextCreation(
@@ -176,7 +176,7 @@ export class MyChart {
       getters,
       definition,
       this.dataSource
-        ? this.dataSourceBuilder.toExcelDataSets(this.dataSource, getters, definition.dataSetStyles)
+        ? this.dataSourceBuilder.toExcelDataSets(this.dataSource, definition.dataSetStyles, getters)
         : { dataSets: [] }
     );
   }
