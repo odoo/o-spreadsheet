@@ -117,6 +117,20 @@ describe("Dynamic tables", () => {
     expect(getTables(model, sheetId)).toMatchObject([{ zone: "C2:C3" }, { zone: "A1:B3" }]);
   });
 
+  test("Dynamic tables are trimmed down when static table overlaps on the bottom", () => {
+    createTable(model, "C3:F7");
+    setCellContent(model, "D1", "=MUNIT(3)");
+    createDynamicTable(model, "D1");
+    expect(getTables(model, sheetId)).toMatchObject([{ zone: "C3:F7" }, { zone: "D1:F2" }]);
+  });
+
+  test("Dynamic tables are trimmed right when static table overlaps on the right", () => {
+    createTable(model, "C3:F7");
+    setCellContent(model, "A2", "=MUNIT(3)");
+    createDynamicTable(model, "A2");
+    expect(getTables(model, sheetId)).toMatchObject([{ zone: "C3:F7" }, { zone: "A2:B4" }]);
+  });
+
   test("Can delete a dynamic table", () => {
     setCellContent(model, "A1", "=MUNIT(3)");
     createDynamicTable(model, "A1");
