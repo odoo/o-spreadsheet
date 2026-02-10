@@ -240,9 +240,10 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
         legend: getBarChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }

@@ -212,9 +212,10 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
         legend: getPieChartLegend(definition, chartData),
         tooltip: getPieChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }
