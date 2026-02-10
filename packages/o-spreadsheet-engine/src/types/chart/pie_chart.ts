@@ -1,5 +1,4 @@
 import type { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface PieChartDefinition extends CommonChartDefinition {
@@ -12,5 +11,4 @@ export interface PieChartDefinition extends CommonChartDefinition {
 
 export type PieChartRuntime = {
   chartJsConfig: ChartConfiguration<"pie" | "doughnut">;
-  background: Color;
 };

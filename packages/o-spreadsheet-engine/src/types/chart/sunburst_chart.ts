@@ -21,7 +21,6 @@ export interface SunburstChartDefinition {
 
 export type SunburstChartRuntime = {
   chartJsConfig: ChartConfiguration<"doughnut">;
-  background: Color;
 };
 
 export type SunburstChartRawData = {

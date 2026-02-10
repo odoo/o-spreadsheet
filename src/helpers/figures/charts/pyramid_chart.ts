@@ -241,9 +241,10 @@ export function createPyramidChartRuntime(
         legend: getBarChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
         chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }

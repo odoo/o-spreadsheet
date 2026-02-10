@@ -10,6 +10,7 @@ import { deepCopy, deepEquals } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
 import { ChartAnimationStore } from "./chartjs_animation_store";
+import { chartBackgroundPlugin } from "./chartjs_background_plugin";
 import { getCalendarChartController } from "./chartjs_calendar_chart";
 import { chartColorScalePlugin } from "./chartjs_colorscale_plugin";
 import {
@@ -69,6 +70,10 @@ chartJsExtensionRegistry.add("zoomWindowPlugin", {
   register: (Chart) => Chart.register(zoomWindowPlugin),
   unregister: (Chart) => Chart.unregister(zoomWindowPlugin),
 });
+chartJsExtensionRegistry.add("chartBackgroundPlugin", {
+  register: (Chart) => Chart.register(chartBackgroundPlugin),
+  unregister: (Chart) => Chart.unregister(chartBackgroundPlugin),
+});
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
@@ -83,14 +88,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   protected animationStore: Store<ChartAnimationStore> | undefined;
 
   private currentDevicePixelRatio = window.devicePixelRatio;
-
-  get background(): string {
-    return this.chartRuntime.background;
-  }
-
-  get canvasStyle() {
-    return `background-color: ${this.background}`;
-  }
 
   get chartRuntime(): ChartJSRuntime {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);

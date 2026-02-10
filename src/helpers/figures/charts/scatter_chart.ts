@@ -243,12 +243,10 @@ export function createScatterChartRuntime(
         legend: getScatterChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return {
-    chartJsConfig: config,
-    background: chart.background || BACKGROUND_CHART_COLOR,
-  };
+  return { chartJsConfig: config };
 }

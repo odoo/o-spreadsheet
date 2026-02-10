@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { CustomizedDataSet } from "./chart";
 import { CommonChartDefinition } from "./common_chart";
 
@@ -15,5 +14,4 @@ export type ComboChartDataSet = CustomizedDataSet & { type?: "bar" | "line" };
 export type ComboChartRuntime = {
   chartJsConfig: ChartConfiguration;
   masterChartConfig?: ChartConfiguration;
-  background: Color;
 };

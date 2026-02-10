@@ -13,7 +13,6 @@ export interface GeoChartDefinition extends CommonChartDefinition {
 
 export type GeoChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  background: Color;
 };
 
 export type GeoChartProjection =

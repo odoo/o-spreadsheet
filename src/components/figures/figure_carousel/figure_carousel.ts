@@ -1,5 +1,8 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_CAROUSEL_TITLE_STYLE } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  BACKGROUND_CHART_COLOR,
+  DEFAULT_CAROUSEL_TITLE_STYLE,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
@@ -113,9 +116,14 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     const cssProperties: CSSProperties = {};
     if (this.selectedCarouselItem?.type === "chart") {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
-      cssProperties["background-color"] = chart.background;
+      if ("background" in chart && chart.background) {
+        cssProperties["background-color"] = chart.background || BACKGROUND_CHART_COLOR;
+      } else if ("chartJsConfig" in chart) {
+        cssProperties["background-color"] =
+          chart.chartJsConfig.options?.plugins?.background?.color || BACKGROUND_CHART_COLOR;
+      }
     } else {
-      cssProperties["background-color"] = "#ffffff";
+      cssProperties["background-color"] = BACKGROUND_CHART_COLOR;
     }
     return cssPropertiesToCss(cssProperties);
   }
