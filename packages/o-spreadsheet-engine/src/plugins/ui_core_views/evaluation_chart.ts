@@ -1,7 +1,9 @@
+import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { MyChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
-import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
+import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
 import {
   CoreViewCommand,
@@ -27,8 +29,6 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
   static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
 
   charts: Record<UID, ChartRuntime | undefined> = {};
-
-  private createRuntimeChart = chartRuntimeFactory(this.getters);
 
   handle(cmd: CoreViewCommand) {
     if (
@@ -143,5 +143,15 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
       }
       sheet.charts = figures;
     }
+  }
+
+  private createRuntimeChart(chart: MyChart): ChartRuntime {
+    const definition = chart.getRangeDefinition();
+    const runtime = chart.getRuntime(this.getters);
+    if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
+      const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
+      runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);
+    }
+    return runtime;
   }
 }
