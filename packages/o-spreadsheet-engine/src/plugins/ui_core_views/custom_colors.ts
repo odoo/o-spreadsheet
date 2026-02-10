@@ -75,7 +75,7 @@ interface CustomColorState {
  */
 export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
   private readonly customColors: Immutable<Record<Color, true>> = {};
-  private readonly shouldUpdateColors = true;
+  private shouldUpdateColors = true;
   static getters = ["getCustomColors"] as const;
 
   constructor(config: CoreViewPluginConfig) {
