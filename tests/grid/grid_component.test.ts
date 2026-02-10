@@ -2506,3 +2506,78 @@ test("Can pinch to zoom in", async () => {
   });
   expect(model.getters.getViewportZoomLevel()).toBeCloseTo(1);
 });
+
+test("pinch to zoom stops on pointerup", async () => {
+  ({ parent, model, fixture } = await mountSpreadsheet());
+
+  const grid = fixture.querySelector(".o-grid-overlay")!;
+  const moveDistance = 30;
+
+  // first we have to move the pointer enough to trigger the pinch zoom which
+  // required to move the pointers form at least 30 px apart
+  const startDelta = Math.ceil(Math.sqrt(30 ** 2 / 2));
+
+  const secondPointerStartX = 100 + startDelta;
+  const secondPointerStartY = 100 + startDelta;
+
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 1, bubbles: true });
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 2, bubbles: true });
+  triggerPointerEvent(grid, "pointermove", secondPointerStartX, secondPointerStartY, {
+    pointerId: 2,
+    bubbles: true,
+  });
+
+  triggerPointerEvent(
+    grid,
+    "pointermove",
+    secondPointerStartX + moveDistance,
+    secondPointerStartY + moveDistance,
+    {
+      pointerId: 2,
+      bubbles: true,
+    }
+  );
+
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBeCloseTo(1.54);
+
+  triggerPointerEvent(window, "pointerup", secondPointerStartX, secondPointerStartY, {
+    pointerId: 2,
+    bubbles: true,
+  });
+  await nextTick();
+  // go back to initial
+  triggerPointerEvent(grid, "pointermove", secondPointerStartX, secondPointerStartY, {
+    pointerId: 2,
+    bubbles: true,
+  });
+  await nextTick();
+  expect(model.getters.getViewportZoomLevel()).toBeCloseTo(1.54);
+});
+
+test("Cannot pinch to zoom with right-click", async () => {
+  ({ parent, model, fixture } = await mountSpreadsheet());
+  const grid = fixture.querySelector(".o-grid-overlay")!;
+
+  // first we have to move the pointer enough to trigger the pinch zoom which
+  // required to move the pointers form at least 30 px apart
+  const startDelta = Math.ceil(Math.sqrt(30 ** 2 / 2));
+
+  const secondPointerStartX = 100 + startDelta;
+  const secondPointerStartY = 100 + startDelta;
+
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 1, bubbles: true, button: 1 });
+  triggerPointerEvent(grid, "pointerdown", 100, 100, { pointerId: 2, bubbles: true, button: 1 });
+  triggerPointerEvent(grid, "pointermove", secondPointerStartX, secondPointerStartY, {
+    pointerId: 2,
+    bubbles: true,
+    button: 1,
+  });
+  expect(model.getters.getViewportZoomLevel()).toBe(1);
+  triggerPointerEvent(grid, "pointermove", secondPointerStartX + 100, secondPointerStartY + 100, {
+    pointerId: 2,
+    bubbles: true,
+    button: 1,
+  });
+  expect(model.getters.getViewportZoomLevel()).toBe(1);
+});

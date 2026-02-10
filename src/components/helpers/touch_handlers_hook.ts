@@ -1,3 +1,4 @@
+import { useExternalListener } from "@odoo/owl";
 import { Ref } from "../../types";
 import { useRefListener } from "./listener_hook";
 
@@ -40,7 +41,7 @@ export function useTouchHandlers(
 
   useRefListener(ref, "pointerdown", onPointerdown, { passive: false, capture: false });
   useRefListener(ref, "pointermove", onPointermove, { passive: false, capture: false });
-  useRefListener(ref, "pointerup", onPointerUp, { passive: false, capture: false });
+  useExternalListener(window, "pointerup", onPointerUp, { passive: false, capture: true });
   useRefListener(ref, "pointercancel", onPointerUp, { passive: false });
 
   function onTouchStart(event: TouchEvent) {
@@ -130,6 +131,14 @@ export function useTouchHandlers(
   function onPointerdown(ev: PointerEvent) {
     // The pointerdown event signals the start of a touch interaction.
     // This event is cached to support 2-finger gestures
+    if (ev.button !== 0) {
+      return;
+    }
+    const index = evCache.findIndex((cachedEv) => cachedEv.pointerId === ev.pointerId);
+    if (index !== -1) {
+      return;
+    }
+
     evCache.push(ev);
     if (evCache.length < 2) {
       previousPointersDistance = -Infinity;
@@ -140,6 +149,9 @@ export function useTouchHandlers(
 
   function onPointerUp(ev: PointerEvent) {
     const index = evCache.findIndex((cachedEv) => cachedEv.pointerId === ev.pointerId);
+    if (index === -1) {
+      return;
+    }
     evCache.splice(index, 1);
     if (evCache.length < 2) {
       previousPointersDistance = -Infinity;
