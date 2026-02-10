@@ -1,5 +1,4 @@
 import type { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface LineChartDefinition extends CommonChartDefinition {
@@ -16,5 +15,4 @@ export interface LineChartDefinition extends CommonChartDefinition {
 export type LineChartRuntime = {
   chartJsConfig: ChartConfiguration<"line">;
   masterChartConfig?: ChartConfiguration<"line">;
-  background: Color;
 };

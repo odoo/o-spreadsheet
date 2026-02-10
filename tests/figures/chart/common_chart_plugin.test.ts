@@ -1,4 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { GaugeChartRuntime, ScorecardChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Model } from "../../../src";
 import { Color, UID } from "../../../src/types";
 import {
@@ -16,6 +17,13 @@ describe("Single cell chart background color", () => {
   let model: Model;
   let sheetId: UID;
   const chartId = "thisIsAnId";
+
+  function getGaugeOrScorecardRuntime(
+    model: Model,
+    chartId: UID
+  ): GaugeChartRuntime | ScorecardChartRuntime {
+    return model.getters.getChartRuntime(chartId) as GaugeChartRuntime | ScorecardChartRuntime;
+  }
 
   beforeEach(() => {
     model = new Model();
@@ -47,11 +55,11 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell CF background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
       addCfToA1("#FF0000");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#FF0000");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
       setCellContent(model, "A1", "random value not in CF");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
     }
   );
 
@@ -59,9 +67,9 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
       addFillToA1("#00FF00");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#00FF00");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#00FF00");
     }
   );
 
@@ -71,7 +79,7 @@ describe("Single cell chart background color", () => {
       addCfToA1("#FF0000");
       addFillToA1("#00FF00");
       createTestChart(chartType, "A1");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#FF0000");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
     }
   );
 
@@ -80,7 +88,7 @@ describe("Single cell chart background color", () => {
     (chartType: string) => {
       addCfToA1("#FF0000");
       createTestChart(chartType, "A1", "#0000FF");
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#0000FF");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#0000FF");
     }
   );
 
@@ -97,7 +105,7 @@ describe("Single cell chart background color", () => {
       });
       const sheet1Name = model.getters.getSheetName(sheetId);
       createTestChart(chartType, `${sheet1Name}!A1`);
-      expect(model.getters.getChartRuntime(chartId).background).toEqual("#000FFF");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#000FFF");
     }
   );
 

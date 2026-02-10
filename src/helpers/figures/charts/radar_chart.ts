@@ -236,9 +236,10 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
         legend: getRadarChartLegend(definition, chartData),
         tooltip: getRadarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }
