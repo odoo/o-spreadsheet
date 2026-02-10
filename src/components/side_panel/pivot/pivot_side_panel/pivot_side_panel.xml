@@ -19,7 +19,7 @@
       </div>
 
       <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
-        <div class="h-100" t-att-class="{ 'd-none': state.panel !== 'configuration' }">
+        <div t-att-class="state.panel !== 'configuration' ? 'd-none' : ''">
           <t t-component="sidePanelEditor" t-props="props"/>
         </div>
         <div t-att-class="state.panel !== 'design' ? 'd-none' : ''">

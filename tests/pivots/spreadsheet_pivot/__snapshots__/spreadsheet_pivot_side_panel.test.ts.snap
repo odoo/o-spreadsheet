@@ -102,9 +102,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
         <div
           class="o-panel-content overflow-y-auto h-100"
         >
-          <div
-            class="h-100"
-          >
+          <div>
             <div
               class="d-flex flex-column h-100 justify-content-between overflow-hidden"
             >
@@ -507,9 +505,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
         <div
           class="o-panel-content overflow-y-auto h-100"
         >
-          <div
-            class="h-100"
-          >
+          <div>
             <div
               class="d-flex flex-column h-100 justify-content-between overflow-hidden"
             >
