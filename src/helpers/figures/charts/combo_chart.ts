@@ -91,8 +91,8 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource): ComboChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): ComboChartRuntime {
+    const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

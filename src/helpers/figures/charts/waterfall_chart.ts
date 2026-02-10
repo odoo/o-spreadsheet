@@ -4,6 +4,7 @@ import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/hel
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { WaterfallChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import type { ChartConfiguration } from "chart.js";
 import { CommandResult } from "../../../types";
 import {
@@ -75,8 +76,8 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, dataSource) {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): WaterfallChartRuntime {
+    const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
     const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);

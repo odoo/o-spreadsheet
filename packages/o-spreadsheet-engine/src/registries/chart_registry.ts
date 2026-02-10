@@ -1,5 +1,6 @@
 import {
   ChartCreationContext,
+  ChartData,
   ChartRuntime,
   ChartType,
   ChartTypeDefinition,
@@ -11,7 +12,7 @@ import { Getters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { Validator } from "../types/validator";
-import { ChartDataSourceHandler } from "./chart_data_source_registry";
+import { ChartDataSourceBuilder } from "./chart_data_source_registry";
 import { Registry } from "./registry";
 
 /**
@@ -68,7 +69,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
   ): ChartTypeDefinition<T, Range>;
   getContextCreation(
     definition: ChartTypeDefinition<T, string>,
-    dataSourceHandler: ChartDataSourceHandler,
+    dataSourceBuilder: ChartDataSourceBuilder<any>,
     dataSource: ChartTypeDefinition<T, string>["dataSource"]
   ): ChartCreationContext;
   getDefinitionFromContextCreation(context: ChartCreationContext): ChartTypeDefinition<T, string>;
@@ -84,12 +85,17 @@ export interface ChartTypeBuilder<T extends ChartType> {
   getRuntime(
     getters: Getters,
     definition: ChartTypeDefinition<T, Range>,
-    dataSource: ChartDataSourceHandler,
+    chartDataExtractors: ChartDataExtractors,
     sheetId: UID
   ): ChartRuntime;
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
+}
+
+interface ChartDataExtractors {
+  extractData(): ChartData;
+  extractHierarchicalData(): ChartData;
 }
 
 interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {

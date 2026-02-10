@@ -91,8 +91,8 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, dataSource): CalendarChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): CalendarChartRuntime {
+    const data = extractData();
     const chartData = getCalendarChartData(definition, data, getters);
     const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
