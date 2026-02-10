@@ -90,8 +90,8 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, dataSource): SunburstChartRuntime {
-    const data = dataSource.extractHierarchicalData(getters);
+  getRuntime(getters, definition, { extractHierarchicalData }): SunburstChartRuntime {
+    const data = extractHierarchicalData();
     const chartData = getHierarchalChartData(definition, data, getters);
 
     const config: ChartConfiguration<"doughnut"> = {

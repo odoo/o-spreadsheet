@@ -69,8 +69,8 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, dataSource): FunnelChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): FunnelChartRuntime {
+    const data = extractData();
     const chartData = getFunnelChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

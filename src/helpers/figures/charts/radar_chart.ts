@@ -6,6 +6,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { RadarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import { CommandResult } from "../../../types";
@@ -77,8 +78,8 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource) {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): RadarChartRuntime {
+    const data = extractData();
     const chartData = getRadarChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

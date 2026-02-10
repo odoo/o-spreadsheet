@@ -7,6 +7,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import { CommandResult } from "../../../types";
@@ -79,8 +80,8 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource) {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): ScatterChartRuntime {
+    const data = extractData();
     const chartData = getLineChartData(definition, data, getters);
 
     const config: ChartConfiguration<"line"> = {

@@ -99,8 +99,8 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource): PyramidChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): PyramidChartRuntime {
+    const data = extractData();
     const chartData = getPyramidChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

@@ -59,8 +59,8 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, dataSource): GeoChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): GeoChartRuntime {
+    const data = extractData();
     const chartData = getGeoChartData(definition, data, getters);
 
     const config: ChartConfiguration = {

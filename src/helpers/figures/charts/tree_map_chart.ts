@@ -1,7 +1,6 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { ChartDataSourceHandler } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { ChartRangeDataSource } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { TreeMapChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
@@ -86,8 +85,8 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, dataSource: ChartDataSourceHandler): TreeMapChartRuntime {
-    const data = dataSource.extractHierarchicalData(getters);
+  getRuntime(getters, definition, { extractHierarchicalData }): TreeMapChartRuntime {
+    const data = extractHierarchicalData();
     const chartData = getHierarchalChartData(definition, data, getters);
 
     const config: ChartConfiguration = {
