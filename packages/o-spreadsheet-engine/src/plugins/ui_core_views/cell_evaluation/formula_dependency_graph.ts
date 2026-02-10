@@ -129,18 +129,26 @@ export class FormulaDependencyGraph {
       const graph = this.graphs.get(range.sheetId);
       if (graph) {
         const dependents = graph.getRangeDependents(range.zone);
-        for (const dep of dependents) {
-          if (!visited.has(dep)) {
-            // should add the difference
-            queue.push(dep);
-          }
-        }
+        queue.push(...new RangeSet(dependents).difference(visited));
+        // for (const dep of dependents) {
+        //   if (!visited.has(dep)) {
+        //     // should add the difference
+        //     queue.push(dep);
+        //   }
+        // }
       }
     }
     // remove initial ranges
     for (const range of ranges) {
       visited.delete(range);
     }
+    ("654f203e-9ead-4bc3-9d1b-942969000ee1:2-16936-0-0");
+    console.log(
+      "Visited dependents:",
+      [...visited].map(
+        (r) => `${r.sheetId}:${r.zone.top}-${r.zone.bottom}-${r.zone.left}-${r.zone.right}`
+      )
+    );
     return visited;
   }
 }
