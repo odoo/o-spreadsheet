@@ -2,7 +2,6 @@
 
 exports[`datasource tests create a chart with stacked bar 1`] = `
 {
-  "background": "#FFFFFF",
   "chartJsConfig": {
     "data": {
       "datasets": [
@@ -55,6 +54,9 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       },
       "maintainAspectRatio": false,
       "plugins": {
+        "background": {
+          "color": undefined,
+        },
         "chartShowValuesPlugin": {
           "background": [Function],
           "callback": [Function],
@@ -186,6 +188,9 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       },
       "maintainAspectRatio": false,
       "plugins": {
+        "background": {
+          "color": undefined,
+        },
         "chartShowValuesPlugin": undefined,
         "legend": {
           "display": false,
@@ -240,7 +245,6 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
 
 exports[`datasource tests create chart with column datasets 1`] = `
 {
-  "background": "#FFFFFF",
   "chartJsConfig": {
     "data": {
       "datasets": [
@@ -311,6 +315,9 @@ exports[`datasource tests create chart with column datasets 1`] = `
       },
       "maintainAspectRatio": false,
       "plugins": {
+        "background": {
+          "color": undefined,
+        },
         "chartShowValuesPlugin": {
           "background": [Function],
           "callback": [Function],
@@ -459,6 +466,9 @@ exports[`datasource tests create chart with column datasets 1`] = `
       },
       "maintainAspectRatio": false,
       "plugins": {
+        "background": {
+          "color": undefined,
+        },
         "chartShowValuesPlugin": undefined,
         "legend": {
           "display": false,

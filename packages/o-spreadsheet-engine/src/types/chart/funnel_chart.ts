@@ -22,7 +22,6 @@ export interface FunnelChartDefinition {
 
 export type FunnelChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  background: Color;
 };
 
 export type FunnelChartColors = (Color | undefined)[];

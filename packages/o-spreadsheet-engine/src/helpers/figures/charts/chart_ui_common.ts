@@ -50,7 +50,6 @@ export async function chartToImageUrl(
     }
 
     const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
     if (!globalThis.Chart.registry.controllers.get(config.type)) {
       console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
       if (!extensionsLoaded) {
@@ -109,7 +108,6 @@ export async function chartToImageFile(
     }
 
     const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
     if (!globalThis.Chart.registry.controllers.get(config.type)) {
       console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
       if (!extensionsLoaded) {
@@ -147,22 +145,6 @@ export async function chartToImageFile(
   }
   return chartBlob;
 }
-
-/**
- * Custom chart.js plugin to set the background color of the canvas
- * https://github.com/chartjs/Chart.js/blob/8fdf76f8f02d31684d34704341a5d9217e977491/docs/configuration/canvas-background.md
- */
-const backgroundColorChartJSPlugin = {
-  id: "customCanvasBackgroundColor",
-  beforeDraw: (chart) => {
-    const { ctx } = chart;
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, chart.width, chart.height);
-    ctx.restore();
-  },
-};
 
 function createRenderingSurface(width: number, height: number): OffscreenCanvas {
   return new OffscreenCanvas(width, height);

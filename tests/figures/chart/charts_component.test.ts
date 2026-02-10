@@ -1,12 +1,10 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import {
-  BACKGROUND_CHART_COLOR,
-  LINE_DATA_POINT_RADIUS,
-} from "@odoo/o-spreadsheet-engine/constants";
+import { LINE_DATA_POINT_RADIUS } from "@odoo/o-spreadsheet-engine/constants";
 import {
   GaugeChartDefinition,
   PieChartRuntime,
   ScorecardChartDefinition,
+  ScorecardChartRuntime,
   TrendConfiguration,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
@@ -2418,23 +2416,26 @@ describe("Default background on runtime tests", () => {
     model = new Model();
   });
 
-  test("Creating a 'basicChart' without background should have default background on runtime", async () => {
+  test("Creating a 'basicChart' without background should have no background on runtime", async () => {
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime(chartId).background).toBe(BACKGROUND_CHART_COLOR);
+    const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBeUndefined();
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     updateChart(model, chartId, { type: "line" }, sheetId);
+    const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime(chartId).background).toBe(BACKGROUND_CHART_COLOR);
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe(undefined);
   });
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
+    const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime(chartId).background).toBe("#FA0000");
+    expect(runtime.background).toBe("#FA0000");
   });
 });
 
@@ -2481,7 +2482,8 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(9);
+  const numberOfExtensions = window.Chart.registry.plugins["items"].length;
+  expect(spyRegister).toHaveBeenCalledTimes(numberOfExtensions);
   expect(window.Chart.registry.plugins["items"].map((i) => i.id)).toMatchObject([
     "chartShowValuesPlugin",
     "waterfallLinesPlugin",
@@ -2492,15 +2494,16 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
     "chartColorScalePlugin",
     "calendar", // Calendar controller
     "zoomWindowPlugin",
+    "background",
   ]);
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(9);
+  expect(spyRegister).toHaveBeenCalledTimes(numberOfExtensions);
 
   app.destroy();
   await nextTick();
-  expect(spyUnregister).toHaveBeenCalledTimes(9);
+  expect(spyUnregister).toHaveBeenCalledTimes(numberOfExtensions);
   expect(window.Chart.registry.plugins["items"]).toEqual([]);
 });
 

@@ -17,5 +17,4 @@ export interface WaterfallChartDefinition extends CommonChartDefinition {
 
 export type WaterfallChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  background: Color;
 };

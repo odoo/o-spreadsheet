@@ -220,9 +220,10 @@ export function createTreeMapChartRuntime(
         title: getChartTitle(definition, getters),
         legend: { display: false },
         tooltip: getTreeMapChartTooltip(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }

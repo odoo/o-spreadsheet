@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface RadarChartDefinition extends CommonChartDefinition {
@@ -13,5 +12,4 @@ export interface RadarChartDefinition extends CommonChartDefinition {
 
 export type RadarChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  background: Color;
 };

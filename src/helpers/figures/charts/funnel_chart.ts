@@ -1,5 +1,4 @@
 import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   checkDataset,
@@ -220,9 +219,10 @@ export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): 
         legend: { display: false },
         tooltip: getFunnelChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }

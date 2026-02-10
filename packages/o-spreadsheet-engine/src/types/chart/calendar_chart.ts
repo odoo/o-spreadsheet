@@ -27,5 +27,4 @@ export interface CalendarChartDefinition extends CommonChartDefinition {
 
 export type CalendarChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  background: Color;
 };

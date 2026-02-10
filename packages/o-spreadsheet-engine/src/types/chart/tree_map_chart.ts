@@ -45,7 +45,6 @@ export type TreeMapColoringOptions = TreeMapCategoryColorOptions | TreeMapColorS
 
 export type TreeMapChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  background: Color;
 };
 
 export type TreeMapItem = {

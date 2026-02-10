@@ -1,5 +1,4 @@
 import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   checkDataset,
@@ -200,9 +199,10 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
         title: getChartTitle(definition, getters),
         tooltip: getGeoChartTooltip(definition, chartData),
         legend: { display: false },
+        background: { color: chart.background },
       },
     },
   };
 
-  return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+  return { chartJsConfig: config };
 }
