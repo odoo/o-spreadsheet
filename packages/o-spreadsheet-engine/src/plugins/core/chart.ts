@@ -1,6 +1,5 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { MyChart } from "../../helpers/figures/chart";
-import { chartFactory } from "../../helpers/figures/charts/chart_factory";
 import { deepEquals } from "../../helpers/misc";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart";
 import {
@@ -37,8 +36,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   ] as const;
 
   readonly charts: Record<UID, FigureChart | undefined> = {};
-
-  private createChart = chartFactory(this.getters);
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
@@ -220,12 +217,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const chartId = figure.data.chartId;
             const definition = { ...figure.data };
             delete definition.chartId;
-            const chart = this.createChart(figure.id, definition, sheet.id);
+            const chart = MyChart.fromStrDefinition(this.getters, sheet.id, definition);
             this.charts[chartId] = { chart, figureId: figure.id };
           } else if (figure.tag === "carousel") {
             for (const chartId in figure.data.chartDefinitions || {}) {
               const chartDefinition = figure.data.chartDefinitions[chartId];
-              const chart = this.createChart(figure.id, chartDefinition, sheet.id);
+              const chart = MyChart.fromStrDefinition(this.getters, sheet.id, chartDefinition);
               this.charts[chartId] = { chart, figureId: figure.id };
             }
           }
@@ -306,7 +303,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private addChart(figureId: UID, chartId: UID, definition: ChartDefinition) {
     const sheetId = this.getters.getFigureSheetId(figureId);
     if (sheetId) {
-      const chart = this.createChart(figureId, definition, sheetId);
+      const chart = MyChart.fromStrDefinition(this.getters, sheetId, definition);
       this.history.update("charts", chartId, { figureId, chart });
     }
   }
