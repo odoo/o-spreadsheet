@@ -85,8 +85,8 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource): BarChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): BarChartRuntime {
+    const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
     const config: ChartConfiguration<"bar" | "line"> = {
