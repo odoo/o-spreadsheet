@@ -28,7 +28,7 @@ function getConfigForFormat(format, minified = false) {
     format,
     name: "o_spreadsheet",
     extend: true,
-    globals: { "@odoo/owl": "owl" },
+    globals: { "@odoo/owl": "owl", "chart.js": "Chart" },
     outro,
     banner: bundle.jsBanner(),
     plugins: minified ? [terser()] : [],
@@ -65,14 +65,14 @@ export default (commandLineArgs) => {
     // Only build one version to improve speed
     config = {
       input: "build/js/src/index.js",
-      external: ["@odoo/owl"],
+      external: ["@odoo/owl", "chart.js"],
       output: [
         {
           name: "o_spreadsheet",
           extend: true,
           outro,
           banner: bundle.jsBanner(),
-          globals: { "@odoo/owl": "owl" },
+          globals: { "@odoo/owl": "owl", "chart.js": "Chart" },
           file: `build/o_spreadsheet.${extension}`,
           format: commandLineArgs.format,
         },
@@ -118,7 +118,7 @@ export default (commandLineArgs) => {
     config = [
       {
         input,
-        external: ["@odoo/owl"],
+        external: ["@odoo/owl", "chart.js"],
         output,
         plugins,
       },
