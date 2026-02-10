@@ -57,7 +57,11 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   }
 
   finalize() {
-    if (this.isStale) {
+    // Skip automatic evaluation if disabled (unless forced by EVALUATE_CELLS)
+    if (
+      this.isStale &&
+      (this.getters.shouldForceEvaluation() || this.getters.isAutomaticEvaluationEnabled())
+    ) {
       for (const sheetId of this.getters.getSheetIds()) {
         this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
         this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
