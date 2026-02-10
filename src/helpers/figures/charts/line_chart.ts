@@ -90,8 +90,8 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     };
   },
 
-  getRuntime(getters, definition, dataSource): LineChartRuntime {
-    const data = dataSource.extractData(getters);
+  getRuntime(getters, definition, { extractData }): LineChartRuntime {
+    const data = extractData();
     const chartData = getLineChartData(definition, data, getters);
 
     const config: ChartConfiguration<"line"> = {
