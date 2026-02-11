@@ -65,7 +65,9 @@ export class GenericChartConfigPanel<
   protected chartTerms = ChartTerms;
 
   setup() {
-    this.dataSets = this.props.definition.dataSource.dataSets;
+    if (this.props.definition.dataSource.type === "range") {
+      this.dataSets = this.props.definition.dataSource.dataSets;
+    }
     this.labelRange = this.props.definition.dataSource.labelRange;
     this.datasetOrientation = this.computeDatasetOrientation();
   }
@@ -419,7 +421,11 @@ export class GenericChartConfigPanel<
   }
 
   calculateHeaderPosition(): number | undefined {
-    if (this.isDatasetInvalid || this.isLabelInvalid) {
+    if (
+      this.isDatasetInvalid ||
+      this.isLabelInvalid ||
+      this.props.definition.dataSource.type !== "range"
+    ) {
       return undefined;
     }
     const getters = this.env.model.getters;

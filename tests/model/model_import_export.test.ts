@@ -841,7 +841,7 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
   expect(model.getters.getChartRuntime(chartIds[1])).toBeDefined();
 });
 
-test("migrate version 19.1.1: remove extra keys from chart definition", () => {
+test("migrate version 19.2.1: remove extra keys from chart definition", () => {
   const definition = {
     type: "line",
     title: "demo chart",

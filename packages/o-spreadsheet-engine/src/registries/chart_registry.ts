@@ -4,6 +4,7 @@ import {
   ChartRuntime,
   ChartType,
   ChartTypeDefinition,
+  DatasetValues,
   ExcelChartDefinition,
 } from "../types/chart";
 import { CommandResult } from "../types/commands";
@@ -86,7 +87,8 @@ export interface ChartTypeBuilder<T extends ChartType> {
     getters: Getters,
     definition: ChartTypeDefinition<T, Range>,
     chartDataExtractors: ChartDataExtractors,
-    sheetId: UID
+    sheetId: UID,
+    goToDataSet?: (name: string, dataSet: DatasetValues) => void
   ): ChartRuntime;
   allowedDefinitionKeys: readonly string[];
   sequence: number;

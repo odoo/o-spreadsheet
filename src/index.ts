@@ -317,6 +317,7 @@ export const registries = {
   chartComponentRegistry,
   chartRegistry: chartTypeRegistry,
   chartSubtypeRegistry,
+  chartDataSourceRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
   clickableCellRegistry,
@@ -347,6 +348,7 @@ import {
   getNumberOfPivotFunctions,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
+import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
