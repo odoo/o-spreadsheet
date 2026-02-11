@@ -156,6 +156,30 @@ describe("TreeMap chart", () => {
     });
   });
 
+  test("TreeMap chart display dataset labels in formatted form", () => {
+    // prettier-ignore
+    setGrid(model, {
+        A1: "Date",       B1: "Sales",
+        A2: "2/3/2010",   B2: "10",
+        A3: "5/8/2015",   B3: "40",
+      })
+    const chartId = createTreeMapChart(model, {
+      dataSets: [{ dataRange: "A1:A3" }],
+      labelRange: "B1:B3",
+      dataSetsHaveTitle: true,
+    });
+
+    const datasetConfig = getTreeMapDatasetConfig(chartId);
+    expect(datasetConfig).toMatchObject({
+      tree: [
+        { 0: "2/3/2010", value: 10 },
+        { 0: "5/8/2015", value: 40 },
+      ],
+      groups: ["0"],
+      key: "value",
+    });
+  });
+
   test("Can have a hierarchical dataset with some categories more detailed that others", () => {
     // prettier-ignore
     setGrid(model, {
