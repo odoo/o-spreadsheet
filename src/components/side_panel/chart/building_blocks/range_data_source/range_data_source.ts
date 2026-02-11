@@ -43,7 +43,6 @@ interface Props {
   onErrorMessagesChanged?: (errorMessages: string[]) => void;
   dataSeriesTitle?: string;
   labelRangeTitle?: string;
-  maxNumberOfUsedRanges?: number;
   getLabelRangeOptions?: () => Array<{
     name: string;
     label: string;
@@ -53,7 +52,7 @@ interface Props {
 }
 
 export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartRangeDataSource";
+  static template = "o-spreadsheet-ChartRangeDataSource";
   static components = {
     ChartDataSeries,
     ChartLabelRange,
@@ -66,7 +65,6 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
     onErrorMessagesChanged: { type: Function, optional: true },
     dataSeriesTitle: { type: String, optional: true },
     labelRangeTitle: { type: String, optional: true },
-    maxNumberOfUsedRanges: { type: Number, optional: true },
     getLabelRangeOptions: { type: Function, optional: true },
   };
 
@@ -82,9 +80,11 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   protected chartTerms = ChartTerms;
 
   setup() {
-    this.dataSets = this.props.definition.dataSource.dataSets;
+    this.dataSets = this.props.definition.dataSource.dataSets ?? [];
     this.labelRange = this.props.definition.dataSource.labelRange;
-    this.datasetOrientation = this.computeDatasetOrientation();
+    if (this.props.definition.dataSource.type === "range") {
+      this.datasetOrientation = this.computeDatasetOrientation();
+    }
   }
 
   get errorMessages(): string[] {
@@ -462,9 +462,6 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get maxNumberOfUsedRanges(): number | undefined {
-    if (this.props.maxNumberOfUsedRanges !== undefined) {
-      return this.props.maxNumberOfUsedRanges;
-    }
     return chartTypeRegistry.get(this.props.definition.type).dataSeriesLimit;
   }
 

@@ -309,9 +309,11 @@ export const registries = {
   sidePanelRegistry,
   figureRegistry,
   chartSidePanelComponentRegistry,
+  chartDataSourceSidePanelComponentRegistry,
   chartComponentRegistry,
   chartRegistry: chartTypeRegistry,
   chartSubtypeRegistry,
+  chartDataSourceRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
   clickableCellRegistry,
@@ -342,12 +344,14 @@ import {
   getNumberOfPivotFunctions,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
+import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
 import { TopBar } from "./components/top_bar/top_bar";
+import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 
 export const helpers = {
   arg,

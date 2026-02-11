@@ -4,6 +4,7 @@ import {
   ChartRuntime,
   ChartType,
   ChartTypeDefinition,
+  DatasetValues,
   ExcelChartDefinition,
 } from "../types/chart";
 import { CommandResult } from "../types/commands";
@@ -14,6 +15,15 @@ import { Range } from "../types/range";
 import { Validator } from "../types/validator";
 import { ChartDataSourceBuilder } from "./chart_data_source_registry";
 import { Registry } from "./registry";
+
+export type GoToDataSetFunction<T extends ChartType> = (
+  dataSource: ChartTypeDefinition<T, Range>["dataSource"],
+  dataSetName: string,
+  dataSet: DatasetValues,
+  dataSetIndex: number,
+  newWindow: boolean,
+  getters: Getters
+) => void;
 
 /**
  * Instantiate a chart object based on a definition
@@ -86,7 +96,8 @@ export interface ChartTypeBuilder<T extends ChartType> {
     getters: Getters,
     definition: ChartTypeDefinition<T, Range>,
     chartDataExtractors: ChartDataExtractors,
-    sheetId: UID
+    sheetId: UID,
+    eventHandlers: ChartJsEventHandlers
   ): ChartRuntime;
   allowedDefinitionKeys: readonly string[];
   sequence: number;
@@ -96,6 +107,21 @@ export interface ChartTypeBuilder<T extends ChartType> {
 interface ChartDataExtractors {
   extractData(): ChartData;
   extractHierarchicalData(): ChartData;
+}
+
+interface ChartJsEventHandlers {
+  onClick?: (
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown,
+  ) => void;
+  onHover?: (
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown,
+  ) => void;
 }
 
 interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {

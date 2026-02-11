@@ -578,7 +578,7 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("19.1.1", {
+  .add("19.2.1", {
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
@@ -590,7 +590,7 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("19.1.2", {
+  .add("19.2.2", {
     migrate(data: WorkbookData): any {
       function upgrade(definition: any): any {
         if (!("dataSets" in definition)) {
@@ -633,7 +633,7 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("19.1.3", {
+  .add("19.2.3", {
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {

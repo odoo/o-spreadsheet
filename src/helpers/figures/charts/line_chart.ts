@@ -90,7 +90,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): LineChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): LineChartRuntime {
     const data = extractData();
     const chartData = getLineChartData(definition, data, getters);
 
@@ -111,6 +111,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 

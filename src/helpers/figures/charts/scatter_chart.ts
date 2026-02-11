@@ -78,7 +78,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): ScatterChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ScatterChartRuntime {
     const data = extractData();
     const chartData = getLineChartData(definition, data, getters);
 
@@ -101,6 +101,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 
