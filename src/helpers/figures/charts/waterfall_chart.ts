@@ -75,7 +75,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }): WaterfallChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): WaterfallChartRuntime {
     const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
@@ -98,9 +98,10 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
           waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};

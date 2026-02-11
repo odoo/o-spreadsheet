@@ -65,7 +65,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
       if (!chart) {
         throw new Error(`No chart for the given id: ${chartId}`);
       }
-      this.charts[chartId] = this.createRuntimeChart(chart);
+      this.charts[chartId] = this.createRuntimeChart(chartId, chart);
     }
     return this.charts[chartId] as ChartRuntime;
   }
@@ -145,9 +145,9 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     }
   }
 
-  private createRuntimeChart(chart: MyChart): ChartRuntime {
+  private createRuntimeChart(chartId: UID, chart: MyChart): ChartRuntime {
     const definition = chart.getRangeDefinition();
-    const runtime = chart.getRuntime(this.getters);
+    const runtime = chart.getRuntime(this.getters, chartId);
     if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
       const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
       runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);

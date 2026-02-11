@@ -77,7 +77,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): PieChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): PieChartRuntime {
     const data = extractData();
     const chartData = getPieChartData(definition, data, getters);
 
@@ -101,9 +101,10 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};

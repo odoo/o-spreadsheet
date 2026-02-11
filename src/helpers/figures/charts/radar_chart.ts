@@ -78,7 +78,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): RadarChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): RadarChartRuntime {
     const data = extractData();
     const chartData = getRadarChartData(definition, data, getters);
 
@@ -99,6 +99,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 
