@@ -91,7 +91,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): ComboChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ComboChartRuntime {
     const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
@@ -112,6 +112,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 

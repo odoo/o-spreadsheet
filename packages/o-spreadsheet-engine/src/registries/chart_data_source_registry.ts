@@ -3,6 +3,7 @@ import {
   ChartData,
   ChartDataSource,
   ChartDataSourceType,
+  ChartType,
   DataSetStyle,
   DataSourceType,
   ExcelChartDefinition,
@@ -54,6 +55,15 @@ export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
     dataSetStyles: DataSetStyle,
     getters: CoreGetters
   ): Pick<ExcelChartDefinition, "dataSets" | "labelRange">;
+  onDataSetClick?: (
+    chartType: ChartType,
+    chartId: UID,
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown,
+    getters: Getters
+  ) => void;
 }
 
 interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<any>> {

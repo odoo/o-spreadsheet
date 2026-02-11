@@ -99,7 +99,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): PyramidChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): PyramidChartRuntime {
     const data = extractData();
     const chartData = getPyramidChartData(definition, data, getters);
 
@@ -121,6 +121,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
           chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 

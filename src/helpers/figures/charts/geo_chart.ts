@@ -58,7 +58,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }): GeoChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): GeoChartRuntime {
     const data = extractData();
     const chartData = getGeoChartData(definition, data, getters);
 
@@ -77,6 +77,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
           legend: { display: false },
           background: { color: definition.background },
         },
+        ...eventHandlers,
       },
     };
 
