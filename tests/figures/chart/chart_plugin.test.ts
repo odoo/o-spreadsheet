@@ -14,6 +14,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  createBubbleChart,
   createChart,
   createComboChart,
   createFigure,
@@ -58,6 +59,7 @@ import {
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { ChartPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/chart";
 import { FigurePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/figures";
+import { BubbleChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/bubble_chart";
 import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
@@ -2343,6 +2345,53 @@ describe("Chart design configuration", () => {
     const tooltipItem = getChartTooltipItemFromDataset(chart, 1, 0);
     const labelValues = getChartTooltipValues(chart, tooltipItem);
     expect(labelValues).toEqual({ beforeLabel: "Trend line for Series 1", label: "12" });
+  });
+
+  test("bubble chart runtime uses dedicated ranges and color modes", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "X", B1: "Y",  C1: "Label", D1: "Size",
+      A2: "1", B2: "10", C2: "Alpha", D2: "6",
+      A3: "2", B3: "20", C3: "Beta",  D3: "11",
+      A4: "3", B4: "15", C4: "Gamma", D4: "16",
+      A5: "4", B5: "30", C5: "Delta", D5: "26",
+    });
+
+    createBubbleChart(
+      model,
+      {
+        type: "bubble",
+        dataSets: [{ dataRange: "B2:B5" }],
+        xRange: "A2:A5",
+        labelRange: "C2:C5",
+        sizeRange: "D2:D5",
+        bubbleColor: { color: "multiple" },
+      },
+      "1"
+    );
+
+    let runtime = model.getters.getChartRuntime("1") as BubbleChartRuntime;
+    expect(runtime.chartJsConfig.type).toBe("bubble");
+    let dataset = runtime.chartJsConfig.data?.datasets?.[0] as any;
+    expect(dataset.data).toHaveLength(4);
+    const xValues = dataset.data.map((point: any) => point.x);
+    const yValues = dataset.data.map((point: any) => point.y);
+    const rValues = dataset.data.map((point: any) => point.r);
+    expect(xValues).toEqual(["1", "2", "3", "4"]); // as string, will be interpreted as numbers by Chart.js
+    expect(yValues).toEqual([10, 20, 15, 30]);
+    expect(rValues).toEqual([6, 11, 16, 26]);
+    expect(Array.isArray(dataset.backgroundColor)).toBeTruthy();
+    expect(dataset.backgroundColor).toHaveLength(4);
+
+    const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
+    const tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues.beforeLabel).toBe("Alpha");
+    expect(tooltipValues.label).toBe("(1, 10)→ 6");
+
+    updateChart(model, "1", { bubbleColor: { color: "#4EA7F2" } });
+    runtime = model.getters.getChartRuntime("1") as BubbleChartRuntime;
+    dataset = runtime.chartJsConfig.data?.datasets?.[0] as any;
+    expect(typeof dataset.backgroundColor).toBe("string");
   });
 
   test.each(["line", "scatter", "bar", "combo"] as const)(

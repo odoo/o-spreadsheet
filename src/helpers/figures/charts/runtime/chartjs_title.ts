@@ -6,7 +6,7 @@ import { TitleOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 
 export function getChartTitle(
-  definition: ChartWithDataSetDefinition,
+  definition: Pick<ChartWithDataSetDefinition, "title" | "legendPosition" | "background">,
   getters: Getters
 ): _DeepPartialObject<TitleOptions> {
   const chartTitle = definition.title;

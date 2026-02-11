@@ -4,6 +4,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
+  ChartDefinition,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
   schemeToColorScale,
@@ -18,7 +19,7 @@ import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export function getChartShowValues(
-  definition: ChartWithDataSetDefinition,
+  definition: ChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -142,7 +143,7 @@ export function getWaterfallChartShowValues(
   };
 }
 
-function getDatasetAxisId(definition: ChartWithDataSetDefinition, dataset: ChartMeta): string {
+function getDatasetAxisId(definition: ChartDefinition, dataset: ChartMeta): string {
   if (dataset.rAxisID) {
     return dataset.rAxisID;
   }

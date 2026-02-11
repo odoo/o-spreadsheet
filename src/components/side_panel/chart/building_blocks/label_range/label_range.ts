@@ -11,6 +11,7 @@ interface Props {
   isInvalid: boolean;
   onSelectionChanged: (range: string) => void;
   onSelectionConfirmed: () => void;
+  class?: string;
   options?: Array<{
     name: string;
     label: string;
@@ -25,6 +26,7 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     title: { type: String, optional: true },
     range: String,
+    class: { type: String, optional: true },
     isInvalid: Boolean,
     onSelectionChanged: Function,
     onSelectionConfirmed: Function,
@@ -35,4 +37,8 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
     title: _t("Categories / Labels"),
     options: [],
   };
+
+  get sectionClass() {
+    return "o-data-labels" + (this.props.class ? ` ${this.props.class}` : "");
+  }
 }

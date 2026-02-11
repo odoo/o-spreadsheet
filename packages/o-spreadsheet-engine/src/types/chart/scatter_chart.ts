@@ -5,4 +5,4 @@ export interface ScatterChartDefinition
   readonly type: "scatter";
 }
 
-export type ScatterChartRuntime = LineChartRuntime;
+export type ScatterChartRuntime = Omit<LineChartRuntime, "masterChartConfig">;

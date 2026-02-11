@@ -27,6 +27,10 @@ export const CHART_WATERFALL_POSITIVE_COLOR = "#4EA7F2";
 export const CHART_WATERFALL_NEGATIVE_COLOR = "#EA6175";
 export const CHART_WATERFALL_SUBTOTAL_COLOR = "#AAAAAA";
 
+export const MIN_BUBBLE_RADIUS = 6;
+export const DEFAULT_BUBBLE_RADIUS = 16;
+export const MAX_BUBBLE_RADIUS = 26;
+
 export const GRAY_900 = "#111827";
 export const GRAY_300 = "#D8DADD";
 export const GRAY_200 = "#E7E9ED";
