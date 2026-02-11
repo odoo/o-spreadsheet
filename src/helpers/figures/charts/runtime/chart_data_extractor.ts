@@ -13,6 +13,7 @@ import {
   CellValue,
   DEFAULT_LOCALE,
   Format,
+  FormattedValue,
   GenericDefinition,
   Getters,
   Locale,
@@ -654,20 +655,34 @@ function fixEmptyLabelsForDateCharts(
   return { labels: newLabels, dataSetsValues: newDatasets };
 }
 
+function getDataRange(getters: Getters, ds: DataSet): Range | undefined {
+  if (!ds.dataRange) return;
+
+  const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
+  const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
+  if (!dataZone) return;
+
+  return getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
+}
+
 /**
  * Get the data from a dataSet
  */
 export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
-  if (ds.dataRange) {
-    const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
-    const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
-    if (dataZone === undefined) {
-      return [];
-    }
-    const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
-    return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
-  }
-  return [];
+  const range = getDataRange(getters, ds);
+  if (!range) return [];
+
+  return getters.getRangeValues(range).map((value) => (value === "" ? undefined : value));
+}
+
+/**
+ * Get the formatted data from a dataSet
+ */
+function getFormattedData(getters: Getters, ds: DataSet): (FormattedValue | undefined)[] {
+  const range = getDataRange(getters, ds);
+  if (!range) return [];
+
+  return getters.getRangeFormattedValues(range).map((value) => (value === "" ? undefined : value));
 }
 
 /**
@@ -931,13 +946,13 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
     (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
   );
   const datasetValues: DatasetValues[] = dataSets.map(() => ({ data: [], label: "" }));
-  const dataSetsData = dataSets.map((ds) => getData(getters, ds));
+  const dataSetsData = dataSets.map((ds) => getFormattedData(getters, ds));
   if (!dataSetsData.length) {
     return datasetValues;
   }
   const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
 
-  let currentValues: (CellValue | undefined)[] = [];
+  let currentValues: (FormattedValue | undefined)[] = [];
   const leafDatasetIndex = dataSets.length - 1;
 
   for (let i = 0; i < minLength; i++) {
