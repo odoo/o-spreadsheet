@@ -201,6 +201,12 @@ export class MyChart {
           extractData: () => ({ dataSetsValues: [], labelValues: [] }),
           extractHierarchicalData: () => ({ dataSetsValues: [], labelValues: [] }),
         };
-    return this.chartTypeBuilder.getRuntime(getters, this.definition, dataExtractors, this.sheetId);
+    return this.chartTypeBuilder.getRuntime(
+      getters,
+      this.definition,
+      dataExtractors,
+      this.sheetId,
+      this.dataSourceBuilder.goToDataSet
+    );
   }
 }
