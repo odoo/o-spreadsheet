@@ -30,7 +30,7 @@ import {
   getMergeCellMap,
   getPlugin,
   makeTestComposerStore,
-  toRangesData,
+  toRangesData, //  createModelFromGrid,
 } from "../test_helpers/helpers";
 
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
@@ -984,3 +984,17 @@ describe("Autofill", () => {
     expect(autofillTooltip("A1", "A2")).toBe("label");
   });
 });
+
+// describe("Autofill many", ()=>{
+//   const model = createModelFromGrid(
+//     {A1: "1/1/2001"}
+//   );
+//   model.dispatch("AUTOFILL_TARGET", {
+//     sheetId: model.getters.getActiveSheetId(), col: 0, row: 0, // A1
+//     target: [{top: 1, left: 0, bottom: 2, right: 0}], // A2:A3
+//     transform: {
+//
+//     }
+//   });
+//
+// });
