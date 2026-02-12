@@ -1,0 +1,20 @@
+.o-spreadsheet {
+  .o-column-stats-title {
+    font-size: 16px;
+  }
+  .o-row-switcher {
+    cursor: pointer;
+  }
+  .o-column-stats-row {
+    padding: 1px 0;
+  }
+  .o-column-stats-row:nth-child(even) {
+    background: var(--os-gray-100);
+  }
+  .o-column-frequencies-row {
+    cursor: pointer;
+  }
+  .o-column-frequencies-row:hover span {
+    font-weight: bold;
+  }
+}

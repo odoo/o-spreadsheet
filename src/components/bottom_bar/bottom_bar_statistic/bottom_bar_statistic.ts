@@ -29,7 +29,9 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.store = useStore(AggregateStatisticsStore);
     onWillUpdateProps(() => {
-      if (Object.values(this.store.statisticFnResults).every((result) => result === undefined)) {
+      if (
+        Object.values(this.store.statisticFnResults).every((result) => result?.value === undefined)
+      ) {
         this.props.closeContextMenu();
       }
     });
@@ -37,7 +39,9 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
 
   getSelectedStatistic() {
     // don't display button if no function has a result
-    if (Object.values(this.store.statisticFnResults).every((result) => result === undefined)) {
+    if (
+      Object.values(this.store.statisticFnResults).every((result) => result?.value === undefined)
+    ) {
       return undefined;
     }
     if (this.selectedStatisticFn === "") {
@@ -68,6 +72,10 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   private getComposedFnName(fnName: string): string {
     const locale = this.env.model.getters.getLocale();
     const fnValue = this.store.statisticFnResults[fnName];
-    return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue(), { locale }) : "__");
+    return (
+      fnName +
+      ": " +
+      (fnValue?.value !== undefined ? formatValue(fnValue.value(), { locale }) : "__")
+    );
   }
 }
