@@ -8,7 +8,7 @@ import {
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc";
+import { concat, deepEquals, isObjectEmpty, range, replaceNewLines } from "../../helpers/misc";
 
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
@@ -518,7 +518,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           delete after.style[key];
         }
       }
-      if (!after.style || Object.keys(after.style).length === 0) {
+      if (!after.style || isObjectEmpty(after.style)) {
         style = undefined;
       } else {
         style = after.style;

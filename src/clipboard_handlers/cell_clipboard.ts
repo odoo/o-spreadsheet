@@ -231,10 +231,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     clipboardOption?: ClipboardOptions
   ) {
     const { sheetId, col, row } = target;
-    const targetCell = this.getters.getEvaluatedCell(target);
+    const targetCell = this.getters.getCell(target);
+    const targetEvaluatedCell = this.getters.getEvaluatedCell(target);
     const originFormat = origin.format || origin.evaluatedCell.format;
-    const originStyle = Object.keys(origin?.style ?? {}).length === 0 ? undefined : origin.style;
-
+    // We know the target cell style is already edited by the default_clipboard
+    const newStyle = { ...targetCell?.style, ...origin.style };
+    const style = Object.keys(newStyle ?? {}).length === 0 ? undefined : newStyle;
     if (clipboardOption?.pasteOption === "asValue") {
       this.dispatch("UPDATE_CELL", {
         ...target,
@@ -247,8 +249,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        style: originStyle,
-        format: originFormat ?? targetCell.format,
+        style,
+        format: originFormat ?? targetEvaluatedCell.format,
       });
       return;
     }
@@ -268,14 +270,14 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         origin.tokens
       );
     }
-    if (content !== "" || origin?.format || originStyle) {
+    if (content !== "" || origin.format || style) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: originStyle,
+        style,
         format: origin.format,
       });
-    } else if (targetCell.type !== "empty") {
+    } else if (targetEvaluatedCell.type !== "empty") {
       this.dispatch("UPDATE_CELL", {
         content: "",
         ...target,

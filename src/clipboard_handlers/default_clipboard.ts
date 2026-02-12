@@ -59,7 +59,7 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       let colIndex = 0;
       for (const col of data.columnsIndexes) {
         const value = this.getters.getDefaultStyle(data.sheetId, key as keyof Style, "COL", col);
-        if (value) {
+        if (value !== undefined) {
           content.style[key].colDefault[colIndex] = value;
         }
         colIndex++;
@@ -67,7 +67,7 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       let rowIndex = 0;
       for (const row of data.rowsIndexes) {
         const value = this.getters.getDefaultStyle(data.sheetId, key as keyof Style, "ROW", row);
-        if (value) {
+        if (value !== undefined) {
           content.style[key].rowDefault[rowIndex] = value;
         }
         rowIndex++;
@@ -137,6 +137,77 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       target: content.zones,
     });
   }
+
+  //    TODO see which one is better
+  //   private addCommand(commands: [Zone, Style][], zone: Zone, style: Style): [Zone, Style][] {
+  //   const resultingCommands: [Zone, Style][] = [];
+  //   let editingZones: Zone[] = [zone];
+  //   for (const command of commands) {
+  //     const [commandZone, commandStyle] = command;
+  //     const inter = intersection(commandZone, zone);
+  //     if (!inter) {
+  //       resultingCommands.push(command);
+  //       continue;
+  //     }
+
+  //     editingZones = recomputeZones(editingZones, [inter]);
+  //     const newStyle = { ...commandStyle, ...style };
+  //     if (deepEquals(commandStyle, newStyle)) {
+  //       resultingCommands.push(command);
+  //     } else {
+  //       resultingCommands.push([inter, newStyle]);
+  //       for (const updatedBorderZone of recomputeZones([commandZone], [inter])) {
+  //         resultingCommands.push([updatedBorderZone, commandStyle]);
+  //       }
+  //     }
+  //     editingZones = recomputeZones(editingZones, [inter]);
+  //   }
+  //   for (const updatedBorderZone of recomputeZones(editingZones)) {
+  //     resultingCommands.push([updatedBorderZone, style]);
+  //   }
+  //   return resultingCommands;
+  // }
+
+  // pasteStyle(
+  //   sheetId: UID,
+  //   col: HeaderIndex,
+  //   row: HeaderIndex,
+  //   width: number,
+  //   height: number,
+  //   defaultValues: { [J in keyof Style]: defaultValue<Style[J]> | undefined }
+  // ) {
+  //   let commands: [Zone, Style][] = [];
+  //   for (const key in defaultValues) {
+  //     // TODO find a way to reduce the number of command dispatched by grouping when possible
+  //     // Sheet format
+  //     commands = this.addCommand(
+  //       commands,
+  //       { left: col, right: col + width - 1, top: row, bottom: row + height - 1 },
+  //       { [key]: defaultValues[key].sheetDefault }
+  //     );
+  //     // Col Formats
+  //     for (const colDeltaIndex in defaultValues[key].colDefault) {
+  //       const colDelta = parseInt(colDeltaIndex);
+  //       commands = this.addCommand(
+  //         commands,
+  //         { left: col + colDelta, right: col + colDelta, top: row, bottom: row + height - 1 },
+  //         { [key]: defaultValues[key].colDefault[colDeltaIndex] }
+  //       );
+  //     }
+  //     // Row Formats
+  //     for (const rowDeltaIdx in defaultValues[key].rowDefault) {
+  //       const rowDelta = parseInt(rowDeltaIdx);
+  //       commands = this.addCommand(
+  //         commands,
+  //         { left: col, right: col + width - 1, top: row + rowDelta, bottom: row + rowDelta },
+  //         { [key]: defaultValues[key].rowDefault[rowDeltaIdx] }
+  //       );
+  //     }
+  //   }
+  //   for (const [zone, style] of commands) {
+  //     this.dispatch("SET_FORMATTING", { sheetId, target: [zone], style });
+  //   }
+  // }
 
   pasteStyle(
     sheetId: UID,

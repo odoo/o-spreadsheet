@@ -494,10 +494,11 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     // TODO use existing cell instead of loop
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
-        const cellStyle = this.getters.getCell({ sheetId, col, row })?.style;
+        let cellStyle = this.getters.getCell({ sheetId, col, row })?.style;
         if (!cellStyle) {
           continue;
         }
+        cellStyle = { ...cellStyle };
         for (const key in style) {
           delete cellStyle[key];
         }
@@ -505,7 +506,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
           sheetId,
           col,
           row,
-          style: cellStyle,
+          style: Object.keys(cellStyle).length === 0 ? undefined : cellStyle,
         });
       }
     }
