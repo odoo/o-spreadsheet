@@ -10,9 +10,12 @@ MockCanvasRenderingContext2D.prototype.measureText = function () {
 interface ContextObserver {
   onSet?(key, val): void;
   onGet?(key): void;
-  onFunctionCall?(fn: string, args: any[]): void;
+  onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
+/**
+ * A mock rendering context for testing purposes. By default it has no gridOffset to draw headers.
+ */
 export class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
@@ -29,7 +32,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
         if (val in (this._context as any).__proto__) {
           return (...args) => {
             if (observer.onFunctionCall) {
-              observer.onFunctionCall(val, args);
+              observer.onFunctionCall(val, args, this);
             }
           };
         } else {
