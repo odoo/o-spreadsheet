@@ -77,12 +77,6 @@ export interface Selection {
   zones: Zone[];
 }
 
-export type AdjacentEdge = {
-  position: "left" | "top" | "bottom" | "right";
-  start: HeaderIndex;
-  stop: HeaderIndex;
-};
-
 export interface UnboundedZone {
   top: HeaderIndex;
   bottom: HeaderIndex | undefined;

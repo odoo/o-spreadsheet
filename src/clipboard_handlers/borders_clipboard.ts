@@ -1,61 +1,43 @@
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
-import { deepEquals, groupConsecutive } from "../helpers/misc";
-import { ZoneBorder, ZoneBorderData } from "../plugins/core";
+import { positionToZone, recomputeZones } from "../helpers";
 import {
-  BorderDescr,
-  BorderPosition,
+  Border,
+  CellPosition,
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
   HeaderIndex,
   UID,
+  Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 type ClipboardContent = {
-  borders: ZoneBorder[];
-  width: number;
-  height: number;
+  borders: (Border | null)[][];
 };
 
 export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
-  ZoneBorder
+  Border | null
 > {
+  private queuedBordersToAdd: Record<string, Zone[]> = {};
+
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
     }
-    const borders: ZoneBorder[] = [];
-    let colsBefore = 0;
-    for (const cols of groupConsecutive(data.columnsIndexes)) {
-      let rowsBefore = 0;
-      for (const rows of groupConsecutive(data.rowsIndexes)) {
-        const zone = {
-          left: cols[0],
-          right: cols[cols.length - 1],
-          top: rows[0],
-          bottom: rows[rows.length - 1],
-        };
-        borders.push(
-          ...this.getters.getBorders(sheetId, zone).map(({ zone: borderZone, style }) => {
-            return {
-              zone: {
-                left: borderZone.left - zone.left + colsBefore,
-                right: borderZone.right && borderZone.right - zone.left + colsBefore,
-                top: borderZone.top - zone.top + rowsBefore,
-                bottom: borderZone.bottom && borderZone.bottom - zone.top + rowsBefore,
-              },
-              style,
-            };
-          })
-        );
-        rowsBefore += rows.length;
+    const { rowsIndexes, columnsIndexes } = data;
+    const borders: (Border | null)[][] = [];
+
+    for (const row of rowsIndexes) {
+      const bordersInRow: (Border | null)[] = [];
+      for (const col of columnsIndexes) {
+        const position = { col, row, sheetId };
+        bordersInRow.push(this.getters.getCellBorder(position));
       }
-      colsBefore += cols.length;
+      borders.push(bordersInRow);
     }
-    return { borders, width: data.columnsIndexes.length, height: data.rowsIndexes.length };
+    return { borders };
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -65,69 +47,47 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
-      for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
-          this.pasteBorderZone(sheetId, pasteZone.left, pasteZone.top, content.borders);
-        }
-      }
+      this.pasteFromCopy(sheetId, zones, content.borders);
     } else {
       const { left, top } = zones[0];
-      this.pasteBorderZone(sheetId, left, top, content.borders);
+      this.pasteZone(sheetId, left, top, content.borders);
     }
+
+    this.executeQueuedChanges(sheetId);
   }
 
-  pasteBorderZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, borders: ZoneBorder[]) {
-    for (const border of borders) {
-      const zone = {
-        left: border.zone.left + col,
-        right: (border.zone.right && border.zone.right + col) || border.zone.left + col,
-        top: border.zone.top + row,
-        bottom: (border.zone.bottom && border.zone.bottom + row) || border.zone.top + row,
-      };
-      for (const [position, style] of this.getOptimalBorderCommands(border.style)) {
-        if (style)
-          this.dispatch("SET_ZONE_BORDERS", {
-            sheetId,
-            target: [zone],
-            border: { position, ...style },
-          });
+  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, borders: (Border | null)[][]) {
+    for (const [r, rowBorders] of borders.entries()) {
+      for (const [c, originBorders] of rowBorders.entries()) {
+        const position = { col: col + c, row: row + r, sheetId };
+        this.pasteBorder(originBorders, position);
       }
     }
   }
 
-  getOptimalBorderCommands(border: ZoneBorderData): [BorderPosition, BorderDescr | undefined][] {
-    const hv = deepEquals(border.horizontal, border.vertical);
-    const external = deepEquals(border.left, border.right, border.top, border.bottom);
-    if (hv && external && deepEquals(border.horizontal, border.left)) {
-      return [["all", border.top]];
-    } else if (hv && external) {
-      return [
-        ["hv", border.horizontal],
-        ["external", border.top],
-      ];
-    } else if (external) {
-      return [
-        ["h", border.horizontal],
-        ["v", border.vertical],
-        ["external", border.top],
-      ];
-    } else if (hv) {
-      return [
-        ["hv", border.horizontal],
-        ["top", border.top],
-        ["bottom", border.bottom],
-        ["left", border.left],
-        ["right", border.right],
-      ];
-    } else {
-      return [
-        ["h", border.horizontal],
-        ["v", border.vertical],
-        ["top", border.top],
-        ["bottom", border.bottom],
-        ["left", border.left],
-        ["right", border.right],
-      ];
+  /**
+   * Paste the border at the given position to the target position
+   */
+  private pasteBorder(originBorders: Border | null, target: CellPosition) {
+    const targetBorders = this.getters.getCellBorder(target);
+    const border = {
+      ...targetBorders,
+      ...originBorders,
+    };
+    const borderKey = JSON.stringify(border);
+    if (!this.queuedBordersToAdd[borderKey]) {
+      this.queuedBordersToAdd[borderKey] = [];
     }
+    this.queuedBordersToAdd[borderKey].push(positionToZone(target));
+  }
+
+  private executeQueuedChanges(pasteSheetTarget: UID) {
+    for (const borderKey in this.queuedBordersToAdd) {
+      const zones = this.queuedBordersToAdd[borderKey];
+      const border = JSON.parse(borderKey) as Border;
+      const target = recomputeZones(zones, []);
+      this.dispatch("SET_BORDERS_ON_TARGET", { sheetId: pasteSheetTarget, target, border });
+    }
+    this.queuedBordersToAdd = {};
   }
 }
