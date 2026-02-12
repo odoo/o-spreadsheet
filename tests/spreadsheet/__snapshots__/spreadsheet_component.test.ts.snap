@@ -3,8 +3,9 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; --os-scrollbar-width:15px; "
+  style="--os-scrollbar-width:15px; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
+  
   
   <div
     class="o-spreadsheet-topbar-wrapper o-two-columns"
@@ -910,7 +911,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <canvas
           height="985"
-          style="width:985px;height:985px;zoom:1;"
+          style="width:985px; height:985px; "
           width="985"
         />
         
@@ -1108,8 +1109,9 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; --os-scrollbar-width:15px; "
+  style="--os-scrollbar-width:15px; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
+  
   
   <div
     class="o-spreadsheet-topbar-wrapper o-two-columns"
@@ -1921,7 +1923,7 @@ exports[`components take the small screen into account 1`] = `
         
         <canvas
           height="985"
-          style="width:485px;height:985px;zoom:1;"
+          style="width:485px; height:985px; "
           width="485"
         />
         

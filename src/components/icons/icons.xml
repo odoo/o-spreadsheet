@@ -1125,4 +1125,9 @@
       <i class="fa fa-unlock"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.PRINT">
+    <div class="o-icon">
+      <i class="fa fa-print"/>
+    </div>
+  </t>
 </templates>

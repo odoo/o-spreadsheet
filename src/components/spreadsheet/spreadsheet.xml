@@ -5,7 +5,10 @@
       t-att-class="getSpreadSheetClasses()"
       t-ref="spreadsheet"
       t-att-style="getStyle()">
-      <t t-if="env.isDashboard()">
+      <t t-if="state.printModeEnabled">
+        <SpreadsheetPrint onExitPrintMode.bind="exitPrintMode"/>
+      </t>
+      <t t-elif="env.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
         <FullScreenFigure/>
       </t>

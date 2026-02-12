@@ -1,4 +1,5 @@
 import { ChartConfiguration, ChartOptions } from "chart.js";
+import { DOMDimension } from "../../..";
 import {
   ChartRuntime,
   ChartType,
@@ -37,58 +38,16 @@ export async function chartToImageUrl(
   figure: Figure,
   type: ChartType
 ): Promise<string | undefined> {
-  const canvas = createRenderingSurface(figure.width, figure.height);
-  let imageUrl: string | undefined;
-  if ("chartJsConfig" in runtime) {
-    if (!globalThis.Chart) {
-      console.log("Chart.js library is not loaded");
-      return imageUrl;
-    }
-    const extensionsLoaded = areChartJSExtensionsLoaded();
-    if (!extensionsLoaded) {
-      registerChartJSExtensions();
-    }
-
-    const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
-    if (!globalThis.Chart.registry.controllers.get(config.type)) {
-      console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
-      if (!extensionsLoaded) {
-        unregisterChartJsExtensions();
-      }
-      return imageUrl;
-    }
-
-    const chart = new globalThis.Chart(
-      canvas as unknown as HTMLCanvasElement,
-      config as ChartConfiguration
-    );
-    try {
-      imageUrl = await canvasToObjectUrl(canvas);
-    } finally {
-      chart.destroy();
-      if (!extensionsLoaded) {
-        unregisterChartJsExtensions();
-      }
-    }
+  try {
+    const canvas = createRenderingSurface(figure.width, figure.height);
+    const cleanup = drawChartOnCanvas(canvas, runtime, figure, type);
+    const imageUrl = await canvasToObjectUrl(canvas);
+    cleanup();
+    return imageUrl;
+  } catch (error) {
+    console.log("Error exporting chart to image URL: " + error.message);
   }
-  // TODO: make a registry of chart types to their rendering functions
-  else {
-    if (!globalThis.OffscreenCanvas) {
-      throw new Error(
-        `converting a ${type} chart to an image using OffscreenCanvas is not supported in this environment`
-      );
-    }
-    if (type === "scorecard") {
-      const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
-      drawScoreChart(design, canvas);
-      imageUrl = await canvasToObjectUrl(canvas);
-    } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, figure);
-      imageUrl = await canvasToObjectUrl(canvas);
-    }
-  }
-  return imageUrl;
+  return undefined;
 }
 
 export async function chartToImageFile(
@@ -96,56 +55,16 @@ export async function chartToImageFile(
   figure: Figure,
   type: ChartType
 ): Promise<Blob | null> {
-  const canvas = createRenderingSurface(figure.width, figure.height);
-  let chartBlob: Blob | null = null;
-  if ("chartJsConfig" in runtime) {
-    if (!globalThis.Chart) {
-      console.log("Chart.js library is not loaded");
-      return chartBlob;
-    }
-    const extensionsLoaded = areChartJSExtensionsLoaded();
-    if (!extensionsLoaded) {
-      registerChartJSExtensions();
-    }
-
-    const config = deepCopy(runtime.chartJsConfig);
-    config.plugins = [backgroundColorChartJSPlugin];
-    if (!globalThis.Chart.registry.controllers.get(config.type)) {
-      console.log(`Chart of type "${config.type}" is not registered in Chart.js library.`);
-      if (!extensionsLoaded) {
-        unregisterChartJsExtensions();
-      }
-      return chartBlob;
-    }
-
-    const chart = new globalThis.Chart(
-      canvas as unknown as HTMLCanvasElement,
-      config as ChartConfiguration
-    );
-    try {
-      chartBlob = await canvasToBlob(canvas);
-    } finally {
-      chart.destroy();
-      if (!extensionsLoaded) {
-        unregisterChartJsExtensions();
-      }
-    }
-  } else {
-    if (!globalThis.OffscreenCanvas) {
-      throw new Error(
-        `converting a ${type} chart to an image using OffscreenCanvas is not supported in this environment`
-      );
-    }
-    if (type === "scorecard") {
-      const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
-      drawScoreChart(design, canvas);
-      chartBlob = await canvasToBlob(canvas);
-    } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, figure);
-      chartBlob = await canvasToBlob(canvas);
-    }
+  try {
+    const canvas = createRenderingSurface(figure.width, figure.height);
+    const cleanup = drawChartOnCanvas(canvas, runtime, figure, type);
+    const chartBlob = await canvasToBlob(canvas);
+    cleanup();
+    return chartBlob;
+  } catch (error) {
+    console.log("Error exporting chart to image file: " + error.message);
   }
-  return chartBlob;
+  return null;
 }
 
 /**
@@ -157,7 +76,6 @@ const backgroundColorChartJSPlugin = {
   beforeDraw: (chart) => {
     const { ctx } = chart;
     ctx.save();
-    ctx.globalCompositeOperation = "destination-over";
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, chart.width, chart.height);
     ctx.restore();
@@ -165,6 +83,11 @@ const backgroundColorChartJSPlugin = {
 };
 
 function createRenderingSurface(width: number, height: number): OffscreenCanvas {
+  if (!globalThis.OffscreenCanvas) {
+    throw new Error(
+      `converting a chart to an image using OffscreenCanvas is not supported in this environment`
+    );
+  }
   return new OffscreenCanvas(width, height);
 }
 
@@ -187,4 +110,57 @@ async function canvasToObjectUrl(canvas: OffscreenCanvas): Promise<string | unde
     });
     f.readAsDataURL(blob);
   });
+}
+
+/**
+ * Draw the given chart on the canvas.
+ *
+ * @returns a cleanup function to be called after the drawing is no longer needed (to free Chart.js resources)
+ */
+export function drawChartOnCanvas(
+  canvas: HTMLCanvasElement | OffscreenCanvas,
+  runtime: ChartRuntime,
+  size: DOMDimension,
+  type: ChartType
+): () => void {
+  if ("chartJsConfig" in runtime) {
+    if (!globalThis.Chart) {
+      throw new Error("Chart.js library is not loaded");
+    }
+    const extensionsLoaded = areChartJSExtensionsLoaded();
+    if (!extensionsLoaded) {
+      registerChartJSExtensions();
+    }
+
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    if (!globalThis.Chart.registry.controllers.get(config.type)) {
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
+      throw new Error(`Chart of type "${config.type}" is not registered in Chart.js library.`);
+    }
+
+    const chart = new globalThis.Chart(
+      canvas as unknown as HTMLCanvasElement,
+      config as ChartConfiguration
+    );
+    return () => {
+      chart.destroy();
+      if (!extensionsLoaded) {
+        unregisterChartJsExtensions();
+      }
+    };
+  }
+  // TODO: make a registry of chart types to their rendering functions
+  else {
+    if (type === "scorecard") {
+      const design = getScorecardConfiguration(size, runtime as ScorecardChartRuntime);
+      drawScoreChart(design, canvas);
+    } else if (type === "gauge") {
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, size);
+    }
+  }
+
+  return () => {};
 }
