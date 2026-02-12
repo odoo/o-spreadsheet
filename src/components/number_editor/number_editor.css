@@ -2,7 +2,7 @@
   .o-number-editor {
     width: max-content !important;
 
-    input.o-font-size {
+    input {
       outline: none;
       height: 20px;
       width: 31px;
