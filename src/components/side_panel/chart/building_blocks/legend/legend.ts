@@ -8,7 +8,7 @@ import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
 export class ChartLegend extends Component<
-  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  ChartSidePanelProps<ChartWithDataSetDefinition> & { isDisabled?: boolean },
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-ChartLegend";
@@ -16,7 +16,14 @@ export class ChartLegend extends Component<
     Section,
     Select,
   };
-  static props = ChartSidePanelPropsObject;
+  static props = {
+    ...ChartSidePanelPropsObject,
+    isDisabled: { type: Boolean, optional: true },
+  };
+
+  static defaultProps = {
+    isDisabled: false,
+  };
 
   updateLegendPosition(value: LegendPosition) {
     this.props.updateChart(this.props.chartId, {

@@ -38,6 +38,10 @@ export class PieChartDesignPanel extends Component<
     return this.env.model.getters.getChartRuntime(this.props.chartId) as PieChartRuntime;
   }
 
+  isLegendDisabled() {
+    return !this.props.definition.labelRange;
+  }
+
   getLabels() {
     let labels = this.runtime.chartJsConfig.data.labels;
     labels = labels?.map((label, index) => (label === "" ? `Slice ${index + 1}` : label));
