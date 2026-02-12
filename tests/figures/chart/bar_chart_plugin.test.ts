@@ -5,6 +5,7 @@ import { ChartCreationContext, Model } from "../../../src";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
   getChartLegendLabels,
   getChartTooltipValues,
   isChartAxisStacked,
@@ -280,5 +281,39 @@ describe("bar chart", () => {
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, 0.9]);
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, 0.8]);
+  });
+
+  test("bar chart runtime reflects axis bounds and grids", () => {
+    const model = createModelFromGrid({
+      A1: "Month",
+      A2: "Jan",
+      B1: "Series A",
+      B2: "5",
+    });
+
+    createChart(
+      model,
+      {
+        type: "bar",
+        labelRange: "A2",
+        dataSets: [{ dataRange: "B2" }],
+      },
+      "1"
+    );
+
+    updateChart(model, "1", {
+      axesDesign: {
+        x: { min: 0, max: 2 },
+        y: { min: 0, max: 30, gridLines: "minor" },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "1").options?.scales;
+    expect(scales.x?.min).toBe(0);
+    expect(scales.x?.max).toBe(2);
+    expect(scales.y?.min).toBe(0);
+    expect(scales.y?.max).toBe(30);
+    expect(scales.y?.grid?.display).toBe(false);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
   });
 });

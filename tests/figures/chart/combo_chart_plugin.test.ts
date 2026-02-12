@@ -7,6 +7,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
   getChartLegendLabels,
   getChartTooltipValues,
 } from "../../test_helpers/chart_helpers";
@@ -169,5 +170,49 @@ describe("combo chart", () => {
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, undefined, 0.9]); // undefined for line dataset
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, undefined, 0.8]);
+  });
+
+  test("combo chart runtime reflects axis bounds on both vertical axes", () => {
+    const model = createModelFromGrid({
+      A1: "Month",
+      A2: "Jan",
+      B1: "Series A",
+      B2: "5",
+      C1: "Series B",
+      C2: "50",
+    });
+
+    createChart(
+      model,
+      {
+        type: "combo",
+        labelRange: "A2",
+        dataSets: [
+          { dataRange: "B2", yAxisId: "y" },
+          { dataRange: "C2", yAxisId: "y1" },
+        ],
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+
+    updateChart(model, "1", {
+      axesDesign: {
+        x: { min: 0, max: 2 },
+        y: { min: 5, max: 30, gridLines: "minor" },
+        y1: { min: 40, max: 80, gridLines: "both" },
+      },
+    });
+
+    const scales = getChartConfiguration(model, "1").options?.scales;
+    expect(scales.x?.min).toBe(0);
+    expect(scales.y?.min).toBe(5);
+    expect(scales.y?.max).toBe(30);
+    expect(scales.y?.grid?.display).toBe(false);
+    expect(scales.y?.grid?.minor?.display).toBe(true);
+    expect(scales.y1?.min).toBe(40);
+    expect(scales.y1?.max).toBe(80);
+    expect(scales.y1?.grid?.display).toBe(true);
+    expect(scales.y1?.grid?.minor?.display).toBe(true);
   });
 });
