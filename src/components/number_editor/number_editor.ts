@@ -64,6 +64,7 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
 
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    //useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps) => {
       if (this.inputRef.el && document.activeElement !== this.inputRef.el) {
         this.inputRef.el.value = nextProps.currentValue;

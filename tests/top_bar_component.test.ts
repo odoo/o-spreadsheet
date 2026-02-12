@@ -436,7 +436,9 @@ describe("TopBar component", () => {
 
   test("can set font size", async () => {
     const { model } = await mountParent();
-    const fontSizeText = fixture.getElementsByClassName("o-font-size")[1]! as HTMLInputElement;
+    const fontSizeText = fixture.querySelector(
+      ".o-number-editor[title='Font Size'] > input"
+    ) as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     await click(fontSizeText.parentElement!);
     // ensure the input is no longer selected (not automaticly done by click in jsdom)
@@ -448,7 +450,9 @@ describe("TopBar component", () => {
 
   test("Tab from font size editor closes the dropdown and moves focus to grid", async () => {
     const { fixture } = await mountSpreadsheet();
-    const input = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+    const input = fixture.querySelector(
+      ".o-number-editor[title='Font Size'] > input"
+    ) as HTMLInputElement;
     input.focus();
     await nextTick();
     expect(fixture.querySelector(".o-popover .o-text-options")).toBeTruthy();
@@ -458,9 +462,26 @@ describe("TopBar component", () => {
     expect(document.activeElement).toBe(composerEl);
   });
 
+  test("Right-click somewhere should close the number editor popover", async () => {
+    const { fixture } = await mountSpreadsheet();
+
+    const element = fixture.querySelector(
+      ".o-number-editor[title='Font Size'] > input"
+    ) as HTMLInputElement;
+    element.focus();
+    await nextTick();
+    expect(".o-popover .o-text-options").toHaveCount(1);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(".o-popover .o-text-options").toHaveCount(0);
+  });
+
   test("Clicking the number editor dropdown arrow focuses the input", async () => {
     const { fixture } = await mountSpreadsheet();
-    const input = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+    const input = fixture.querySelector(
+      ".o-number-editor[title='Font Size'] > input"
+    ) as HTMLInputElement;
     const icon = fixture.querySelectorAll(".o-number-editor .o-icon")[0] as HTMLElement;
     await click(icon);
     expect(document.activeElement).toBe(input);
@@ -468,7 +489,9 @@ describe("TopBar component", () => {
 
   test("prevents default behavior of mouse wheel event on font size input", async () => {
     await mountParent();
-    const fontSizeInput = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+    const fontSizeInput = fixture.querySelector(
+      ".o-number-editor[title='Font Size'] > input"
+    ) as HTMLInputElement;
 
     const event = new WheelEvent("wheel", { deltaY: 100 });
     const preventDefaultSpy = jest.spyOn(event, "preventDefault");
