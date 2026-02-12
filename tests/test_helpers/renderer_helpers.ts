@@ -1,8 +1,4 @@
-import {
-  getDefaultSheetViewSize,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
+import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
 import { GridRenderingContext, RenderingGetters, UID, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -17,6 +13,9 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
+/**
+ * A mock rendering context for testing purposes. By default it removes the headers from the viewports.
+ */
 export class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
@@ -26,8 +25,8 @@ export class MockGridRenderingContext implements GridRenderingContext {
 
   constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_SHEETVIEW", {
-      width: width - HEADER_WIDTH,
-      height: height - HEADER_HEIGHT,
+      width: width,
+      height: height,
       gridOffsetX: 0,
       gridOffsetY: 0,
     });
@@ -68,14 +67,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
   }
 
   get viewports() {
-    const viewports = this.model.getters.getViewportCollection();
-    // FIXME: normally, the condition to determine if we want to draw the headers or not should be if gridOffsetX/Y are
-    // equal to 0 or not, (ie. if there is space above/left of the grid to draw them, which in practice is equivalent to `isDashboard()`)
-    // But in the renderer tests, we are testing with `isDashboard() === false` but `gridOffsetX/Y === 0`, which is
-    // not supposed to happen. Before this commit we were drawing the headers over the grid in the test, now without this hack
-    // we are not drawing the headers at all since `gridOffsetX/Y === 0`. We should fix the tests.
-    viewports.shouldDisplayHeaders = () => !this.model.getters.isDashboard();
-    return viewports;
+    return this.model.getters.getViewportCollection();
   }
 
   get selectedZones(): Zone[] {

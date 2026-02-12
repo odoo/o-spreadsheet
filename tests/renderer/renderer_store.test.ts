@@ -120,6 +120,13 @@ describe("renderer", () => {
         instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
       },
     });
+    // Resize the sheet view to have headers (by default, the mock context has no headers)
+    ctx.viewports.resizeSheetView(
+      1000 - HEADER_HEIGHT,
+      1000 - HEADER_WIDTH,
+      HEADER_HEIGHT,
+      HEADER_HEIGHT
+    );
 
     drawGridRenderer(ctx);
 
@@ -216,12 +223,12 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     textAligns = [];
     setCellContent(model, "A1", "asdf");
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
+    expect(textAligns).toEqual(["left", "left"]);
   });
 
   test("formulas referencing an empty cell are properly aligned", () => {
@@ -240,7 +247,7 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right"]);
   });
 
   test("numbers are aligned right when overflowing vertically", () => {
@@ -260,7 +267,7 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right"]);
   });
 
   test("Cells evaluating to a number are properly aligned on overflow", () => {
@@ -305,14 +312,14 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
+    expect(textAligns).toEqual(["left", "left", "left", "left"]); // A1-C1-A2-C2
 
     textAligns = [];
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
+    expect(textAligns).toEqual(["right", "right", "right", "right"]); // A1-C1-A2-C2
   });
 
   test("fillstyle of cell will be rendered", () => {
@@ -591,14 +598,14 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     setCellContent(model, "A1", "asdf");
 
     textAligns = [];
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
+    expect(textAligns).toEqual(["left", "left"]);
   });
 
   test("formulas evaluating to a boolean are properly aligned", () => {
@@ -617,13 +624,13 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     textAligns = [];
     setCellContent(model, "A1", "true");
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
+    expect(textAligns).toEqual(["center", "center"]);
   });
 
   test("Cells in a merge evaluating to a number are properly aligned on overflow", () => {
@@ -674,14 +681,14 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers
+    expect(textAligns).toEqual(["left", "left", "left", "left"]); // A1-C1-A2:B2-C2:D2
 
     textAligns = [];
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is stil lin overflow
+    expect(textAligns).toEqual(["right", "left", "right", "right"]); // A1-C1-A2:B2-C2:D2. C1 is still in overflow
   });
 
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
@@ -701,14 +708,14 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     setCellContent(model, "A1", "false");
 
     textAligns = [];
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
+    expect(textAligns).toEqual(["center", "center"]);
   });
 
   test("errors are aligned to the center", () => {
@@ -728,7 +735,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["center", "center"]);
+    expect(textAligns).toEqual(["center"]);
   });
 
   test("dates are aligned to the right", () => {
@@ -748,7 +755,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["right", "center"]);
+    expect(textAligns).toEqual(["right"]);
   });
 
   test("functions are aligned to the left", () => {
@@ -772,7 +779,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["left", "center"]);
+    expect(textAligns).toEqual(["left"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
       { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
@@ -801,7 +808,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["left", "center"]);
+    expect(textAligns).toEqual(["left"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
       { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
@@ -1258,7 +1265,7 @@ describe("renderer", () => {
     expect(getBoxFromText(gridRendererStore, overflowingText).clipRect).toEqual({
       x: 0,
       y: 0,
-      width: 952,
+      width: 1000,
       height: Math.floor(fontSizeInPixels(fontSize) / 2),
     });
   });
@@ -2415,12 +2422,12 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right"]);
 
     textAligns = [];
     setCellFormat(model, "A1", "dd* ");
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["left", "center"]); // center for headers
+    expect(textAligns).toEqual(["left"]);
   });
 
   test("Each frozen pane is clipped in the grid", () => {
@@ -2451,7 +2458,7 @@ describe("renderer", () => {
     expect(spyFn).toHaveBeenNthCalledWith(3, "rect", [
       DEFAULT_CELL_WIDTH * 2,
       0,
-      760,
+      1000 - DEFAULT_CELL_WIDTH * 2,
       DEFAULT_CELL_HEIGHT,
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(4, "clip", []);
@@ -2459,14 +2466,14 @@ describe("renderer", () => {
       0,
       DEFAULT_CELL_HEIGHT,
       DEFAULT_CELL_WIDTH * 2,
-      951,
+      1000 - DEFAULT_CELL_HEIGHT,
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(6, "clip", []);
     expect(spyFn).toHaveBeenNthCalledWith(7, "rect", [
       DEFAULT_CELL_WIDTH * 2,
       DEFAULT_CELL_HEIGHT,
-      760,
-      951,
+      1000 - DEFAULT_CELL_WIDTH * 2,
+      1000 - DEFAULT_CELL_HEIGHT,
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
   });
