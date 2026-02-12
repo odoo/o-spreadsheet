@@ -686,7 +686,7 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport, precomputeZone: Zone): Box {
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -695,7 +695,6 @@ export class GridRenderer extends SpreadsheetStore {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
-    const border = this.getters.getCellComputedBorder(position, precomputeZone);
 
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
@@ -721,7 +720,7 @@ export class GridRenderer extends SpreadsheetStore {
       y,
       width,
       height,
-      border: border || undefined,
+      border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
@@ -898,7 +897,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, zone));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -906,15 +905,12 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport, zone);
-        const borderBottomRight = this.getters.getCellComputedBorder(
-          {
-            sheetId,
-            col: merge.right,
-            row: merge.bottom,
-          },
-          zone
-        );
+        const box = this.createZoneBox(sheetId, merge, viewport);
+        const borderBottomRight = this.getters.getCellComputedBorder({
+          sheetId,
+          col: merge.right,
+          row: merge.bottom,
+        });
         box.border = {
           ...box.border,
           bottom: borderBottomRight ? borderBottomRight.bottom : undefined,
