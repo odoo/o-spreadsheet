@@ -1,5 +1,4 @@
 import { lazy } from "../../helpers";
-import { PositionMap } from "../../helpers/cells/position_map";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
 import {
   Border,
@@ -12,7 +11,6 @@ import {
   TableConfig,
   TableId,
   UID,
-  Zone,
   invalidateEvaluationCommands,
 } from "../../types";
 import { UIPlugin } from "../ui_plugin";
@@ -29,7 +27,7 @@ interface TableRuntime {
 }
 
 export class TableComputedStylePlugin extends UIPlugin {
-  static getters = ["getCellTableStyle", "getCellTableBorder", "getCellTableBorderZone"] as const;
+  static getters = ["getCellTableStyle", "getCellTableBorder"] as const;
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
@@ -81,20 +79,6 @@ export class TableComputedStylePlugin extends UIPlugin {
       return undefined;
     }
     return this.tableStyles[position.sheetId][table.id]().borders[position.col]?.[position.row];
-  }
-
-  getCellTableBorderZone(sheetId: UID, zone: Zone): PositionMap<Border> {
-    const map = new PositionMap<Border>();
-    for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
-      const tableBorders = this.tableStyles[sheetId][table.id]().borders;
-      for (const [colIdx, colStyle] of Object.entries(tableBorders)) {
-        const col = parseInt(colIdx);
-        for (const [rowIdx, cellStyle] of Object.entries(colStyle)) {
-          if (cellStyle) map.set({ sheetId, col, row: parseInt(rowIdx) }, cellStyle);
-        }
-      }
-    }
-    return map;
   }
 
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {

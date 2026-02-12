@@ -168,13 +168,7 @@ export function getBorder(
   sheetId: UID = model.getters.getActiveSheetId()
 ): Border | null {
   const { col, row } = toCartesian(xc);
-  const cellBorder = model.getters.getCellBorder({ sheetId, col, row });
-  Object.keys(cellBorder).forEach(
-    (key) =>
-      (!cellBorder[key] || (cellBorder[key].color ?? cellBorder[key].style) === undefined) &&
-      delete cellBorder[key]
-  );
-  return Object.entries(cellBorder).length ? cellBorder : null;
+  return model.getters.getCellBorder({ sheetId, col, row });
 }
 
 /**

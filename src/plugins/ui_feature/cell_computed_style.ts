@@ -1,13 +1,13 @@
 import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
-import { isObjectEmptyRecursive, positionToZone, removeFalsyAttributes } from "../../helpers/index";
+import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/index";
 import {
   Command,
   invalidateBordersCommands,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types";
-import { Border, CellPosition, Style, UID, Zone } from "../../types/misc";
+import { Border, CellPosition, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
@@ -52,35 +52,13 @@ export class CellComputedStylePlugin extends UIPlugin {
     }
   }
 
-  getCellComputedBorder(position: CellPosition, precomputeZone?: Zone): Border | null {
+  getCellComputedBorder(position: CellPosition): Border | null {
     let border = this.borders.get(position);
     if (border === undefined) {
-      this.precomputeCellBorders(position.sheetId, precomputeZone ?? positionToZone(position));
-      border = this.borders.get(position);
+      border = this.computeCellBorder(position);
+      this.borders.set(position, border);
     }
-    return border ?? null;
-  }
-
-  private precomputeCellBorders(sheetId: UID, zone: Zone) {
-    const borders = this.getters.getCellBordersInZone(sheetId, zone);
-    const tableBorders = this.getters.getCellTableBorderZone(sheetId, zone);
-    for (let col = zone.left; col <= zone.right; col++) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        const position = { sheetId, col, row };
-        if (this.borders.get(position) !== undefined) continue;
-        const cellBorder = borders.get(position);
-        const cellTableBorder = tableBorders.get(position);
-        const border = {
-          ...removeFalsyAttributes(cellTableBorder),
-          ...removeFalsyAttributes(cellBorder),
-        };
-        if (isObjectEmptyRecursive(border)) {
-          this.borders.set(position, null);
-        } else {
-          this.borders.set(position, border);
-        }
-      }
-    }
+    return border;
   }
 
   getCellComputedStyle(position: CellPosition): Style {
@@ -90,6 +68,19 @@ export class CellComputedStylePlugin extends UIPlugin {
       this.styles.set(position, style);
     }
     return style;
+  }
+
+  private computeCellBorder(position: CellPosition): Border | null {
+    const cellBorder = this.getters.getCellBorder(position) || {};
+    const cellTableBorder = this.getters.getCellTableBorder(position) || {};
+
+    // Use removeFalsyAttributes to avoid overwriting borders with undefined values
+    const border = {
+      ...removeFalsyAttributes(cellTableBorder),
+      ...removeFalsyAttributes(cellBorder),
+    };
+
+    return isObjectEmptyRecursive(border) ? null : border;
   }
 
   private computeCellStyle(position: CellPosition): Style {
