@@ -16,7 +16,7 @@ import {
   PIVOT_INDENT,
 } from "../constants";
 import { deepEquals } from "../helpers/misc";
-import { togglePivotCollapse } from "../helpers/pivot/pivot_helpers";
+import { DEFAULT_PIVOT_STYLE, togglePivotCollapse } from "../helpers/pivot/pivot_helpers";
 import { computeTextFontSizeInPixels } from "../helpers/text_helper";
 import { Getters } from "../types/getters";
 import { ImageSVG } from "../types/image";
@@ -119,14 +119,15 @@ iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
 });
 
 iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
-  if (!getters.isSpillPivotFormula(position)) {
+  const pivotId = getters.getPivotIdFromPosition(position);
+  if (!getters.isSpillPivotFormula(position) || !pivotId) {
     return undefined;
   }
   const pivotCell = getters.getPivotCellFromPosition(position);
-  const pivotId = getters.getPivotIdFromPosition(position);
+  const definition = getters.getPivotCoreDefinition(pivotId);
+  const tabularForm = definition.style?.tabularForm ?? DEFAULT_PIVOT_STYLE.tabularForm;
 
-  if (pivotCell.type === "HEADER" && pivotId && pivotCell.domain.length) {
-    const definition = getters.getPivotCoreDefinition(pivotId);
+  if (!tabularForm && pivotCell.type === "HEADER" && pivotId && pivotCell.domain.length) {
     const isDashboard = getters.isDashboard();
 
     const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;

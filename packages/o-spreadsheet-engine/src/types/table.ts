@@ -51,8 +51,9 @@ export interface TableMetaData {
   numberOfRows: number;
   measureRow?: number;
   mainSubHeaderRows?: Set<number>;
-  firstAlternatingSubHeaderRows?: Set<number>;
-  secondAlternatingSubHeaderRows?: Set<number>;
+  firstAlternatingSubHeaderIndexes?: Set<number>;
+  secondAlternatingSubHeaderIndexes?: Set<number>;
+  isTabular?: boolean;
 }
 
 export interface ComputedTableStyle {

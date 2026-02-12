@@ -129,30 +129,51 @@ export class TableComputedStylePlugin extends UIPlugin {
     const pivot = this.getters.getPivot(pivotInfo.pivotId);
     const pivotStyle = pivotInfo.pivotStyle;
     const maxRowDepth = pivot.getExpandedTableStructure().getNumberOfRowGroupBys();
-    const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
+    const pivotTable = pivot.getCollapsedTableStructure();
+    const pivotCells = pivotTable.getPivotCells(pivotStyle);
 
     const mainSubHeaderRows = new Set<number>();
-    const firstAlternatingSubHeaderRows = new Set<number>();
-    const secondAlternatingSubHeaderRows = new Set<number>();
-    let hiddenRowsOffset = 0;
+    const firstAlternatingSubHeaderIndexes = new Set<number>();
+    const secondAlternatingSubHeaderIndexes = new Set<number>();
+    const numberOfHeaderCols = pivotTable.getNumberOfRowGroupBys();
 
-    for (let row = 0; row < pivotCells[0].length; row++) {
-      const isRowHidden = this.getters.isRowHidden(sheetId, row + table.range.zone.top);
-      if (isRowHidden) {
-        hiddenRowsOffset++;
-        continue;
-      }
+    if (!pivotStyle.tabularForm) {
+      let hiddenRowsOffset = 0;
+      for (let row = 0; row < pivotCells[0].length; row++) {
+        const isRowHidden = this.getters.isRowHidden(sheetId, row + table.range.zone.top);
+        if (isRowHidden) {
+          hiddenRowsOffset++;
+          continue;
+        }
 
-      const cell = pivotCells[0][row];
-      if (cell.type !== "HEADER" || cell.domain.length === 0) {
-        continue;
+        const cell = pivotCells[0][row];
+        if (cell.type !== "HEADER" || cell.domain.length === 0) {
+          continue;
+        }
+        if (cell.domain.length === 1 && maxRowDepth > 1) {
+          mainSubHeaderRows.add(row - hiddenRowsOffset);
+        } else if (cell.domain.length % 2 === 0 && maxRowDepth > cell.domain.length) {
+          firstAlternatingSubHeaderIndexes.add(row - hiddenRowsOffset);
+        } else if (cell.domain.length % 2 === 1 && maxRowDepth > cell.domain.length) {
+          secondAlternatingSubHeaderIndexes.add(row - hiddenRowsOffset);
+        }
       }
-      if (cell.domain.length === 1 && maxRowDepth > 1) {
-        mainSubHeaderRows.add(row - hiddenRowsOffset);
-      } else if (cell.domain.length % 2 === 0 && maxRowDepth > cell.domain.length) {
-        firstAlternatingSubHeaderRows.add(row - hiddenRowsOffset);
-      } else if (cell.domain.length % 2 === 1 && maxRowDepth > cell.domain.length) {
-        secondAlternatingSubHeaderRows.add(row - hiddenRowsOffset);
+    } else {
+      let hiddenColsOffset = 0;
+      for (let col = 0; col < numberOfHeaderCols; col++) {
+        const isColHidden = this.getters.isColHidden(sheetId, col + table.range.zone.left);
+        if (isColHidden) {
+          hiddenColsOffset++;
+          continue;
+        }
+
+        if (col === 0) {
+          mainSubHeaderRows.add(0);
+        } else if (col % 2 === 1) {
+          firstAlternatingSubHeaderIndexes.add(col - hiddenColsOffset);
+        } else if (col % 2 === 0) {
+          secondAlternatingSubHeaderIndexes.add(col - hiddenColsOffset);
+        }
       }
     }
 
@@ -165,9 +186,10 @@ export class TableComputedStylePlugin extends UIPlugin {
       numberOfCols,
       numberOfRows,
       mainSubHeaderRows,
-      firstAlternatingSubHeaderRows,
-      secondAlternatingSubHeaderRows,
+      firstAlternatingSubHeaderIndexes,
+      secondAlternatingSubHeaderIndexes,
       measureRow: hasMeasureRow ? config.numberOfHeaders - 1 : undefined,
+      isTabular: pivotStyle.tabularForm,
     };
 
     return { tableMetaData, config };
