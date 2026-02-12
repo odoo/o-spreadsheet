@@ -231,7 +231,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
   const definition = chart.getDefinition();
   const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration = {
+  const config: ChartConfiguration<"line"> = {
     type: "line",
     data: {
       labels: chartData.labels,

@@ -288,6 +288,7 @@ export function getPieChartDatasets(
       borderColor: definition.background || "#FFFFFF",
       backgroundColor,
       hoverOffset: 10,
+      hoverBackgroundColor: backgroundColor,
     };
     dataSets!.push(dataset);
   }

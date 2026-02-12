@@ -221,7 +221,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
   const definition = chart.getDefinition();
   const chartData = getRadarChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration = {
+  const config: ChartConfiguration<"radar"> = {
     type: "radar",
     data: {
       labels: chartData.labels,
