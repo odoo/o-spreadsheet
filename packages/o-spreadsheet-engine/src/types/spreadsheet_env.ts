@@ -20,4 +20,5 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   getStore: Get;
   isSmall: boolean;
   isMobile: () => boolean;
+  printSpreadsheet: () => void;
 }

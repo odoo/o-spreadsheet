@@ -22,7 +22,7 @@ export class RendererStore {
   private animationFrameId: number | null = null;
   private registeredAnimations: Set<String> = new Set();
 
-  constructor(get: Get) {
+  constructor(get: Get, private layers = OrderedLayers()) {
     this.model = get(ModelStore) as Model;
   }
 
@@ -62,7 +62,7 @@ export class RendererStore {
       throw new Error("Rendering context is not defined");
     }
     this.context = context;
-    for (const layer of OrderedLayers()) {
+    for (const layer of this.layers) {
       this.model.drawLayer(context, layer);
       this.drawLayer(context, layer, timestamp);
     }
