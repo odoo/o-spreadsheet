@@ -1,7 +1,14 @@
 import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import { toXC, toZone } from "../../src/helpers";
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { GridRenderer } from "../../src/stores/grid_renderer_store";
+=======
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de
 import { Style, UID } from "../../src/types";
 import {
   createTable,
@@ -30,7 +37,6 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getTable } from "../test_helpers/getters_helpers";
 import { toCellPosition } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -188,20 +194,6 @@ describe("Table style", () => {
       deleteContent(model, ["A1:B4"]);
       expect(getTable(model, "A1")).toBeUndefined();
       expect(getCellStyle("A1")).toEqual({});
-    });
-
-    test("Table style is rendered", () => {
-      createTable(model, "A7:A9");
-      updateTableConfig(model, "A7:A9", outerBordersTableStyle);
-      const styleBorderDescr = { style: "thin", color: "#000000" };
-
-      const { store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
-      const boxes = gridRendererStore["getGridBoxes"](toZone("A9"));
-      expect(boxes.find((box) => box.id === "A9")?.border).toEqual({
-        bottom: styleBorderDescr,
-        left: styleBorderDescr,
-        right: styleBorderDescr,
-      });
     });
   });
 

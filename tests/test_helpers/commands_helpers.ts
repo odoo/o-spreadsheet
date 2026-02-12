@@ -808,8 +808,8 @@ export function setZoneBorders(model: Model, border: BorderData, xcs?: string[])
     target,
     border: {
       position: border.position,
-      color: border.color ?? "#000000",
-      style: border.style ?? "thin",
+      color: border.color,
+      style: border.style,
     },
   });
 }
