@@ -679,7 +679,6 @@ export class GridRenderer extends SpreadsheetStore {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
-    const border = this.getters.getCellComputedBorder(position, viewport);
 
     let style = this.getters.getCellComputedStyle(position, viewport);
     if (this.fingerprints.isEnabled) {
@@ -705,7 +704,7 @@ export class GridRenderer extends SpreadsheetStore {
       y,
       width,
       height,
-      border: border || undefined,
+      border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
@@ -891,14 +890,11 @@ export class GridRenderer extends SpreadsheetStore {
       }
       if (overlap(merge, viewport)) {
         const box = this.createZoneBox(sheetId, merge, viewport);
-        const borderBottomRight = this.getters.getCellComputedBorder(
-          {
-            sheetId,
-            col: merge.right,
-            row: merge.bottom,
-          },
-          zone
-        );
+        const borderBottomRight = this.getters.getCellComputedBorder({
+          sheetId,
+          col: merge.right,
+          row: merge.bottom,
+        });
         box.border = {
           ...box.border,
           bottom: borderBottomRight ? borderBottomRight.bottom : undefined,
