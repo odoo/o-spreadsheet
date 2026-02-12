@@ -1,10 +1,10 @@
 import { escapeRegExp } from "../helpers/";
-import { formatValue } from "../helpers/format/format";
+import { formatLargeNumber, formatValue } from "../helpers/format/format";
 import { trimContent } from "../helpers/misc";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { reduceAny, toBoolean, toMatrix, toNumber, toString, transposeMatrix } from "./helpers";
 
@@ -141,6 +141,34 @@ export const FIND = {
     return result + 1;
   },
   isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// FORMAT.LARGE.NUMBER
+// -----------------------------------------------------------------------------
+export const FORMAT_LARGE_NUMBER = {
+  description: _t("Apply a large number format"),
+  args: [
+    arg("value (number)", _t("The number.")),
+    arg(
+      "unit (string, optional)",
+      _t("The formatting unit. Use 'k', 'm', or 'b' to force the unit"),
+      [
+        { value: "k", label: _t("Thousand") },
+        { value: "m", label: _t("Million") },
+        { value: "b", label: _t("Billion") },
+      ]
+    ),
+  ],
+  compute: function (
+    value: Maybe<FunctionResultObject>,
+    unite: Maybe<FunctionResultObject>
+  ): FunctionResultNumber {
+    return {
+      value: toNumber(value, this.locale),
+      format: formatLargeNumber(value, unite, this.locale),
+    };
+  },
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
