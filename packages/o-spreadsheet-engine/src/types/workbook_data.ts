@@ -1,4 +1,3 @@
-import { ZoneBorderData } from "../plugins/core/borders";
 import { SquishedCell } from "../plugins/core/squisher";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart";
@@ -8,6 +7,7 @@ import { Format } from "./format";
 import { Image } from "./image";
 import { Locale } from "./locale";
 import {
+  Border,
   Color,
   Dimension,
   HeaderGroup,
@@ -79,7 +79,7 @@ export interface WorkbookData {
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
-  borders: { [key: number]: ZoneBorderData };
+  borders: { [key: number]: Border };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;

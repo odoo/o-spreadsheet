@@ -18,6 +18,7 @@ import {
   addIconCF,
   addRows,
   copy,
+  createDynamicTable,
   createSheet,
   deleteColumns,
   paste,
@@ -28,8 +29,8 @@ import {
   setFormat,
   setStyle,
   setViewportOffset,
-  setZoneBorders,
   undo,
+  updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { setGrid, toRangesData } from "../test_helpers/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
@@ -508,51 +509,63 @@ describe("Individual animation tests", () => {
   });
 
   test("Can animate a border fading in", () => {
+    setGrid(model, { A1: "1", A2: "=MUNIT(A1)" });
+    createDynamicTable(model, "A2", { styleId: "TableStyleLight1" });
     drawGrid();
     expect(getBoxFromXc("A3").border).toEqual(undefined);
-    setZoneBorders(model, { ...DEFAULT_BORDER_DESC, position: "top" }, ["A3"]);
+
+    setCellContent(model, "A1", "2");
     drawGrid();
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: 0 },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: 0 },
     });
 
     animationFrameCallback(0);
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: 0 },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: 0 },
     });
 
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: 0.5 },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: 0.5 },
     });
 
     animationFrameCallback(CELL_ANIMATION_DURATION);
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: undefined },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: undefined },
     });
   });
 
   test("Can animate a border fading out", () => {
-    setZoneBorders(model, { ...DEFAULT_BORDER_DESC, position: "top" }, ["A3"]);
+    setGrid(model, { A1: "2", A2: "=MUNIT(A1)" });
+    createDynamicTable(model, "A2", { styleId: "TableStyleLight1" });
     drawGrid();
     expect(getBoxFromXc("A3").border).toEqual({
       top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
     });
 
-    setZoneBorders(model, { position: "clear" }, ["A3"]);
+    setCellContent(model, "A1", "1");
     drawGrid();
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: 1 },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: 1 },
     });
 
     animationFrameCallback(0);
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: 1 },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: 1 },
     });
 
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
     expect(getBoxFromXc("A3").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, opacity: 0.5 },
+      bottom: { ...DEFAULT_BORDER_DESC, opacity: 0.5 },
     });
 
     animationFrameCallback(CELL_ANIMATION_DURATION);
@@ -560,31 +573,37 @@ describe("Individual animation tests", () => {
   });
 
   test("Can animate a border changing color", () => {
-    setZoneBorders(model, { ...DEFAULT_BORDER_DESC, position: "top" }, ["B2"]);
+    setGrid(model, { A2: "=MUNIT(2)" });
+    createDynamicTable(model, "A2", { styleId: "TableStyleLight1" });
     drawGrid();
     expect(getBoxFromXc("B2").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, color: "#000000" },
+      bottom: { ...DEFAULT_BORDER_DESC, color: "#000000" },
     });
 
-    setZoneBorders(model, { color: "#346B90", position: "top" }, ["B2"]);
+    updateTableConfig(model, "A2", { styleId: "TableStyleLight2" });
     drawGrid();
     expect(getBoxFromXc("B2").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, color: "#000000" },
+      bottom: { ...DEFAULT_BORDER_DESC, color: "#000000" },
     });
 
     animationFrameCallback(0);
     expect(getBoxFromXc("B2").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, color: "#000000" },
+      bottom: { ...DEFAULT_BORDER_DESC, color: "#000000" },
     });
 
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
     expect(getBoxFromXc("B2").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, color: "#1A3648" },
+      bottom: { ...DEFAULT_BORDER_DESC, color: "#1A3648" },
     });
 
     animationFrameCallback(CELL_ANIMATION_DURATION);
     expect(getBoxFromXc("B2").border).toEqual({
       top: { ...DEFAULT_BORDER_DESC, color: "#346B90" },
+      bottom: { ...DEFAULT_BORDER_DESC, color: "#346B90" },
     });
   });
 
