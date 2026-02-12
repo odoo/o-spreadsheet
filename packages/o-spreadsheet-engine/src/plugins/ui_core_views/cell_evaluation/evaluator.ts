@@ -28,6 +28,7 @@ import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
+import { Format } from "../../../types/format";
 import { Getters } from "../../../types/getters";
 import {
   CellPosition,
@@ -427,7 +428,7 @@ export class Evaluator {
       nbColumns,
       nbRows,
       // thanks to the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
-      this.spreadValues(formulaPosition, formulaReturn)
+      this.spreadValues(formulaPosition, formulaReturn, cellData.format)
     );
     this.invalidatePositionsDependingOnSpread(formulaPosition.sheetId, resultZone);
     return createEvaluatedCell(
@@ -520,13 +521,18 @@ export class Evaluator {
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FunctionResultObject>
+    matrixResult: Matrix<FunctionResultObject>,
+    format?: Format
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
+      let result = matrixResult[i][j];
+      if (format && result.format === undefined) {
+        result = { ...result, format };
+      }
       const evaluatedCell = createEvaluatedCell(
-        validateNumberValue(matrixResult[i][j]),
+        validateNumberValue(result),
         this.getters.getLocale(),
         cell,
         position

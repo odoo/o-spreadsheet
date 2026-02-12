@@ -100,9 +100,17 @@ export class CellComputedStylePlugin extends UIPlugin {
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
+
+    let arrayFormulaStyle: Style | undefined;
+    const arrayFormulaPosition = this.getters.getArrayFormulaSpreadingOn(position);
+    if (arrayFormulaPosition) {
+      arrayFormulaStyle = this.getters.getCell(arrayFormulaPosition)?.style;
+    }
+
     const computedStyle = {
       ...removeFalsyAttributes(tableStyle),
       ...removeFalsyAttributes(dataValidationStyle),
+      ...removeFalsyAttributes(arrayFormulaStyle),
       ...removeFalsyAttributes(cell?.style),
       ...removeFalsyAttributes(cfStyle),
     };

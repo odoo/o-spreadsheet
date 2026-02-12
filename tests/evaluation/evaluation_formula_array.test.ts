@@ -18,7 +18,12 @@ import {
   setFormat,
   unMerge,
 } from "../test_helpers/commands_helpers";
-import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  getCellContent,
+  getCellError,
+  getEvaluatedCell,
+  getStyle,
+} from "../test_helpers/getters_helpers";
 import { addToRegistry } from "../test_helpers/helpers";
 
 let model: Model;
@@ -169,7 +174,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getCellContent(model, "A2")).toBe("200%");
 
       expect(getCellContent(model, "B1")).toBe("3.00");
-      expect(getCellContent(model, "B2")).toBe("4");
+      expect(getCellContent(model, "B2")).toBe("400%");
     });
 
     test("can spread matrix of format depending on matrix of format", () => {
@@ -196,6 +201,109 @@ describe("evaluate formulas that use/return an array", () => {
 
       expect(getCellContent(model, "C1")).toBe("4200%");
       expect(getCellContent(model, "C2")).toBe("24.00");
+    });
+  });
+
+  describe("format propagation updates", () => {
+    test("changing array formula format updates all elements", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      setFormat(model, "A1", "0.00");
+
+      expect(getEvaluatedCell(model, "A1").formattedValue).toBe("42.00");
+      expect(getEvaluatedCell(model, "B1").formattedValue).toBe("42.00");
+      expect(getEvaluatedCell(model, "A2").formattedValue).toBe("42.00");
+      expect(getEvaluatedCell(model, "B2").formattedValue).toBe("42.00");
+
+      setFormat(model, "A1", "0%");
+
+      expect(getEvaluatedCell(model, "A1").formattedValue).toBe("4200%");
+      expect(getEvaluatedCell(model, "B1").formattedValue).toBe("4200%");
+      expect(getEvaluatedCell(model, "A2").formattedValue).toBe("4200%");
+      expect(getEvaluatedCell(model, "B2").formattedValue).toBe("4200%");
+    });
+
+    test("explicit format on spread cell takes precedence", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      setFormat(model, "A1", "0.00");
+      setFormat(model, "B1", "0%");
+
+      expect(getEvaluatedCell(model, "A1").formattedValue).toBe("42.00"); // Main cell
+      expect(getEvaluatedCell(model, "B1").formattedValue).toBe("4200%"); // Explicit format
+      expect(getEvaluatedCell(model, "A2").formattedValue).toBe("42.00"); // inherited
+      expect(getEvaluatedCell(model, "B2").formattedValue).toBe("42.00"); // inherited
+
+      setFormat(model, "A1", "0.000");
+
+      expect(getEvaluatedCell(model, "A1").formattedValue).toBe("42.000");
+      expect(getEvaluatedCell(model, "B1").formattedValue).toBe("4200%"); // Still explicit
+      expect(getEvaluatedCell(model, "A2").formattedValue).toBe("42.000");
+      expect(getEvaluatedCell(model, "B2").formattedValue).toBe("42.000");
+    });
+
+    test("style propagation", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      setFormat(model, "A1", "0.00");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+
+      expect(getStyle(model, "A1")).toEqual({ bold: true });
+      expect(getStyle(model, "B1")).toEqual({ bold: true });
+      expect(getStyle(model, "A2")).toEqual({ bold: true });
+      expect(getStyle(model, "B2")).toEqual({ bold: true });
+    });
+
+    test("style propagation updates", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+      expect(getStyle(model, "B1")).toEqual({ bold: true });
+
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: undefined, italic: true },
+      });
+      expect(getStyle(model, "B1")).toEqual({ italic: true });
+    });
+
+    test("explicit style takes precedence over propagation (overlap)", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { textColor: "red" },
+      });
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("B1")],
+        style: { textColor: "blue" },
+      });
+
+      expect(getStyle(model, "A1")).toEqual({ textColor: "red" });
+      expect(getStyle(model, "B1")).toEqual({ textColor: "blue" });
+    });
+
+    test("explicit style merges with propagation (disjoint)", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("A1")],
+        style: { bold: true },
+      });
+      model.dispatch("SET_FORMATTING", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: [toZone("B1")],
+        style: { italic: true },
+      });
+
+      expect(getStyle(model, "A1")).toEqual({ bold: true });
+      expect(getStyle(model, "B1")).toEqual({ bold: true, italic: true });
     });
   });
 
