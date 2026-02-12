@@ -1,8 +1,4 @@
-import {
-  getDefaultSheetViewSize,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
+import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
 import { GridRenderingContext, RenderingGetters, UID, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -18,6 +14,9 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
+/**
+ * A mock rendering context for testing purposes. By default it has no gridOffset to draw headers.
+ */
 export class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
@@ -28,7 +27,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
 
   constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
     this.getters = model.getters;
-    resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH, 0, 0);
+    resizeSheetView(model, height, width, 0, 0);
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
