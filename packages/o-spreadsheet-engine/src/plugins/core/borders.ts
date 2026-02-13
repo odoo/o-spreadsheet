@@ -1,14 +1,41 @@
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/core/borders.ts
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId } from "../../helpers/data_normalization";
 import { deepCopy, deepEquals, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/core/borders.ts
+import { PositionMap } from "../../helpers/cells/position_map";
+=======
+import { DEFAULT_BORDER_DESC } from "../../constants";
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/core/borders.ts
 import {
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/core/borders.ts
   adjacent,
   intersection,
   overlap,
   positionToZone,
   splitIfAdjacent,
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/core/borders.ts
+  deepCopy,
+  deepEquals,
+  getItemId,
+  intersection,
+  positionToZone,
+  recomputeZones,
+  removeFalsyAttributes,
+=======
+  deepCopy,
+  deepEquals,
+  getItemId,
+  groupConsecutive,
+  groupItemIdsByZones,
+  isDefined,
+  iterateItemIdsPositions,
+  range,
+  recomputeZones,
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/core/borders.ts
   toZone,
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/core/borders.ts
   zoneToXc,
 } from "../../helpers/zones";
 import {
@@ -17,46 +44,54 @@ import {
   SetBorderCommand,
   SetZoneBordersCommand,
 } from "../../types/commands";
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/core/borders.ts
+} from "../../helpers/index";
+import { adjacent, overlap, splitIfAdjacent, zoneToXc } from "../../helpers/zones";
+=======
+} from "../../helpers/index";
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/core/borders.ts
 import {
+  AddColumnsRowsCommand,
   Border,
-  BorderData,
   BorderDescr,
+  BorderPosition,
   CellPosition,
   Color,
   HeaderIndex,
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/core/borders.ts
   RangeAdapterFunctions,
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/core/borders.ts
+  RangeAdapterFunctions,
+  SetBorderCommand,
+  SetZoneBordersCommand,
+=======
+  SetBorderCommand,
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/core/borders.ts
   UID,
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/core/borders.ts
   UnboundedZone,
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/core/borders.ts
+  UnboundedZone,
+  WorkbookData,
+=======
+  WorkbookData,
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/core/borders.ts
   Zone,
 } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
-export type ZoneBorderData = {
-  top?: BorderDescr;
-  bottom?: BorderDescr;
-  left?: BorderDescr;
-  right?: BorderDescr;
-  vertical?: BorderDescr;
-  horizontal?: BorderDescr;
-};
-
-export type ZoneBorder = {
-  zone: UnboundedZone;
-  style: ZoneBorderData;
-};
-
 interface BordersPluginState {
-  readonly borders: Record<UID, ZoneBorder[] | undefined>;
+  readonly borders: Record<UID, ((Border | undefined)[] | undefined)[] | undefined>;
 }
-
+/**
+ * Formatting plugin.
+ *
+ * This plugin manages all things related to a cell look:
+ * - borders
+ */
 export class BordersPlugin extends CorePlugin<BordersPluginState> implements BordersPluginState {
-  static getters = [
-    "getCellBorder",
-    "getBorders",
-    "getBordersColors",
-    "getCellBordersInZone",
-  ] as const;
+  static getters = ["getCellBorder", "getBordersColors"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};
 
@@ -67,7 +102,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "SET_BORDER":
-        return this.checkValidations(cmd, this.checkBordersUnchanged, this.ensureHasBorder);
+        return this.checkBordersUnchanged(cmd);
       default:
         return CommandResult.Success;
     }
@@ -81,7 +116,15 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         }
         break;
       case "DUPLICATE_SHEET":
-        this.history.update("borders", cmd.sheetIdTo, deepCopy(this.borders[cmd.sheetId]));
+        const borders = this.borders[cmd.sheetId];
+        if (borders) {
+          // borders is a sparse 2D array.
+          // map and slice preserve empty values and do not set `undefined` instead
+          const bordersCopy = borders
+            .slice()
+            .map((col) => col?.slice().map((border) => deepCopy(border)));
+          this.history.update("borders", cmd.sheetIdTo, bordersCopy);
+        }
         break;
       case "DELETE_SHEET":
         const allBorders = { ...this.borders };
@@ -89,359 +132,535 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         this.history.update("borders", allBorders);
         break;
       case "SET_BORDER":
-        if (cmd.border) this.addBorders(cmd.sheetId, [positionToZone(cmd)], cmd.border);
+        this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
         break;
       case "SET_BORDERS_ON_TARGET":
         for (const zone of cmd.target) {
-          for (let col = zone.left; col <= zone.right; col++) {
-            for (let row = zone.top; row <= zone.bottom; row++) {
-              this.addBorder(
-                cmd.sheetId,
-                { left: col, right: col, top: row, bottom: row },
-                cmd.border && Object.keys(cmd.border).length ? cmd.border : undefined
-              );
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              this.setBorder(cmd.sheetId, col, row, cmd.border);
             }
           }
         }
         break;
       case "SET_ZONE_BORDERS":
-        const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
-        if (cmd.border.position === "clear") {
-          this.clearBorders(cmd.sheetId, target);
-        } else {
-          this.addBorders(cmd.sheetId, target, this.borderDataToNewBorderData(cmd.border));
+        if (cmd.border) {
+          const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
+          this.setBorders(
+            cmd.sheetId,
+            target,
+            cmd.border.position,
+            cmd.border.color === ""
+              ? undefined
+              : {
+                  style: cmd.border.style || DEFAULT_BORDER_DESC.style,
+                  color: cmd.border.color || DEFAULT_BORDER_DESC.color,
+                }
+          );
         }
         break;
       case "CLEAR_FORMATTING":
         this.clearBorders(cmd.sheetId, cmd.target);
         break;
+      case "REMOVE_COLUMNS_ROWS":
+        const elements = [...cmd.elements].sort((a, b) => b - a);
+        for (const group of groupConsecutive(elements)) {
+          if (cmd.dimension === "COL") {
+            const zone = this.getters.getColsZone(cmd.sheetId, group[group.length - 1], group[0]);
+            this.clearInsideBorders(cmd.sheetId, [zone]);
+            this.shiftBordersHorizontally(cmd.sheetId, group[0] + 1, -group.length);
+          } else {
+            const zone = this.getters.getRowsZone(cmd.sheetId, group[group.length - 1], group[0]);
+            this.clearInsideBorders(cmd.sheetId, [zone]);
+            this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
+          }
+        }
+        break;
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.handleAddColumns(cmd);
+        } else {
+          this.handleAddRows(cmd);
+        }
+        break;
     }
   }
 
-  beforeHandle(cmd: CoreCommand): void {
-    if (cmd.type === "REMOVE_COLUMNS_ROWS") {
-      if (cmd.dimension === "ROW") {
-        this.onRowRemove(cmd.sheetId, cmd.elements);
-      } else {
-        this.onColRemove(cmd.sheetId, cmd.elements);
-      }
+  /**
+   * Move borders according to the inserted columns.
+   * Ensure borders continuity.
+   */
+  private handleAddColumns(cmd: AddColumnsRowsCommand) {
+    // The new columns have already been inserted in the sheet at this point.
+    let colLeftOfInsertion: HeaderIndex;
+    let colRightOfInsertion: HeaderIndex;
+    if (cmd.position === "before") {
+      this.shiftBordersHorizontally(cmd.sheetId, cmd.base, cmd.quantity);
+      colLeftOfInsertion = cmd.base - 1;
+      colRightOfInsertion = cmd.base + cmd.quantity;
+    } else {
+      this.shiftBordersHorizontally(cmd.sheetId, cmd.base + 1, cmd.quantity);
+      colLeftOfInsertion = cmd.base;
+      colRightOfInsertion = cmd.base + cmd.quantity + 1;
     }
+    this.ensureColumnBorderContinuity(cmd.sheetId, colLeftOfInsertion, colRightOfInsertion);
   }
 
-  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
-    const newBorders: ZoneBorder[] = [];
-    for (const border of this.borders[sheetId] ?? []) {
-      const change = applyChange(this.getters.getRangeFromZone(sheetId, border.zone));
-      switch (change.changeType) {
-        case "RESIZE":
-        case "CHANGE":
-        case "MOVE":
-          newBorders.push({ ...border, zone: change.range.unboundedZone });
-          break;
-        case "NONE":
-          newBorders.push(border);
-          break;
-      }
+  /**
+   * Move borders according to the inserted rows.
+   * Ensure borders continuity.
+   */
+  private handleAddRows(cmd: AddColumnsRowsCommand) {
+    // The new rows have already been inserted at this point.
+    let rowAboveInsertion: HeaderIndex;
+    let rowBelowInsertion: HeaderIndex;
+    if (cmd.position === "before") {
+      this.shiftBordersVertically(cmd.sheetId, cmd.base, cmd.quantity);
+      rowAboveInsertion = cmd.base - 1;
+      rowBelowInsertion = cmd.base + cmd.quantity;
+    } else {
+      this.shiftBordersVertically(cmd.sheetId, cmd.base + 1, cmd.quantity);
+      rowAboveInsertion = cmd.base;
+      rowBelowInsertion = cmd.base + cmd.quantity + 1;
     }
-    this.history.update(
-      "borders",
-      sheetId,
-      newBorders.filter((border) => !this.borderIsClear(border))
-    );
-  }
-
-  private onRowRemove(sheetId: UID, rowsIndex: HeaderIndex[]) {
-    const rows = new Set(rowsIndex);
-    const newBorders: ZoneBorder[] = [];
-    for (const border of this.borders[sheetId] ?? []) {
-      let newBorder = border;
-      if (rows.has(border.zone.top)) {
-        newBorder = deepCopy(border);
-        newBorder.style.top = border.style.horizontal;
-      }
-      if (border.zone.bottom !== undefined && rows.has(border.zone.bottom)) {
-        newBorder = newBorder === border ? deepCopy(border) : newBorder;
-        newBorder.style.bottom = border.style.horizontal;
-      }
-      newBorders.push(newBorder);
-    }
-    this.history.update("borders", sheetId, newBorders);
-  }
-
-  private onColRemove(sheetId: UID, colsIndex: HeaderIndex[]) {
-    const cols = new Set(colsIndex);
-    const newBorders: ZoneBorder[] = [];
-    for (const border of this.borders[sheetId] ?? []) {
-      let newBorder = border;
-      if (cols.has(border.zone.left)) {
-        newBorder = deepCopy(border);
-        newBorder.style.left = border.style.vertical;
-      }
-      if (border.zone.right !== undefined && cols.has(border.zone.right)) {
-        newBorder = newBorder === border ? deepCopy(border) : newBorder;
-        newBorder.style.right = border.style.vertical;
-      }
-      newBorders.push(newBorder);
-    }
-    this.history.update(
-      "borders",
-      sheetId,
-      newBorders.filter((border) => !this.borderIsClear(border))
-    );
+    this.ensureRowBorderContinuity(cmd.sheetId, rowAboveInsertion, rowBelowInsertion);
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellBorder(position: CellPosition): Border {
-    return this.getZoneExternalBorders(position.sheetId, positionToZone(position));
-  }
-
-  private getZoneExternalBorders(sheetId: UID, zone: Zone): ZoneBorderData {
-    const externalBorders: ZoneBorderData = {};
-    for (const border of this.borders[sheetId] ?? []) {
-      if (overlap(border.zone, zone)) {
-        externalBorders.right =
-          (zone.right === border.zone.right ? border.style.right : border.style.vertical) ??
-          externalBorders.right;
-        externalBorders.left =
-          (zone.left === border.zone.left ? border.style.left : border.style.vertical) ??
-          externalBorders.left;
-        externalBorders.bottom =
-          (zone.bottom === border.zone.bottom ? border.style.bottom : border.style.horizontal) ??
-          externalBorders.bottom;
-        externalBorders.top =
-          (zone.top === border.zone.top ? border.style.top : border.style.horizontal) ??
-          externalBorders.top;
-      }
-    }
-    return externalBorders;
-  }
-
-  getCellBordersInZone(sheetId: UID, zone: Zone): PositionMap<Border> {
-    const borders = new PositionMap<Border>();
-    for (const border of this.borders[sheetId] ?? []) {
-      const { zone: bzone, style: bstyle } = border;
-      const inter = intersection(bzone, zone);
-      if (!inter) continue;
-      for (let col = inter.left; col <= inter.right; col++) {
-        for (let row = inter.top; row <= inter.bottom; row++) {
-          const cell = borders.get({ sheetId, col, row }) ?? {};
-          cell.right = (col === bzone.right ? bstyle.right : bstyle.vertical) ?? cell.right;
-          cell.left = (col === bzone.left ? bstyle.left : bstyle.vertical) ?? cell.left;
-          cell.bottom = (row === bzone.bottom ? bstyle.bottom : bstyle.horizontal) ?? cell.bottom;
-          cell.top = (row === bzone.top ? bstyle.top : bstyle.horizontal) ?? cell.top;
-          borders.set({ sheetId, col, row }, cell);
-        }
-      }
-    }
-    return borders;
+  getCellBorder({ sheetId, col, row }: CellPosition): Border | null {
+    const border = this.borders[sheetId]?.[col]?.[row];
+    return border?.top || border?.bottom || border?.left || border?.right ? deepCopy(border) : null;
   }
 
   getBordersColors(sheetId: UID): Color[] {
-    const colors: Set<Color> = new Set<Color>();
-    for (const border of this.borders[sheetId] ?? []) {
-      for (const style of Object.values(border.style)) {
-        if (style?.color) colors.add(style.color);
+    const colors: Color[] = [];
+    const sheetBorders = this.borders[sheetId];
+    if (sheetBorders) {
+      for (const borders of sheetBorders.filter(isDefined)) {
+        for (const cellBorder of borders) {
+          if (cellBorder) {
+            for (const direction of ["top", "bottom", "left", "right"] as Array<keyof Border>) {
+              const color = cellBorder[direction]?.color;
+              if (color) {
+                colors.push(color);
+              }
+            }
+          }
+        }
       }
     }
-    return [...colors];
-  }
-
-  getBorders(sheetId: UID, zone: Zone): ZoneBorder[] {
-    const borders: ZoneBorder[] = [];
-    for (const existingBorder of this.borders[sheetId] ?? []) {
-      const inter = intersection(existingBorder.zone, zone);
-      if (!inter) {
-        continue;
-      }
-      borders.push(this.computeBorderFromZone(inter, existingBorder));
-    }
-    return borders;
+    return colors;
   }
 
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
 
-  private computeBorderFromZone(newZone: UnboundedZone, border: ZoneBorder): ZoneBorder {
-    const oldPosition = border.style;
-    const oldZone = border.zone;
-    const equalSide = {
-      top: newZone.top === oldZone.top,
-      bottom: newZone.bottom === oldZone.bottom,
-      left: newZone.left === oldZone.left,
-      right: newZone.right === oldZone.right,
-    };
-    return {
-      zone: newZone,
-      style: {
-        top: equalSide.top ? oldPosition.top : oldPosition.horizontal,
-        bottom: equalSide.bottom ? oldPosition.bottom : oldPosition.horizontal,
-        left: equalSide.left ? oldPosition.left : oldPosition.vertical,
-        right: equalSide.right ? oldPosition.right : oldPosition.vertical,
-        vertical: oldPosition.vertical,
-        horizontal: oldPosition.horizontal,
-      },
-    };
-  }
-
-  private borderIsClear(border: ZoneBorder) {
-    const style = border.style;
-    if (style.left || style.right || style.bottom || style.top) return false;
-    const zone = border.zone;
-    if ((zone.bottom === undefined || zone.top < zone.bottom) && style.horizontal) return false;
-    if ((zone.right === undefined || zone.left < zone.right) && style.vertical) return false;
-    return true;
-  }
-
-  private clearBorders(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
-      this.removeAndClearAdjacent(sheetId, zone);
-    }
-  }
-
-  private removeAndClearAdjacent(sheetId: UID, zone: Zone) {
-    const borders: ZoneBorder[] = [];
-    for (const existingBorder of this.borders[sheetId] ?? []) {
-      for (const updatedBorderZone of recomputeZones([existingBorder.zone], [zone])) {
-        for (const newZone of splitIfAdjacent(updatedBorderZone, zone)) {
-          const border = this.computeBorderFromZone(newZone, existingBorder);
-          const adjacentEdge = adjacent(newZone, zone);
-          switch (adjacentEdge?.position) {
-            case "left":
-              border.style.left = undefined;
-              break;
-            case "right":
-              border.style.right = undefined;
-              break;
-            case "top":
-              border.style.top = undefined;
-              break;
-            case "bottom":
-              border.style.bottom = undefined;
-              break;
-          }
-          borders.push(border);
-        }
-      }
-    }
-    this.history.update("borders", sheetId, borders);
-  }
-
-  private addBorders(sheetId: UID, zones: Zone[], border: ZoneBorderData) {
-    for (const zone of zones) {
-      this.addBorder(sheetId, zone, border);
-    }
-  }
-
-  private addBorder(
+  /**
+   * Ensure border continuity between two columns.
+   * If the two columns have the same borders (at each row respectively),
+   * the same borders are applied to each cell in between.
+   */
+  private ensureColumnBorderContinuity(
     sheetId: UID,
-    zone: Zone,
-    newBorder: ZoneBorderData | undefined,
-    force = false
+    leftColumn: HeaderIndex,
+    rightColumn: HeaderIndex
   ) {
-    const borders: ZoneBorder[] = [];
-    const plannedBorder = newBorder ? { zone, style: newBorder } : undefined;
-
-    // For each side, decide if we must clear the border on the *adjacent*
-    // existing cell when we draw on the opposite side of the new zone.
-    //
-    // Example:
-    //  - newBorder.right is set → we draw border on the RIGHT side of `zone`
-    //  - the cell on the right may already have a LEFT border on that edge
-    // In that case we clear that LEFT border, so only the new RIGHT border
-    // remains on the shared edge.
-    //
-    // existingBorderSideToClear[side] = true means we should clear the border on that
-    // side of the existing adjacent zone before adding the new border.
-    const existingBorderSideToClear = {
-      left: !!newBorder?.right,
-      right: !!newBorder?.left,
-      top: !!newBorder?.bottom,
-      bottom: !!newBorder?.top,
-    };
-    let editingZone: Zone[] = [zone];
-    for (const existingBorder of this.borders[sheetId] ?? []) {
-      const inter = intersection(existingBorder.zone, zone);
-      if (!inter) {
-        // Check if the existing border is adjacent to the new zone
-        const adjacentEdge = adjacent(existingBorder.zone, zone);
-        if (adjacentEdge && existingBorderSideToClear[adjacentEdge.position]) {
-          for (const newZone of splitIfAdjacent(existingBorder.zone, zone)) {
-            const border = this.computeBorderFromZone(newZone, existingBorder);
-            const adjacentEdge = adjacent(newZone, zone);
-            // Clear the existing border on the side that touches the new zone
-            switch (adjacentEdge?.position) {
-              case "left":
-                border.style.left = undefined;
-                break;
-              case "right":
-                border.style.right = undefined;
-                break;
-              case "top":
-                border.style.top = undefined;
-                break;
-              case "bottom":
-                border.style.bottom = undefined;
-                break;
-            }
-            borders.push(border);
-          }
-        } else {
-          borders.push(existingBorder);
+    const targetCols = range(leftColumn + 1, rightColumn);
+    for (let row: HeaderIndex = 0; row < this.getters.getNumberRows(sheetId); row++) {
+      const leftBorder = this.getCellBorder({ sheetId, col: leftColumn, row });
+      const rightBorder = this.getCellBorder({ sheetId, col: rightColumn, row });
+      if (leftBorder && rightBorder) {
+        const commonSides = this.getCommonSides(leftBorder, rightBorder);
+        for (const col of targetCols) {
+          this.addBorder(sheetId, col, row, commonSides);
         }
-        continue;
-      }
-
-      if (plannedBorder) {
-        let border = this.computeBorderFromZone(inter, plannedBorder).style;
-        if (!force) {
-          border = {
-            ...this.computeBorderFromZone(inter, existingBorder).style,
-            ...removeFalsyAttributes(border),
-          };
-        }
-        borders.push({ zone: inter, style: border });
-      }
-      editingZone = recomputeZones(editingZone, [inter]);
-      for (const updatedBorderZone of recomputeZones([existingBorder.zone], [inter])) {
-        borders.push(this.computeBorderFromZone(updatedBorderZone, existingBorder));
       }
     }
-    if (plannedBorder) {
-      borders.push(...editingZone.map((zone) => this.computeBorderFromZone(zone, plannedBorder)));
-    }
-    this.history.update(
-      "borders",
-      sheetId,
-      borders.filter((border) => !this.borderIsClear(border))
-    );
   }
 
-  private borderDataToNewBorderData(border: BorderData): ZoneBorderData {
-    const borderPosition: ZoneBorderData = {};
-    const borderStyle = { color: border.color ?? "#000000", style: border.style ?? "thin" };
-    if (["all", "external", "top"].includes(border.position)) {
-      borderPosition.top = { ...borderStyle };
+  /**
+   * Ensure border continuity between two rows.
+   * If the two rows have the same borders (at each column respectively),
+   * the same borders are applied to each cell in between.
+   */
+  private ensureRowBorderContinuity(sheetId: UID, topRow: HeaderIndex, bottomRow: HeaderIndex) {
+    const targetRows = range(topRow + 1, bottomRow);
+    for (let col: HeaderIndex = 0; col < this.getters.getNumberCols(sheetId); col++) {
+      const aboveBorder = this.getCellBorder({ sheetId, col, row: topRow });
+      const belowBorder = this.getCellBorder({ sheetId, col, row: bottomRow });
+      if (aboveBorder && belowBorder) {
+        const commonSides = this.getCommonSides(aboveBorder, belowBorder);
+        for (const row of targetRows) {
+          this.addBorder(sheetId, col, row, commonSides);
+        }
+      }
     }
-    if (["all", "external", "bottom"].includes(border.position)) {
-      borderPosition.bottom = { ...borderStyle };
+  }
+
+  /**
+   * From two borders, return a new border with sides defined in both borders.
+   * i.e. the intersection of two borders.
+   */
+  private getCommonSides(border1: Border, border2: Border): Border {
+    const commonBorder = {};
+    for (const side of ["top", "bottom", "left", "right"]) {
+      if (border1[side] && deepEquals(border1[side], border2[side])) {
+        commonBorder[side] = border1[side];
+      }
     }
-    if (["all", "external", "left"].includes(border.position)) {
-      borderPosition.left = { ...borderStyle };
+    return commonBorder;
+  }
+
+  /**
+   * Get all the columns which contains at least a border
+   */
+  private getColumnsWithBorders(sheetId: UID): HeaderIndex[] {
+    const sheetBorders = this.borders[sheetId];
+    if (!sheetBorders) return [];
+    return Object.keys(sheetBorders).map((index) => parseInt(index, 10));
+  }
+
+  /**
+   * Get all the rows which contains at least a border
+   */
+  private getRowsWithBorders(sheetId: UID): number[] {
+    const sheetBorders = this.borders[sheetId]?.filter(isDefined);
+    if (!sheetBorders) return [];
+    const rowsWithBorders = new Set<number>();
+    for (const rowBorders of sheetBorders) {
+      for (const rowBorder in rowBorders) {
+        rowsWithBorders.add(parseInt(rowBorder, 10));
+      }
     }
-    if (["all", "external", "right"].includes(border.position)) {
-      borderPosition.right = { ...borderStyle };
+    return Array.from(rowsWithBorders);
+  }
+
+  /**
+   * Get the range of all the rows in the sheet
+   */
+  private getRowsRange(sheetId: UID): HeaderIndex[] {
+    const sheetBorders = this.borders[sheetId];
+    if (!sheetBorders) return [];
+    return range(0, this.getters.getNumberRows(sheetId) + 1);
+  }
+
+  /**
+   * Move borders of a sheet horizontally.
+   * @param sheetId
+   * @param start starting column (included)
+   * @param delta how much borders will be moved (negative if moved to the left)
+   */
+  private shiftBordersHorizontally(sheetId: UID, start: HeaderIndex, delta: number) {
+    const borders = this.borders[sheetId];
+    if (!borders) return;
+    this.getColumnsWithBorders(sheetId)
+      .filter((col) => col >= start)
+      .sort((a, b) => (delta < 0 ? a - b : b - a)) // start by the end when moving up
+      .forEach((col) => {
+        this.moveBordersOfColumn(sheetId, col, delta);
+      });
+  }
+
+  /**
+   * Move borders of a sheet vertically.
+   * @param sheetId
+   * @param start starting row (included)
+   * @param delta how much borders will be moved (negative if moved to the above)
+   */
+  private shiftBordersVertically(sheetId: UID, start: HeaderIndex, delta: number) {
+    const borders = this.borders[sheetId];
+    if (!borders) return;
+    if (delta < 0) {
+      this.moveBordersOfRow(sheetId, start, delta, {
+        destructive: false,
+      });
     }
-    if (["all", "hv", "v"].includes(border.position)) {
-      borderPosition.vertical = { ...borderStyle };
+    this.getRowsWithBorders(sheetId)
+      .filter((row) => row >= start)
+      .sort((a, b) => (delta < 0 ? a - b : b - a)) // start by the end when moving up
+      .forEach((row) => {
+        this.moveBordersOfRow(sheetId, row, delta);
+      });
+  }
+
+  /**
+   * Moves the borders (left if `vertical` or top if `horizontal` depending on
+   * `borderDirection`) of all cells in an entire row `delta` rows to the right
+   * (`delta` > 0) or to the left (`delta` < 0).
+   * Note that as the left of a cell is the right of the cell-1, if the left is
+   * moved the right is also moved. However, if `horizontal`, the bottom border
+   * is not moved.
+   * It does it by replacing the target border by the moved border. If the
+   * argument `destructive` is given false, the target border is preserved if
+   * the moved border is empty
+   */
+  private moveBordersOfRow(
+    sheetId: UID,
+    row: HeaderIndex,
+    delta: number,
+    { destructive }: { destructive: boolean } = { destructive: true }
+  ) {
+    const borders = this.borders[sheetId];
+    if (!borders) return;
+    this.getColumnsWithBorders(sheetId).forEach((col) => {
+      const targetBorder = borders[col]?.[row + delta];
+      const movedBorder = borders[col]?.[row];
+      this.history.update(
+        "borders",
+        sheetId,
+        col,
+        row + delta,
+        destructive ? movedBorder : movedBorder || targetBorder
+      );
+      this.history.update("borders", sheetId, col, row, undefined);
+    });
+  }
+
+  /**
+   * Moves the borders (left if `vertical` or top if `horizontal` depending on
+   * `borderDirection`) of all cells in an entire column `delta` columns below
+   * (`delta` > 0) or above (`delta` < 0).
+   * Note that as the top of a cell is the bottom of the cell-1, if the top is
+   * moved the bottom is also moved. However, if `vertical`, the right border
+   * is not moved.
+   * It does it by replacing the target border by the moved border. If the
+   * argument `destructive` is given false, the target border is preserved if
+   * the moved border is empty
+   */
+  private moveBordersOfColumn(
+    sheetId: UID,
+    col: HeaderIndex,
+    delta: number,
+    { destructive }: { destructive: boolean } = { destructive: true }
+  ) {
+    const borders = this.borders[sheetId];
+    if (!borders) return;
+    this.getRowsRange(sheetId).forEach((row) => {
+      const targetBorder = borders[col + delta]?.[row];
+      const movedBorder = borders[col]?.[row];
+      this.history.update(
+        "borders",
+        sheetId,
+        col + delta,
+        row,
+        destructive ? movedBorder : movedBorder || targetBorder
+      );
+      if (destructive) {
+        this.history.update("borders", sheetId, col, row, undefined);
+      }
+    });
+  }
+
+  /**
+   * Set the borders of a cell.
+   * It overrides the current border if override === true.
+   */
+  private setBorder(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    border?: Border,
+    override = true
+  ) {
+    const maxCol = this.getters.getNumberCols(sheetId) - 1;
+    const maxRow = this.getters.getNumberRows(sheetId) - 1;
+    if (override || !this.borders[sheetId]?.[col]?.[row]?.left) {
+      this.history.update("borders", sheetId, col, row, "left", border?.left);
+      if (
+        border?.left &&
+        col > 0 &&
+        !deepEquals(this.borders[sheetId]?.[col - 1]?.[row]?.right, border?.left)
+      ) {
+        this.history.update("borders", sheetId, col - 1, row, "right", undefined);
+      }
     }
-    if (["all", "hv", "h"].includes(border.position)) {
-      borderPosition.horizontal = { ...borderStyle };
+    if (override || !this.borders[sheetId]?.[col]?.[row]?.top) {
+      this.history.update("borders", sheetId, col, row, "top", border?.top);
+      if (
+        border?.top &&
+        row > 0 &&
+        !deepEquals(this.borders[sheetId]?.[col]?.[row - 1]?.bottom, border?.top)
+      ) {
+        this.history.update("borders", sheetId, col, row - 1, "bottom", undefined);
+      }
     }
-    return borderPosition;
+    if (override || !this.borders[sheetId]?.[col]?.[row]?.right) {
+      this.history.update("borders", sheetId, col, row, "right", border?.right);
+      if (
+        border?.right &&
+        col < maxCol &&
+        !deepEquals(this.borders[sheetId]?.[col + 1]?.[row]?.left, border?.right)
+      ) {
+        this.history.update("borders", sheetId, col + 1, row, "left", undefined);
+      }
+    }
+    if (override || !this.borders[sheetId]?.[col]?.[row]?.bottom) {
+      this.history.update("borders", sheetId, col, row, "bottom", border?.bottom);
+      if (
+        border?.bottom &&
+        row < maxRow &&
+        !deepEquals(this.borders[sheetId]?.[col]?.[row + 1]?.top, border?.bottom)
+      ) {
+        this.history.update("borders", sheetId, col, row + 1, "top", undefined);
+      }
+    }
+  }
+
+  /**
+   * Remove the borders of a zone
+   */
+  private clearBorders(sheetId: UID, zones: Zone[], eraseBoundaries = false) {
+    const maxCol = this.getters.getNumberCols(sheetId) - 1;
+    const maxRow = this.getters.getNumberRows(sheetId) - 1;
+    for (const zone of recomputeZones(zones)) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        if (eraseBoundaries) {
+          if (zone.left > 0) {
+            this.history.update("borders", sheetId, zone.left - 1, row, "right", undefined);
+          }
+          if (zone.right < maxCol) {
+            this.history.update("borders", sheetId, zone.right + 1, row, "left", undefined);
+          }
+        }
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.history.update("borders", sheetId, col, row, undefined);
+          if (eraseBoundaries) {
+            if (zone.top > 0) {
+              this.history.update("borders", sheetId, col, zone.top - 1, "bottom", undefined);
+            }
+            if (zone.bottom < maxRow) {
+              this.history.update("borders", sheetId, col, zone.bottom + 1, "top", undefined);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Remove the borders inside of a zone
+   */
+  private clearInsideBorders(sheetId: UID, zones: Zone[]) {
+    for (const zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.history.update("borders", sheetId, col, row, undefined);
+        }
+      }
+    }
+  }
+
+  /**
+   * Add a border to the existing one to a cell
+   */
+  private addBorder(sheetId: UID, col: HeaderIndex, row: HeaderIndex, border: Border) {
+    this.setBorder(sheetId, col, row, {
+      ...this.getCellBorder({ sheetId, col, row }),
+      ...border,
+    });
+  }
+
+  /**
+   * Set the borders of a zone by computing the borders to add from the given
+   * command
+   */
+  private setBorders(
+    sheetId: UID,
+    zones: Zone[],
+    position: BorderPosition,
+    border: BorderDescr | undefined
+  ) {
+    if (position === "clear") {
+      return this.clearBorders(sheetId, zones, true);
+    }
+    for (const zone of recomputeZones(zones)) {
+      if (position === "all") {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            this.addBorder(sheetId, col, row, {
+              top: border,
+              right: border,
+              bottom: border,
+              left: border,
+            });
+          }
+        }
+      }
+      if (position === "h" || position === "hv") {
+        if (zone.top === zone.bottom) {
+          continue;
+        }
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.addBorder(sheetId, col, zone.top, { bottom: border });
+          for (let row = zone.top + 1; row < zone.bottom; row++) {
+            this.addBorder(sheetId, col, row, { top: border, bottom: border });
+          }
+          this.addBorder(sheetId, col, zone.bottom, { top: border });
+        }
+      }
+      if (position === "v" || position === "hv") {
+        if (zone.left === zone.right) {
+          continue;
+        }
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.addBorder(sheetId, zone.left, row, { right: border });
+          for (let col = zone.left + 1; col < zone.right; col++) {
+            this.addBorder(sheetId, col, row, { left: border, right: border });
+          }
+          this.addBorder(sheetId, zone.right, row, { left: border });
+        }
+      }
+      if (position === "left" || position === "external") {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.addBorder(sheetId, zone.left, row, { left: border });
+        }
+      }
+      if (position === "right" || position === "external") {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.addBorder(sheetId, zone.right, row, { right: border });
+        }
+      }
+      if (position === "top" || position === "external") {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.addBorder(sheetId, col, zone.top, { top: border });
+        }
+      }
+      if (position === "bottom" || position === "external") {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.addBorder(sheetId, col, zone.bottom, { bottom: border });
+        }
+      }
+    }
+  }
+
+  /**
+   * Compute the borders to add to the given zone merged.
+   */
+  private addBordersToMerge(sheetId: UID, zone: Zone) {
+    const { left, right, top, bottom } = zone;
+    const bordersTopLeft = this.getCellBorder({ sheetId, col: left, row: top });
+    const bordersBottomRight = this.getCellBorder({ sheetId, col: right, row: bottom });
+    this.clearBorders(sheetId, [zone]);
+    if (bordersTopLeft?.top) {
+      this.setBorders(sheetId, [{ ...zone, bottom: top }], "top", bordersTopLeft.top);
+    }
+    if (bordersTopLeft?.left) {
+      this.setBorders(sheetId, [{ ...zone, right: left }], "left", bordersTopLeft.left);
+    }
+    if (bordersBottomRight?.bottom) {
+      this.setBorders(sheetId, [{ ...zone, top: bottom }], "bottom", bordersBottomRight.bottom);
+    } else if (bordersTopLeft?.bottom) {
+      this.setBorders(sheetId, [{ ...zone, top: bottom }], "bottom", bordersTopLeft.bottom);
+    }
+    if (bordersBottomRight?.right) {
+      this.setBorders(sheetId, [{ ...zone, left: right }], "right", bordersBottomRight.right);
+    } else if (bordersTopLeft?.right) {
+      this.setBorders(sheetId, [{ ...zone, left: right }], "right", bordersTopLeft.right);
+    }
   }
 
   private checkBordersUnchanged(cmd: SetBorderCommand) {
@@ -454,32 +673,18 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     return CommandResult.Success;
   }
 
-  private ensureHasBorder(cmd: SetBorderCommand | SetZoneBordersCommand) {
-    if (!cmd.border) return CommandResult.NoChanges;
-    return CommandResult.Success;
-  }
-
-  /**
-   * Compute the borders to add to the given zone merged.
-   */
-  private addBordersToMerge(sheetId: UID, zone: Zone) {
-    const border = {
-      ...this.getZoneExternalBorders(sheetId, zone),
-      ...removeFalsyAttributes(this.getCellBorder({ sheetId, col: zone.left, row: zone.top })),
-    };
-    this.addBorder(sheetId, zone, border, true);
-  }
-
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    // Borders
     if (Object.keys(data.borders || {}).length) {
       for (const sheet of data.sheets) {
-        for (const zoneXc in sheet.borders) {
-          const borderId = sheet.borders[zoneXc];
-          this.addBorder(sheet.id, toZone(zoneXc), data.borders[borderId]);
+        for (const [position, borderId] of iterateItemIdsPositions(sheet.id, sheet.borders)) {
+          const { sheetId, col, row } = position;
+          const border = data.borders[borderId];
+          this.setBorder(sheetId, col, row, border, false);
         }
       }
     }
@@ -494,12 +699,21 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   }
 
   export(data: WorkbookData) {
-    const borders: { [borderId: number]: ZoneBorderData } = {};
+    const borders: { [borderId: number]: Border } = {};
     for (const sheet of data.sheets) {
-      sheet.borders = {};
-      for (const border of this.borders[sheet.id] ?? []) {
-        sheet.borders[zoneToXc(border.zone)] = getItemId(border.style, borders);
+      const positionsByBorder: Record<number, CellPosition[]> = {};
+      for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
+        for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
+          const border = this.getCellBorder({ sheetId: sheet.id, col, row });
+          if (border) {
+            const borderId = getItemId(border, borders);
+            const position = { sheetId: sheet.id, col, row };
+            positionsByBorder[borderId] ??= [];
+            positionsByBorder[borderId].push(position);
+          }
+        }
       }
+      sheet.borders = groupItemIdsByZones(positionsByBorder);
     }
     data.borders = borders;
   }

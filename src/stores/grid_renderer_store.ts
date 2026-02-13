@@ -679,7 +679,12 @@ export class GridRenderer extends SpreadsheetStore {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f
     const border = this.getters.getCellComputedBorder(position, viewport);
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7
+    const border = this.getters.getCellComputedBorder(position, precomputeZone);
+=======
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de
 
     let style = this.getters.getCellComputedStyle(position, viewport);
     if (this.fingerprints.isEnabled) {
@@ -705,7 +710,7 @@ export class GridRenderer extends SpreadsheetStore {
       y,
       width,
       height,
-      border: border || undefined,
+      border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
@@ -890,6 +895,7 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f
         const box = this.createZoneBox(sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellComputedBorder(
           {
@@ -899,6 +905,24 @@ export class GridRenderer extends SpreadsheetStore {
           },
           zone
         );
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7
+        const box = this.createZoneBox(sheetId, merge, viewport, zone);
+        const borderBottomRight = this.getters.getCellComputedBorder(
+          {
+            sheetId,
+            col: merge.right,
+            row: merge.bottom,
+          },
+          zone
+        );
+=======
+        const box = this.createZoneBox(sheetId, merge, viewport);
+        const borderBottomRight = this.getters.getCellComputedBorder({
+          sheetId,
+          col: merge.right,
+          row: merge.bottom,
+        });
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de
         box.border = {
           ...box.border,
           bottom: borderBottomRight ? borderBottomRight.bottom : undefined,

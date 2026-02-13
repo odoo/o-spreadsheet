@@ -1,12 +1,22 @@
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/types/workbook_data.ts
 import { ZoneBorderData } from "../plugins/core/borders";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart";
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/types/workbook_data.ts
+import { CellValue, DataValidationRule, Format, Locale } from ".";
+import { ZoneBorderData } from "../plugins/core";
+import { ExcelChartDefinition } from "./chart/chart";
+=======
+import { CellValue, DataValidationRule, Format, Locale } from ".";
+import { ExcelChartDefinition } from "./chart/chart";
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/types/workbook_data.ts
 import { ConditionalFormat } from "./conditional_formatting";
 import { DataValidationRule } from "./data_validation";
 import { Format } from "./format";
 import { Image } from "./image";
 import { Locale } from "./locale";
 import {
+  Border,
   Color,
   Dimension,
   HeaderGroup,
@@ -77,7 +87,7 @@ export interface WorkbookData {
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
-  borders: { [key: number]: ZoneBorderData };
+  borders: { [key: number]: Border };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;

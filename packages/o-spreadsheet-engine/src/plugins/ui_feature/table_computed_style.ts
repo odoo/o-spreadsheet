@@ -1,9 +1,47 @@
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/ui_feature/table_computed_style.ts
 import { PositionMap } from "../../helpers/cells/position_map";
 import { lazy } from "../../helpers/misc";
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/ui_feature/table_computed_style.ts
+import { lazy } from "../../helpers";
+import { PositionMap } from "../../helpers/cells/position_map";
+=======
+import { lazy } from "../../helpers";
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/ui_feature/table_computed_style.ts
 import { getComputedTableStyle } from "../../helpers/table_helpers";
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/ui_feature/table_computed_style.ts
 import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
 import { Border, CellPosition, Lazy, Style, TableId, UID, Zone } from "../../types/misc";
 import { Table, TableConfig } from "../../types/table";
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/ui_feature/table_computed_style.ts
+import {
+  Border,
+  CellPosition,
+  Command,
+  CommandTypes,
+  Lazy,
+  Style,
+  Table,
+  TableConfig,
+  TableId,
+  UID,
+  Zone,
+  invalidateEvaluationCommands,
+} from "../../types";
+=======
+import {
+  Border,
+  CellPosition,
+  Command,
+  CommandTypes,
+  Lazy,
+  Style,
+  Table,
+  TableConfig,
+  TableId,
+  UID,
+  invalidateEvaluationCommands,
+} from "../../types";
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/ui_feature/table_computed_style.ts
 import { UIPlugin } from "../ui_plugin";
 
 interface ComputedTableStyle {
@@ -18,12 +56,18 @@ interface TableRuntime {
 }
 
 export class TableComputedStylePlugin extends UIPlugin {
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/ui_feature/table_computed_style.ts
   static getters = [
     "getCellTableStyle",
     "getCellTableBorder",
     "getCellTableBorderZone",
     "getCellTableStyleZone",
   ] as const;
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/ui_feature/table_computed_style.ts
+  static getters = ["getCellTableStyle", "getCellTableBorder", "getCellTableBorderZone"] as const;
+=======
+  static getters = ["getCellTableStyle", "getCellTableBorder"] as const;
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/ui_feature/table_computed_style.ts
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
@@ -95,6 +139,7 @@ export class TableComputedStylePlugin extends UIPlugin {
     return this.tableStyles[position.sheetId][table.id]().borders[position.col]?.[position.row];
   }
 
+<<<<<<< f135c07860d14c28c3002f0aacd7d4d10b229c3f:packages/o-spreadsheet-engine/src/plugins/ui_feature/table_computed_style.ts
   getCellTableBorderZone(sheetId: UID, zone: Zone): PositionMap<Border> {
     const map = new PositionMap<Border>();
     for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
@@ -113,6 +158,23 @@ export class TableComputedStylePlugin extends UIPlugin {
     return map;
   }
 
+||||||| a1801a94ff524e45fe8f7f409e4b80837c7a37b7:src/plugins/ui_feature/table_computed_style.ts
+  getCellTableBorderZone(sheetId: UID, zone: Zone): PositionMap<Border> {
+    const map = new PositionMap<Border>();
+    for (const table of this.getters.getTablesOverlappingZones(sheetId, [zone])) {
+      const tableBorders = this.tableStyles[sheetId][table.id]().borders;
+      for (const [colIdx, colStyle] of Object.entries(tableBorders)) {
+        const col = parseInt(colIdx);
+        for (const [rowIdx, cellStyle] of Object.entries(colStyle)) {
+          if (cellStyle) map.set({ sheetId, col, row: parseInt(rowIdx) }, cellStyle);
+        }
+      }
+    }
+    return map;
+  }
+
+=======
+>>>>>>> 81aa2cdcb3b43f517fb9cbc15c989686107464de:src/plugins/ui_feature/table_computed_style.ts
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {
     return lazy(() => {
       const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);

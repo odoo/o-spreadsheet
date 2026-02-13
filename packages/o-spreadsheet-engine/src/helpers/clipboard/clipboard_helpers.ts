@@ -39,11 +39,7 @@ export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): Clipboar
  * The clipped zone is copied as many times as it fits in the target.
  * This returns the list of zones where the clipped zone is copy-pasted.
  */
-export function splitZoneForPaste(
-  selection: Zone,
-  splitWidth: number,
-  splitHeight: number
-): Zone[] {
+function splitZoneForPaste(selection: Zone, splitWidth: number, splitHeight: number): Zone[] {
   const right = Math.max(selection.right - splitWidth + 1, selection.left);
   const bottom = Math.max(selection.bottom - splitHeight + 1, selection.top);
   const zones: Zone[] = [];
