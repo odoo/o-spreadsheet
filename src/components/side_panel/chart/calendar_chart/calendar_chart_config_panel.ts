@@ -25,17 +25,6 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     label: ALL_PERIODS[value],
   }));
 
-  getLabelRangeOptions() {
-    return [
-      {
-        name: "dataSetsHaveTitle",
-        label: this.dataSetsHaveTitleLabel,
-        value: this.props.definition.dataSource.dataSetsHaveTitle,
-        onChange: this.onUpdateDataSetsHaveTitle.bind(this),
-      },
-    ];
-  }
-
   getGroupByOptions(): ValueAndLabel[] {
     const sheetId = this.env.model.getters.getFigureSheetId(
       this.env.model.getters.getFigureIdFromChartId(this.props.chartId)

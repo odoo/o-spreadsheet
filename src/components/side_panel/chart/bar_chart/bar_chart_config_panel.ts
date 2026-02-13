@@ -16,4 +16,9 @@ export class BarConfigPanel extends GenericChartConfigPanel {
       stacked,
     });
   }
+
+  getLabelRangeOptions() {
+    const options = [this.getAggregateLabelRangeOption()];
+    return options;
+  }
 }
