@@ -6,6 +6,7 @@ import {
 import { ChartTypeBuilder, chartTypeRegistry } from "../../registries/chart_registry";
 import {
   ChartCreationContext,
+  ChartData,
   ChartDataSource,
   ChartDataSourceType,
   ChartDefinition,
@@ -179,6 +180,13 @@ export class MyChart {
         ? this.dataSourceBuilder.toExcelDataSets(this.dataSource, definition.dataSetStyles, getters)
         : { dataSets: [] }
     );
+  }
+
+  getData(getters: Getters): ChartData {
+    const dataSource = this.dataSource;
+    return dataSource
+      ? this.dataSourceBuilder.extractData(dataSource, getters)
+      : { dataSetsValues: [], labelValues: [] };
   }
 
   getRuntime(getters: Getters) {

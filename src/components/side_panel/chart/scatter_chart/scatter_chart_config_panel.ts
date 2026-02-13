@@ -10,7 +10,7 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
     const definition = chart?.getRangeDefinition();
     const sheetId = chart?.sheetId;
     if (sheetId && definition?.type === "scatter") {
-      return canChartParseLabels(this.env.model.getters, sheetId, definition);
+      return canChartParseLabels(chart.getData(this.env.model.getters));
     }
     return false;
   }

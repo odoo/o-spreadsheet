@@ -1,11 +1,4 @@
-import {
-  _t,
-  deepCopy,
-  findNextDefinedValue,
-  getChartData,
-  range,
-  UID,
-} from "@odoo/o-spreadsheet-engine";
+import { _t, deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine";
 import {
   evaluatePolynomial,
   expM,
@@ -27,7 +20,6 @@ import {
   AxisType,
   BarChartDefinition,
   ChartData,
-  ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
   DataSetStyle,
   DatasetValues,
@@ -645,13 +637,8 @@ function isLinearChart(
   return !definition.labelsAsText && canBeLinearChart(data);
 }
 
-export function canChartParseLabels(
-  getters: Getters,
-  sheetId: UID,
-  definition: ChartDefinitionWithDataSource
-): boolean {
-  const data = getChartData(getters, definition.dataSource);
-  return canBeDateChart(data) || canBeLinearChart(data);
+export function canChartParseLabels(chartData: ChartData): boolean {
+  return canBeDateChart(chartData) || canBeLinearChart(chartData);
 }
 
 function canBeDateChart(data: ChartData): boolean {
