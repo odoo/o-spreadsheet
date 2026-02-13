@@ -216,6 +216,30 @@ describe("Pivot table style", () => {
     });
   });
 
+  test("Total style is not applied when row limit truncates the total row", () => {
+    tableStyle.wholeTable = { style: wholePivotStyle };
+    tableStyle.headerRow = { style: headerRowStyle };
+    tableStyle.totalRow = { style: totalRowStyle };
+
+    updatePivot(model, "1", {
+      rows: [{ fieldName: "Stage" }],
+      style: { tableStyleId: "TestStyle", numberOfRows: 2, displayTotals: true },
+    });
+
+    expect(getTables(model, sheetId)[0]).toMatchObject({
+      zone: "A25:B28",
+      config: { totalRow: false },
+    });
+
+    // prettier-ignore
+    expect(getGridStyle(model, "A25:B28")).toEqual({
+      A25: headerRowStyle,          B25: headerRowStyle,
+      A26: headerRowStyle,          B26: headerRowStyle,
+      A27: wholePivotStyle,         B27: wholePivotStyle,
+      A28: wholePivotStyle,         B28: wholePivotStyle,
+    });
+  });
+
   test("Can display banded row style", () => {
     tableStyle.wholeTable = { style: wholePivotStyle };
     tableStyle.headerRow = { style: headerRowStyle };
