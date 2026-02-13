@@ -6,8 +6,8 @@ export interface RangePart {
 }
 
 export interface Range {
-  readonly zone: Readonly<Zone>;
-  readonly unboundedZone: Readonly<UnboundedZone>;
+  zone: Zone;
+  unboundedZone: UnboundedZone;
   readonly parts: readonly RangePart[];
   readonly invalidXc?: string;
   /** true if the user provided the range with the sheet name */

@@ -18,6 +18,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getMerges,
   getStyle,
@@ -626,11 +627,11 @@ describe("Autofill", () => {
     ])("Autofill invalid range  due to row deletion", (initialFormula, expectedInvalidFormula) => {
       setCellContent(model, "C2", initialFormula);
       deleteRows(model, [0]);
-      expect(getCell(model, "C1")?.content).toBe(expectedInvalidFormula);
+      expect(getCellRawContent(model, "C1")).toBe(expectedInvalidFormula);
       autofill("C1", "C2");
       autofill("C1", "D1");
-      expect(getCell(model, "C2")?.content).toBe(expectedInvalidFormula);
-      expect(getCell(model, "D1")?.content).toBe(expectedInvalidFormula);
+      expect(getCellRawContent(model, "C2")).toBe(expectedInvalidFormula);
+      expect(getCellRawContent(model, "D1")).toBe(expectedInvalidFormula);
     });
 
     test.each([
@@ -639,11 +640,11 @@ describe("Autofill", () => {
     ])("Autofill invalid range  due to col deletion", (initialFormula, expectedInvalidFormula) => {
       setCellContent(model, "B1", initialFormula);
       deleteColumns(model, ["A"]);
-      expect(getCell(model, "A1")?.content).toBe(expectedInvalidFormula);
+      expect(getCellRawContent(model, "A1")).toBe(expectedInvalidFormula);
       autofill("A1", "A2");
       autofill("A1", "B1");
-      expect(getCell(model, "A2")?.content).toBe(expectedInvalidFormula);
-      expect(getCell(model, "B1")?.content).toBe(expectedInvalidFormula);
+      expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
+      expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
     });
 
     test.each([
@@ -653,7 +654,7 @@ describe("Autofill", () => {
     ])("Autofill link %s", (link) => {
       setCellContent(model, "A1", link);
       autofill("A1", "A2");
-      expect(getCell(model, "A2")?.content).toBe(link);
+      expect(getCellRawContent(model, "A2")).toBe(link);
     });
 
     test("Autofill mixed-mixed values", () => {
@@ -842,9 +843,9 @@ describe("Autofill", () => {
     createTable(model, "A1:B3");
     setCellContent(model, "A1", "=C1");
     model.dispatch("AUTOFILL_AUTO");
-    expect(getCell(model, "A2")?.content).toBe("=C2");
-    expect(getCell(model, "A3")?.content).toBe("=C3");
-    expect(getCell(model, "A4")?.content).toBe(undefined);
+    expect(getCellRawContent(model, "A2")).toBe("=C2");
+    expect(getCellRawContent(model, "A3")).toBe("=C3");
+    expect(getCellRawContent(model, "A4")).toBe(undefined);
   });
 
   test("Auto-autofill stops at non empty cell", () => {
@@ -856,8 +857,8 @@ describe("Autofill", () => {
     setCellContent(model, "B3", "Text not overwritten");
     setSelection(model, ["B1"]);
     model.dispatch("AUTOFILL_AUTO");
-    expect(getCell(model, "B2")?.content).toBe("=A2");
-    expect(getCell(model, "B3")?.content).toBe("Text not overwritten");
+    expect(getCellRawContent(model, "B2")).toBe("=A2");
+    expect(getCellRawContent(model, "B3")).toBe("Text not overwritten");
 
     // On a table
     createTable(model, "C1:C3");
@@ -865,8 +866,8 @@ describe("Autofill", () => {
     setCellContent(model, "C3", "Text not overwritten");
     setSelection(model, ["C1"]);
     model.dispatch("AUTOFILL_AUTO");
-    expect(getCell(model, "C2")?.content).toBe("=D2");
-    expect(getCell(model, "C3")?.content).toBe("Text not overwritten");
+    expect(getCellRawContent(model, "C2")).toBe("=D2");
+    expect(getCellRawContent(model, "C3")).toBe("Text not overwritten");
   });
 
   test("autofill with merge in selection", () => {

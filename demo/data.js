@@ -3910,21 +3910,35 @@ function _getColumnLetter(number) {
 function computeFormulaCells(cols, rows) {
   const cells = {};
   for (let row = 4; row <= rows; row++) {
-    cells[`A${row}`] = { content: row.toString() };
+    cells[`A${row}`] = row.toString();
     for (let col = 1; col < cols; col++) {
       const colLetter = _getColumnLetter(col);
       const prev = _getColumnLetter(col - 1);
-      cells[colLetter + row] = {
-        content: `=${prev}${row}+1`,
-      };
+      cells[colLetter + row] = `=${prev}${row}+1`;
     }
   }
   const letter = _getColumnLetter(cols);
   const nextLetter = _getColumnLetter(cols + 1);
-  for (let i = 3; i < cols; i++) {
-    cells[nextLetter + i] = {
-      content: `=SUM(A${i}:${letter}${i})`,
-    };
+  for (let i = 4; i <= rows; i++) {
+    cells[nextLetter + i] = `=SUM(A${i}:${letter}${i})`;
+  }
+  return cells;
+}
+function computeFormulaCellsSquished(cols, rows) {
+  const cells = {};
+  for (let row = 4; row <= rows; row++) {
+    cells[`A${row}`] = row.toString();
+  }
+  for (let col = 1; col < cols; col++) {
+    const colLetter = _getColumnLetter(col);
+    const prev = _getColumnLetter(col - 1);
+    cells[`${colLetter}4`] = `=${prev}4+1`;
+    cells[`${colLetter}5:${colLetter + rows}`] = { N: "=", R: "+R1" };
+  }
+  const letter = _getColumnLetter(cols);
+  const nextLetter = _getColumnLetter(cols + 1);
+  for (let i = 4; i <= rows; i++) {
+    cells[nextLetter + i] = `=SUM(A${i}:${letter}${i})`;
   }
   return cells;
 }
@@ -3933,14 +3947,12 @@ function computeArrayFormulaCells(cols, rows) {
   const cells = {};
   const initRow = 4;
   for (let row = initRow; row <= rows; row++) {
-    cells[`A${row}`] = { content: row.toString() };
+    cells[`A${row}`] = row.toString();
   }
   for (let col = 1; col < cols; col++) {
     const colLetter = _getColumnLetter(col);
     const prev = _getColumnLetter(col - 1);
-    cells[colLetter + initRow] = {
-      content: `=transpose(transpose(${prev}${initRow}:${prev}${rows}))`,
-    };
+    cells[colLetter + initRow] = `=transpose(transpose(${prev}${initRow}:${prev}${rows}))`;
   }
   return cells;
 }
@@ -3949,21 +3961,17 @@ function computeVectorizedFormulaCells(cols, rows) {
   const cells = {};
   const initRow = 4;
   for (let row = initRow; row <= rows; row++) {
-    cells[`A${row}`] = { content: row.toString() };
+    cells[`A${row}`] = row.toString();
   }
   for (let col = 1; col < cols; col++) {
     const colLetter = _getColumnLetter(col);
     const prev = _getColumnLetter(col - 1);
-    cells[colLetter + initRow] = {
-      content: `=${prev}${initRow}:${prev}${rows}+1`,
-    };
+    cells[colLetter + initRow] = `=${prev}${initRow}:${prev}${rows}+1`;
   }
   const letter = _getColumnLetter(cols);
   const nextLetter = _getColumnLetter(cols + 1);
   for (let i = 3; i < cols; i++) {
-    cells[nextLetter + i] = {
-      content: `=SUM(A${i}:${letter}${i})`,
-    };
+    cells[nextLetter + i] = `=SUM(A${i}:${letter}${i})`;
   }
   return cells;
 }
@@ -3975,13 +3983,13 @@ function computeNumberCells(cols, rows, type = "numbers") {
     for (let index = 1; index < rows - 1; index++) {
       switch (type) {
         case "numbers":
-          cells[letter + index] = { content: `${col + index}` };
+          cells[letter + index] = `${col + index}`;
           break;
         case "floats":
-          cells[letter + index] = { content: `${col + index}.123` };
+          cells[letter + index] = `${col + index}.123`;
           break;
         case "longFloats":
-          cells[letter + index] = { content: `${col + index}.123456789123456` };
+          cells[letter + index] = `${col + index}.123456789123456`;
           break;
       }
     }
@@ -3994,7 +4002,7 @@ function computeStringCells(cols, rows) {
   for (let col = 0; col < cols; col++) {
     const letter = _getColumnLetter(col);
     for (let index = 1; index < rows; index++) {
-      cells[letter + index] = { content: Math.random().toString(36).slice(2) };
+      cells[letter + index] = Math.random().toString(36).slice(2);
     }
   }
   return cells;
@@ -4008,10 +4016,10 @@ function computeSplitVlookup(rows) {
    */
   const cells = {};
   for (let row = 1; row < rows; row++) {
-    cells["A" + row] = { content: `=SPLIT("1 2", " ")` };
-    cells["C" + row] = { content: `=B${row}` };
-    cells["D" + row] = { content: `=VLOOKUP("2",C1:C${rows},1)` };
-    cells["F" + row] = { content: `=D${row}` };
+    cells["A" + row] = `=SPLIT("1 2", " ")`;
+    cells["C" + row] = `=B${row}`;
+    cells["D" + row] = `=VLOOKUP("2",C1:C${rows},1)`;
+    cells["F" + row] = `=D${row}`;
   }
   return cells;
 }
@@ -4030,6 +4038,9 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
     switch (sheetsInfo[index]) {
       case "formulas":
         cells = computeFormulaCells(cols, rows);
+        break;
+      case "formulasSquished":
+        cells = computeFormulaCellsSquished(cols, rows);
         break;
       case "arrayFormulas":
         cells = computeArrayFormulaCells(cols, rows);
@@ -4059,7 +4070,7 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
     });
   }
   return {
-    version: 10,
+    version: "18.5.1",
     sheets,
     styles: {
       1: { bold: true, textColor: "#674EA7", fontSize: 12 },
@@ -4069,6 +4080,24 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
       5: { fillColor: "#D9EAD3" },
       6: { fillColor: "#B6D7A8" },
     },
+    formats: {},
     borders: {},
+    revisionId: "START_REVISION",
+    uniqueFigureIds: true,
+    settings: {
+      locale: {
+        name: "English (US)",
+        code: "en_US",
+        thousandsSeparator: ",",
+        decimalSeparator: ".",
+        weekStart: 7,
+        dateFormat: "m/d/yyyy",
+        timeFormat: "hh:mm:ss a",
+        formulaArgSeparator: ",",
+      },
+    },
+    pivots: {},
+    pivotNextId: 1,
+    customTableStyles: {},
   };
 }

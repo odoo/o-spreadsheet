@@ -1,6 +1,5 @@
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
 import { isColorValid } from "../../helpers/color";
-import { toCartesian } from "../../helpers/coordinates";
 import {
   deepCopy,
   groupConsecutive,
@@ -17,7 +16,7 @@ import {
   isSheetNameEqual,
   toStandardizedSheetName,
 } from "../../helpers/sheet";
-import { isZoneInside, isZoneValid } from "../../helpers/zones";
+import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
   Command,
@@ -775,7 +774,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         sheetId: newSheet.id,
         col,
         row,
-        content: cell.content,
+        content: !cell.isFormula
+          ? cell.content
+          : cell.compiledFormula.toFormulaString(this.getters),
         format: cell.format,
         style: cell.style,
       });
@@ -1031,13 +1032,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private getImportedSheetSize(data: SheetData): { rowNumber: number; colNumber: number } {
-    const positions = Object.keys(data.cells).map(toCartesian);
+    const positions = Object.keys(data.cells).map(toZone);
 
     let rowNumber = data.rowNumber;
     let colNumber = data.colNumber;
-    for (const { col, row } of positions) {
-      rowNumber = Math.max(rowNumber, row + 1);
-      colNumber = Math.max(colNumber, col + 1);
+    for (const { right, bottom } of positions) {
+      rowNumber = Math.max(rowNumber, bottom + 1);
+      colNumber = Math.max(colNumber, right + 1);
     }
     return { rowNumber, colNumber };
   }

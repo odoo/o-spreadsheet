@@ -1,6 +1,4 @@
 import { DEFAULT_NUMBER_STYLE, DEFAULT_STYLE } from "../../constants";
-import { compile, compileTokens } from "../../formulas/compiler";
-import { Token } from "../../formulas/tokenizer";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
@@ -8,9 +6,9 @@ import {
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import { concat, deepEquals, range, replaceNewLines } from "../../helpers/misc";
+import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
-import { toCartesian, toXC } from "../../helpers/coordinates";
+import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
 import { isInside } from "../../helpers/zones";
@@ -26,6 +24,7 @@ import {
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
+import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
 import { isNumber } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
@@ -37,16 +36,11 @@ import {
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import {
-  AdaptSheetName,
-  CompiledFormula,
-  RangeCompiledFormula,
-  Style,
-  UpdateCellData,
-  Zone,
-} from "../../types/misc";
+import { AdaptSheetName, Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
+import { SquishedCell, Squisher } from "./squisher";
+import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -77,7 +71,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {
-          for (const range of cell.compiledFormula.dependencies) {
+          for (const range of cell.compiledFormula.rangeDependencies) {
             if (range.sheetId === sheetId || range.invalidSheetName === sheetName.old) {
               const change = applyChange(range);
               if (change.changeType !== "NONE") {
@@ -86,8 +80,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
                   sheet,
                   cell.id,
                   "compiledFormula" as any,
-                  "dependencies",
-                  cell.compiledFormula.dependencies.indexOf(range),
+                  "rangeDependencies",
+                  cell.compiledFormula.rangeDependencies.indexOf(range),
                   change.range
                 );
               }
@@ -244,15 +238,29 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    const start = performance.now();
     for (const sheet of data.sheets) {
       const sheetId = sheet.id;
-      const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
+      const cellsData = new PositionMap<{
+        compiledFormula?: CompiledFormula;
+        content?: string;
+        style?: number;
+        format?: number;
+      }>();
       // cells content
-      for (const xc in sheet.cells) {
-        if (sheet.cells[xc]) {
-          const { col, row } = toCartesian(xc);
-          const position = { sheetId: sheet.id, col, row };
-          cellsData.set(position, { content: sheet.cells[xc] });
+      const unsquisher = new Unsquisher();
+      for (const unsquishedItem of unsquisher.unsquishSheet(sheet.cells, sheet.id, this.getters)) {
+        if (unsquishedItem.content || unsquishedItem.compiled) {
+          const position = {
+            sheetId: sheet.id,
+            col: unsquishedItem.position.col,
+            row: unsquishedItem.position.row,
+          };
+          if (unsquishedItem.compiled) {
+            cellsData.set(position, { compiledFormula: unsquishedItem.compiled });
+          } else {
+            cellsData.set(position, { content: unsquishedItem.content });
+          }
         }
       }
       // cells style and format
@@ -271,12 +279,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       for (const position of cellsData.keysForSheet(sheetId)) {
         const cellData = cellsData.get(position);
-        if (cellData?.content || cellData?.format || cellData?.style) {
+        if (cellData?.content || cellData?.format || cellData?.style || cellData?.compiledFormula) {
           const cell = this.importCell(
             sheet.id,
             cellData?.content,
             cellData?.style ? data.styles[cellData?.style] : undefined,
-            cellData?.format ? data.formats[cellData?.format] : undefined
+            cellData?.format ? data.formats[cellData?.format] : undefined,
+            cellData?.compiledFormula
           );
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
@@ -286,22 +295,22 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
+    console.debug("cells imported in ", performance.now() - start);
   }
 
-  export(data: WorkbookData) {
+  export(data: WorkbookData, shouldSquish: boolean) {
     const styles: { [styleId: number]: Style } = {};
     const formats: { [formatId: number]: string } = {};
-
     for (const _sheet of data.sheets) {
+      const squisher = new Squisher(this.getters);
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: string } = {};
+      const cells: { [key: string]: SquishedCell } = {};
       const positions = Object.values(this.cells[_sheet.id] || {})
         .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
-        const xc = toXC(position.col, position.row);
         const style = this.extractCustomStyle(cell);
         if (Object.keys(style).length) {
           const styleId = getItemId<Style>(style, styles);
@@ -313,25 +322,39 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
-        if (cell.content) {
-          cells[xc] = cell.content;
+        const xc = toXC(position.col, position.row);
+        if (cell.isFormula) {
+          cells[xc] = shouldSquish
+            ? squisher.squish(cell, _sheet.id)
+            : cell.compiledFormula.toFormulaString(this.getters);
+        } else if (cell.content) {
+          cells[xc] = shouldSquish ? squisher.squish(cell, _sheet.id) : cell.content;
         }
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
-      _sheet.cells = cells;
+      _sheet.cells = shouldSquish ? squisher.squishSheet(cells) : cells;
     }
     data.styles = styles;
     data.formats = formats;
   }
 
-  importCell(sheetId: UID, content?: string, style?: Style, format?: Format): Cell {
+  importCell(
+    sheetId: UID,
+    content?: string,
+    style?: Style,
+    format?: Format,
+    compiledFormula?: CompiledFormula | undefined
+  ): Cell {
     const cellId = this.getNextCellId();
+    if (compiledFormula) {
+      return this.createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, style);
+    }
     return this.createCell(cellId, content || "", format, style, sheetId);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    this.export(data, false);
     const incompatibleIds: number[] = [];
     for (const formatId in data.formats || []) {
       if (!isExcelCompatible(data.formats[formatId])) {
@@ -353,9 +376,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private extractCustomStyle(cell: Cell): Style {
     const cleanedStyle = { ...cell.style };
-    const defaultStyle = isNumber(cell.content, DEFAULT_LOCALE)
-      ? DEFAULT_NUMBER_STYLE
-      : DEFAULT_STYLE;
+    const defaultStyle =
+      !cell.isFormula && isNumber(cell.content, DEFAULT_LOCALE)
+        ? DEFAULT_NUMBER_STYLE
+        : DEFAULT_STYLE;
     for (const property in cleanedStyle) {
       if (
         (property !== "align" || !cell.isFormula) &&
@@ -390,44 +414,47 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   getFormulaString(
     sheetId: UID,
-    tokens: Token[],
+    compiledFormula: CompiledFormula,
     dependencies: Range[],
     useBoundedReference: boolean = false
   ): string {
-    if (!dependencies.length) {
-      return concat(tokens.map((token) => token.value));
-    }
-    let rangeIndex = 0;
-    return concat(
-      tokens.map((token) => {
-        if (token.type === "REFERENCE") {
-          const range = dependencies[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId, { useBoundedReference });
-        }
-        return token.value;
-      })
-    );
+    const newFormula = CompiledFormula.CopyWithDependencies(compiledFormula, sheetId, dependencies);
+
+    return newFormula.toFormulaString(this.getters, { useBoundedReference });
   }
 
-  /*
+  /**
    * Constructs a formula string based on an initial formula and a translation vector
    */
-  getTranslatedCellFormula(sheetId: UID, offsetX: number, offsetY: number, tokens: Token[]) {
+  getTranslatedCellFormula(
+    sheetId: UID,
+    offsetX: number,
+    offsetY: number,
+    compiledFormula: CompiledFormula | SerializedCompiledFormula
+  ) {
+    if (!(compiledFormula instanceof CompiledFormula)) {
+      compiledFormula = CompiledFormula.CompileForSerializedFormula(sheetId, compiledFormula);
+    }
     const adaptedDependencies = this.getters.createAdaptedRanges(
-      compileTokens(tokens).dependencies.map((d) => this.getters.getRangeFromSheetXC(sheetId, d)),
+      compiledFormula.rangeDependencies,
       offsetX,
       offsetY,
       sheetId
     );
-    return this.getFormulaString(sheetId, tokens, adaptedDependencies);
+
+    return this.getFormulaString(sheetId, compiledFormula as CompiledFormula, adaptedDependencies);
   }
 
-  getFormulaMovedInSheet(originSheetId: UID, targetSheetId: UID, tokens: Token[]) {
-    const dependencies = compileTokens(tokens).dependencies.map((d) =>
-      this.getters.getRangeFromSheetXC(originSheetId, d)
+  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: CompiledFormula) {
+    const adaptedDependencies = this.getters.removeRangesSheetPrefix(
+      targetSheetId,
+      compiledFormula.rangeDependencies
     );
-    const adaptedDependencies = this.getters.removeRangesSheetPrefix(targetSheetId, dependencies);
-    return this.getFormulaString(targetSheetId, tokens, adaptedDependencies);
+    return CompiledFormula.CopyWithDependencies(
+      compiledFormula,
+      targetSheetId,
+      adaptedDependencies
+    ).toFormulaString(this.getters);
   }
 
   getCellStyle(position: CellPosition): Style {
@@ -566,7 +593,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasContent = after.content !== undefined || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
+    let afterContent: string;
+    if (hasContent) {
+      afterContent = replaceNewLines(after?.content);
+    } else {
+      afterContent = before?.isFormula
+        ? before.compiledFormula.toFormulaString(this.getters)
+        : before?.content || "";
+    }
     let style: Style | undefined;
     if (after.style !== undefined) {
       style = after.style || undefined;
@@ -584,7 +618,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *  */
     if (
       ((hasContent && !afterContent && !after.formula) ||
-        (!hasContent && (!before || before.content === ""))) &&
+        (!hasContent && (!before || (!before.isFormula && before.content === "")))) &&
       !style &&
       !format
     ) {
@@ -653,47 +687,23 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined,
     sheetId: UID
   ): FormulaCell {
-    const compiledFormula = compile(content);
-    if (compiledFormula.dependencies.length) {
-      return this.createFormulaCellWithDependencies(id, compiledFormula, format, style, sheetId);
-    }
-    return {
-      id,
-      content,
-      style,
-      format,
-      isFormula: true,
-      compiledFormula: {
-        ...compiledFormula,
-        dependencies: [],
-      },
-    };
+    const compiledFormula = CompiledFormula.CompileFormula(content, sheetId, this.getters);
+    return this.createFormulaCellFromCompiledFormula(id, compiledFormula, format, style);
   }
 
-  /**
-   * Create a new formula cell with the content
-   * being a computed property to rebuild the dependencies XC.
-   */
-  private createFormulaCellWithDependencies(
+  private createFormulaCellFromCompiledFormula(
     id: number,
     compiledFormula: CompiledFormula,
     format: Format | undefined,
-    style: Style | undefined,
-    sheetId: UID
+    style: Style | undefined
   ): FormulaCell {
-    const dependencies: Range[] = [];
-    for (const xc of compiledFormula.dependencies) {
-      dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
-    }
-    return new FormulaCellWithDependencies(
+    return {
       id,
-      compiledFormula,
       format,
       style,
-      dependencies,
-      sheetId,
-      this.getters.getRangeString
-    );
+      isFormula: true,
+      compiledFormula,
+    };
   }
 
   private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {
@@ -711,7 +721,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (!cell) {
       return CommandResult.NoChanges;
     }
-    if (!cell.content && !cell.style && !cell.format) {
+    if (!cell.isFormula && !cell.content && !cell.style && !cell.format) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
@@ -723,7 +733,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasStyle = "style" in cmd;
     const hasFormat = "format" in cmd;
     if (
-      (!hasContent || cell?.content === cmd.content) &&
+      (!hasContent ||
+        (cell?.isFormula && cell.compiledFormula.toFormulaString(this.getters) === cmd.content) ||
+        (!cell?.isFormula && cell?.content === cmd.content)) &&
       (!hasStyle || deepEquals(cell?.style, cmd.style)) &&
       (!hasFormat || cell?.format === cmd.format)
     ) {
@@ -754,72 +766,5 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
     }
     return CommandResult.NoChanges;
-  }
-}
-
-export class FormulaCellWithDependencies implements FormulaCell {
-  readonly isFormula = true;
-  readonly compiledFormula: RangeCompiledFormula;
-  constructor(
-    readonly id: number,
-    compiledFormula: CompiledFormula,
-    readonly format: Format | undefined,
-    readonly style: Style | undefined,
-    dependencies: Range[],
-    private readonly sheetId: UID,
-    private readonly getRangeString: (
-      range: Range,
-      sheetId: UID,
-      option?: { useBoundedReference: boolean }
-    ) => string
-  ) {
-    let rangeIndex = 0;
-    const tokens = compiledFormula.tokens.map((token) => {
-      if (token.type === "REFERENCE") {
-        const index = rangeIndex++;
-        return new RangeReferenceToken(dependencies, index, this.sheetId, this.getRangeString);
-      }
-      return token;
-    });
-    this.compiledFormula = {
-      ...compiledFormula,
-      dependencies,
-      tokens,
-    };
-  }
-
-  get content() {
-    return concat(this.compiledFormula.tokens.map((token) => token.value));
-  }
-
-  get contentWithFixedReferences() {
-    let rangeIndex = 0;
-    return concat(
-      this.compiledFormula.tokens.map((token) => {
-        if (token.type === "REFERENCE") {
-          const index = rangeIndex++;
-          return this.getRangeString(this.compiledFormula.dependencies[index], this.sheetId, {
-            useBoundedReference: true,
-          });
-        }
-        return token.value;
-      })
-    );
-  }
-}
-
-class RangeReferenceToken implements Token {
-  type = "REFERENCE" as const;
-
-  constructor(
-    private ranges: Range[],
-    private rangeIndex: number,
-    private sheetId,
-    private getRangeString: (range: Range, sheetId: UID) => string
-  ) {}
-
-  get value() {
-    const range = this.ranges[this.rangeIndex];
-    return this.getRangeString(range, this.sheetId);
   }
 }

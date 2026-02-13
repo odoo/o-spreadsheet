@@ -2,7 +2,7 @@ import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CoreCommand, CorePlugin, Model } from "../../src";
-import { buildSheetLink, toZone } from "../../src/helpers";
+import { buildSheetLink } from "../../src/helpers";
 import { CellValueType, CommandResult, UID } from "../../src/types";
 import {
   addColumns,
@@ -28,6 +28,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getEvaluatedCell,
   getStyle,
@@ -264,7 +265,7 @@ describe("link cell", () => {
       expect(cell.link?.label).toBe("my label");
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
-      expect(getCell(model, "A1")?.content).toBe(`[my label](${url})`);
+      expect(getCellRawContent(model, "A1")).toBe(`[my label](${url})`);
       expect(getStyle(model, "A1")).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "A1")).toBe("my label");
     }
@@ -279,7 +280,7 @@ describe("link cell", () => {
       expect(cell.link?.label).toBe("Odoo");
       expect(cell.link?.url).toBe(url);
       expect(urlRepresentation(cell.link!, model.getters)).toBe(url);
-      expect(getCell(model, "B1")?.content).toBe(`=HYPERLINK("${url}", "Odoo")`);
+      expect(getCellRawContent(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
       expect(getStyle(model, "B1")).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "B1")).toBe(`=HYPERLINK("${url}", "Odoo")`);
     }
@@ -368,7 +369,7 @@ describe("link cell", () => {
     const model = new Model();
     setCellContent(model, "A1", "http://odoo.com");
     const cell = getEvaluatedCell(model, "A1");
-    expect(getCell(model, "A1")?.content).toBe("http://odoo.com");
+    expect(getCellRawContent(model, "A1")).toBe("http://odoo.com");
     expect(cell.link?.label).toBe("http://odoo.com");
     expect(cell.link?.url).toBe("http://odoo.com");
     expect(cell.value).toBe("http://odoo.com");
@@ -382,7 +383,7 @@ describe("link cell", () => {
   ])("invalid url %s are not recognized as web links", (url) => {
     const model = new Model();
     setCellContent(model, "A1", url);
-    expect(getCell(model, "A1")?.content).toBe(url);
+    expect(getCellRawContent(model, "A1")).toBe(url);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.text);
   });
 
@@ -607,64 +608,28 @@ describe("Cell dependencies and tokens are updated", () => {
     setCellContent(model, "A1", "=C3");
     addRows(model, "before", 2, 1);
 
-    expect(getCell(model, "A1")).toMatchObject({
-      content: "=C4",
-      compiledFormula: {
-        dependencies: [{ zone: toZone("C4") }],
-        tokens: [
-          { type: "OPERATOR", value: "=" },
-          { type: "REFERENCE", value: "C4" },
-        ],
-      },
-    });
+    expect(getCellText(model, "A1")).toBe("=C4");
   });
 
   test("on row removed", () => {
     setCellContent(model, "A1", "=C3");
     deleteRows(model, [1]);
 
-    expect(getCell(model, "A1")).toMatchObject({
-      content: "=C2",
-      compiledFormula: {
-        dependencies: [{ zone: toZone("C2") }],
-        tokens: [
-          { type: "OPERATOR", value: "=" },
-          { type: "REFERENCE", value: "C2" },
-        ],
-      },
-    });
+    expect(getCellText(model, "A1")).toBe("=C2");
   });
 
   test("on column added", () => {
     setCellContent(model, "A1", "=C3");
     addColumns(model, "before", "B", 1);
 
-    expect(getCell(model, "A1")).toMatchObject({
-      content: "=D3",
-      compiledFormula: {
-        dependencies: [{ zone: toZone("D3") }],
-        tokens: [
-          { type: "OPERATOR", value: "=" },
-          { type: "REFERENCE", value: "D3" },
-        ],
-      },
-    });
+    expect(getCellText(model, "A1")).toBe("=D3");
   });
 
   test("on column removed", () => {
     setCellContent(model, "A1", "=C3");
     deleteColumns(model, ["B"]);
 
-    expect(getCell(model, "A1")).toMatchObject({
-      content: "=B3",
-      compiledFormula: {
-        dependencies: [{ zone: toZone("B3") }],
-        tokens: [
-          { type: "OPERATOR", value: "=" },
-          { type: "REFERENCE", value: "B3" },
-        ],
-      },
-    });
+    expect(getCellText(model, "A1")).toBe("=B3");
   });
 
   test("Do not dispatch UPDATE_CELL subcommands if the content is empty", () => {

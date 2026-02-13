@@ -166,7 +166,7 @@ export class SortPlugin extends UIPlugin {
           content: "",
         };
         if (cell) {
-          let content: string = cell.content;
+          let content: string;
           if (cell.isFormula) {
             const position = this.getters.getCellPosition(cell.id);
             // we only have a vertical offset
@@ -174,8 +174,10 @@ export class SortPlugin extends UIPlugin {
               sheetId,
               0,
               newRow - position.row,
-              cell.compiledFormula.tokens
+              cell.compiledFormula
             );
+          } else {
+            content = cell.content;
           }
           newCellValues.style = cell.style;
           newCellValues.content = content;

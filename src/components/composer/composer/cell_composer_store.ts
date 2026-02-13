@@ -1,4 +1,3 @@
-import { parseTokens } from "@odoo/o-spreadsheet-engine";
 import { prettify } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import {
   isMultipleElementMatrix,
@@ -290,13 +289,14 @@ export class CellComposerStore extends AbstractComposerStore {
 
   private getPrettifiedFormula(cell: FormulaCell): string {
     if (cell.compiledFormula.isBadExpression) {
-      return cell.content;
+      return cell.compiledFormula.toFormulaString(this.getters);
     }
     const width =
       this.editionMode === "inactive"
         ? Infinity // one liner
         : 80;
-    return prettify(parseTokens(cell.compiledFormula.tokens), width);
+    const ast = cell.compiledFormula.getAst(this.getters);
+    return prettify(ast, width);
   }
 
   private numberComposerContent(value: number, format: Format | undefined, locale: Locale): string {

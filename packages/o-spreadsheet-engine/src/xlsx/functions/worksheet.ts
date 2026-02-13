@@ -80,7 +80,7 @@ export function addRows(
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
-      const content = sheet.cells[xc];
+      const content = sheet.cells[xc] as string | undefined;
       const value = sheet.cellValues[xc];
       const position = { sheetId: sheet.id, col: c, row: r };
       const styleId = styles.get(position);

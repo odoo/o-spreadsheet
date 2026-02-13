@@ -4,8 +4,8 @@ import {
   PREVIOUS_VALUE,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { CellErrorType } from "../../../src";
-import { setCellContent } from "../../test_helpers";
-import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
+import { getCellRawContent, setCellContent } from "../../test_helpers";
+import { getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import { getFormattedGrid, getGrid } from "../../test_helpers/helpers";
 import {
   createModelWithTestPivotDataset,
@@ -1679,7 +1679,7 @@ describe("Measure display", () => {
       table: pivot.getCollapsedTableStructure().export(),
     });
 
-    expect(getCell(model, "B22")?.content).toContain("PIVOT.VALUE");
+    expect(getCellRawContent(model, "B22")).toContain("PIVOT.VALUE");
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({

@@ -11,8 +11,8 @@ import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import { copy, createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import {
-  getCell,
   getCellContent,
+  getCellRawContent,
   getCellText,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
@@ -201,7 +201,7 @@ describe("Model", () => {
       type: "greeting",
     };
     model.dispatch("UPDATE_CELL", payload);
-    expect(getCell(model, "A1")?.content).toBe("hello");
+    expect(getCellRawContent(model, "A1")).toBe("hello");
   });
 
   test("Cannot add an already existing core getters", () => {
@@ -364,7 +364,7 @@ describe("Model", () => {
         {
           cells: {
             A1: "=SUM(A3:3)",
-            A2: "=SUM(A3:A)",
+            A2: { R: "A3:A" },
           },
         },
       ],

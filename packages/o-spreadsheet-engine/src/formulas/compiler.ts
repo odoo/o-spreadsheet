@@ -1,12 +1,14 @@
 import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
-import { parseNumber, unquote } from "../helpers";
+import { concat, parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
+import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
-import { CompiledFormula, FormulaToExecute } from "../types/misc";
+import { FormulaToExecute, LiteralValues, UID } from "../types/misc";
+import { Range, RangeStringOptions } from "../types/range";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
-import { AST, ASTFuncall, parseTokens } from "./parser";
+import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 import { Token } from "./tokenizer";
 
@@ -36,15 +38,17 @@ export const UNARY_OPERATOR_MAP = {
   "#": "SPILLED.RANGE",
 };
 
-interface LiteralValues {
-  numbers: { value: number }[];
-  strings: { value: string }[];
-}
-
-type InternalCompiledFormula = CompiledFormula & {
+interface ICompiledFormula {
+  execute: FormulaToExecute;
+  tokens: Token[];
+  dependencies: string[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
   literalValues: LiteralValues;
   symbols: string[];
-};
+}
+
+const NO_REAL_VALUE = "__NO_REAL_VALUE__";
 
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
@@ -52,21 +56,238 @@ type InternalCompiledFormula = CompiledFormula & {
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
+/**
+ * A compiled formula is the result of the compilation of a formula string.
+ * It contains all the information needed to execute the formula, as well as some metadata
+ * about the formula (dependencies, literal values, symbols...) that can be used to rebuild a slightly different formula
+ * without recompiling it (for example when the formula is copied to another cell, or when we want to replace literal values but keep the same structure).
+ * */
+export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "dependencies"> {
+  public readonly rangeDependencies: Range[];
+  public hasDependencies: boolean;
+
+  private constructor(
+    public readonly sheetId: UID,
+    private readonly tokens: Token[],
+    public readonly literalValues: LiteralValues,
+    public readonly symbols: string[],
+    dependencies: Range[],
+    public readonly isBadExpression: boolean,
+    public readonly normalizedFormula: string,
+    public readonly execute: FormulaToExecute
+  ) {
+    this.hasDependencies = dependencies?.length > 0;
+    this.tokens.forEach((t) => {
+      if (["REFERENCE", "NUMBER", "STRING", "INVALID_REFERENCE"].includes(t.type)) {
+        t.value = NO_REAL_VALUE;
+      }
+    });
+    this.rangeDependencies = dependencies;
+  }
+
+  private getTokens(getters: CoreGetters, referenceOption?: RangeStringOptions): readonly Token[] {
+    let referenceIndex = 0;
+    let numberIndex = 0;
+    let stringIndex = 0;
+    if (this.isBadExpression) {
+      return this.tokens;
+    }
+    this.tokens.forEach((token: Token) => {
+      switch (token.type) {
+        case "REFERENCE":
+        case "INVALID_REFERENCE":
+          token.value = getters.getRangeString(
+            this.rangeDependencies[referenceIndex++],
+            this.sheetId,
+            referenceOption
+          );
+          break;
+        case "NUMBER":
+          token.value = this.literalValues.numbers[numberIndex++].value.toString();
+          break;
+        case "STRING":
+          token.value = `"${this.literalValues.strings[stringIndex++].value}"`;
+          break;
+      }
+    });
+    return this.tokens;
+  }
+
+  getAst(getters: CoreGetters): AST {
+    return parseTokens(this.getTokens(getters));
+  }
+
+  /**
+   * Return the string representation of the formula, with the current dependencies and literal values.
+   * This is a heavy operation as it converts the rangeDependencies to string on each call.
+   * */
+  toFormulaString(getters: CoreGetters, referenceOption?: RangeStringOptions): string {
+    if (this.isBadExpression) {
+      return this.normalizedFormula;
+    }
+
+    return concat(this.getTokens(getters, referenceOption).map((t) => t.value));
+  }
+
+  usesSymbol(symbol: string) {
+    return this.tokens.some(
+      (t) =>
+        t.type === "SYMBOL" &&
+        t.value.localeCompare(symbol, "en", {
+          sensitivity: "accent",
+        }) === 0
+    );
+  }
+
+  areAllFunctionsExportableToExcel(): boolean {
+    if (this.isBadExpression) {
+      return false;
+    }
+    const nonExportableFunctions = iterateAstNodes(parseTokens(this.tokens)).some(
+      (ast) => ast.type === "FUNCALL" && !functions[ast.value.toUpperCase()]?.isExported
+    );
+    return !nonExportableFunctions;
+  }
+
+  getFunctionsFromTokens(functionNames: string[], getters: CoreGetters) {
+    if (this.isBadExpression) {
+      return [];
+    }
+    // Parsing is an expensive operation, so we first check if the
+    // formula contains one of the function names
+    if (!functionNames.some((functionName) => this.usesSymbol(functionName))) {
+      return [];
+    }
+    const ast: AST = this.getAst(getters);
+    return iterateAstNodes(ast)
+      .filter((node) => node.type === "FUNCALL" && functionNames.includes(node.value.toUpperCase()))
+      .map((node: ASTFuncall) => ({
+        functionName: node.value.toUpperCase(),
+        args: node.args,
+      }));
+  }
+
+  isFirstNonWhitespaceToken(tokenValue: string): boolean {
+    const firstNonSpaceToken = this.tokens.find((token, i) => i > 0 && token.type !== "SPACE");
+    return (
+      firstNonSpaceToken?.type === "SYMBOL" && firstNonSpaceToken.value.toUpperCase() === tokenValue
+    );
+  }
+
+  static IsBadExpression(formula: string): boolean {
+    const tokens = rangeTokenize(formula);
+    const compiledFormula = compileTokens(tokens);
+    return compiledFormula.isBadExpression;
+  }
+
+  /**
+   * Recreates a CompiledFormula based on `base` with adapted dependencies.
+   * */
+  static CopyWithDependencies(
+    base: CompiledFormula,
+    sheetId: UID,
+    dependencies: Range[]
+  ): CompiledFormula {
+    return new CompiledFormula(
+      sheetId,
+      base.tokens,
+      base.literalValues,
+      base.symbols,
+      dependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      base.execute
+    );
+  }
+
+  /**
+   * Recreates a CompiledFormula based on `base` with adapted dependencies and/or different literal values.
+   * */
+  static CopyWithDependenciesAndLiteral(
+    base: CompiledFormula,
+    sheetId: UID,
+    dependencies: Range[],
+    literalNumbers: { value: number }[],
+    literalStrings: { value: string }[]
+  ): CompiledFormula {
+    return new CompiledFormula(
+      sheetId,
+      base.tokens,
+      { numbers: literalNumbers, strings: literalStrings },
+      base.symbols,
+      dependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      base.execute
+    );
+  }
+
+  /**
+   * When copy/pasting a formula across sheets, the formula is serialized (all it's serializable properties are kept) and deserialized on the new sheet.
+   * This function allows to recompile the formula based on the serializable properties.
+   * */
+  static CompileForSerializedFormula(
+    sheetId: UID,
+    base: SerializedCompiledFormula
+  ): CompiledFormula {
+    const compiledFormula = compileTokens(base.tokens);
+    return new CompiledFormula(
+      sheetId,
+      base.tokens,
+      base.literalValues,
+      base.symbols,
+      base.rangeDependencies,
+      base.isBadExpression,
+      base.normalizedFormula,
+      compiledFormula.execute
+    );
+  }
+
+  /**
+   * Make a new instance of CompiledFormula by compiling the formula string as input by the user.
+   * */
+  static CompileFormula(formula: string, sheetId: UID, getters: CoreGetters): CompiledFormula {
+    const tokens = rangeTokenize(formula);
+    const params = compileTokens(tokens);
+
+    return new CompiledFormula(
+      sheetId,
+      params.tokens,
+      params.literalValues,
+      params.symbols,
+      params.dependencies.map((xc: string) => getters.getRangeFromSheetXC(sheetId, xc)),
+      params.isBadExpression,
+      params.normalizedFormula,
+      params.execute
+    );
+  }
+}
+
+/**
+ * A compiled formula serialized
+ * */
+export type SerializedCompiledFormula = {
+  sheetId: UID;
+  tokens: Token[];
+  literalValues: LiteralValues;
+  symbols: string[];
+  rangeDependencies: Range[];
+  isBadExpression: boolean;
+  normalizedFormula: string;
+};
+
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compile(formula: string): CompiledFormula {
-  const tokens = rangeTokenize(formula);
-  return compileTokens(tokens);
-}
-
-export function compileTokens(tokens: Token[]): CompiledFormula {
+function compileTokens(tokens: Token[]): ICompiledFormula {
   try {
     return compileTokensOrThrow(tokens);
   } catch (error) {
     return {
       tokens,
+      literalValues: { numbers: [], strings: [] },
+      symbols: [],
       dependencies: [],
       execute: function () {
         return error;
@@ -77,7 +298,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
   }
 }
 
-function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
+function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
   const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
@@ -235,7 +456,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       }
     }
   }
-  const compiledFormula: InternalCompiledFormula = {
+  const compiledFormula: ICompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
     literalValues,

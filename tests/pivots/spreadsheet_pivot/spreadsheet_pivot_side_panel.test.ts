@@ -706,7 +706,7 @@ describe("Spreadsheet pivot side panel", () => {
 
     // add a static pivot in the viewport
     const { bottom: row, right: col } = model.getters.getActiveMainViewport();
-    setCellContent(model, toXC(col, row), "=PIVOT.VALUE(1)");
+    setCellContent(model, toXC(col, row), '=PIVOT.VALUE(1, "amount:sum")');
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(mockNotify).toHaveBeenCalledWith({

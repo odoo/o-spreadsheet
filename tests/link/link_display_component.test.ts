@@ -8,7 +8,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../test_helpers/dom_helper";
-import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCell, getCellRawContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 describe("link display component", () => {
@@ -150,7 +150,7 @@ describe("link display component", () => {
     await simulateClick(".o-unlink");
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     expect(getEvaluatedCell(model, xc).link).toBeFalsy();
-    expect(getCell(model, xc)?.content).toBe("label");
+    expect(getCellRawContent(model, xc)).toBe("label");
   });
 
   test("link text color is removed when the cell is unlinked", async () => {

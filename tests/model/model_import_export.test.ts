@@ -11,7 +11,7 @@ import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { CellIsRule, Model } from "../../src";
-import { toCartesian, toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers";
 import {
   BorderDescr,
   ColorScaleRule,
@@ -32,6 +32,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellRawContent,
   getEvaluatedCell,
   getMerges,
 } from "../test_helpers/getters_helpers";
@@ -867,7 +868,7 @@ describe("Import", () => {
       sheets: [{ id: "1", formats: { A1: 1 } }],
       formats: { 1: "0.00%" },
     });
-    expect(getCell(model, "A1")?.content).toBe("");
+    expect(getCellRawContent(model, "A1")).toBe("");
     expect(getCell(model, "A1")?.format).toBe("0.00%");
   });
 });
@@ -1070,9 +1071,8 @@ test("can import cells outside sheet size", () => {
   const model = new Model(modelData);
   expect(model.getters.getNumberRows(sheetId)).toBe(100);
   expect(model.getters.getNumberCols(sheetId)).toBe(26);
-  const { col, row } = toCartesian("Z100");
 
-  expect(model.getters.getCell({ sheetId, col, row })?.content).toBe("hello");
+  expect(getCellRawContent(model, "Z100")).toBe("hello");
 });
 
 test("Data of a duplicate sheet are correctly duplicated", () => {
@@ -1145,7 +1145,7 @@ test("import date as string and detect the format", () => {
     ],
   });
   expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
-  expect(getCell(model, "A1")?.content).toBe("44196");
+  expect(getCellRawContent(model, "A1")).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");
 });
 
@@ -1159,7 +1159,7 @@ test("import localized date as string and detect the format", () => {
     settings: { locale: FR_LOCALE },
   });
   expect(getCell(model, "A1")?.format).toBe("d/m/yyyy");
-  expect(getCell(model, "A1")?.content).toBe("44196");
+  expect(getCellRawContent(model, "A1")).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("31/12/2020");
 });
 

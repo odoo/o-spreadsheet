@@ -401,7 +401,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       return;
     }
     const cell = this.getters.getCell(selectedMatch);
-    if (!cell?.content) {
+    if (!cell?.isFormula && !cell?.content) {
       return;
     }
 

@@ -1,6 +1,6 @@
 import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
-import { compile } from "../../formulas/compiler";
+import { CompiledFormula } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { chipTextColor } from "../../helpers/color";
@@ -200,7 +200,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   }
 
   private isValidFormula(value: string): boolean {
-    return !compile(value).isBadExpression;
+    return !CompiledFormula.IsBadExpression(value);
   }
 
   private getValidationResultForCell(cellPosition: CellPosition): ValidationResult {
@@ -291,12 +291,12 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
         return parseLiteral(value, DEFAULT_LOCALE);
       }
 
-      const formula = compile(value);
+      const formula = CompiledFormula.CompileFormula(value, sheetId, this.getters);
       const translatedFormula = this.getters.getTranslatedCellFormula(
         sheetId,
         offset.col,
         offset.row,
-        formula.tokens
+        formula
       );
 
       return this.getters.evaluateFormula(sheetId, translatedFormula);

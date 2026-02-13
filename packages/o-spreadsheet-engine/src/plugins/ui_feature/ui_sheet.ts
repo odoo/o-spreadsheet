@@ -135,24 +135,25 @@ export class SheetUIPlugin extends UIPlugin {
   ): string {
     const cell = this.getters.getCell(position);
     const locale = this.getters.getLocale();
-    if (args?.showFormula && cell?.isFormula) {
-      return localizeFormula(cell.content, locale);
-    } else if (args?.showFormula && !cell?.content) {
-      return "";
-    } else {
-      const evaluatedCell = this.getters.getEvaluatedCell(position);
-      const formatWidth = args?.availableWidth
-        ? {
-            availableWidth: args.availableWidth,
-            measureText: (text: string) => computeTextWidth(this.ctx, text, cell?.style || {}),
-          }
-        : undefined;
-      return formatValue(evaluatedCell.value, {
-        format: evaluatedCell.format,
-        locale,
-        formatWidth,
-      });
+    if (args?.showFormula) {
+      if (cell?.isFormula) {
+        return localizeFormula(cell.compiledFormula.toFormulaString(this.getters), locale);
+      } else if (!cell?.content) {
+        return "";
+      }
     }
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
+    const formatWidth = args?.availableWidth
+      ? {
+          availableWidth: args.availableWidth,
+          measureText: (text: string) => computeTextWidth(this.ctx, text, cell?.style || {}),
+        }
+      : undefined;
+    return formatValue(evaluatedCell.value, {
+      format: evaluatedCell.format,
+      locale,
+      formatWidth,
+    });
   }
 
   /**
