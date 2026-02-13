@@ -2,7 +2,7 @@ import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { MimicMatrix } from "./helper_arg";
 import { toString, visitMatchingRanges } from "./helpers";
@@ -137,9 +137,14 @@ function getMatchingCells(
   // Example continuation:: matchingCells = ["j", 7]
   const matchingRowsIndexes = [...matchingRows].map((x) => x + 1);
 
-  return new MimicMatrix(1, matchingRows.size, (col, row) =>
-    database.get(index, matchingRowsIndexes[row])
-  );
+  return new MimicMatrix(1, matchingRows.size, (zone) => {
+    const partialHeight = zone.bottom - zone.top + 1;
+    const result: Matrix<FunctionResultObject> = [new Array(partialHeight)];
+    for (let row = zone.top; row < zone.bottom; row++) {
+      result[0][row - zone.top] = database.get(index, matchingRowsIndexes[row]);
+    }
+    return result;
+  });
 }
 
 const databaseArgs = [

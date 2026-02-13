@@ -17,7 +17,7 @@ import {
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { MimicMatrix, toMimicMatrix } from "./helper_arg";
+import { generateMimicMatrix, MimicMatrix, toMimicMatrix } from "./helper_arg";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
   addPivotDependencies,
@@ -155,7 +155,9 @@ export const COLUMN = {
       return new InvalidReferenceError(expectReferenceError);
     }
     const left = firstCell.position.col;
-    return new MimicMatrix(_cellReference.width, 1, (col) => ({ value: left + col + 1 }));
+    return generateMimicMatrix(_cellReference.width, 1, (col, row) => {
+      return { value: left + col + 1 };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -308,8 +310,6 @@ export const INDIRECT: AddFunctionDescription = {
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
   ) {
-    // TO DO: does INDIRECT corespond finaly to the 'range' function present in compilation_parameters ??
-    // if true, refactor to use it directly
     const _reference = reference?.value?.toString();
     if (!_reference) {
       return new InvalidReferenceError(_t("Reference should be defined."));
@@ -325,29 +325,7 @@ export const INDIRECT: AddFunctionDescription = {
       return new InvalidReferenceError();
     }
 
-    return new MimicMatrix(
-      range.zone.right - range.zone.left + 1,
-      range.zone.bottom - range.zone.top + 1,
-      (col, row) => {
-        const position = {
-          sheetId: range.sheetId,
-          col: col + range.zone.left,
-          row: row + range.zone.top,
-        };
-        return this.getRef(position);
-      }
-    );
-
-    // const values: FunctionResultObject[][] = [];
-    // for (let col = range.zone.left; col <= range.zone.right; col++) {
-    //   const colValues: FunctionResultObject[] = [];
-    //   for (let row = range.zone.top; row <= range.zone.bottom; row++) {
-    //     const position = { sheetId: range.sheetId, col, row };
-    //     colValues.push(this.getRef(position));
-    //   }
-    //   values.push(colValues);
-    // }
-    // return values.length === 1 && values[0].length === 1 ? values[0][0] : values;
+    return this.getRange(range.zone, range.sheetId);
   },
   isExported: true,
 };
@@ -543,7 +521,10 @@ export const ROW = {
       return new InvalidReferenceError(expectReferenceError);
     }
     const top = firstCell.position.row;
-    return new MimicMatrix(1, _cellReference.height, (col, row) => ({ value: top + row + 1 }));
+
+    return generateMimicMatrix(1, _cellReference.height, (col, row) => {
+      return { value: top + row + 1 };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -941,7 +922,7 @@ export const PIVOT = {
     }
     const tableWidth = Math.min(1 + pivotStyle.numberOfColumns, cells.length);
 
-    return new MimicMatrix(tableWidth, tableHeight, (col, row) => {
+    return generateMimicMatrix(tableWidth, tableHeight, (col, row) => {
       const pivotCell = cells[col][row];
       if (
         col === 0 &&
@@ -1038,14 +1019,14 @@ export const OFFSET = {
       return new InvalidReferenceError(_t("OFFSET evaluates to an out of bounds range."));
     }
 
-    const sheetId = firstCell.position.sheetId;
-
-    return new MimicMatrix(offsetWidth, offsetHeight, (col, row) =>
-      this.getRef({
-        sheetId,
-        col: startingCol + col,
-        row: startingRow + row,
-      })
+    return this.getRange(
+      {
+        left: startingCol,
+        top: startingRow,
+        right: startingCol + offsetWidth - 1,
+        bottom: startingRow + offsetHeight - 1,
+      },
+      firstCell.position.sheetId
     );
   },
 } satisfies AddFunctionDescription;

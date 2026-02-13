@@ -5,6 +5,7 @@ import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import {
+  generateMimicMatrix,
   isMimicMatrix,
   matrixToMimicMatrix,
   MimicMatrix,
@@ -1061,16 +1062,11 @@ export const RANDARRAY = {
       }
     }
 
-    if (_whole_number) {
-      const diff = _max - _min + 1;
-      return new MimicMatrix(_cols, _rows, () => {
-        return { value: Math.floor(Math.random() * diff + _min) };
-      });
-    }
-    const diff = _max - _min;
-    return new MimicMatrix(_cols, _rows, () => {
-      return { value: Math.random() * diff + _min };
-    });
+    const randomizer = _whole_number
+      ? () => Math.floor(Math.random() * (_max - _min + 1) + _min)
+      : () => Math.random() * (_max - _min) + _min;
+
+    return generateMimicMatrix(_cols, _rows, () => ({ value: randomizer() }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1276,7 +1272,7 @@ export const SEQUENCE = {
     if (_rows < 1) {
       return new EvaluationError(_t("The number of rows (%s) must be positive.", _rows));
     }
-    return new MimicMatrix(_columns, _rows, (col, row) => {
+    return generateMimicMatrix(_columns, _rows, (col, row) => {
       return {
         value: _start + row * _columns * _step + col * _step,
       };

@@ -1,15 +1,23 @@
 import { evaluationResultToDisplayString } from "../helpers/matrix";
+import {
+  intersection,
+  shiftZoneBottom,
+  shiftZoneLeft,
+  shiftZoneRight,
+  shiftZoneTop,
+} from "../helpers/zones";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { implementationErrorMessage } from "./create_compute_function";
 import { isMimicMatrix, matrixToMimicMatrix, MimicMatrix, toMimicMatrix } from "./helper_arg";
 import { areSameDimensions, isSquareMatrix } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
   isEvaluationError,
+  stackMatricesHorizontally,
+  stackMatricesVertically,
   toBoolean,
   toInteger,
   toNumber,
@@ -36,24 +44,20 @@ function stackHorizontally(
     }
   }
 
-  const colSteps: number[] = [];
-  let currentCol = 0;
-  colSteps.push(...matrices.map((m) => (currentCol += m.width)));
-
-  const nbCols = colSteps[colSteps.length - 1];
+  const nbCols = matrices.reduce((sum, m) => sum + m.width, 0);
   const nbRows = Math.max(...nbRowsArr);
-  return new MimicMatrix(nbCols, nbRows, (col, row) => {
-    for (let i = 0; i < colSteps.length; i++) {
-      const prevStepValue = i === 0 ? 0 : colSteps[i - 1];
-      if (col < colSteps[i]) {
-        // colSteps is an array of increasing values
-        if (row < matrices[i].height) {
-          return matrices[i].get(col - prevStepValue, row);
-        }
-        return { value: null };
+  return new MimicMatrix(nbCols, nbRows, (zone) => {
+    const partialMatrices: Matrix<FunctionResultObject>[] = [];
+    let actualWidth = 0;
+    for (const mimicMatrix of matrices) {
+      const shiftZone = shiftZoneRight(mimicMatrix.toZone(), actualWidth);
+      const intersectedZone = intersection(shiftZone, zone);
+      if (intersectedZone) {
+        partialMatrices.push(mimicMatrix.getZone(shiftZoneLeft(intersectedZone, actualWidth)));
       }
+      actualWidth += mimicMatrix.width;
     }
-    return { value: null };
+    return stackMatricesHorizontally(partialMatrices, { value: null });
   });
 }
 
@@ -76,24 +80,20 @@ function stackVertically(
     }
   }
 
-  const rowSteps: number[] = [];
-  let currentRow = 0;
-  rowSteps.push(...matrices.map((m) => (currentRow += m.height)));
-
   const nbCols = Math.max(...nbColsArr);
-  const nbRows = rowSteps[rowSteps.length - 1];
-  return new MimicMatrix(nbCols, nbRows, (col, row) => {
-    for (let i = 0; i < rowSteps.length; i++) {
-      const prevStepValue = i === 0 ? 0 : rowSteps[i - 1];
-      if (row < rowSteps[i]) {
-        // rowSteps is an array of increasing values
-        if (col < matrices[i].width) {
-          return matrices[i].get(col, row - prevStepValue);
-        }
-        return { value: null };
+  const nbRows = matrices.reduce((sum, m) => sum + m.height, 0);
+  return new MimicMatrix(nbCols, nbRows, (zone) => {
+    const partialMatrices: Matrix<FunctionResultObject>[] = [];
+    let actualHeight = 0;
+    for (const mimicMatrix of matrices) {
+      const shiftZone = shiftZoneBottom(mimicMatrix.toZone(), actualHeight);
+      const intersectedZone = intersection(shiftZone, zone);
+      if (intersectedZone) {
+        partialMatrices.push(mimicMatrix.getZone(shiftZoneTop(intersectedZone, actualHeight)));
       }
+      actualHeight += mimicMatrix.height;
     }
-    return { value: null };
+    return stackMatricesVertically(partialMatrices, { value: null });
   });
 }
 
@@ -130,7 +130,7 @@ export const ARRAY_CONSTRAIN = {
     const _nbRows = Math.min(_rowsArg, _array.height);
     const _nbColumns = Math.min(_columnsArg, _array.width);
 
-    return new MimicMatrix(_nbColumns, _nbRows, (col, row) => _array.get(col, row));
+    return new MimicMatrix(_nbColumns, _nbRows, (zone) => _array.getZone(zone));
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -196,14 +196,23 @@ export const CHOOSECOLS = {
       );
     }
 
-    const result = new MimicMatrix(_columns.length, _array.height, (col, row) => {
-      if (_columns[col] > 0) {
-        return _array.get(_columns[col] - 1, row); // -1 because columns arguments are 1-indexed
-      }
-      return _array.get(_array.width + _columns[col], row);
-    });
+    return new MimicMatrix(_columns.length, _array.height, (zone) => {
+      const partialWidth = zone.right - zone.left + 1;
+      const result: Matrix<FunctionResultObject> = new Array(partialWidth);
+      for (let col = zone.left; col <= zone.right; col++) {
+        const colIndex = _columns[col];
+        const colZone = {
+          left: colIndex > 0 ? colIndex - 1 : _array.width + colIndex,
+          right: colIndex > 0 ? colIndex - 1 : _array.width + colIndex,
+          top: zone.top,
+          bottom: zone.bottom,
+        };
 
-    return result;
+        result[col - zone.left] = _array.getZone(colZone)[0];
+      }
+
+      return result;
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -238,11 +247,29 @@ export const CHOOSEROWS = {
       );
     }
 
-    return new MimicMatrix(_array.width, _rows.length, (col, row) => {
-      if (_rows[row] > 0) {
-        return _array.get(col, _rows[row] - 1); // -1 because rows arguments are 1-indexed
+    return new MimicMatrix(_array.width, _rows.length, (zone) => {
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+
+      const result: Matrix<FunctionResultObject> = new Array(partialWidth);
+      for (let col = zone.left; col <= zone.right; col++) {
+        result[col - zone.left] = new Array(partialHeight);
       }
-      return _array.get(col, _array.height + _rows[row]);
+
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        const rowIndex = _rows[row];
+        const rowZone = {
+          left: rowIndex > 0 ? rowIndex - 1 : _array.height + rowIndex,
+          right: rowIndex > 0 ? rowIndex - 1 : _array.height + rowIndex,
+          top: zone.top,
+          bottom: zone.bottom,
+        };
+        const rowResult = _array.getZone(rowZone);
+        for (let col = zone.left; col <= zone.right; col++) {
+          result[col - zone.left][row - zone.top] = rowResult[col][0];
+        }
+      }
+      return result;
     });
   },
   isExported: true,
@@ -293,9 +320,21 @@ export const EXPAND = {
       );
     }
 
-    return new MimicMatrix(_nbColumns, _nbRows, (col, row) =>
-      col >= _array.width || row >= _array.height ? padWith : _array.get(col, row)
-    );
+    return new MimicMatrix(_nbColumns, _nbRows, (zone) => {
+      const intersectedZone = _array.getIntersection(zone);
+
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+      const result: Matrix<FunctionResultObject> = new Array(partialWidth);
+      for (let col = zone.left; col <= zone.right; col++) {
+        result[col - zone.left] = new Array(partialHeight);
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          result[col - zone.left][row - zone.top] =
+            col >= _array.width || row >= _array.height ? padWith : intersectedZone[col][row];
+        }
+      }
+      return result;
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -313,21 +352,40 @@ export const FLATTEN = {
       ...ranges.map((arg) => (currentIndex += isMimicMatrix(arg) ? arg.height * arg.width : 1))
     );
 
-    return new MimicMatrix(1, steps[steps.length - 1], (col, row) => {
-      for (let i = 0; i < steps.length; i++) {
-        if (row < steps[i]) {
-          const arg = ranges[i];
-          if (!isMimicMatrix(arg)) {
-            return arg === undefined ? { value: "" } : arg;
+    return new MimicMatrix(1, steps[steps.length - 1], (zone) => {
+      const partialHeight = zone.bottom - zone.top + 1;
+      const result: Matrix<FunctionResultObject> = [new Array(partialHeight)];
+
+      let rowStep = 0;
+
+      for (const range of ranges) {
+        if (isMimicMatrix(range)) {
+          for (let col = 0; col < range.width; col++) {
+            const colZone = {
+              left: col,
+              right: col,
+              top: Math.max(zone.top - rowStep, 0),
+              bottom: Math.min(zone.bottom - rowStep, range.height - 1),
+            };
+            const colResult = range.getZone(colZone);
+            for (let row = 0; row < colResult[0].length; row++) {
+              result[0][rowStep + row] = colResult[0][row];
+            }
+            rowStep += colResult[0].length;
+            if (rowStep > partialHeight) {
+              break;
+            }
           }
-          const prevStepValue = i === 0 ? 0 : steps[i - 1];
-          const positionInRange = row - prevStepValue; // position is the position in the flattened range
-          return arg.get(positionInRange % arg.width, Math.floor(positionInRange / arg.width));
+        } else {
+          result[0][rowStep] = range === undefined ? { value: "" } : range;
+          rowStep++;
+        }
+        if (rowStep > partialHeight) {
+          break;
         }
       }
-      return new EvaluationError(
-        implementationErrorMessage + " In FLATTEN function: could not find value at position."
-      );
+
+      return result;
     });
   },
   isExported: false,
@@ -389,7 +447,8 @@ export const FREQUENCY = {
     const result = sortedClasses
       .sort((a, b) => a.initialIndex - b.initialIndex)
       .map((val) => val.count);
-    return new MimicMatrix(1, result.length, (col, row) => ({ value: result[row] }));
+
+    return matrixToMimicMatrix([result]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -455,9 +514,7 @@ export const MINVERSE = {
     if (!inverted) {
       return new EvaluationError(_t("The matrix is not invertible."));
     }
-    return new MimicMatrix(_matrix.length, _matrix.length, (col, row) => ({
-      value: inverted[col][row],
-    }));
+    return matrixToMimicMatrix(inverted);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -828,18 +885,65 @@ export const WRAPCOLS = {
     }
 
     if (_array.width > _array.height) {
-      // it's a single row
+      // it's a single row:
+
+      // example: _array being |A1|B1|C1|D1|E1|F1|G1|H1|I1|J1|  nbRows being 4
+      //
+      //  fullResult would be
+      //     |A1|B1|C1|Ð1|             zone {t:1, b:2, l:1, r:2}
+      //     |E1|F1|G1|H1|             should extract |F1|G1| and |J1|NA|
+      //     |I1|J1|NA|NA|
+      //
+      // --> We need to read zone by row to MINIMIZE calls on _array
+      // minimize calls is important to optimize dependency computation performance.
+
       const nbColumns = Math.ceil(_array.width / nbRows);
-      return new MimicMatrix(nbColumns, nbRows, (col, row) => {
-        const index = col * nbRows + row;
-        return index < _array.width ? _array.get(index, 0) : padWith;
+      return new MimicMatrix(nbColumns, nbRows, (zone) => {
+        // transform zone {t:1, b:2, l:1, r:2}
+        // into equivalant zones to read on _array :
+        // |F1|G1| and |J1|NA|  -->  zone {t:0, b:0, l:5, r:6} and zone {t:0, b:0, l:9, r:10}
+
+        const partialWidth = zone.right - zone.left + 1;
+        const result: Matrix<FunctionResultObject> = new Array(partialWidth);
+
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const zoneByRow = {
+            top: 0,
+            bottom: 0,
+            left: row * nbRows + zone.left,
+            right: Math.min(row * nbRows + zone.right, _array.width - 1),
+          };
+          const subRow = _array.getZone(zoneByRow);
+          for (let col = 0; col < partialWidth; col++) {
+            result[col].push(col < subRow.length ? subRow[col][0] : padWith);
+          }
+        }
+
+        return result;
       });
     }
 
+    // it's a single column:
+    // We want to wrap the column into multiple columns of nbRows height
     const nbColumns = Math.ceil(_array.height / nbRows);
-    return new MimicMatrix(nbColumns, nbRows, (col, row) => {
-      const index = col * nbRows + row;
-      return index < _array.height ? _array.get(0, index) : padWith;
+    return new MimicMatrix(nbColumns, nbRows, (zone) => {
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+      const result: Matrix<FunctionResultObject> = new Array(partialWidth);
+
+      for (let col = zone.left; col <= zone.right; col++) {
+        const zoneByCol = {
+          top: col * nbRows + zone.top,
+          bottom: Math.min(col * nbRows + zone.bottom, _array.height - 1),
+          left: 0,
+          right: 0,
+        };
+        const subCol = _array.getZone(zoneByCol);
+        for (let row = 0; row < partialHeight; row++) {
+          result[zone.left - col][row] = row < subCol[0].length ? subCol[0][row] : padWith;
+        }
+      }
+      return result;
     });
   },
   isExported: true,
@@ -881,19 +985,59 @@ export const WRAPROWS = {
       );
     }
 
-    if (_array.width > _array.height) {
-      // it's a single row
-      const nbRows = Math.ceil(_array.width / nbColumns);
-      return new MimicMatrix(nbColumns, nbRows, (col, row) => {
-        const index = row * nbColumns + col;
-        return index < _array.width ? _array.get(index, 0) : padWith;
+    if (_array.height > _array.width) {
+      // it's a single column:
+      // We want to wrap the column into multiple rows of nbColumns width
+      const nbRows = Math.ceil(_array.height / nbColumns);
+      return new MimicMatrix(nbColumns, nbRows, (zone) => {
+        // zone: {left, right, top, bottom}
+        const partialWidth = zone.right - zone.left + 1;
+        const partialHeight = zone.bottom - zone.top + 1;
+        const result: Matrix<FunctionResultObject> = Array.from(
+          { length: partialWidth },
+          () => new Array(partialHeight)
+        );
+
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const zoneByRow = {
+            top: row * nbColumns + zone.left,
+            bottom: Math.min(row * nbColumns + zone.right, _array.height - 1),
+            left: 0,
+            right: 0,
+          };
+          const subCol = _array.getZone(zoneByRow);
+          for (let col = 0; col < partialWidth; col++) {
+            result[col][row - zone.top] = col < subCol[0].length ? subCol[0][col] : padWith;
+          }
+        }
+        return result;
       });
     }
 
-    const nbRows = Math.ceil(_array.height / nbColumns);
-    return new MimicMatrix(nbColumns, nbRows, (col, row) => {
-      const index = row * nbColumns + col;
-      return index < _array.height ? _array.get(0, index) : padWith;
+    // it's a single row:
+    // We want to wrap the row into multiple rows of nbColumns width
+    const nbRows = Math.ceil(_array.width / nbColumns);
+    return new MimicMatrix(nbColumns, nbRows, (zone) => {
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+      const result: Matrix<FunctionResultObject> = Array.from(
+        { length: partialWidth },
+        () => new Array(partialHeight)
+      );
+
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        const zoneByRow = {
+          top: 0,
+          bottom: 0,
+          left: row * nbColumns + zone.left,
+          right: Math.min(row * nbColumns + zone.right, _array.width - 1),
+        };
+        const subRow = _array.getZone(zoneByRow);
+        for (let col = 0; col < partialWidth; col++) {
+          result[col][row - zone.top] = col < subRow.length ? subRow[col][0] : padWith;
+        }
+      }
+      return result;
     });
   },
   isExported: true,

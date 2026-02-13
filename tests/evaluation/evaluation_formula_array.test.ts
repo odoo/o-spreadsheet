@@ -1,8 +1,8 @@
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import {
+  generateMimicMatrix,
   matrixToMimicMatrix,
-  MimicMatrix,
   toMimicMatrix,
   toScalarMimicMatrix,
 } from "@odoo/o-spreadsheet-engine/functions/helper_arg";
@@ -44,7 +44,7 @@ describe("evaluate formulas that use/return an array", () => {
         const _n = toNumber(toScalarMimicMatrix(n), DEFAULT_LOCALE);
         const _m = toNumber(toScalarMimicMatrix(m), DEFAULT_LOCALE);
         const _v = toNumber(toScalarMimicMatrix(v), DEFAULT_LOCALE);
-        return new MimicMatrix(_n, _m, () => ({ value: _v }));
+        return generateMimicMatrix(_n, _m, () => ({ value: _v }));
       },
     });
   });

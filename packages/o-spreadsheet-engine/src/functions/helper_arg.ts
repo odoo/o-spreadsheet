@@ -1,46 +1,57 @@
-import { Arg, CellValue, FunctionResultObject, Matrix, Maybe } from "..";
+import { Arg, CellValue, FunctionResultObject, Matrix, Maybe, Zone } from "..";
+import { intersection } from "../helpers/zones";
 import { isFunctionResultObject } from "../types/misc";
+import { generateMatrix, matrixForEach, matrixMap } from "./helpers";
 
 export class MimicMatrix {
   [key: number]: never; // Prevent array-like indexing on MimicMatrix instances --> ex: TypeScript error when trying to do 'mimicMatrix[0][0]'
   readonly width: number;
   readonly height: number;
-  private getElement: (col: number, row: number) => FunctionResultObject;
+  private getElements: (zone: Zone) => Matrix<FunctionResultObject>;
 
   constructor(
     width: number,
     height: number,
-    getElement: (col: number, row: number) => FunctionResultObject
+    getElements: (zone: Zone) => Matrix<FunctionResultObject>
   ) {
     this.width = width;
     this.height = height;
-    this.getElement = getElement;
+    this.getElements = getElements;
   }
 
   /** Note: Calling get() will access corresponding element and may register dependencies if applicable */
   get(col: number, row: number): FunctionResultObject {
-    if (col < 0 || col >= this.width || row < 0 || row >= this.height) {
+    return this.getZone({ left: col, right: col, top: row, bottom: row })[0][0];
+  }
+
+  /** Note: Calling getZone() will access corresponding element and may register dependencies if applicable */
+  getZone(zone: Zone): Matrix<FunctionResultObject> {
+    const { top, left, bottom, right } = zone;
+    if (left < 0 || right >= this.width || top < 0 || bottom >= this.height) {
       throw new Error(
-        `Index out of bounds (${col}, ${row}) for matrix of size ${this.width}x${this.height}`
+        `Zone out of bounds (left: ${left}, right: ${right}, top: ${top}, bottom: ${bottom}) for matrix of size ${this.width}x${this.height}`
       );
     }
-    return this.getElement(col, row);
+
+    if (this.width === 0 || this.height === 0) {
+      return [[]];
+    }
+    return this.getElements(zone);
+  }
+
+  /** Note: Calling getIntersection() will access corresponding element and may register dependencies if applicable */
+  getIntersection(zone: Zone): Matrix<FunctionResultObject> {
+    const intersectionZone = intersection(this.toZone(), zone);
+    if (!intersectionZone) {
+      return [[]];
+    }
+    return this.getZone(intersectionZone);
   }
 
   /** Note: Calling getAll() will access all elements and may register dependencies if applicable */
   getAll(): Matrix<FunctionResultObject> {
-    if (this.isEmpty()) {
-      return [[]];
-    }
-    // Performance issue: nested loop is faster than a map here
-    const elements: Matrix<FunctionResultObject> = new Array(this.width);
-    for (let col = 0; col < this.width; col++) {
-      elements[col] = new Array(this.height);
-      for (let row = 0; row < this.height; row++) {
-        elements[col][row] = this.getElement(col, row);
-      }
-    }
-    return elements;
+    const zone = { top: 0, left: 0, bottom: this.height - 1, right: this.width - 1 };
+    return this.getZone(zone);
   }
 
   getRow(rowIndex: number, startColIndex: number = 0): MimicMatrix {
@@ -53,8 +64,13 @@ export class MimicMatrix {
       );
     }
     const rowWidth = this.width - startColIndex;
-    return new MimicMatrix(rowWidth, 1, (col, row) =>
-      this.getElement(startColIndex + col, rowIndex)
+    return new MimicMatrix(rowWidth, 1, (zone) =>
+      this.getElements({
+        left: startColIndex + zone.left,
+        right: startColIndex + zone.right,
+        top: rowIndex,
+        bottom: rowIndex,
+      })
     );
   }
 
@@ -68,8 +84,13 @@ export class MimicMatrix {
       );
     }
     const colHeight = this.height - startRowIndex;
-    return new MimicMatrix(1, colHeight, (col, row) =>
-      this.getElement(colIndex, startRowIndex + row)
+    return new MimicMatrix(1, colHeight, (zone) =>
+      this.getElements({
+        left: colIndex,
+        right: colIndex,
+        top: startRowIndex + zone.top,
+        bottom: startRowIndex + zone.bottom,
+      })
     );
   }
 
@@ -86,8 +107,13 @@ export class MimicMatrix {
       );
     }
     const sliceWidth = actualEndCol - startCol;
-    return new MimicMatrix(sliceWidth, this.height, (col, row) =>
-      this.getElement(startCol + col, row)
+    return new MimicMatrix(sliceWidth, this.height, (zone) =>
+      this.getElements({
+        left: startCol + zone.left,
+        right: startCol + zone.right,
+        top: zone.top,
+        bottom: zone.bottom,
+      })
     );
   }
 
@@ -104,8 +130,13 @@ export class MimicMatrix {
       );
     }
     const sliceHeight = actualEndRow - startRow;
-    return new MimicMatrix(this.width, sliceHeight, (col, row) =>
-      this.getElement(col, startRow + row)
+    return new MimicMatrix(this.width, sliceHeight, (zone) =>
+      this.getElements({
+        left: zone.left,
+        right: zone.right,
+        top: startRow + zone.top,
+        bottom: startRow + zone.bottom,
+      })
     );
   }
 
@@ -115,22 +146,25 @@ export class MimicMatrix {
     dimension: "rowFirst" | "colFirst" = "rowFirst",
     cb?: (value: FunctionResultObject) => T
   ): T[] {
-    const elements: T[] = [];
+    const result: T[] = new Array(this.width * this.height);
+    let idx = 0;
     const applyCb = cb ? cb : (v: FunctionResultObject) => v as unknown as T;
+    const elements = this.getAll();
+
     if (dimension === "rowFirst") {
       for (let row = 0; row < this.height; row++) {
         for (let col = 0; col < this.width; col++) {
-          elements.push(applyCb(this.getElement(col, row)));
+          result[idx++] = applyCb(elements[col][row]);
         }
       }
-      return elements;
+      return result;
     }
     for (let col = 0; col < this.width; col++) {
       for (let row = 0; row < this.height; row++) {
-        elements.push(applyCb(this.getElement(col, row)));
+        result[idx++] = applyCb(elements[col][row]);
       }
     }
-    return elements;
+    return result;
   }
 
   reduce<T>(
@@ -138,17 +172,18 @@ export class MimicMatrix {
     cb: (acc: T, value: FunctionResultObject) => T,
     initialValue: T
   ): T {
+    const elements = this.getAll();
     let acc = initialValue;
     if (dimension === "rowFirst") {
       for (let row = 0; row < this.height; row++) {
         for (let col = 0; col < this.width; col++) {
-          acc = cb(acc, this.getElement(col, row));
+          acc = cb(acc, elements[col][row]);
         }
       }
     } else {
       for (let col = 0; col < this.width; col++) {
         for (let row = 0; row < this.height; row++) {
-          acc = cb(acc, this.getElement(col, row));
+          acc = cb(acc, elements[col][row]);
         }
       }
     }
@@ -160,42 +195,40 @@ export class MimicMatrix {
     if (this.isEmpty()) {
       return [[]];
     }
-    // Performance issue: nested loop is faster than a map here
-    const elements: Matrix<T> = new Array(this.width);
-    for (let col = 0; col < this.width; col++) {
-      elements[col] = new Array(this.height);
-      for (let row = 0; row < this.height; row++) {
-        elements[col][row] = cb(this.getElement(col, row));
-      }
-    }
-    return elements;
+    return matrixMap(this.getAll(), (value) => cb(value));
   }
 
   /** Note: Calling visit() will access all elements and may register dependencies if applicable */
   visit(cb: (value: FunctionResultObject) => void): void {
-    for (let col = 0; col < this.width; col++) {
-      for (let row = 0; row < this.height; row++) {
-        cb(this.getElement(col, row));
-      }
-    }
+    matrixForEach(this.getAll(), (cell) => cb(cell));
   }
 
+  // TO DO: forEach is void ?
   forEach(cb: (value: FunctionResultObject) => void): MimicMatrix {
-    return new MimicMatrix(this.width, this.height, (col, row) => {
-      const element = this.getElement(col, row);
-      cb(element);
-      return element;
+    return new MimicMatrix(this.width, this.height, (zone) => {
+      const elements = this.getElements(zone);
+      matrixForEach(elements, (cell) => cb(cell));
+      return elements;
     });
   }
 
   transform(cb: (value: FunctionResultObject) => FunctionResultObject): MimicMatrix {
-    return new MimicMatrix(this.width, this.height, (col, row) => {
-      return cb(this.getElement(col, row));
+    return new MimicMatrix(this.width, this.height, (zone) => {
+      return matrixMap(this.getElements(zone), (value) => cb(value));
     });
   }
 
   transpose(): MimicMatrix {
-    return new MimicMatrix(this.height, this.width, (col, row) => this.getElement(row, col));
+    return new MimicMatrix(this.height, this.width, (zone) => {
+      const elements = this.getElements({
+        left: zone.top,
+        right: zone.bottom,
+        top: zone.left,
+        bottom: zone.right,
+      });
+
+      return generateMatrix(this.height, this.width, (col, row) => elements[row][col]);
+    });
   }
 
   isSingleColOrRow(): boolean {
@@ -209,9 +242,18 @@ export class MimicMatrix {
   isEmpty(): boolean {
     return this.width === 0 || this.height === 0;
   }
+
+  toZone(): Zone {
+    return {
+      left: 0,
+      right: this.width > 0 ? this.width - 1 : 0,
+      top: 0,
+      bottom: this.height > 0 ? this.height - 1 : 0,
+    };
+  }
 }
 
-const EMPTY_MIMIC_MATRIX = new MimicMatrix(0, 0, () => ({ value: null }));
+const EMPTY_MIMIC_MATRIX = new MimicMatrix(0, 0, (zone) => [[]]);
 
 export function toMimicMatrix(data: Arg): MimicMatrix {
   if (data === undefined) {
@@ -243,7 +285,7 @@ export function toMimicMatrix(data: Arg): MimicMatrix {
   }
 
   if (!mimicMatrixSimpleValueCache[key]) {
-    mimicMatrixSimpleValueCache[key] = new MimicMatrix(1, 1, () => data);
+    mimicMatrixSimpleValueCache[key] = new MimicMatrix(1, 1, () => [[data]]);
   }
   return mimicMatrixSimpleValueCache[key];
 }
@@ -256,12 +298,26 @@ export function matrixToMimicMatrix(matrix: Matrix<FunctionResultObject | CellVa
   }
   const firstElement = matrix[0]?.[0];
   if (firstElement !== undefined && isFunctionResultObject(firstElement)) {
-    return new MimicMatrix(width, height, (col, row) => {
+    return generateMimicMatrix(width, height, (col, row) => {
       return matrix[col][row] as FunctionResultObject;
     });
   }
-  return new MimicMatrix(width, height, (col, row) => {
+  return generateMimicMatrix(width, height, (col, row) => {
     return { value: matrix[col][row] as CellValue };
+  });
+}
+
+export function generateMimicMatrix(
+  width: number,
+  height: number,
+  cb: (col: number, row: number) => FunctionResultObject
+): MimicMatrix {
+  return new MimicMatrix(width, height, (zone) => {
+    const partialHeight = zone.bottom - zone.top + 1;
+    const partialWidth = zone.right - zone.left + 1;
+    return generateMatrix(partialWidth, partialHeight, (col, row) => {
+      return cb(zone.left + col, zone.top + row);
+    });
   });
 }
 
@@ -286,7 +342,5 @@ export function toScalarMimicMatrix(
 }
 
 export function unitMimicMatrix(n: number): MimicMatrix {
-  return new MimicMatrix(n, n, (col, row) => {
-    return { value: col === row ? 1 : 0 };
-  });
+  return generateMimicMatrix(n, n, (col, row) => ({ value: col === row ? 1 : 0 }));
 }

@@ -10,7 +10,9 @@ import {
   CellPosition,
   EnsureRange,
   FunctionResultObject,
+  Matrix,
   ReferenceDenormalizer,
+  Zone,
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { Range } from "../../../types/range";
@@ -51,6 +53,7 @@ class CompilationParametersBuilder {
       getters: this.getters,
       locale: this.getters.getLocale(),
       getRef: this.getRef.bind(this),
+      getRange: this.getRange.bind(this),
     });
   }
 
@@ -73,7 +76,7 @@ class CompilationParametersBuilder {
       return rangeError;
     }
 
-    if (this.evalContext.__originCellPosition) {
+    if (this.evalContext?.__originCellPosition) {
       this.evalContext.currentFormulaDependencies?.push(range);
     }
     // the compiler guarantees only single cell ranges reach this part of the code
@@ -104,20 +107,46 @@ class CompilationParametersBuilder {
 
     const rangeError = this.getRangeError(range);
     if (rangeError) {
-      this.mimicMatrixCache[cacheKey] = new MimicMatrix(1, 1, () => rangeError);
+      this.mimicMatrixCache[cacheKey] = new MimicMatrix(1, 1, () => [[rangeError]]);
       return this.mimicMatrixCache[cacheKey];
     }
     const height = bottom - top + 1;
     const width = right - left + 1;
 
-    // TO DO: voir dans le cas precis de la creation d'une MimicMatrix a partir d'une Range,
-    // si on doit (et on sait) eviter de update currentFormulaDependencies un par un
-    // lors de l'appel à getAll.
-    this.mimicMatrixCache[cacheKey] = new MimicMatrix(width, height, (colIndex, rowIndex) => {
-      const col = left + colIndex;
-      const row = top + rowIndex;
-      const position = { sheetId, col, row };
-      return this.getRef(position);
+    this.mimicMatrixCache[cacheKey] = new MimicMatrix(width, height, (zone: Zone) => {
+      // Zone starts at 0,0 for the top left corner of the range, so we need to shift it by the top and left of the range to get the actual position in the sheet
+      const realLeft = zone.left + left;
+      const realTop = zone.top + top;
+      const realRight = zone.right + left;
+      const realBottom = zone.bottom + top;
+      const realZone = { left: realLeft, top: realTop, right: realRight, bottom: realBottom };
+
+      const range = this.getters.getRangeFromZone(sheetId, realZone);
+      if (this.evalContext.__originCellPosition) {
+        this.evalContext.currentFormulaDependencies?.push(range);
+      }
+
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+
+      const elements: Matrix<FunctionResultObject> = new Array(partialWidth);
+      for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+        elements[colIndex] = new Array(partialHeight);
+        for (let rowIndex = 0; rowIndex < partialHeight; rowIndex++) {
+          const realCol = colIndex + realLeft;
+          const realRow = rowIndex + realTop;
+          const position = { sheetId: range.sheetId, col: realCol, row: realRow };
+
+          const result = this.computeCell(position);
+          if (!result.position) {
+            elements[colIndex][rowIndex] = { ...result, position };
+          } else {
+            elements[colIndex][rowIndex] = result;
+          }
+        }
+      }
+
+      return elements;
     });
     return this.mimicMatrixCache[cacheKey];
   }
@@ -130,28 +159,12 @@ class CompilationParametersBuilder {
       right: position.col,
     });
 
-    const rangeError = this.getRangeError(range);
-    if (rangeError) {
-      return rangeError;
-    }
-    if (this.evalContext.__originCellPosition) {
-      // Sometimes, formulas does not return simple values, but also position information.
-      // Mean that the formula result (or sub-formula result) is a reference to
-      // another cell. (ex: XLOOKUP function).
-      // However, in some cases, the position information is computed directly in
-      // the formula (upstream of getRef) and is not directly deduced from the dependencies
-      // of the formula. (ex: INDIRECT function).
-      // In this case, we need to make sure that the dependencies of the formula
-      // will be correctly updated to include the cell referenced by the position
-      // information. This is why we push the range here:
-      this.evalContext.currentFormulaDependencies?.push(range);
-    }
+    return this.refFn(range);
+  }
 
-    const result = this.computeCell(position);
-    if (!result.position) {
-      return { ...result, position };
-    }
-    return result;
+  private getRange(zone: Zone, sheetId: string): MimicMatrix {
+    const range = this.getters.getRangeFromZone(sheetId, zone);
+    return this.range(range);
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {

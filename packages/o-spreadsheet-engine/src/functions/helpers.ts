@@ -428,6 +428,41 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
   return generateMatrix(matrix[0].length, matrix.length, (i, j) => matrix[j][i]);
 }
 
+export function stackMatricesVertically<T>(matrices: Matrix<T>[], missingValue: T): Matrix<T> {
+  const width = matrices.reduce((acc, matrix) => Math.max(acc, matrix.length), 0);
+  const height = matrices.reduce((acc, matrix) => acc + matrix[0].length, 0);
+  const result: Matrix<T> = new Array(width);
+  for (let col = 0; col < width; col++) {
+    let rowStep = 0;
+    result[col] = new Array(height);
+    for (const matrix of matrices) {
+      for (let row = 0; row < matrix[0].length; row++) {
+        result[col][row + rowStep] = col < matrix.length ? matrix[col][row] : missingValue;
+      }
+      rowStep += matrix[0].length;
+    }
+  }
+  return result;
+}
+
+export function stackMatricesHorizontally<T>(matrices: Matrix<T>[], missingValue: T): Matrix<T> {
+  const height = matrices.reduce((acc, matrix) => Math.max(acc, matrix[0]?.length ?? 0), 0);
+  const width = matrices.reduce((acc, matrix) => acc + matrix.length, 0);
+  const result: Matrix<T> = new Array(width);
+  let colStep = 0;
+  for (const matrix of matrices) {
+    for (let col = 0; col < matrix.length; col++) {
+      result[col + colStep] = new Array(height);
+      for (let row = 0; row < height; row++) {
+        result[col + colStep][row] =
+          row < (matrix[0]?.length ?? 0) ? matrix[col][row] : missingValue;
+      }
+    }
+    colStep += matrix.length;
+  }
+  return result;
+}
+
 type VectorArgType = "horizontal" | "vertical" | "mimicMatrix";
 
 /**
@@ -512,40 +547,76 @@ export function applyVectorization(
     return formula(...args);
   }
 
-  const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
-    args.map((arg, index) => {
+  return new MimicMatrix(countVectorizedCol, countVectorizedRow, (zone) => {
+    const partialArgs = args.map((arg, index) => {
       switch (vectorArgsType?.[index]) {
         case "mimicMatrix":
-          return (arg as MimicMatrix).get(i, j);
+          return (arg as MimicMatrix).getZone(zone);
         case "horizontal":
-          return (arg as MimicMatrix).get(i, 0);
+          return (arg as MimicMatrix).getZone({
+            top: 0,
+            left: zone.left,
+            bottom: 0,
+            right: zone.right,
+          });
         case "vertical":
-          return (arg as MimicMatrix).get(0, j);
+          return (arg as MimicMatrix).getZone({
+            top: zone.top,
+            left: 0,
+            bottom: zone.bottom,
+            right: 0,
+          });
         case undefined:
-          return arg;
+          return arg as FunctionResultObject | undefined;
       }
     });
 
-  return new MimicMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
-    if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
-      return new NotAvailableError(
-        _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
+    const partialHeight = zone.bottom - zone.top + 1;
+    const partialWidth = zone.right - zone.left + 1;
+
+    return generateMatrix(partialWidth, partialHeight, (col, row) => {
+      if (col + zone.left > vectorizedColLimit - 1 || row + zone.top > vectorizedRowLimit - 1) {
+        return new NotAvailableError(
+          _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
+        );
+      }
+      const singleCellComputeResult = formula(
+        ...getArgOffset(partialArgs, vectorArgsType!)(col, row)
       );
-    }
-    const singleCellComputeResult = formula(...getArgOffset(col, row));
-    // In the case where the user tries to vectorize arguments of an array formula, we will get an
-    // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
-    // we won't be able to return the values.
-    // In this case, we keep the first element of each spreading part, just as Excel does, and
-    // create an array with these parts.
-    // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
-    // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
-    // for the value in A2). In this case, we will simply take the first value of each matrix and
-    // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-    return isMimicMatrix(singleCellComputeResult)
-      ? singleCellComputeResult.get(0, 0)
-      : singleCellComputeResult;
+      // In the case where the user tries to vectorize arguments of an array formula, we will get an
+      // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
+      // we won't be able to return the values.
+      // In this case, we keep the first element of each spreading part, just as Excel does, and
+      // create an array with these parts.
+      // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
+      // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
+      // for the value in A2). In this case, we will simply take the first value of each matrix and
+      // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
+      if (isMimicMatrix(singleCellComputeResult)) {
+        return singleCellComputeResult.get(0, 0);
+      }
+      return singleCellComputeResult;
+    });
   });
+}
+
+function getArgOffset(
+  args: (FunctionResultObject | Matrix<FunctionResultObject> | undefined)[],
+  vectorArgsType: VectorArgType[]
+): (i: number, j: number) => (FunctionResultObject | undefined)[] {
+  return (i, j) =>
+    args.map((arg, index) => {
+      switch (vectorArgsType[index]) {
+        case "mimicMatrix":
+          return (arg as Matrix<FunctionResultObject>)[i][j];
+        case "horizontal":
+          return (arg as Matrix<FunctionResultObject>)[i][0];
+        case "vertical":
+          return (arg as Matrix<FunctionResultObject>)[0][j];
+        case undefined:
+          return arg as FunctionResultObject | undefined;
+      }
+    });
 }
 // -----------------------------------------------------------------------------
 // CONDITIONAL EXPLORE FUNCTIONS

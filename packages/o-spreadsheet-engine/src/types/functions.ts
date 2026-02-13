@@ -2,7 +2,7 @@ import { MimicMatrix } from "../functions/helper_arg";
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, CellPosition, FunctionResultObject, UID } from "./misc";
+import { Arg, CellPosition, FunctionResultObject, UID, Zone } from "./misc";
 import { Range } from "./range";
 
 export type ArgType =
@@ -59,6 +59,7 @@ export type EvalContext = {
   locale: Locale;
   getters: Getters;
   getRef: (position: CellPosition) => FunctionResultObject;
+  getRange: (zone: Zone, sheetId: string) => MimicMatrix;
   [key: string]: any;
   currentFormulaDependencies?: Range[];
   removeDependencies?: (position: CellPosition) => void;
