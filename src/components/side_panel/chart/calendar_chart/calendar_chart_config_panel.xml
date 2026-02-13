@@ -1,23 +1,15 @@
 <templates>
   <t t-name="o-spreadsheet-CalendarChartConfigPanel">
     <div>
-      <ChartDataSeries
-        ranges="this.getDataSeriesRanges()"
-        dataSetStyles="this.props.definition.dataSetStyles"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
+      <ChartRangeDataSource
+        chartId="props.chartId"
+        definition="props.definition"
+        updateChart="props.updateChart"
+        canUpdateChart="props.canUpdateChart"
+        onErrorMessagesChanged.bind="onErrorMessagesChanged"
+        getLabelRangeOptions.bind="getLabelRangeOptions"
         maxNumberOfUsedRanges="1"
-        canChangeDatasetOrientation="false"
-      />
-      <ChartLabelRange
-        range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged.bind="onLabelRangeChanged"
-        onSelectionConfirmed.bind="onLabelRangeConfirmed"
-        options="this.getLabelRangeOptions()"
-        title.translate="Date range"
+        labelRangeTitle.translate="Date range"
       />
 
       <Section title.translate="Fields to group by">

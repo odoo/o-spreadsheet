@@ -7,25 +7,14 @@
         updateChart="props.updateChart"
       />
 
-      <ChartDataSeries
-        ranges="dataRanges"
-        dataSetStyles="this.props.definition.dataSetStyles"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
-        canChangeDatasetOrientation="canChangeDatasetOrientation"
-        datasetOrientation="datasetOrientation"
-        onFlipAxis.bind="setDatasetOrientation"
-      />
-      <ChartLabelRange
-        range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
-        onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
-        options="this.getLabelRangeOptions()"
-        title.translate="Territories"
+      <ChartRangeDataSource
+        chartId="props.chartId"
+        definition="props.definition"
+        updateChart="props.updateChart"
+        canUpdateChart="props.canUpdateChart"
+        onErrorMessagesChanged.bind="onErrorMessagesChanged"
+        getLabelRangeOptions.bind="getLabelRangeOptions"
+        labelRangeTitle.translate="Territories"
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
