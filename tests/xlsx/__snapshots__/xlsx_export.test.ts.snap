@@ -27200,6 +27200,22 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </diagonal>
         </border>
         <border>
+            <left style="medium">
+                <color rgb="888888"/>
+            </left>
+            <right style="thick">
+                <color rgb="FF0000"/>
+            </right>
+            <top style="dashed">
+                <color rgb="0000FF"/>
+            </top>
+            <bottom style="dotted">
+                <color rgb="00FF00"/>
+            </bottom>
+            <diagonal>
+            </diagonal>
+        </border>
+        <border>
             <left style="thin">
                 <color rgb="000000"/>
             </left>
@@ -27248,8 +27264,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <right style="thin">
                 <color rgb="000000"/>
             </right>
-            <top style="thin">
-                <color rgb="000000"/>
+            <top>
             </top>
             <bottom>
             </bottom>
@@ -27263,25 +27278,10 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <right style="thin">
                 <color rgb="000000"/>
             </right>
-            <top>
+            <top style="thin">
+                <color rgb="000000"/>
             </top>
             <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
-        <border>
-            <left style="medium">
-                <color rgb="888888"/>
-            </left>
-            <right style="thick">
-                <color rgb="FF0000"/>
-            </right>
-            <top style="dashed">
-                <color rgb="0000FF"/>
-            </top>
-            <bottom style="dotted">
-                <color rgb="00FF00"/>
             </bottom>
             <diagonal>
             </diagonal>
@@ -27292,7 +27292,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="3" borderId="0"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="4"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="6"/>
         <xf numFmtId="0" fillId="2" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="4" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="5"/>
@@ -27305,13 +27305,13 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
             <alignment wrapText="1"/>
         </xf>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="6"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="1"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
             <alignment shrinkToFit="1"/>
         </xf>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="1"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="2"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="3"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="4"/>
         <xf numFmtId="10" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="4" fillId="0" fontId="0" borderId="0"/>
     </cellXfs>
