@@ -1,5 +1,6 @@
 import { functionRegistry } from "../../../functions/function_registry";
-import { intersection, isZoneValid } from "../../../helpers/zones";
+import { MimicMatrix } from "../../../functions/helper_arg";
+import { isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
@@ -11,6 +12,7 @@ import {
   FunctionResultObject,
   Matrix,
   ReferenceDenormalizer,
+  Zone,
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { Range } from "../../../types/range";
@@ -40,7 +42,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, Matrix<FunctionResultObject>> = {};
+  private mimicMatrixCache: Record<string, MimicMatrix> = {};
 
   constructor(
     context: ModelConfig["custom"],
@@ -51,6 +53,7 @@ class CompilationParametersBuilder {
       getters: this.getters,
       locale: this.getters.getLocale(),
       getRef: this.getRef.bind(this),
+      getRange: this.getRange.bind(this),
     });
   }
 
@@ -72,6 +75,10 @@ class CompilationParametersBuilder {
     if (rangeError) {
       return rangeError;
     }
+
+    if (this.evalContext?.__originCellPosition) {
+      this.evalContext.currentFormulaDependencies?.push(range);
+    }
     // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     const result = this.computeCell(position);
@@ -89,51 +96,75 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range(range: Range): Matrix<FunctionResultObject> {
+  private range(range: Range): MimicMatrix {
+    const sheetId = range.sheetId;
+    const { top, left, bottom, right } = range.zone;
+    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+
+    if (cacheKey in this.mimicMatrixCache) {
+      return this.mimicMatrixCache[cacheKey];
+    }
+
     const rangeError = this.getRangeError(range);
     if (rangeError) {
-      return [[rangeError]];
+      this.mimicMatrixCache[cacheKey] = new MimicMatrix(1, 1, () => [[rangeError]]);
+      return this.mimicMatrixCache[cacheKey];
     }
-    const sheetId = range.sheetId;
-    const zone = range.zone;
+    const height = bottom - top + 1;
+    const width = right - left + 1;
 
-    // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
-    // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
-    const sheetZone = this.getters.getSheetZone(sheetId);
-    const _zone = intersection(zone, sheetZone);
-    if (!_zone) {
-      return [[]];
-    }
-    const { top, left, bottom, right } = zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
-    if (cacheKey in this.rangeCache) {
-      return this.rangeCache[cacheKey];
-    }
+    this.mimicMatrixCache[cacheKey] = new MimicMatrix(width, height, (zone: Zone) => {
+      // Zone starts at 0,0 for the top left corner of the range, so we need to shift it by the top and left of the range to get the actual position in the sheet
+      const realLeft = zone.left + left;
+      const realTop = zone.top + top;
+      const realRight = zone.right + left;
+      const realBottom = zone.bottom + top;
+      const realZone = { left: realLeft, top: realTop, right: realRight, bottom: realBottom };
 
-    const height = _zone.bottom - _zone.top + 1;
-    const width = _zone.right - _zone.left + 1;
-    const matrix: Matrix<FunctionResultObject> = new Array(width);
-
-    // Performance issue: nested loop is faster than a map here
-    for (let col = _zone.left; col <= _zone.right; col++) {
-      const colIndex = col - _zone.left;
-      matrix[colIndex] = new Array(height);
-      for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const rowIndex = row - _zone.top;
-        matrix[colIndex][rowIndex] = this.getRef({ sheetId, col, row });
+      const range = this.getters.getRangeFromZone(sheetId, realZone);
+      if (this.evalContext.__originCellPosition) {
+        this.evalContext.currentFormulaDependencies?.push(range);
       }
-    }
 
-    this.rangeCache[cacheKey] = matrix;
-    return matrix;
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+
+      const elements: Matrix<FunctionResultObject> = new Array(partialWidth);
+      for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+        elements[colIndex] = new Array(partialHeight);
+        for (let rowIndex = 0; rowIndex < partialHeight; rowIndex++) {
+          const realCol = colIndex + realLeft;
+          const realRow = rowIndex + realTop;
+          const position = { sheetId: range.sheetId, col: realCol, row: realRow };
+
+          const result = this.computeCell(position);
+          if (!result.position) {
+            elements[colIndex][rowIndex] = { ...result, position };
+          } else {
+            elements[colIndex][rowIndex] = result;
+          }
+        }
+      }
+
+      return elements;
+    });
+    return this.mimicMatrixCache[cacheKey];
   }
 
   private getRef(position: CellPosition): FunctionResultObject {
-    const result = this.computeCell(position);
-    if (!result.position) {
-      return { ...result, position };
-    }
-    return result;
+    const range = this.getters.getRangeFromZone(position.sheetId, {
+      top: position.row,
+      left: position.col,
+      bottom: position.row,
+      right: position.col,
+    });
+
+    return this.refFn(range);
+  }
+
+  private getRange(zone: Zone, sheetId: string): MimicMatrix {
+    const range = this.getters.getRangeFromZone(sheetId, zone);
+    return this.range(range);
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {

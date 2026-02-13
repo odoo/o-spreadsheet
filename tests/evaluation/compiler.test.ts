@@ -1,6 +1,7 @@
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { compile, functionCache } from "../../src";
 
+import { isMimicMatrix } from "@odoo/o-spreadsheet-engine/functions/helper_arg";
 import { CompiledFormula } from "../../src/types";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
@@ -104,7 +105,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "ANYFUNCTION", {
         description: "any function",
         compute: () => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -121,7 +122,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "OPTIONAL", {
         description: "function with optional argument",
         compute: () => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -137,7 +138,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "USEDEFAULTARG", {
         description: "function with a default argument",
         compute: () => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -153,7 +154,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "REPEATABLE", {
         description: "function with repeatable argument",
         compute: (arg) => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -169,7 +170,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "REPEATABLES", {
         description: "any function",
         compute: (arg) => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -188,7 +189,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "REPEATABLE_AND_OPTIONAL", {
         description: "function with repeatable argument",
         compute: (arg) => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -206,7 +207,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "REPEATABLES_AND_OPTIONALS", {
         description: "any function",
         compute: (arg) => {
-          return true;
+          return { value: true };
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -251,7 +252,7 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
         ],
         compute: (arg1, arg2 = { value: 42, format: "42" }) => {
-          return !Array.isArray(arg2) && arg2.value === 42 && arg2.format === "42"
+          return !isMimicMatrix(arg2) && arg2.value === 42 && arg2.format === "42"
             ? { value: true, format: '"TRUE"' }
             : { value: false, format: '"FALSE"' };
         },

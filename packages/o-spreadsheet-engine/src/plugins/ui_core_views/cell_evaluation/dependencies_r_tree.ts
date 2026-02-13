@@ -8,7 +8,7 @@ interface RangeSetItem {
   data: RangeSet;
 }
 
-type RTreeRangeItem = RTreeItem<BoundedRange>;
+export type RTreeRangeItem = RTreeItem<BoundedRange>;
 
 /**
  * R-Tree of ranges, mapping zones (r-tree bounding boxes) to ranges (data of the r-tree item).
@@ -19,29 +19,19 @@ export class DependenciesRTree {
   private readonly rTree: SpreadsheetRTree<RangeSet>;
 
   constructor(items: RTreeRangeItem[] = []) {
-    const compactedBoxes = groupSameBoundingBoxes(items);
-    this.rTree = new SpreadsheetRTree(compactedBoxes);
+    this.rTree = new SpreadsheetRTree();
+    this.itemsBeforeNextSearch = items;
+    this.bulkInsert();
   }
 
+  private itemsBeforeNextSearch: RTreeRangeItem[] = [];
+
   insert(item: RTreeRangeItem) {
-    const data = this.rTree.search(item.boundingBox);
-    const itemBoundingBox = item.boundingBox;
-    const exactBoundingBox = data.find(
-      ({ boundingBox }) =>
-        boundingBox.sheetId === itemBoundingBox.sheetId &&
-        boundingBox.zone.left === itemBoundingBox.zone.left &&
-        boundingBox.zone.top === itemBoundingBox.zone.top &&
-        boundingBox.zone.right === itemBoundingBox.zone.right &&
-        boundingBox.zone.bottom === itemBoundingBox.zone.bottom
-    );
-    if (exactBoundingBox) {
-      exactBoundingBox.data.add(item.data);
-    } else {
-      this.rTree.insert({ ...item, data: new RangeSet([item.data]) });
-    }
+    this.itemsBeforeNextSearch.push(item);
   }
 
   search({ zone, sheetId }: RTreeBoundingBox): RangeSet {
+    this.bulkInsert();
     const results: RangeSet = new RangeSet();
     for (const { data } of this.rTree.search({ zone, sheetId })) {
       results.addMany(data);
@@ -50,6 +40,7 @@ export class DependenciesRTree {
   }
 
   remove(item: RTreeRangeItem) {
+    this.bulkInsert();
     const data = this.rTree.search(item.boundingBox);
     const itemBoundingBox = item.boundingBox;
     const exactBoundingBox = data.find(
@@ -66,7 +57,38 @@ export class DependenciesRTree {
       this.rTree.remove({ ...item, data: new RangeSet([item.data]) });
     }
   }
+
+  private bulkInsert() {
+    if (this.itemsBeforeNextSearch.length === 0) {
+      return;
+    }
+    const groupedByBBox = groupSameBoundingBoxes(this.itemsBeforeNextSearch);
+    this.itemsBeforeNextSearch = [];
+
+    for (const [sheetId, sheetMap] of groupedByBBox.entries()) {
+      const restItems: RangeSetItem[] = [];
+      for (const item of sheetMap.values()) {
+        const existingItems = this.rTree.search(item.boundingBox);
+        const existingItem = existingItems.find(
+          ({ boundingBox }) =>
+            boundingBox.sheetId === item.boundingBox.sheetId &&
+            boundingBox.zone.left === item.boundingBox.zone.left &&
+            boundingBox.zone.top === item.boundingBox.zone.top &&
+            boundingBox.zone.right === item.boundingBox.zone.right &&
+            boundingBox.zone.bottom === item.boundingBox.zone.bottom
+        );
+        if (existingItem) {
+          existingItem.data.addMany(item.data);
+        } else {
+          restItems.push(item);
+        }
+      }
+      this.rTree.loadBySheet(sheetId, restItems);
+    }
+  }
 }
+
+type GroupedByBBox = Map<UID, Map<number | string, RangeSetItem>>;
 
 /**
  * Group together all formulas pointing to the exact same dependency (bounding box).
@@ -80,7 +102,7 @@ export class DependenciesRTree {
  * Instead of having 1000 entries in the R-tree, we want to have a single entry
  * with B1:B1000 (bounding box) pointing to C1:C1000 (formulas).
  */
-function groupSameBoundingBoxes(items: RTreeRangeItem[]): RangeSetItem[] {
+function groupSameBoundingBoxes(items: RTreeRangeItem[]): GroupedByBBox {
   // Important: this function must be as fast as possible. It is on the evaluation hot path.
   let maxCol = 0;
   let maxRow = 0;
@@ -103,39 +125,33 @@ function groupSameBoundingBoxes(items: RTreeRangeItem[]): RangeSetItem[] {
   if (!useFastKey) {
     console.warn("Max col/row size exceeded, using slow zone key");
   }
-  const groupedByBBox: Record<UID, Record<string, RangeSetItem>> = {};
+
+  // Use Map instead of plain objects for better key handling and performance
+  const groupedByBBox: GroupedByBBox = new Map();
+  const mult1 = maxCol * maxRow;
+  const mult2 = mult1 * maxCol;
+
   for (const item of items) {
-    const sheetId = item.boundingBox.sheetId;
-    if (!groupedByBBox[sheetId]) {
-      groupedByBBox[sheetId] = {};
+    const boundingBox = item.boundingBox;
+    const sheetId = boundingBox.sheetId;
+    const zone = boundingBox.zone;
+    const bBoxKey = useFastKey
+      ? zone.left + zone.top * maxCol + zone.right * mult1 + zone.bottom * mult2
+      : `${zone.left},${zone.top},${zone.right},${zone.bottom}`;
+
+    if (!groupedByBBox.has(sheetId)) {
+      groupedByBBox.set(sheetId, new Map());
     }
-    const bBox = item.boundingBox.zone;
-    let bBoxKey: number | string = 0;
-    if (useFastKey) {
-      bBoxKey =
-        bBox.left +
-        bBox.top * maxCol +
-        bBox.right * maxCol * maxRow +
-        bBox.bottom * maxCol * maxRow * maxCol;
+    const sheetMap = groupedByBBox.get(sheetId)!;
+    if (sheetMap.has(bBoxKey)) {
+      sheetMap.get(bBoxKey)!.data.add(item.data);
     } else {
-      bBoxKey = `${bBox.left},${bBox.top},${bBox.right},${bBox.bottom}`;
-    }
-    if (groupedByBBox[sheetId][bBoxKey]) {
-      const ranges = groupedByBBox[sheetId][bBoxKey].data;
-      ranges.add(item.data);
-    } else {
-      groupedByBBox[sheetId][bBoxKey] = {
-        boundingBox: item.boundingBox,
+      sheetMap.set(bBoxKey, {
+        boundingBox,
         data: new RangeSet([item.data]),
-      };
+      });
     }
   }
-  const result: RangeSetItem[] = [];
-  for (const sheetId in groupedByBBox) {
-    const map = groupedByBBox[sheetId];
-    for (const key in map) {
-      result.push(map[key]);
-    }
-  }
-  return result;
+
+  return groupedByBBox;
 }

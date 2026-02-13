@@ -74,7 +74,7 @@ export function addPivotDependencies(
     // The following line is used to reset the dependencies of the cell, to avoid
     // keeping dependencies from previous evaluation of the PIVOT formula (i.e.
     // in case the reference has been changed).
-    evalContext.updateDependencies?.(originPosition);
+    evalContext.removeDependencies?.(originPosition);
     evalContext.addDependencies?.(originPosition, dependencies);
   }
 }

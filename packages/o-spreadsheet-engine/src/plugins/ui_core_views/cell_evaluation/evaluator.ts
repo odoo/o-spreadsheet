@@ -13,7 +13,6 @@ import {
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionSet, SheetSizes } from "./position_set";
-import { RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 import { SpreadingRelation } from "./spreading_relation";
 
@@ -21,10 +20,10 @@ import {
   handleError,
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
+import { isMimicMatrix } from "../../../functions/helper_arg";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
-import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -51,7 +50,7 @@ export class Evaluator {
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
-  private formulaDependencies = lazy(new FormulaDependencyGraph());
+  private formulaDependencies = new FormulaDependencyGraph();
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
 
@@ -107,20 +106,18 @@ export class Evaluator {
     return this.blockedArrayFormulas.has(position);
   }
 
-  updateDependencies(position: CellPosition) {
+  removeDependencies(position: CellPosition) {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
     // The data structure is optimized for searches the other way around
-    this.formulaDependencies().removeAllDependencies(position);
-    const dependencies = this.getDirectDependencies(position);
-    this.formulaDependencies().addDependencies(position, dependencies);
+    this.formulaDependencies.removeAllDependencies(position);
   }
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
-    this.formulaDependencies().addDependencies(position, dependencies);
+    this.formulaDependencies.addDependencies(position, dependencies);
     for (const range of dependencies) {
       // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range);
+      this.compilationParams.ensureRange(range).getAll(); // TO DO: see if we can avoid this step for performance
     }
   }
 
@@ -131,7 +128,7 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
-    this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
+    this.compilationParams.evalContext.removeDependencies = this.removeDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
     this.compilationParams.evalContext.lookupCaches = {
       forwardSearch: new Map(),
@@ -186,29 +183,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    this.formulaDependencies = lazy(() => {
-      const rTreeItems: RTreeItem<BoundedRange>[] = [];
-      for (const sheetId of this.getters.getSheetIds()) {
-        for (const cell of this.getters.getCells(sheetId)) {
-          if (cell.isFormula) {
-            const directDependencies = cell.compiledFormula.dependencies;
-            for (const range of directDependencies) {
-              if (range.invalidSheetName || range.invalidXc) {
-                continue;
-              }
-              rTreeItems.push({
-                data: {
-                  sheetId,
-                  zone: positionToZone(this.getters.getCellPosition(cell.id)),
-                },
-                boundingBox: { sheetId: range.sheetId, zone: range.zone },
-              });
-            }
-          }
-        }
-      }
-      return new FormulaDependencyGraph(rTreeItems);
-    });
+    this.formulaDependencies = new FormulaDependencyGraph();
   }
 
   evaluateAllCells() {
@@ -250,7 +225,8 @@ export class Evaluator {
         this.compilationParams,
         sheetId,
         this.buildSafeGetSymbolValue(getContextualSymbolValue),
-        this.compilationParams.evalContext.__originCellPosition
+        this.compilationParams.evalContext.__originCellPosition,
+        this.formulaDependencies
       );
       if (isMatrix(result)) {
         return matrixMap(result, nullValueToZeroValue);
@@ -381,7 +357,8 @@ export class Evaluator {
       this.compilationParams,
       formulaPosition.sheetId,
       this.buildSafeGetSymbolValue(),
-      formulaPosition
+      formulaPosition,
+      this.formulaDependencies
     );
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
@@ -592,16 +569,8 @@ export class Evaluator {
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
 
-  private getDirectDependencies(position: CellPosition): Range[] {
-    const cell = this.getters.getCell(position);
-    if (!cell?.isFormula) {
-      return [];
-    }
-    return cell.compiledFormula.dependencies;
-  }
-
   private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
-    return this.formulaDependencies().getCellsDependingOn(ranges, this.nextRangesToUpdate);
+    return this.formulaDependencies.getCellsDependingOn(ranges, this.nextRangesToUpdate);
   }
 }
 
@@ -646,21 +615,37 @@ export function updateEvalContextAndExecute(
   compilationParams: CompilationParameters,
   sheetId: UID,
   getSymbolValue: GetSymbolValue,
-  originCellPosition: CellPosition | undefined
-) {
+  originCellPosition: CellPosition | undefined,
+  formulaDependencies: FormulaDependencyGraph
+): FunctionResultObject | Matrix<FunctionResultObject> {
   const evalContext = compilationParams.evalContext;
   const currentCellPosition = evalContext.__originCellPosition;
   const currentSheetId = evalContext.__originSheetId;
 
   evalContext.__originCellPosition = originCellPosition;
   evalContext.__originSheetId = sheetId;
-  const result = compiledFormula.execute(
+  compilationParams.evalContext.currentFormulaDependencies = [];
+  const compiledFormulaResult = compiledFormula.execute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,
     evalContext
   );
+
+  const result = isMimicMatrix(compiledFormulaResult)
+    ? compiledFormulaResult.getAll() // getAll will allow us to store on evalContext.currentFormulaDependencies all dependencies really used in the matrix
+    : compiledFormulaResult;
+
+  if (originCellPosition && compilationParams.evalContext.currentFormulaDependencies.length > 0) {
+    const currentFormulaDependencies = compilationParams.evalContext.currentFormulaDependencies;
+    const dependencies =
+      currentFormulaDependencies.length > 1
+        ? new RangeSet(currentFormulaDependencies)
+        : currentFormulaDependencies;
+    formulaDependencies.addDependencies(originCellPosition, dependencies);
+  }
+
   evalContext.__originCellPosition = currentCellPosition;
   evalContext.__originSheetId = currentSheetId;
   return result;

@@ -1,3 +1,4 @@
+import { MimicMatrix } from "../../functions/helper_arg";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
@@ -14,7 +15,7 @@ import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { EvaluationError } from "../../types/errors";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
-import { CellPosition, FunctionResultObject, Matrix, Maybe } from "../../types/misc";
+import { CellPosition, FunctionResultObject, Maybe } from "../../types/misc";
 import {
   Granularity,
   PivotCoreDefinition,
@@ -75,30 +76,30 @@ for (const type in AGGREGATORS_BY_FIELD_TYPE) {
   }
 }
 
-type AggregatorFN = (args: Matrix<FunctionResultObject>, locale?: Locale) => FunctionResultObject;
+type AggregatorFN = (args: MimicMatrix, locale: Locale) => FunctionResultObject;
 
 export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
-  count: (args: Matrix<FunctionResultObject>) => ({
+  count: (args) => ({
     value: countAny([args]),
     format: "0",
   }),
-  count_distinct: (args: Matrix<FunctionResultObject>) => ({
+  count_distinct: (args) => ({
     value: countUnique([args]),
     format: "0",
   }),
-  bool_and: (args: Matrix<FunctionResultObject>) => ({
+  bool_and: (args) => ({
     value: boolAnd([args]).result,
   }),
-  bool_or: (args: Matrix<FunctionResultObject>) => ({
+  bool_or: (args) => ({
     value: boolOr([args]).result,
   }),
-  max: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale),
-  min: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale),
-  avg: (args: Matrix<FunctionResultObject>, locale: Locale) => ({
+  max: (args, locale) => max([args], locale),
+  min: (args, locale) => min([args], locale),
+  avg: (args, locale) => ({
     value: average([args], locale),
     format: inferFormat(args),
   }),
-  sum: (args: Matrix<FunctionResultObject>, locale: Locale) => ({
+  sum: (args, locale) => ({
     value: sum([args], locale),
     format: inferFormat(args),
   }),
