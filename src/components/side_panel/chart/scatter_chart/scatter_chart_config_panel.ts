@@ -36,7 +36,7 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
   }
 
   getLabelRangeOptions() {
-    const options = super.getLabelRangeOptions();
+    const options = [this.getAggregateLabelRangeOption()];
     if (this.canTreatLabelsAsText) {
       options.push({
         name: "labelsAsText",

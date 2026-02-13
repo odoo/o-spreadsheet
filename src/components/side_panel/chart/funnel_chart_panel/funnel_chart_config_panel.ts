@@ -5,23 +5,12 @@ export class FunnelChartConfigPanel extends GenericChartConfigPanel {
   getLabelRangeOptions() {
     const definition = this.props.definition as FunnelChartDefinition<string>;
     return [
-      {
-        name: "aggregated",
-        label: this.chartTerms.AggregatedChart,
-        value: definition.aggregated ?? false,
-        onChange: this.onUpdateAggregated.bind(this),
-      },
+      this.getAggregateLabelRangeOption(),
       {
         name: "cumulative",
         label: this.chartTerms.CumulativeData,
         value: definition.cumulative ?? false,
         onChange: this.onUpdateCumulative.bind(this),
-      },
-      {
-        name: "dataSetsHaveTitle",
-        label: this.dataSetsHaveTitleLabel,
-        value: definition.dataSource.dataSetsHaveTitle,
-        onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       },
     ];
   }
