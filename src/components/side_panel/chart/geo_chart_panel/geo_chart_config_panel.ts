@@ -8,22 +8,7 @@ export class GeoChartConfigPanel extends GenericChartConfigPanel {
     GeoChartRegionSelectSection,
   };
 
-  get dataRanges() {
-    return this.getDataSeriesRanges();
-  }
-
-  // get disabledRanges() {
-  //   return this.props.definition.dataSetStyles.map((ds, i) => i > 0);
-  // }
-
   getLabelRangeOptions() {
-    return [
-      {
-        name: "dataSetsHaveTitle",
-        label: this.dataSetsHaveTitleLabel,
-        value: this.props.definition.dataSource.dataSetsHaveTitle,
-        onChange: this.onUpdateDataSetsHaveTitle.bind(this),
-      },
-    ];
+    return []; // Geo charts data cannot be aggregated: override the default options from the generic config panel
   }
 }
