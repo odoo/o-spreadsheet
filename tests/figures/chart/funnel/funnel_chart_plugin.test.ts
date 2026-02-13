@@ -35,6 +35,8 @@ describe("Funnel chart", () => {
       funnelColors: ["#ff0000", "#00ff00"],
       cumulative: true,
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

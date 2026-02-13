@@ -1,6 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
 import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
@@ -13,6 +14,7 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
     ...GenericZoomableChartDesignPanel.components,
     ChartShowDataMarkers,
     RadioSelection,
+    ChartAnnotation,
   };
   seriesTypeChoices = [
     { value: "bar", label: _t("Bar") },

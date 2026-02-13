@@ -236,6 +236,8 @@ export interface ChartCreationContext {
   readonly treemapColoringOptions?: TreeMapColoringOptions;
   readonly zoomable?: boolean;
   readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

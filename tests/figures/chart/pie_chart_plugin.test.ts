@@ -28,6 +28,8 @@ describe("pie chart", () => {
       pieHolePercentage: 0,
       showValues: false,
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

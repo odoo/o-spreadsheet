@@ -25,12 +25,16 @@ export abstract class AbstractChart {
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
   readonly humanize: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;
     this.humanize = definition.humanize ?? true;
+    this.annotationText = definition.annotationText;
+    this.annotationLink = definition.annotationLink;
   }
 
   /**

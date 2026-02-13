@@ -33,6 +33,8 @@ describe("line chart", () => {
       hideDataMarkers: false,
       zoomable: false,
       humanize: false,
+      annotationLink: "https://www.odoo.com",
+      annotationText: "This is an annotation text",
     });
   });
 

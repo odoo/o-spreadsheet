@@ -1,0 +1,21 @@
+.o-spreadsheet {
+  a.o-link-info {
+    font-size: 13px;
+    font-weight: bold;
+    justify-content: space-between;
+    height: var(--os-link-tooltip-height);
+    width: var(--os-link-tooltip-width);
+    line-height: 13px;
+    color: var(--os-link-color);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  a.o-link-info:hover {
+    text-decoration: none;
+    color: var(--os-link-hover-color);
+    cursor: pointer;
+  }
+}

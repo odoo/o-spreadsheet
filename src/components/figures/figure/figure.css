@@ -13,6 +13,12 @@
     }
   }
 
+  .o-figure-info-icon {
+    margin-top: 2px;
+    width: 15px;
+    height: 15px;
+  }
+
   div.o-figure-border {
     z-index: 1;
     border: 0px solid var(--os-figure-border-color);

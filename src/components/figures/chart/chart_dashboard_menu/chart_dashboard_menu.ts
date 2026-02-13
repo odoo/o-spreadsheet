@@ -8,6 +8,7 @@ import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
+import { InfoPopover, InfoState } from "../../../info_popover/info_popover";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
@@ -25,13 +26,15 @@ interface MenuItem {
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
-  static components = { MenuPopover };
+  static components = { MenuPopover, InfoPopover };
   static props = { chartId: String, hasFullScreenButton: { type: Boolean, optional: true } };
   static defaultProps = { hasFullScreenButton: true };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private infoState: InfoState = useState({ isOpen: false, anchorRect: null });
+
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
@@ -51,6 +54,21 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
     this.menuState.menuItems = getChartMenuActions(figureId, this.env);
+  }
+
+  showInfo(ev: MouseEvent) {
+    this.infoState.isOpen = true;
+    this.infoState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
+  }
+
+  getAnnotationText() {
+    const chart = this.env.model.getters.getChart(this.props.chartId);
+    return chart?.annotationText;
+  }
+
+  getAnnotationLink() {
+    const chart = this.env.model.getters.getChart(this.props.chartId);
+    return chart?.annotationLink;
   }
 
   get fullScreenMenuItem(): MenuItem | undefined {
