@@ -3,7 +3,7 @@ import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { MimicMatrix, toMimicMatrix } from "./helper_arg";
+import { toMimicMatrix } from "./helper_arg";
 import { expectReferenceError, isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
@@ -319,18 +319,7 @@ export const SPILLED_RANGE = {
       return new InvalidReferenceError();
     }
 
-    // TO DO: see to use directly the'range' function from compilation_parameters
-    // to benefit from its caching system instead of creating a new MimicMatrix here
-    return new MimicMatrix(
-      spilledZone.right - spilledZone.left + 1,
-      spilledZone.bottom - spilledZone.top + 1,
-      (col: number, row: number): FunctionResultObject =>
-        this.getRef({
-          sheetId: this.__originSheetId,
-          col: spilledZone.left + col,
-          row: spilledZone.top + row,
-        })
-    );
+    return this.getRange(spilledZone, firstCell.position.sheetId);
   },
   hidden: true,
 } satisfies AddFunctionDescription;

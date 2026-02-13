@@ -932,3 +932,19 @@ export function splitZone(z1: Zone, z2: Zone): Zone[] {
   }
   return zones;
 }
+
+export function shiftZoneBottom<Z extends UnboundedZone | Zone>(zone: Z, unit: number = 1): Z {
+  return createAdaptedZone(zone, "rows", "MOVE", unit);
+}
+
+export function shiftZoneTop<Z extends UnboundedZone | Zone>(zone: Z, unit: number = 1): Z {
+  return createAdaptedZone(zone, "rows", "MOVE", -unit);
+}
+
+export function shiftZoneRight<Z extends UnboundedZone | Zone>(zone: Z, unit: number = 1): Z {
+  return createAdaptedZone(zone, "columns", "MOVE", unit);
+}
+
+export function shiftZoneLeft<Z extends UnboundedZone | Zone>(zone: Z, unit: number = 1): Z {
+  return createAdaptedZone(zone, "columns", "MOVE", -unit);
+}

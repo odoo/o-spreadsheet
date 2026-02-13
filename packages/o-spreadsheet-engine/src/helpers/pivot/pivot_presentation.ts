@@ -2,7 +2,8 @@ import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 
 import { handleError } from "../../functions/create_compute_function";
 import { matrixToMimicMatrix } from "../../functions/helper_arg";
-import { toNumber, transposeMatrix } from "../../functions/helpers";
+import { transposeMatrix } from "../../functions/helper_matrices";
+import { toNumber } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { CellErrorType, NotAvailableError } from "../../types/errors";

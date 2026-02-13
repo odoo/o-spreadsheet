@@ -159,3 +159,79 @@ function isSingleElementMatrix<T>(matrix: Matrix<T>): boolean {
 export function isMultipleElementMatrix(arg: any) {
   return isMatrix(arg) && !isSingleElementMatrix(arg);
 }
+
+export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
+  if (!matrix.length) {
+    return [];
+  }
+  return generateMatrix(matrix[0].length, matrix.length, (i, j) => matrix[j][i]);
+}
+
+/**
+ * Generate a matrix of size nColumns x nRows and apply a callback on each position
+ */
+export function generateMatrix<T>(
+  nColumns: number,
+  nRows: number,
+  callback: (col: number, row: number) => T
+): Matrix<T> {
+  const returned = Array(nColumns);
+  for (let col = 0; col < nColumns; col++) {
+    returned[col] = Array(nRows);
+    for (let row = 0; row < nRows; row++) {
+      returned[col][row] = callback(col, row);
+    }
+  }
+  return returned;
+}
+export function matrixForEach<T>(matrix: Matrix<T>, fn: (value: T) => void): void {
+  const numberOfCols = matrix.length;
+  const numberOfRows = matrix[0]?.length ?? 0;
+  for (let col = 0; col < numberOfCols; col++) {
+    for (let row = 0; row < numberOfRows; row++) {
+      fn(matrix[col][row]);
+    }
+  }
+}
+
+export function matrixMap<T, M>(matrix: Matrix<T>, callback: (value: T) => M): Matrix<M> {
+  if (matrix.length === 0) {
+    return [];
+  }
+  return generateMatrix(matrix.length, matrix[0].length, (col, row) => callback(matrix[col][row]));
+}
+
+export function stackMatricesVertically<T>(matrices: Matrix<T>[], missingValue: T): Matrix<T> {
+  const width = matrices.reduce((acc, matrix) => Math.max(acc, matrix.length), 0);
+  const height = matrices.reduce((acc, matrix) => acc + matrix[0].length, 0);
+  const result: Matrix<T> = new Array(width);
+  for (let col = 0; col < width; col++) {
+    let rowStep = 0;
+    result[col] = new Array(height);
+    for (const matrix of matrices) {
+      for (let row = 0; row < matrix[0].length; row++) {
+        result[col][row + rowStep] = col < matrix.length ? matrix[col][row] : missingValue;
+      }
+      rowStep += matrix[0].length;
+    }
+  }
+  return result;
+}
+
+export function stackMatricesHorizontally<T>(matrices: Matrix<T>[], missingValue: T): Matrix<T> {
+  const height = matrices.reduce((acc, matrix) => Math.max(acc, matrix[0]?.length ?? 0), 0);
+  const width = matrices.reduce((acc, matrix) => acc + matrix.length, 0);
+  const result: Matrix<T> = new Array(width);
+  let colStep = 0;
+  for (const matrix of matrices) {
+    for (let col = 0; col < matrix.length; col++) {
+      result[col + colStep] = new Array(height);
+      for (let row = 0; row < height; row++) {
+        result[col + colStep][row] =
+          row < (matrix[0]?.length ?? 0) ? matrix[col][row] : missingValue;
+      }
+    }
+    colStep += matrix.length;
+  }
+  return result;
+}

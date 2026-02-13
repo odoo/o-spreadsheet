@@ -9,14 +9,8 @@ import { Locale } from "../types/locale";
 import { Arg, Matrix } from "../types/misc";
 import { isMimicMatrix } from "./helper_arg";
 import { assert, assertNotZero } from "./helper_assert";
-import { invertMatrix, multiplyMatrices } from "./helper_matrices";
-import {
-  isEvaluationError,
-  reduceAny,
-  reduceNumbers,
-  transposeMatrix,
-  visitNumbers,
-} from "./helpers";
+import { invertMatrix, multiplyMatrices, transposeMatrix } from "./helper_matrices";
+import { isEvaluationError, reduceAny, reduceNumbers, visitNumbers } from "./helpers";
 
 export function assertSameNumberOfElements(...args: Matrix<any>) {
   const dims = args[0].length;

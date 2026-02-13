@@ -1,5 +1,6 @@
 import { functionRegistry } from "../../../functions/function_registry";
 import { MimicMatrix } from "../../../functions/helper_arg";
+import { generateMatrix } from "../../../functions/helper_matrices";
 import { isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
@@ -10,7 +11,9 @@ import {
   CellPosition,
   EnsureRange,
   FunctionResultObject,
+  Matrix,
   ReferenceDenormalizer,
+  Zone,
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { Range } from "../../../types/range";
@@ -40,7 +43,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private mimicMatrixCache: Record<string, MimicMatrix> = {};
+  private mimicMatrixCache: Map<string, Matrix<FunctionResultObject>> = new Map();
 
   constructor(
     context: ModelConfig["custom"],
@@ -51,6 +54,7 @@ class CompilationParametersBuilder {
       getters: this.getters,
       locale: this.getters.getLocale(),
       getRef: this.getRef.bind(this),
+      getRange: this.getRange.bind(this),
     });
   }
 
@@ -73,7 +77,7 @@ class CompilationParametersBuilder {
       return rangeError;
     }
 
-    if (this.evalContext.__originCellPosition) {
+    if (this.evalContext?.__originCellPosition) {
       this.evalContext.currentFormulaDependencies?.push(range);
     }
     // the compiler guarantees only single cell ranges reach this part of the code
@@ -94,32 +98,52 @@ class CompilationParametersBuilder {
    * that are actually present in the grid.
    */
   private range(range: Range): MimicMatrix {
-    const sheetId = range.sheetId;
-    const { top, left, bottom, right } = range.zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
-
-    if (cacheKey in this.mimicMatrixCache) {
-      return this.mimicMatrixCache[cacheKey];
-    }
-
+    // TO DO: see if we keep this check
+    // si if wee use a cache at this step
     const rangeError = this.getRangeError(range);
     if (rangeError) {
-      this.mimicMatrixCache[cacheKey] = new MimicMatrix(1, 1, () => rangeError);
-      return this.mimicMatrixCache[cacheKey];
+      return new MimicMatrix(1, 1, () => [[rangeError]]);
     }
+    const sheetId = range.sheetId;
+    const { top, left, bottom, right } = range.zone;
     const height = bottom - top + 1;
     const width = right - left + 1;
 
-    // TO DO: voir dans le cas precis de la creation d'une MimicMatrix a partir d'une Range,
-    // si on doit (et on sait) eviter de update currentFormulaDependencies un par un
-    // lors de l'appel à getAll.
-    this.mimicMatrixCache[cacheKey] = new MimicMatrix(width, height, (colIndex, rowIndex) => {
-      const col = left + colIndex;
-      const row = top + rowIndex;
-      const position = { sheetId, col, row };
-      return this.getRef(position);
+    return new MimicMatrix(width, height, (zone: Zone) => {
+      // Zone starts at 0,0 for the top left corner of the range, so we need to shift it by the top and left of the range to get the actual position in the sheet
+      const realLeft = zone.left + left;
+      const realTop = zone.top + top;
+      const realRight = zone.right + left;
+      const realBottom = zone.bottom + top;
+      const realZone = { left: realLeft, top: realTop, right: realRight, bottom: realBottom };
+
+      const cacheKey = `${sheetId}-${realTop}-${realLeft}-${realBottom}-${realRight}`;
+      if (this.mimicMatrixCache.has(cacheKey)) {
+        return this.mimicMatrixCache.get(cacheKey)!;
+      }
+
+      const range = this.getters.getRangeFromZone(sheetId, realZone);
+      if (this.evalContext.__originCellPosition) {
+        this.evalContext.currentFormulaDependencies?.push(range);
+      }
+
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+      // TO DO: create a cache when reading a column ?
+      const matrix = generateMatrix(partialWidth, partialHeight, (col, row) => {
+        const realCol = col + realLeft;
+        const realRow = row + realTop;
+        const position = { sheetId: range.sheetId, col: realCol, row: realRow };
+
+        const result = this.computeCell(position);
+        if (!result.position) {
+          return { ...result, position };
+        }
+        return result;
+      });
+      this.mimicMatrixCache.set(cacheKey, matrix);
+      return matrix;
     });
-    return this.mimicMatrixCache[cacheKey];
   }
 
   private getRef(position: CellPosition): FunctionResultObject {
@@ -130,28 +154,12 @@ class CompilationParametersBuilder {
       right: position.col,
     });
 
-    const rangeError = this.getRangeError(range);
-    if (rangeError) {
-      return rangeError;
-    }
-    if (this.evalContext.__originCellPosition) {
-      // Sometimes, formulas does not return simple values, but also position information.
-      // Mean that the formula result (or sub-formula result) is a reference to
-      // another cell. (ex: XLOOKUP function).
-      // However, in some cases, the position information is computed directly in
-      // the formula (upstream of getRef) and is not directly deduced from the dependencies
-      // of the formula. (ex: INDIRECT function).
-      // In this case, we need to make sure that the dependencies of the formula
-      // will be correctly updated to include the cell referenced by the position
-      // information. This is why we push the range here:
-      this.evalContext.currentFormulaDependencies?.push(range);
-    }
+    return this.refFn(range);
+  }
 
-    const result = this.computeCell(position);
-    if (!result.position) {
-      return { ...result, position };
-    }
-    return result;
+  private getRange(zone: Zone, sheetId: string): MimicMatrix {
+    const range = this.getters.getRangeFromZone(sheetId, zone);
+    return this.range(range);
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {

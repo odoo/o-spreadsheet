@@ -21,7 +21,6 @@ import {
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
 import { isMimicMatrix } from "../../../functions/helper_arg";
-import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
@@ -41,6 +40,7 @@ import {
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { BoundedRange, Range } from "../../../types/range";
+import { matrixMap } from "../../../functions/helper_matrices";
 
 const MAX_ITERATION = 30;
 
@@ -633,10 +633,11 @@ export function updateEvalContextAndExecute(
   const evalContext = compilationParams.evalContext;
   const currentCellPosition = evalContext.__originCellPosition;
   const currentSheetId = evalContext.__originSheetId;
+  const currentFormulaDependencies = evalContext.currentFormulaDependencies;
 
   evalContext.__originCellPosition = originCellPosition;
   evalContext.__originSheetId = sheetId;
-  compilationParams.evalContext.currentFormulaDependencies = [];
+  evalContext.currentFormulaDependencies = [];
   const compiledFormulaResult = compiledFormula.execute(
     compiledFormula.rangeDependencies,
     compilationParams.referenceDenormalizer,
@@ -649,15 +650,16 @@ export function updateEvalContextAndExecute(
     ? compiledFormulaResult.getAll() // getAll will allow us to store on evalContext.currentFormulaDependencies all dependencies really used in the matrix
     : compiledFormulaResult;
 
-  if (originCellPosition) {
+  if (originCellPosition && evalContext.currentFormulaDependencies.length > 0) {
     formulaDependencies().addDependencies(
       originCellPosition,
-      new RangeSet(compilationParams.evalContext.currentFormulaDependencies)
+      new RangeSet(evalContext.currentFormulaDependencies)
     );
   }
 
   evalContext.__originCellPosition = currentCellPosition;
   evalContext.__originSheetId = currentSheetId;
+  evalContext.currentFormulaDependencies = currentFormulaDependencies;
   return result;
 }
 

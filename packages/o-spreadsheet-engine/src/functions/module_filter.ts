@@ -86,9 +86,19 @@ function sortMatrix(matrix: MimicMatrix, locale: Locale, ...criteria: Arg[]): Mi
     }
     return 0;
   });
-  return new MimicMatrix(indexes.length, matrix.height, (col, row) =>
-    matrix.get(indexes[col], row)
-  );
+  return new MimicMatrix(indexes.length, matrix.height, (zone) => {
+    const partialWidth = zone.right - zone.left + 1;
+    const result = new Array(partialWidth);
+    for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+      result[colIndex] = matrix.getZone({
+        top: zone.top,
+        left: indexes[zone.left + colIndex],
+        bottom: zone.bottom,
+        right: indexes[zone.left + colIndex],
+      })[0];
+    }
+    return result;
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -151,13 +161,43 @@ export const FILTER = {
     }
 
     if (filterByRow) {
-      return new MimicMatrix(_array.width, validIndexes.length, (col, row) =>
-        _array.get(col, validIndexes[row])
-      );
+      return new MimicMatrix(_array.width, validIndexes.length, (zone) => {
+        const partialHeight = zone.bottom - zone.top + 1;
+        const partialWidth = zone.right - zone.left + 1;
+
+        const result = new Array(partialWidth);
+        for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+          result[colIndex] = new Array(partialHeight);
+        }
+
+        for (let rowIndex = 0; rowIndex < partialHeight; rowIndex++) {
+          const rowResult = _array.getZone({
+            top: validIndexes[zone.top + rowIndex],
+            left: zone.left,
+            bottom: validIndexes[zone.top + rowIndex],
+            right: zone.right,
+          });
+          for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+            result[colIndex][rowIndex] = rowResult[colIndex][0];
+          }
+        }
+
+        return result;
+      });
     }
-    return new MimicMatrix(validIndexes.length, _array.height, (col, row) =>
-      _array.get(validIndexes[col], row)
-    );
+    return new MimicMatrix(validIndexes.length, _array.height, (zone) => {
+      const partialWidth = zone.right - zone.left + 1;
+      const result = new Array(partialWidth);
+      for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+        result[colIndex] = _array.getZone({
+          top: zone.top,
+          left: validIndexes[zone.left + colIndex],
+          bottom: zone.bottom,
+          right: validIndexes[zone.left + colIndex],
+        })[0];
+      }
+      return result;
+    });
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -285,9 +325,22 @@ export const SORTN: AddFunctionDescription = {
           }
         }
         const reduceUniqueIndex = uniqueIndex.slice(0, _n);
-        return new MimicMatrix(reduceUniqueIndex.length, sortedData.height, (col, row) =>
-          sortedData.getCol(reduceUniqueIndex[col]).get(0, row)
-        ).transpose();
+
+        // TO DO: factorize this code by creating a function that takes as parameter the list of index to keep and return the corresponding mimic matrix
+        // same for formula that return a mimic matrix based on row index
+        return new MimicMatrix(reduceUniqueIndex.length, sortedData.height, (zone) => {
+          const partialWidth = zone.right - zone.left + 1;
+          const result = new Array(partialWidth);
+          for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+            result[colIndex] = sortedData.getZone({
+              top: zone.top,
+              left: reduceUniqueIndex[zone.left + colIndex],
+              bottom: zone.bottom,
+              right: reduceUniqueIndex[zone.left + colIndex],
+            })[0];
+          }
+          return result;
+        }).transpose();
       }
       case 3: {
         const uniqueIndexes = [0];
@@ -301,9 +354,19 @@ export const SORTN: AddFunctionDescription = {
           }
           uniqueIndexes.push(i);
         }
-        return new MimicMatrix(uniqueIndexes.length, sortedData.height, (col, row) =>
-          sortedData.getCol(uniqueIndexes[col]).get(0, row)
-        ).transpose();
+        return new MimicMatrix(uniqueIndexes.length, sortedData.height, (zone) => {
+          const partialWidth = zone.right - zone.left + 1;
+          const result = new Array(partialWidth);
+          for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+            result[colIndex] = sortedData.getZone({
+              top: zone.top,
+              left: uniqueIndexes[zone.left + colIndex],
+              bottom: zone.bottom,
+              right: uniqueIndexes[zone.left + colIndex],
+            })[0];
+          }
+          return result;
+        }).transpose();
       }
     }
   },
@@ -371,9 +434,19 @@ export const UNIQUE = {
       return new EvaluationError(_t("No unique values found"));
     }
 
-    const result = new MimicMatrix(uniqueIndexes.length, _range.height, (col, row) =>
-      _range.getCol(uniqueIndexes[col]).get(0, row)
-    );
+    const result = new MimicMatrix(uniqueIndexes.length, _range.height, (zone) => {
+      const partialWidth = zone.right - zone.left + 1;
+      const result = new Array(partialWidth);
+      for (let colIndex = 0; colIndex < partialWidth; colIndex++) {
+        result[colIndex] = _range.getZone({
+          top: zone.top,
+          left: uniqueIndexes[zone.left + colIndex],
+          bottom: zone.bottom,
+          right: uniqueIndexes[zone.left + colIndex],
+        })[0];
+      }
+      return result;
+    });
     return _byColumn ? result : result.transpose();
   },
   isExported: true,

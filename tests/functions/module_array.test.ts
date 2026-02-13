@@ -499,6 +499,11 @@ describe("FLATTEN function", () => {
     expect(evaluateCell("A1", { A1: "=FLATTEN(B1:C2, B1:C2)" })).toBe(0);
   });
 
+  test("TO DO: implement dependencies tests for all formula that return an array", () => {
+    const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2" };
+    expect(evaluateCell("D1", { D1: "=CHOOSEROWS(FLATTEN(A1:B2), 3)", ...grid })).toBe("A2");
+  });
+
   test("Flatten a column returns the column", () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3" };
     const model = createModelFromGrid(grid);
