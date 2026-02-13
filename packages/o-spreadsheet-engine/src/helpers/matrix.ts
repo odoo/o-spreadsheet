@@ -1,4 +1,5 @@
-import { isEvaluationError, transposeMatrix } from "../functions/helpers";
+import { transposeMatrix } from "../functions/helper_matrices";
+import { isEvaluationError } from "../functions/helpers";
 import { Locale } from "../types/locale";
 import { FunctionResultObject, isMatrix } from "../types/misc";
 import { formatValue } from "./format/format";

@@ -1,5 +1,5 @@
 import { CompiledFormula } from "../../../formulas/compiler";
-import { matrixMap } from "../../../functions/helpers";
+import { matrixMap } from "../../../functions/helper_matrices";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";

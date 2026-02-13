@@ -1,6 +1,6 @@
 import { BasePlugin, _t } from "@odoo/o-spreadsheet-engine";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { matrixMap } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
 import { createEmptyExcelWorkbookData } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { MergePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/merge";

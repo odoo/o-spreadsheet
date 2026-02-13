@@ -4,7 +4,7 @@ import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
 import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { MimicMatrix } from "./helper_arg";
+import { generateMimicMatrix, MimicMatrix } from "./helper_arg";
 import { toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
@@ -137,7 +137,7 @@ function getMatchingCells(
   // Example continuation:: matchingCells = ["j", 7]
   const matchingRowsIndexes = [...matchingRows].map((x) => x + 1);
 
-  return new MimicMatrix(1, matchingRows.size, (col, row) =>
+  return generateMimicMatrix(1, matchingRowsIndexes.length, (col, row) =>
     database.get(index, matchingRowsIndexes[row])
   );
 }

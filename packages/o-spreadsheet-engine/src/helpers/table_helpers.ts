@@ -1,4 +1,4 @@
-import { generateMatrix } from "../functions/helpers";
+import { generateMatrix } from "../functions/helper_matrices";
 import { Border, BorderDescr, CellPosition, Style, UID, Zone } from "../types/misc";
 import { Range } from "../types/range";
 import {
