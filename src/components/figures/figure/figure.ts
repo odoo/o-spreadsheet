@@ -6,6 +6,7 @@ import {
   AnchorOffset,
   CSSProperties,
   FigureUI,
+  MoveFiguresSubCommand,
   Pixel,
   Rect,
   ResizeDirection,
@@ -64,7 +65,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private borderWidth!: number;
 
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
+    return this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id);
   }
 
   get figureRegistry() {
@@ -117,8 +118,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
-      (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
-        if (selectedFigureId === thisFigureId) {
+      (selectedFiguresIds: UID[], thisFigureId: UID, el: HTMLElement | null) => {
+        if (selectedFiguresIds.includes(thisFigureId)) {
           /** Scrolling on a newly inserted figure that overflows outside the viewport
            * will break the whole layout.
            * NOTE: `preventScroll`does not work on mobile but then again,
@@ -131,7 +132,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         }
       },
       () => [
-        this.env.model.getters.getSelectedFigureId(),
+        this.env.model.getters.getSelectedFigureIds(),
         this.props.figureUI.id,
         this.figureRef.el,
       ]
@@ -159,25 +160,40 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
-        this.env.model.dispatch("DELETE_FIGURE", {
+        this.env.model.dispatch("DELETE_FIGURES", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          figureId: this.props.figureUI.id,
+          figureIds: this.env.model.getters.getSelectedFigureIds(),
         });
         ev.preventDefault();
         ev.stopPropagation();
         break;
+      case "Shift+ArrowDown":
+      case "Shift+ArrowLeft":
+      case "Shift+ArrowRight":
+      case "Shift+ArrowUp":
       case "ArrowDown":
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        const { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
-        this.env.model.dispatch("UPDATE_FIGURE", {
-          sheetId: this.env.model.getters.getActiveSheetId(),
-          figureId: this.props.figureUI.id,
-          offset,
-          col,
-          row,
-        });
+        const sheetId = this.env.model.getters.getActiveSheetId();
+        const figureIds = this.env.model.getters.getSelectedFigureIds();
+        const figures: MoveFiguresSubCommand[] = [];
+        for (const figureId of figureIds) {
+          const figure = this.env.model.getters.getFigure(sheetId, figureId);
+          if (!figure) {
+            continue;
+          }
+          figures.push({
+            sheetId,
+            figureId,
+            ...this.postionInBoundary(
+              this.env.model.getters.getFigureUI(sheetId, figure),
+              ev.key,
+              ev.shiftKey
+            ),
+          });
+        }
+        this.env.model.dispatch("MOVE_FIGURES", { figures });
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -199,41 +215,44 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  private postionInBoundary(position: AnchorOffset, key: string): AnchorOffset {
+  private postionInBoundary(position: AnchorOffset, key: string, shift: boolean): AnchorOffset {
     const sheetId = this.env.model.getters.getActiveSheetId();
+    const shiftAmount = shift ? 1 : 5;
     let { col, row, offset } = position;
     offset = { ...offset };
     switch (key) {
       case "ArrowUp":
-        if (offset.y === 0) {
+        if (offset.y < shiftAmount) {
           row--;
-          offset.y = this.env.model.getters.getRowSize(sheetId, row) - 1;
+          offset.y = this.env.model.getters.getRowSize(sheetId, row) - shiftAmount + offset.y;
         } else {
-          offset.y--;
+          offset.y -= shiftAmount;
         }
         break;
       case "ArrowLeft":
-        if (offset.x === 0) {
+        if (offset.x < shiftAmount) {
           col--;
-          offset.x = this.env.model.getters.getColSize(sheetId, col) - 1;
+          offset.x = this.env.model.getters.getColSize(sheetId, col) - shiftAmount + offset.x;
         } else {
-          offset.x--;
+          offset.x -= shiftAmount;
         }
         break;
       case "ArrowDown":
-        if (offset.y === this.env.model.getters.getRowSize(sheetId, row)) {
+        const rowSize = this.env.model.getters.getRowSize(sheetId, row);
+        if (offset.y + shiftAmount > rowSize) {
           row++;
-          offset.y = 0;
+          offset.y = offset.y + shiftAmount - rowSize;
         } else {
-          offset.y++;
+          offset.y += shiftAmount;
         }
         break;
       case "ArrowRight":
-        if (offset.x === this.env.model.getters.getColSize(sheetId, row)) {
+        const colSize = this.env.model.getters.getColSize(sheetId, col);
+        if (offset.x + shiftAmount > colSize) {
           col++;
-          offset.x = 0;
+          offset.x = offset.x + shiftAmount - colSize;
         } else {
-          offset.x++;
+          offset.x += shiftAmount;
         }
     }
     return { col, row, offset };

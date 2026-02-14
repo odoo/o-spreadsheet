@@ -207,11 +207,13 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
-        this.cleanViewports();
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.sheetsWithDirtyViewports.add(sheetId);
+        if (!this.getters.getSelectedFigureIds().length) {
+          this.cleanViewports();
+          for (const sheetId of this.getters.getSheetIds()) {
+            this.sheetsWithDirtyViewports.add(sheetId);
+          }
+          this.shouldAdjustViewports = true;
         }
-        this.shouldAdjustViewports = true;
         break;
       case "RESIZE_SHEETVIEW":
         this.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
