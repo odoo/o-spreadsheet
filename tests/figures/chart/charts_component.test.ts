@@ -728,6 +728,40 @@ describe("charts", () => {
     ]);
   });
 
+  test("can edit pie chart slices color", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "B1:B4", label: "serie_1" },
+          { dataRange: "C1:C4", label: "serie_2" },
+        ],
+        labelRange: "A2:A4",
+        type: "pie",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(chartId).slicesColors).toEqual(["#EFEFEF", "", ""]);
+    setInputValueAndTrigger(".pie-slice-selector", "P3");
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#FF0000'");
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(chartId).slicesColors).toEqual([
+      "#EFEFEF",
+      "",
+      "#FF0000",
+    ]);
+  });
+
   test("can edit chart data series vertical axis", async () => {
     createChart(
       model,

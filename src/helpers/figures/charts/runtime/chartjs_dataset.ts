@@ -277,7 +277,10 @@ export function getPieChartDatasets(
   const { dataSetsValues } = args;
   const dataSets: ChartDataset<"pie">[] = [];
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
-  const backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  const backgroundColor = getPieColors(
+    new ColorGenerator(dataSetsLength, definition.slicesColors),
+    dataSetsValues
+  );
   for (const { label, data, hidden } of dataSetsValues) {
     if (hidden) {
       continue;

@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-PieChartDesignPanel">
     <GeneralDesignEditor t-props="props">
       <t t-set-slot="general-extension">
-        <ChartLegend t-props="props"/>
+        <ChartLegend t-props="props" isDisabled="isLegendDisabled()"/>
         <Section class="'pt-0'" title.translate="Values">
           <ChartShowValues t-props="props"/>
         </Section>
@@ -16,5 +16,29 @@
         />
       </t>
     </GeneralDesignEditor>
+
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Pie Slice">
+      <t t-set-slot="content">
+        <Section class="'py-0'">
+          <select
+            class="o-input pie-slice-selector"
+            t-on-change="(ev) => this.updateEditedValues(ev)">
+            <t t-foreach="getLabels()" t-as="label" t-key="label_index">
+              <option
+                t-att-value="label"
+                t-att-selected="state.index === label_index"
+                t-esc="label"
+              />
+            </t>
+          </select>
+        </Section>
+        <Section class="'py-4'">
+          <div class="d-flex align-items-center">
+            <span class="o-section-title mb-0 pe-2">Series color</span>
+            <RoundColorPicker currentColor="getSliceColor()" onColorPicked.bind="updateSliceColor"/>
+          </div>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
   </t>
 </templates>

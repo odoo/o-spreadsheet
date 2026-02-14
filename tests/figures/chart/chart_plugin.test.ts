@@ -5,6 +5,7 @@ import {
   ChartWithDataSetDefinition,
   LineChartDefinition,
   LineChartRuntime,
+  PieChartDefinition,
   PieChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Point } from "chart.js";
@@ -1811,6 +1812,16 @@ describe("Chart without labels", () => {
     aggregated: false,
   };
 
+  const pieChart: PieChartDefinition = {
+    background: "#FFFFFF",
+    dataSets: [{ dataRange: "A1:A2" }],
+    dataSetsHaveTitle: false,
+    legendPosition: "none",
+    title: { text: "My pie chart" },
+    type: "pie",
+    aggregated: false,
+  };
+
   test("The legend is displayed even when there is only one dataSet or no label", () => {
     createChart(model, defaultChart, "42");
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
@@ -1820,17 +1831,32 @@ describe("Chart without labels", () => {
       { ...defaultChart, dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] },
       "43"
     );
-    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
+    expect(getChartConfiguration(model, "43").options?.plugins?.legend?.position).toBe("top");
 
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
-    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
+    expect(getChartConfiguration(model, "44").options?.plugins?.legend?.position).toBe("top");
   });
 
-  test("Labels are empty if there is only one dataSet and no label", () => {
+  test("The legend is not displayed if there is no label for pie charts", () => {
+    createChart(model, pieChart, "42");
+    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe(undefined);
+
+    createChart(
+      model,
+      { ...pieChart, dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] },
+      "43"
+    );
+    expect(getChartConfiguration(model, "43").options?.plugins?.legend?.position).toBe(undefined);
+
+    createChart(model, { ...pieChart, labelRange: "B1:B2" }, "44");
+    expect(getChartConfiguration(model, "44").options?.plugins?.legend?.position).toBe(undefined);
+  });
+
+  test("Labels are generated if there is no label", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     createChart(model, defaultChart, "42");
-    expect(getChartConfiguration(model, "42").data?.labels).toEqual(["", ""]);
+    expect(getChartConfiguration(model, "42").data?.labels).toEqual(["0", "1"]);
 
     createChart(
       model,
