@@ -1,5 +1,7 @@
 import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
+import { toCartesian } from "../../helpers/coordinates";
+import { getItemId } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { positionToZone } from "../../helpers/zones";
 import {
@@ -9,6 +11,7 @@ import {
   invalidateEvaluationCommands,
 } from "../../types/commands";
 import { Border, CellPosition, Style, UID, Zone } from "../../types/misc";
+import { ExcelWorkbookData } from "../../types/workbook_data";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
@@ -96,21 +99,40 @@ export class CellComputedStylePlugin extends UIPlugin {
   }
 
   private computeCellStyle(position: CellPosition): Style {
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
+    const computedStyle = this.getComputedStyle(position);
+    if (evaluatedCell.link && !computedStyle.textColor) {
+      computedStyle.textColor = LINK_COLOR;
+    }
+    return computedStyle;
+  }
+
+  private getComputedStyle(position: CellPosition): Style {
     const cell = this.getters.getCell(position);
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
-    const computedStyle = {
+    return {
       ...removeFalsyAttributes(tableStyle),
       ...removeFalsyAttributes(dataValidationStyle),
       ...removeFalsyAttributes(cell?.style),
       ...removeFalsyAttributes(cfStyle),
     };
-    const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (evaluatedCell.link && !computedStyle.textColor) {
-      computedStyle.textColor = LINK_COLOR;
-    }
+  }
 
-    return computedStyle;
+  exportForExcel(data: ExcelWorkbookData) {
+    for (const sheet of data.sheets) {
+      for (const xc in sheet.cells) {
+        const position = { sheetId: sheet.id, ...toCartesian(xc) };
+        const evaluatedCell = this.getters.getEvaluatedCell(position);
+        const computedStyle = this.getComputedStyle(position);
+        const cell = this.getters.getCell(position);
+        if (evaluatedCell.link && !computedStyle.textColor) {
+          const style = { ...cell?.style, textColor: LINK_COLOR };
+          const newStyleId = getItemId(style, data.styles);
+          sheet.styles[xc] = newStyleId;
+        }
+      }
+    }
   }
 }
