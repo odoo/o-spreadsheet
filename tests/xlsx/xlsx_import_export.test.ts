@@ -1,3 +1,4 @@
+import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
 import { Model } from "../../src";
 import { buildSheetLink, toZone } from "../../src/helpers";
@@ -31,6 +32,7 @@ import {
   getCell,
   getCellRawContent,
   getEvaluatedCell,
+  getStyle,
 } from "../test_helpers/getters_helpers";
 import { toRangesData } from "../test_helpers/helpers";
 
@@ -430,6 +432,17 @@ describe("Export data to xlsx then import it", () => {
     const sheetLink2 = buildSheetLink(newSheetId!);
     expect(cell.link?.label).toBe("my label");
     expect(cell.link?.url).toBe(sheetLink2);
+  });
+
+  test("hyperlinks are exported with their own style", async () => {
+    const sheetLink = buildSheetLink("42");
+    setCellContent(model, "A1", `[my label](${sheetLink})`);
+    setFormatting(model, "A1:A3", { fillColor: "#FF0000" });
+    const importedModel = await exportToXlsxThenImport(model);
+    expect(getStyle(importedModel, "A1")).toMatchObject({
+      fillColor: "#FF0000",
+      textColor: LINK_COLOR,
+    });
   });
 
   test("Image", async () => {

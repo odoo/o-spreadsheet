@@ -33788,7 +33788,7 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
             </c>
         </row>
         <row r="165">
-            <c r="A165" cm="1" t="str">
+            <c r="A165" s="1" cm="1" t="str">
                 <f t="array" ref="A165">
                     HYPERLINK("https://www.odoo.com","Odoo")
                 </f>
@@ -33867,10 +33867,15 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
       "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
     <numFmts count="0">
     </numFmts>
-    <fonts count="1">
+    <fonts count="2">
         <font>
             <sz val="10"/>
             <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+        <font>
+            <sz val="10"/>
+            <color rgb="017E84"/>
             <name val="Arial"/>
         </font>
     </fonts>
@@ -33896,8 +33901,9 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="1">
+    <cellXfs count="2">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+        <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
     </cellXfs>
     <dxfs count="0">
     </dxfs>
@@ -37183,7 +37189,7 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
             </c>
         </row>
         <row r="165">
-            <c r="A165" cm="1" t="str">
+            <c r="A165" s="1" cm="1" t="str">
                 <f t="array" ref="A165">
                     HYPERLINK("https://www.odoo.com","Odoo")
                 </f>
@@ -37313,10 +37319,15 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
       "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
     <numFmts count="0">
     </numFmts>
-    <fonts count="1">
+    <fonts count="2">
         <font>
             <sz val="10"/>
             <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+        <font>
+            <sz val="10"/>
+            <color rgb="017E84"/>
             <name val="Arial"/>
         </font>
     </fonts>
@@ -37342,8 +37353,9 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="1">
+    <cellXfs count="2">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+        <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
     </cellXfs>
     <dxfs count="0">
     </dxfs>
@@ -37891,35 +37903,35 @@ exports[`Test XLSX export link cells 1`] = `
     </cols>
     <sheetData>
         <row r="1">
-            <c r="A1" t="s">
+            <c r="A1" s="1" t="s">
                 <v>
                     0
                 </v>
             </c>
         </row>
         <row r="2">
-            <c r="A2" t="s">
+            <c r="A2" s="1" t="s">
                 <v>
                     0
                 </v>
             </c>
         </row>
         <row r="3">
-            <c r="A3" t="s">
+            <c r="A3" s="1" t="s">
                 <v>
                     1
                 </v>
             </c>
         </row>
         <row r="4">
-            <c r="A4" t="s">
+            <c r="A4" s="1" t="s">
                 <v>
                     2
                 </v>
             </c>
         </row>
         <row r="5">
-            <c r="A5" t="s">
+            <c r="A5" s="1" t="s">
                 <v>
                     1
                 </v>
@@ -37964,10 +37976,15 @@ exports[`Test XLSX export link cells 1`] = `
       "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
     <numFmts count="0">
     </numFmts>
-    <fonts count="1">
+    <fonts count="2">
         <font>
             <sz val="10"/>
             <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+        <font>
+            <sz val="10"/>
+            <color rgb="017E84"/>
             <name val="Arial"/>
         </font>
     </fonts>
@@ -37993,8 +38010,9 @@ exports[`Test XLSX export link cells 1`] = `
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="1">
+    <cellXfs count="2">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+        <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
     </cellXfs>
     <dxfs count="0">
     </dxfs>
@@ -38477,7 +38495,7 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
     </cols>
     <sheetData>
         <row r="1">
-            <c r="A1" t="s">
+            <c r="A1" s="1" t="s">
                 <v>
                     0
                 </v>
@@ -38529,10 +38547,15 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
       "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
     <numFmts count="0">
     </numFmts>
-    <fonts count="1">
+    <fonts count="2">
         <font>
             <sz val="10"/>
             <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+        <font>
+            <sz val="10"/>
+            <color rgb="017E84"/>
             <name val="Arial"/>
         </font>
     </fonts>
@@ -38558,8 +38581,9 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="1">
+    <cellXfs count="2">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+        <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
     </cellXfs>
     <dxfs count="1">
         <dxf>
